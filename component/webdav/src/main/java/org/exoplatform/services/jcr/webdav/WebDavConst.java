@@ -249,6 +249,8 @@ public class WebDavConst {
      * Webdav "write" lock type.
      */
     public static final String TYPE_WRITE = "write";
+    
+    public static final String OPAQUE_LOCK_TOKEN = "opaquelocktoken";
   }
 
   /**
