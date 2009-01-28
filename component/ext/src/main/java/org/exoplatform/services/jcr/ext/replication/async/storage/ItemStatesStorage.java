@@ -39,7 +39,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements MemberChangesStorage<T> {
+public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
+    MemberChangesStorage<T> {
 
   protected static final Log        LOG     = ExoLogger.getLogger("jcr.ItemStatesStorage");
 
@@ -89,11 +90,14 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).toString(), e);
+        throw new ChangesLogReadException(e.getMessage() + " file: "
+            + storage.get(currentFileIndex).toString(), e);
       } catch (ClassNotFoundException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).toString(), e);
+        throw new ChangesLogReadException(e.getMessage() + " file: "
+            + storage.get(currentFileIndex).toString(), e);
       } catch (ClassCastException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).toString(), e);
+        throw new ChangesLogReadException(e.getMessage() + " file: "
+            + storage.get(currentFileIndex).toString(), e);
       }
       return retVal;
     }
@@ -592,4 +596,39 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     }
     return resultStates;
   }
+
+  public List<T> getTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                     ClassCastException,
+                                                                     ClassNotFoundException {
+    List<T> resultStates = new ArrayList<T>();
+
+    Iterator<T> itemStates = getChanges();
+    while (itemStates.hasNext()) {
+      T item = itemStates.next();
+
+      if (item.equals(firstState)) {
+        boolean checkStartState = false;
+
+        ItemState prevAddedState = null;
+        while (itemStates.hasNext()) {
+          T instate = checkStartState ? itemStates.next() : item;
+          checkStartState = true;
+
+          if (prevAddedState != null && prevAddedState.getState() == ItemState.DELETED
+              && instate.getState() == ItemState.RENAMED) { // TODO update?
+            resultStates.addAll(getTreeChanges(instate, instate.getData().getQPath()));
+          }
+
+          if (instate.getData().getQPath().isDescendantOf(rootPath)
+              || instate.getData().getQPath().equals(rootPath)) {
+            resultStates.add((T) instate);
+            prevAddedState = instate;
+          }
+        }
+      }
+    }
+
+    return resultStates;
+  }
+
 }

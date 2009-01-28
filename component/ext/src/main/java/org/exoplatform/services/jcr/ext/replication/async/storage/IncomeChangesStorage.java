@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -390,6 +391,12 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    */
   public String toString() {
     return storage.toString();
+  }
+
+  public List<T> getTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                     ClassCastException,
+                                                                     ClassNotFoundException {
+    return storage.getTreeChanges(firstState, rootPath);
   }
 
 }

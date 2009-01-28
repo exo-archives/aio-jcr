@@ -159,7 +159,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
           currentChangesLog = readNextIterator();
           return next();
         } catch (IOException e) {
-          throw new ChangesLogReadException(e.getMessage() ,e);
+          throw new ChangesLogReadException(e.getMessage(), e);
         } catch (ClassNotFoundException e) {
           throw new ChangesLogReadException(e.getMessage(), e);
         }
@@ -321,6 +321,9 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public T getNextItemStateByUUIDOnUpdate(ItemState fromState, String UUID) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
@@ -375,12 +378,57 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     return size;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
     while (it.hasNext()) {
       list.addAll((List<T>) getChangesFromLog(it.next(), firstState, rootPath));
+    }
+    return list;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                     ClassCastException,
+                                                                     ClassNotFoundException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    List<T> list = new ArrayList<T>();
+
+    while (it.hasNext()) {
+      TransactionChangesLog log = it.next();
+
+      Iterator<ItemState> itemStates = log.getAllStates().iterator();
+
+      while (itemStates.hasNext()) {
+        ItemState item = itemStates.next();
+
+        if (item.equals(firstState)) {
+          boolean checkStartState = false;
+
+          ItemState prevAddedState = null;
+          while (itemStates.hasNext()) {
+            ItemState instate = checkStartState ? itemStates.next() : item;
+            checkStartState = true;
+
+            if (prevAddedState != null && prevAddedState.getState() == ItemState.DELETED
+                && instate.getState() == ItemState.RENAMED) { // TODO update?
+              list.addAll(getTreeChanges(instate, instate.getData().getQPath()));
+            }
+
+            if (instate.getData().getQPath().isDescendantOf(rootPath)
+                || instate.getData().getQPath().equals(rootPath)) {
+              list.add((T) instate);
+              prevAddedState = instate;
+            }
+          }
+        }
+      }
     }
     return list;
   }

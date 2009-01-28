@@ -68,15 +68,15 @@ public class AddMerger extends AbstractMerger {
    * @throws ClassCastException
    */
   public EditableChangesStorage<ItemState> merge(ItemState itemChange,
-                                         ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local,
-                                         String mergeTempDir,
-                                         List<QPath> skippedList) throws RepositoryException,
-                                                                 RemoteExportException,
-                                                                 IOException,
-                                                                 ClassCastException,
-                                                                 ClassNotFoundException,
-                                                                 ChangesLogReadException {
+                                                 ChangesStorage<ItemState> income,
+                                                 ChangesStorage<ItemState> local,
+                                                 String mergeTempDir,
+                                                 List<QPath> skippedList) throws RepositoryException,
+                                                                         RemoteExportException,
+                                                                         IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException,
+                                                                         ChangesLogReadException {
 
     // TODO Invalid order number when added two not conflicted nodes
 

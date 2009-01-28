@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -25,6 +24,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -32,13 +32,12 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.log.ExoLogger;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SolidChangesLogStorage.java 111 2008-11-11 11:11:11Z serg $
  */
 public class SolidChangesLogStorage<T extends ItemState> extends AbstractChangesStorage<T> {
@@ -53,9 +52,7 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
   /**
    * Storage owner member info.
    */
- // protected final Member            member;
-
- 
+  // protected final Member member;
   /**
    * Iterator that goes throw ChangesFiles and return ItemStates.
    * 
@@ -64,13 +61,13 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
    */
   class ItemStatesIterator<C extends ItemState> implements Iterator<C> {
 
-   // private final List<ChangesFile> store;
+    // private final List<ChangesFile> store;
 
     private SolidChangesLogsIterator<TransactionChangesLog> logIterator;
-    
-    private Iterator<C>             currentChangesLog;
 
-        public ItemStatesIterator(List<ChangesFile> store) throws IOException,
+    private Iterator<C>                                     currentChangesLog;
+
+    public ItemStatesIterator(List<ChangesFile> store) throws IOException,
         ClassCastException,
         ClassNotFoundException {
       logIterator = new SolidChangesLogsIterator<TransactionChangesLog>(store);
@@ -132,7 +129,7 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
                                             ClassNotFoundException,
                                             ClassCastException {
       // fetch next
-      if(logIterator.hasNext() == false){
+      if (logIterator.hasNext() == false) {
         return null;
       } else {
         TransactionChangesLog curLog = logIterator.next();
@@ -191,10 +188,12 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
-   * @throws IOException 
+   * 
+   * @throws ClassNotFoundException
+   * @throws IOException
    */
-  public boolean hasState(String identifier, QPath path, int state) throws IOException, ClassNotFoundException {
+  public boolean hasState(String identifier, QPath path, int state) throws IOException,
+                                                                   ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
       if (hasStateFromLog(it.next(), identifier, path, state)) {
@@ -222,9 +221,11 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
+   * 
+   * @throws ClassNotFoundException
    */
-  public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException, ClassNotFoundException {
+  public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
+                                                                                            ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
@@ -236,14 +237,58 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
+   * 
+   * @throws ClassNotFoundException
    */
-  public List<T> getChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException, ClassNotFoundException {
+  public List<T> getChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
+                                                                                 ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
     while (it.hasNext()) {
       list.addAll(getChangesFromLog(it.next(), firstState, rootPath, unique));
+    }
+    return list;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                     ClassCastException,
+                                                                     ClassNotFoundException {
+    SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
+    List<T> list = new ArrayList<T>();
+
+    while (it.hasNext()) {
+      TransactionChangesLog log = it.next();
+
+      Iterator<ItemState> itemStates = log.getAllStates().iterator();
+
+      while (itemStates.hasNext()) {
+        ItemState item = itemStates.next();
+
+        if (item.equals(firstState)) {
+          boolean checkStartState = false;
+
+          ItemState prevAddedState = null;
+          while (itemStates.hasNext()) {
+            ItemState instate = checkStartState ? itemStates.next() : item;
+            checkStartState = true;
+
+            if (prevAddedState != null && prevAddedState.getState() == ItemState.DELETED
+                && instate.getState() == ItemState.RENAMED) { // TODO update?
+              list.addAll(getTreeChanges(instate, instate.getData().getQPath()));
+            }
+
+            if (instate.getData().getQPath().isDescendantOf(rootPath)
+                || instate.getData().getQPath().equals(rootPath)) {
+              list.add((T) instate);
+              prevAddedState = instate;
+            }
+          }
+        }
+      }
     }
     return list;
   }
@@ -256,11 +301,12 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
     throw new RuntimeException("Not implemented");
   }
 
-  //public Member getMember() {
-  //  return member;
- // }
+  // public Member getMember() {
+  // return member;
+  // }
 
-  public T findNextState(ItemState fromState, String identifier) throws IOException, ClassNotFoundException {
+  public T findNextState(ItemState fromState, String identifier) throws IOException,
+                                                                ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
     while (result == null && it.hasNext()) {
@@ -269,7 +315,8 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
     return result;
   }
 
-  public T getNextItemStateByIndexOnUpdate(ItemState fromState, int prevIndex) throws IOException, ClassNotFoundException {
+  public T getNextItemStateByIndexOnUpdate(ItemState fromState, int prevIndex) throws IOException,
+                                                                              ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
     while (it.hasNext()) {
@@ -280,7 +327,8 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
     return null;
   }
 
-  public T getNextItemStateByUUIDOnUpdate(ItemState fromState, String UUID) throws IOException, ClassNotFoundException {
+  public T getNextItemStateByUUIDOnUpdate(ItemState fromState, String UUID) throws IOException,
+                                                                           ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
     while (it.hasNext()) {
@@ -334,7 +382,8 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
     return size;
   }
 
-  public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException, ClassNotFoundException {
+  public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                 ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
@@ -346,9 +395,11 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
+   * 
+   * @throws ClassNotFoundException
    */
-  public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException, ClassNotFoundException {
+  public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException,
+                                                                                       ClassNotFoundException {
     T result = null;
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
@@ -363,9 +414,11 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
+   * 
+   * @throws ClassNotFoundException
    */
-  public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException, ClassNotFoundException {
+  public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException,
+                                                                            ClassNotFoundException {
     T result = null;
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
@@ -380,9 +433,11 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
+   * 
+   * @throws ClassNotFoundException
    */
-  public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException, ClassNotFoundException {
+  public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
+                                                                                     ClassNotFoundException {
     T result = null;
 
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
@@ -404,9 +459,11 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
+   * 
+   * @throws ClassNotFoundException
    */
-  public T findPrevState(ItemState toState, QPath path, int state) throws IOException, ClassNotFoundException {
+  public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
+                                                                  ClassNotFoundException {
     T result = null;
 
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);

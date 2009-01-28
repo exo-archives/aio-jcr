@@ -1018,12 +1018,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   public void _testAdd3_2() throws Exception {
     // low priority changes: add and delete node
     Node node = root3.addNode("item1");
-    node.addMixin("mix:referenceable");
     node.remove();
 
     // high priority changes: add
     node = root4.addNode("item1");
-    node.addMixin("mix:referenceable");
 
     session3.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);

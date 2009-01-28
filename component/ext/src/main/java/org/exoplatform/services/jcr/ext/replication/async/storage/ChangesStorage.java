@@ -249,6 +249,19 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @return Collection of ItemState
    */
+  List<T> getTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                              ClassCastException,
+                                                              ClassNotFoundException;
+
+  /**
+   * TODO
+   * 
+   * Return changes for a given path
+   * 
+   * @param rootPath
+   * 
+   * @return Collection of ItemState
+   */
   List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
                                                           ClassCastException,
                                                           ClassNotFoundException;
