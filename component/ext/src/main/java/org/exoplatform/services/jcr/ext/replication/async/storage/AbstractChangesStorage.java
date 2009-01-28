@@ -23,7 +23,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SAS.
@@ -59,6 +61,20 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     }
 
     return str.toString();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public T getItemState(NodeData parentData, QPathEntry name) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public T getItemState(String itemIdentifier) {
+    throw new RuntimeException("Not implemented");
   }
 
   /**

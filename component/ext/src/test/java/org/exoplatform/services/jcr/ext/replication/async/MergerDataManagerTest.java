@@ -111,7 +111,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   /**
    * Add tree of nodes item on low priority, already added on high priority.
    */
-  public void testMerger5Nodes() throws Exception {
+  public void _testMerger5Nodes() throws Exception {
     Node node = root3.addNode("item1");
     session3.save();
     addChangesToChangesStorage(cLog, 20);
