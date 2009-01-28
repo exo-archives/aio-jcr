@@ -50,7 +50,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  * @version $Id: AsyncReplicationExecutorService.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
-@Path("/rest/async-replication-executor/")
+@Path("/async-replication-executor/")
 @Produces("text/plain")
 public class AsyncReplicationExecutorService implements ResourceContainer {
 
