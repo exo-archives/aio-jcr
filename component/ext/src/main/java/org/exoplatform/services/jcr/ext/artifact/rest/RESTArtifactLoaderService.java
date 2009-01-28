@@ -317,7 +317,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             xsw.writeAttribute("type", "text/css");
             xsw.writeCharacters("a {text-decoration: none; color: #10409C; }"
                 + "a:hover {text-decoration: underline;}" + ".centered { text-align: center; }"
-                + ".underlined { border-bottom : 1px solid #cccccc; }\n");
+                + ".underlined { border-bottom : 1px solid #cccccc;  font-weight: bold;  text-align: center; }\n");
             xsw.writeEndElement(); // style
             xsw.writeStartElement("title");
             xsw.writeCharacters("Maven2 Repository Browser");
@@ -332,23 +332,31 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           xsw.writeEndElement();
           //
           xsw.writeStartElement("table");
-          xsw.writeAttribute("width", "80%");
+          xsw.writeAttribute("width", "90%");
+          xsw.writeAttribute("style", "table-layout:fixed;");
           // table header
           xsw.writeStartElement("tr");
-          xsw.writeStartElement("th");
+          xsw.writeStartElement("td");
+          xsw.writeAttribute("class", "underlined");
+          xsw.writeAttribute("width", "7%");
+          xsw.writeEndElement(); // th
+          xsw.writeStartElement("td");
           xsw.writeAttribute("class", "underlined");
           xsw.writeCharacters("name");
           xsw.writeEndElement(); // th
-          xsw.writeStartElement("th");
+          xsw.writeStartElement("td");
           xsw.writeAttribute("class", "underlined");
+          xsw.writeAttribute("width", "18%");
           xsw.writeCharacters("media-type");
           xsw.writeEndElement(); // th
-          xsw.writeStartElement("th");
+          xsw.writeStartElement("td");
           xsw.writeAttribute("class", "underlined");
+          xsw.writeAttribute("width", "15%");
           xsw.writeCharacters("size");
           xsw.writeEndElement(); // th
-          xsw.writeStartElement("th");
+          xsw.writeStartElement("td");
           xsw.writeAttribute("class", "underlined");
+          xsw.writeAttribute("width", "18%");
           xsw.writeCharacters("last modified");
           xsw.writeEndElement(); // th
           xsw.writeEndElement(); // tr
@@ -356,6 +364,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
           // parent href
           String parent = mavenPath.substring(0, mavenPath.lastIndexOf('/'));
+          xsw.writeStartElement("td");
+          xsw.writeAttribute("class", "parenticon");
+          xsw.writeEndElement();//td
+
           xsw.writeStartElement("td");
           xsw.writeStartElement("a");
           xsw.writeAttribute("href", parent + "?view=true&gadget=" + gadget);
@@ -370,9 +382,14 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           while (iterator.hasNext()) {
             Node node = iterator.nextNode();
             xsw.writeStartElement("tr");
-            if (RESTArtifactLoaderService.isFile(node)) {
-              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
-                                                                                                      null);
+            if (RESTArtifactLoaderService.isFile(node) ) {
+              if (node.getName().endsWith("sha1"))
+                 continue;
+              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node, null);
+              xsw.writeStartElement("td");
+              xsw.writeAttribute("class", "fileicon");
+              xsw.writeEndElement();//td
+
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
               xsw.writeAttribute("href",
@@ -395,6 +412,9 @@ public class RESTArtifactLoaderService implements ResourceContainer {
               xsw.writeCharacters(new Date(nodeRepresentation.getLastModified()).toString());
               xsw.writeEndElement(); // td
             } else {
+              xsw.writeStartElement("td");
+              xsw.writeAttribute("class", "foldericon");
+              xsw.writeEndElement();//td
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
               xsw.writeAttribute("href",
