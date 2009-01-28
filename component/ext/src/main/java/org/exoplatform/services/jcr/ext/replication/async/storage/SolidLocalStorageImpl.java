@@ -79,7 +79,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long     MAX_FILE_SIZE           = 32 * 1024 * 1024;
+  private static final long     MAX_FILE_SIZE              = 32 * 1024 * 1024;
 
   protected final String        storagePath;
 
@@ -87,7 +87,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   private File                  previousDir                = null;
 
-  private RandomChangesFile           currentFile                = null;
+  private RandomChangesFile     currentFile                = null;
 
   // private ObjectOutputStream currentOut = null; // TODO
 
@@ -139,6 +139,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   public ChangesStorage<ItemState> getLocalChanges() throws IOException {
 
+    if (isStopped())
+      throw new IOException("Local storage already stopped.");
+
     if (previousDir != null) {
       List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
@@ -148,7 +151,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
       for (int j = 0; j < fileNames.length; j++) {
         try {
-          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]),previousDir));
+          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), previousDir));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -184,7 +187,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   }
 
   synchronized protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
- 
+
     // Create file if not exist or file length more than acceptable
     if (currentFile == null || (currentFile.getLength() > MAX_FILE_SIZE)) {
       closeCurrentFile();
@@ -207,7 +210,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * @throws IOException
    */
   synchronized private void closeCurrentFile() throws IOException {
-    
+
     if (currentFile != null) {
       // currentFile.finishWrite();
       currentFile = null;
@@ -217,8 +220,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath
-   *          Path of root directory
+   * @param rootPath Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -258,11 +260,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log
-   *          local TransactionChangesLog
+   * @param log local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException
-   *           if error occurs
+   * @throws IOException if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -329,9 +329,10 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-          ? EXTERNALIZATION_SESSION_ID
-          : plog.getSessionId(), plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist,
+                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                       : plog.getSessionId(),
+                                            plog.getEventType()));
     }
     return result;
   }
@@ -339,8 +340,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -392,6 +392,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       deleteDir(previousDir);
     else
       LOG.warn("Not started or already stopped");
+
+    doStop();
   }
 
   /**
@@ -404,6 +406,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       deleteDir(lastDir);
     else
       LOG.warn("Not started or already stopped");
+
+    doStop();
   }
 
   /**
@@ -434,6 +438,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     lastDir = subdir;
 
     LOG.info("LocalStorageImpl:onStart()");
+    doStart();
   }
 
   /**
