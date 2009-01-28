@@ -43,6 +43,9 @@ public interface ChangesStorage<T extends ItemState> {
   /**
    * Return this storage backed ChangesFile(s).
    * 
+   * <br/>WARN! Be careful using this method. Each ChangesStorage impl uses different formats of
+   * content stored in ChangesFile.
+   * 
    * @return array of ChangesFile
    */
   ChangesFile[] getChangesFile();

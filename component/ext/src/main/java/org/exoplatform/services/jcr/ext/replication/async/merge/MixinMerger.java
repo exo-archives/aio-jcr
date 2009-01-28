@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogRead
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorageOld;
-import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
@@ -78,7 +78,7 @@ public class MixinMerger extends AbstractMerger {
     boolean itemChangeProcessed = false; // TODO really need?
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+    EditableChangesStorage<ItemState> resultState = new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              null);
 
     ItemState parentNodeState;
@@ -115,7 +115,7 @@ public class MixinMerger extends AbstractMerger {
             if (localData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
             break;
@@ -125,7 +125,7 @@ public class MixinMerger extends AbstractMerger {
           if (localData.isNode()) {
             if (incomeData.getQPath().equals(localData.getQPath())) {
               skippedList.add(incomeData.getQPath());
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           }
           break;
@@ -142,7 +142,7 @@ public class MixinMerger extends AbstractMerger {
             for (int i = 1; i < mixinSequence.size(); i++) { // first state is MIXIN_CHANGED
               skippedList.add(mixinSequence.get(i).getData().getQPath());
             }
-            return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+            return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
           }
           break;
         }

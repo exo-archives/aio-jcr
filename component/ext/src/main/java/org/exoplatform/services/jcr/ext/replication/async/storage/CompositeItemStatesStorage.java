@@ -41,7 +41,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   protected final List<ChangesStorage<T>> storages = new ArrayList<ChangesStorage<T>>();
 
   protected EditableChangesStorage<T>     current;
-
+  
   public CompositeItemStatesStorage(Member member) {
     this.member = member;
   }
@@ -55,7 +55,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   private EditableChangesStorage<T> current() {
     if (current == null) {
-      current = new EditableItemStatesStorage<T>(null, member); // TODO path null
+      current = new BufferedItemStatesStorage<T>(null, member); // TODO path null
       storages.add(current);
     }
 
@@ -73,19 +73,25 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
    * {@inheritDoc}
    */
   public void addAll(ChangesStorage<T> changes) throws IOException {
-    // close current, don't use it anymore
-    current = null;
+    if (changes instanceof BufferedItemStatesStorage) {
+      // special kind of storage, may be buffered itself
+      // we have to be copy changes to a current
+      
+      try {
+        for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
+          add(chi.next());
+      } catch (ClassCastException e) {
+        throw new StorageIOException(e.getMessage(), e);
+      } catch (ClassNotFoundException e) {
+        throw new StorageIOException(e.getMessage(), e);
+      }
+    } else {
+      // close current, don't use it anymore
+      current = null;
 
-    // add storage to the list
-    storages.add(changes);
-
-    // if (changes instanceof CompositeItemStatesStorage) {
-    // // copy changes
-    // } else if (changes instanceof EditableItemStatesStorage) {
-    //      
-    // } else {
-    //      
-    // }
+      // seems it's ChnagesLog storage, add storage to the list
+      storages.add(changes);
+    }
   }
 
   // =========== ChangesStorage impl

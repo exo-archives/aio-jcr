@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -87,7 +87,7 @@ public class DeleteMerger extends AbstractMerger {
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+    EditableChangesStorage<ItemState> resultState = new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              null);
 
     ItemState parentNodeState;
@@ -121,13 +121,13 @@ public class DeleteMerger extends AbstractMerger {
 
             if (localData.getQPath().isDescendantOf(incNodePath)) {
               skippedList.add(incNodePath);
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (!localData.isNode()) {
               if (localData.getQPath().equals(incomeData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
@@ -244,12 +244,12 @@ public class DeleteMerger extends AbstractMerger {
               if (incNodePath.isDescendantOf(locNodePath) || incNodePath.equals(locNodePath)
                   || nextLocNodePath.isDescendantOf(incNodePath)) {
                 skippedList.add(incNodePath);
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
             break;
@@ -269,19 +269,19 @@ public class DeleteMerger extends AbstractMerger {
             if (incNodePath.isDescendantOf(localData.getQPath())
                 || incNodePath.equals(localData.getQPath())) {
               skippedList.add(incNodePath);
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
@@ -303,12 +303,12 @@ public class DeleteMerger extends AbstractMerger {
 
               if (localData.getQPath().isDescendantOf(incNodePath)) {
                 skippedList.add(incNodePath);
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (localData.getQPath().equals(incomeData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
@@ -332,7 +332,7 @@ public class DeleteMerger extends AbstractMerger {
             if (localData.getQPath().equals(incNodePath)
                 || localData.getQPath().isDescendantOf(incNodePath)) {
               skippedList.add(incNodePath);
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             List<ItemState> mixinSeq = local.getMixinSequence(localState);
@@ -342,7 +342,7 @@ public class DeleteMerger extends AbstractMerger {
               if (!item.getData().isNode()) {
                 if (item.getData().getQPath().equals(incomeData.getQPath())) {
                   skippedList.add(incomeData.getQPath());
-                  return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
             }

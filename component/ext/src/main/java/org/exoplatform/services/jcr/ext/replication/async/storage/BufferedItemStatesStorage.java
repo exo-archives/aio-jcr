@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStor
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $
  */
-public class EditableItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
+public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
     EditableChangesStorage<T> {
 
   /**
@@ -156,7 +156,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends AbstractChan
    * 
    * @param storagePath storage Path
    */
-  public EditableItemStatesStorage(File storagePath, Member member) {
+  public BufferedItemStatesStorage(File storagePath, Member member) {
     this.member = member;
     this.storagePath = storagePath;
   }
