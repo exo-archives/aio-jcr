@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.SolidEditableItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -134,9 +134,9 @@ public class MergeDataManager {
 
       // TODO init
       EditableChangesStorage<ItemState> interChanges = null;
-      EditableChangesStorage<ItemState> iteratorChanges = new SolidEditableItemStatesStorage<ItemState>(makePath("iterator"),
+      EditableChangesStorage<ItemState> iteratorChanges = new EditableItemStatesStorage<ItemState>(makePath("iterator"),
                                                                                                         null);
-      EditableChangesStorage<ItemState> resultChanges = new SolidEditableItemStatesStorage<ItemState>(makePath("result"),
+      EditableChangesStorage<ItemState> resultChanges = new EditableItemStatesStorage<ItemState>(makePath("result"),
                                                                                                       localMember);
 
       MemberChangesStorage<ItemState> local;
@@ -173,7 +173,7 @@ public class MergeDataManager {
             + ") members");
 
         // synchronizedChanges always with higher priority (income)
-        interChanges = new SolidEditableItemStatesStorage<ItemState>(makePath(first.getMember(),
+        interChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                               second.getMember()),
                                                                      second.getMember());
 

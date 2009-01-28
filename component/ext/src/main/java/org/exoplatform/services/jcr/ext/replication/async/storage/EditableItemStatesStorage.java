@@ -27,10 +27,15 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * Created by The eXo Platform SAS. <br/>Date: 30.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $
  */
-public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
-    EditableChangesStorage<T> {
+public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T>
+    implements EditableChangesStorage<T> {
+
+  /**
+   * Max ChangesLog file size in Kb.
+   */
+  private static final long    MAX_FILE_SIZE = 32 * 1024 * 1024;
 
   /**
    * ItemStates storage direcory.
@@ -45,12 +50,12 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   /**
    * Current ChangesFile to store changes.
    */
-  protected SimpleChangesFile        currentFile;
+  protected SimpleChangesFile  currentFile;
 
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
    */
-  private static Long          index = new Long(0);
+  private static Long          index         = new Long(0);
 
   /**
    * Class constructor.
@@ -69,12 +74,12 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   @Override
   public ChangesFile[] getChangesFile() {
     try {
-      flushFile();
+      closeFile();
     } catch (IOException e) {
       // TODO
       e.printStackTrace();
     }
-    
+
     return super.getChangesFile();
   }
 
@@ -86,51 +91,45 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
     stream.writeObject(change);
 
     stream.flush();
+    checkFileSize();
   }
 
   /**
    * {@inheritDoc}
    */
   public void addAll(ChangesStorage<T> changes) throws IOException {
-    if (changes instanceof ItemStatesStorage) {
-      
-      flushFile();
-      
-      for (ChangesFile cf : changes.getChangesFile())
-        storage.add(cf);
-    } else {
-      initFile();
-      try {
-        for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
-          stream.writeObject(chi.next());
-        
+    initFile();
+    try {
+      for (Iterator<T> chi = changes.getChanges(); chi.hasNext();) {
+        stream.writeObject(chi.next());
         stream.flush();
-        
-        flushFile();
-      } catch (final ClassCastException e) {
-        throw new IOException(e.getMessage()) {
+        checkFileSize();
+      }
 
-          /**
-           * {@inheritDoc}
-           */
-          @Override
-          public Throwable getCause() {
-            return e;
-          }
-        };
-        
-      } catch (final ClassNotFoundException e) {
-        throw new IOException(e.getMessage()) {
-          /**
-           * {@inheritDoc}
-           */
-          @Override
-          public Throwable getCause() {
-            return e;
-          }
-        };
-      }  
+    } catch (final ClassCastException e) {
+      throw new IOException(e.getMessage()) {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Throwable getCause() {
+          return e;
+        }
+      };
+
+    } catch (final ClassNotFoundException e) {
+      throw new IOException(e.getMessage()) {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Throwable getCause() {
+          return e;
+        }
+      };
     }
+
   }
 
   private void initFile() throws IOException {
@@ -143,12 +142,13 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
     }
   }
 
-  private void flushFile() throws IOException {
+  private void closeFile() throws IOException {
     if (stream != null) {
       stream.close();
       stream = null;
     }
     currentFile = null;
+
   }
 
   /**
@@ -158,17 +158,25 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * @throws IOException
    */
   private SimpleChangesFile createChangesFile() throws IOException {
-    long timestamp;
+    long id;
     synchronized (index) {
-      timestamp = index++;
+      id = index++;
     }
-    File file = new File(storagePath, Long.toString(timestamp));
+    File file = new File(storagePath, Long.toString(id));
 
     if (file.exists()) {
       throw new IOException("File already exists " + file.getAbsolutePath());
     }
 
     String crc = ""; // crc is ignored
-    return new SimpleChangesFile(file, crc, timestamp);
+    return new SimpleChangesFile(file, crc, id);
   }
+
+  private void checkFileSize() throws IOException {
+    if (currentFile.getLength() > MAX_FILE_SIZE) {
+      // open new file
+      closeFile();
+    }
+  }
+
 }

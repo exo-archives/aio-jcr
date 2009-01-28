@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.SolidEditableItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -85,7 +85,7 @@ public class AddMerger extends AbstractMerger {
     ItemState incomeState = itemChange;
     ItemState parentNodeState;
 
-    EditableChangesStorage<ItemState> resultState = new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              null);
 
     List<QPath> locSkippedList = new ArrayList<QPath>();
@@ -117,7 +117,7 @@ public class AddMerger extends AbstractMerger {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
 
@@ -133,7 +133,7 @@ public class AddMerger extends AbstractMerger {
                 if (!isPropertyAllowed(propertyName,
                                        (NodeData) dataManager.getItemData(parentIdentifier))) {
                   skippedList.add(incomeData.getQPath());
-                  return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
             }
@@ -152,14 +152,14 @@ public class AddMerger extends AbstractMerger {
                 if (!isPropertyAllowed(propertyName,
                                        (NodeData) dataManager.getItemData(parentIdentifier))) {
                   skippedList.add(incomeData.getQPath());
-                  return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
 
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
@@ -250,12 +250,12 @@ public class AddMerger extends AbstractMerger {
                 if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                     || incomeData.getQPath().equals(nextLocalState.getData().getQPath())) {
                   skippedList.add(incomeData.getQPath());
-                  return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               } else {
                 if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                   skippedList.add(incomeData.getQPath());
-                  return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
             }
@@ -268,12 +268,12 @@ public class AddMerger extends AbstractMerger {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
