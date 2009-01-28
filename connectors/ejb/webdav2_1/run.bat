@@ -6,8 +6,8 @@
 @goto end
 
 :ok
-set CLASSPATH=%JONAS_ROOT%\lib\apps\exo.core.component.security.core-trunk.jar
-set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.commons-trunk.jar
+set CLASSPATH=%JONAS_ROOT%\lib\apps\exo.core.component.security.core-2.1.3.jar
+set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.commons-1.3.2.jar
 set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\client.jar
 
 java -Djava.security.manager=default -Djava.security.policy=%JONAS_ROOT%\conf\java.policy org.objectweb.jonas.client.ClientContainer webdav-ejb-connector-2_1.ear
