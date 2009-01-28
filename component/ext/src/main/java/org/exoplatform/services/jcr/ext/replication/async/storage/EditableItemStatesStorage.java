@@ -92,13 +92,14 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * {@inheritDoc}
    */
   public void addAll(ChangesStorage<T> changes) throws IOException {
-    
     if (changes instanceof ItemStatesStorage) {
+      
       flushFile();
       
       for (ChangesFile cf : changes.getChangesFile())
         storage.add(cf);
     } else {
+      initFile();
       try {
         for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
           stream.writeObject(chi.next());
