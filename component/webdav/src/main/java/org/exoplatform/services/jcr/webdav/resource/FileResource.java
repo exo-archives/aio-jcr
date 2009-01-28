@@ -38,9 +38,9 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/> Resource containing JCR's
- * nt:file/jcr:content underneath. Identified by nt:file's URI jcr:content's
- * jcr:data property contains file's payload
+ * Created by The eXo Platform SARL .<br/>
+ * Resource containing JCR's nt:file/jcr:content underneath. Identified by
+ * nt:file's URI jcr:content's jcr:data property contains file's payload
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -109,6 +109,11 @@ public class FileResource extends GenericResource {
         QName name = namespaceContext.createQName(property.getName());
         presents.add(name);
         props.add((namesOnly) ? new HierarchicalProperty(name) : getProperty(name));
+        if (name.getLocalPart().equals("isCheckedOut")) {
+          QName qname = namespaceContext.createQName("D:checked-in");
+          presents.add(qname);
+          props.add(new HierarchicalProperty(qname));
+        }
       }
     }
 
