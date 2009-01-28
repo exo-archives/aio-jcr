@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.connectors.localadapter</artifactId>
   <packaging>rar</packaging>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.10.2-SNAPSHOT</version>
   <name>eXo JCR resource local adapter</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR resource local adapter</description>
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <exclusions>
 	              <exclusion>
 	                  <groupId>com.sun.xml.parsers</groupId>
@@ -37,56 +37,56 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.rmi</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.webdav</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ftp</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
 		      <groupId>org.exoplatform.jcr</groupId>
 		      <artifactId>exo.jcr.component.cifs</artifactId>
-		      <version>${org.exoplatform.jcr.version}</version>
+		      <version>1.10.2-SNAPSHOT</version>
 		      <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.command</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.ftpclient</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.web</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
 

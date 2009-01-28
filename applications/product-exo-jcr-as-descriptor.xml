@@ -1,5 +1,5 @@
 <assembly>
-	<id>${org.exoplatform.jcr.version}</id>
+	<id>1.10.2-SNAPSHOT</id>
 	<formats>
 		<format>dir</format>
 		<!--<format>jar</format>-->

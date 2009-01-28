@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=trunk
+VERSION=1.10.2-SNAPSHOT
 
 if ( test -z "$JONAS_ROOT" ); then
   echo "ERROR: set \$JONAS_ROOT first"

@@ -7,7 +7,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.browser</artifactId>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.10.2-SNAPSHOT</version>
   <packaging>war</packaging>
   <url>http://www.exoplatform.org</url>
   <name>eXo JCR Browser (JNDI/RMI) demo</name>
@@ -17,28 +17,28 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.web</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.rmi</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 

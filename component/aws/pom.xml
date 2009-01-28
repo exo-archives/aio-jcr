@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.component.aws</artifactId>
   <packaging>jar</packaging>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.10.2-SNAPSHOT</version>
   <name>eXo JCR Amazon WS support</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Amazon WS support (SimpleDB, S3)</description>
@@ -16,7 +16,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

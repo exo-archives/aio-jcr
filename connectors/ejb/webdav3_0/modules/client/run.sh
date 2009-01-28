@@ -24,7 +24,7 @@ target/rar/util-log-1.0.6.jar:\
 target/rar/util-i18n-1.0.6.jar:\
 target/rar/easybeans-asm-3.0.jar:\
 target/rar/easybeans-util-1.0.1.jar \
-org.objectweb.jonas.client.ClientContainer target/exo.jcr.webdav.ejbconnector3_0.client-trunk.jar
+org.objectweb.jonas.client.ClientContainer target/exo.jcr.webdav.ejbconnector3_0.client-1.10.2-SNAPSHOT.jar
 
 
 

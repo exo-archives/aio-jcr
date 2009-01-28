@@ -8,7 +8,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>exo.jcr.webdav.ejbconnector2_1</artifactId>
   <name>EAR ejb to webdav connector ejb2.1</name>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.10.2-SNAPSHOT</version>
   <packaging>ear</packaging>
   <dependencies>
     <dependency>
@@ -21,14 +21,14 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.webdav.ejbconnector2_1.bean</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <type>ejb</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.webdav.ejbconnector2_1.client</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
       <type>jar</type>
       <scope>runtime</scope>
     </dependency>

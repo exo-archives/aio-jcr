@@ -1,7 +1,7 @@
 #!/bin/sh
 
 java -Duser.language=en -Duser.region=us \
-    -jar exo.jcr.applications.repoload-1.7.jar \
+    -jar exo.jcr.applications.repoload-1.10.2-SNAPSHOT.jar \
     -conf="./bin/config/configuration-thin.xml" \
     -root="/testStorage/root1" \
     -tree="10-100-100-100" \

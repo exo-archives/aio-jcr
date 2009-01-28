@@ -6,14 +6,14 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.webdav.ejbconnector2_1.client</artifactId>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.10.2-SNAPSHOT</version>
   <name>Client ejb to webdav connector ejb2.1</name>
   
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.webdav.ejbconnector2_1.bean</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.10.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.ws</groupId>
