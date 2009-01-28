@@ -16,14 +16,18 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage.FileIterator;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 30.12.2008
@@ -31,41 +35,125 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $
  */
-public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T>
-    implements EditableChangesStorage<T> {
+public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
+    EditableChangesStorage<T> {
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long    MAX_FILE_SIZE = 32 * 1024 * 1024;
+  private static final long         MAX_FILE_SIZE = 32 * 1024 * 1024;
 
   /**
    * ItemStates storage direcory.
    */
-  protected final File         storagePath;
-  
-  protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
+  protected final File              storagePath;
+
+  protected final List<ChangesFile> storage       = new ArrayList<ChangesFile>();
 
   /**
    * Output Stream opened on current ChangesFile.
    */
-  protected ObjectOutputStream stream;
+  protected ObjectOutputStream      stream;
 
   /**
    * Current ChangesFile to store changes.
    */
-  protected SimpleChangesFile  currentFile;
+  protected SimpleChangesFile       currentFile;
 
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
    */
-  private static Long          index         = new Long(0);
+  private static Long               index         = new Long(0);
+
+  class MultiFileIterator<S extends ItemState> implements Iterator<S> {
+
+    private final List<ChangesFile> store;
+
+    private ObjectInputStream       in;
+
+    private S                       nextItem;
+
+    private int                     currentFileIndex;
+
+    public MultiFileIterator(List<ChangesFile> store) throws IOException,
+        ClassCastException,
+        ClassNotFoundException {
+      this.store = store;
+      if (this.store.size() > 0) {
+        currentFileIndex = 0;
+        this.in = new ObjectInputStream(this.store.get(currentFileIndex).getInputStream());
+        this.nextItem = readNext();
+      } else {
+        this.in = null;
+        this.nextItem = null;
+      }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasNext() {
+      return nextItem != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public S next() throws NoSuchElementException {
+      if (nextItem == null)
+        throw new NoSuchElementException();
+
+      S retVal = nextItem;
+      try {
+        nextItem = readNext();
+      } catch (IOException e) {
+        throw new ChangesLogReadException(e.getMessage() + " file: "
+            + store.get(currentFileIndex).toString(), e);
+      } catch (ClassNotFoundException e) {
+        throw new ChangesLogReadException(e.getMessage() + " file: "
+            + store.get(currentFileIndex).toString(), e);
+      } catch (ClassCastException e) {
+        throw new ChangesLogReadException(e.getMessage() + " file: "
+            + store.get(currentFileIndex).toString(), e);
+      }
+      return retVal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void remove() {
+      throw new RuntimeException("Remove not allowed!");
+    }
+
+    @SuppressWarnings("unchecked")
+    protected S readNext() throws IOException, ClassNotFoundException, ClassCastException {
+      if (in != null) {
+        try {
+          return (S) in.readObject();
+        } catch (EOFException e) {
+          // End of list
+          in.close();
+          in = null;
+
+          // fetch next
+          currentFileIndex++;
+          if (currentFileIndex >= store.size()) {
+            return null;
+          } else {
+            in = new ObjectInputStream(store.get(currentFileIndex).getInputStream());
+            return readNext();
+          }
+        }
+      } else
+        return null;
+    }
+  }
 
   /**
    * Class constructor.
    * 
-   * @param storagePath
-   *          storage Path
+   * @param storagePath storage Path
    */
   public EditableItemStatesStorage(File storagePath, Member member) {
     super(member);
@@ -84,7 +172,9 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
       e.printStackTrace();
     }
 
-    return super.getChangesFile();
+    ChangesFile[] files = new ChangesFile[storage.size()];
+    storage.toArray(files);
+    return files;
   }
 
   /**
@@ -181,6 +271,13 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
       // open new file
       closeFile();
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
+    return new MultiFileIterator<T>(storage);
   }
 
 }
