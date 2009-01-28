@@ -79,7 +79,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long     MAX_FILE_SIZE_KB           = 32 * 1024;
+  private static final long     MAX_FILE_SIZE           = 32 * 1024 * 1024;
 
   protected final String        storagePath;
 
@@ -186,7 +186,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   synchronized protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
  
     // Create file if not exist or file length more than acceptable
-    if (currentFile == null || (currentFile.getLength() > MAX_FILE_SIZE_KB * 1024)) {
+    if (currentFile == null || (currentFile.getLength() > MAX_FILE_SIZE)) {
       closeCurrentFile();
       currentFile = new RandomChangesFile("", getNextFileId(), lastDir);
     }

@@ -76,4 +76,8 @@ public class SimpleChangesFile implements ChangesFile{
     return file.getAbsolutePath();
   }
 
+  public long getLength() {
+    return file.length();
+  }
+
 }

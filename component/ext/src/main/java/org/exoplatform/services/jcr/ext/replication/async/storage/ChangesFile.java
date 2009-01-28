@@ -61,4 +61,5 @@ public interface ChangesFile {
   public boolean delete() throws IOException ;
 
 
+  public long getLength();
 }
