@@ -29,10 +29,7 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
@@ -46,9 +43,11 @@ import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SolidLocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -69,7 +68,7 @@ public class AsyncReplication implements Startable {
 
   protected final LinkedHashMap<StorageKey, String>           incomeStoragePaths;
 
-  protected final LinkedHashMap<StorageKey, LocalStorageImpl> localStorages;
+  protected final LinkedHashMap<StorageKey, SolidLocalStorageImpl> localStorages;
 
   protected final int                                         priority;
 
@@ -125,14 +124,14 @@ public class AsyncReplication implements Startable {
 
     protected final NodeTypeDataManager       ntManager;
 
-    protected final LocalStorageImpl          localStorage;
+    protected final SolidLocalStorageImpl          localStorage;
 
     protected final IncomeStorageImpl         incomeStorage;
 
     AsyncWorker(PersistentDataManager dataManager,
                 NodeTypeDataManager ntManager,
                 WorkspaceDataContainer dataContainer,
-                LocalStorageImpl localStorage,
+                SolidLocalStorageImpl localStorage,
                 IncomeStorageImpl incomeStorage,
                 String repoName,
                 String wsName,
@@ -347,7 +346,7 @@ public class AsyncReplication implements Startable {
 
     this.incomeStoragePaths = new LinkedHashMap<StorageKey, String>();
 
-    this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
+    this.localStorages = new LinkedHashMap<StorageKey, SolidLocalStorageImpl>();
 
     // create IncomlStorages
     File incomeDir = new File(storageDir + "/income");
@@ -406,7 +405,7 @@ public class AsyncReplication implements Startable {
 
     this.incomeStoragePaths = new LinkedHashMap<StorageKey, String>();
 
-    this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
+    this.localStorages = new LinkedHashMap<StorageKey, SolidLocalStorageImpl>();
 
     this.storageDir = storageDir;
 
@@ -509,7 +508,7 @@ public class AsyncReplication implements Startable {
     WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
 
     StorageKey skey = new StorageKey(repoName, workspaceName);
-    LocalStorageImpl localStorage = localStorages.get(skey);
+    SolidLocalStorageImpl localStorage = localStorages.get(skey);
     IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey));
 
     AsyncWorker synchWorker = new AsyncWorker(dm,
@@ -543,7 +542,7 @@ public class AsyncReplication implements Startable {
               + File.separator + wsName);
           localDirPerWorkspace.mkdirs();
 
-          LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath());
+          SolidLocalStorageImpl localStorage = new SolidLocalStorageImpl(localDirPerWorkspace.getAbsolutePath());
           localStorages.put(skey, localStorage);
 
           // add local storage as persistence listener

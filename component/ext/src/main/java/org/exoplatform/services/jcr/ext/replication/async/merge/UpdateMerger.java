@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogRead
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SolidEditableItemStatesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -83,7 +84,7 @@ public class UpdateMerger extends AbstractMerger {
       nextIncomeState = income.findNextState(incomeState, incomeState.getData().getIdentifier());
     }
 
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+    EditableChangesStorage<ItemState> resultState = new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              null);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
@@ -113,11 +114,11 @@ public class UpdateMerger extends AbstractMerger {
             if (incomeData.isNode()
                 && (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null)) {
               skippedList.add(incomeData.getQPath());
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             } else if (!incomeData.isNode()
                 && incomeData.getParentIdentifier().equals(localData.getIdentifier())) {
               skippedList.add(incomeData.getQPath());
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
             break;
           }
@@ -130,7 +131,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                                  .getIdentifier());
             if (incomeData.isNode() && nextItem != null) {
               skippedList.add(incomeData.getQPath());
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
 
             // parent updated for node
@@ -200,12 +201,12 @@ public class UpdateMerger extends AbstractMerger {
             if (income.getNextItemStateByUUIDOnUpdate(incomeState, localState.getData()
                                                                              .getIdentifier()) != null) {
               skippedList.add(incomeData.getQPath());
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (incomeData.getIdentifier().equals(localData.getIdentifier())) {
               skippedList.add(incomeData.getQPath());
-              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           }
           break;
@@ -215,7 +216,7 @@ public class UpdateMerger extends AbstractMerger {
             if (!incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new SolidEditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }

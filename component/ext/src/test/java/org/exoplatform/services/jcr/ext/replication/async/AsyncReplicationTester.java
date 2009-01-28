@@ -27,11 +27,9 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.StorageKey;
-import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SolidLocalStorageImpl;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
@@ -88,7 +86,7 @@ public class AsyncReplicationTester extends AsyncReplication {
     AsyncWorker synchWorker = new AsyncWorker(dm, 
                                               ntm, 
                                               dc,
-                                              (LocalStorageImpl)localStorage, 
+                                              (SolidLocalStorageImpl)localStorage, 
                                               (IncomeStorageImpl)incomeStorage,
                                               repoName,
                                               workspaceName,

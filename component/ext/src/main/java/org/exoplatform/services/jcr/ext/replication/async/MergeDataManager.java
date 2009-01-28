@@ -25,7 +25,6 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -38,9 +37,9 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SolidEditableItemStatesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -155,7 +154,7 @@ public class MergeDataManager {
             + ") members");
 
         // synchronizedChanges always with higher priority (income)
-        synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
+        synchronizedChanges = new SolidEditableItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                 second.getMember()),
                                                                        second.getMember());
 

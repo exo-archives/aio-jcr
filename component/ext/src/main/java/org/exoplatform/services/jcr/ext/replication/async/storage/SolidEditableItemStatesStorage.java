@@ -29,8 +29,8 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $
  */
-public class SolidEditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T>
-    implements EditableChangesStorage<T> {
+public class SolidEditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
+EditableChangesStorage<T> {
 
   /**
    * Max ChangesLog file size in Kb.
