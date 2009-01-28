@@ -89,7 +89,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
                                                      priorityLow,
                                                      bindAddress,
                                                      CH_CONFIG,
-                                                     CH_NAME,
+                                                     CH_NAME + useCase.getClass().getName(),
                                                      waitAllMemberTimeout,
                                                      storage1.getAbsolutePath(),
                                                      otherParticipantsPriority1);
@@ -99,7 +99,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
                                                      priorityHigh,
                                                      bindAddress,
                                                      CH_CONFIG,
-                                                     CH_NAME,
+                                                     CH_NAME + useCase.getClass().getName(),
                                                      waitAllMemberTimeout,
                                                      storage2.getAbsolutePath(),
                                                      otherParticipantsPriority2);
