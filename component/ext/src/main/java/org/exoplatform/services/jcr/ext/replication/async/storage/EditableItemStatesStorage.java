@@ -19,7 +19,9 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 
@@ -41,6 +43,8 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * ItemStates storage direcory.
    */
   protected final File         storagePath;
+  
+  protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
 
   /**
    * Output Stream opened on current ChangesFile.
