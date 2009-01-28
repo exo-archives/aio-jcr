@@ -256,7 +256,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new FileIterator();
+    return new FileIterator<T>();
   }
 
 
