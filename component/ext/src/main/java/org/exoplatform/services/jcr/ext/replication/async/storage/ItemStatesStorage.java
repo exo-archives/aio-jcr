@@ -142,7 +142,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     public FileIterator() throws IOException, ClassCastException, ClassNotFoundException {
 
       if (storage == null) {
-        throw new NullPointerException("ChangeaFile not exists.");
+        throw new NullPointerException("ChangesFile not exists.");
       }
 
       this.in = new ObjectInputStream(storage.getInputStream());
