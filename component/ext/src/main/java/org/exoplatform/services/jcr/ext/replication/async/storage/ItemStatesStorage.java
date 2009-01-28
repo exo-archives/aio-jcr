@@ -42,11 +42,11 @@ import org.exoplatform.services.log.ExoLogger;
 public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
     MemberChangesStorage<T> {
 
-  protected static final Log        LOG     = ExoLogger.getLogger("jcr.ItemStatesStorage");
+  protected static final Log  LOG = ExoLogger.getLogger("jcr.ItemStatesStorage");
 
-  protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
+  protected final ChangesFile storage;
 
-  protected final Member            member;
+  protected final Member      member;
 
   class MultiFileIterator<T extends ItemState> implements Iterator<T> {
 
@@ -91,13 +91,13 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
         nextItem = readNext();
       } catch (IOException e) {
         throw new ChangesLogReadException(e.getMessage() + " file: "
-            + storage.get(currentFileIndex).toString(), e);
+            + store.get(currentFileIndex).toString(), e);
       } catch (ClassNotFoundException e) {
         throw new ChangesLogReadException(e.getMessage() + " file: "
-            + storage.get(currentFileIndex).toString(), e);
+            + store.get(currentFileIndex).toString(), e);
       } catch (ClassCastException e) {
         throw new ChangesLogReadException(e.getMessage() + " file: "
-            + storage.get(currentFileIndex).toString(), e);
+            + store.get(currentFileIndex).toString(), e);
       }
       return retVal;
     }
@@ -133,23 +133,89 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     }
   }
 
+  class FileIterator<T extends ItemState> implements Iterator<T> {
+
+    private ObjectInputStream in;
+
+    private T                 nextItem;
+
+    public FileIterator() throws IOException, ClassCastException, ClassNotFoundException {
+
+      if (storage == null) {
+        throw new NullPointerException("ChangeaFile not exists.");
+      }
+
+      this.in = new ObjectInputStream(storage.getInputStream());
+      this.nextItem = readNext();
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasNext() {
+      return nextItem != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T next() throws NoSuchElementException {
+      if (nextItem == null)
+        throw new NoSuchElementException();
+
+      T retVal = nextItem;
+      try {
+        nextItem = readNext();
+      } catch (IOException e) {
+        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.toString(), e);
+      } catch (ClassNotFoundException e) {
+        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.toString(), e);
+      } catch (ClassCastException e) {
+        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.toString(), e);
+      }
+      return retVal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void remove() {
+      throw new RuntimeException("Remove not allowed!");
+    }
+
+    @SuppressWarnings("unchecked")
+    protected T readNext() throws IOException, ClassNotFoundException, ClassCastException {
+      if (in != null) {
+        try {
+          return (T) in.readObject();
+        } catch (EOFException e) {
+          // End of list
+          in.close();
+          in = null;
+          return null;
+        }
+      } else
+        return null;
+    }
+  }
+
   /**
    * ItemStatesStorage constructor for merge (Editable...).
    */
   ItemStatesStorage(Member member) {
     this.member = member;
+    this.storage = null;
   }
 
   /**
    * ItemStatesStorage constructor for export.
    * 
-   * @param changes
-   *          ChagesFiles
-   * @param member
-   *          owner
+   * @param changes ChagesFiles
+   * @param member owner
    */
   public ItemStatesStorage(ChangesFile changes, Member member) {
-    this.storage.add(changes);
+    this.storage = changes;
     this.member = member;
   }
 
@@ -177,22 +243,23 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public void delete() throws IOException {
-    for (ChangesFile cf : storage)
-      cf.delete();
+   // for (ChangesFile cf : storage)
+   //   cf.delete();
+    storage.delete();
   }
 
   /**
    * {@inheritDoc}
    */
   public ChangesFile[] getChangesFile() {
-    return storage.toArray(new ChangesFile[storage.size()]);
+    return new ChangesFile[]{storage};//storage.toArray(new ChangesFile[storage.size()]);
   }
 
   /**
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new MultiFileIterator<T>(storage);
+    return new FileIterator();
   }
 
   /**
@@ -327,7 +394,6 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   }
 
   /**
-   * 
    * {@inheritDoc}
    */
   public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
@@ -349,7 +415,6 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   }
 
   /**
-   * 
    * {@inheritDoc}
    */
   public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
