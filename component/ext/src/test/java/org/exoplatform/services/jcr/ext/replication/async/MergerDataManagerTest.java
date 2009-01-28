@@ -111,6 +111,41 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   /**
    * Add tree of nodes item on low priority, already added on high priority.
    */
+  public void testMerger5Nodes() throws Exception {
+    Node node = root3.addNode("item1");
+    session3.save();
+    addChangesToChangesStorage(cLog, 20);
+
+    node = root3.addNode("item2");
+    session3.save();
+    addChangesToChangesStorage(cLog, 40);
+
+    node = root3.addNode("item3");
+    session3.save();
+    addChangesToChangesStorage(cLog, 60);
+
+    node = root3.addNode("item4");
+    session3.save();
+    addChangesToChangesStorage(cLog, 80);
+
+    node = root4.addNode("item5");
+    session4.save();
+    addChangesToChangesStorage(cLog, 100);
+
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null),
+                                                   dm4,
+                                                   ntm4,
+                                                   "target/storage/high");
+
+    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 60));
+    ChangesStorage<ItemState> res4 = merger.merge(membersChanges.iterator());
+
+    saveResultedChanges(res4, "ws4");
+  }
+
+  /**
+   * Add tree of nodes item on low priority, already added on high priority.
+   */
   public void testAddSameTree() throws Exception {
     // low priority changes
     Node node = root3.addNode("item1");
