@@ -40,7 +40,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
   private static final Log log = ExoLogger.getLogger("ext.AbstractMergeUseCases");
 
-  private abstract class BaseMergeUseCase {
+  protected abstract class BaseMergeUseCase {
     protected final SessionImpl sessionLowPriority;
 
     protected final SessionImpl sessionHighPriority;

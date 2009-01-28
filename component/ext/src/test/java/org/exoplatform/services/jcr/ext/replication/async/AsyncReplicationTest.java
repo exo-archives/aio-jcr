@@ -53,6 +53,94 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
   private SessionImpl         sessionHigePriority;
 
+  private class AsyncReplicationUseCase {
+    private final BaseMergeUseCase useCase;
+
+    private AsyncReplicationTester asyncReplication1;
+
+    private AsyncReplicationTester asyncReplication2;
+
+    public AsyncReplicationUseCase(BaseMergeUseCase useCase) {
+      this.useCase = useCase;
+    }
+
+    public void initData() throws Exception {
+      List<String> repositoryNames1 = new ArrayList<String>();
+      repositoryNames1.add(repositoryLowPriority.getName());
+      List<String> repositoryNames2 = new ArrayList<String>();
+      repositoryNames2.add(repositoryHigePriority.getName());
+
+      int priorityLow = 50;
+      int priorityHigh = 100;
+      int waitAllMemberTimeout = 15; // 15 seconds.
+
+      File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
+      storage1.mkdirs();
+      File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
+      storage2.mkdirs();
+
+      List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
+      otherParticipantsPriority1.add(priorityHigh);
+      List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
+      otherParticipantsPriority2.add(priorityLow);
+
+      asyncReplication1 = new AsyncReplicationTester(repositoryService,
+                                                     repositoryNames1,
+                                                     priorityLow,
+                                                     bindAddress,
+                                                     CH_CONFIG,
+                                                     CH_NAME,
+                                                     waitAllMemberTimeout,
+                                                     storage1.getAbsolutePath(),
+                                                     otherParticipantsPriority1);
+
+      asyncReplication2 = new AsyncReplicationTester(repositoryService,
+                                                     repositoryNames2,
+                                                     priorityHigh,
+                                                     bindAddress,
+                                                     CH_CONFIG,
+                                                     CH_NAME,
+                                                     waitAllMemberTimeout,
+                                                     storage2.getAbsolutePath(),
+                                                     otherParticipantsPriority2);
+
+      asyncReplication1.start();
+      asyncReplication2.start();
+
+      useCase.initDataLowPriority();
+      useCase.initDataHighPriority();
+
+      // Synchronize
+      asyncReplication1.synchronize(repositoryLowPriority.getName(),
+                                    session.getWorkspace().getName(),
+                                    "cName_suffix");
+      asyncReplication2.synchronize(repositoryHigePriority.getName(),
+                                    sessionHigePriority.getWorkspace().getName(),
+                                    "cName_suffix");
+
+      Thread.sleep(25000);
+    }
+
+    public void useCase() throws Exception {
+      useCase.useCaseLowPriority();
+      useCase.useCaseHighPriority();
+
+      // Synchronize
+      asyncReplication1.synchronize(repositoryLowPriority.getName(),
+                                    session.getWorkspace().getName(),
+                                    "cName_suffix");
+      asyncReplication2.synchronize(repositoryHigePriority.getName(),
+                                    sessionHigePriority.getWorkspace().getName(),
+                                    "cName_suffix");
+
+      Thread.sleep(25000);
+    }
+
+    public boolean checkEquals() throws Exception {
+      return useCase.checkEquals();
+    }
+  }
+
   public void setUp() throws Exception {
     super.setUp();
 
@@ -202,1202 +290,211 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
   public void testUseCase1() throws Exception {
     UseCase1 useCase = new UseCase1(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase2() throws Exception {
     UseCase2 useCase = new UseCase2(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase3() throws Exception {
     UseCase3 useCase = new UseCase3(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase4() throws Exception {
     UseCase4 useCase = new UseCase4(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase5() throws Exception {
     UseCase5 useCase = new UseCase5(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase8() throws Exception {
     UseCase8 useCase = new UseCase8(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase9() throws Exception {
     UseCase9 useCase = new UseCase9(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase12() throws Exception {
     UseCase12 useCase = new UseCase12(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase13() throws Exception {
     UseCase13 useCase = new UseCase13(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase14() throws Exception {
     UseCase14 useCase = new UseCase14(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase15() throws Exception {
     UseCase15 useCase = new UseCase15(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase16() throws Exception {
     UseCase16 useCase = new UseCase16(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase17() throws Exception {
     UseCase17 useCase = new UseCase17(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testUseCase18() throws Exception {
     UseCase18 useCase = new UseCase18(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
-  
-  
+
   public void testComplexUseCase1() throws Exception {
     ComplexUseCase1 useCase = new ComplexUseCase1(sessionLowPriority, sessionHigePriority);
-    
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
 
-    int priorityLow = 50;
-    int priorityHigh = 100;
-    int waitAllMemberTimeout = 15; // 15 seconds.
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
+    asyncUseCase.initData();
 
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priorityHigh);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priorityLow);
+    assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priorityLow,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
+    asyncUseCase.useCase();
 
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priorityHigh,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    useCase.initDataLowPriority();
-    useCase.initDataHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
-    useCase.useCaseLowPriority();
-    useCase.useCaseHighPriority();
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(25000);
-
-    // check
-    assertTrue(useCase.checkEquals());
-
+    assertTrue(asyncUseCase.checkEquals());
   }
 }
