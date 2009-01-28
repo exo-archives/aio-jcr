@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStor
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $
  */
-public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
+public class EditableItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
     EditableChangesStorage<T> {
 
   /**
@@ -47,6 +47,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * ItemStates storage direcory.
    */
   protected final File              storagePath;
+  protected final Member            member;
 
   protected final List<ChangesFile> storage       = new ArrayList<ChangesFile>();
 
@@ -156,14 +157,13 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * @param storagePath storage Path
    */
   public EditableItemStatesStorage(File storagePath, Member member) {
-    super(member);
+    this.member = member;
     this.storagePath = storagePath;
   }
 
   /**
    * {@inheritDoc}
    */
-  @Override
   public ChangesFile[] getChangesFile() {
     try {
       closeFile();
@@ -278,6 +278,27 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     return new MultiFileIterator<T>(storage);
+  }
+
+  public Member getMember() {
+    
+    return member;
+  }
+
+  public void delete() throws IOException {
+    for (ChangesFile cf : storage)
+    cf.delete();
+    
+  }
+
+  public int size() throws IOException, ClassCastException, ClassNotFoundException {
+    Iterator<T> it = getChanges();
+    int i = 0;
+    while (it.hasNext()) {
+      i++;
+      it.next();
+    }
+    return i;
   }
 
 }
