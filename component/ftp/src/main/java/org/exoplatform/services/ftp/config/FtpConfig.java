@@ -53,5 +53,7 @@ public interface FtpConfig {
   boolean isNeedTimeOut();
 
   int getTimeOut();
+  
+  String getPortalContainerName();
 
 }

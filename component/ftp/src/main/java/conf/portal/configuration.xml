@@ -71,6 +71,11 @@
 				<value>60</value>
 			</value-param -->
 
+      <value-param>
+        <name>portalContainerName</name>
+        <value>portal</value>
+      </value-param>
+
 		</init-params>
 	</component>
 </configuration>
