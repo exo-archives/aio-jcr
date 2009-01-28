@@ -1050,7 +1050,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   /**
    * 3. Add item on high priority already added and deleted on low priority.
    */
-  public void _testAdd3_2() throws Exception {
+  public void testAdd3_2() throws Exception {
     // low priority changes: add and delete node
     Node node = root3.addNode("item1");
     node.remove();
