@@ -111,7 +111,7 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
       return null;
     } else {
       if (currentIn == null) {
-        currentIn = new ObjectInputStream(list.get(curFileIndex++).getDataStream());
+        currentIn = new ObjectInputStream(list.get(curFileIndex++).getInputStream());
       }
       try {
         return (L) currentIn.readObject();

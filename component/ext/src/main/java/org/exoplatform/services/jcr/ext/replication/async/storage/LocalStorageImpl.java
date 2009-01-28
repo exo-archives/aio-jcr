@@ -141,8 +141,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     for (int j = 0; j < fileNames.length; j++) {
       try {
-        File ch = new File(prevDir, fileNames[j]);
-        chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+        chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), prevDir));
       } catch (NumberFormatException e) {
         throw new IOException(e.getMessage());
       }
@@ -165,12 +164,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
         File lastDir = new File(storagePath, dirs[dirs.length - 1]);
 
-        long timestamp;
+        long id;
         synchronized (index) {
-          timestamp = index++;
+          id = index++;
         }
 
-        ChangesFile file = new ChangesFile("", timestamp, lastDir.getAbsolutePath());
+        RandomChangesFile file = new RandomChangesFile("", id, lastDir);
         // System.out.println(file.getPath() + " created ");
 
         ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());

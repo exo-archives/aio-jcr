@@ -45,7 +45,7 @@ public interface IncomeStorage {
    * 
    * @return ChangesFile
    */
-  ChangesFile createChangesFile(String crc, long timeStamp, Member member) throws IOException;
+  RandomChangesFile createChangesFile(String crc, long timeStamp, Member member) throws IOException;
 
   /**
    * Add <code>ChangesFile</code> to a member (subscriber) storage.

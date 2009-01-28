@@ -253,12 +253,12 @@ public class SolidChangesFileTest extends BaseStandaloneTest {
     ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
     str.writeObject(first);
     str.writeObject(second);
-    str.close();
-    file.finishWrite();
+    str.writeObject(third);
+    //str.close();
+    //file.finishWrite();
     
-    str = new ObjectOutputStream( file.getOutputStream());
-    str.writeObject(second);
-
+    // uclose streams
+    
     file = null;
     
     file = new SolidChangesFile( f ,CRC, System.currentTimeMillis());
@@ -271,8 +271,7 @@ public class SolidChangesFileTest extends BaseStandaloneTest {
     rez = (String) in.readObject();
     assertEquals(second, rez);
     rez = (String) in.readObject();
-    assertEquals(second, rez);
-    in.close();
+    assertEquals(third, rez);
     
     try{
       rez = (String) in.readObject();

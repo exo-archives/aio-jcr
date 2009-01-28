@@ -63,7 +63,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       this.store = store;
       if (this.store.size() > 0) {
         currentFileIndex = 0;
-        this.in = new ObjectInputStream(this.store.get(currentFileIndex).getDataStream());
+        this.in = new ObjectInputStream(this.store.get(currentFileIndex).getInputStream());
         this.nextItem = readNext();
       } else {
         this.in = null;
@@ -89,11 +89,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).getPath(), e);
+        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).toString(), e);
       } catch (ClassNotFoundException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).getPath(), e);
+        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).toString(), e);
       } catch (ClassCastException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).getPath(), e);
+        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.get(currentFileIndex).toString(), e);
       }
       return retVal;
     }
@@ -120,7 +120,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
           if (currentFileIndex >= store.size()) {
             return null;
           } else {
-            in = new ObjectInputStream(store.get(currentFileIndex).getDataStream());
+            in = new ObjectInputStream(store.get(currentFileIndex).getInputStream());
             return readNext();
           }
         }

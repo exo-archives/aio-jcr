@@ -86,7 +86,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
       try {
         ChangesFile file = list.get(curFileIndex++);
-        ObjectInputStream stream = new ObjectInputStream(file.getDataStream());
+        ObjectInputStream stream = new ObjectInputStream(file.getInputStream());
         L log = (L) stream.readObject();
         stream.close();
         return log;
@@ -181,7 +181,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
       if (currentFileIndex >= store.size()) {
         return null;
       } else {
-        ObjectInputStream in = new ObjectInputStream(store.get(currentFileIndex).getDataStream());
+        ObjectInputStream in = new ObjectInputStream(store.get(currentFileIndex).getInputStream());
         currentFileIndex++;
         TransactionChangesLog curLog = (TransactionChangesLog) in.readObject();
         in.close();

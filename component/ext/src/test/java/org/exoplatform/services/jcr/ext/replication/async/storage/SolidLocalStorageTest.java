@@ -311,7 +311,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     assertEquals(1, files.length);
 
     ChangesFile cf = files[0];
-    File f = new File(cf.getPath());
+    File f = new File(cf.toString());
     RandomAccessFile fileAccessor = new RandomAccessFile(f, "rwd");
 
     // corrupt file

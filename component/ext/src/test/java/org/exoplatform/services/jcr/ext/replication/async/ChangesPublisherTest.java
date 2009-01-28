@@ -19,26 +19,21 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.jcr.Node;
-
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -129,7 +124,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     // deserialize
     List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
-      ObjectInputStream ois = new ObjectInputStream(changesFile.getDataStream());
+      ObjectInputStream ois = new ObjectInputStream(changesFile.getInputStream());
       TransactionChangesLog tcLog = (TransactionChangesLog) ois.readObject();
       destChangesLogList.add(tcLog);
     }
@@ -169,7 +164,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
           case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
             log.info("BINARY_CHANGESLOG_FIRST_PACKET");
 
-            ChangesFile cf = new ChangesFile(packet.getCRC(), packet.getTimeStamp());
+            RandomChangesFile cf = new RandomChangesFile(packet.getCRC(), packet.getTimeStamp());
 
             cf.writeData(packet.getBuffer(), packet.getOffset());
 
@@ -181,14 +176,14 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
           case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
             log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
 
-            cf = map.get(packet.getTimeStamp());
+            cf = (RandomChangesFile)map.get(packet.getTimeStamp());
             cf.writeData(packet.getBuffer(), packet.getOffset());
             break;
 
           case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
             log.info("BINARY_CHANGESLOG_LAST_PACKET");
 
-            cf = map.get(packet.getTimeStamp());
+            cf = (RandomChangesFile)map.get(packet.getTimeStamp());
             cf.finishWrite();
 
             break;

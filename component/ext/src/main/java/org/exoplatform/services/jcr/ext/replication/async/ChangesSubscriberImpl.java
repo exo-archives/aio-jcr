@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeChangesS
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
@@ -262,7 +263,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
             syncl.onStart(initializer.getOtherMembers());
         }
 
-        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
+        RandomChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
                                                           packet.getTimeStamp(),
                                                           member);
         cf.writeData(packet.getBuffer(), packet.getOffset());
@@ -500,16 +501,16 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   }
 
   private class MemberChangesFile {
-    private final ChangesFile changesFile;
+    private final RandomChangesFile changesFile;
 
     private final Member      member;
 
-    public MemberChangesFile(ChangesFile changesFile, Member member) {
+    public MemberChangesFile(RandomChangesFile changesFile, Member member) {
       this.changesFile = changesFile;
       this.member = member;
     }
 
-    public ChangesFile getChangesFile() {
+    public RandomChangesFile getChangesFile() {
       return changesFile;
     }
 

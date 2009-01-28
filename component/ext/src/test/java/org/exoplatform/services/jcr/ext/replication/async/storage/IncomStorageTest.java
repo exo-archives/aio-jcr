@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.File;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,10 +38,12 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
+import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -80,13 +81,13 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
+    RandomChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log);
     out.close();
     cf.finishWrite();
 
-    // storage.addMemberChanges(new Member(null, 20), cf);
+    storage.addMemberChanges(new Member(new MemberAddress(new IpAddress()),  20), cf);
 
     // delete storage object
     storage = null;
@@ -129,7 +130,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
+    RandomChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
@@ -225,7 +226,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     File difFile = new File(dir, "blabla");
     assertTrue(difFile.createNewFile());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
+    RandomChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
@@ -313,17 +314,17 @@ public class IncomStorageTest extends BaseStandaloneTest {
     
     // store second
     ChangesFile src = files[1];
-    ChangesFile dest = inStorage.createChangesFile(src.getChecksum(), src.getTimeStamp(), member);
+    RandomChangesFile dest = inStorage.createChangesFile(src.getChecksum(), src.getId(), member);
     copyFormLocalToIncom(src,dest);
    
     //store third
     src = files[2];
-    dest = inStorage.createChangesFile(src.getChecksum(), src.getTimeStamp(), member);
+    dest = inStorage.createChangesFile(src.getChecksum(), src.getId(), member);
     copyFormLocalToIncom(src,dest);
     
     //store first
     src = files[0];
-    dest = inStorage.createChangesFile(src.getChecksum(), src.getTimeStamp(), member);
+    dest = inStorage.createChangesFile(src.getChecksum(), src.getId(), member);
     copyFormLocalToIncom(src,dest);
     
     //check storage logs
@@ -340,8 +341,8 @@ public class IncomStorageTest extends BaseStandaloneTest {
     dataManager.removeItemPersistenceListener(locStorage);
   }
   
-  private  void copyFormLocalToIncom(ChangesFile src, ChangesFile dest) throws Exception{
-    InputStream in = src.getDataStream();
+  private  void copyFormLocalToIncom(ChangesFile src, RandomChangesFile dest) throws Exception{
+    InputStream in = src.getInputStream();
     byte[] buf = new byte[2048];
     int length=0;
     int readed = 0;

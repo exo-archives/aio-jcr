@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -31,7 +31,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketT
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
-import org.jgroups.Address;
 import org.jgroups.stack.IpAddress;
 
 /**
@@ -115,7 +114,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
     MemberAddress adr = new MemberAddress(new IpAddress("127.0.0.1", 7800));
 
     File file = createBLOBTempFile("mytest", filesize);
-    ChangesFile changes = new ChangesFile(file, "crc", System.currentTimeMillis());
+    ChangesFile changes = new SimpleChangesFile(file, "crc", System.currentTimeMillis());
 
     AsyncTransmitterImpl trans = new AsyncTransmitterImpl(tchannel, 100);
     trans.sendExport(changes, adr);

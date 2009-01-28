@@ -87,7 +87,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   private File                  previousDir                = null;
 
-  private ChangesFile           currentFile                = null;
+  private RandomChangesFile           currentFile                = null;
 
   // private ObjectOutputStream currentOut = null; // TODO
 
@@ -148,8 +148,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
       for (int j = 0; j < fileNames.length; j++) {
         try {
-          File ch = new File(previousDir, fileNames[j]);
-          chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]),previousDir));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -185,23 +184,14 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   }
 
   synchronized protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
-
-    // Check is file already exists
-    if (currentFile == null) {
-      currentFile = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
-    }
-
-    // Check file size
-    if (currentFile.length() > MAX_FILE_SIZE_KB * 1024) {
-
+ 
+    // Create file if not exist or file length more than acceptable
+    if (currentFile == null || (currentFile.getLength() > MAX_FILE_SIZE_KB * 1024)) {
       closeCurrentFile();
-      // create new file
-      currentFile = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
+      currentFile = new RandomChangesFile("", getNextFileId(), lastDir);
     }
 
-    // if (currentOut == null) {
     ObjectOutputStream currentOut = new ObjectOutputStream(currentFile.getOutputStream());
-    // }
 
     currentOut.writeObject(itemStates);
 
@@ -209,8 +199,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     currentOut = null;
     currentFile.finishWrite();
 
-    // TODO register timer to close output Stream if file isn't changes too
-    // long
   }
 
   /**
@@ -219,13 +207,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * @throws IOException
    */
   synchronized private void closeCurrentFile() throws IOException {
-    // TODO stop any timers
-
-    // if (currentOut != null) {
-    // currentOut.close();
-    // currentOut = null;
-    // }
-
+    
     if (currentFile != null) {
       // currentFile.finishWrite();
       currentFile = null;

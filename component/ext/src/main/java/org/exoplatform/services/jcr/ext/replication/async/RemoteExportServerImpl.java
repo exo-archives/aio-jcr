@@ -29,8 +29,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.jcr.RepositoryException;
 
@@ -40,6 +38,8 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
@@ -144,7 +144,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
 
     ObjectOutputStream out = null;
     try {
-      File chLogFile = File.createTempFile(ChangesFile.PREFIX, ChangesFile.SUFIX);
+      //TODO make it simplier
+      File chLogFile = File.createTempFile(RandomChangesFile.PREFIX, RandomChangesFile.SUFIX);
       MessageDigest digest;
       try {
         digest = MessageDigest.getInstance("MD5");
@@ -163,7 +164,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
       exportedNode.accept(exporter);
 
       String crc = new String(digest.digest(), Constants.DEFAULT_ENCODING);
-      return new ChangesFile(chLogFile, crc, System.currentTimeMillis());
+      return new SimpleChangesFile(chLogFile, crc, System.currentTimeMillis());
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } finally {

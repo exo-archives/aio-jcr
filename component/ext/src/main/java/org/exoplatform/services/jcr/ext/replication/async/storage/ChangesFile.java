@@ -16,13 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 19.12.2008
@@ -30,95 +25,21 @@ import java.io.RandomAccessFile;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
-public class ChangesFile {
-
-  public static final String PREFIX = "ChangesFile";
-
-  public static final String SUFIX  = "SUFIX";
-
-  /**
-   * Check sum to file.
-   */
-  private final String       crc;
-
-  /**
-   * Time stamp to ChangesLog.
-   */
-  private final long         timeStamp;
-
-  private final File         file;
-
-  private RandomAccessFile   fileAccessor;
-
-  private FileInputStream    fileInput;
-
-  /**
-   * Create ChangesFile with temporary file.
-   * 
-   * @param crc
-   * @param timeStamp
-   */
-  public ChangesFile(String crc, long timeStamp) throws IOException {
-    this.crc = crc;
-    this.timeStamp = timeStamp;
-
-    // create temporary file
-    file = File.createTempFile(PREFIX, SUFIX);
-  }
-
-  /**
-   * Create ChangesFile with file in directory.
-   * 
-   * @param crc
-   *          constant checksum
-   * @param timeStamp
-   *          time stamp
-   * @param directory
-   *          path to directory
-   */
-  public ChangesFile(String crc, long timeStamp, String directory) throws IOException {
-    this.crc = crc;
-    this.timeStamp = timeStamp;
-
-    // create file in directory
-    File dir = new File(directory);
-    file = new File(dir, Long.toString(this.timeStamp));
-  }
-
-  /**
-   * Create ChangesFile with already formed file.
-   * 
-   * @param file
-   *          changes file
-   * @param crc
-   *          checksum
-   * @param timeStamp
-   *          time stamp
-   * @throws IOException
-   */
-  public ChangesFile(File file, String crc, long timeStamp) {
-    this.crc = crc;
-    this.timeStamp = timeStamp;
-    this.file = file;
-  }
+public interface ChangesFile {
 
   /**
    * File checksum.
    * 
    * @return String return the check sum to file.
    */
-  public String getChecksum() {
-    return crc;
-  }
+  public String getChecksum();
 
   /**
    * getTimeStamp.
    * 
    * @return long return the time stamp to ChangesLog.
    */
-  public long getTimeStamp() {
-    return timeStamp;
-  }
+  public long getId() ;
 
   /**
    * Return
@@ -126,98 +47,8 @@ public class ChangesFile {
    * @return InputStream
    * @throws IOException
    */
-  public InputStream getDataStream() throws IOException {
-    finishWrite();
+  public InputStream getInputStream() throws IOException ;
 
-    if (fileInput != null)
-      fileInput.close();
-
-    return fileInput = new FileInputStream(file);
-  }
-
-  public OutputStream getOutputStream() throws IOException {
-    // TODO
-//    return new OutputStream() {
-//
-//      @Override
-//      public void write(int b) throws IOException {
-//        checkFileAccessor();
-//        synchronized (fileAccessor) {
-//          fileAccessor.write(b);
-//        }
-//      }
-//
-//      public void write(byte b[]) throws IOException {
-//        checkFileAccessor();
-//        synchronized (fileAccessor) {
-//          fileAccessor.write(b);
-//        }
-//      }
-//
-//      public void write(byte b[], int off, int len) throws IOException {
-//        checkFileAccessor();
-//        synchronized (fileAccessor) {
-//          fileAccessor.write(b, off, len);
-//        }
-//      }
-//
-//      /**
-//       * {@inheritDoc}
-//       */
-//      @Override
-//      public void close() throws IOException {
-//        finishWrite();
-//      }
-//    };
-    
-    finishWrite();
-    
-    return new FileOutputStream(file);
-  }
-
-  /**
-   * Write data to file.
-   * 
-   * @param data
-   *          byte buffer
-   * @param position
-   *          to write
-   * @throws IOException
-   */
-  public void writeData(byte[] data, long position) throws IOException {
-    checkFileAccessor();
-    synchronized (fileAccessor) {
-      fileAccessor.seek(position);
-      fileAccessor.write(data);
-    }
-  }
-
-  /**
-   * Say internal writer that file write stopped.
-   * 
-   * @throws IOException
-   *           error on file accessor close.
-   */
-  public void finishWrite() throws IOException {
-    if (fileAccessor != null) {
-      // close writer
-      fileAccessor.close();
-      fileAccessor = null;
-    }
-  }
-
-  /**
-   * Check is file accessor created. Create if not.
-   * 
-   * @throws IOException
-   *           error on file accessor creation.
-   */
-  private void checkFileAccessor() throws IOException {
-    if (fileAccessor == null) {
-      fileAccessor = new RandomAccessFile(file, "rwd");
-      // fileAccessor.seek(file.length());
-    }
-  }
 
   /**
    * Delete file and its file-system storage.
@@ -227,28 +58,7 @@ public class ChangesFile {
    * @throws IOException
    *           on error
    */
-  public boolean delete() throws IOException {
-    finishWrite();
+  public boolean delete() throws IOException ;
 
-    if (fileInput != null)
-      fileInput.close();
-
-    return file.delete();
-  }
-
-  /*
-  public boolean moveTo(File dir) throws IOException {
-    File dest = new File(dir, Long.toString(getTimeStamp()));
-    return file.renameTo(dest);
-  }*/
-
-  public String getPath() {
-    return file.getAbsolutePath();
-  }
-
-  public long length() {
-
-    return 0;
-  }
 
 }

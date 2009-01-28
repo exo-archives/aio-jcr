@@ -72,10 +72,10 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public ChangesFile createChangesFile(String crc, long timeStamp, Member member) throws IOException {
+  public RandomChangesFile createChangesFile(String crc, long id, Member member) throws IOException {
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
     dir.mkdirs();
-    return new ChangesFile(crc, timeStamp, dir.getAbsolutePath());
+    return new RandomChangesFile(crc, id, dir);
   }
 
   /**
@@ -147,7 +147,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
         for (int j = 0; j < fileNames.length; j++) {
           File ch = new File(memberDir, fileNames[j]);
-          chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), memberDir));
         }
 
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());

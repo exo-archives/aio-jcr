@@ -151,7 +151,7 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
 
     Thread.sleep(5000);
 
-    ObjectInputStream in = new ObjectInputStream(transmitter.changes.getDataStream());
+    ObjectInputStream in = new ObjectInputStream(transmitter.changes.getInputStream());
     ItemState itemState = (ItemState) in.readObject();
 
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()
@@ -171,7 +171,7 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
 
     exportServer.onCancel();
 
-    ObjectInputStream in = new ObjectInputStream(transmitter.changes.getDataStream());
+    ObjectInputStream in = new ObjectInputStream(transmitter.changes.getInputStream());
     ItemState itemState = (ItemState) in.readObject();
 
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()

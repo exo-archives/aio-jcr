@@ -27,9 +27,9 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
@@ -80,7 +80,7 @@ public class TesterRemoteExporter implements RemoteExporter {
       File file =  File.createTempFile("exportStor", Long.toString(timestamp));
       
       String crc = ""; // crc is ignored
-      ChangesFile chfile  = new ChangesFile(file, crc, timestamp);
+      SimpleChangesFile chfile  = new SimpleChangesFile(file, crc, timestamp);
 
       ObjectOutputStream out = new ObjectOutputStream(chfile.getOutputStream());
       
@@ -90,7 +90,7 @@ public class TesterRemoteExporter implements RemoteExporter {
         out.writeObject(it.next());
       }
       out.close();
-      chfile.finishWrite(); // TODO same will be done in out.close(); 
+      
       
       chs = new ItemStatesStorage<ItemState>(chfile, null); // TODO member
     } catch (IOException e) {

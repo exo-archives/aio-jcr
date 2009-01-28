@@ -156,9 +156,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                     ChangesFile clFile,
                                     int transmitterPriority,
                                     int totalFiles) throws IOException {
-    LOG.info("Begin send : " + clFile.getTimeStamp());
+    LOG.info("Begin send : " + clFile.getId());
 
-    InputStream in = clFile.getDataStream();
+    InputStream in = clFile.getInputStream();
 
     byte[] buff = new byte[AbstractPacket.MAX_PACKET_SIZE];
     int len;
@@ -177,7 +177,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
                                transmitterPriority,
                                clFile.getChecksum(),
-                               clFile.getTimeStamp(),
+                               clFile.getId(),
                                totalFiles,
                                offset,
                                buff);
@@ -201,7 +201,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
                                  transmitterPriority,
                                  clFile.getChecksum(),
-                                 clFile.getTimeStamp(),
+                                 clFile.getId(),
                                  totalFiles,
                                  offset,
                                  buff);
@@ -218,7 +218,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
                                transmitterPriority,
                                clFile.getChecksum(),
-                               clFile.getTimeStamp(),
+                               clFile.getId(),
                                totalFiles,
                                offset,
                                new byte[0]);
@@ -251,7 +251,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     List<MemberAddress> destinationAddresses = new ArrayList<MemberAddress>();
     destinationAddresses.add(destinationAddress);
 
-    InputStream in = clFile.getDataStream();
+    InputStream in = clFile.getInputStream();
 
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
     int len;
@@ -269,7 +269,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
                                      clFile.getChecksum(),
-                                     clFile.getTimeStamp(),
+                                     clFile.getId(),
                                      totalFiles,
                                      offset,
                                      buf);
@@ -291,7 +291,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
       packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
                                        clFile.getChecksum(),
-                                       clFile.getTimeStamp(),
+                                       clFile.getId(),
                                        totalFiles,
                                        offset,
                                        buf);
@@ -307,7 +307,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     // Send last packet
     packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET,
                                      clFile.getChecksum(),
-                                     clFile.getTimeStamp(),
+                                     clFile.getId(),
                                      totalFiles,
                                      offset,
                                      new byte[0]);

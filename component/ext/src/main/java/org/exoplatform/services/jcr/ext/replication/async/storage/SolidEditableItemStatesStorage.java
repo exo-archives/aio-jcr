@@ -27,9 +27,9 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * Created by The eXo Platform SAS. <br/>Date: 30.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $
  */
-public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
+public class SolidEditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
     EditableChangesStorage<T> {
 
   /**
@@ -58,7 +58,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * @param storagePath
    *          storage Path
    */
-  public EditableItemStatesStorage(File storagePath, Member member) {
+  public SolidEditableItemStatesStorage(File storagePath, Member member) {
     super(member);
     this.storagePath = storagePath;
   }
@@ -149,6 +149,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
       stream = null;
     }
     currentFile = null;
+  
   }
 
   /**
@@ -158,17 +159,17 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * @throws IOException
    */
   private SimpleChangesFile createChangesFile() throws IOException {
-    long timestamp;
+    long id;
     synchronized (index) {
-      timestamp = index++;
+      id = index++;
     }
-    File file = new File(storagePath, Long.toString(timestamp));
+    File file = new File(storagePath, Long.toString(id));
 
     if (file.exists()) {
       throw new IOException("File already exists " + file.getAbsolutePath());
     }
 
     String crc = ""; // crc is ignored
-    return new SimpleChangesFile(file, crc, timestamp);
+    return new SimpleChangesFile(file, crc, id);
   }
 }

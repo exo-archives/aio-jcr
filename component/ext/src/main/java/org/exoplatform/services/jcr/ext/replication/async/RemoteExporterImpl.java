@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
@@ -62,7 +63,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Changes file.
    */
-  private ChangesFile              changesFile = null;
+  private RandomChangesFile              changesFile = null;
 
   private CountDownLatch           latch;
 
@@ -105,7 +106,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
     // check checksums
     try {
-      DigestInputStream dis = new DigestInputStream(changesFile.getDataStream(),
+      DigestInputStream dis = new DigestInputStream(changesFile.getInputStream(),
                                                     MessageDigest.getInstance("MD5"));
       byte[] buf = new byte[1024];
       int len;
@@ -183,7 +184,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   private void initChangesFile(String crc, long timeStamp) throws IOException {
     if (this.changesFile == null) {
-      changesFile = new ChangesFile(crc, timeStamp);
+      changesFile = new RandomChangesFile(crc, timeStamp);
     }
   }
 
