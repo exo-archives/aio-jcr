@@ -143,7 +143,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     this.hierarchy = new NodeTypeDataHierarchyHolder();
 
-    this.defsHolder = new ItemDefinitionDataHolder(this.hierarchy);
+    this.defsHolder = new ItemDefinitionDataHolder();
     this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
     this.buildInNodeTypesNames = new HashSet<InternalQName>();
     initDefault();
@@ -299,6 +299,15 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return def;
   }
 
+  /**
+   * @param nodeTypeName
+   * @return
+   */
+  public Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName) {
+    return hierarchy.getDescendantNodeTypes(nodeTypeName);
+
+  }
+
   public List<ItemDefinitionData> getManadatoryItemDefs(InternalQName primaryNodeType,
                                                         InternalQName[] mixinTypes) {
     Collection<ItemDefinitionData> mandatoryDefs = new HashSet<ItemDefinitionData>();
@@ -329,18 +338,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return new ArrayList<ItemDefinitionData>(mandatoryDefs);
   }
 
-  /**
-   * Return
-   * 
-   * @param nodeType
-   * @return
-   * @throws RepositoryException
-   * @throws IOException
-   */
-  public Set<String> getNodes(InternalQName nodeType) throws RepositoryException {
-    return getNodes(nodeType, new InternalQName[0], new InternalQName[0]);
-  }
-
   // /**
   // * Return
   // *
@@ -352,6 +349,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   // public Set<String> getNodes(String uri) throws RepositoryException {
   //
   // }
+
+  /**
+   * Return
+   * 
+   * @param nodeType
+   * @return
+   * @throws RepositoryException
+   * @throws IOException
+   */
+  public Set<String> getNodes(InternalQName nodeType) throws RepositoryException {
+    return getNodes(nodeType, new InternalQName[0], new InternalQName[0]);
+  }
 
   /**
    * Return
@@ -628,86 +637,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * {@inheritDoc}
    */
-  public void registerNodeType(NodeTypeData nodeType, int alreadyExistsBehaviour) throws RepositoryException {
-
-    if (nodeType == null) {
-      throw new RepositoryException("NodeTypeData object " + nodeType + " is null");
-    }
-
-    long start = System.currentTimeMillis();
-
-    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)
-        && nodeType.getName().equals("exo:privilegeable")) {
-      throw new RepositoryException("NodeType exo:privilegeable is DISABLED");
-    }
-
-    InternalQName qname = nodeType.getName();
-    if (qname == null) {
-      throw new RepositoryException("NodeType implementation class "
-          + nodeType.getClass().getName() + " is not supported in this method");
-    }
-
-    NodeTypeData registeredNodeType = findNodeType(qname);
-    if (registeredNodeType != null) {
-      switch (alreadyExistsBehaviour) {
-      case ExtendedNodeTypeManager.FAIL_IF_EXISTS:
-        throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
-      case ExtendedNodeTypeManager.IGNORE_IF_EXISTS:
-        LOG.warn("Skipped " + nodeType.getName().getAsString() + " as already registered");
-        break;
-      case ExtendedNodeTypeManager.REPLACE_IF_EXISTS:
-        reregisterNodeType(registeredNodeType, nodeType);
-        break;
-      }
-    } else
-      persister.saveChanges(internalRegister(nodeType, true));
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeTypeData registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException {
-
-    NodeTypeData nt = parseNodeType(ntvalue);
-
-    registerNodeType(nt, alreadyExistsBehaviour);
-
-    return nt;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void registerNodeTypes(Collection<NodeTypeData> nodeTypes, int alreadyExistsBehaviour) throws RepositoryException {
-    // 1. validate collection and self/new referencing, TODO
-
-    // 2. traverse and reg
-    for (NodeTypeData nt : nodeTypes) {
-      registerNodeType(nt, alreadyExistsBehaviour);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntvalues,
-                                                    int alreadyExistsBehaviour) throws RepositoryException {
-    // 1. validate collection and self/new referencing, TODO
-
-    // 2. traverse and reg
-    List<NodeTypeData> nts = new ArrayList<NodeTypeData>();
-    for (NodeTypeValue v : ntvalues) {
-      nts.add(registerNodeType(v, alreadyExistsBehaviour));
-    }
-
-    return nts;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
+  public List<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
 
     try {
       IBindingFactory factory = BindingDirectory.getFactory(NodeTypeValuesList.class);
@@ -716,25 +646,43 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       List ntvList = nodeTypeValuesList.getNodeTypeValuesList();
 
       long start = System.currentTimeMillis();
-      List<NodeTypeData> nts = new ArrayList<NodeTypeData>();
+      List<NodeTypeValue> nts = new ArrayList<NodeTypeValue>();
       for (int i = 0; i < ntvList.size(); i++) {
         if (ntvList.get(i) != null) {
           NodeTypeValue nodeTypeValue = (NodeTypeValue) ntvList.get(i);
-          nts.add(parseNodeType(nodeTypeValue));
+          nts.add(nodeTypeValue);
         } else {
           // Hm! Smth is wrong in xml document
           LOG.error("Empty nodeTypeValue in xml document, index: " + i + ", skiping...");
         }
       }
+      if (LOG.isDebugEnabled())
+        LOG.debug("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
+            + (System.currentTimeMillis() - start) + " ms.");
 
-      registerNodeTypes(nts, alreadyExistsBehaviour);
+      return registerNodeTypes(nts, alreadyExistsBehaviour);
 
-      LOG.debug("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
-          + (System.currentTimeMillis() - start) + " ms.");
-      return nts;
     } catch (JiBXException e) {
       throw new RepositoryException("Error in config initialization " + e, e);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<NodeTypeData> registerNodeTypes(List<NodeTypeValue> ntvalues,
+                                              int alreadyExistsBehaviour) throws RepositoryException {
+
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+
+    List<NodeTypeData> nodeTypeDataList = parseNodeTypes(ntvalues);
+
+    for (NodeTypeData nodeTypeData : nodeTypeDataList) {
+      changesLog.addAll(registerNodeType(nodeTypeData, alreadyExistsBehaviour).getAllStates());
+    }
+
+    persister.saveChanges(changesLog);
+    return nodeTypeDataList;
   }
 
   /**
@@ -803,112 +751,111 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @return
    * @throws RepositoryException
    */
-  protected NodeTypeData parseNodeType(NodeTypeValue ntvalue) throws RepositoryException {
+  protected List<NodeTypeData> parseNodeTypes(List<NodeTypeValue> ntvalues) throws RepositoryException {
+    List<NodeTypeData> nodeTypeDataList = new ArrayList<NodeTypeData>();
+    for (NodeTypeValue ntvalue : ntvalues) {
 
-    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
-      List<String> nsupertypes = ntvalue.getDeclaredSupertypeNames();
-      if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
-          || ntvalue.getName().equals("exo:privilegeable")) {
-        // skip this node, so it's not necessary at this runtime
-        // + "' -- it's not necessary at this runtime";
-        LOG.warn("Node type " + ntvalue.getName()
-            + " is not register due to DISABLE control policy");
-        return null;
+      if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
+        List<String> nsupertypes = ntvalue.getDeclaredSupertypeNames();
+        if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
+            || ntvalue.getName().equals("exo:privilegeable")) {
+          // skip this node, so it's not necessary at this runtime
+          // + "' -- it's not necessary at this runtime";
+          LOG.warn("Node type " + ntvalue.getName()
+              + " is not register due to DISABLE control policy");
+          return null;
+        }
       }
-    }
 
-    // We have to validate node value before registering it
-    ntvalue.validateNodeType();
+      // We have to validate node value before registering it
+      ntvalue.validateNodeType();
+      // throw new RepositoryException("Invalid node type value");
 
-    // declaring NT name
-    InternalQName ntName = locationFactory.parseJCRName(ntvalue.getName()).getInternalName();
+      // declaring NT name
+      InternalQName ntName = locationFactory.parseJCRName(ntvalue.getName()).getInternalName();
 
-    List<String> stlist = ntvalue.getDeclaredSupertypeNames();
-    InternalQName[] supertypes = new InternalQName[stlist.size()];
-    for (int i = 0; i < stlist.size(); i++) {
-      supertypes[i] = locationFactory.parseJCRName(stlist.get(i)).getInternalName();
-    }
-
-    List<PropertyDefinitionValue> pdlist = ntvalue.getDeclaredPropertyDefinitionValues();
-    PropertyDefinitionData[] props = new PropertyDefinitionData[pdlist.size()];
-    for (int i = 0; i < pdlist.size(); i++) {
-      PropertyDefinitionValue v = pdlist.get(i);
-
-      PropertyDefinitionData pd;
-      pd = new PropertyDefinitionData(locationFactory.parseJCRName(v.getName()).getInternalName(),
-                                      ntName,
-                                      v.isAutoCreate(),
-                                      v.isMandatory(),
-                                      v.getOnVersion(),
-                                      v.isReadOnly(),
-                                      v.getRequiredType(),
-                                      v.getValueConstraints() != null ? v.getValueConstraints()
-                                                                         .toArray(new String[v.getValueConstraints()
-                                                                                              .size()])
-                                                                     : new String[0],
-                                      v.getDefaultValueStrings() == null ? new String[0]
-                                                                        : v.getDefaultValueStrings()
-                                                                           .toArray(new String[v.getDefaultValueStrings()
-                                                                                                .size()]),
-                                      v.isMultiple());
-
-      props[i] = pd;
-    }
-
-    List<NodeDefinitionValue> ndlist = ntvalue.getDeclaredChildNodeDefinitionValues();
-    NodeDefinitionData[] nodes = new NodeDefinitionData[ndlist.size()];
-    for (int i = 0; i < ndlist.size(); i++) {
-      NodeDefinitionValue v = ndlist.get(i);
-
-      List<String> rnts = v.getRequiredNodeTypeNames();
-      InternalQName[] requiredNTs = new InternalQName[rnts.size()];
-      for (int ri = 0; ri < rnts.size(); ri++) {
-        requiredNTs[ri] = locationFactory.parseJCRName(rnts.get(ri)).getInternalName();
+      List<String> stlist = ntvalue.getDeclaredSupertypeNames();
+      InternalQName[] supertypes = new InternalQName[stlist.size()];
+      for (int i = 0; i < stlist.size(); i++) {
+        supertypes[i] = locationFactory.parseJCRName(stlist.get(i)).getInternalName();
       }
-      InternalQName defaultNodeName = null;
-      if (v.getDefaultNodeTypeName() != null) {
-        defaultNodeName = locationFactory.parseJCRName(v.getDefaultNodeTypeName())
+
+      List<PropertyDefinitionValue> pdlist = ntvalue.getDeclaredPropertyDefinitionValues();
+      PropertyDefinitionData[] props = new PropertyDefinitionData[pdlist.size()];
+      for (int i = 0; i < pdlist.size(); i++) {
+        PropertyDefinitionValue v = pdlist.get(i);
+
+        PropertyDefinitionData pd;
+        pd = new PropertyDefinitionData(locationFactory.parseJCRName(v.getName()).getInternalName(),
+                                        ntName,
+                                        v.isAutoCreate(),
+                                        v.isMandatory(),
+                                        v.getOnVersion(),
+                                        v.isReadOnly(),
+                                        v.getRequiredType(),
+                                        v.getValueConstraints() != null ? v.getValueConstraints()
+                                                                           .toArray(new String[v.getValueConstraints()
+                                                                                                .size()])
+                                                                       : new String[0],
+                                        v.getDefaultValueStrings() == null ? new String[0]
+                                                                          : v.getDefaultValueStrings()
+                                                                             .toArray(new String[v.getDefaultValueStrings()
+                                                                                                  .size()]),
+                                        v.isMultiple());
+
+        props[i] = pd;
+      }
+
+      List<NodeDefinitionValue> ndlist = ntvalue.getDeclaredChildNodeDefinitionValues();
+      NodeDefinitionData[] nodes = new NodeDefinitionData[ndlist.size()];
+      for (int i = 0; i < ndlist.size(); i++) {
+        NodeDefinitionValue v = ndlist.get(i);
+
+        List<String> rnts = v.getRequiredNodeTypeNames();
+        InternalQName[] requiredNTs = new InternalQName[rnts.size()];
+        for (int ri = 0; ri < rnts.size(); ri++) {
+          requiredNTs[ri] = locationFactory.parseJCRName(rnts.get(ri)).getInternalName();
+        }
+        InternalQName defaultNodeName = null;
+        if (v.getDefaultNodeTypeName() != null) {
+          defaultNodeName = locationFactory.parseJCRName(v.getDefaultNodeTypeName())
+                                           .getInternalName();
+        }
+        NodeDefinitionData nd = new NodeDefinitionData(locationFactory.parseJCRName(v.getName())
+                                                                      .getInternalName(),
+                                                       ntName,
+                                                       v.isAutoCreate(),
+                                                       v.isMandatory(),
+                                                       v.getOnVersion(),
+                                                       v.isReadOnly(),
+                                                       requiredNTs,
+                                                       defaultNodeName,
+                                                       v.isSameNameSiblings());
+        nodes[i] = nd;
+      }
+
+      InternalQName primaryItemName = null;
+      if (ntvalue.getPrimaryItemName() != null)
+        primaryItemName = locationFactory.parseJCRName(ntvalue.getPrimaryItemName())
                                          .getInternalName();
-      }
-      NodeDefinitionData nd = new NodeDefinitionData(locationFactory.parseJCRName(v.getName())
-                                                                    .getInternalName(),
-                                                     ntName,
-                                                     v.isAutoCreate(),
-                                                     v.isMandatory(),
-                                                     v.getOnVersion(),
-                                                     v.isReadOnly(),
-                                                     requiredNTs,
-                                                     defaultNodeName,
-                                                     v.isSameNameSiblings());
-      nodes[i] = nd;
+
+      NodeTypeData nodeTypeData = new NodeTypeData(ntName,
+                                                   primaryItemName,
+                                                   ntvalue.isMixin(),
+                                                   ntvalue.isOrderableChild(),
+                                                   supertypes,
+                                                   props,
+                                                   nodes);
+
+      validateNodeType(nodeTypeData);
+      nodeTypeDataList.add(nodeTypeData);
     }
-
-    InternalQName primaryItemName = null;
-    if (ntvalue.getPrimaryItemName() != null)
-      primaryItemName = locationFactory.parseJCRName(ntvalue.getPrimaryItemName())
-                                       .getInternalName();
-
-    return new NodeTypeData(ntName,
-                            primaryItemName,
-                            ntvalue.isMixin(),
-                            ntvalue.isOrderableChild(),
-                            supertypes,
-                            props,
-                            nodes);
+    checkCyclicDependencies(nodeTypeDataList);
+    return nodeTypeDataList;
   }
 
   /**
-   * @param nodeTypeName
-   * @return
-   */
-  public Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName) {
-    return hierarchy.getDescendantNodeTypes(nodeTypeName);
-  }
-
-  /**
-   * Validate NodeTypeData and return new instance or throw an exception. The
-   * new instance will be a guarany of valid NodeType. Check according the
-   * JSR-170/JSR-283 spec.
+   * Check according the JSR-170
    * 
    * @param nodeType NodeTypeData to be checked
    * @return valid NodeTypeData
@@ -921,68 +868,39 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @return
    * @throws RepositoryException
    */
-  protected NodeTypeData validateNodeType(NodeTypeData nodeType) throws RepositoryException {
-    // possible remove
-    InternalQName name = nodeType.getName();
-    InternalQName primaryItemName = nodeType.getPrimaryItemName();
-    boolean mixin = nodeType.isMixin();
-    boolean hasOrderableChildNodes = nodeType.hasOrderableChildNodes();
-    InternalQName[] declaredSupertypeNames = nodeType.getDeclaredSupertypeNames();
-    PropertyDefinitionData[] declaredPropertyDefinitions = nodeType.getDeclaredPropertyDefinitions();
-    NodeDefinitionData[] declaredChildNodeDefinitions = nodeType.getDeclaredChildNodeDefinitions();
 
+  protected void validateNodeType(NodeTypeData nodeType) throws RepositoryException {
     if (nodeType == null) {
       throw new RepositoryException("NodeType object " + nodeType + " is null");
     }
 
-    long start = System.currentTimeMillis();
-
-    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)
-        && nodeType.getName().equals("exo:privilegeable")) {
-      throw new RepositoryException("NodeType exo:privilegeable is DISABLED");
+    for (int i = 0; i < nodeType.getDeclaredSupertypeNames().length; i++) {
+      if (nodeType.getName().equals(nodeType.getDeclaredSupertypeNames()[i])) {
+        throw new RepositoryException("Invalid super type name"
+            + nodeType.getDeclaredSupertypeNames()[i].getAsString());
+      }
     }
-    for (int i = 0; i < declaredSupertypeNames.length; i++) {
-      if (findNodeType(declaredSupertypeNames[i]) == null) {
-        throw new RepositoryException("Super type " + declaredSupertypeNames[i].getAsString()
+    for (int i = 0; i < nodeType.getDeclaredPropertyDefinitions().length; i++) {
+      if (!nodeType.getDeclaredPropertyDefinitions()[i].getDeclaringNodeType()
+                                                       .equals(nodeType.getName())) {
+        throw new RepositoryException("Invalid declared  node type in property definitions with name "
+            + nodeType.getDeclaredPropertyDefinitions()[i].getName().getAsString()
             + " not registred");
       }
     }
-    for (int i = 0; i < declaredPropertyDefinitions.length; i++) {
-      if (declaredPropertyDefinitions[i].getDeclaringNodeType().equals(name)) {
-        throw new RepositoryException("Invalid declared  node type in property definitions with name "
-            + declaredPropertyDefinitions[i].getName().getAsString() + " not registred");
-      }
-    }
-    for (int i = 0; i < declaredChildNodeDefinitions.length; i++) {
-      if (declaredChildNodeDefinitions[i].getDeclaringNodeType().equals(name)) {
+    for (int i = 0; i < nodeType.getDeclaredChildNodeDefinitions().length; i++) {
+      if (!nodeType.getDeclaredChildNodeDefinitions()[i].getDeclaringNodeType()
+                                                        .equals(nodeType.getName())) {
         throw new RepositoryException("Invalid declared  node type in child node definitions with name "
-            + declaredChildNodeDefinitions[i].getName().getAsString() + " not registred");
-      }
-      if (findNodeType(declaredChildNodeDefinitions[i].getDefaultPrimaryType()) == null) {
-        throw new RepositoryException("Default primary type"
-            + declaredSupertypeNames[i].getAsString() + " not registred");
-      }
-      for (int j = 0; j < declaredChildNodeDefinitions[i].getRequiredPrimaryTypes().length; j++) {
-        if (findNodeType(declaredChildNodeDefinitions[i].getRequiredPrimaryTypes()[j]) == null) {
-          throw new RepositoryException("Required primary type"
-              + declaredSupertypeNames[i].getAsString() + " not registred");
-        }
-
+            + nodeType.getDeclaredChildNodeDefinitions()[i].getName().getAsString()
+            + " not registred");
       }
     }
 
-    if (name == null) {
+    if (nodeType.getName() == null) {
       throw new RepositoryException("NodeType implementation class "
           + nodeType.getClass().getName() + " is not supported in this method");
     }
-
-    return new NodeTypeData(name,
-                            primaryItemName,
-                            mixin,
-                            hasOrderableChildNodes,
-                            declaredSupertypeNames,
-                            declaredPropertyDefinitions,
-                            declaredChildNodeDefinitions);
   }
 
   private List<ValueData> autoCreatedValue(NodeData parent,
@@ -1038,6 +956,49 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
 
     return vals;
+  }
+
+  private void checkCyclicDependencies(List<NodeTypeData> ntData) throws RepositoryException {
+    Set<InternalQName> unresolvedDependecies = new HashSet<InternalQName>();
+    Set<InternalQName> resolvedDependecies = new HashSet<InternalQName>();
+    for (NodeTypeData nodeTypeData : ntData) {
+      // / add itself
+      resolvedDependecies.add(nodeTypeData.getName());
+      // remove from unresolved
+      unresolvedDependecies.remove(nodeTypeData.getName());
+      // check suppers
+      for (int i = 0; i < nodeTypeData.getDeclaredSupertypeNames().length; i++) {
+        InternalQName superName = nodeTypeData.getDeclaredSupertypeNames()[i];
+        if (hierarchy.getNodeType(superName) == null && !resolvedDependecies.contains(superName)) {
+          unresolvedDependecies.add(superName);
+        }
+      }
+      // check node definition
+      for (int i = 0; i < nodeTypeData.getDeclaredChildNodeDefinitions().length; i++) {
+        NodeDefinitionData childnodeDefinitionData = nodeTypeData.getDeclaredChildNodeDefinitions()[i];
+        for (int j = 0; j < childnodeDefinitionData.getRequiredPrimaryTypes().length; j++) {
+          InternalQName requiredPrimaryTypeName = childnodeDefinitionData.getRequiredPrimaryTypes()[j];
+          if (hierarchy.getNodeType(requiredPrimaryTypeName) == null
+              && !resolvedDependecies.contains(requiredPrimaryTypeName)) {
+            unresolvedDependecies.add(requiredPrimaryTypeName);
+          }
+        }
+        if (childnodeDefinitionData.getDefaultPrimaryType() != null) {
+          if (hierarchy.getNodeType(childnodeDefinitionData.getDefaultPrimaryType()) == null
+              && !resolvedDependecies.contains(childnodeDefinitionData.getDefaultPrimaryType())) {
+            unresolvedDependecies.add(childnodeDefinitionData.getDefaultPrimaryType());
+
+          }
+        }
+      }
+    }
+    if (unresolvedDependecies.size() > 0) {
+      String msg = "Fail. Unresolved cyclic dependecy for :";
+      for (InternalQName internalQName : resolvedDependecies) {
+        msg += " " + internalQName.getAsString();
+      }
+      throw new RepositoryException(msg);
+    }
   }
 
   /**
@@ -1142,8 +1103,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     try {
       InputStream xml = NodeTypeManagerImpl.class.getResourceAsStream(NODETYPES_FILE);
       if (xml != null) {
-        for (NodeTypeData nodeTypeData : registerNodeTypes(xml,
-                                                           ExtendedNodeTypeManager.IGNORE_IF_EXISTS)) {
+        List<NodeTypeData> registerNodeTypes = registerNodeTypes(xml,
+                                                                 ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+        for (NodeTypeData nodeTypeData : registerNodeTypes) {
           buildInNodeTypesNames.add(nodeTypeData.getName());
         }
       } else {
@@ -1152,7 +1114,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         LOG.error(msg);
         throw new RepositoryException(msg);
       }
-    } catch (Exception e) {
+    } catch (RepositoryException e) {
       String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
           + NODETYPES_FILE + "'. " + e;
       LOG.error(msg);
@@ -1169,11 +1131,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @throws ValueFormatException
    * @throws PathNotFoundException
    */
-  private PlainChangesLog internalRegister(NodeTypeData nodeType, boolean checkExistence) throws PathNotFoundException,
-                                                                                         ValueFormatException,
-                                                                                         RepositoryException {
-    PlainChangesLog changesLog = new PlainChangesLogImpl();
-    long start = System.currentTimeMillis();
+  private void internalRegister(NodeTypeData nodeType) throws PathNotFoundException,
+                                                      ValueFormatException,
+                                                      RepositoryException {
+
     hierarchy.addNodeType(nodeType);
 
     defsHolder.putDefinitions(nodeType.getName(), nodeType);
@@ -1183,28 +1144,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     for (InternalQName superName : supers) {
       defsHolder.putDefinitions(nodeType.getName(), hierarchy.getNodeType(superName));
     }
-
-    if (persister.isInitialized()) {
-      try {
-        if (!checkExistence || !persister.hasNodeTypeData(nodeType.getName())) {
-          changesLog.addAll(persister.addNodeType(nodeType).getAllStates());
-          // persister.addNodeType(nodeType);
-          // persister.saveChanges();
-        }
-      } catch (InvalidItemStateException e) {
-        LOG.warn("Error of storing node type " + nodeType.getName()
-            + ". May be node type already registered .", e);
-      }
-      if (LOG.isDebugEnabled())
-        LOG.debug("NodeType " + nodeType.getName() + " initialized. "
-            + (System.currentTimeMillis() - start) + " ms");
-    } else {
-      if (LOG.isDebugEnabled())
-        LOG.debug("NodeType " + nodeType.getName()
-            + " registered but not initialized (storage is not initialized). "
-            + (System.currentTimeMillis() - start) + " ms");
-    }
-    return changesLog;
   }
 
   /**
@@ -1212,7 +1151,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @param nodeType
    * @throws RepositoryException
    */
-  private List<ItemState> internalUnregister(InternalQName nodeTypeName, NodeTypeData nodeType) throws RepositoryException {
+  private void internalUnregister(InternalQName nodeTypeName, NodeTypeData nodeType) throws RepositoryException {
     // put supers
     Set<InternalQName> supers = hierarchy.getSupertypes(nodeTypeName);
 
@@ -1226,7 +1165,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       }
     // remove it self
     defsHolder.removeDefinitions(nodeTypeName, nodeType);
-    return persister.removeNodeType(nodeType);
+
   }
 
   /**
@@ -1292,8 +1231,95 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  private void reregisterNodeType(NodeTypeData ancestorDefinition, NodeTypeData recipientDefinition) throws ConstraintViolationException,
-                                                                                                    RepositoryException {
+  /**
+   * @param nodeType
+   * @param checkExistence
+   * @return
+   * @throws RepositoryException
+   * @throws PathNotFoundException
+   * @throws ValueFormatException
+   */
+  private PlainChangesLog persistNodeTypeData(NodeTypeData nodeType, boolean checkExistence) throws RepositoryException,
+                                                                                            PathNotFoundException,
+                                                                                            ValueFormatException {
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    long start = System.currentTimeMillis();
+    if (persister.isInitialized()) {
+      try {
+        if (!(checkExistence && persister.hasNodeTypeData(nodeType.getName()))) {
+          changesLog.addAll(persister.addNodeType(nodeType).getAllStates());
+        }
+      } catch (InvalidItemStateException e) {
+        LOG.warn("Error of storing node type " + nodeType.getName()
+            + ". May be node type already registered .", e);
+      }
+      if (LOG.isDebugEnabled())
+        LOG.debug("NodeType " + nodeType.getName() + " initialized. "
+            + (System.currentTimeMillis() - start) + " ms");
+    } else {
+      if (LOG.isDebugEnabled())
+        LOG.debug("NodeType " + nodeType.getName()
+            + " registered but not initialized (storage is not initialized). "
+            + (System.currentTimeMillis() - start) + " ms");
+    }
+    return changesLog;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  private PlainChangesLog registerNodeType(NodeTypeData nodeType, int alreadyExistsBehaviour) throws RepositoryException {
+
+    if (nodeType == null) {
+      throw new RepositoryException("NodeTypeData object " + nodeType + " is null");
+    }
+
+    long start = System.currentTimeMillis();
+
+    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)
+        && nodeType.getName().equals("exo:privilegeable")) {
+      throw new RepositoryException("NodeType exo:privilegeable is DISABLED");
+    }
+
+    InternalQName qname = nodeType.getName();
+    if (qname == null) {
+      throw new RepositoryException("NodeType implementation class "
+          + nodeType.getClass().getName() + " is not supported in this method");
+    }
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+
+    NodeTypeData registeredNodeType = findNodeType(qname);
+    if (registeredNodeType != null) {
+      switch (alreadyExistsBehaviour) {
+      case ExtendedNodeTypeManager.FAIL_IF_EXISTS:
+        throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
+      case ExtendedNodeTypeManager.IGNORE_IF_EXISTS:
+        LOG.warn("Skipped " + nodeType.getName().getAsString() + " as already registered");
+        break;
+      case ExtendedNodeTypeManager.REPLACE_IF_EXISTS:
+        changesLog.addAll(reregisterNodeType(registeredNodeType, nodeType).getAllStates());
+        break;
+      }
+    } else {
+      internalRegister(nodeType);
+      changesLog.addAll(persistNodeTypeData(nodeType, true).getAllStates());
+
+    }
+    return changesLog;
+  }
+
+  /**
+   * @param nodeType
+   * @return
+   * @throws RepositoryException
+   */
+  private List<ItemState> removePersistedNodeType(NodeTypeData nodeType) throws RepositoryException {
+    return persister.removeNodeType(nodeType);
+  }
+
+  private PlainChangesLog reregisterNodeType(NodeTypeData ancestorDefinition,
+                                             NodeTypeData recipientDefinition) throws ConstraintViolationException,
+                                                                              RepositoryException {
     if (!ancestorDefinition.getName().equals(recipientDefinition.getName())) {
       throw new RepositoryException("Unsupported Operation");
     }
@@ -1386,8 +1412,12 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       }
     }
 
-    changesLog.addAll(internalUnregister(ancestorDefinition.getName(), ancestorDefinition));
-    changesLog.addAll(internalRegister(recipientDefinition, false).getAllStates());
-    persister.saveChanges(changesLog);
+    internalUnregister(ancestorDefinition.getName(), ancestorDefinition);
+    changesLog.addAll(removePersistedNodeType(ancestorDefinition));
+
+    internalRegister(recipientDefinition);
+    changesLog.addAll(persistNodeTypeData(recipientDefinition, false).getAllStates());
+
+    return changesLog;
   }
 }

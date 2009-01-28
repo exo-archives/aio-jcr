@@ -208,15 +208,18 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   /**
    * {@inheritDoc}
+   * 
+   * @return
    */
-  public void registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException {
-
-    typesManager.registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
+  public NodeType registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException {
+    List<NodeTypeValue> list = new ArrayList<NodeTypeValue>();
+    list.add(nodeTypeValue);
+    NodeTypeIterator it = registerNodeTypes(list, alreadyExistsBehaviour);
+    return it.nextNodeType();
   }
 
-  public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
-                                            int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
-                                                                       RepositoryException {
+  public NodeTypeIterator registerNodeTypes(List<NodeTypeValue> values, int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
+                                                                                                   RepositoryException {
 
     Collection<NodeTypeData> nts = typesManager.registerNodeTypes(values, alreadyExistsBehaviour);
     EntityCollection types = new EntityCollection();
@@ -228,10 +231,17 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   /**
    * {@inheritDoc}
+   * 
+   * @return
    */
-  public void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
+  public NodeTypeIterator registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
 
-    typesManager.registerNodeTypes(xml, alreadyExistsBehaviour);
+    Collection<NodeTypeData> nts = typesManager.registerNodeTypes(xml, alreadyExistsBehaviour);
+    EntityCollection types = new EntityCollection();
+    for (NodeTypeData ntdata : nts)
+      types.add(new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory));
+
+    return types;
   }
 
   /**

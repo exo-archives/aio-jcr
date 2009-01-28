@@ -49,10 +49,7 @@ public class ItemDefinitionDataHolder {
 
   private final HashMap<DefaultNodeDefKey, NodeDefinitionData>  defNodeDefinitions;
 
-  private final NodeTypeDataHierarchyHolder                     nodeTypesHierarchy;
-
-  public ItemDefinitionDataHolder(NodeTypeDataHierarchyHolder nodeTypesHierarchy) {
-    this.nodeTypesHierarchy = nodeTypesHierarchy;
+  public ItemDefinitionDataHolder() {
     this.nodeDefinitions = new HashMap<ChildNodeDefKey, NodeDefinitionData>();
     this.propertyDefinitions = new HashMap<PropertyDefKey, PropertyDefinitionData>();
     this.defNodeDefinitions = new HashMap<DefaultNodeDefKey, NodeDefinitionData>();

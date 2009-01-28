@@ -17,7 +17,7 @@
 package org.exoplatform.services.jcr.core.nodetype;
 
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
@@ -53,7 +53,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    * @param alreadyExistsBehaviour
    * @throws RepositoryException
    */
-  void registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException;
+  NodeType registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException;
 
   /**
    * Registers all node types using XML binding value objects from xml stream.
@@ -62,7 +62,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    * @param alreadyExistsBehaviour a int
    * @throws RepositoryException
    */
-  void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
+  NodeTypeIterator registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
 
   // ------ JCR 2 related features methods ------
 
@@ -113,9 +113,8 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    *           not support node type registration.
    * @throws RepositoryException if another error occurs.
    */
-  public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
-                                            int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
-                                                                       RepositoryException;
+  public NodeTypeIterator registerNodeTypes(List<NodeTypeValue> values, int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
+                                                                                                   RepositoryException;
 
   /**
    * Unregisters the specified node type.
