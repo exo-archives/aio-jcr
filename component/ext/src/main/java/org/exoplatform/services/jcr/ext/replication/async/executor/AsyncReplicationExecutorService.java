@@ -168,7 +168,7 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
 
     log.info("AsyncReplicationExecutorService inited.");
   }
-  
+
   /**
    * Execute synchronization.
    * 
@@ -237,7 +237,8 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
     HTTPResponse resp = connection.Get(url.getFile());
 
     if (resp.getStatusCode() != 200 || !Constants.OK_RESULT.equals(resp.getText()))
-      throw new RuntimeException("Fail remote start synchronization : " + member.toString());
+      throw new RuntimeException("Fail remote start synchronization : " + member + "\n"
+          + resp.getText());
   }
 
   /**
