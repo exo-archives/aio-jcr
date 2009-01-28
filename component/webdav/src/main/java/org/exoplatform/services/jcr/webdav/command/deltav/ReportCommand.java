@@ -63,7 +63,7 @@ public class ReportCommand {
       URI uri = new URI(TextUtil.escape(strUri, '%', true));
 
       if (!ResourceUtil.isVersioned(node)) {
-        return Response.serverError().build();
+        return Response.status(HTTPStatus.PRECON_FAILED).build();
       }
 
       VersionedResource resource;

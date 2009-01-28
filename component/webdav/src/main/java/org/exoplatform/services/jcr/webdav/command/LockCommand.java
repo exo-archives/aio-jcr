@@ -36,6 +36,7 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.Depth;
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.command.lock.LockRequestEntity;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.resource.GenericResource;
@@ -52,8 +53,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class LockCommand {
 
-  private static Log log = ExoLogger.getLogger(LockCommand.class);
-  
+  private static Log                    log = ExoLogger.getLogger(LockCommand.class);
+
   private final NullResourceLocksHolder nullResourceLocks;
 
   public LockCommand(final NullResourceLocksHolder nullResourceLocks) {
@@ -87,13 +88,15 @@ public class LockCommand {
 
       LockRequestEntity requestEntity = new LockRequestEntity(body);
 
+      lockToken = WebDavConst.Lock.OPAQUE_LOCK_TOKEN + ":" + lockToken;
+
       return Response.ok(body(nsContext,
-                                      requestEntity,
-                                      depth,
-                                      lockToken,
-                                      requestEntity.getOwner(),
-                                      timeout),
-                                 "text/xml").header("Lock-Token", "<" + lockToken + ">").build();
+                              requestEntity,
+                              depth,
+                              lockToken,
+                              requestEntity.getOwner(),
+                              timeout),
+                         "text/xml").header("Lock-Token", "<" + lockToken + ">").build();
 
       // TODO 412 Precondition Failed ?
     } catch (LockException exc) {
@@ -108,11 +111,11 @@ public class LockCommand {
   }
 
   private final StreamingOutput body(WebDavNamespaceContext nsContext,
-                                        LockRequestEntity input,
-                                        Depth depth,
-                                        String lockToken,
-                                        String lockOwner,
-                                        String timeout) {
+                                     LockRequestEntity input,
+                                     Depth depth,
+                                     String lockToken,
+                                     String lockOwner,
+                                     String timeout) {
     return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
   }
 

@@ -129,7 +129,7 @@ public class GetCommand {
                          .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
                          .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
                          .entity(istream)
-                         .type(MediaType.TEXT_HTML_TYPE)
+                         .type(contentType)
                          .build();
         }
 
