@@ -1,14 +1,14 @@
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.10.2-SNAPSHOT</version>
+    <version>1.10.2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.component.cifs</artifactId>
   <packaging>jar</packaging>
-  <version>1.10.2-SNAPSHOT</version>
+  <version>1.10.2</version>
   <name>eXo JCR CIFS Service</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR CIFS Service</description>
@@ -16,7 +16,7 @@
       <dependency>
         <groupId>org.exoplatform.jcr</groupId>
         <artifactId>exo.jcr.component.core</artifactId>
-        <version>1.10.2-SNAPSHOT</version>
+        <version>1.10.2</version>
         <scope>compile</scope>
       </dependency>
 
