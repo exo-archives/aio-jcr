@@ -28,7 +28,7 @@ import java.io.IOException;
  */
 public class StorageIOException extends IOException {
 
-  protected Throwable cause;
+  protected final Throwable cause;
   
   public StorageIOException(String message) {
     super(message);
@@ -38,10 +38,6 @@ public class StorageIOException extends IOException {
   public StorageIOException(String message, Throwable cause) {
     super(message);
     this.cause = cause;
-  }
-
-  public StorageIOException(String message) {
-    super(message);
   }
 
   /**
