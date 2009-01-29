@@ -266,7 +266,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   }
 
   /**
-   * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
+   * Complex UseCase2 (server 1 - high priority, server 2 -low priority)
    * 
    * Update property with size > 200kb
    */
@@ -275,8 +275,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     ComplexUseCase2 complexUseCase2 = new ComplexUseCase2(session3, session4);
 
     // low
-    complexUseCase2.useCaseLowPriority();
-    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
 
     // high
     complexUseCase2.useCaseHighPriority();
@@ -289,6 +288,31 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(complexUseCase2.checkEquals());
+  }
+
+  /**
+   * Complex UseCase3 (server 1 - high priority, server 2 -low priority)
+   * 
+   */
+  public void testCompexUsecase3() throws Exception {
+
+    ComplexUseCase3 complexUseCase3 = new ComplexUseCase3(session3, session4);
+
+    // low
+    complexUseCase3.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    // high
+    complexUseCase3.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase3.checkEquals());
   }
 
   /**

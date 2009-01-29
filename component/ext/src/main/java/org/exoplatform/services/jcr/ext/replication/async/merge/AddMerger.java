@@ -35,10 +35,10 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -458,7 +458,9 @@ public class AddMerger extends AbstractMerger {
             if (incomeData.getQPath().isDescendantOf(locNodePath)
                 || incomeData.getQPath().equals(locNodePath)
                 || incomeData.getQPath().isDescendantOf(nextLocNodePath)
-                || incomeData.getQPath().equals(nextLocNodePath)) {
+                || incomeData.getQPath().equals(nextLocNodePath)
+                || nextLocNodePath.isDescendantOf(incomeData.getQPath())
+                || nextLocNodePath.equals(incomeData.getQPath())) {
 
               // add DELETE state
               List<ItemState> items = local.getRenameSequence(localState);

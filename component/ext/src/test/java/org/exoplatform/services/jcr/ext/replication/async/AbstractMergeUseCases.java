@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.ByteArrayInputStream;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PropertyIterator;
@@ -107,7 +109,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
   /**
    * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
    * 
-   * Update property with size > 200kb
+   * Update property with size = 200kb
    */
   public class ComplexUseCase2 extends BaseMergeUseCase {
     public ComplexUseCase2(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -125,16 +127,51 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     @Override
     public void useCaseHighPriority() throws Exception {
       StringBuilder str = new StringBuilder();
-      for (int i = 0; i < 50000; i++)
+      for (int i = 0; i < 20000; i++)
         str.append("aaaaaaaaaa");
 
       Node node = sessionHighPriority.getRootNode().addNode("item1");
-      node.setProperty("prop1", str.toString());
-
+      node.setProperty("prop1", new ByteArrayInputStream(str.toString().getBytes()));
+      sessionHighPriority.save();
     }
 
     @Override
     public void useCaseLowPriority() throws Exception {
+    }
+  }
+
+  /**
+   * Complex UseCase1 3 (server 1 - high priority, server 2 -low priority)
+   */
+  public class ComplexUseCase3 extends BaseMergeUseCase {
+    public ComplexUseCase3(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item2");
+      node.addNode("item21");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      Node node11 = node.addNode("item11");
+      Node node111 = node11.addNode("item111");
+      node111.remove();
+      node11.addNode("item112");
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.save();
     }
   }
 
@@ -826,23 +863,32 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     // compare child nodes
     NodeIterator srcNodes = src.getNodes();
     NodeIterator dstNodes = dst.getNodes();
-    while (srcNodes.hasNext()) {
-      if (!dstNodes.hasNext()) {
-        log.error("Second node has no child node: " + srcNodes.nextNode().getName());
-        return false;
-      }
 
-      if (!isNodesEquals(srcNodes.nextNode(), dstNodes.nextNode())) {
-        return false;
-      }
-    }
-
-    if (dstNodes.hasNext()) {
-      log.error("First node has no child node: " + dstNodes.nextNode().getName());
+    if (srcNodes.getSize() != dstNodes.getSize()) {
+      log.error("Invalid child nodes count: " + src.getName());
       return false;
     }
 
-    return true;
-  }
+    boolean res1 = true;
+    while (srcNodes.hasNext()) {
+      Node srcChildNode = srcNodes.nextNode();
+      Node dstChildNode = dst.getNode(srcChildNode.getName());
 
+      if (!isNodesEquals(srcChildNode, dstChildNode)) {
+        res1 = false;
+      }
+    }
+
+    srcNodes = src.getNodes();
+    dstNodes = dst.getNodes();
+
+    boolean res2 = true;
+    while (srcNodes.hasNext()) {
+      if (!isNodesEquals(srcNodes.nextNode(), dstNodes.nextNode())) {
+        res2 = false;
+      }
+    }
+
+    return res1 || res2;
+  }
 }

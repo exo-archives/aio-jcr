@@ -32,11 +32,10 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorageOld;
-import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -66,15 +65,15 @@ public class RenameMerger extends AbstractMerger {
    * @throws RepositoryException
    */
   public EditableChangesStorage<ItemState> merge(ItemState itemChange,
-                                         ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local,
-                                         String mergeTempDir,
-                                         List<QPath> skippedList) throws RemoteExportException,
-                                                                 IOException,
-                                                                 ClassCastException,
-                                                                 ClassNotFoundException,
-                                                                 StorageRuntimeException,
-                                                                 RepositoryException {
+                                                 ChangesStorage<ItemState> income,
+                                                 ChangesStorage<ItemState> local,
+                                                 String mergeTempDir,
+                                                 List<QPath> skippedList) throws RemoteExportException,
+                                                                         IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException,
+                                                                         StorageRuntimeException,
+                                                                         RepositoryException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
@@ -115,18 +114,20 @@ public class RenameMerger extends AbstractMerger {
           if (localData.isNode()) {
             if (localData.getQPath().isDescendantOf(incNodePath)
                 || localData.getQPath().equals(incNodePath)
-                || localData.getQPath().equals(nextIncNodePath)) {
+                || localData.getQPath().equals(nextIncNodePath)
+                || nextIncNodePath.equals(localData.getQPath())
+                || nextIncNodePath.isDescendantOf(localData.getQPath())) {
 
-              skippedList.add(incNodePath);
-              skippedList.add(nextIncNodePath);
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+                skippedList.add(st.getData().getQPath());
 
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (localData.getQPath().isDescendantOf(incNodePath)) {
 
-              skippedList.add(incNodePath);
-              skippedList.add(nextIncNodePath);
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+                skippedList.add(st.getData().getQPath());
 
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
@@ -148,7 +149,9 @@ public class RenameMerger extends AbstractMerger {
                 || (local.getNextItemStateByUUIDOnUpdate(localState,
                                                          nextIncomeState.getData()
                                                                         .getParentIdentifier()) != null)) {
-              skippedList.add(incomeData.getQPath());
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+                skippedList.add(st.getData().getQPath());
+
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
             break;
@@ -170,8 +173,8 @@ public class RenameMerger extends AbstractMerger {
                 || nextIncNodePath.equals(nextLocalPath)
                 || nextLocalPath.isDescendantOf(incNodePath)) {
 
-              skippedList.add(incNodePath);
-              skippedList.add(nextIncNodePath);
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+                skippedList.add(st.getData().getQPath());
 
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
@@ -184,8 +187,8 @@ public class RenameMerger extends AbstractMerger {
                 || incNodePath.equals(localData.getQPath())
                 || nextIncNodePath.isDescendantOf(localData.getQPath())) {
 
-              skippedList.add(incNodePath);
-              skippedList.add(nextIncNodePath);
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+                skippedList.add(st.getData().getQPath());
 
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
@@ -193,8 +196,8 @@ public class RenameMerger extends AbstractMerger {
             if (incNodePath.isDescendantOf(localData.getQPath().makeParentPath())
                 || incNodePath.equals(localData.getQPath().makeParentPath())) {
 
-              skippedList.add(incNodePath);
-              skippedList.add(nextIncNodePath);
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+                skippedList.add(st.getData().getQPath());
 
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
@@ -206,8 +209,8 @@ public class RenameMerger extends AbstractMerger {
             if (localData.getQPath().isDescendantOf(incNodePath)
                 || localData.getQPath().equals(incNodePath)) {
 
-              skippedList.add(incNodePath);
-              skippedList.add(nextIncNodePath);
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+                skippedList.add(st.getData().getQPath());
 
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
@@ -220,7 +223,10 @@ public class RenameMerger extends AbstractMerger {
         case ItemState.MIXIN_CHANGED:
           if (localData.getQPath().equals(incNodePath)
               || localData.getQPath().isDescendantOf(incNodePath)) {
-            skippedList.add(incomeData.getQPath());
+
+            for (ItemState st : income.getTreeChanges(incomeState, incNodePath))
+              skippedList.add(st.getData().getQPath());
+
             return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
           }
           break;
