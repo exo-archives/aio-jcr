@@ -333,7 +333,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    closeObjectOutputStream();
+    //closeObjectOutputStream();
     return new ArrayOrFileIterator();
   }
 
