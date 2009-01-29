@@ -105,6 +105,40 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
   }
 
   /**
+   * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
+   * 
+   * Update property with size > 200kb
+   */
+  public class ComplexUseCase2 extends BaseMergeUseCase {
+    public ComplexUseCase2(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      StringBuilder str = new StringBuilder();
+      for (int i = 0; i < 50000; i++)
+        str.append("aaaaaaaaaa");
+
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("prop1", str.toString());
+
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+    }
+  }
+
+  /**
    * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
    * 
    * 1. Add text file /fileA.txt on server 1
