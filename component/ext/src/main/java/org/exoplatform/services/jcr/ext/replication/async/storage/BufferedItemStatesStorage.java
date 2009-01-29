@@ -201,27 +201,9 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       }
 
     } catch (final ClassCastException e) {
-      throw new IOException(e.getMessage()) {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Throwable getCause() {
-          return e;
-        }
-      };
-
+      throw new StorageIOException(e.getMessage(), e);
     } catch (final ClassNotFoundException e) {
-      throw new IOException(e.getMessage()) {
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Throwable getCause() {
-          return e;
-        }
-      };
+      throw new StorageIOException(e.getMessage(), e);
     }
 
   }
