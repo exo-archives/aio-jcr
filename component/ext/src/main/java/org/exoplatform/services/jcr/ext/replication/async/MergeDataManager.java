@@ -35,12 +35,12 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.DeleteMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.MixinMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.RenameMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
+import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -131,18 +131,18 @@ public class MergeDataManager {
                                                                                                   ChangesLogReadException {
 
     try {
+      MemberChangesStorage<ItemState> first = membersChanges.next();
 
-      // TODO init
       EditableChangesStorage<ItemState> interChanges = null;
       EditableChangesStorage<ItemState> iteratorChanges = new BufferedItemStatesStorage<ItemState>(makePath("iterator"),
-                                                                                                        null);
+                                                                                                   first.getMember()); // will
+      // be
+      // reassigned
       EditableChangesStorage<ItemState> resultChanges = new BufferedItemStatesStorage<ItemState>(makePath("result"),
-                                                                                                      localMember);
+                                                                                                 localMember);
 
       MemberChangesStorage<ItemState> local;
       MemberChangesStorage<ItemState> income;
-
-      MemberChangesStorage<ItemState> first = membersChanges.next();
 
       // prepare
       if (localMember.getPriority() == first.getMember().getPriority()) {
@@ -174,8 +174,8 @@ public class MergeDataManager {
 
         // synchronizedChanges always with higher priority (income)
         interChanges = new BufferedItemStatesStorage<ItemState>(makePath(first.getMember(),
-                                                                              second.getMember()),
-                                                                     second.getMember());
+                                                                         second.getMember()),
+                                                                second.getMember());
 
         exporter.setRemoteMember(second.getMember().getAddress());
         // TODO NT reregistration
@@ -322,7 +322,9 @@ public class MergeDataManager {
             }
 
           } else {
-            iteratorChanges.delete();
+            iteratorChanges.delete(); // TODO really need?
+            iteratorChanges = new BufferedItemStatesStorage<ItemState>(makePath("iterator"),
+                                                                       second.getMember());
 
             Iterator<ItemState> st = second.getChanges();
             while (st.hasNext())
