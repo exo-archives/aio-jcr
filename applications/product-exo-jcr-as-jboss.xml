@@ -2,13 +2,13 @@
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>exo.jcr.applications.config</artifactId>
-		<version>1.10.2-SNAPSHOT</version>
+		<version>1.10.2</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.product.jcr</artifactId>
 	<packaging>jar</packaging>
-	<version>1.10.2-SNAPSHOT</version>
+	<version>1.10.2</version>
 	<name>eXo JCR Product</name>
 	<url>http://www.exoplatform.org</url>
 	<description>eXo JCR Product</description>
@@ -51,7 +51,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-1.10.2.dir/"
 								excludes="**/*.war" />
 						</copy>
 						<copy
@@ -67,16 +67,16 @@
 								dir="${basedir}/product-patches/as/jboss/" includes="*.xml" />
 						</copy>
 						<move
-							todir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-1.10.2.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.10.2.dir/">
 								<include name="**/*.war" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.applications.*-1.10.2-SNAPSHOT.war"
+										from="exo.jcr.applications.*-1.10.2.war"
 										to="*.war" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -85,7 +85,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar"
 							verbose="true" flatten="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-1.10.2.dir/"
 								casesensitive="yes">
 								<include name="**/*.war" />
 							</fileset>

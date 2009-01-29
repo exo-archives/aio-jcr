@@ -2,13 +2,13 @@
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>exo.jcr.applications.config</artifactId>
-		<version>1.10.2-SNAPSHOT</version>
+		<version>1.10.2</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.product.jcr</artifactId>
 	<packaging>jar</packaging>
-	<version>1.10.2-SNAPSHOT</version>
+	<version>1.10.2</version>
 	<name>eXo JCR Product</name>
 	<url>http://www.exoplatform.org</url>
 	<description>eXo JCR Product</description>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.ear</artifactId>
-			<version>1.10.2-SNAPSHOT</version>
+			<version>1.10.2</version>
 			<type>ear</type>
 			<scope>runtime</scope>
 		</dependency>
@@ -70,16 +70,16 @@
 						</copy>
 						<!--renaming ear-->
 						<move
-							todir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-1.10.2.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.10.2.dir/">
 								<include name="**/*.ear" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="*-1.10.2-SNAPSHOT.ear" to="*.ear"
+										from="*-1.10.2.ear" to="*.ear"
 										casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -89,7 +89,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-1.10.2.dir/"
 								includes="**/*.ear" />
 						</copy>
 						<!--copying exo-configuration.xml-->
@@ -111,7 +111,7 @@
 						<copy
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/lib/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.10.2.dir/">
 								<include name="**/hsqldb*.jar" />
 							</fileset>
 						</copy>
