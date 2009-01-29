@@ -133,8 +133,8 @@ public class MergeDataManager {
     try {
       MemberChangesStorage<ItemState> first = membersChanges.next();
 
-      EditableChangesStorage<ItemState> interChanges = null;
-      EditableChangesStorage<ItemState> iteratorChanges = new BufferedItemStatesStorage<ItemState>(makePath("iterator"),
+      EditableChangesStorage<ItemState> interResultChanges = null;
+      EditableChangesStorage<ItemState> accumulationChanges = new BufferedItemStatesStorage<ItemState>(makePath("iterator"),
                                                                                                    first.getMember()); // will
       // be
       // reassigned
@@ -148,7 +148,7 @@ public class MergeDataManager {
       if (localMember.getPriority() == first.getMember().getPriority()) {
         Iterator<ItemState> st = first.getChanges();
         while (st.hasNext())
-          iteratorChanges.add(st.next());
+          accumulationChanges.add(st.next());
       }
 
       while (membersChanges.hasNext() && run) {
@@ -173,9 +173,9 @@ public class MergeDataManager {
             + ") members");
 
         // synchronizedChanges always with higher priority (income)
-        interChanges = new BufferedItemStatesStorage<ItemState>(makePath(first.getMember(),
-                                                                         second.getMember()),
-                                                                second.getMember());
+        interResultChanges = new BufferedItemStatesStorage<ItemState>(makePath(first.getMember(),
+                                                                               second.getMember()),
+                                                                      second.getMember());
 
         exporter.setRemoteMember(second.getMember().getAddress());
         // TODO NT reregistration
@@ -205,7 +205,7 @@ public class MergeDataManager {
                   + incomeChange.getData().getQPath().getAsString());
 
               // skip already processed itemstate
-              if (interChanges.hasState(incomeChange)) {
+              if (interResultChanges.hasState(incomeChange)) {
                 LOG.info("\t\tSkip income item " + ItemState.nameFromValue(incomeChange.getState())
                     + " " + incomeChange.getData().getQPath().getAsString());
                 continue;
@@ -232,20 +232,20 @@ public class MergeDataManager {
 
               switch (incomeChange.getState()) {
               case ItemState.ADDED:
-                interChanges.addAll(addMerger.merge(incomeChange,
-                                                    income,
-                                                    local,
-                                                    storageDir,
-                                                    skippedList));
+                interResultChanges.addAll(addMerger.merge(incomeChange,
+                                                          income,
+                                                          local,
+                                                          storageDir,
+                                                          skippedList));
                 break;
               case ItemState.DELETED:
                 // DELETE
                 if (incomeChange.isPersisted()) {
-                  interChanges.addAll(deleteMerger.merge(incomeChange,
-                                                         income,
-                                                         local,
-                                                         storageDir,
-                                                         skippedList));
+                  interResultChanges.addAll(deleteMerger.merge(incomeChange,
+                                                               income,
+                                                               local,
+                                                               storageDir,
+                                                               skippedList));
                 } else {
                   ItemState nextIncomeChange = income.findNextState(incomeChange,
                                                                     incomeChange.getData()
@@ -255,26 +255,26 @@ public class MergeDataManager {
                   if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
 
                     // skip processed itemstates
-                    if (interChanges.hasState(nextIncomeChange.getData().getIdentifier(),
-                                              nextIncomeChange.getData().getQPath(),
-                                              ItemState.ADDED)) {
+                    if (interResultChanges.hasState(nextIncomeChange.getData().getIdentifier(),
+                                                    nextIncomeChange.getData().getQPath(),
+                                                    ItemState.ADDED)) {
                       continue;
                     }
 
-                    interChanges.addAll(renameMerger.merge(incomeChange,
-                                                           income,
-                                                           local,
-                                                           storageDir,
-                                                           skippedList));
+                    interResultChanges.addAll(renameMerger.merge(incomeChange,
+                                                                 income,
+                                                                 local,
+                                                                 storageDir,
+                                                                 skippedList));
 
                     // UPDATE node
                   } else if (nextIncomeChange != null
                       && nextIncomeChange.getState() == ItemState.UPDATED) {
-                    interChanges.addAll(udpateMerger.merge(incomeChange,
-                                                           income,
-                                                           local,
-                                                           storageDir,
-                                                           skippedList));
+                    interResultChanges.addAll(udpateMerger.merge(incomeChange,
+                                                                 income,
+                                                                 local,
+                                                                 storageDir,
+                                                                 skippedList));
                   } else {
                     LOG.info("Income changes log: " + income.dump());
                     LOG.info("Local changes log: " + local.dump());
@@ -293,19 +293,19 @@ public class MergeDataManager {
               case ItemState.UPDATED:
                 // UPDATE property
                 if (!incomeChange.getData().isNode()) {
-                  interChanges.addAll(udpateMerger.merge(incomeChange,
-                                                         income,
-                                                         local,
-                                                         storageDir,
-                                                         skippedList));
+                  interResultChanges.addAll(udpateMerger.merge(incomeChange,
+                                                               income,
+                                                               local,
+                                                               storageDir,
+                                                               skippedList));
                 }
                 break;
               case ItemState.MIXIN_CHANGED:
-                interChanges.addAll(mixinMerger.merge(incomeChange,
-                                                      income,
-                                                      local,
-                                                      storageDir,
-                                                      skippedList));
+                interResultChanges.addAll(mixinMerger.merge(incomeChange,
+                                                            income,
+                                                            local,
+                                                            storageDir,
+                                                            skippedList));
                 break;
               }
             }
@@ -313,34 +313,34 @@ public class MergeDataManager {
 
           // add changes to resulted changes and prepare changes for next merge iteration
           if (!isLocalPriority) {
-            Iterator<ItemState> st = interChanges.getChanges();
+            Iterator<ItemState> st = interResultChanges.getChanges();
             while (st.hasNext()) {
               ItemState item = st.next();
 
-              iteratorChanges.add(item);
+              accumulationChanges.add(item);
               resultChanges.add(item);
             }
 
           } else {
-            iteratorChanges.delete(); // TODO really need?
-            iteratorChanges = new BufferedItemStatesStorage<ItemState>(makePath("iterator"),
+            accumulationChanges.delete();
+            accumulationChanges = new BufferedItemStatesStorage<ItemState>(makePath("iterator"),
                                                                        second.getMember());
 
             Iterator<ItemState> st = second.getChanges();
             while (st.hasNext())
-              iteratorChanges.add(st.next());
+              accumulationChanges.add(st.next());
 
-            st = interChanges.getChanges();
+            st = interResultChanges.getChanges();
             while (st.hasNext()) {
               ItemState item = st.next();
 
-              iteratorChanges.add(item);
+              accumulationChanges.add(item);
               if (localMember.getPriority() == second.getMember().getPriority())
                 resultChanges.add(item);
             }
           }
 
-          first = iteratorChanges;
+          first = accumulationChanges;
         }
       }
 
