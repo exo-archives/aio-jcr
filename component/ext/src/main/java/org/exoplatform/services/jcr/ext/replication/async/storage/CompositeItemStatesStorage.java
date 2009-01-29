@@ -206,8 +206,10 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   public int size() throws IOException, ClassCastException, ClassNotFoundException {
     int size = 0;
     Iterator<T> c = getChanges();
-    while (c.hasNext())
+    while (c.hasNext()) {
+      c.next();
       size++;
+    }
 
     return size;
   }

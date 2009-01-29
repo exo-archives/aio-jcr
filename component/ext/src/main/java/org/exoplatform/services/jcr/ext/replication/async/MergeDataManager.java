@@ -319,7 +319,7 @@ public class MergeDataManager {
             accumulated.addAll(second);
             accumulated.addAll(iteration);
             if (localMember.getPriority() == second.getMember().getPriority())
-              result.addAll(second);
+              result.addAll(iteration);
           }
 
           first = accumulated;
