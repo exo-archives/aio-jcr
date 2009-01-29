@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import javax.jcr.Node;
@@ -20,6 +22,11 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -332,4 +339,48 @@ public abstract class BaseStandaloneTest extends TestCase {
         + "min";
   }
 
+  public void checkItemStatesIterator(Iterator<ItemState> expected, Iterator<ItemState> changes, boolean checklast, boolean isRepValDat) throws Exception {
+
+    while (expected.hasNext()) {
+
+      assertTrue(changes.hasNext());
+      ItemState expect = expected.next();
+      ItemState elem = changes.next();
+
+      assertEquals(expect.getState(), elem.getState());
+      // assertEquals(expect.getAncestorToSave(), elem.getAncestorToSave());
+      ItemData expData = expect.getData();
+      ItemData elemData = elem.getData();
+      assertEquals(expData.getQPath(), elemData.getQPath());
+      assertEquals(expData.isNode(), elemData.isNode());
+      assertEquals(expData.getIdentifier(), elemData.getIdentifier());
+      assertEquals(expData.getParentIdentifier(), elemData.getParentIdentifier());
+
+      if (!expData.isNode()) {
+        PropertyData expProp = (PropertyData) expData;
+        PropertyData elemProp = (PropertyData) elemData;
+        assertEquals(expProp.getType(), elemProp.getType());
+        assertEquals(expProp.isMultiValued(), elemProp.isMultiValued());
+
+        List<ValueData> expValDat = expProp.getValues();
+        List<ValueData> elemValDat = elemProp.getValues();
+        assertEquals(expValDat.size(), elemValDat.size());
+        for (int j = 0; j < expValDat.size(); j++) {
+          assertTrue(java.util.Arrays.equals(expValDat.get(j).getAsByteArray(),
+                                             elemValDat.get(j).getAsByteArray()));
+
+          
+          if(isRepValDat){
+            // check is received property values ReplicableValueData
+            assertTrue(elemValDat.get(j) instanceof ReplicableValueData);
+          }
+        }
+      }
+    }
+    
+    if(checklast){
+      assertFalse(changes.hasNext());
+    }
+
+  }
 }

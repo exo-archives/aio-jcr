@@ -16,14 +16,15 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -34,59 +35,132 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $
  */
-public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
-    EditableChangesStorage<T> {
+public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T>
+    implements EditableChangesStorage<T> {
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long         MAX_FILE_SIZE = 32 * 1024 * 1024;
+  private static final long    MAX_BUFFER_SIZE = 2 * 1024 * 1024;
 
   /**
-   * ItemStates storage direcory.
+   * ItemStates storage directory.
    */
-  protected final File              storagePath;
-  protected final Member            member;
+  protected final File         storagePath;
 
-  protected final List<ChangesFile> storage       = new ArrayList<ChangesFile>();
+  protected final Member       member;
+
+  private long                 maxBufferSize;
 
   /**
-   * Output Stream opened on current ChangesFile.
+   * Output Stream opened on current ChangesFile or ByteArray.
    */
-  protected ObjectOutputStream      stream;
+  protected ObjectOutputStream currentStream;
 
   /**
    * Current ChangesFile to store changes.
    */
-  protected SimpleChangesFile       currentFile;
+  protected SimpleChangesFile  currentFile;
+
+  /**
+   * Current byte array to store changes.
+   */
+  protected BAOutputStream     currentByteArray;
 
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
    */
-  private static Long               index         = new Long(0);
+  private static Long          index           = new Long(0);
 
-  class MultiFileIterator<S extends ItemState> implements Iterator<S> {
+  class ArrayOrFileOutputStream extends OutputStream {
 
-    private final List<ChangesFile> store;
+    private OutputStream currentOut;
 
-    private ObjectInputStream       in;
-
-    private S                       nextItem;
-
-    private int                     currentFileIndex;
-
-    public MultiFileIterator(List<ChangesFile> store) throws IOException,
-        ClassCastException,
-        ClassNotFoundException {
-      this.store = store;
-      if (this.store.size() > 0) {
-        currentFileIndex = 0;
-        this.in = new ObjectInputStream(this.store.get(currentFileIndex).getInputStream());
-        this.nextItem = readNext();
+    public ArrayOrFileOutputStream() throws IOException {
+      if (currentFile == null) {
+        // create bytearrayoutStream;
+        currentByteArray = new BAOutputStream();
+        currentOut = currentByteArray;
       } else {
-        this.in = null;
-        this.nextItem = null;
+        throw new StorageIOException("File exists but Object outputStream allready closed.");
       }
+    }
+
+    @Override
+    synchronized public void write(int b) throws IOException {
+      currentOut.write(b);
+      currentOut.flush();
+      if (currentByteArray != null && (currentByteArray.size() > maxBufferSize)) {
+        changeBufferToFile();
+      }
+    }
+
+    synchronized public void write(byte b[]) throws IOException {
+      currentOut.write(b);
+      currentOut.flush();
+      if (currentByteArray != null && (currentByteArray.size() > maxBufferSize)) {
+        changeBufferToFile();
+      }
+    }
+
+    synchronized public void write(byte b[], int off, int len) throws IOException {
+      currentOut.write(b,off,len);
+      currentOut.flush();
+      if (currentByteArray != null && (currentByteArray.size() > maxBufferSize)) {
+        changeBufferToFile();
+      }
+    }
+
+    public void close() throws IOException {
+      currentOut.close();
+    }
+
+    private void changeBufferToFile() throws IOException {
+
+      if (currentFile == null) {
+        currentFile = createChangesFile();
+
+        currentOut = currentFile.getOutputStream();
+
+        // move changes from byte array to file
+        currentOut.write(currentByteArray.getBuf(),
+                         0,
+                         currentByteArray.size());
+        currentByteArray.close();
+        currentByteArray = null;
+      } else {
+        throw new StorageIOException("File exists.");
+      }
+
+    }
+  }
+
+  class BAOutputStream extends ByteArrayOutputStream {
+
+    public BAOutputStream() {
+      super();
+    }
+
+    public byte[] getBuf() {
+      return this.buf;
+    }
+  }
+
+  class ArrayOrFileIterator<S extends ItemState> implements Iterator<S> {
+
+    private ObjectInputStream in = null;
+
+    private S                 nextItem;
+
+    public ArrayOrFileIterator() throws IOException, ClassCastException, ClassNotFoundException {
+      if (currentFile != null) {
+        in = new ObjectInputStream(currentFile.getInputStream());
+      } else if (currentByteArray != null) {
+        in = new ObjectInputStream(new ByteArrayInputStream(currentByteArray.getBuf(),
+                                                            0,
+                                                            currentByteArray.size()));
+      }
+      nextItem = readNext();
     }
 
     /**
@@ -99,7 +173,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     /**
      * {@inheritDoc}
      */
-    public S next() throws NoSuchElementException {
+    public S next() {
       if (nextItem == null)
         throw new NoSuchElementException();
 
@@ -107,14 +181,23 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        throw new StorageRuntimeException(e.getMessage() + " file: "
-            + store.get(currentFileIndex).toString(), e);
+        e.printStackTrace();
+        throw new StorageRuntimeException(e.getMessage()
+                                              + (currentFile != null ? (" file: ["
+                                                  + currentFile.toString() + "]") : " byte array"),
+                                          e);
       } catch (ClassNotFoundException e) {
-        throw new StorageRuntimeException(e.getMessage() + " file: "
-            + store.get(currentFileIndex).toString(), e);
+        e.printStackTrace();
+        throw new StorageRuntimeException(e.getMessage()
+                                              + (currentFile != null ? (" file: ["
+                                                  + currentFile.toString() + "]") : " byte array"),
+                                          e);
       } catch (ClassCastException e) {
-        throw new StorageRuntimeException(e.getMessage() + " file: "
-            + store.get(currentFileIndex).toString(), e);
+        e.printStackTrace();
+        throw new StorageRuntimeException(e.getMessage()
+                                              + (currentFile != null ? (" file: ["
+                                                  + currentFile.toString() + "]") : " byte array"),
+                                          e);
       }
       return retVal;
     }
@@ -124,10 +207,11 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
      */
     public void remove() {
       throw new RuntimeException("Remove not allowed!");
+
     }
 
     @SuppressWarnings("unchecked")
-    protected S readNext() throws IOException, ClassNotFoundException, ClassCastException {
+    private S readNext() throws IOException, ClassNotFoundException, ClassCastException {
       if (in != null) {
         try {
           return (S) in.readObject();
@@ -135,19 +219,12 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
           // End of list
           in.close();
           in = null;
-
-          // fetch next
-          currentFileIndex++;
-          if (currentFileIndex >= store.size()) {
-            return null;
-          } else {
-            in = new ObjectInputStream(store.get(currentFileIndex).getInputStream());
-            return readNext();
-          }
+          return null;
         }
       } else
         return null;
     }
+
   }
 
   /**
@@ -158,6 +235,18 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   public BufferedItemStatesStorage(File storagePath, Member member) {
     this.member = member;
     this.storagePath = storagePath;
+    this.maxBufferSize = MAX_BUFFER_SIZE;
+  }
+
+  /**
+   * Class constructor.
+   * 
+   * @param storagePath storage Path
+   */
+  public BufferedItemStatesStorage(File storagePath, Member member, long maxBuffer) {
+    this.member = member;
+    this.storagePath = storagePath;
+    this.maxBufferSize = maxBuffer;
   }
 
   /**
@@ -165,65 +254,55 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    */
   public ChangesFile[] getChangesFile() {
     try {
-      closeFile();
+      closeObjectOutputStream();
     } catch (IOException e) {
-      // TODO
-      e.printStackTrace();
+      throw new StorageRuntimeException(e.getMessage()
+          + (currentFile != null ? (" file: [" + currentFile.toString() + "]") : " byte array"), e);
     }
-
-    ChangesFile[] files = new ChangesFile[storage.size()];
-    storage.toArray(files);
-    return files;
+    if (currentFile != null) {
+      return new ChangesFile[] { currentFile };
+    } else {
+      return new ChangesFile[] {};
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   public void add(T change) throws IOException {
-    initFile();
-    stream.writeObject(change);
-
-    stream.flush();
-    checkFileSize();
+    initOutputStream();
+    currentStream.writeObject(change);
+    currentStream.flush();
   }
 
   /**
    * {@inheritDoc}
    */
   public void addAll(ChangesStorage<T> changes) throws IOException {
-    initFile();
+    initOutputStream();
     try {
       for (Iterator<T> chi = changes.getChanges(); chi.hasNext();) {
-        stream.writeObject(chi.next());
-        stream.flush();
-        checkFileSize();
+        currentStream.writeObject(chi.next());
+        currentStream.flush();
       }
-
     } catch (final ClassCastException e) {
       throw new StorageIOException(e.getMessage(), e);
     } catch (final ClassNotFoundException e) {
       throw new StorageIOException(e.getMessage(), e);
     }
-
   }
 
-  private void initFile() throws IOException {
-    if (currentFile == null) {
-      currentFile = createChangesFile();
-      this.storage.add(currentFile);
-    }
-    if (stream == null) {
-      stream = new ObjectOutputStream(currentFile.getOutputStream());
+  private void initOutputStream() throws IOException {
+    if (currentStream == null) {
+      currentStream = new ObjectOutputStream(new ArrayOrFileOutputStream());
     }
   }
 
-  private void closeFile() throws IOException {
-    if (stream != null) {
-      stream.close();
-      stream = null;
+  private void closeObjectOutputStream() throws IOException {
+    if (currentStream != null) {
+      currentStream.close();
+      currentStream = null;
     }
-    currentFile = null;
-
   }
 
   /**
@@ -247,29 +326,21 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     return new SimpleChangesFile(file, crc, id);
   }
 
-  private void checkFileSize() throws IOException {
-    if (currentFile.getLength() > MAX_FILE_SIZE) {
-      // open new file
-      closeFile();
-    }
-  }
-
   /**
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new MultiFileIterator<T>(storage);
+    closeObjectOutputStream();
+    return new ArrayOrFileIterator();
   }
 
   public Member getMember() {
-    
     return member;
   }
 
   public void delete() throws IOException {
-    for (ChangesFile cf : storage)
-    cf.delete();
-    
+    if (currentFile != null)
+      currentFile.delete();
   }
 
   public int size() throws IOException, ClassCastException, ClassNotFoundException {
