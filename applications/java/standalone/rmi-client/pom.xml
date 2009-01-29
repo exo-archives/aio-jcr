@@ -2,12 +2,12 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.10.2</version>
+    <version>1.10.3-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.rmi-client</artifactId>
-  <version>1.10.2</version>
+  <version>1.10.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>eXo JCR RMI demo</name>
 
@@ -24,14 +24,14 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.2</version>
+      <version>1.10.3-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.rmi</artifactId>
-      <version>1.10.2</version>
+      <version>1.10.3-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -80,7 +80,7 @@
               <classpath>
                 <pathelement path="${classpath}" />
                 <fileset dir="${basedir}/target">
-                  <include name="**/rmi-client-1.10.2-SNAPSHOT.dir/*.jar" />
+                  <include name="**/rmi-client-1.10.3-SNAPSHOT-SNAPSHOT.dir/*.jar" />
                 </fileset>
               </classpath>
             </java>

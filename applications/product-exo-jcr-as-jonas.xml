@@ -2,13 +2,13 @@
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>exo.jcr.applications.config</artifactId>
-		<version>1.10.2-SNAPSHOT</version>
+		<version>1.10.3-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.product.jcr</artifactId>
 	<packaging>jar</packaging>
-	<version>1.10.2-SNAPSHOT</version>
+	<version>1.10.3-SNAPSHOT</version>
 	<name>eXo JCR Product</name>
 	<url>http://www.exoplatform.org</url>
 	<description>eXo JCR Product</description>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.connectors.localadapter</artifactId>
-			<version>1.10.2-SNAPSHOT</version>
+			<version>1.10.3-SNAPSHOT</version>
 			<type>rar</type>
 			<scope>runtime</scope>
 		</dependency>
@@ -66,7 +66,7 @@
 							todir="${exo.projects.directory.working}/exo-jonas/lib/apps/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir">
+								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir">
 								<exclude name="**/*.war" />
 								<exclude name="**/*.rar" />
 							</fileset>
@@ -80,32 +80,32 @@
 						</copy>
 						<!--renaming wars-->
 						<move
-							todir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
 								<include name="**/*.war" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.applications.*-1.10.2-SNAPSHOT.war"
+										from="exo.jcr.applications.*-1.10.3-SNAPSHOT.war"
 										to="*.war" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
 						</move>
 						<!--renaming rars-->
 						<move
-							todir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
 								<include name="**/*.rar" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.connectors.*-1.10.2-SNAPSHOT.rar"
+										from="exo.jcr.connectors.*-1.10.3-SNAPSHOT.rar"
 										to="*.rar" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -115,7 +115,7 @@
 							todir="${exo.projects.directory.working}/exo-jonas/apps/autoload/exoplatform.ear/"
 							verbose="true" flatten="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/"
 								casesensitive="yes">
 								<include name="**/*.war" />
 								<include name="**/*.rar" />
@@ -127,7 +127,7 @@
 						<copy
 							todir="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.2-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
 								<include name="**/hsqldb*.jar" />
 							</fileset>
 						</copy>
