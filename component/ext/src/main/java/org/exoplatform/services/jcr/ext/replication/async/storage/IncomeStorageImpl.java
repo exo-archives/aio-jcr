@@ -97,7 +97,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
     List<MemberChangesStorage<ItemState>> result = new ArrayList<MemberChangesStorage<ItemState>>();
     for (Map.Entry<Member, List<ChangesFile>> entry : changes.entrySet()) {
-      result.add(new IncomeChangesStorage<ItemState>(new SolidChangesLogStorage<ItemState>(entry.getValue()),
+      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue()),
                                                      entry.getKey()));
     }
 
@@ -152,7 +152,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
 
-        IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new SolidChangesLogStorage<ItemState>(chFiles),
+        IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles),
                                                                                       null); // TODO
         // NPE
         changeStorages.add(storage);

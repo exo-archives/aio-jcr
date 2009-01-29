@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,10 +28,12 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS.
+ * 
+ * <br/>Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id: ChangesLogStorage.java 111 2008-11-11 11:11:11Z serg $
+ * @version $Id: SolidChangesLogStorage.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStorage<T> {
 
@@ -44,77 +45,27 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   protected final List<ChangesFile> storage;
 
   /**
-   * Iterator that goes throw all files in storage and returns TransactionChangesLog objects.
-   * 
-   * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
-   * @param <L>
-   *          extender of TransactionChangesLog
+   * Storage owner member info.
    */
-  class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
-
-    /**
-     * ChangesFiles to iterate.
-     */
-    private final List<ChangesFile> list;
-
-    /**
-     * Current file index in list.
-     */
-    private int                     curFileIndex = 0;
-
-    public ChangesLogsIterator(List<ChangesFile> list) {
-      this.list = list;
-    }
-
-    public boolean hasNext() {
-      if (curFileIndex >= list.size()) {
-        return false;
-      } else {
-        return true;
-      }
-    }
-
-    @SuppressWarnings("unchecked")
-    public L next() {
-      if (!hasNext())
-        throw new NoSuchElementException();
-
-      try {
-        ChangesFile file = list.get(curFileIndex++);
-        ObjectInputStream stream = new ObjectInputStream(file.getInputStream());
-        L log = (L) stream.readObject();
-        stream.close();
-        return log;
-      } catch (IOException e) {
-        throw new StorageRuntimeException(e.getMessage(), e);
-      } catch (ClassNotFoundException e) {
-        throw new StorageRuntimeException(e.getMessage(), e);
-      }
-    }
-
-    public void remove() {
-      throw new RuntimeException("Unsupported");
-    }
-  }
-
+  // protected final Member member;
   /**
    * Iterator that goes throw ChangesFiles and return ItemStates.
    * 
    * @param <C>
    *          ItemState extender
    */
-  class MultiFileIterator<C extends ItemState> implements Iterator<C> {
+  class ItemStatesIterator<C extends ItemState> implements Iterator<C> {
 
-    private final List<ChangesFile> store;
+    // private final List<ChangesFile> store;
 
-    private Iterator<C>             currentChangesLog;
+    private SolidChangesLogsIterator<TransactionChangesLog> logIterator;
 
-    private int                     currentFileIndex = 0;
+    private Iterator<C>                                     currentChangesLog;
 
-    public MultiFileIterator(List<ChangesFile> store) throws IOException,
+    public ItemStatesIterator(List<ChangesFile> store) throws IOException,
         ClassCastException,
         ClassNotFoundException {
-      this.store = store;
+      logIterator = new SolidChangesLogsIterator<TransactionChangesLog>(store);
       currentChangesLog = readNextIterator();
     }
 
@@ -173,13 +124,10 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
                                             ClassNotFoundException,
                                             ClassCastException {
       // fetch next
-      if (currentFileIndex >= store.size()) {
+      if (logIterator.hasNext() == false) {
         return null;
       } else {
-        ObjectInputStream in = new ObjectInputStream(store.get(currentFileIndex).getInputStream());
-        currentFileIndex++;
-        TransactionChangesLog curLog = (TransactionChangesLog) in.readObject();
-        in.close();
+        TransactionChangesLog curLog = logIterator.next();
         return (Iterator<C>) curLog.getAllStates().iterator();
       }
     }
@@ -205,6 +153,23 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
       cf.delete();
   }
 
+  public int size() throws IOException, ClassNotFoundException {
+    int size = 0;
+    SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
+
+    while (it.hasNext()) {
+      size += it.next().getSize();
+    }
+    return size;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
+    return new ItemStatesIterator<T>(storage);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -212,23 +177,6 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     ChangesFile[] files = new ChangesFile[storage.size()];
     storage.toArray(files);
     return files;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new MultiFileIterator<T>(storage);
-  }
-
-  public int size() throws IOException {
-    int size = 0;
-    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
-
-    while (it.hasNext()) {
-      size += it.next().getSize();
-    }
-    return size;
   }
 
 }

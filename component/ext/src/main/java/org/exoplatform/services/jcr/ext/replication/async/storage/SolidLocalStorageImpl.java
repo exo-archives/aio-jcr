@@ -157,7 +157,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         }
       }
 
-      return new SolidChangesLogStorage<ItemState>(chFiles);
+      return new ChangesLogStorage<ItemState>(chFiles);
     } else {
       return null;
     }

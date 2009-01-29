@@ -35,6 +35,10 @@ public class StorageIOException extends IOException {
     this.cause = cause;
   }
 
+  public StorageIOException(String message) {
+    super(message);
+  }
+
   /**
    * {@inheritDoc}
    */
