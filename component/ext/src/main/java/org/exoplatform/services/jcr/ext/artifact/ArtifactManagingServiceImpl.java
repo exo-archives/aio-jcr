@@ -35,6 +35,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -69,11 +70,14 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.jcr.ext.registry.RegistryService;
+import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -118,6 +122,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   private Map<String, String> mimeMap           = new Hashtable<String, String>();
 
+  private List<String> listErrorPom = new ArrayList<String>();
   /**
    * @param params
    * @param repositoryService
@@ -321,7 +326,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     if (strPath.equals("/")) {
       targetNode = rootNode;
     } else {
-      targetNode = rootNode.getNode(strPath.substring(strPath.indexOf("/") + 1));
+      targetNode = rootNode.getNode(strPath.substring(1));
     }
     log.info(targetNode.getPath());
     NodeType[] a = targetNode.getMixinNodeTypes();
@@ -412,9 +417,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     if (!folder.exists())
       throw new FileNotFoundException("Source folder expected");
     try {
+      this.listErrorPom.clear();
       importFilesToJCR(sp, folder);
     } catch (Exception e) {
-      log.error("Execption during uploading local folder to JCR", e);
+      log.error("Exception during uploading local folder to JCR", e);
     }
   }
 
@@ -437,12 +443,17 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
         if (jarfile.exists()) {
           // get descripting from pom file
-
+          try {
           ArtifactDescriptor artifact = ArtifactDescriptor.createFromPomfile(file);
           InputStream jarIStream = new FileInputStream(jarfile);
           InputStream pomIStream = new FileInputStream(file);
 
           addArtifact(sp, artifact, jarIStream, pomIStream);
+          } catch (org.xml.sax.SAXParseException e) {
+//            throw new ArtifactDescriptorException(FilenameUtils.getName(file.getAbsolutePath()));
+            this.listErrorPom.add(FilenameUtils.getName(file.getAbsolutePath()));
+            continue;
+          }
         }
       }
     }
@@ -462,6 +473,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     String pathToRemove = "";
 
     if (rootNodePath.length() > 1) { 
+ if (rootNodePath.endsWith("/"))
+         pathToRemove = rootNodePath + artifact.getAsPath();
+      else 
       pathToRemove = rootNodePath + "/" + artifact.getAsPath();
     } else {
       pathToRemove = "/" + artifact.getAsPath(); 
@@ -473,16 +487,85 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     Node rmNode = (Node) session.getItem(pathToRemove);
 
-    while (rmNode != root) {
-      Node parent = rmNode.getParent();
+//    while (rmNode != root) {
+//      Node parent = rmNode.getParent();
       rmNode.remove();
-      if (!parent.hasNodes())
-        rmNode = parent;
-      else
-        break;
-    }
+//      if (!parent.hasNodes())
+//        rmNode = parent;
+//      else
+//        break;
+//    }
     session.save();
   }
+
+
+  public List getPermission(SessionProvider sp, Descriptor artifact) throws RepositoryException {
+
+    Session session = currentSession(sp);
+    String pathToCheck = "";
+
+    if (rootNodePath.length() > 1) { // artifact root is some real node
+      if (rootNodePath.endsWith("/"))
+        pathToCheck = rootNodePath + artifact.getAsPath();
+      else
+        pathToCheck = rootNodePath + "/" + artifact.getAsPath();
+    } else {
+      pathToCheck = "/" + artifact.getAsPath(); // "/" - is root path
+    }
+
+    log.debug("Checking Permission on node: " + pathToCheck);
+    ExtendedNode rmNode = (ExtendedNode) session.getItem(pathToCheck);
+    List<AccessControlEntry> list = rmNode.getACL().getPermissionEntries();
+    return list;
+  }
+  
+  
+  public void changePermission(SessionProvider sp,
+                               Descriptor artifact,
+                               String identity,
+                               String[] permissions,
+                               boolean delete) throws RepositoryException {
+
+    Session session = currentSession(sp);
+    String pathToChange = "";
+
+    if (rootNodePath.length() > 1) { // artifact root is some real node
+      if (rootNodePath.endsWith("/"))
+        pathToChange = rootNodePath + artifact.getAsPath();
+      else
+        pathToChange = rootNodePath + "/" + artifact.getAsPath();
+    } else {
+      pathToChange = "/" + artifact.getAsPath(); // "/" - is root path
+    }
+
+    log.debug("Changing Permission on node: " + pathToChange);
+
+    ExtendedNode chNode = (ExtendedNode) session.getItem(pathToChange);
+    if (!chNode.isNodeType("exo:privilegeable")) {
+      if (chNode.canAddMixin("exo:privilegeable"))
+        chNode.addMixin("exo:privilegeable");
+      else
+        throw new RepositoryException("Can't add mixin");
+    }
+    // log.info("PERMS-SIZE:" + permissions.length);
+    try {
+      if (!delete)
+        chNode.setPermission(identity, permissions);
+      else {
+        if (permissions.length > 0) {
+          for (int i = 0; i < permissions.length; i++)
+            chNode.removePermission(identity, permissions[i]);
+        } else {
+          chNode.removePermission(identity);
+        }
+      }
+    } catch (Exception e) {
+      log.error("Cannot change permissions", e);
+    }
+
+    session.save();
+  }
+
 
   /*
    * (non-Javadoc)
@@ -499,10 +582,14 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     String param = criteria.getContainsExpr();
     String pathConstraint = "";
     if (rootNodePath.length() > 1) { // artifact root is some real node
+ if (rootNodePath.endsWith("/"))
+      pathConstraint = rootNodePath + "%/" + param + "[%]";
+    else
       pathConstraint = rootNodePath + "/%/" + param + "[%]";
     } else {
-      pathConstraint = "/%/" + param + "[%]"; // artifact root is workspace root node !!
+      pathConstraint = "/%/" + param + "[%]"; // artifact root is workspace root
     }
+    // node !!
 
     String sqlQuery = String.format("SELECT * FROM nt:folder WHERE jcr:path LIKE '%s' ",
                                     pathConstraint);
@@ -982,5 +1069,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     log.info("Workspace from configuration file: " + repoWorkspaceName);
     log.info("RootNode from configuration file: " + rootNodePath);
   }
+
+public List getListErrors () {
+    return listErrorPom;
+  }
+  
 
 }
