@@ -86,9 +86,9 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
         stream.close();
         return log;
       } catch (IOException e) {
-        throw new ChangesLogReadException(e.getMessage(), e);
+        throw new StorageRuntimeException(e.getMessage(), e);
       } catch (ClassNotFoundException e) {
-        throw new ChangesLogReadException(e.getMessage(), e);
+        throw new StorageRuntimeException(e.getMessage(), e);
       }
     }
 
@@ -132,9 +132,9 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
             currentChangesLog = readNextIterator();
             return hasNext();
           } catch (IOException e) {
-            throw new ChangesLogReadException(e.getMessage(), e);
+            throw new StorageRuntimeException(e.getMessage(), e);
           } catch (ClassNotFoundException e) {
-            throw new ChangesLogReadException(e.getMessage(), e);
+            throw new StorageRuntimeException(e.getMessage(), e);
           }
         }
       }
@@ -154,9 +154,9 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
           currentChangesLog = readNextIterator();
           return next();
         } catch (IOException e) {
-          throw new ChangesLogReadException(e.getMessage(), e);
+          throw new StorageRuntimeException(e.getMessage(), e);
         } catch (ClassNotFoundException e) {
-          throw new ChangesLogReadException(e.getMessage(), e);
+          throw new StorageRuntimeException(e.getMessage(), e);
         }
       }
     }

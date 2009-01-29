@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorageOld;
@@ -73,7 +73,7 @@ public class MixinMerger extends AbstractMerger {
                                                                  IOException,
                                                                  ClassCastException,
                                                                  ClassNotFoundException,
-                                                                 ChangesLogReadException {
+                                                                 StorageRuntimeException {
 
     boolean itemChangeProcessed = false; // TODO really need?
 

@@ -31,7 +31,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
@@ -141,7 +141,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         workerLog.error("Merge error " + e, e);
         doCancel();
         return;
-      } catch (ChangesLogReadException e) {
+      } catch (StorageRuntimeException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
         return;
@@ -174,7 +174,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                              ClassCastException,
                                              ClassNotFoundException,
                                              MergeDataManagerException,
-                                             ChangesLogReadException {
+                                             StorageRuntimeException {
 
       LOG.info("run merge on " + localMember);
 

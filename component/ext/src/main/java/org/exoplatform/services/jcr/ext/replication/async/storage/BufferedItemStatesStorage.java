@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage.FileIterator;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 30.12.2008
@@ -108,13 +107,13 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: "
+        throw new StorageRuntimeException(e.getMessage() + " file: "
             + store.get(currentFileIndex).toString(), e);
       } catch (ClassNotFoundException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: "
+        throw new StorageRuntimeException(e.getMessage() + " file: "
             + store.get(currentFileIndex).toString(), e);
       } catch (ClassCastException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: "
+        throw new StorageRuntimeException(e.getMessage() + " file: "
             + store.get(currentFileIndex).toString(), e);
       }
       return retVal;

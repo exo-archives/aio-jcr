@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.MixinMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.RenameMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
 import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
@@ -128,7 +128,7 @@ public class MergeDataManager {
                                                                                                   ClassCastException,
                                                                                                   ClassNotFoundException,
                                                                                                   MergeDataManagerException,
-                                                                                                  ChangesLogReadException {
+                                                                                                  StorageRuntimeException {
 
     try {
       MemberChangesStorage<ItemState> first = membersChanges.next();

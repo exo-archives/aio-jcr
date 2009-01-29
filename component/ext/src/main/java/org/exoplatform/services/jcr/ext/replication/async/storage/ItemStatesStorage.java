@@ -78,11 +78,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.toString(), e);
+        throw new StorageRuntimeException(e.getMessage() + " file: " + storage, e);
       } catch (ClassNotFoundException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.toString(), e);
+        throw new StorageRuntimeException(e.getMessage() + " file: " + storage, e);
       } catch (ClassCastException e) {
-        throw new ChangesLogReadException(e.getMessage() + " file: " + storage.toString(), e);
+        throw new StorageRuntimeException(e.getMessage() + " file: " + storage, e);
       }
       return retVal;
     }

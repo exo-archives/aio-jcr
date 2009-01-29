@@ -174,7 +174,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     try{
     assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
-    }catch(ChangesLogReadException e){
+    }catch(StorageRuntimeException e){
       e.printStackTrace();
     }
     
@@ -323,7 +323,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     try {
       storage.getLocalChanges().size();
       fail();
-    } catch (ChangesLogReadException e) {
+    } catch (StorageRuntimeException e) {
       return;
     }
 

@@ -83,9 +83,9 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
             currentChangesLog = readNextIterator();
             return hasNext();
           } catch (IOException e) {
-            throw new ChangesLogReadException(e.getMessage(), e);
+            throw new StorageRuntimeException(e.getMessage(), e);
           } catch (ClassNotFoundException e) {
-            throw new ChangesLogReadException(e.getMessage(), e);
+            throw new StorageRuntimeException(e.getMessage(), e);
           }
         }
       }
@@ -105,9 +105,9 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
           currentChangesLog = readNextIterator();
           return next();
         } catch (IOException e) {
-          throw new ChangesLogReadException(e.getMessage(), e);
+          throw new StorageRuntimeException(e.getMessage(), e);
         } catch (ClassNotFoundException e) {
-          throw new ChangesLogReadException(e.getMessage(), e);
+          throw new StorageRuntimeException(e.getMessage(), e);
         }
       }
     }

@@ -27,7 +27,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
@@ -78,7 +78,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
       LOG.error("Changes dump error " + e1);
     } catch (ClassNotFoundException e1) {
       LOG.error("Changes dump error " + e1);
-    } catch (ChangesLogReadException e1){
+    } catch (StorageRuntimeException e1){
       LOG.error("Changes dump error " + e1);
     }
 
@@ -87,7 +87,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
     try {
       workspace.save(new SynchronizerChangesLog(synchronizedChanges));
-    } catch (ChangesLogReadException e) {
+    } catch (StorageRuntimeException e) {
       throw new SynchronizationException("Error of merge result read on save " + e, e);
     } finally {
 
