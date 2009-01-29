@@ -87,24 +87,33 @@ public final class ArtifactDescriptor implements Descriptor {
     DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     Document doc = docBuilder.parse(pomfile);
 
+    
     NodeList groupIdList = doc.getElementsByTagName("groupId");
-    String groupId = groupIdList.item(0).getTextContent();
+    String groupId = groupIdList.item(0).getTextContent().trim();
+
 
     NodeList artifactIdList = doc.getElementsByTagName("artifactId");
-    String artifactId = artifactIdList.item(0).getTextContent();
+    // String artifactId = artifactIdList.item(0).getTextContent();
+    String artifactId = "";
+    for (int i = 0; i < artifactIdList.getLength(); i++) {
+      if (artifactIdList.item(i).getParentNode().getNodeName().equals("project"))
+        artifactId = artifactIdList.item(i).getTextContent().trim();
+    }
+    
 
     NodeList versionList = doc.getElementsByTagName("version");
-    String versionId = validMavenVersion(versionList.item(0).getTextContent());
+    String versionId = validMavenVersion(versionList.item(0).getTextContent().trim());
 
     return new ArtifactDescriptor(new FolderDescriptor(groupId), artifactId, versionId);
   }
 
   private static String validMavenVersion(String version) {
-    CharSet charSet = CharSet.getInstance("A-Za-z");
-    int pos = version.indexOf("-");
-    char next_ch = version.charAt(pos + 1);
-    if ((pos > 0) && (charSet.contains(next_ch)))
-      version = version.substring(0, pos);
+    // Not necessary checking, -SNAPSHOT will be ignoreg if uncomment;
+//    CharSet charSet = CharSet.getInstance("A-Za-z");
+//    int pos = version.indexOf("-");
+//    char next_ch = version.charAt(pos + 1);
+//    if ((pos > 0) && (charSet.contains(next_ch)))
+//      version = version.substring(0, pos);
 
     return version;
   }
