@@ -131,7 +131,6 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       } else {
         throw new StorageIOException("File exists.");
       }
-
     }
   }
 

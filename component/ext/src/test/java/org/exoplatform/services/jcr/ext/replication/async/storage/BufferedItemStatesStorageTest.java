@@ -91,7 +91,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     }
     
     
-    assertEquals(3,stor.size());
+    assertEquals(expl.size(),stor.size());
     
     this.checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
   }
@@ -125,10 +125,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     while(it.hasNext()){
       stor.add(it.next());
     }
-    
-    
-    assertEquals(3,stor.size());
-    
+    assertEquals(expl.size(),stor.size());
     this.checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
   }
   
