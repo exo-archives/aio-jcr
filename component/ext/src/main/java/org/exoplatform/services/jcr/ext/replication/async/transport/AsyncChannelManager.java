@@ -164,9 +164,20 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * 
      */
     void handle() {
-      synchronized (lock) {
-        lock.notify();
-      }
+      // TODO can we do this?
+      Thread thr = new Thread() {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void run() {
+          synchronized (lock) {
+            lock.notify();
+          }
+        }
+      };
+      
+      thr.start();
     }
   }
 

@@ -53,7 +53,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 
 @Path("/async-replication-executor/")
 @Produces("text/plain")
-public class AsyncReplicationExecutorService implements ResourceContainer {
+public class AsyncReplicationExecutor implements ResourceContainer {
 
   /**
    * Definition the constants to ReplicationTestService.
@@ -81,7 +81,7 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
       /**
        * Start synchronization.
        */
-      public static final String START_SYNCHRONIZATION               = "startSynchronization";
+      public static final String START_SYNCHRONIZATION               = "start";
 
       /**
        * Start synchronization on repository.
@@ -144,9 +144,9 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
    * @param params
    *          the configuration parameters
    */
-  public AsyncReplicationExecutorService(AsyncReplication asyncReplication,
-                                         RepositoryService repoService,
-                                         InitParams params) {
+  public AsyncReplicationExecutor(AsyncReplication asyncReplication,
+                                  RepositoryService repoService,
+                                  InitParams params) {
     this.repositoryService = repoService;
     this.asyncReplication = asyncReplication;
 
@@ -174,38 +174,40 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
    * Execute synchronization.
    * 
    */
-  public void synchronize() {
+  public boolean synchronize() throws AsyncReplicationExecutorException {
 
     // local start.
     try {
-      asyncReplication.synchronize();
+      if (asyncReplication.synchronize()) {
+
+        // remote start
+        for (Member member : members) {
+          String sUrl = member.getUrl() + Constants.BASE_URL + "/"
+              + Constants.OperationType.START_SYNCHRONIZATION;
+
+          try {
+            remoteStart(member, sUrl);
+          } catch (ModuleException e) {
+            throw new AsyncReplicationExecutorException("Can't execute remote synchronization. Member : "
+                                                            + member,
+                                                        e);
+          } catch (ParseException e) {
+            throw new AsyncReplicationExecutorException("Can't execute remote synchronization. Member : "
+                                                            + member,
+                                                        e);
+          }
+        }
+
+        return true;
+      } else
+        return false;
     } catch (IOException e) {
-      log.error("Can't execute local synchronization.", e);
-    } catch (RepositoryConfigurationException e) {
-      log.error("Can't execute local synchronization.", e);
+      throw new AsyncReplicationExecutorException("Can't execute local synchronization.", e);
     } catch (RepositoryException e) {
-      log.error("Can't execute local synchronization.", e);
+      throw new AsyncReplicationExecutorException("Can't execute local synchronization.", e);
+    } catch (RepositoryConfigurationException e) {
+      throw new AsyncReplicationExecutorException("Can't execute local synchronization.", e);
     }
-
-    // remote start
-
-    for (Member member : members) {
-      String sUrl = member.getUrl() + Constants.BASE_URL + "/"
-          + Constants.OperationType.START_SYNCHRONIZATION;
-
-      try {
-        remoteStart(member, sUrl);
-      } catch (IOException e) {
-        log.error("Can't execute remote synchronization. Member : " + member, e);
-      } catch (ModuleException e) {
-        log.error("Can't execute remote synchronization. Member : " + member, e);
-      } catch (ParseException e) {
-        log.error("Can't execute remote synchronization. Member : " + member, e);
-      } catch (RuntimeException e) {
-        log.error("Can't execute remote synchronization. Member : " + member, e);
-      }
-    }
-
   }
 
   /**
@@ -227,12 +229,12 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
   private void remoteStart(Member member, String sUrl) throws IOException,
                                                       ModuleException,
                                                       ParseException,
-                                                      RuntimeException {
+                                                      AsyncReplicationExecutorException {
     URL url = new URL(sUrl);
 
     HTTPConnection connection = new HTTPConnection(url);
     connection.removeModule(CookieModule.class);
-    
+
     connection.addBasicAuthorization(member.getRealmName(),
                                      member.getUserName(),
                                      member.getPassword());
@@ -240,8 +242,8 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
     HTTPResponse resp = connection.Get(url.getFile());
 
     if (resp.getStatusCode() != 200 || !Constants.OK_RESULT.equals(resp.getText()))
-      throw new RuntimeException("Fail remote start synchronization : " + member + "\n"
-          + resp.getText());
+      throw new AsyncReplicationExecutorException("Fail remote start synchronization : " + member
+          + "\n" + resp.getText());
   }
 
   /**
@@ -250,7 +252,7 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
    * @return Response return the response
    */
   @GET
-  @Path("/startSynchronization")
+  @Path("/start")
   public Response startSynchronization() {
     String result = Constants.OK_RESULT;
 

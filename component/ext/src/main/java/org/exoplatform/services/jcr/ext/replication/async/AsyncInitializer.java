@@ -99,7 +99,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     private final long timeout;
 
     ChannelCloser(long timeout) {
-      this.timeout = timeout;
+      this.timeout = timeout; 
     }
 
     /**
@@ -477,7 +477,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
             LOG.warn("Cannot start. " + (isStarted() ? "Already started." : "Initializer stopped."));
         } else if (run) {
           LOG.info("Do CANCEL from last member waiter");
-          if (isStarted()) {
+          if (isInitialized()) {
             try {
               CancelPacket cancelPacket = new CancelPacket(AsyncPacketTypes.SYNCHRONIZATION_CANCEL,
                                                            priority);
@@ -491,7 +491,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
             for (RemoteEventListener rl : listeners())
               rl.onCancel();
           } else
-            LOG.warn("Cannot cancel. Already stopped.");
+            LOG.warn("Cannot cancel. Already started or stopped.");
         }
 
       } catch (InterruptedException e) {
@@ -526,8 +526,9 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
           doStop();
 
-          for (RemoteEventListener rl : listeners())
-            rl.onCancel();
+          // TODO remove it, nothing started now
+          //for (RemoteEventListener rl : listeners())
+          //  rl.onCancel();
         }
 
       } catch (InterruptedException e) {

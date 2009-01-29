@@ -411,12 +411,12 @@
   </component>
   
   <component>                                                                                                                    
-    <type>org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutorService</type>                                                       
+    <type>org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutor</type>                                                       
     <init-params>                                                                                                                   
       <object-param>                                                                                                                  
         <name>async-replication-executor-configuration</name>                                                                                            
         <description>async replication nodes</description>                                                                                      
-        <object type="org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutorService$ExecutorConf">                             
+        <object type="org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutor$ExecutorConf">                             
           <field name="members">                                                                                                           
             <collection type="java.util.ArrayList">                                                                                       
               <value>                                                                                                                      

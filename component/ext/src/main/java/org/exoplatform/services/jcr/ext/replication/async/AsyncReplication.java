@@ -242,7 +242,8 @@ public class AsyncReplication implements Startable {
       this.channel.removePacketListener(this.receiver);
       this.channel.removePacketListener(this.initializer);
       this.channel.removeStateListener(this.initializer);
-//      this.channel.removeConnectionListener(this); TODO 
+      // Worker and channel are one-shot modules, both will be GCed 
+      // this.channel.removeConnectionListener(this);
 
       currentWorkers.remove(this); // remove itself
 
@@ -439,19 +440,23 @@ public class AsyncReplication implements Startable {
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
-  public void synchronize() throws RepositoryException,
+  public synchronized boolean synchronize() throws RepositoryException,
                            RepositoryConfigurationException,
                            IOException {
 
     if (isActive()) {
       LOG.error("[ERROR] Asynchronous replication service already active. Wait for current synchronization finish.");
+      return false;
     } else {
       if (repositoryNames != null && repositoryNames.length > 0) {
 
         for (String repoName : repositoryNames)
           synchronize(repoName);
-      } else
+        return true;
+      } else {
         LOG.error("[ERROR] Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
+        return false;
+      }
     }
   }
 

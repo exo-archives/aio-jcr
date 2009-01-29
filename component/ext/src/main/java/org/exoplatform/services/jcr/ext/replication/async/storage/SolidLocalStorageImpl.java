@@ -402,12 +402,11 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   public void onCancel() {
     LOG.info("On CANCEL");
 
-    if (isStarted())
+    if (isStarted()) {
+      doStop();      
       deleteDir(lastDir);
-    else
+    } else
       LOG.warn("Not started or already stopped");
-
-    doStop();
   }
 
   /**
@@ -437,7 +436,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     previousDir = lastDir;
     lastDir = subdir;
 
-    LOG.info("LocalStorageImpl:onStart()");
     doStart();
   }
 
