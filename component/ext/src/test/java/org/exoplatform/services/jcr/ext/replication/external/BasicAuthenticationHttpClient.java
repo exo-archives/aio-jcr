@@ -17,6 +17,8 @@
 package org.exoplatform.services.jcr.ext.replication.external;
 
 import java.net.URL;
+
+import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
 
@@ -64,6 +66,8 @@ public class BasicAuthenticationHttpClient {
       // execute the GET
       URL url = new URL(sURL);
       connection = new HTTPConnection(url);
+      connection.removeModule(CookieModule.class);
+      
       connection.addBasicAuthorization(BaseTestCaseChecker.TEST_REALM, login, password);
 
       HTTPResponse resp = connection.Get(url.getFile());

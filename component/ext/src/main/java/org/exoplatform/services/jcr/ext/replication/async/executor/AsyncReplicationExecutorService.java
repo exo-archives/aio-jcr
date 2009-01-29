@@ -28,6 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.common.http.client.ModuleException;
@@ -230,6 +231,8 @@ public class AsyncReplicationExecutorService implements ResourceContainer {
     URL url = new URL(sUrl);
 
     HTTPConnection connection = new HTTPConnection(url);
+    connection.removeModule(CookieModule.class);
+    
     connection.addBasicAuthorization(member.getRealmName(),
                                      member.getUserName(),
                                      member.getPassword());
