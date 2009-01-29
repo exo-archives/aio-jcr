@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
 
   <parent>
     <groupId>org.exoplatform</groupId>
@@ -10,11 +10,11 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.10.2</version>
+  <version>1.10.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.2</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.2</developerConnection>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</developerConnection>
   </scm>
   <modules>
     <module>component/core</module>
