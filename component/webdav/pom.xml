@@ -1,15 +1,15 @@
 
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>config</artifactId>
-		<version>1.10.2-SNAPSHOT</version>
+		<version>1.10.2</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.jcr.component.webdav
 	</artifactId>
 	<packaging>jar</packaging>
-	<version>1.10.2-SNAPSHOT
+	<version>1.10.2
 	</version>
 	<name>eXo JCR Webdav Service</name>
 	<url>http://www.exoplatform.org</url>
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.ext</artifactId>
-			<version>1.10.2-SNAPSHOT
+			<version>1.10.2
 			</version>
 			<scope>compile</scope>
 		</dependency>
@@ -40,7 +40,7 @@
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.core
         </artifactId>
-			<version>1.10.2-SNAPSHOT
+			<version>1.10.2
 			</version>
 			<scope>compile</scope>
 		</dependency>
