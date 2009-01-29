@@ -30,6 +30,11 @@ public class StorageIOException extends IOException {
 
   protected Throwable cause;
   
+  public StorageIOException(String message) {
+    super(message);
+    this.cause = null;
+  }
+  
   public StorageIOException(String message, Throwable cause) {
     super(message);
     this.cause = cause;

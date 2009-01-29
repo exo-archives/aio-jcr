@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,12 +37,84 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   protected final Member                  member;
 
+  protected final File                    storageDir;
+
   protected final List<ChangesStorage<T>> storages = new ArrayList<ChangesStorage<T>>();
 
   protected EditableChangesStorage<T>     current;
-  
-  public CompositeItemStatesStorage(Member member) {
+
+  class StatesIterator implements Iterator<T> {
+
+    Iterator<ChangesStorage<T>> csIter;
+
+    Iterator<T>                 sIter;
+
+    T                           next;
+
+    StatesIterator() throws ClassCastException, IOException, ClassNotFoundException {
+      csIter = storages.iterator();
+      while (csIter.hasNext()) {
+        sIter = csIter.next().getChanges();
+        if (sIter.hasNext()) {
+          next = sIter.next();
+          break;
+        } else
+          continue;
+      }
+    }
+
+    private T readNext() {
+      if (next != null) {
+        do {
+          if (sIter.hasNext()) {
+            return sIter.next();
+          } else {
+            if (csIter.hasNext())
+              try {
+                sIter = csIter.next().getChanges();
+              } catch (ClassCastException e) {
+                throw new StorageRuntimeException(e.getMessage(), e);
+              } catch (IOException e) {
+                throw new StorageRuntimeException(e.getMessage(), e);
+              } catch (ClassNotFoundException e) {
+                throw new StorageRuntimeException(e.getMessage(), e);
+              }
+            else
+              sIter = null;
+          }
+        } while (sIter != null);
+      }
+      
+      return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasNext() {
+      return next != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T next() {
+      T res = next;
+      next = readNext();
+      return res;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void remove() {
+      throw new RuntimeException("Not implemented!");
+    }
+  }
+
+  public CompositeItemStatesStorage(File storageDir, Member member) {
     this.member = member;
+    this.storageDir = storageDir;
   }
 
   /**
@@ -53,7 +126,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   private EditableChangesStorage<T> current() {
     if (current == null) {
-      current = new BufferedItemStatesStorage<T>(null, member); // TODO path null
+      current = new BufferedItemStatesStorage<T>(storageDir, member);
       storages.add(current);
     }
 
@@ -74,7 +147,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     if (changes instanceof BufferedItemStatesStorage) {
       // special kind of storage, may be buffered itself
       // we have to copy changes to a current
-      
+
       try {
         for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
           add(chi.next());
@@ -83,6 +156,8 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
       } catch (ClassNotFoundException e) {
         throw new StorageIOException(e.getMessage(), e);
       }
+    } else if (changes == this) {
+      throw new StorageIOException("Cannot add itself to the storage");
     } else {
       // close current, don't use it anymore
       current = null;
@@ -110,8 +185,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    // TODO Auto-generated method stub
-    return null;
+    return new StatesIterator();
   }
 
   /**
@@ -122,7 +196,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     for (ChangesStorage<T> cs : storages)
       for (ChangesFile cf : cs.getChangesFile())
         cfiles.add(cf);
-    
+
     return cfiles.toArray(new ChangesFile[cfiles.size()]);
   }
 
@@ -134,7 +208,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     Iterator<T> c = getChanges();
     while (c.hasNext())
       size++;
-    
+
     return size;
   }
 
