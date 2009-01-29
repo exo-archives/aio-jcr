@@ -50,7 +50,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
 
   protected final Member       member;
 
-  private long                 maxBufferSize;
+  private final long           maxBufferSize;
 
   /**
    * Output Stream opened on current ChangesFile or ByteArray.
@@ -87,7 +87,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     }
 
     @Override
-    synchronized public void write(int b) throws IOException {
+   public void write(int b) throws IOException {
       currentOut.write(b);
       currentOut.flush();
       if (currentByteArray != null && (currentByteArray.size() > maxBufferSize)) {
@@ -95,7 +95,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       }
     }
 
-    synchronized public void write(byte b[]) throws IOException {
+    public void write(byte b[]) throws IOException {
       currentOut.write(b);
       currentOut.flush();
       if (currentByteArray != null && (currentByteArray.size() > maxBufferSize)) {
@@ -103,8 +103,8 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       }
     }
 
-    synchronized public void write(byte b[], int off, int len) throws IOException {
-      currentOut.write(b,off,len);
+    public void write(byte b[], int off, int len) throws IOException {
+      currentOut.write(b, off, len);
       currentOut.flush();
       if (currentByteArray != null && (currentByteArray.size() > maxBufferSize)) {
         changeBufferToFile();
@@ -123,9 +123,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
         currentOut = currentFile.getOutputStream();
 
         // move changes from byte array to file
-        currentOut.write(currentByteArray.getBuf(),
-                         0,
-                         currentByteArray.size());
+        currentOut.write(currentByteArray.getBuf(), 0, currentByteArray.size());
         currentByteArray.close();
         currentByteArray = null;
       } else {
@@ -260,6 +258,12 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     }
     if (currentFile != null) {
       return new ChangesFile[] { currentFile };
+    } else if (currentByteArray != null) {
+      long id;
+      synchronized (index) {
+        id = index++;
+      }
+      return new ChangesFile[] { new MemoryChangesFile("", id, currentByteArray.toByteArray()) };
     } else {
       return new ChangesFile[] {};
     }

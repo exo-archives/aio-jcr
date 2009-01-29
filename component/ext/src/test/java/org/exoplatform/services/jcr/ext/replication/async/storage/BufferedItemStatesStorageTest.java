@@ -16,7 +16,10 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.EOFException;
 import java.io.File;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -94,6 +97,30 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     assertEquals(expl.size(),stor.size());
     
     this.checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
+    
+    ChangesFile[] files = stor.getChangesFile();
+    assertEquals(1, files.length);
+    assertTrue(files[0] instanceof MemoryChangesFile);
+    InputStream in = files[0].getInputStream();
+    assertNotNull(in);
+    
+    ObjectInputStream oin = new ObjectInputStream(in);
+    
+    List<ItemState> res = new ArrayList<ItemState>();
+    res.add((ItemState)oin.readObject());
+    res.add((ItemState)oin.readObject());
+    res.add((ItemState)oin.readObject());
+    
+    try{
+      res.add((ItemState)oin.readObject());
+      fail();
+    }catch (EOFException e){
+      //OK
+    }
+    
+    checkItemStatesIterator(expl.iterator(), res.iterator(), true, false);
+    
+    
   }
   
   public void testSimpleAddFile() throws Exception {
