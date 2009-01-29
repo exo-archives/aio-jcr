@@ -10,7 +10,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.10.1.ee</version>
+  <version>1.10.1.ee_GENERALI_47</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -189,8 +189,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/tags/1.10.1.ee/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.10.1.ee/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/tags/1.10.1.ee_GENERALI_47/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.10.1.ee_GENERALI_47/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -199,15 +199,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/tags/1.10.1.ee/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/tags/1.10.1.ee_GENERALI_47/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.10.1.ee/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.10.1.ee_GENERALI_47/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/tags/1.10.1.ee/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/tags/1.10.1.ee/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/tags/1.10.1.ee_GENERALI_47/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/tags/1.10.1.ee_GENERALI_47/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
@@ -280,10 +280,10 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <org.exoplatform.kernel.version>2.0.6.ee</org.exoplatform.kernel.version>
-        <org.exoplatform.core.version>2.1.3.ee</org.exoplatform.core.version>
-        <org.exoplatform.ws.version>1.3.1.ee</org.exoplatform.ws.version>
-        <org.exoplatform.jcr.version>1.10.1.ee</org.exoplatform.jcr.version>
+        <org.exoplatform.kernel.version>2.0.6.ee_GENERALI_47</org.exoplatform.kernel.version>
+        <org.exoplatform.core.version>2.1.3.ee_GENERALI_47</org.exoplatform.core.version>
+        <org.exoplatform.ws.version>1.3.1.ee_GENERALI_47</org.exoplatform.ws.version>
+        <org.exoplatform.jcr.version>1.10.1.ee_GENERALI_47</org.exoplatform.jcr.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>
