@@ -61,8 +61,8 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   protected void onChanges(ChangesPacket packet, MemberAddress member) {
     Member mem = new Member(member, packet.getTransmitterPriority());
 
-    LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet "
-        + packet.getFileCount() + "," + packet.getTimeStamp());
+    //LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet "
+    //    + packet.getFileCount() + "," + packet.getTimeStamp());
 
     if (changesSubscriber != null)
       changesSubscriber.onChanges(packet, mem);
@@ -73,7 +73,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   protected void onGetExport(GetExportPacket packet, MemberAddress member) {
     String nodeId = packet.getNodeId();
 
-    LOG.info("onGetExport member " + member + ", packet nodeId" + nodeId);
+    //LOG.info("onGetExport member " + member + ", packet nodeId" + nodeId);
 
     RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, member);
 
@@ -161,8 +161,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * {@inheritDoc}
    */
   public void onError(MemberAddress sourceAddress) {
-    // TODO Auto-generated method stub
-
+    // not interested
   }
 
   public void removeRemoteExportListener() {

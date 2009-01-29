@@ -50,7 +50,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * log. the apache logger.
    */
-  private static final Log               LOG = ExoLogger.getLogger("ext.ChannelManager");
+  private static final Log               LOG = ExoLogger.getLogger("ext.AsyncChannelManager");
 
   /**
    * channel. The JChanel object of JGroups.
@@ -123,8 +123,6 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       while (true) {
         try {
           synchronized (lock) {
-            lock.wait();
-
             MemberPacket mp = queue.poll();
             while (mp != null) {
               AsyncPacketListener[] pl = packetListeners.toArray(new AsyncPacketListener[packetListeners.size()]);
@@ -133,6 +131,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
               mp = queue.poll();
             }
+            
+            lock.wait();
           }
         } catch (InterruptedException e) {
           LOG.error("Cannot handle the queue. Wait lock failed " + e, e);
@@ -414,7 +414,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * {@inheritDoc}
    */
-  public Object handle(Message message) {
+  public Object handle(final Message message) {
     if (isConnected()) {
       LOG.info("Handle message " + message);
 

@@ -79,7 +79,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * List of remote members with non-finished merge process. Will be decreased on MERGE DONE
    * message. If members listed and just disconnected it's FATAL state.
    */
-  private List<MemberAddress>              activeMembers         = new ArrayList<MemberAddress>();
+  private List<MemberAddress>              mergingMembers         = new ArrayList<MemberAddress>();
 
   private MemberAddress                    localMember;
 
@@ -300,7 +300,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         mlist.add(new MemberAddress(m.getAddress()));
 
     // copy of the mlist
-    this.activeMembers = new ArrayList<MemberAddress>(mlist);
+    this.mergingMembers = new ArrayList<MemberAddress>(mlist);
 
     for (RemoteEventListener rl : listeners())
       rl.onStart(mlist);
@@ -309,8 +309,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   }
 
   private void doneMember(MemberAddress member) {
-    synchronized (activeMembers) {
-      activeMembers.remove(member);
+    synchronized (mergingMembers) {
+      mergingMembers.remove(member);
     }
   }
 
@@ -323,10 +323,10 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    */
   private boolean isMemberMergeDone(List<MemberAddress> members) {
     LOG.info("is members merge done: " + members);
-    LOG.info("activeMembers: " + activeMembers);
+    LOG.info("activeMembers: " + mergingMembers);
 
     for (MemberAddress dm : members) {
-      if (activeMembers.contains(dm))
+      if (mergingMembers.contains(dm))
         return false;
     }
 
@@ -342,8 +342,6 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
     // Member member = syncMember(srcMember, ((AbstractPacket) packet).getTransmitterPriority());
 
-    if (activeMembers.contains(srcMember)) {
-
       switch (packet.getType()) {
       case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
         LOG.info("Do CANCEL (remote) from " + srcMember);
@@ -358,15 +356,16 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
         LOG.info("Do MERGE (remote) from " + srcMember);
 
-        doneMember(srcMember);
-
-        for (RemoteEventListener rl : listeners())
-          rl.onMerge(srcMember);
+        if (mergingMembers.contains(srcMember)) {
+          doneMember(srcMember);
+  
+          for (RemoteEventListener rl : listeners())
+            rl.onMerge(srcMember);
+        } else
+          LOG.warn("Skipp MERGE packet from laready merged member " + srcMember + ". Packet: " + packet);
       }
         break;
       }
-    } else
-      LOG.warn("Skipp packet from not a member " + srcMember + ". Packet: " + packet);
   }
 
   /**
@@ -383,7 +382,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     LOG.info("On START (local) members count " + members.size());
 
     // TODO set from Subscriber (this is not a Coordinator)
-    this.activeMembers = members;
+    this.mergingMembers = members;
 
     doStart();
   }
