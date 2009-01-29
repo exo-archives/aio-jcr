@@ -242,7 +242,7 @@ public class AsyncReplication implements Startable {
       this.channel.removePacketListener(this.receiver);
       this.channel.removePacketListener(this.initializer);
       this.channel.removeStateListener(this.initializer);
-      this.channel.removeConnectionListener(this);
+//      this.channel.removeConnectionListener(this); TODO 
 
       currentWorkers.remove(this); // remove itself
 
