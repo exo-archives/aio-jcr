@@ -101,7 +101,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + maxPriorityMember.getLogin() + "/"
           + maxPriorityMember.getPassword() + "/" + relPath + "/" + fileNameArray[i] + "/" + fSize
-          + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
+          + "/" + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
       String result = client.execute(url);
