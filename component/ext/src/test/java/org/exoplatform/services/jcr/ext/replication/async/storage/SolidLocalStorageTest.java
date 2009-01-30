@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -345,6 +347,43 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     storage.onStop();
   }
 
+  public void testDeleteFile() throws Exception {
+    
+    
+    
+    Node n = root.addNode("someNode","nt:file");
+    NodeImpl cont = (NodeImpl) n.addNode("jcr:content", "nt:resource");
+    cont.setProperty("jcr:mimeType", "text/plain");
+    cont.setProperty("jcr:lastModified", Calendar.getInstance());
+    cont.setProperty("jcr:data", " hello" );
+    root.save();
+
+    
+    
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
+                                                                                                                                              .getName())
+                                                                                                                .getComponent(PersistentDataManager.class);
+    
+    
+    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    dataManager.addItemPersistenceListener(storage);
+    
+    n.remove();
+    root.save();
+    
+    storage.onStart(null);
+    
+    this.checkIterator(pl.pushChanges().get(0).getAllStates().iterator(), storage.getLocalChanges().getChanges());
+    
+    
+    dataManager.removeItemPersistenceListener(storage);
+    
+  }
+  
+  
+  
+  
   /**
    * Test reporting and reading from file errors process.
    * 

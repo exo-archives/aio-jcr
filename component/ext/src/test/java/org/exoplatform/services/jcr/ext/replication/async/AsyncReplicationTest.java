@@ -78,7 +78,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
       File storage1 = new File("target/temp/storage/" + System.currentTimeMillis());
       storage1.mkdirs();
-      File storage2 = new File("target/temp/storage/" + System.currentTimeMillis());
+      File storage2 = new File("target/temp/storage/" + (System.currentTimeMillis()+89));
       storage2.mkdirs();
 
       List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
