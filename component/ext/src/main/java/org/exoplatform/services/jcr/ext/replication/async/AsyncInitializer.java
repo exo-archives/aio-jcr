@@ -79,7 +79,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * List of remote members with non-finished merge process. Will be decreased on MERGE DONE
    * message. If members listed and just disconnected it's FATAL state.
    */
-  private List<MemberAddress>              mergingMembers         = new ArrayList<MemberAddress>();
+  private List<MemberAddress>              mergingMembers        = new ArrayList<MemberAddress>();
 
   private MemberAddress                    localMember;
 
@@ -99,7 +99,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     private final long timeout;
 
     ChannelCloser(long timeout) {
-      this.timeout = timeout; 
+      this.timeout = timeout;
     }
 
     /**
@@ -181,103 +181,118 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     }
 
     if (currentMembers.size() == 0 && event.getMembers().size() == 1) {
-      // first member (this service) connected to the channel
-      LOG.info("onStateChanged - first member (this service) connected to the channel ");
+      try {
+        // first member (this service) connected to the channel
+        LOG.info("onStateChanged - first member (this service) connected to the channel ");
 
-      // Start first timeout (member is not connected)
-      firstMemberWaiter = new FirstMemberWaiter();
-      firstMemberWaiter.start();
+        // Start first timeout (member is not connected)
+        firstMemberWaiter = new FirstMemberWaiter();
+        firstMemberWaiter.start();
+      } catch (Throwable e) {
+        LOG.error("First member connection error.", e);
+        doStop(CHANNEL_CLOSE_TIMEOUT);
+      }
     } else if (event.getMembers().size() > currentMembers.size()) {
-      // new member connected to the channel TODO - refactoring!!!
-      LOG.info("onStateChanged - new member connected to the channel " + event.getMembers().size()
-          + " > " + currentMembers.size());
+      try {
+        // new member connected to the channel
+        LOG.info("onStateChanged - new member connected to the channel "
+            + event.getMembers().size() + " > " + currentMembers.size());
 
-      boolean hasAll = event.getMembers().size() == (otherParticipantsPriority.size() + 1);
+        boolean hasAll = event.getMembers().size() == (otherParticipantsPriority.size() + 1);
 
-      // Will be created memberWaiter
-      if (event.getMembers().size() == 2 && event.isCoordinator()) {
-        isCoordinator = event.isCoordinator();
-
-        if (!hasAll) {
-          lastMemberWaiter = new LastMemberWaiter();
-          lastMemberWaiter.start();
-
-          LOG.info("onStateChanged - last member waiter started");
-        }
-      }
-
-      if (hasAll && isCoordinator) {
-        // all members online, do start
-        if (lastMemberWaiter != null) {
-          lastMemberWaiter.cancel();
-          lastMemberWaiter = null;
-
-          LOG.info("onStateChanged - last member waiter canceled (has all members)");
-        }
-
-        // List<MemberAddress> members = new ArrayList<MemberAddress>(event.getMembers());
-        // members.remove(event.getLocalMember());
-
-        LOG.info("Do START with all memebers");
-        doStart(event.getMembers());
-      }
-
-    } else if (event.getMembers().size() < currentMembers.size()) {
-      // one or more members were disconnected from the channel
-      LOG.info("onStateChanged - one or more members were disconnected from the channel "
-          + event.getMembers().size() + " < " + currentMembers.size());
-
-      List<MemberAddress> disconnectedMembers = new ArrayList<MemberAddress>(currentMembers);
-      disconnectedMembers.removeAll(event.getMembers());
-
-      if (isStarted()) {
-        // if already started
-        if (isMemberMergeDone(disconnectedMembers)) {
-          // just ok
-
-          // TODO not used actually
-          // for (RemoteEventListener rl : listeners())
-          // rl.onDisconnectMembers(disconnectedMembers);
-        } else {
-          // 1. if some member was disconnected but has not merged - fatal
-          // 2. if some member (or all) was disconnected but local merge doesn't finished,
-          // it's usecase of imposible remote export (if will), will be handled by exporter.
-          // [PN, 28.01.2009] cancel (stop) in any case
-          LOG.error("FATAL: member disconnected after the start. Stopping synchrinization.");
-
-          doStop();
-
-          for (RemoteEventListener rl : listeners())
-            rl.onCancel();
-        }
-      } else {
-        // still not started
-
-        // Check if disconnected the previous coordinator.
-        if (event.isCoordinator() && !isCoordinator) {
+        // Will be created memberWaiter
+        if (event.getMembers().size() == 2 && event.isCoordinator()) {
           isCoordinator = event.isCoordinator();
 
-          // TODO remove log
-          LOG.info("onStateChanged - coordinator was changed (this), last member waiter started");
+          if (!hasAll) {
+            lastMemberWaiter = new LastMemberWaiter();
+            lastMemberWaiter.start();
 
-          lastMemberWaiter = new LastMemberWaiter();
-          lastMemberWaiter.start();
-
-        } else if (event.isCoordinator() && isCoordinator && lastMemberWaiter != null) {
-          lastMemberWaiter.cancel();
-          lastMemberWaiter = null;
-
-          LOG.info("onStateChanged - last member waiter canceled");
+            LOG.info("onStateChanged - last member waiter started");
+          }
         }
+
+        if (hasAll && isCoordinator) {
+          // all members online, do start
+          if (lastMemberWaiter != null) {
+            lastMemberWaiter.cancel();
+            lastMemberWaiter = null;
+
+            LOG.info("onStateChanged - last member waiter canceled (has all members)");
+          }
+
+          LOG.info("Do START with all memebers");
+          doStart(event.getMembers());
+        }
+      } catch (Throwable e) {
+        LOG.error("Next member connection error.", e);
+        doStop(CHANNEL_CLOSE_TIMEOUT);
+      }
+    } else if (event.getMembers().size() < currentMembers.size()) {
+      try {
+        // one or more members were disconnected from the channel
+        LOG.info("onStateChanged - one or more members were disconnected from the channel "
+            + event.getMembers().size() + " < " + currentMembers.size());
+
+        List<MemberAddress> disconnectedMembers = new ArrayList<MemberAddress>(currentMembers);
+        disconnectedMembers.removeAll(event.getMembers());
+
+        if (isStarted()) {
+          // if already started
+          if (isMemberMergeDone(disconnectedMembers)) {
+            // just ok
+
+            // TODO not used actually
+            // for (RemoteEventListener rl : listeners())
+            // rl.onDisconnectMembers(disconnectedMembers);
+          } else {
+            // 1. if some member was disconnected but has not merged - fatal
+            // 2. if some member (or all) was disconnected but local merge doesn't finished,
+            // it's usecase of imposible remote export (if will), will be handled by exporter.
+            // [PN, 28.01.2009] cancel (stop) in any case
+            LOG.error("FATAL: member disconnected after the start. Stopping synchrinization.");
+
+            doStop(CHANNEL_CLOSE_TIMEOUT);
+
+            for (RemoteEventListener rl : listeners())
+              rl.onCancel();
+          }
+        } else {
+          // still not started
+
+          // Check if disconnected the previous coordinator.
+          if (event.isCoordinator() && !isCoordinator) {
+            isCoordinator = event.isCoordinator();
+
+            // TODO remove log
+            LOG.info("onStateChanged - coordinator was changed (this), last member waiter started");
+
+            lastMemberWaiter = new LastMemberWaiter();
+            lastMemberWaiter.start();
+
+          } else if (event.isCoordinator() && isCoordinator && lastMemberWaiter != null) {
+            lastMemberWaiter.cancel();
+            lastMemberWaiter = null;
+
+            LOG.info("onStateChanged - last member waiter canceled");
+          }
+        }
+      } catch (Throwable e) {
+        LOG.error("Member disconnection error.", e);
+        doStop(CHANNEL_CLOSE_TIMEOUT * 5); // we have one stop inside this try-catch
       }
     } else
       // TODO
       LOG.info(">>>>> onStateChanged, members ammount is not changed but channel state was changed "
           + event);
 
-    if (event.getMembers().size() > 1 && firstMemberWaiter != null) {
-      firstMemberWaiter.cancel();
-      firstMemberWaiter = null;
+    try {
+      if (event.getMembers().size() > 1 && firstMemberWaiter != null) {
+        firstMemberWaiter.cancel();
+        firstMemberWaiter = null;
+      }
+    } catch (Throwable e) {
+      LOG.warn("Error of First member waiter stop." + e);
     }
 
     localMember = event.getLocalMember();
@@ -342,30 +357,40 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
     // Member member = syncMember(srcMember, ((AbstractPacket) packet).getTransmitterPriority());
 
-      switch (packet.getType()) {
-      case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
+    switch (packet.getType()) {
+    case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
+      try {
         LOG.info("Do CANCEL (remote) from " + srcMember);
 
         doStop(CHANNEL_CLOSE_TIMEOUT);
 
         for (RemoteEventListener rl : listeners())
           rl.onCancel();
+      } catch (Throwable e) {
+        LOG.warn("Cancel message handle error.", e);
       }
-        break;
+    }
+      break;
 
-      case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
+    case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
+      try {
         LOG.info("Do MERGE (remote) from " + srcMember);
 
         if (mergingMembers.contains(srcMember)) {
           doneMember(srcMember);
-  
+
           for (RemoteEventListener rl : listeners())
             rl.onMerge(srcMember);
         } else
-          LOG.warn("Skipp MERGE packet from laready merged member " + srcMember + ". Packet: " + packet);
+          LOG.warn("Skipp MERGE packet from laready merged member " + srcMember + ". Packet: "
+              + packet);
+      } catch (Throwable e) {
+        LOG.warn("Merge message handle error.", e);
+        doStop(CHANNEL_CLOSE_TIMEOUT);
       }
-        break;
-      }
+    }
+      break;
+    }
   }
 
   /**
@@ -527,8 +552,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
           doStop();
 
           // TODO remove it, nothing started now
-          //for (RemoteEventListener rl : listeners())
-          //  rl.onCancel();
+          // for (RemoteEventListener rl : listeners())
+          // rl.onCancel();
         }
 
       } catch (InterruptedException e) {

@@ -248,9 +248,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   public void onChanges(ChangesPacket packet, Member member) {
 
-    try {
-      switch (packet.getType()) {
-      case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
+    switch (packet.getType()) {
+    case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
+      try {
         LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + member.getName());
 
         if (isInitialized()) {
@@ -264,24 +264,34 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         }
 
         RandomChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
-                                                          packet.getTimeStamp(),
-                                                          member);
+                                                                packet.getTimeStamp(),
+                                                                member);
         cf.writeData(packet.getBuffer(), packet.getOffset());
 
         // packet.getFileCount(); // TODO remeber whole packets count for this member
 
         incomChanges.put(new Key(packet.getCRC(), packet.getTimeStamp()),
                          new MemberChangesFile(cf, member));
-        break;
+      } catch (Throwable e) {
+        doCancel();
+        LOG.error("Error of First data packet processing. Member " + member, e);
       }
-      case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
+      break;
+    }
+    case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
+      try {
         // LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
 
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
-        break;
+      } catch (Throwable e) {
+        doCancel();
+        LOG.error("Error of Mid data packet processing. Member " + member, e);
       }
-      case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
+      break;
+    }
+    case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
+      try {
         LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + member.getName());
 
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
@@ -308,15 +318,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           } else
             LOG.error("Error, merge process laready activated.");
 
-        break;
+      } catch (Throwable e) {
+        doCancel();
+        LOG.error("Error of Last data packet processing. Member " + member, e);
       }
-      }
-    } catch (IOException e) {
-      LOG.error("Cannot save changes from member " + member.getAddress() + ". Error: " + e, e);
-
-      // local cancel, incl. merge.
-      // and remote cancel.
-      doCancel();
+      break;
+    }
     }
   }
 
@@ -336,21 +343,21 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
     if (isStarted()) {
       cancelMerge();
-  
+
       try {
         transmitter.sendCancel();
       } catch (IOException ioe) {
         LOG.error("Cannot send 'Cancel'" + ioe, ioe);
       }
-  
+
       doStop();
-  
+
       for (LocalEventListener syncl : listeners)
         // inform all interested
         syncl.onCancel(); // local done - null
     } else
       LOG.warn("Cannot cancel. Already stopped.");
-      
+
   }
 
   /**
@@ -503,7 +510,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   private class MemberChangesFile {
     private final RandomChangesFile changesFile;
 
-    private final Member      member;
+    private final Member            member;
 
     public MemberChangesFile(RandomChangesFile changesFile, Member member) {
       this.changesFile = changesFile;
