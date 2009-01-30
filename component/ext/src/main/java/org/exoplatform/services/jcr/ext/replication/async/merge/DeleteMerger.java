@@ -33,10 +33,10 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -74,15 +74,15 @@ public class DeleteMerger extends AbstractMerger {
    * @throws ClassCastException
    */
   public EditableChangesStorage<ItemState> merge(ItemState itemChange,
-                                         ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local,
-                                         String mergeTempDir,
-                                         List<QPath> skippedList) throws RepositoryException,
-                                                                 RemoteExportException,
-                                                                 IOException,
-                                                                 ClassCastException,
-                                                                 ClassNotFoundException,
-                                                                 StorageRuntimeException {
+                                                 ChangesStorage<ItemState> income,
+                                                 ChangesStorage<ItemState> local,
+                                                 String mergeTempDir,
+                                                 List<QPath> skippedList) throws RepositoryException,
+                                                                         RemoteExportException,
+                                                                         IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException,
+                                                                         StorageRuntimeException {
 
     boolean itemChangeProcessed = false;
 
@@ -90,13 +90,16 @@ public class DeleteMerger extends AbstractMerger {
     EditableChangesStorage<ItemState> resultState = new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              null);
 
-    ItemState parentNodeState;
-
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
+
+      ItemState incParentNodeState = income.findNextState(incomeState,
+                                                          incomeData.getParentIdentifier(),
+                                                          incomeData.getQPath().makeParentPath(),
+                                                          ItemState.DELETED);
 
       // skip lock properties
       if (!localData.isNode()) {
@@ -109,15 +112,10 @@ public class DeleteMerger extends AbstractMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          parentNodeState = income.findNextState(incomeState,
-                                                 incomeState.getData().getParentIdentifier(),
-                                                 incomeState.getData().getQPath().makeParentPath(),
-                                                 ItemState.DELETED);
-
-          if (incomeState.getData().isNode() || parentNodeState != null) {
+          if (incomeState.getData().isNode() || incParentNodeState != null) {
             QPath incNodePath = incomeData.isNode()
                 ? incomeData.getQPath()
-                : parentNodeState.getData().getQPath();
+                : incParentNodeState.getData().getQPath();
 
             if (localData.getQPath().isDescendantOf(incNodePath)) {
               skippedList.add(incNodePath);
@@ -139,6 +137,12 @@ public class DeleteMerger extends AbstractMerger {
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
             // TODO
+
+            if (incomeState.getData().isNode() || incParentNodeState != null) {
+              QPath incNodePath = incomeData.isNode()
+                  ? incomeData.getQPath()
+                  : incParentNodeState.getData().getQPath();
+            }
 
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                 || local.getNextItemStateByUUIDOnUpdate(localState, incomeData.getIdentifier()) != null) {
@@ -215,17 +219,10 @@ public class DeleteMerger extends AbstractMerger {
           // RENAMED sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
-            parentNodeState = income.findNextState(incomeState,
-                                                   incomeState.getData().getParentIdentifier(),
-                                                   incomeState.getData()
-                                                              .getQPath()
-                                                              .makeParentPath(),
-                                                   ItemState.DELETED);
-
-            if (incomeState.getData().isNode() || parentNodeState != null) {
+            if (incomeState.getData().isNode() || incParentNodeState != null) {
               QPath incNodePath = incomeData.isNode()
                   ? incomeData.getQPath()
-                  : parentNodeState.getData().getQPath();
+                  : incParentNodeState.getData().getQPath();
 
               QPath locNodePath = localData.isNode()
                   ? localData.getQPath()
@@ -256,15 +253,10 @@ public class DeleteMerger extends AbstractMerger {
           }
 
           // DELETE
-          parentNodeState = income.findNextState(incomeState,
-                                                 incomeState.getData().getParentIdentifier(),
-                                                 incomeState.getData().getQPath().makeParentPath(),
-                                                 ItemState.DELETED);
-
-          if (incomeData.isNode() || parentNodeState != null) {
+          if (incomeData.isNode() || incParentNodeState != null) {
             QPath incNodePath = incomeData.isNode()
                 ? incomeData.getQPath()
-                : parentNodeState.getData().getQPath();
+                : incParentNodeState.getData().getQPath();
 
             if (incNodePath.isDescendantOf(localData.getQPath())
                 || incNodePath.equals(localData.getQPath())) {
@@ -289,17 +281,10 @@ public class DeleteMerger extends AbstractMerger {
 
         case ItemState.UPDATED:
           if (!localData.isNode()) {
-            parentNodeState = income.findNextState(incomeState,
-                                                   incomeState.getData().getParentIdentifier(),
-                                                   incomeState.getData()
-                                                              .getQPath()
-                                                              .makeParentPath(),
-                                                   ItemState.DELETED);
-
-            if (incomeData.isNode() || parentNodeState != null) {
+            if (incomeData.isNode() || incParentNodeState != null) {
               QPath incNodePath = incomeData.isNode()
                   ? incomeData.getQPath()
-                  : parentNodeState.getData().getQPath();
+                  : incParentNodeState.getData().getQPath();
 
               if (localData.getQPath().isDescendantOf(incNodePath)) {
                 skippedList.add(incNodePath);
@@ -319,15 +304,10 @@ public class DeleteMerger extends AbstractMerger {
           break;
 
         case ItemState.MIXIN_CHANGED:
-          parentNodeState = income.findNextState(incomeState,
-                                                 incomeState.getData().getParentIdentifier(),
-                                                 incomeState.getData().getQPath().makeParentPath(),
-                                                 ItemState.DELETED);
-
-          if (incomeData.isNode() || parentNodeState != null) {
+          if (incomeData.isNode() || incParentNodeState != null) {
             QPath incNodePath = incomeData.isNode()
                 ? incomeData.getQPath()
-                : parentNodeState.getData().getQPath();
+                : incParentNodeState.getData().getQPath();
 
             if (localData.getQPath().equals(incNodePath)
                 || localData.getQPath().isDescendantOf(incNodePath)) {
@@ -361,16 +341,11 @@ public class DeleteMerger extends AbstractMerger {
             break;
           }
 
-          parentNodeState = income.findNextState(incomeState,
-                                                 incomeState.getData().getParentIdentifier(),
-                                                 incomeState.getData().getQPath().makeParentPath(),
-                                                 ItemState.DELETED);
-
-          if ((incomeData.isNode() || parentNodeState != null)) {
+          if ((incomeData.isNode() || incParentNodeState != null)) {
 
             QPath incNodePath = incomeData.isNode()
                 ? incomeData.getQPath()
-                : parentNodeState.getData().getQPath();
+                : incParentNodeState.getData().getQPath();
 
             if (localData.getQPath().isDescendantOf(incNodePath)
                 || localData.getQPath().equals(incNodePath)) {
@@ -500,14 +475,7 @@ public class DeleteMerger extends AbstractMerger {
               break;
             }
 
-            parentNodeState = income.findNextState(incomeState,
-                                                   incomeState.getData().getParentIdentifier(),
-                                                   incomeState.getData()
-                                                              .getQPath()
-                                                              .makeParentPath(),
-                                                   ItemState.DELETED);
-
-            if ((incomeData.isNode() || parentNodeState != null)) {
+            if ((incomeData.isNode() || incParentNodeState != null)) {
 
               if (localData.isNode()) {
                 if (incomeData.getQPath().equals(localData.getQPath())) {

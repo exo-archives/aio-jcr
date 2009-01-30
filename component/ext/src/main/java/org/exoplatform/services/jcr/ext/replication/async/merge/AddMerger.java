@@ -170,6 +170,8 @@ public class AddMerger extends AbstractMerger {
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            // skippedList.add(incomeData.getQPath());
+            // return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
 
             // TODO
 

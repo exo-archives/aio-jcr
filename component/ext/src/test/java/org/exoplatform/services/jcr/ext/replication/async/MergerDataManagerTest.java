@@ -314,7 +314,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     assertTrue(complexUseCase3.checkEquals());
   }
-  
+
   public void testCompexUsecase4() throws Exception {
 
     ComplexUseCase4 useCase4 = new ComplexUseCase4(session3, session4);
@@ -328,8 +328,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
+    saveResultedChanges(res3, "ws3");
 
     assertTrue(useCase4.checkEquals());
 
@@ -3311,6 +3311,53 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     membersChanges.clear();
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * CheckIn test conflict.
+   */
+  public void testCheckIn1() throws Exception {
+    // low priority changes: add items
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:versionable");
+
+    // low priority changes: add items
+    node1 = root4.addNode("item1");
+    node1.addMixin("mix:versionable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: checkin
+    root3.getNode("item1").checkin();
+
+    // high priority changes: checkin
+    root4.getNode("item1").checkin();
+
+    membersChanges.clear();
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
     session4.save();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
