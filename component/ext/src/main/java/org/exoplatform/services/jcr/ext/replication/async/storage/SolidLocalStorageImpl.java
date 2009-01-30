@@ -160,9 +160,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * {@inheritDoc}
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
-    if (isStarted()) {
-      reportException(new IOException("Local storage already stared."));
-    } else {
+    //if (isStarted()) {
+    //  reportException(new IOException("Local storage already stared."));
+   // } else {
       if (!(itemStates instanceof SynchronizerChangesLog)) {
         try {
           addChangesLog(itemStates);
@@ -171,7 +171,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
           reportException(e);
         }
       }
-    }
+    //}
   }
 
   protected void addChangesLog(ItemStateChangesLog itemStates) throws IOException {
