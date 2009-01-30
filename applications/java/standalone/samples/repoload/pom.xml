@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.jcr.applications.repoload</artifactId>
 	<packaging>jar</packaging>
-	<version>1.10.2-SNAPSHOT</version>
+	<version>1.10.2</version>
 	<name>repoload</name>
 	<url>http://www.exoplatform.org</url>
 	<description>Repository Uploader</description>
