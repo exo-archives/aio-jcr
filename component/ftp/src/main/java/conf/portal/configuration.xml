@@ -18,13 +18,13 @@
       </value-param>
       <value-param>
         <name>system</name>
-				<!-- value>Windows_NT</value -->
+        <!-- value>Windows_NT</value -->
         <value>UNIX Type: L8</value>
       </value-param>
       <value-param>
         <name>client-side-encoding</name>
         <value>windows-1251</value>
-				<!-- value>KOI8-R</value -->
+        <!-- value>KOI8-R</value -->
       </value-param>
       <value-param>
         <name>def-folder-node-type</name>
@@ -42,24 +42,24 @@
         <name>cache-folder-name</name>
         <value>../temp/ftp_cache</value>
       </value-param>
-			
-			<!-- bytes per second -->
-			<!-- value-param>
-				<name>upload-speed-limit</name>				
-				<value>20480</value>
-			</value-param -->
-			
-			<!-- bytes per second -->
-			<!-- value-param>
-				<name>download-speed-limit</name>				
-				<value>20480</value>				
-			</value-param -->
+      
+<!--      <bytes per second>-->
+<!--      <value-param>-->
+<!--        <name>upload-speed-limit</name>-->
+<!--        <value>20480</value>-->
+<!--      </value-param -->
+      
+<!--       bytes per second -->
+<!--      <value-param>-->
+<!--        <name>download-speed-limit</name>-->
+<!--        <value>20480</value>-->
+<!--      </value-param>-->
 
-			<!-- seconds -->			
-			<!-- value-param>
-				<name>timeout</name>
-				<value>60</value>
-			</value-param -->
+<!--      <seconds>      -->
+<!--      <value-param>-->
+<!--        <name>timeout</name>-->
+<!--        <value>60</value>-->
+<!--      </value-param>-->
       <value-param>
         <name>portalContainerName</name>
         <value>portal</value>
