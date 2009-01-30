@@ -17,14 +17,19 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PropertyIterator;
 import javax.jcr.Value;
+import javax.jcr.ValueFactory;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -173,6 +178,103 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.move("/item1", "/item2");
       sessionLowPriority.save();
     }
+  }
+
+  /**
+   * Complex UseCase4 (server 1 - high priority, server 2 -low priority)
+   * 
+   * With complex node type (nt:file + mixin dc:elementSet)
+   */
+  public class ComplexUseCase4 extends BaseMergeUseCase {
+    public ComplexUseCase4(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node test = sessionHighPriority.getRootNode().addNode("cms1");
+      Node cool = test.addNode("nnn", "nt:file");
+      Node contentNode = cool.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:encoding", "UTF-8");
+      contentNode.setProperty("jcr:data", new FileInputStream(createBLOBTempFile(5225)));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+      contentNode.setProperty("jcr:lastModified", sessionHighPriority.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
+
+      cool.addMixin("dc:elementSet");
+
+      cool.setProperty("dc:creator", new String[] { "Creator 1", "Creator 2", "Creator 3" });
+
+      ValueFactory vf = cool.getSession().getValueFactory();
+      cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+          vf.createValue(Calendar.getInstance()), vf.createValue(Calendar.getInstance()) });
+
+      cool.setProperty("dc:source", new String[] { "Source 1", "Source 2", "Source 3" });
+      cool.setProperty("dc:description", new String[] { "description 1", "description 2",
+          "description 3", "description 4" });
+      cool.setProperty("dc:publisher", new String[] { "publisher 1", "publisher 2", "publisher 3" });
+      cool.setProperty("dc:language", new String[] { "language 1", "language 2", "language3",
+          "language 4", "language5" });
+
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node test = sessionLowPriority.getRootNode().addNode("cms1");
+      Node cool = test.addNode("nnn", "nt:file");
+      Node contentNode = cool.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:encoding", "UTF-8");
+      contentNode.setProperty("jcr:data", new FileInputStream(createBLOBTempFile(3521)));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+      contentNode.setProperty("jcr:lastModified", sessionLowPriority.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
+
+      cool.addMixin("dc:elementSet");
+
+      cool.setProperty("dc:creator", new String[] { "Creator 1", "Creator 2", "Creator 3" });
+
+      ValueFactory vf = cool.getSession().getValueFactory();
+      cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+          vf.createValue(Calendar.getInstance()), vf.createValue(Calendar.getInstance()) });
+
+      cool.setProperty("dc:source", new String[] { "Source 1", "Source 2", "Source 3" });
+      cool.setProperty("dc:description", new String[] { "description 1", "description 2",
+          "description 3", "description 4" });
+      cool.setProperty("dc:publisher", new String[] { "publisher 1", "publisher 2", "publisher 3" });
+      cool.setProperty("dc:language", new String[] { "language 1", "language 2", "language3",
+          "language 4", "language5" });
+
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node contentNode = sessionHighPriority.getRootNode().addNode("cms1").getNode("nnn").getNode("jcr:content");
+      contentNode.setProperty("jcr:data",  new FileInputStream(createBLOBTempFile(1521)));
+      contentNode.setProperty("jcr:lastModified", sessionHighPriority.getValueFactory()
+                              .createValue(Calendar.getInstance()));
+      
+      Node cool = contentNode.getParent();
+      cool.setProperty("dc:source", new String[] { "Source H 1", "Source h 2" });
+      
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node contentNode = sessionLowPriority.getRootNode().addNode("cms1").getNode("nnn").getNode("jcr:content");
+      contentNode.setProperty("jcr:data",  new FileInputStream(createBLOBTempFile(2521)));
+      contentNode.setProperty("jcr:lastModified", sessionLowPriority.getValueFactory()
+                              .createValue(Calendar.getInstance()));
+      
+      Node cool = contentNode.getParent();
+      cool.setProperty("dc:source", new String[] { "Source l 1", "Source L 2" });
+      cool.setProperty("dc:identifier", new String[] { "Id L 1", "Ident l 2", "Ident_L3" });
+      
+      sessionLowPriority.save();
+    }
+    
   }
 
   /**
@@ -891,4 +993,5 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     return res1 || res2;
   }
+  
 }

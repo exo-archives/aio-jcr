@@ -314,6 +314,43 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     assertTrue(complexUseCase3.checkEquals());
   }
+  
+  public void testCompexUsecase4() throws Exception {
+
+    ComplexUseCase4 useCase4 = new ComplexUseCase4(session3, session4);
+
+    useCase4.initDataLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    useCase4.initDataHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(useCase4.checkEquals());
+
+    membersChanges.clear();
+
+    // low
+    useCase4.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    // high
+    useCase4.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(useCase4.checkEquals());
+  }
 
   /**
    * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
