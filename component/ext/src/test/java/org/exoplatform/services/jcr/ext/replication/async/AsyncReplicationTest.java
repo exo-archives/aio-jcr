@@ -76,9 +76,9 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
       int priorityHigh = 100;
       int waitAllMemberTimeout = 15; // 15 seconds.
 
-      File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
+      File storage1 = new File("target/temp/storage/" + System.currentTimeMillis());
       storage1.mkdirs();
-      File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
+      File storage2 = new File("target/temp/storage/" + System.currentTimeMillis());
       storage2.mkdirs();
 
       List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
@@ -136,6 +136,9 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
                                     "cName_suffix");
 
       Thread.sleep(25000);
+      
+      asyncReplication1.removeAllStorageListener();
+      asyncReplication2.removeAllStorageListener();
     }
 
     public boolean checkEquals() throws Exception {
@@ -433,10 +436,14 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
     asyncUseCase.initData();
+    
+    Thread.sleep(15000);
 
     assertTrue(asyncUseCase.checkEquals());
 
     asyncUseCase.useCase();
+    
+    Thread.sleep(15000);
 
     assertTrue(asyncUseCase.checkEquals());
   }

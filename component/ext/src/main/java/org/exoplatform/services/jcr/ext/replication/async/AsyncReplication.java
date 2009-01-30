@@ -124,7 +124,7 @@ public class AsyncReplication implements Startable {
 
     protected final NodeTypeDataManager       ntManager;
 
-    protected final SolidLocalStorageImpl          localStorage;
+    protected final SolidLocalStorageImpl     localStorage;
 
     protected final IncomeStorageImpl         incomeStorage;
 

@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.StorageKey;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SolidLocalStorageImpl;
@@ -95,4 +96,21 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     currentWorkers.add(synchWorker);
   }
+  
+  protected void removeAllStorageListener() throws RepositoryException, RepositoryConfigurationException {
+    for (String repositoryName : repositoryNames) {
+      ManageableRepository repository = repoService.getRepository(repositoryName);
+
+      for (String wsName : repository.getWorkspaceNames()) {
+        StorageKey skey = new StorageKey(repositoryName, wsName);
+        
+        WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+        PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+        
+        SolidLocalStorageImpl sls = localStorages.get(skey);
+        System.out.println("Remove ItemPersistenceListener : " + sls);
+        dm.removeItemPersistenceListener(localStorages.get(skey));
+      }
+  }
+    }
 }
