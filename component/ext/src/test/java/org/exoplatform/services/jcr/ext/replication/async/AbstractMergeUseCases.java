@@ -248,7 +248,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseHighPriority() throws Exception {
-      Node contentNode = sessionHighPriority.getRootNode().addNode("cms1").getNode("nnn").getNode("jcr:content");
+      Node contentNode = sessionHighPriority.getRootNode().getNode("cms1").getNode("nnn").getNode("jcr:content");
       contentNode.setProperty("jcr:data",  new FileInputStream(createBLOBTempFile(1521)));
       contentNode.setProperty("jcr:lastModified", sessionHighPriority.getValueFactory()
                               .createValue(Calendar.getInstance()));
@@ -261,7 +261,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      Node contentNode = sessionLowPriority.getRootNode().addNode("cms1").getNode("nnn").getNode("jcr:content");
+      Node contentNode = sessionLowPriority.getRootNode().getNode("cms1").getNode("nnn").getNode("jcr:content");
       contentNode.setProperty("jcr:data",  new FileInputStream(createBLOBTempFile(2521)));
       contentNode.setProperty("jcr:lastModified", sessionLowPriority.getValueFactory()
                               .createValue(Calendar.getInstance()));

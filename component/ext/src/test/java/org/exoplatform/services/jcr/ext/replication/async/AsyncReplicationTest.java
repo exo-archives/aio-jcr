@@ -189,107 +189,6 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     super.tearDown();
   }
 
-  /*public void testChangesExchenge() throws Exception {
-    List<String> repositoryNames1 = new ArrayList<String>();
-    repositoryNames1.add(repositoryLowPriority.getName());
-    List<String> repositoryNames2 = new ArrayList<String>();
-    repositoryNames2.add(repositoryHigePriority.getName());
-
-    int priority1 = 50;
-    int priority2 = 100;
-    int waitAllMemberTimeout = 120; // 120 seconds.
-
-    File storage1 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage1.mkdirs();
-    File storage2 = new File("../target/temp/storage/" + System.currentTimeMillis());
-    storage2.mkdirs();
-
-    List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
-    otherParticipantsPriority1.add(priority2);
-    List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
-    otherParticipantsPriority2.add(priority1);
-
-    AsyncReplicationTester asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames1,
-                                                                          priority1,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority1);
-
-    AsyncReplicationTester asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames2,
-                                                                          priority2,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage2.getAbsolutePath(),
-                                                                          otherParticipantsPriority2);
-
-    asyncReplication1.start();
-    asyncReplication2.start();
-
-
-    // create node in repository 'db1'
-    Node node1 = sessionLowPriority.getRootNode().addNode("node_in_db1", "nt:unstructured");
-    for (int j = 0; j < 10; j++) {
-      for (int i = 0; i < 10; i++)
-        node1.addNode("testNode_" + j + "_" + i, "nt:unstructured");
-      sessionLowPriority.save();
-    }
-
-    // create node in repository 'db2'
-    Node node2 = sessionHigePriority.getRootNode().addNode("node_in_db2", "nt:unstructured");
-    for (int j = 0; j < 10; j++) {
-      for (int i = 0; i < 10; i++)
-        node2.addNode("testNode_" + j + "_" + i, "nt:unstructured");
-      sessionHigePriority.save();
-    }
-
-    // Synchronize
-    asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                  sessionLowPriority.getWorkspace().getName(),
-                                  "cName_suffix");
-    asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                  sessionHigePriority.getWorkspace().getName(),
-                                  "cName_suffix");
-
-    Thread.sleep(30000);
-    
-    //print nodes on member 50
-    NodeIterator ni = sessionLowPriority.getRootNode().getNodes();
-    log.info("Nodes on member 50");
-    while (ni.hasNext()) 
-     log.info(ni.nextNode().getName());      
-
-    //print nodes on member 100
-    ni = sessionHigePriority.getRootNode().getNodes();
-    log.info("Nodes on member 100");
-    while (ni.hasNext()) 
-     log.info(ni.nextNode().getName());
-
-    // compare data
-    Node srcNode1 = sessionLowPriority.getRootNode().getNode("node_in_db1");
-    Node srcNode2 = sessionHigePriority.getRootNode().getNode("node_in_db1");
-
-    for (int j = 0; j < 10; j++)
-      for (int i = 0; i < 10; i++)
-        assertEquals(node1.getNode("testNode_" + j + "_" + i).getName(), node2.getNode("testNode_"
-            + j + "_" + i).getName());
-
-    srcNode1 = sessionLowPriority.getRootNode().getNode("node_in_db2");
-    srcNode2 = sessionHigePriority.getRootNode().getNode("node_in_db2");
-
-    for (int j = 0; j < 10; j++)
-      for (int i = 0; i < 10; i++)
-        assertEquals(node1.getNode("testNode_" + j + "_" + i).getName(), node2.getNode("testNode_"
-            + j + "_" + i).getName());
-
-  }*/
-
   public void testUseCase1() throws Exception {
     UseCase1 useCase = new UseCase1(sessionLowPriority, sessionHigePriority);
 
@@ -530,6 +429,20 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
   
   public void testComplexUseCase4() throws Exception {
     ComplexUseCase4 useCase = new ComplexUseCase4(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testComplexUseCase5() throws Exception {
+    ComplexUseCase5 useCase = new ComplexUseCase5(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
