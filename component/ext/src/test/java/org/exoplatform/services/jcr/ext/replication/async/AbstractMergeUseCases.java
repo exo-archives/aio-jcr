@@ -960,7 +960,12 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       for (int i = 0; i < srcValues.length; i++) {
         if (!srcValues[i].equals(dstValues[i])) {
           if (srcValues[i] instanceof BinaryValue) {
-            continue; // TODO
+            try {
+              compareStream(srcValues[i].getStream(), dstValues[i].getStream());
+              continue;
+            } catch (Exception e) {
+              return false;
+            }
           }
 
           log.error("Properties values are not equals: " + srcProp.getName() + "|"
