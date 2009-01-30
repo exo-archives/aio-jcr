@@ -308,7 +308,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     public void useCaseHighPriority() throws Exception {
       Node node1 = sessionHighPriority.getRootNode().addNode("node_in_db1", "nt:unstructured");
       for (int j = 0; j < 1; j++) {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
           node1.addNode("testNode_" + j + "_" + i, "nt:unstructured");
       }
       sessionHighPriority.save();
@@ -318,7 +318,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     public void useCaseLowPriority() throws Exception {
       Node node2 = sessionLowPriority.getRootNode().addNode("node_in_db2", "nt:unstructured");
       for (int j = 0; j < 1; j++) {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
           node2.addNode("testNode_" + j + "_" + i, "nt:unstructured");
       }
       sessionLowPriority.save();
