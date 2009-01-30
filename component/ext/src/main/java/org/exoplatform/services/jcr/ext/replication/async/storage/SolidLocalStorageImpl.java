@@ -83,13 +83,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   protected final String        storagePath;
 
-  private File                  lastDir                    = null;
-
-  private File                  previousDir                = null;
+  private File                  currentDir                 = null;
 
   private RandomChangesFile     currentFile                = null;
-
-  // private ObjectOutputStream currentOut = null; // TODO
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -108,30 +104,27 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     if (dirs.length != 0) {
       dirIndex = Long.parseLong(dirs[dirs.length - 1]) + 1;
 
-      // TODO check is last directory archived. If true create new directory.
-
-      lastDir = new File(storagePath, dirs[dirs.length - 1]);
+      currentDir = new File(storagePath, dirs[dirs.length - 1]);
 
       // get last filename as index
-      String[] fileNames = lastDir.list(new ChangesFileNameFilter());
+      String[] fileNames = currentDir.list(new ChangesFileNameFilter());
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
       if (fileNames.length != 0) {
         index = Long.parseLong(fileNames[fileNames.length - 1] + 1);
       }
 
-      // find previousDir
+      // check local storage
       if (dirs.length > 1) {
         // TODO previous dir wasn't removed. So OnStop or OnCancel wasn't
         // called. Its incorrect service close. Fix it
-        // previousDir = new File(storagePath, dirs[dirs.length - 2]);
       }
     } else {
-      lastDir = new File(storagePath, Long.toString(dirIndex++));
-      lastDir.mkdirs();
+      currentDir = new File(storagePath, Long.toString(dirIndex++));
+      currentDir.mkdirs();
     }
 
-    // started everytime
-    doStart();
+    // synchronization is not started for default
+    doStop();
   }
 
   /**
@@ -142,16 +135,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     if (isStopped())
       throw new IOException("Local storage already stopped.");
 
-    if (previousDir != null) {
+    if (currentDir != null) {
       List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
-      String[] fileNames = previousDir.list(new ChangesFileNameFilter());
+      String[] fileNames = currentDir.list(new ChangesFileNameFilter());
 
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
 
       for (int j = 0; j < fileNames.length; j++) {
         try {
-          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), previousDir));
+          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), currentDir));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -167,13 +160,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * {@inheritDoc}
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
-
-    if (!(itemStates instanceof SynchronizerChangesLog)) {
-      try {
-        addChangesLog(itemStates);
-      } catch (IOException e) {
-        LOG.error("On save items error " + e, e);
-        this.reportException(e);
+    if (isStarted()) {
+      reportException(new IOException("Local storage already stared."));
+    } else {
+      if (!(itemStates instanceof SynchronizerChangesLog)) {
+        try {
+          addChangesLog(itemStates);
+        } catch (IOException e) {
+          LOG.error("On save items error " + e, e);
+          reportException(e);
+        }
       }
     }
   }
@@ -191,7 +187,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     // Create file if not exist or file length more than acceptable
     if (currentFile == null || (currentFile.getLength() > MAX_FILE_SIZE)) {
       closeCurrentFile();
-      currentFile = new RandomChangesFile("", getNextFileId(), lastDir);
+      currentFile = new RandomChangesFile("", getNextFileId(), currentDir);
     }
 
     ObjectOutputStream currentOut = new ObjectOutputStream(currentFile.getOutputStream());
@@ -201,7 +197,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     currentOut.close();
     currentOut = null;
     currentFile.finishWrite();
-
   }
 
   /**
@@ -210,9 +205,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * @throws IOException
    */
   synchronized private void closeCurrentFile() throws IOException {
-
     if (currentFile != null) {
-      // currentFile.finishWrite();
       currentFile = null;
     }
   }
@@ -388,9 +381,18 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   public void onStop() {
     LOG.info("On STOP");
 
-    if (isStarted())
-      deleteDir(previousDir);
-    else
+    if (isStarted()) {
+      // delete merged content
+      deleteDir(currentDir);
+
+      // create folder for new changes logs
+      currentDir = new File(storagePath, Long.toString(dirIndex++));
+      
+      if (!currentDir.mkdirs()) {
+        this.reportException(new IOException("LocalStorage subfolder create fails : "
+            + currentDir.getAbsolutePath()));
+      }
+    } else
       LOG.warn("Not started or already stopped");
 
     doStop();
@@ -403,8 +405,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     LOG.info("On CANCEL");
 
     if (isStarted()) {
-      doStop();      
-      deleteDir(lastDir);
+      doStop();
     } else
       LOG.warn("Not started or already stopped");
   }
@@ -416,7 +417,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     LOG.info("On START");
 
     // check lastDir for any changes;
-    String[] subfiles = lastDir.list(new ChangesFileNameFilter());
+    String[] subfiles = currentDir.list(new ChangesFileNameFilter());
     if (subfiles.length == 0) {
       // write empty log to have at least one file to send/compare
       onSaveItems(new TransactionChangesLog());
@@ -428,14 +429,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       this.reportException(e);
     }
 
-    File subdir = new File(storagePath, Long.toString(dirIndex++));
-    if (!subdir.mkdirs()) {
-      this.reportException(new IOException("LocalStorage subfolder create fails."));
-    }
-
-    previousDir = lastDir;
-    lastDir = subdir;
-
+    // keep current directory as source for merge
+    
     doStart();
   }
 

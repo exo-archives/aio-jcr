@@ -156,4 +156,48 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     this.checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
   }
   
+  public void testWriteReadWrite() throws Exception {
+    NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
+    n.setProperty("firstone", "first");
+    root.save();
+
+    NodeData d = (NodeData) n.getData();
+    
+    SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    ItemState is1 = new ItemState(d, ItemState.ADDED, false, d.getQPath());
+    expl.add(is1);
+
+    for (PropertyData data : dataManager.getChildPropertiesData(d)) {
+      ItemState is = new ItemState(data, ItemState.ADDED, false, d.getQPath());
+      expl.add(is);
+    }
+
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10));
+    
+    
+    //write
+    stor.add(expl.get(0));
+    stor.add(expl.get(1));
+    
+    List<ItemState> expM = new ArrayList<ItemState>();
+    expM.add(expl.get(0));
+    expM.add(expl.get(1));
+    
+    
+    assertEquals(expM.size(),stor.size());
+    
+    //read - check
+    checkItemStatesIterator(expM.iterator(), stor.getChanges(), true, false);
+    
+    //write
+    stor.add(expl.get(2));
+    
+    //check
+    checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
+  }
+  
+  
 }
