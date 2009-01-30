@@ -28,10 +28,11 @@
         isIE = true;
         req = new ActiveXObject("Microsoft.XMLHTTP");
       }
+      //req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     }
     
     function validateAreplication() {
-      var url = "arepl.jsp";
+      var url = "arepl.jsp?status";
       initRequest(url);
       req.onreadystatechange = function() {
         var done = 4, ok = 200;
@@ -54,12 +55,11 @@
     function runAreplication() {
       var url = "index?synchronize=run";
       initRequest(url);
-      req.open("POST", url, true);
+      req.open("POST", url, false);
       req.send(null);
 
-      sform = document.getElementById("synchronizationForm");
+      var sform = document.getElementById("synchronizationForm");
       sform.innerHTML = "<form><input name=\"submit\" type=\"submit\" value=\"synchronizing\" disabled=\"disabled\"></form>";
-
       initAreplicationValidation();
     }
     // -->
