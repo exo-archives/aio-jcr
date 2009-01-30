@@ -421,21 +421,9 @@
             <collection type="java.util.ArrayList">                                                                                       
               <value>                                                                                                                      
                 <object type="org.exoplatform.services.jcr.ext.replication.async.executor.Member">
-                  <field name="protocol">                                                                                                          
-                    <string>http</string>                                                                                                        
+                  <field name="url">                                                                                                          
+                    <string>http://root:exo@192.168.0.15:8080</string>                                                                                                        
                   </field>                                                      
-                  <field name="ipAddress">                                                                                                          
-                    <string>192.168.0.15</string>                                                                                                        
-                  </field>                                                                                                                   
-                  <field name="port">                                                                                               
-                    <int>8080</int>                                                                                                          
-                  </field>
-                  <field name="userName">                                                                                                          
-                    <string>root</string>                                                                                                        
-                  </field>
-                  <field name="password">                                                                                                          
-                    <string>exo</string>                                                                                                        
-                  </field>                                                                                                                   
                   <field name="realmName">                                                                                                          
                     <string>eXo REST services</string> <!-- for EXO Applications -->
                     <!-- string>exo-domain</string --> <!-- for ECM -->                                                                                                     
@@ -444,20 +432,8 @@
               </value>                                                                                                                     
               <value>                                                                                                                      
                 <object type="org.exoplatform.services.jcr.ext.replication.async.executor.Member">
-                  <field name="protocol">                                                                                                          
-                    <string>http</string>                                                                                                        
-                  </field>                                                      
-                  <field name="ipAddress">                                                                                                          
-                    <string>192.168.0.30</string>                                                                                                        
-                  </field>                                                                                                                   
-                  <field name="port">                                                                                               
-                    <int>8090</int>                                                                                                          
-                  </field>
-                  <field name="userName">                                                                                                          
-                    <string>root</string>                                                                                                        
-                  </field>
-                  <field name="password">                                                                                                          
-                    <string>exo</string>                                                                                                        
+                  <field name="url">                                                                                                          
+                    <string>http://root:exo@192.168.0.15:8090</string>                                                                                                        
                   </field>
                   <field name="realmName">                                                                                                          
                     <string>eXo REST services</string> <!-- for EXO Applications -->

@@ -26,53 +26,13 @@ package org.exoplatform.services.jcr.ext.replication.async.executor;
  */
 public class Member {
   
-  private String protocol;
-
-  private String ipAddress;
-
-  private int    port;
-
-  private String userName;
-
-  private String password;
+  private String url;
 
   private String realmName;
   
   public Member() {
   }
   
-  public String getIpAddress() {
-    return ipAddress;
-  }
-
-  public void setIpAddress(String ipAddress) {
-    this.ipAddress = ipAddress;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
-  }
-
-  public String getUserName() {
-    return userName;
-  }
-
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
   public String getRealmName() {
     return realmName;
   }
@@ -80,20 +40,16 @@ public class Member {
   public void setRealmName(String realmName) {
     this.realmName = realmName;
   }
-  
-  public String getProtocol() {
-    return protocol;
+
+  public String getUrl() {
+    return url;
   }
 
-  public void setProtocol(String protocol) {
-    this.protocol = protocol;
+  public void setUrl(String url) {
+    this.url = url;
   }
   
   public String toString() {
-    return  protocol + "://" + userName + ":" + password + "@" + ipAddress + ":" + port;
-  }
-  
-  public String getUrl() {
-    return protocol + "://" + ipAddress + ":" + port;
+   return url; 
   }
 }

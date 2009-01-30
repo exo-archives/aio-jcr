@@ -332,7 +332,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     assertTrue(asyncUseCase.checkEquals());
   }
 
-  public void testUseCase4() throws Exception {
+  /*public void testUseCase4() throws Exception {
     UseCase4 useCase = new UseCase4(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
@@ -498,7 +498,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     asyncUseCase.useCase();
 
     assertTrue(asyncUseCase.checkEquals());
-  }
+  }*/
   
   private void printRootNode(SessionImpl ses) throws RepositoryException {
     log.info("Workspace :" + ses.getWorkspace().getName());

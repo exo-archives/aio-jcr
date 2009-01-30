@@ -232,12 +232,19 @@ public class AsyncReplicationExecutor implements ResourceContainer {
                                                       AsyncReplicationExecutorException {
     URL url = new URL(sUrl);
 
+    String userInfo = url.getUserInfo();
+
+    if (userInfo == null || userInfo.split(":").length != 2)
+      throw new AsyncReplicationExecutorException("Fail remote start synchronization : the user name or password not not specified : "
+          + member);
+
+    String userName = userInfo.split(":")[0];
+    String password = userInfo.split(":")[1];
+
     HTTPConnection connection = new HTTPConnection(url);
     connection.removeModule(CookieModule.class);
 
-    connection.addBasicAuthorization(member.getRealmName(),
-                                     member.getUserName(),
-                                     member.getPassword());
+    connection.addBasicAuthorization(member.getRealmName(), userName, password);
 
     HTTPResponse resp = connection.Get(url.getFile());
 
