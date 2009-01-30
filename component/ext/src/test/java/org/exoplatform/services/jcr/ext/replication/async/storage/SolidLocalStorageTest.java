@@ -185,7 +185,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
    * 
    * @throws Exception
    */
- /* public void testStartStop() throws Exception {
+  public void testStartStop() throws Exception {
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
     PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
                                                                                                                                               .getName())
@@ -202,15 +202,28 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     root.save();
 
     storage.onStart(null);
+    assertEquals(0, storage.getErrors().length);
+    // read Changes
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    // check current data
+    TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
 
-    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
-    n2.setProperty("prop1", "dfdasfsdfSecond");
-    n2.setProperty("secondProp", "ohohohSecond");
-    root.save();
+    this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
+    
+    storage.onStop();
+    
+    storage.onStart( null);
+    // read Changes
+    assertEquals(0, storage.getErrors().length);
+    ch = storage.getLocalChanges();
 
+    assertFalse(ch.getChanges().hasNext());
+    
     assertEquals(0, storage.getErrors().length);
 
-    // check current data
+    dataManager.removeItemPersistenceListener(storage);
+    storage.onStop();
+  /*  // check current data
     TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
     this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
@@ -228,8 +241,8 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     dataManager.removeItemPersistenceListener(storage);
 
-    storage.onStop();
-  }*/
+    storage.onStop();*/
+  }
 
   /**
    * Test OnCancel command.
