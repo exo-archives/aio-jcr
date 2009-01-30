@@ -9,7 +9,7 @@ $JAVA_HOME/bin/java -Djava.security.manager=default  \
 -Djava.security.policy=$JONAS_ROOT/conf/java.policy \
 -cp \
 ../connector/target/exo.jcr.webdav.ejbconnector3_0.bean-1.10.2.jar:\
-$JONAS_ROOT/lib/apps/exo.core.component.security.core-2.1.3.jar:\
+$JONAS_ROOT/lib/apps/exo.core.component.security.core-2.1.4.jar:\
 $JONAS_ROOT/lib/apps/exo.ws.commons-1.3.2.jar:\
 $JONAS_ROOT/lib/client.jar:\
 target/rar/easybeans-component-smartclient-client-1.0.1.jar:\

@@ -6,7 +6,7 @@
 @goto end
 
 :ok
-set CLASSPATH=%JONAS_ROOT%\lib\apps\exo.core.component.security.core-2.1.3.jar
+set CLASSPATH=%JONAS_ROOT%\lib\apps\exo.core.component.security.core-2.1.4.jar
 set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.commons-1.3.2.jar
 set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\client.jar
 
