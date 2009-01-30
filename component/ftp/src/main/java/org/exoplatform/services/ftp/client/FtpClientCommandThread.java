@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.ftp.FtpContext;
 import org.exoplatform.services.ftp.command.FtpCommand;
@@ -32,6 +34,19 @@ public class FtpClientCommandThread extends Thread {
   }
 
   public void run() {
+
+    String portalContainerName = clientSession.getFtpServer().getConfiguration().getPortalContainerName();
+
+    ExoContainer container = ExoContainerContext.getContainerByName(portalContainerName);                                                              
+    if (container == null) {                                                                                                                           
+      if (log.isDebugEnabled()) {                                                                                                                      
+        log.debug("Container " + portalContainerName + " not found.");                                                                                 
+      }                                                                                                                                                
+      container = ExoContainerContext.getTopContainer();                                                                                               
+    }     
+    
+    ExoContainerContext.setCurrentContainer(container); 
+    
     while (true) {
       try {
         String command = readLine();
@@ -82,6 +97,8 @@ public class FtpClientCommandThread extends Thread {
     } catch (Exception exc) {
       log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
+    
+    ExoContainerContext.setCurrentContainer(null);     
 
   }
 

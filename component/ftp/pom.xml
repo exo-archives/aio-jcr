@@ -55,7 +55,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
-            <!-- include>**/*.java</include -->
+            <include>**/*.java</include>
           </includes>
         </configuration>
       </plugin>

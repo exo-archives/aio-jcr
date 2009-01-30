@@ -91,6 +91,12 @@ public class FtpConfigImpl implements FtpConfig {
    * "timeout".
    */
   public static final String INIT_PARAM_TIME_OUT             = "timeout";
+  
+  
+  /**
+   * Portal container name.
+   */
+  public static final String PORTAL_CONTAINER_NAME           = "portalContainerName";
 
   /**
    * Command port.
@@ -171,6 +177,11 @@ public class FtpConfigImpl implements FtpConfig {
    * Is enable trace.
    */
   protected boolean          ENABLE_TRACE                    = true;
+  
+  /**
+   * Container name.
+   */
+  protected String           portalContainerName             = null;
 
   /**
    * Constructor.
@@ -241,6 +252,9 @@ public class FtpConfigImpl implements FtpConfig {
       _needTimeOut = true;
       _timeOutValue = new Integer(pTimeOut.getValue());
     }
+    
+    ValueParam pPortalContainerName = params.getValueParam(PORTAL_CONTAINER_NAME);
+    portalContainerName = pPortalContainerName != null ? pPortalContainerName.getValue() : "portal";
 
     if (log.isDebugEnabled()) {
       log.debug(INIT_PARAM_COMMAND_PORT + " = " + _commandPort);
@@ -329,6 +343,10 @@ public class FtpConfigImpl implements FtpConfig {
 
   public int getTimeOut() {
     return _timeOutValue;
+  }
+  
+  public String getPortalContainerName() {
+    return portalContainerName;
   }
 
 }
