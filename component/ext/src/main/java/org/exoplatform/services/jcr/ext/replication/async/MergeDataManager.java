@@ -25,6 +25,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -137,7 +138,7 @@ public class MergeDataManager {
                                                                                                     + first.getMember()
                                                                                                            .getPriority()),
                                                                                                 first.getMember());
-      
+
       EditableChangesStorage<ItemState> result = new CompositeItemStatesStorage<ItemState>(makePath("result"),
                                                                                            localMember);
 
@@ -308,10 +309,7 @@ public class MergeDataManager {
           }
 
           // add changes to resulted changes and prepare changes for next merge iteration
-          if (!isLocalPriority) {
-            accumulated.addAll(iteration);
-            result.addAll(iteration);
-          } else {
+          if (isLocalPriority) {
             accumulated.delete();
             accumulated = new CompositeItemStatesStorage<ItemState>(makePath("accumulated-"
                 + second.getMember().getPriority()), second.getMember());
@@ -320,6 +318,10 @@ public class MergeDataManager {
             accumulated.addAll(iteration);
             if (localMember.getPriority() == second.getMember().getPriority())
               result.addAll(iteration);
+
+          } else {
+            accumulated.addAll(iteration);
+            result.addAll(iteration);
           }
 
           first = accumulated;
