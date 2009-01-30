@@ -1,57 +1,47 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
 <configuration>
-	<component>
-		<key>org.exoplatform.services.ftp.FtpServiceImpl</key>
-		<type>org.exoplatform.services.ftp.FtpServiceImpl</type>
-		<init-params>
-						
-			<value-param>
-				<name>command-port</name>
-				<value>2121</value>
-			</value-param>
-			
-			<value-param>
-				<name>data-min-port</name>
-				<value>52000</value>
-			</value-param>
-			
-			<value-param>
-				<name>data-max-port</name>
-				<value>53000</value>
-			</value-param>
-			
-			<value-param>
-				<name>system</name>
+  <component>
+    <key>org.exoplatform.services.ftp.FtpServiceImpl</key>
+    <type>org.exoplatform.services.ftp.FtpServiceImpl</type>
+    <init-params>
+      <value-param>
+        <name>command-port</name>
+        <value>2121</value>
+      </value-param>
+      <value-param>
+        <name>data-min-port</name>
+        <value>52000</value>
+      </value-param>
+      <value-param>
+        <name>data-max-port</name>
+        <value>53000</value>
+      </value-param>
+      <value-param>
+        <name>system</name>
 				<!-- value>Windows_NT</value -->
-				<value>UNIX Type: L8</value>
-			</value-param>
-			
-			<value-param>
-				<name>client-side-encoding</name>
-				<value>windows-1251</value>
+        <value>UNIX Type: L8</value>
+      </value-param>
+      <value-param>
+        <name>client-side-encoding</name>
+        <value>windows-1251</value>
 				<!-- value>KOI8-R</value -->
-			</value-param>
-			
-			<value-param>
-				<name>def-folder-node-type</name>
-				<value>nt:folder</value>
-			</value-param>
-			
-			<value-param>
-				<name>def-file-node-type</name>
-				<value>nt:file</value>
-			</value-param>
-
-			<value-param>
-				<name>def-file-mime-type</name>				      
-				<value>application/octet-stream</value>
-			</value-param>			
-			
-			<value-param>
-				<name>cache-folder-name</name>
-				<value>../temp/ftp_cache</value>
-			</value-param>
+      </value-param>
+      <value-param>
+        <name>def-folder-node-type</name>
+        <value>nt:folder</value>
+      </value-param>
+      <value-param>
+        <name>def-file-node-type</name>
+        <value>nt:file</value>
+      </value-param>
+      <value-param>
+        <name>def-file-mime-type</name>
+        <value>application/octet-stream</value>
+      </value-param>
+      <value-param>
+        <name>cache-folder-name</name>
+        <value>../temp/ftp_cache</value>
+      </value-param>
 			
 			<!-- bytes per second -->
 			<!-- value-param>
@@ -70,7 +60,6 @@
 				<name>timeout</name>
 				<value>60</value>
 			</value-param -->
-
-		</init-params>
-	</component>
+    </init-params>
+  </component>
 </configuration>
