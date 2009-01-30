@@ -941,6 +941,269 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
   }
 
   /**
+   * Add tree of nodes item on low priority, already added on high priority.
+   */
+  public class AddSameTreeUseCase extends BaseMergeUseCase {
+    public AddSameTreeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("prop1", "value1_b");
+      node = node.addNode("item11");
+      node.setProperty("prop11", "value11_b");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.setProperty("prop1", "value1_a");
+      node = node.addNode("item11");
+      node.setProperty("prop11", "value11_a");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      
+    }
+  }
+  
+  /**
+   * Add tree of nodes item on low priority, already added on high priority.
+   */
+  public class AddDiffTreeUseCase extends BaseMergeUseCase {
+    public AddDiffTreeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item2");
+      node.setProperty("prop1", "value1");
+      node = node.addNode("item21");
+      node.setProperty("prop11", "value11");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.setProperty("prop1", "value1");
+      node = node.addNode("item11");
+      node.setProperty("prop11", "value11");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      
+    }
+  }
+  
+  /**
+   * 1. Add item on low priority, no high priority changes.
+   */
+  public class Add1_1_UseCase extends BaseMergeUseCase {
+    public Add1_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:referenceable");
+      node.setProperty("prop1", "value3");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      
+    }
+  }
+  
+  /**
+   * 1. Add item on high priority, no low priority changes.
+   */
+  public class Add1_2_UseCase extends BaseMergeUseCase {
+    public Add1_2_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:referenceable");
+      node.setProperty("prop1", "value4");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      
+    }
+  }
+  
+  /**
+   * 2. Add item on low priority, already added on high priority.
+   */
+  public class Add2_x_UseCase extends BaseMergeUseCase {
+    public Add2_x_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:referenceable");
+      node.setProperty("prop1", "value4");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:referenceable");
+      node.setProperty("prop1", "value3");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      
+    }
+  }
+  
+  /**
+   * 3. Add item on low priority already added and deleted on high priority.
+   */
+  public class Add3_1_UseCase extends BaseMergeUseCase {
+    public Add3_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:referenceable");
+      node.remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:referenceable");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      
+    }
+  }
+  
+  /**
+   * 3. Add item on high priority already added and deleted on low priority.
+   */
+  public class Add3_2_UseCase extends BaseMergeUseCase {
+    public Add3_2_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.remove();
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      
+    }
+  }
+  
+  /**
+   * 4. Add Item on high priority to a deleted parent on low priority (conflict)
+   */
+  public class Add4_1_UseCase extends BaseMergeUseCase {
+    public Add4_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:referenceable");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item1").addNode("item11");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.remove();
+      sessionLowPriority.save();
+    }
+  }
+
+  /**
    * Compare two nodes.
    * 
    * @param src
