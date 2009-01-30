@@ -7,12 +7,69 @@
 <html>
 <head>
   <title>eXo Platform JCR browser sample SELECT REPOSITORY</title>
-	<link rel="stylesheet" href="../exojcrstyle.css">
+  <link rel="stylesheet" href="../exojcrstyle.css">
+
+  <script type="text/javascript">
+    <!--
+    var delay = 10000;
+    var intervalID;
+    function initAreplicationValidation() {
+      if (intervalID) {
+        clearInterval("validateAreplication");
+      }     
+      intervalID = setInterval("validateAreplication()", delay);
+    }
+    
+    var req;
+    function initRequest(url) {
+      if (window.XMLHttpRequest) {
+        req = new XMLHttpRequest();
+      } else if (window.ActiveXObject) {
+        isIE = true;
+        req = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+    }
+    
+    function validateAreplication() {
+      var url = "arepl.jsp";
+      initRequest(url);
+      req.onreadystatechange = function() {
+        var done = 4, ok = 200;
+        if (req.readyState == done && req.status == ok) {
+          if (req.responseXML) {
+            var status = req.responseXML.getElementsByTagName("active")[0].childNodes[0].nodeValue;
+            var sform = document.getElementById("synchronizationForm");
+            if (status == "true") {
+              sform.innerHTML = "<form><input name=\"submit\" type=\"submit\" value=\"synchronizing\" disabled=\"disabled\"></form>";    
+            } else {
+              sform.innerHTML = "<form><input name=\"submit\" type=\"submit\" value=\"synchronize\" onclick=\"runAreplication()></form>";  
+            }
+          }
+        }
+      };
+      req.open("GET", url, true);
+      req.send(null);
+    }
+
+    function runAreplication() {
+      var url = "index?synchronize=run";
+      initRequest(url);
+      req.open("POST", url, true);
+      req.send(null);
+
+      sform = document.getElementById("synchronizationForm");
+      sform.innerHTML = "<form><input name=\"submit\" type=\"submit\" value=\"synchronizing\" disabled=\"disabled\"></form>";
+
+      initAreplicationValidation();
+    }
+    // -->
+  </script>
 </head>
 
 <jsp:useBean id="browser" scope="session" class="org.exoplatform.applications.jcr.browser.JCRBrowser"></jsp:useBean>
 
 <body>
+
   <h1>eXo Platform JCR browser sample</h1>
   
 <c:choose>
@@ -34,23 +91,25 @@
           <form method="post" name="repository" action="repository.jsp" >
             <input name="submit" type="submit" value="change">
           </form>
-          <c:choose>
-            <c:when test="${browser.asynchronousReplicationPresent}">
-              <c:choose>
-                <c:when test="${browser.asynchronousReplicationActive}">
-                  <form method="post" name="synchronize" action=".">
-                    <input name="submit" type="submit" value="synchronizing" disabled="disabled">
-                  </form>
-                </c:when>
-                <c:otherwise>
-                  <form method="post" name="synchronize" action=".">
-                    <input name="submit" type="submit" value="synchronize">
-                    <input name="synchronize" type="hidden" value="run">
-                  </form>
-                </c:otherwise>
-              </c:choose>
-            </c:when>
-          </c:choose>
+          <span id="synchronizationForm">
+            <c:choose>
+              <c:when test="${browser.asynchronousReplicationPresent}">
+                <c:choose>
+                  <c:when test="${browser.asynchronousReplicationActive}">
+                    <form>
+                      <input name="submit" type="submit" value="synchronizing" disabled="disabled">
+                    </form>
+                  </c:when>
+                  <c:otherwise>
+                    <form>
+                      <input name="submit" type="submit" value="synchronize" onclick="runAreplication()">
+                      <!-- input name="synchronize" type="hidden" value="run" -->
+                    </form>
+                  </c:otherwise>
+                </c:choose>
+              </c:when>
+            </c:choose>
+          <span>
         </span>		
 	  </h2>
 	  <h2 class="info">Workspace:&nbsp;

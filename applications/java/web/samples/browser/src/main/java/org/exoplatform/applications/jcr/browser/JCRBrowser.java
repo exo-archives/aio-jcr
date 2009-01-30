@@ -16,7 +16,6 @@
  */
 package org.exoplatform.applications.jcr.browser;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,10 +26,11 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+import org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutor;
+import org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutorException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -185,19 +185,16 @@ public class JCRBrowser {
    *
    */
   public void runSynchronization() {
-    AsyncReplication arep = getAsynchronousReplication();
+    AsyncReplicationExecutor arep = getAsynchronousReplicationExecutor();
     if (arep != null) {
       try {
         long start = System.currentTimeMillis();
-        LOG.info("Synchronization starting " + new Date());
-        arep.synchronize();
-        LOG.info("Synchronization done " + new Date() + ", " + (System.currentTimeMillis() - start) / 1000 + "sec.");
-      } catch (RepositoryException e) {
+        if (arep.synchronize())
+          LOG.info("Synchronization started " + new Date() + ", " + (System.currentTimeMillis() - start) / 1000 + "sec.");
+        else
+          LOG.info("Synchronization star failed. " + (System.currentTimeMillis() - start) / 1000 + "sec.");
+      } catch (AsyncReplicationExecutorException e) {
         LOG.error("Synchronization fails. Repository error " + e, e);
-      } catch (RepositoryConfigurationException e) {
-        LOG.error("Synchronization fails. Configuration error " + e, e);
-      } catch (IOException e) {
-        LOG.error("Synchronization fails. Storage error " + e, e);
       }
     } else
       LOG.warn("Synchronization impossible. Service is not present.");
@@ -214,6 +211,23 @@ public class JCRBrowser {
       
       if (container != null)
         return (AsyncReplication) container.getComponent(AsyncReplication.class);
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Return Asynchronous Replication service executor.
+   *
+   * @return AsyncReplication
+   */
+  private AsyncReplicationExecutor getAsynchronousReplicationExecutor() {
+    if (this.repository != null) {
+      WorkspaceContainerFacade container = this.repository.getWorkspaceContainer(this.repository.getConfiguration()
+                                                                                                .getDefaultWorkspaceName());
+      
+      if (container != null)
+        return (AsyncReplicationExecutor) container.getComponent(AsyncReplicationExecutor.class);
     }
     
     return null;
