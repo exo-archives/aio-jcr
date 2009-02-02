@@ -63,6 +63,7 @@ public class UnitReadTest  extends BaseStandaloneTest  {
     root.save();
 
     out.writeObject(pl.pushChanges().get(0));
+    out.writeObject(pl.pushChanges().get(1));
     
     out.flush();
     out.close();
