@@ -256,13 +256,17 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
     out.writeInt(orderNum);
 
-    out.writeInt(primaryTypeName.getAsString().getBytes().length);
-    out.write(primaryTypeName.getAsString().getBytes());
+    // primary type
+    byte[] buf = primaryTypeName.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+    out.writeInt(buf.length);
+    out.write(buf);
 
+    // mixins
     out.writeInt(mixinTypeNames.length);
     for (int i = 0; i < mixinTypeNames.length; i++) {
-      out.writeInt(mixinTypeNames[i].getAsString().getBytes().length);
-      out.write(mixinTypeNames[i].getAsString().getBytes());
+      buf = mixinTypeNames[i].getAsString().getBytes(Constants.DEFAULT_ENCODING);
+      out.writeInt(buf.length);
+      out.write(buf);
     }
 
     acl.writeExternal(out);
@@ -273,15 +277,15 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
     orderNum = in.readInt();
 
+    // primary type
     byte[] buf;
-
+    byte[] bufe = new byte[] {};
     try {
-      buf = new byte[in.readInt()];
+      buf = bufe = new byte[in.readInt()];
       in.readFully(buf);
-      String sQName = new String(buf, Constants.DEFAULT_ENCODING);
-      primaryTypeName = InternalQName.parse(sQName);
+      primaryTypeName = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
     } catch (final IllegalNameException e) {
-      throw new IOException(e.getMessage()) {
+      throw new IOException(e.getMessage() + " <" + new String(bufe) + ">") {
         private static final long serialVersionUID = 3489809179234435267L;
 
         @Override
@@ -291,16 +295,14 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
       };
     }
 
+    // mixins
     int count = in.readInt();
-
     mixinTypeNames = new InternalQName[count];
-
     for (int i = 0; i < count; i++) {
       try {
         buf = new byte[in.readInt()];
         in.readFully(buf);
-        String sQName = new String(buf, Constants.DEFAULT_ENCODING);
-        mixinTypeNames[i] = InternalQName.parse(sQName);
+        mixinTypeNames[i] = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
       } catch (final IllegalNameException e) {
         throw new IOException(e.getMessage()) {
           private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
@@ -313,6 +315,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
       }
     }
 
+    // acl
     acl.readExternal(in);
   }
 

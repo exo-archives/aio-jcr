@@ -141,8 +141,9 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
-    out.writeInt(qpath.getAsString().getBytes().length);
-    out.write(qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING));
+    byte[] buf = qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+    out.writeInt(buf.length);
+    out.write(buf);
 
     out.writeInt(identifier.getBytes().length);
     out.write(identifier.getBytes());
