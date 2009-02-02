@@ -138,8 +138,8 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    // File dir = new File(STORAGE_DIR+"ss");
-    // dir.mkdirs();
+    //File dir = new File(STORAGE_DIR+"ss");
+    //dir.mkdirs();
     SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
@@ -182,6 +182,60 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     
   }
 
+  /**
+   * Register LocalStorage as listener to dataManager and check arrived
+   * changeslogs.
+   * 
+   * @throws Exception
+   */
+  public void testMoveNode() throws Exception {
+
+    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
+                                                                                                                                              .getName())
+                                                                                                                .getComponent(PersistentDataManager.class);
+
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+    
+    File dir = new File(STORAGE_DIR+"ss");
+    dir.mkdirs();
+    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    dataManager.addItemPersistenceListener(storage);
+
+    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst","nt:folder");
+    //n1.setProperty("prop1", "dfdasfsdf");
+    //n1.setProperty("secondProp", "ohohoh");
+    root.save();
+
+    //NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+    //n2.setProperty("prop1", "dfdasfsdfSecond");
+    //n2.setProperty("secondProp", "ohohohSecond");
+    //root.save();
+
+    session.move(n1.getPath(), "/testNodeRenamed");
+    root.save();
+
+    assertEquals(0, storage.getErrors().length);
+
+    
+    
+    dataManager.removeItemPersistenceListener(storage);
+    storage.onStart(null);
+
+    List<TransactionChangesLog> logs = pl.pushChanges();
+    
+    // create storage
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+
+    try{
+    assertEquals(logs.get(0).getSize() + logs.get(1).getSize(), ch.size());
+    }catch(StorageRuntimeException e){
+      e.printStackTrace();
+    }
+    
+   // storage.onStop();
+    
+  }
+  
   /**
    * Test OnStart and OnStop commands.
    * 
