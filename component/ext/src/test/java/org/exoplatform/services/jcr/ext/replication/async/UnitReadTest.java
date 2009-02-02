@@ -34,54 +34,50 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: UnitReadTest.java 111 2008-11-11 11:11:11Z serg $
  */
-public class UnitReadTest  extends BaseStandaloneTest  {
+public class UnitReadTest extends BaseStandaloneTest {
 
   public void testReadLog() throws Exception {
 
     TransactionChangesLog curLog;
 
     File f = new File("target/file");
-    
+
     ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
-    
-    
-    
+
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
-    
-    
-    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst","nt:folder");
-    //n1.setProperty("prop1", "dfdasfsdf");
-    //n1.setProperty("secondProp", "ohohoh");
+
+    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst", "nt:folder");
+    // n1.setProperty("prop1", "dfdasfsdf");
+    // n1.setProperty("secondProp", "ohohoh");
     root.save();
 
-    //NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
-    //n2.setProperty("prop1", "dfdasfsdfSecond");
-    //n2.setProperty("secondProp", "ohohohSecond");
-    //root.save();
+    // NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+    // n2.setProperty("prop1", "dfdasfsdfSecond");
+    // n2.setProperty("secondProp", "ohohohSecond");
+    // root.save();
 
     session.move(n1.getPath(), "/testNodeRenamed");
     root.save();
 
     out.writeObject(pl.pushChanges().get(0));
     out.writeObject(pl.pushChanges().get(1));
-    
+
     out.flush();
     out.close();
-    
-    
+
     ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
 
     // 
     do {
       try {
-        
+
         curLog = (TransactionChangesLog) in.readObject();
-        System.out.println(curLog.toString());
+        System.out.println(curLog.dump());
       } catch (EOFException e) {
         // ok
         curLog = null;
         System.out.println("no more logs");
-      } catch(Exception e){
+      } catch (Exception e) {
         curLog = null;
         e.printStackTrace();
       }
