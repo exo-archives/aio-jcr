@@ -21,12 +21,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.MutableItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -35,6 +37,8 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @version $Id: TransientItemData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public abstract class TransientItemData implements MutableItemData, Externalizable {
+  
+  protected static final Log          LOG         = ExoLogger.getLogger("jcr.TransientItemData");
   
   private int NULL_VALUE = -1;
   
@@ -138,7 +142,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(qpath.getAsString().getBytes().length);
-    out.write(qpath.getAsString().getBytes());
+    out.write(qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING));
 
     out.writeInt(identifier.getBytes().length);
     out.write(identifier.getBytes());
@@ -161,19 +165,27 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       in.readFully(buf);
       String sQPath = new String(buf, Constants.DEFAULT_ENCODING);
       qpath = QPath.parse(sQPath);
-    } catch (IllegalPathException e) {
-      e.printStackTrace();
+    } catch (final IllegalPathException e) {
+      throw new IOException("Deserialization error. " + e) {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Throwable getCause() {
+          return e;
+        }
+      };
     }
 
     buf = new byte[in.readInt()];
     in.readFully(buf);
-    identifier = new String(buf, Constants.DEFAULT_ENCODING);
+    identifier = new String(buf);
 
     int isNull = in.readInt();
     if (isNull == NOT_NULL_VALUE) {
       buf = new byte[in.readInt()];
       in.readFully(buf);
-      parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING);
+      parentIdentifier = new String(buf);
     }
 
     persistedVersion = in.readInt();
