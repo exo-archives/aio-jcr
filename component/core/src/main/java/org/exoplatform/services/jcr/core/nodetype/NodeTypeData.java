@@ -16,33 +16,33 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import java.util.Arrays;
+
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. Define base abstraction for NodeType data
+ * used in core. <br/>Date: 25.11.2008
  * 
- * Define base abstraction for NodeType data used in core.
- * 
- * <br/>Date: 25.11.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id$
  */
+
 public class NodeTypeData {
+  protected InternalQName            name;
 
-  protected InternalQName   name;
+  protected InternalQName            primaryItemName;
 
-  protected InternalQName   primaryItemName;
-  
-  protected InternalQName[] declaredSupertypeNames;
+  protected InternalQName[]          declaredSupertypeNames;
 
   protected PropertyDefinitionData[] declaredPropertyDefinitions;
-  
-  protected NodeDefinitionData[] declaredChildNodeDefinitions;
 
-  protected boolean hasOrderableChildNodes;
+  protected NodeDefinitionData[]     declaredChildNodeDefinitions;
 
-  protected boolean mixin;
+  protected boolean                  hasOrderableChildNodes;
+
+  protected boolean                  mixin;
 
   public NodeTypeData(InternalQName name,
                       InternalQName primaryItemName,
@@ -67,6 +67,64 @@ public class NodeTypeData {
 
   public PropertyDefinitionData[] getDeclaredPropertyDefinitions() {
     return declaredPropertyDefinitions;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(declaredChildNodeDefinitions);
+    result = prime * result + Arrays.hashCode(declaredPropertyDefinitions);
+    result = prime * result + Arrays.hashCode(declaredSupertypeNames);
+    result = prime * result + (hasOrderableChildNodes ? 1231 : 1237);
+    result = prime * result + (mixin ? 1231 : 1237);
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((primaryItemName == null) ? 0 : primaryItemName.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    NodeTypeData other = (NodeTypeData) obj;
+    if (!Arrays.equals(declaredChildNodeDefinitions, other.declaredChildNodeDefinitions)) {
+      return false;
+    }
+    if (!Arrays.equals(declaredPropertyDefinitions, other.declaredPropertyDefinitions)) {
+      return false;
+    }
+    if (!Arrays.equals(declaredSupertypeNames, other.declaredSupertypeNames)) {
+      return false;
+    }
+    if (hasOrderableChildNodes != other.hasOrderableChildNodes) {
+      return false;
+    }
+    if (mixin != other.mixin) {
+      return false;
+    }
+    if (name == null) {
+      if (other.name != null) {
+        return false;
+      }
+    } else if (!name.equals(other.name)) {
+      return false;
+    }
+    if (primaryItemName == null) {
+      if (other.primaryItemName != null) {
+        return false;
+      }
+    } else if (!primaryItemName.equals(other.primaryItemName)) {
+      return false;
+    }
+    return true;
   }
 
   public InternalQName[] getDeclaredSupertypeNames() {

@@ -23,12 +23,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.Map.Entry;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
@@ -675,14 +677,14 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
-    List<NodeTypeData> nodeTypeDataList = parseNodeTypes(ntvalues);
+    Map<InternalQName, NodeTypeData> nodeTypeDataList = parseNodeTypes(ntvalues);
 
-    for (NodeTypeData nodeTypeData : nodeTypeDataList) {
-      changesLog.addAll(registerNodeType(nodeTypeData, alreadyExistsBehaviour).getAllStates());
+    for (NodeTypeData nodeTypeData : nodeTypeDataList.values()) {
+      changesLog.addAll(registerNodeType(nodeTypeData, alreadyExistsBehaviour, nodeTypeDataList).getAllStates());
     }
 
     persister.saveChanges(changesLog);
-    return nodeTypeDataList;
+    return new ArrayList<NodeTypeData>(nodeTypeDataList.values());
   }
 
   /**
@@ -751,8 +753,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @return
    * @throws RepositoryException
    */
-  protected List<NodeTypeData> parseNodeTypes(List<NodeTypeValue> ntvalues) throws RepositoryException {
-    List<NodeTypeData> nodeTypeDataList = new ArrayList<NodeTypeData>();
+  protected Map<InternalQName, NodeTypeData> parseNodeTypes(List<NodeTypeValue> ntvalues) throws RepositoryException {
+    Map<InternalQName, NodeTypeData> nodeTypeDataList = new HashMap<InternalQName, NodeTypeData>();
     for (NodeTypeValue ntvalue : ntvalues) {
 
       if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
@@ -848,7 +850,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                    nodes);
 
       validateNodeType(nodeTypeData);
-      nodeTypeDataList.add(nodeTypeData);
+      nodeTypeDataList.put(nodeTypeData.getName(), nodeTypeData);
     }
     checkCyclicDependencies(nodeTypeDataList);
     return nodeTypeDataList;
@@ -958,11 +960,12 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return vals;
   }
 
-  private void checkCyclicDependencies(List<NodeTypeData> ntData) throws RepositoryException {
+  private void checkCyclicDependencies(Map<InternalQName, NodeTypeData> nodeTypeDataList) throws RepositoryException {
     Set<InternalQName> unresolvedDependecies = new HashSet<InternalQName>();
     Set<InternalQName> resolvedDependecies = new HashSet<InternalQName>();
-    for (NodeTypeData nodeTypeData : ntData) {
+    for (Entry<InternalQName, NodeTypeData> entry : nodeTypeDataList.entrySet()) {
       // / add itself
+      NodeTypeData nodeTypeData = entry.getValue();
       resolvedDependecies.add(nodeTypeData.getName());
       // remove from unresolved
       unresolvedDependecies.remove(nodeTypeData.getName());
@@ -1131,18 +1134,20 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @throws ValueFormatException
    * @throws PathNotFoundException
    */
-  private void internalRegister(NodeTypeData nodeType) throws PathNotFoundException,
-                                                      ValueFormatException,
-                                                      RepositoryException {
+  private void internalRegister(NodeTypeData nodeType,
+                                Map<InternalQName, NodeTypeData> volatileNodeTypes) throws PathNotFoundException,
+                                                                                   ValueFormatException,
+                                                                                   RepositoryException {
 
-    hierarchy.addNodeType(nodeType);
+    hierarchy.addNodeType(nodeType, volatileNodeTypes);
 
     defsHolder.putDefinitions(nodeType.getName(), nodeType);
     // put supers
-    Set<InternalQName> supers = hierarchy.getSupertypes(nodeType.getName());
+    Set<InternalQName> supers = hierarchy.getSupertypes(nodeType.getName(), volatileNodeTypes);
 
     for (InternalQName superName : supers) {
-      defsHolder.putDefinitions(nodeType.getName(), hierarchy.getNodeType(superName));
+      defsHolder.putDefinitions(nodeType.getName(), hierarchy.getNodeType(superName,
+                                                                          volatileNodeTypes));
     }
   }
 
@@ -1268,7 +1273,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * {@inheritDoc}
    */
-  private PlainChangesLog registerNodeType(NodeTypeData nodeType, int alreadyExistsBehaviour) throws RepositoryException {
+  private PlainChangesLog registerNodeType(NodeTypeData nodeType,
+                                           int alreadyExistsBehaviour,
+                                           Map<InternalQName, NodeTypeData> volatileNodeTypes) throws RepositoryException {
 
     if (nodeType == null) {
       throw new RepositoryException("NodeTypeData object " + nodeType + " is null");
@@ -1297,11 +1304,11 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         LOG.warn("Skipped " + nodeType.getName().getAsString() + " as already registered");
         break;
       case ExtendedNodeTypeManager.REPLACE_IF_EXISTS:
-        changesLog.addAll(reregisterNodeType(registeredNodeType, nodeType).getAllStates());
+        changesLog.addAll(reregisterNodeType(registeredNodeType, nodeType, volatileNodeTypes).getAllStates());
         break;
       }
     } else {
-      internalRegister(nodeType);
+      internalRegister(nodeType, volatileNodeTypes);
       changesLog.addAll(persistNodeTypeData(nodeType, true).getAllStates());
 
     }
@@ -1318,8 +1325,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   private PlainChangesLog reregisterNodeType(NodeTypeData ancestorDefinition,
-                                             NodeTypeData recipientDefinition) throws ConstraintViolationException,
-                                                                              RepositoryException {
+                                             NodeTypeData recipientDefinition,
+                                             Map<InternalQName, NodeTypeData> volatileNodeTypes) throws ConstraintViolationException,
+                                                                                                RepositoryException {
     if (!ancestorDefinition.getName().equals(recipientDefinition.getName())) {
       throw new RepositoryException("Unsupported Operation");
     }
@@ -1415,7 +1423,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     internalUnregister(ancestorDefinition.getName(), ancestorDefinition);
     changesLog.addAll(removePersistedNodeType(ancestorDefinition));
 
-    internalRegister(recipientDefinition);
+    internalRegister(recipientDefinition, volatileNodeTypes);
     changesLog.addAll(persistNodeTypeData(recipientDefinition, false).getAllStates());
 
     return changesLog;

@@ -1488,4 +1488,96 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNode = root.addNode("testNode", testNValue.getName());
     session.save();
   }
+
+  public void testCyclicDependencies() throws Exception {
+    List<NodeTypeValue> list = new ArrayList<NodeTypeValue>();
+    NodeTypeValue testNValueA = new NodeTypeValue();
+    testNValueA.setName("exo:testCyclicDependenciesA");
+    NodeTypeValue testNValueB = new NodeTypeValue();
+    testNValueB.setName("exo:testCyclicDependenciesB");
+
+    List<String> superTypeA = new ArrayList<String>();
+    superTypeA.add("nt:base");
+    superTypeA.add(testNValueB.getName());
+
+    testNValueA.setPrimaryItemName("");
+    testNValueA.setDeclaredSupertypeNames(superTypeA);
+    testNValueA.setMixin(false);
+
+    List<String> superTypeB = new ArrayList<String>();
+    superTypeB.add("nt:base");
+    superTypeB.add(testNValueA.getName());
+
+    testNValueB.setPrimaryItemName("");
+    testNValueB.setDeclaredSupertypeNames(superTypeB);
+    testNValueB.setMixin(false);
+
+    list.add(testNValueA);
+    list.add(testNValueB);
+
+    nodeTypeManager.registerNodeTypes(list, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+  }
+
+  public void testRandomSequenceDependencies() throws Exception {
+    List<NodeTypeValue> list = new ArrayList<NodeTypeValue>();
+    NodeTypeValue testNValueA = new NodeTypeValue();
+    testNValueA.setName("exo:testRandomSequenceDependenciesA");
+    NodeTypeValue testNValueB = new NodeTypeValue();
+    testNValueB.setName("exo:testRandomSequenceDependenciesB");
+
+    List<String> superTypeA = new ArrayList<String>();
+    superTypeA.add("nt:base");
+    superTypeA.add(testNValueB.getName());
+
+    testNValueA.setPrimaryItemName("");
+    testNValueA.setDeclaredSupertypeNames(superTypeA);
+    testNValueA.setMixin(false);
+
+    List<String> superTypeB = new ArrayList<String>();
+    superTypeB.add("nt:base");
+
+    testNValueB.setPrimaryItemName("");
+    testNValueB.setDeclaredSupertypeNames(superTypeB);
+    testNValueB.setMixin(false);
+
+    list.add(testNValueA);
+    list.add(testNValueB);
+
+    nodeTypeManager.registerNodeTypes(list, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+  }
+
+  public void testCyclicUnresolvedDependencies() throws Exception {
+    List<NodeTypeValue> list = new ArrayList<NodeTypeValue>();
+    NodeTypeValue testNValueA = new NodeTypeValue();
+    testNValueA.setName("exo:testCyclicUnresolvedDependenciesA");
+    NodeTypeValue testNValueB = new NodeTypeValue();
+    testNValueB.setName("exo:testCyclicUnresolvedDependenciesB");
+
+    List<String> superTypeA = new ArrayList<String>();
+    superTypeA.add("nt:base");
+    superTypeA.add(testNValueB.getName());
+
+    testNValueA.setPrimaryItemName("");
+    testNValueA.setDeclaredSupertypeNames(superTypeA);
+    testNValueA.setMixin(false);
+
+    List<String> superTypeB = new ArrayList<String>();
+    superTypeB.add("nt:base");
+    superTypeB.add("exo:testCyclicUnresolvedDependenciesC");
+
+    testNValueB.setPrimaryItemName("");
+    testNValueB.setDeclaredSupertypeNames(superTypeB);
+    testNValueB.setMixin(false);
+
+    list.add(testNValueA);
+    list.add(testNValueB);
+
+    try {
+      nodeTypeManager.registerNodeTypes(list, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+      // e.printStackTrace();
+      // ok
+    }
+  }
 }

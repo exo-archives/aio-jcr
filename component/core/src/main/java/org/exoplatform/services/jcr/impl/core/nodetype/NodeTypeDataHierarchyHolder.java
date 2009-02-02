@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.jcr.RepositoryException;
+
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
@@ -80,9 +82,29 @@ public class NodeTypeDataHierarchyHolder {
     return nt != null ? nt.nodeType : null;
   }
 
+  public NodeTypeData getNodeType(final InternalQName nodeTypeName,
+                                  Map<InternalQName, NodeTypeData> volatileNodeTypes) {
+    NodeTypeData nt = volatileNodeTypes.get(nodeTypeName);
+    if (nt == null) {
+      final NodeTypeHolder nth = nodeTypes.get(nodeTypeName);
+      nt = nth != null ? nth.nodeType : null;
+    }
+    return nt;
+  }
+
   public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
     final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
     return nt != null ? nt.superTypes : null;
+  }
+
+  public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName,
+                                          Map<InternalQName, NodeTypeData> volatileNodeTypes) throws RepositoryException {
+    final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
+    if (nt == null)
+      throw new RepositoryException("Node type " + nodeTypeName.getAsString() + " not found");
+    final Set<InternalQName> supers = new HashSet<InternalQName>();
+    mergeAllSupertypes(supers, nt.nodeType.getDeclaredSupertypeNames(), volatileNodeTypes);
+    return supers;
   }
 
   public List<NodeTypeData> getAllNodeTypes() {
@@ -108,9 +130,9 @@ public class NodeTypeDataHierarchyHolder {
     return false;
   }
 
-  void addNodeType(final NodeTypeData nodeType) {
+  void addNodeType(final NodeTypeData nodeType, Map<InternalQName, NodeTypeData> volatileNodeTypes) throws RepositoryException {
     final Set<InternalQName> supers = new HashSet<InternalQName>();
-    fillSupertypes(supers, nodeType.getDeclaredSupertypeNames());
+    mergeAllSupertypes(supers, nodeType.getDeclaredSupertypeNames(), volatileNodeTypes);
     nodeTypes.put(nodeType.getName(), new NodeTypeHolder(nodeType, supers));
   }
 
@@ -118,23 +140,43 @@ public class NodeTypeDataHierarchyHolder {
     nodeTypes.remove(nodeTypeName);
   }
 
-  private void fillSupertypes(final Collection<InternalQName> list, final InternalQName[] supers) {
+  protected synchronized void mergeAllSupertypes(Set<InternalQName> list,
+                                                 final InternalQName[] supers,
+                                                 Map<InternalQName, NodeTypeData> volatileNodeTypes) throws RepositoryException {
+
     if (supers != null) {
       for (InternalQName su : supers) {
+        if (list.contains(su))
+          continue;
         list.add(su);
-        addSupertypes(list, nodeTypes.get(su).superTypes);
+
+        NodeTypeData volatileSuper = volatileNodeTypes.get(su);
+        NodeTypeHolder ntSuper = nodeTypes.get(su);
+        if (volatileSuper == null && ntSuper == null) {
+          throw new RepositoryException("Node type " + su.getAsString() + " not found");
+        }
+        if (volatileSuper != null) {
+
+          mergeAllSupertypes(list, volatileSuper.getDeclaredSupertypeNames(), volatileNodeTypes);
+
+        } else {
+          mergeAllSupertypes(list,
+                             ntSuper.superTypes.toArray(new InternalQName[ntSuper.superTypes.size()]),
+                             volatileNodeTypes);
+        }
       }
     }
+
   }
 
-  private void addSupertypes(final Collection<InternalQName> list,
-                             final Collection<InternalQName> supers) {
-    if (supers != null) {
-      for (InternalQName su : supers) {
-        list.add(su);
-        addSupertypes(list, nodeTypes.get(su).superTypes);
-      }
-    }
-  }
+  // private void addSupertypes(final Collection<InternalQName> list,
+  // final Collection<InternalQName> supers) {
+  // if (supers != null) {
+  // for (InternalQName su : supers) {
+  // list.add(su);
+  // addSupertypes(list, nodeTypes.get(su).superTypes);
+  // }
+  // }
+  // }
 
 }
