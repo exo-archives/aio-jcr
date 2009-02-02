@@ -29,7 +29,6 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.binding.Loader.NondelegatingLoader;
 
 /**
  * Created by The eXo Platform SAS.
@@ -450,6 +449,77 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
   
   public void testComplexUseCase5() throws Exception {
     ComplexUseCase5 useCase = new ComplexUseCase5(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testAdd_1_1_UseCase5() throws Exception {
+    Add1_1_UseCase useCase = new Add1_1_UseCase(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  
+  public void testAdd_1_2_UseCase5() throws Exception {
+    Add1_2_UseCase useCase = new Add1_2_UseCase(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testAdd_2_x_UseCase5() throws Exception {
+    Add2_x_UseCase useCase = new Add2_x_UseCase(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testAdd_3_1_UseCase5() throws Exception {
+    Add3_1_UseCase useCase = new Add3_1_UseCase(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testAdd_3_2_UseCase5() throws Exception {
+    Add3_2_UseCase useCase = new Add3_2_UseCase(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 

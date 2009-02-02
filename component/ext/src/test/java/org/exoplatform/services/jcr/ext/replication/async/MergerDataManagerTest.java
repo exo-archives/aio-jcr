@@ -1191,47 +1191,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   /**
    * 4. Add Item on high priority to a deleted parent on low priority (conflict)
    */
-  /*public void testAdd4_1() throws Exception {
-    // low priority changes: add node
-    Node node = root3.addNode("item1");
-    node.addMixin("mix:referenceable");
-
-    session3.save();
-    addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
-
-    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
-    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
-
-    saveResultedChanges(res3, "ws3");
-    saveResultedChanges(res4, "ws4");
-
-    assertTrue(isWorkspacesEquals());
-
-    // low priority changes: remove parent
-    node = root3.getNode("item1");
-    node.remove();
-
-    // high priority changes: add child
-    node = root4.getNode("item1");
-    node = node.addNode("item11");
-
-    membersChanges.clear();
-    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
-
-    session3.save();
-    addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    session4.save();
-    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
-
-    res3 = mergerLow.merge(membersChanges.iterator());
-    res4 = mergerHigh.merge(membersChanges.iterator());
-
-    saveResultedChanges(res3, "ws3");
-    saveResultedChanges(res4, "ws4");
-
-    assertTrue(isWorkspacesEquals());
-  }*/
   public void testAdd4_1() throws Exception {
     Add4_1_UseCase useCase = new Add4_1_UseCase(session3, session4);
     
