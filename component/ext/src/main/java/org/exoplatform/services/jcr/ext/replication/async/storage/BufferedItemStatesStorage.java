@@ -213,11 +213,15 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
         try {
           return (S) in.readObject();
         } catch (EOFException e) {
-          // End of list
           in.close();
           in = null;
+          // End of list
           return null;
-        }
+        } catch (Throwable e) {
+          in.close();
+          in = null;
+          throw new StorageIOException(e.getMessage(), e);
+        } 
       } else
         return null;
     }
@@ -334,7 +338,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     //closeObjectOutputStream();
-    return new ArrayOrFileIterator();
+    return new ArrayOrFileIterator<T>();
   }
 
   public Member getMember() {

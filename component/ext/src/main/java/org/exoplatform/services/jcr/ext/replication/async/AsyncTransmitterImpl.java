@@ -160,45 +160,22 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     InputStream in = clFile.getInputStream();
 
-    byte[] buff = new byte[AbstractPacket.MAX_PACKET_SIZE];
-    int len;
-    long offset = 0;
-    AbstractPacket packet;
+    try {
+      byte[] buff = new byte[AbstractPacket.MAX_PACKET_SIZE];
+      int len;
+      long offset = 0;
+      AbstractPacket packet;
 
-    // Send first packet in all cases. If InputStream is empty too.
-    len = in.read(buff);
-    if (len < AbstractPacket.MAX_PACKET_SIZE) {
-      // cut buffer to original size;
-      byte[] b = new byte[len];
-      System.arraycopy(buff, 0, b, 0, len);
-      buff = b;
-    }
-
-    packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
-                               transmitterPriority,
-                               clFile.getChecksum(),
-                               clFile.getId(),
-                               totalFiles,
-                               offset,
-                               buff);
-
-    for (MemberAddress dm : destinationAddresses)
-      channel.sendPacket(packet, dm);
-
-    offset += len;
-    if (LOG.isDebugEnabled())
-      LOG.debug("Send PacType [BINARY_CHANGESLOG_FIRST_PACKET] --> " + offset);
-
-    while ((len = in.read(buff)) > 0) {
-
+      // Send first packet in all cases. If InputStream is empty too.
+      len = in.read(buff);
       if (len < AbstractPacket.MAX_PACKET_SIZE) {
-        byte[] b = new byte[len];
         // cut buffer to original size;
+        byte[] b = new byte[len];
         System.arraycopy(buff, 0, b, 0, len);
         buff = b;
       }
 
-      packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
+      packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
                                  transmitterPriority,
                                  clFile.getChecksum(),
                                  clFile.getId(),
@@ -211,24 +188,54 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
       offset += len;
       if (LOG.isDebugEnabled())
-        LOG.debug("Send PacType [BINARY_CHANGESLOG_MIDDLE_PACKET] --> " + offset);
+        LOG.debug("Send PacType [BINARY_CHANGESLOG_FIRST_PACKET] --> " + offset);
+
+      while ((len = in.read(buff)) > 0) {
+
+        if (len < AbstractPacket.MAX_PACKET_SIZE) {
+          byte[] b = new byte[len];
+          // cut buffer to original size;
+          System.arraycopy(buff, 0, b, 0, len);
+          buff = b;
+        }
+
+        packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
+                                   transmitterPriority,
+                                   clFile.getChecksum(),
+                                   clFile.getId(),
+                                   totalFiles,
+                                   offset,
+                                   buff);
+
+        for (MemberAddress dm : destinationAddresses)
+          channel.sendPacket(packet, dm);
+
+        offset += len;
+        if (LOG.isDebugEnabled())
+          LOG.debug("Send PacType [BINARY_CHANGESLOG_MIDDLE_PACKET] --> " + offset);
+      }
+
+      // Send last packet
+      packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
+                                 transmitterPriority,
+                                 clFile.getChecksum(),
+                                 clFile.getId(),
+                                 totalFiles,
+                                 offset,
+                                 new byte[0]);
+      if (LOG.isDebugEnabled())
+        LOG.debug("Send PacType [BINARY_CHANGESLOG_LAST_PACKET] --> " + offset);
+
+      for (MemberAddress dm : destinationAddresses)
+        channel.sendPacket(packet, dm);
+
+    } finally {
+      try {
+        in.close();
+      } catch (IOException e) {
+        LOG.error("Error fo local storage stream close. " + e, e);
+      }
     }
-
-    // Send last packet
-    packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
-                               transmitterPriority,
-                               clFile.getChecksum(),
-                               clFile.getId(),
-                               totalFiles,
-                               offset,
-                               new byte[0]);
-    if (LOG.isDebugEnabled())
-      LOG.debug("Send PacType [BINARY_CHANGESLOG_LAST_PACKET] --> " + offset);
-
-    for (MemberAddress dm : destinationAddresses)
-      channel.sendPacket(packet, dm);
-
-    in.close();
 
     if (LOG.isDebugEnabled())
       LOG.debug("End send : " + clFile.getChecksum());
@@ -275,7 +282,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                      buf);
     for (MemberAddress dm : destinationAddresses)
       channel.sendPacket(packet, dm);
-    
+
     offset += len;
     if (LOG.isDebugEnabled())
       LOG.debug("Send PacType [EXPORT_CHANGES_FIRST_PACKET] --> " + offset);

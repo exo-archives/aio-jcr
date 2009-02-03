@@ -81,7 +81,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   private static final long                                  MAX_FILE_SIZE              = 32 * 1024 * 1024;
 
-  private final FileCleaner                                  cleaner                    = new FileCleaner();
+  //private final FileCleaner                                  cleaner                    = new FileCleaner();
 
   private final String                                       storagePath;
 
@@ -232,6 +232,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
       currentOut.writeObject(itemStates);
       // keep stream opened
+      
+      LOG.info("Write done: \r\n" + itemStates.dump());
     }
   }
 
@@ -475,6 +477,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       LOG.error("Can't close current output stream " + e, e);
       reportException(e);
     }
+    
     currentFile = null;
 
     doStart();
@@ -484,14 +487,14 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> member) {
-    // TODO not interested
+    // not interested
   }
 
   /**
    * {@inheritDoc}
    */
   public void onMerge(MemberAddress member) {
-    // TODO not interested
+    // not interested
   }
 
   private long getNextFileId() {
@@ -507,12 +510,14 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     for (File f : subfiles) {
       if (!f.delete()) {
-        cleaner.addFile(f);
+        //cleaner.addFile(f);
+        LOG.warn("Canot delete file " + f.getAbsolutePath());
       }
     }
 
     if (!dir.delete()) {
-      cleaner.addFile(dir);
+      //cleaner.addFile(dir);
+      LOG.warn("Canot delete dir " + dir.getAbsolutePath());
     }
   }
 

@@ -104,6 +104,10 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
           in.close();
           in = null;
           return null;
+        } catch (Throwable e) {
+          in.close();
+          in = null;
+          throw new StorageIOException(e.getMessage(), e);
         }
       } else
         return null;
