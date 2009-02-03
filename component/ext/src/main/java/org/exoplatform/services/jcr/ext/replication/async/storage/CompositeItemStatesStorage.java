@@ -43,7 +43,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   protected EditableChangesStorage<T>     current;
 
-  class StatesIterator implements Iterator<T> {
+  class ItemStateIterator implements Iterator<T> {
 
     Iterator<ChangesStorage<T>> csIter;
 
@@ -51,7 +51,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
     T                           next;
 
-    StatesIterator() throws ClassCastException, IOException, ClassNotFoundException {
+    ItemStateIterator() throws ClassCastException, IOException, ClassNotFoundException {
       csIter = storages.iterator();
       while (csIter.hasNext()) {
         sIter = csIter.next().getChanges();
@@ -185,7 +185,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new StatesIterator();
+    return new ItemStateIterator();
   }
 
   /**
