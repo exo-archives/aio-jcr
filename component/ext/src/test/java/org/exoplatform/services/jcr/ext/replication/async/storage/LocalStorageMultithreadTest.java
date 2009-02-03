@@ -93,7 +93,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     dir.mkdirs();
     
     // storage created and listen for a JCR changes
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
     // concurent work in JCR
@@ -215,7 +215,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     }
   }
 
-  private void checkLocalStorage(SolidLocalStorageImpl storage) throws Exception {
+  private void checkLocalStorage(LocalStorageImpl storage) throws Exception {
 
     final int size = (threadCount*(subnodesCount*3+2));
     Iterator<ItemState> it = storage.getLocalChanges().getChanges();

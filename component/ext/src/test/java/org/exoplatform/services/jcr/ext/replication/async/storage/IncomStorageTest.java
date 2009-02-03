@@ -288,7 +288,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
 
     File lsdir = new File("target/LocalStorageTest");
     lsdir.mkdirs();
-    SolidLocalStorageImpl locStorage = new SolidLocalStorageImpl(lsdir.getAbsolutePath());
+    LocalStorageImpl locStorage = new LocalStorageImpl(lsdir.getAbsolutePath());
     dataManager.addItemPersistenceListener(locStorage);
 
     // create node

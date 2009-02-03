@@ -51,7 +51,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: LocalStorageTest.java 111 2008-11-11 11:11:11Z serg $
  */
-public class SolidLocalStorageTest extends BaseStandaloneTest {
+public class LocalStorageTest extends BaseStandaloneTest {
 
   private static final String STORAGE_DIR = "target/testSolLocalStorage";
 
@@ -108,14 +108,14 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log = chs.get(0);
 
     // create storage
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     storage.onSaveItems(log);
 
     // delete storage object
     storage = null;
 
     // create new storage object on old context
-    storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    storage = new LocalStorageImpl(dir.getAbsolutePath());
     storage.onStart(null);
 
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
@@ -141,7 +141,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"ss");
     // dir.mkdirs();
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -199,7 +199,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     //File dir = new File(STORAGE_DIR + "ss");
     //dir.mkdirs();
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst", "nt:folder");
@@ -247,7 +247,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"startstop");
     // dir.mkdirs();
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -284,7 +284,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
    */
   public void testImportEmptyLog() throws Exception {
 
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     storage.onStart(null);
 
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
@@ -306,7 +306,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"ss");
     // dir.mkdirs();
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n = (NodeImpl) root.addNode("testNode");
@@ -360,7 +360,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
     n.remove();
@@ -385,7 +385,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"errors");
     // dir.mkdirs();
-    class TestLocalStorage extends SolidLocalStorageImpl {
+    class TestLocalStorage extends LocalStorageImpl {
       public TestLocalStorage(String path, int pr) {
         super(path);
       }
@@ -406,7 +406,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     storage = null;
 
-    storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    storage = new LocalStorageImpl(dir.getAbsolutePath());
 
     // check exception
     String[] errs = storage.getErrors();

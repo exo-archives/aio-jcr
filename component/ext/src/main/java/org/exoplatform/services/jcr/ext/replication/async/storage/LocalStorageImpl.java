@@ -27,11 +27,8 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
@@ -48,7 +45,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -57,7 +53,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SolidLocalStorageImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
+public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
     LocalEventListener, RemoteEventListener {
 
   protected static final Log                                 LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
@@ -72,7 +68,15 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   private static final String                                EXTERNALIZATION_SESSION_ID = "".intern();
 
+  /**
+   * Error container file name.
+   */
   private static final String                                ERROR_FILENAME             = "errors";
+
+  /**
+   * The name of local storage sub-directory that contains changes logs.
+   */
+  private static final String                                DIRECTORY_NAME             = "errors";
 
   private static final long                                  ERROR_TIMEOUT              = 10000;
 
@@ -81,8 +85,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   private static final long                                  MAX_FILE_SIZE              = 32 * 1024 * 1024;
 
-  // private final FileCleaner cleaner = new FileCleaner();
-
+  /**
+   * Path to Local Storage.
+   */
   private final String                                       storagePath;
 
   private final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
@@ -100,7 +105,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   private Long                                               index                      = new Long(0);
 
-  private Long                                               dirIndex                   = new Long(0);
+  // private Long dirIndex = new Long(0);
 
   class ChangesSpooler extends Thread {
 
@@ -132,11 +137,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     /**
      * Change all TransientValueData to ReplicableValueData.
      * 
-     * @param log
-     *          local TransactionChangesLog
+     * @param log local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException
-     *           if error occurs
+     * @throws IOException if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
@@ -202,9 +205,10 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
           }
         }
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-            ? EXTERNALIZATION_SESSION_ID
-            : plog.getSessionId(), plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(destlist,
+                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                         : plog.getSessionId(),
+                                              plog.getEventType()));
       }
       return result;
     }
@@ -237,31 +241,20 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     }
   }
 
-  public SolidLocalStorageImpl(String storagePath) {
+  public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
 
     // find last index of storage
 
-    String[] dirs = getSubStorageNames(this.storagePath);
+    String[] dirs = getSubStorageNames(storagePath);
     // check local storage
     if (dirs.length > 1) {
-      // TODO previous dir wasn't removed. So OnStop or OnCancel wasn't
-      // called. Its incorrect service close. Fix it
+      LOG.warn("Local storage contains more than one sub-directory!");
     }
 
-    if (dirs.length != 0) {
-      dirIndex = Long.parseLong(dirs[dirs.length - 1]) + 1;
+    currentDir = new File(storagePath, DIRECTORY_NAME);
 
-      currentDir = new File(storagePath, dirs[dirs.length - 1]);
-
-      // get last filename as index
-      File[] files = currentDir.listFiles(new ChangesFilenameFilter());
-      java.util.Arrays.sort(files, new ChangesFileComparator<File>());
-      if (files.length != 0) {
-        index = Long.parseLong(files[files.length - 1].getName()) + 1;
-      }
-    } else {
-      currentDir = new File(storagePath, Long.toString(dirIndex++));
+    if (!currentDir.exists()) {
       currentDir.mkdirs();
     }
 
@@ -303,6 +296,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
+      LOG.info("onSave \n\r" + itemStates.dump()); // TODO
+
       changesQueue.add((TransactionChangesLog) itemStates);
 
       if (changesSpooler == null) {
@@ -316,40 +311,32 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath
-   *          Path of root directory
+   * @param rootPath Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
 
     File storage = new File(rootPath);
     String[] dirNames = storage.list(new FilenameFilter() {
-      private final static String FILENAME_REGEX = "[0-9]+";
+      // private final static String FILENAME_REGEX = "[0-9]+";
 
-      private final Pattern       PATTERN        = Pattern.compile(FILENAME_REGEX);
+      // private final Pattern PATTERN = Pattern.compile(FILENAME_REGEX);
 
       public boolean accept(File dir, String name) {
         File file = new File(dir, name);
-        Matcher m = PATTERN.matcher(name);
-        if (!m.matches())
-          return false;
+        // Matcher m = PATTERN.matcher(name);
+        // if (!m.matches())
+        // return false;
         return file.isDirectory();
       }
     });
 
-    java.util.Arrays.sort(dirNames, new Comparator<String>() {
-      public int compare(String o1, String o2) {
-        long first = Long.parseLong(o1);
-        long second = Long.parseLong(o2);
-        if (first < second) {
-          return -1;
-        } else if (first == second) {
-          return 0;
-        } else {
-          return 1;
-        }
-      }
-    });
+    /*
+     * java.util.Arrays.sort(dirNames, new Comparator<String>() { public int
+     * compare(String o1, String o2) { long first = Long.parseLong(o1); long
+     * second = Long.parseLong(o2); if (first < second) { return -1; } else if
+     * (first == second) { return 0; } else { return 1; } } });
+     */
 
     return dirNames;
   }
@@ -357,8 +344,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -408,11 +394,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     if (isStarted()) {
       // delete merged content
-      deleteDir(currentDir);
+      File[] subfiles = currentDir.listFiles();
 
-      // TODO don't INCREMENT dirIndex - just use one name
-      // create folder for new changes logs
-      currentDir = new File(storagePath, Long.toString(dirIndex++));
+      for (File f : subfiles) {
+        if (!f.delete()) {
+          LOG.warn("Canot delete file " + f.getAbsolutePath());
+          reportException(new Exception("Canot delete file " + f.getAbsolutePath()));
+        }
+      }
+
+      // leave current directory
 
       if (!currentDir.mkdirs()) {
         LOG.error("Can't create Local strage subfolder: " + currentDir.getAbsolutePath());
@@ -502,26 +493,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       fileId = index++;
     }
     return fileId;
-  }
-
-  public void deleteDir(File dir) {
-    File[] subfiles = dir.listFiles();
-
-    for (File f : subfiles) {
-      if (!f.delete()) {
-        // cleaner.addFile(f);
-        LOG.warn("Canot delete file " + f.getAbsolutePath());
-        this.reportException(new IOException("LocalStorage subfolder delete fails : "
-            + f.getAbsolutePath()));
-      }
-    }
-
-    if (!dir.delete()) {
-      // cleaner.addFile(dir);
-      LOG.warn("Canot delete directory " + dir.getAbsolutePath());
-      this.reportException(new IOException("LocalStorage directory delete fails : "
-          + dir.getAbsolutePath()));
-    }
   }
 
 }

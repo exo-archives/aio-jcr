@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.StorageKey;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.SolidLocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
@@ -87,7 +87,7 @@ public class AsyncReplicationTester extends AsyncReplication {
     AsyncWorker synchWorker = new AsyncWorker(dm, 
                                               ntm, 
                                               dc,
-                                              (SolidLocalStorageImpl)localStorage, 
+                                              (LocalStorageImpl)localStorage, 
                                               (IncomeStorageImpl)incomeStorage,
                                               repoName,
                                               workspaceName,
@@ -107,7 +107,7 @@ public class AsyncReplicationTester extends AsyncReplication {
         WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
         PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
         
-        SolidLocalStorageImpl sls = localStorages.get(skey);
+        LocalStorageImpl sls = localStorages.get(skey);
         System.out.println("Remove ItemPersistenceListener : " + sls);
         dm.removeItemPersistenceListener(localStorages.get(skey));
       }
