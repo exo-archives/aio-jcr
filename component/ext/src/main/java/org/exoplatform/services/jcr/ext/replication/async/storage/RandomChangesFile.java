@@ -138,7 +138,7 @@ public class RandomChangesFile implements ChangesFile {
       @Override
       public void write(int b) throws IOException {
         checkFileAccessor();
-        LOG.info("write - b=" + b);
+        //LOG.info("write - b=" + b);
         synchronized (fileAccessor) {
           fileAccessor.write(b);
           trunc();
@@ -147,7 +147,7 @@ public class RandomChangesFile implements ChangesFile {
 
       public void write(byte b[]) throws IOException {
         checkFileAccessor();
-        LOG.info("write - b[]=" + b + " (" + b.length + ")");
+        //LOG.info("write - b[]=" + b + " (" + b.length + ")");
         synchronized (fileAccessor) {
           fileAccessor.write(b);
           trunc();
@@ -156,7 +156,7 @@ public class RandomChangesFile implements ChangesFile {
 
       public void write(byte b[], int off, int len) throws IOException {
         checkFileAccessor();
-        LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ", len=" + len);
+        //LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ", len=" + len);
         synchronized (fileAccessor) {
           fileAccessor.write(b, off, len);
           trunc();
@@ -168,7 +168,7 @@ public class RandomChangesFile implements ChangesFile {
           fileAccessor.seek(file.length() - OBJECT_OUT_HEADER_LEN);
           doTruncate = false;
 
-          LOG.info("trunc - seek on " + (file.length() - OBJECT_OUT_HEADER_LEN));
+          //LOG.info("trunc - seek on " + (file.length() - OBJECT_OUT_HEADER_LEN));
         }
       }
 
@@ -221,7 +221,7 @@ public class RandomChangesFile implements ChangesFile {
       }
       fileAccessor.seek(file.length());
 
-      LOG.info("checkFileAccessor - seek on " + file.length());
+      //LOG.info("checkFileAccessor - seek on " + file.length());
     }
   }
 

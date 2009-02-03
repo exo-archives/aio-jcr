@@ -81,7 +81,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   private static final long                                  MAX_FILE_SIZE              = 32 * 1024 * 1024;
 
-  //private final FileCleaner                                  cleaner                    = new FileCleaner();
+  // private final FileCleaner cleaner = new FileCleaner();
 
   private final String                                       storagePath;
 
@@ -214,7 +214,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       if (currentFile == null) {
         long id = getNextFileId();
         currentFile = new File(currentDir, Long.toString(id));
-        currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
+        currentOut = new ObjectOutputStream(new FileOutputStream(currentFile));
       } else if (currentFile.length() > MAX_FILE_SIZE) {
         // close stream
         currentOut.close();
@@ -227,12 +227,12 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
               + " already exist and will be rewrited.");
         }
 
-        currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
+        currentOut = new ObjectOutputStream(new FileOutputStream(currentFile));
       }
 
       currentOut.writeObject(itemStates);
       // keep stream opened
-      
+
       LOG.info("Write done: \r\n" + itemStates.dump());
     }
   }
@@ -445,10 +445,18 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   public void onStart(List<MemberAddress> members) {
     LOG.info("On START");
 
-    if (changesSpooler != null) {
+    // check lastDir for any changes;
+    String[] subfiles = currentDir.list(new ChangesFilenameFilter());
+    if (subfiles.length == 0) {
+      // write empty log to have at least one file to send/compare
+      onSaveItems(new TransactionChangesLog());
+    }
+
+    ChangesSpooler csp = changesSpooler;
+    if (csp != null) {
       LOG.info("Waitig for the changes spooler done.");
       try {
-        changesSpooler.join();
+        csp.join();
       } catch (InterruptedException e) {
         LOG.error("Waitig for the changes spooler fails. Data still can be not spooled to the file. Error "
                       + e,
@@ -461,23 +469,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       }
     }
 
-    // check lastDir for any changes;
-    String[] subfiles = currentDir.list(new ChangesFilenameFilter());
-    if (subfiles.length == 0) {
-      // write empty log to have at least one file to send/compare
-      onSaveItems(new TransactionChangesLog());
-    }
-
     // close current file
     try {
-      if (currentOut != null) {
+      if (currentOut != null)
         currentOut.close();
-      }
+      
     } catch (IOException e) {
       LOG.error("Can't close current output stream " + e, e);
       reportException(e);
     }
-    
+
     currentFile = null;
 
     doStart();
@@ -510,13 +511,13 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     for (File f : subfiles) {
       if (!f.delete()) {
-        //cleaner.addFile(f);
+        // cleaner.addFile(f);
         LOG.warn("Canot delete file " + f.getAbsolutePath());
       }
     }
 
     if (!dir.delete()) {
-      //cleaner.addFile(dir);
+      // cleaner.addFile(dir);
       LOG.warn("Canot delete dir " + dir.getAbsolutePath());
     }
   }

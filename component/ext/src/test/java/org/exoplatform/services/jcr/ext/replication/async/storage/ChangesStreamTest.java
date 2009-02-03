@@ -17,9 +17,10 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import javax.jcr.PropertyType;
 
@@ -94,7 +95,7 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     File temp = File.createTempFile("cout", "test", new File("./target"));
     temp.deleteOnExit();
 
-    ChangesOutputStream currentOut = new ChangesOutputStream(new FileOutputStream(temp));
+    ObjectOutputStream currentOut = new ObjectOutputStream(new FileOutputStream(temp));
 
     TransactionChangesLog tlog = new TransactionChangesLog(localLog);
 
@@ -102,7 +103,7 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     currentOut.close();
     currentOut = null;
 
-    currentOut = new ChangesOutputStream(new FileOutputStream(temp, true));
+    currentOut = new ObjectOutputStream(new FileOutputStream(temp, true));
 
     tlog = new TransactionChangesLog(localLog); // same
 
@@ -111,7 +112,7 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     currentOut = null;
     // check
 
-    ChangesInputStream currentIn = new ChangesInputStream(new FileInputStream(temp));
+    ObjectInputStream currentIn = new ObjectInputStream(new FileInputStream(temp));
 
     // 1
     Object to = currentIn.readObject();
@@ -157,13 +158,13 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     //final String block= "======BLOCK======";
     
     FileOutputStream fout = new FileOutputStream(temp);
-    ChangesOutputStream currentOut = new ChangesOutputStream(fout);
+    ObjectOutputStream currentOut = new ObjectOutputStream(fout);
 
     currentOut.writeObject(pl.pushChanges().get(0));
     //currentOut.writeObject(block);
     //currentOut.flush();
 
-    //currentOut = new ChangesOutputStream(new FileOutputStream(fd));
+    //currentOut = new ObjectOutputStream(new FileOutputStream(fd));
 
     //TransactionChangesLog log1 = pl.pushChanges().get(1);
     //PlainChangesLog plog1 = new PlainChangesLogImpl("sessionId-1");
@@ -178,7 +179,7 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     currentOut = null;
     
     // check
-    ChangesInputStream currentIn = new ChangesInputStream(new FileInputStream(temp));
+    ObjectInputStream currentIn = new ObjectInputStream(new FileInputStream(temp));
 
     // 1
     Object to = currentIn.readObject();

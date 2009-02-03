@@ -115,7 +115,7 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
       return null;
     } else {
       if (currentIn == null) {
-        currentIn = new ChangesInputStream(list.get(curFileIndex++).getInputStream());
+        currentIn = new ObjectInputStream(list.get(curFileIndex++).getInputStream());
       }
       try {
         return (L) currentIn.readObject();
