@@ -317,7 +317,7 @@ public interface ChangesStorage<T extends ItemState> {
                                                 ClassCastException,
                                                 ClassNotFoundException;
 
-  boolean isParentCheckIn(ItemState toState, QPath childPath) throws IOException,
+  boolean isParentHasCheckIn(ItemState toState, QPath childPath) throws IOException,
                                                              ClassCastException,
                                                              ClassNotFoundException;
 }

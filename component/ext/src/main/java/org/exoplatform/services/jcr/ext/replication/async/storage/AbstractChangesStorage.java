@@ -503,25 +503,27 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     return resultStates;
   }
 
-  public boolean isParentCheckIn(ItemState toState, QPath childPath) throws IOException,
-                                                                    ClassCastException,
-                                                                    ClassNotFoundException {
+  public boolean isParentHasCheckIn(ItemState lastState, QPath childPath) throws IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException {
     Iterator<T> itemStates = getChanges();
     while (itemStates.hasNext()) {
       T item = itemStates.next();
 
-      if (item.isSame(toState))
-        return false;
-
       if (!item.getData().isNode()
-          && childPath.isDescendantOf(item.getData().getQPath().makeParentPath())
-          && item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
+          && item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)
+          && (childPath.isDescendantOf(item.getData().getQPath().makeParentPath()) || childPath.equals(item.getData()
+                                                                                                           .getQPath()
+                                                                                                           .makeParentPath()))) {
 
         PropertyData prop = (PropertyData) item.getData();
         if (!Boolean.parseBoolean(prop.getValues().get(0).toString())) {
           return true;
         }
       }
+
+      if (item.isSame(lastState))
+        return false;
     }
 
     return false;
