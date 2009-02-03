@@ -28,7 +28,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +39,6 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
@@ -87,6 +85,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   private File                  currentDir                 = null;
 
   private File                  currentFile                = null;
+
+  private ObjectOutputStream    currentOut                 = null;
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -144,7 +144,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
       for (int j = 0; j < files.length; j++) {
         try {
-          // chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), currentDir));
           chFiles.add(new SimpleChangesFile(files[j], "", Long.parseLong(files[j].getName())));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
@@ -176,30 +175,33 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
 
-    ObjectOutputStream currentOut;
-
-    // Create file if not exist or file length more than acceptable
-    if (currentFile != null && currentFile.length() < MAX_FILE_SIZE) {
-      currentOut = new ChangesOutputStream(new FileOutputStream(currentFile, true));
-    } else {
-      // currentFile = new RandomChangesFile("", getNextFileId(), currentDir); // TODO
-
+    if (currentFile == null) {
       long id = getNextFileId();
       currentFile = new File(currentDir, Long.toString(id));
+      currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
+    } else if (currentFile.length() > MAX_FILE_SIZE) {
+      // close stream
+      currentOut.close();
+
+      // create new file
+      long id = getNextFileId();
+      currentFile = new File(currentDir, Long.toString(id));
+      if (currentFile.exists()) {
+        LOG.warn("Changes file :" + currentFile.getAbsolutePath()
+            + " already exist and will be rewrited.");
+      }
+
       currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
     }
 
     currentOut.writeObject(itemStates);
-    currentOut.close();
-
-    // currentFile.finishWrite(); // TODO
+    // keep stream opened
   }
 
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath
-   *          Path of root directory
+   * @param rootPath Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -239,11 +241,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log
-   *          local TransactionChangesLog
+   * @param log local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException
-   *           if error occurs
+   * @throws IOException if error occurs
    */
   private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
     final ChangesLogIterator chIt = log.getLogIterator();
@@ -254,9 +254,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     while (chIt.hasNextLog()) {
       PlainChangesLog plog = chIt.nextLog();
-      
+
       List<ItemState> destlist = new ArrayList<ItemState>();
-      
+
       for (ItemState item : plog.getAllStates()) {
         if (item.isNode()) {
           // use nodes states as is
@@ -309,9 +309,10 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-          ? EXTERNALIZATION_SESSION_ID
-          : plog.getSessionId(), plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist,
+                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                       : plog.getSessionId(),
+                                            plog.getEventType()));
     }
     return result;
   }
@@ -319,8 +320,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -377,6 +377,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       currentDir = new File(storagePath, Long.toString(dirIndex++));
 
       if (!currentDir.mkdirs()) {
+        LOG.error("Can't create Local strage subfolder: " + currentDir.getAbsolutePath());
         this.reportException(new IOException("LocalStorage subfolder create fails : "
             + currentDir.getAbsolutePath()));
       }
@@ -412,6 +413,14 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     }
 
     // close current file
+    try {
+      if (currentOut != null) {
+        currentOut.close();
+      }
+    } catch (IOException e) {
+      LOG.error("Can't close current output stream " + e, e);
+      reportException(e);
+    }
     currentFile = null;
 
     doStart();
