@@ -64,7 +64,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * Current ChangesFile to store changes.
    */
-  protected SimpleChangesFile  currentFile;
+  protected EditableChangesFile  currentFile;
 
   /**
    * Current byte array to store changes.
@@ -321,7 +321,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    * @return created ChangesFile
    * @throws IOException
    */
-  private SimpleChangesFile createChangesFile() throws IOException {
+  private EditableChangesFile createChangesFile() throws IOException {
     long id;
     synchronized (index) {
       id = index++;
@@ -333,7 +333,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     }
 
     String crc = ""; // crc is ignored
-    return new SimpleChangesFile(file, crc, id);
+    return new SimpleOutputChangesFile(file, crc, id);
   }
 
   /**

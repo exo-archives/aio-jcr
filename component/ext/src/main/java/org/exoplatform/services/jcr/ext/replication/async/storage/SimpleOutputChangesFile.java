@@ -17,10 +17,8 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -29,50 +27,15 @@ import java.io.OutputStream;
  * <br/>Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id: SimpleChangesFile.java 111 2008-11-11 11:11:11Z serg $
+ * @version $Id$
  */
-public class SimpleChangesFile implements ChangesFile {
+public class SimpleOutputChangesFile extends SimpleChangesFile implements EditableChangesFile {
 
-  /**
-   * Check sum to file.
-   */
-  protected final String crc;
-
-  /**
-   * Time stamp to ChangesLog.
-   */
-  protected final long   id;
-
-  protected final File   file;
-
-  public SimpleChangesFile(File file, String crc, long id) {
-    this.crc = crc;
-    this.id = id;
-    this.file = file;
+  public SimpleOutputChangesFile(File file, String crc, long id) {
+    super(file, crc, id);
   }
 
-  public boolean delete() throws IOException {
-    return file.delete();
+  public OutputStream getOutputStream() throws IOException {
+    return new FileOutputStream(file);
   }
-
-  public String getChecksum() {
-    return crc;
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public InputStream getInputStream() throws IOException {
-    return new FileInputStream(file);
-  }
-
-  public String toString() {
-    return file.getAbsolutePath();
-  }
-
-  public long getLength() {
-    return file.length();
-  }
-
 }

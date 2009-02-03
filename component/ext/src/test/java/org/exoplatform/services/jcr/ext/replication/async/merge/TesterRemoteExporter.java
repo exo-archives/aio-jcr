@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleOutputChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
@@ -80,7 +80,7 @@ public class TesterRemoteExporter implements RemoteExporter {
       File file =  File.createTempFile("exportStor", Long.toString(timestamp));
       
       String crc = ""; // crc is ignored
-      SimpleChangesFile chfile  = new SimpleChangesFile(file, crc, timestamp);
+      SimpleOutputChangesFile chfile  = new SimpleOutputChangesFile(file, crc, timestamp);
 
       ObjectOutputStream out = new ObjectOutputStream(chfile.getOutputStream());
       
