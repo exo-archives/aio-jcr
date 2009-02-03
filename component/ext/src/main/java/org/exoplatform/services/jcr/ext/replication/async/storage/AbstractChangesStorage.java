@@ -24,8 +24,10 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -501,4 +503,27 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     return resultStates;
   }
 
+  public boolean isParentCheckIn(ItemState toState, QPath childPath) throws IOException,
+                                                                    ClassCastException,
+                                                                    ClassNotFoundException {
+    Iterator<T> itemStates = getChanges();
+    while (itemStates.hasNext()) {
+      T item = itemStates.next();
+
+      if (item.isSame(toState))
+        return false;
+
+      if (!item.getData().isNode()
+          && childPath.isDescendantOf(item.getData().getQPath().makeParentPath())
+          && item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
+
+        PropertyData prop = (PropertyData) item.getData();
+        if (prop.getValues().get(0).toString().equals((new Boolean(false)).toString())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }

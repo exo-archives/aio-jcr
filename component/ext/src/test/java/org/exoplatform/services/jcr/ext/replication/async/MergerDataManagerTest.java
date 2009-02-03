@@ -126,7 +126,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
       ItemState item = items.get(i);
       if (item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
         PropertyData prop = (PropertyData) item.getData();
-        if (prop.getValues().get(0).equals(new Boolean(false))) {
+        if (prop.getValues().get(0).toString().equalsIgnoreCase((new Boolean(false).toString()))) {
           log.info("false");
         }
       }
@@ -395,6 +395,27 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(useCase5.checkEquals());
+  }
+
+  /**
+   * 9. Add node and twice move it
+   */
+  public void testComplexUsecase6() throws Exception {
+    ComplexUseCase6 useCase6 = new ComplexUseCase6(session3, session4);
+
+    // low
+    useCase6.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(useCase6.checkEquals());
   }
 
   /**
@@ -2636,28 +2657,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(isWorkspacesEquals(session3, session4));
-  }
-
-  /**
-   * 9. Add node and twice move it
-   */
-  public void testRename9() throws Exception {
-    // low priority changes: add two nodes
-    root3.addNode("item1");
-    session3.move("/item1", "/item2");
-    session3.move("/item2", "/item3");
-
-    session3.save();
-    addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
-
-    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
-    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
-
-    saveResultedChanges(res3, "ws3");
-    saveResultedChanges(res4, "ws4");
-
-    assertTrue(isWorkspacesEquals());
   }
 
   /**

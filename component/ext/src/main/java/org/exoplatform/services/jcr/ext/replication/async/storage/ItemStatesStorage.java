@@ -20,7 +20,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
@@ -37,11 +36,11 @@ import org.exoplatform.services.log.ExoLogger;
 public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
     MemberChangesStorage<T> {
 
-  protected static final Log  LOG = ExoLogger.getLogger("jcr.ItemStatesStorage");
+  protected static final Log LOG = ExoLogger.getLogger("jcr.ItemStatesStorage");
 
-  private final ChangesFile storage;
+  private final ChangesFile  storage;
 
-  protected final Member      member;
+  protected final Member     member;
 
   class FileIterator<S extends ItemState> implements Iterator<S> {
 
@@ -176,7 +175,5 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     return new FileIterator<T>();
   }
-
-
 
 }

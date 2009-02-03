@@ -327,6 +327,37 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
   }
 
   /**
+   * Complex UseCase6 Add node and twice move it
+   * 
+   */
+  public class ComplexUseCase6 extends BaseMergeUseCase {
+    public ComplexUseCase6(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().addNode("item1");
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.move("/item2", "/item3");
+      sessionLowPriority.save();
+    }
+
+  }
+
+  /**
    * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
    * 
    * 1. Add text file /fileA.txt on server 1
