@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.ext.action;
 
 import org.exoplatform.services.command.action.ActionMatcher;
 import org.exoplatform.services.command.action.Condition;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 
@@ -33,44 +34,47 @@ public class SessionEventMatcher implements ActionMatcher {
   /**
    * Key describe an Event name to be listened to.
    */
-  public static final String    EVENTTYPE_KEY        = "types";
+  public static final String        EVENTTYPE_KEY        = "types";
 
   /**
    * Key describe a workspace
    */
-  public static final String    WORKSPACE_KEY        = "workspaces";
+  public static final String        WORKSPACE_KEY        = "workspaces";
 
   /**
    * Key describe an Item absolute paths
    */
-  public static final String    PATH_KEY             = "paths";
+  public static final String        PATH_KEY             = "paths";
 
   @Deprecated
-  public static final String    NODETYPE_KEY         = "nodeType";
+  public static final String        NODETYPE_KEY         = "nodeType";
 
   @Deprecated
-  public static final String    PARENT_NODETYPES_KEY = "parentNodeTypes";
+  public static final String        PARENT_NODETYPES_KEY = "parentNodeTypes";
 
   /**
    * Key describe an InternalQName[] array of current node NodeType names.
    */
-  public static final String    NODETYPES_KEY        = "nodeTypes";
+  public static final String        NODETYPES_KEY        = "nodeTypes";
 
-  private final int             eventTypes;
+  private final int                 eventTypes;
 
-  private final String[]        workspaces;
+  private final String[]            workspaces;
 
-  private final QPath[]         paths;
+  private final QPath[]             paths;
 
-  private boolean               isDeep;
+  private boolean                   isDeep;
 
-  private final InternalQName[] nodeTypeNames;
+  private final InternalQName[]     nodeTypeNames;
+
+  private final NodeTypeDataManager typeDataManager;
 
   public SessionEventMatcher(int eventTypes,
                              QPath[] paths,
                              boolean isDeep,
                              String[] workspaces,
-                             InternalQName[] nodeTypeNames) {
+                             InternalQName[] nodeTypeNames,
+                             NodeTypeDataManager typeDataManager) {
     super();
     this.eventTypes = eventTypes;
     this.paths = paths;
@@ -78,6 +82,7 @@ public class SessionEventMatcher implements ActionMatcher {
 
     this.nodeTypeNames = nodeTypeNames;
     this.workspaces = workspaces;
+    this.typeDataManager = typeDataManager;
   }
 
   public String dump() {
@@ -132,10 +137,12 @@ public class SessionEventMatcher implements ActionMatcher {
     if (this.nodeTypeNames == null || nodeTypes == null)
       return true;
     for (InternalQName nt : nodeTypeNames) {
-      for (InternalQName searchNt : nodeTypes) {
-        if (nt.equals(searchNt))
-          return true;
-      }
+      if (typeDataManager.isNodeType(nt, nodeTypes))
+        return true;
+      // for (InternalQName searchNt : nodeTypes) {
+      // if (nt.equals(searchNt))
+      // return true;
+      // }
     }
     return false;
   }
@@ -145,7 +152,8 @@ public class SessionEventMatcher implements ActionMatcher {
       return true;
 
     for (QPath p : paths) {
-      if (itemPath.equals(p) || itemPath.isDescendantOf(p, !isDeep))// TODO is Child
+      if (itemPath.equals(p) || itemPath.isDescendantOf(p, !isDeep))// TODO is
+        // Child
         return true;
     }
 
