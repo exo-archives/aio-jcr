@@ -352,7 +352,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public synchronized void onSaveItems(ItemStateChangesLog itemStates) {
+  public void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       LOG.info("onSave \n\r" + itemStates.dump()); // TODO
 
