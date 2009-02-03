@@ -385,7 +385,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"errors");
     // dir.mkdirs();
-    class TestLocalStorage extends LocalStorageImpl {
+    class TestLocalStorage extends SolidLocalStorageImpl {
       public TestLocalStorage(String path, int pr) {
         super(path);
       }
@@ -406,7 +406,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     storage = null;
 
-    storage = new LocalStorageImpl(dir.getAbsolutePath());
+    storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
 
     // check exception
     String[] errs = storage.getErrors();
