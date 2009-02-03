@@ -357,6 +357,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       LOG.info("onSave \n\r" + itemStates.dump()); // TODO
 
       changesQueue.add((TransactionChangesLog) itemStates);
+      changesSpooler.spool();
     }
   }
 
