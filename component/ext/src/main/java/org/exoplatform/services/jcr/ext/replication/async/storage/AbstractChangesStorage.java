@@ -26,7 +26,6 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -118,29 +117,6 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     }
 
     return result;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isParentCheckIn(ItemState toState, QPath childPath) throws IOException,
-                                                                    ClassCastException,
-                                                                    ClassNotFoundException {
-    Iterator<T> it = getChanges();
-    while (it.hasNext()) {
-      T item = it.next();
-      if (item.isSame(toState))
-        return false;
-
-      if (!item.getData().isNode()
-          && childPath.isDescendantOf(item.getData().getQPath().makeParentPath())
-          && item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
-
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**
@@ -328,7 +304,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
 
     while (it.hasNext()) {
       T item = it.next();
-      if (item.equals(firstState)) {
+      if (item.isSame(firstState)) {
         boolean checkStartState = false;
 
         while (it.hasNext() || !checkStartState) {
@@ -358,7 +334,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
 
     while (it.hasNext()) {
       T item = it.next();
-      if (item.equals(firstState)) {
+      if (item.isSame(firstState)) {
         boolean checkStartState = false;
 
         while (it.hasNext() || !checkStartState) {
@@ -390,7 +366,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
 
     while (it.hasNext()) {
       T item = it.next();
-      if (item.equals(firstState)) {
+      if (item.isSame(firstState)) {
         boolean checkStartState = false;
 
         while (it.hasNext() || !checkStartState) {
@@ -447,7 +423,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T state = it.next();
-      if (state.equals(firstState)) {
+      if (state.isSame(firstState)) {
         resultStates.add(state);
 
         while (it.hasNext()) {
@@ -475,7 +451,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T state = it.next();
-      if (state.equals(firstState)) {
+      if (state.isSame(firstState)) {
         resultStates.add(state);
 
         while (it.hasNext()) {
@@ -498,7 +474,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     while (itemStates.hasNext()) {
       T item = itemStates.next();
 
-      if (item.equals(firstState)) {
+      if (item.isSame(firstState)) {
         boolean checkStartState = false;
 
         ItemState prevState = null;

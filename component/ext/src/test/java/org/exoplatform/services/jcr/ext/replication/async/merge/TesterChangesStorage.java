@@ -39,10 +39,11 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesF
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage<T> implements MemberChangesStorage<T> {
+public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage<T> implements
+    MemberChangesStorage<T> {
 
   private final Member member;
-  
+
   public TesterChangesStorage(Member member) {
     super(new ArrayList<ChangesFile>());
     this.member = member;
@@ -65,6 +66,5 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
   public Member getMember() {
     return member;
   }
-  
-  
+
 }

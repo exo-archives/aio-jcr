@@ -43,6 +43,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.ext.replication.async.merge.BaseMergerTest;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExporter;
@@ -50,6 +51,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
@@ -106,6 +108,31 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     wsc = repository.getWorkspaceContainer(session4.getWorkspace().getName());
     dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
     dm.addItemPersistenceListener(this);
+
+    wsc = repository.getWorkspaceContainer(session.getWorkspace().getName());
+    dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.addItemPersistenceListener(this);
+  }
+
+  public void testCheckIn() throws Exception {
+    Node node = root.addNode("item1");
+    node.addMixin("mix:versionable");
+    session.save();
+    node.checkin();
+    session.save();
+
+    List<ItemState> items = cLog.getAllStates();
+    for (int i = 0; i < items.size(); i++) {
+      ItemState item = items.get(i);
+      if (item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
+        PropertyData prop = (PropertyData) item.getData();
+        if (prop.getValues().get(0).equals(new Boolean(false))) {
+          log.info("false");
+        }
+      }
+    }
+
+    log.info(cLog.dump());
   }
 
   /**
@@ -2609,6 +2636,28 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(isWorkspacesEquals(session3, session4));
+  }
+
+  /**
+   * 9. Add node and twice move it
+   */
+  public void testRename9() throws Exception {
+    // low priority changes: add two nodes
+    root3.addNode("item1");
+    session3.move("/item1", "/item2");
+    session3.move("/item2", "/item3");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
   }
 
   /**
