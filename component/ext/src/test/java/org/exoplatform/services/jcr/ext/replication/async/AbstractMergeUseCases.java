@@ -1410,7 +1410,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       Node srcChildNode = srcNodes.nextNode();
       Node dstChildNode = sessionDst.getNodeByUUID(srcChildNode.getUUID());
 
-      if (!isNodesEquals(srcChildNode, dstChildNode)) {
+      if (!isNodesEquals(srcChildNode, dstChildNode, sessionSrc, sessionDst)) {
         return false;
       }
     }

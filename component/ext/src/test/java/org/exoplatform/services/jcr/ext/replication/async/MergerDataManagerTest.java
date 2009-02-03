@@ -1965,12 +1965,13 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     assertTrue(isWorkspacesEquals());
 
     // low priority changes: delete node
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority((Node) session4.getItem("/item1/item11")));
+
     root3.getNode("item1").getNode("item11").remove();
 
     // high priority changes: move parent
     root4.orderBefore("item1[2]", "item1");
-
-    membersChanges.clear();
 
     session3.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);

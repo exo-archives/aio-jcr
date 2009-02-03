@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * <br/>Date: 16.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @version $Id: AbstractChangesStorage.java 27562 2009-01-28 16:20:35Z tolusha $
  */
 public abstract class AbstractChangesStorage<T extends ItemState> implements ChangesStorage<T> {
 
