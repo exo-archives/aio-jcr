@@ -26,6 +26,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -131,7 +132,10 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
       if (item.isSame(toState))
         return false;
 
-      if (true) {
+      if (!item.getData().isNode()
+          && childPath.isDescendantOf(item.getData().getQPath().makeParentPath())
+          && item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
+
         return true;
       }
     }
