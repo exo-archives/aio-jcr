@@ -518,7 +518,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
           && item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
 
         PropertyData prop = (PropertyData) item.getData();
-        if (prop.getValues().get(0).toString().equals((new Boolean(false)).toString())) {
+        if (!Boolean.parseBoolean(prop.getValues().get(0).toString())) {
           return true;
         }
       }

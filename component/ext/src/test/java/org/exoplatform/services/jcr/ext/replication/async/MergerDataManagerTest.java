@@ -121,18 +121,20 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     node.checkin();
     session.save();
 
+    boolean checkIn = false;
+
     List<ItemState> items = cLog.getAllStates();
     for (int i = 0; i < items.size(); i++) {
       ItemState item = items.get(i);
       if (item.getData().getQPath().getName().equals(Constants.JCR_ISCHECKEDOUT)) {
         PropertyData prop = (PropertyData) item.getData();
-        if (prop.getValues().get(0).toString().equalsIgnoreCase((new Boolean(false).toString()))) {
-          log.info("false");
+        if (!Boolean.parseBoolean(prop.getValues().get(0).toString())) {
+          checkIn = true;
         }
       }
     }
 
-    log.info(cLog.dump());
+    assertTrue(checkIn);
   }
 
   /**
