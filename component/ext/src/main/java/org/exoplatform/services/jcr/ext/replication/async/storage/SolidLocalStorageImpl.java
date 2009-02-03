@@ -473,7 +473,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     try {
       if (currentOut != null)
         currentOut.close();
-      
+
     } catch (IOException e) {
       LOG.error("Can't close current output stream " + e, e);
       reportException(e);
@@ -513,12 +513,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       if (!f.delete()) {
         // cleaner.addFile(f);
         LOG.warn("Canot delete file " + f.getAbsolutePath());
+        this.reportException(new IOException("LocalStorage subfolder delete fails : "
+            + f.getAbsolutePath()));
       }
     }
 
     if (!dir.delete()) {
       // cleaner.addFile(dir);
-      LOG.warn("Canot delete dir " + dir.getAbsolutePath());
+      LOG.warn("Canot delete directory " + dir.getAbsolutePath());
+      this.reportException(new IOException("LocalStorage directory delete fails : "
+          + dir.getAbsolutePath()));
     }
   }
 
