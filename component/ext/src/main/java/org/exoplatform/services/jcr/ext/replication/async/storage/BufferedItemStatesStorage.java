@@ -147,13 +147,13 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     }
   }
 
-  class ArrayOrFileIterator<S extends ItemState> implements Iterator<S> {
+  class ItemStateIterator<S extends ItemState> implements Iterator<S> {
 
     private ObjectInputStream in = null;
 
     private S                 nextItem;
 
-    public ArrayOrFileIterator() throws IOException, ClassCastException, ClassNotFoundException {
+    public ItemStateIterator() throws IOException, ClassCastException, ClassNotFoundException {
       if (currentFile != null) {
         in = new ObjectInputStream(currentFile.getInputStream());
       } else if (currentByteArray != null) {
@@ -341,7 +341,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     // closeObjectOutputStream();
-    return new ArrayOrFileIterator<T>();
+    return new ItemStateIterator<T>();
   }
 
   public Member getMember() {

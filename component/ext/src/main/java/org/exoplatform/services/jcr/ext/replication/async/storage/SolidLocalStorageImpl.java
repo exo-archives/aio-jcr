@@ -303,8 +303,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
-      LOG.info("onSave \n\r" + itemStates.dump()); // TODO
-
       changesQueue.add((TransactionChangesLog) itemStates);
 
       if (changesSpooler == null) {

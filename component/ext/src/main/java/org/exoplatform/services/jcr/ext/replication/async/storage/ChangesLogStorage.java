@@ -54,7 +54,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * @param <C>
    *          ItemState extender
    */
-  class ItemStatesIterator<C extends ItemState> implements Iterator<C> {
+  class ItemStateIterator<C extends ItemState> implements Iterator<C> {
 
     // private final List<ChangesFile> store;
 
@@ -62,7 +62,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     private Iterator<C>                                      currentChangesLog;
 
-    public ItemStatesIterator(List<ChangesFile> store) throws IOException,
+    public ItemStateIterator(List<ChangesFile> store) throws IOException,
         ClassCastException,
         ClassNotFoundException {
       this.logIterator = new ChangesLogsIterator<TransactionChangesLog>(store);

@@ -42,13 +42,13 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
 
   protected final Member     member;
 
-  class FileIterator<S extends ItemState> implements Iterator<S> {
+  class ItemStateIterator<S extends ItemState> implements Iterator<S> {
 
     private ObjectInputStream in;
 
     private S                 nextItem;
 
-    public FileIterator() throws IOException, ClassCastException, ClassNotFoundException {
+    public ItemStateIterator() throws IOException, ClassCastException, ClassNotFoundException {
 
       if (storage == null) {
         throw new NullPointerException("ChangesFile not exists.");
@@ -113,14 +113,6 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   }
 
   /**
-   * ItemStatesStorage constructor for merge (Editable...).
-   */
-  ItemStatesStorage(Member member) {
-    this.member = member;
-    this.storage = null;
-  }
-
-  /**
    * ItemStatesStorage constructor for export.
    * 
    * @param changes
@@ -173,7 +165,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new FileIterator<T>();
+    return new ItemStateIterator<T>();
   }
 
 }
