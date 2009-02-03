@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2009 eXo Platform SAS.
+ * Copyright (C) 2003-2007 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -16,28 +16,31 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
- * @version $Id: ChangesFileNameFilter.java 111 2008-11-11 11:11:11Z serg $
+ * <br/>Date: 03.02.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: ChangesInputStream.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class ChangesFileNameFilter implements FilenameFilter {
-  private final static String FILENAME_REGEX = "[0-9]+"; 
-  private final Pattern PATTERN = Pattern.compile(FILENAME_REGEX);
-  
-  public boolean accept(File dir, String name) {
-    Matcher m = PATTERN.matcher(name);
-    if(!m.matches()) return false;
-    File file = new File(dir, name);
-    return !file.isDirectory();
+public class ChangesInputStream extends ObjectInputStream {
+
+  public ChangesInputStream(InputStream in) throws IOException {
+    super(in);
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected void readStreamHeader() throws IOException, StreamCorruptedException {
+    // read nothing
+  }
+
 }

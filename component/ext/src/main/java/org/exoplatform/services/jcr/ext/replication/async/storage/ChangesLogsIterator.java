@@ -26,14 +26,15 @@ import java.util.NoSuchElementException;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 
 /**
- * Iterator that goes throw all files in storage and returns
- * TransactionChangesLog objects. Created by The eXo Platform SAS. <br/>Date:
+ * Iterator that goes throw all files in storage and returns TransactionChangesLog objects. Created
+ * by The eXo Platform SAS. <br/>Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesLogsIterator.java 111 2008-11-11 11:11:11Z serg $
- * @param <L> extender of TransactionChangesLog
+ * @param <L>
+ *          extender of TransactionChangesLog
  */
-public class SolidChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
+public class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
 
   /**
    * ChangesFiles to iterate.
@@ -58,14 +59,14 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
   /**
    * Constructor. Changes file may contain many ChangesLogs.
    * 
-   * @param list List of ChangesFile
+   * @param list
+   *          List of ChangesFile
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  public SolidChangesLogsIterator(List<ChangesFile> list) throws IOException,
-      ClassNotFoundException {
+  public ChangesLogsIterator(List<ChangesFile> list) throws IOException, ClassNotFoundException {
     this.list = list;
-    currentChangesLog = readNextChangesLog();
+    this.currentChangesLog = readNextChangesLog();
   }
 
   public boolean hasNext() {
@@ -101,9 +102,12 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
    * Read next changes log from current ChngesFile or next one.
    * 
    * @return extender of TransactionChangesLog
-   * @throws IOException on read from file
-   * @throws ClassCastException on read ChangesLog object
-   * @throws ClassNotFoundException on read ChangesLog object
+   * @throws IOException
+   *           on read from file
+   * @throws ClassCastException
+   *           on read ChangesLog object
+   * @throws ClassNotFoundException
+   *           on read ChangesLog object
    */
   @SuppressWarnings("unchecked")
   private L readNextChangesLog() throws IOException, ClassCastException, ClassNotFoundException {
@@ -111,7 +115,7 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
       return null;
     } else {
       if (currentIn == null) {
-        currentIn = new ObjectInputStream(list.get(curFileIndex++).getInputStream());
+        currentIn = new ChangesInputStream(list.get(curFileIndex++).getInputStream());
       }
       try {
         return (L) currentIn.readObject();
@@ -120,7 +124,7 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
         currentIn = null;
         // get next file, and try again
         return (readNextChangesLog());
-      } 
+      }
     }
   }
 

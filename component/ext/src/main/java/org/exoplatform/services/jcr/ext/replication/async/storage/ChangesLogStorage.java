@@ -58,15 +58,28 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     // private final List<ChangesFile> store;
 
-    private SolidChangesLogsIterator<TransactionChangesLog> logIterator;
+    private final ChangesLogsIterator<TransactionChangesLog> logIterator;
 
-    private Iterator<C>                                     currentChangesLog;
+    private Iterator<C>                                      currentChangesLog;
 
     public ItemStatesIterator(List<ChangesFile> store) throws IOException,
         ClassCastException,
         ClassNotFoundException {
-      logIterator = new SolidChangesLogsIterator<TransactionChangesLog>(store);
-      currentChangesLog = readNextIterator();
+      this.logIterator = new ChangesLogsIterator<TransactionChangesLog>(store);
+      this.currentChangesLog = readNextIterator();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Iterator<C> readNextIterator() throws IOException,
+                                            ClassNotFoundException,
+                                            ClassCastException {
+      // fetch next
+      if (logIterator.hasNext() == false) {
+        return null;
+      } else {
+        TransactionChangesLog curLog = logIterator.next();
+        return (Iterator<C>) curLog.getAllStates().iterator();
+      }
     }
 
     /**
@@ -118,19 +131,6 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     public void remove() {
       throw new RuntimeException("Remove not allowed!");
     }
-
-    @SuppressWarnings("unchecked")
-    protected Iterator<C> readNextIterator() throws IOException,
-                                            ClassNotFoundException,
-                                            ClassCastException {
-      // fetch next
-      if (logIterator.hasNext() == false) {
-        return null;
-      } else {
-        TransactionChangesLog curLog = logIterator.next();
-        return (Iterator<C>) curLog.getAllStates().iterator();
-      }
-    }
   }
 
   /**
@@ -155,7 +155,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
   public int size() throws IOException, ClassNotFoundException {
     int size = 0;
-    SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
 
     while (it.hasNext()) {
       size += it.next().getSize();

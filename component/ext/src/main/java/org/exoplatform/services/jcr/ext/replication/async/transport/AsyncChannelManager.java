@@ -427,7 +427,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public Object handle(final Message message) {
     if (isConnected()) {
-      LOG.info("Handle message " + message);
+      LOG.info("Handle message " + message); // TODO - debug
 
       try {
         packetsHandler.add(PacketTransformer.getAsPacket(message.getBuffer()),

@@ -31,11 +31,13 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Member.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class Member implements Externalizable {
+public class Member {
 
-  private MemberAddress address;
+  private final int hashCode;
 
-  private int           priority;
+  private final MemberAddress       address;
+
+  private final int                 priority;
 
   /**
    * Member constructor for <code>Subscriber</code>.
@@ -48,14 +50,10 @@ public class Member implements Externalizable {
   public Member(MemberAddress address, int priority) {
     this.address = address;
     this.priority = priority;
-  }
 
-  /**
-   * @param priority
-   *          the priority to set
-   */
-  public void setPriority(int priority) {
-    this.priority = priority;
+    int hk = 7;
+    hk = hk * 31 + this.address.hashCode();
+    this.hashCode = hk * 31 + this.priority;
   }
 
   /**
@@ -86,6 +84,14 @@ public class Member implements Externalizable {
    * {@inheritDoc}
    */
   @Override
+  public int hashCode() {
+    return this.hashCode;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String toString() {
     return super.toString() + " [" + getName() + "]";
   }
@@ -106,14 +112,15 @@ public class Member implements Externalizable {
     return priority;
   }
 
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    priority = in.readInt();
-    address = (MemberAddress) in.readObject();
-  }
-
-  public void writeExternal(ObjectOutput out) throws IOException {
-    out.writeInt(priority);
-    out.writeObject(address);
-  }
+  // TODO
+//  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+//    priority = in.readInt();
+//    address = (MemberAddress) in.readObject();
+//  }
+//
+//  public void writeExternal(ObjectOutput out) throws IOException {
+//    out.writeInt(priority);
+//    out.writeObject(address);
+//  }
 
 }

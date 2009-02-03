@@ -193,6 +193,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         }
       }
 
+      // TODO debug
+      for (MemberChangesStorage<ItemState> ms : membersChanges) {
+        LOG.info(">>> Member " + ms.getMember().getName() + " changes");
+        LOG.info(ms.dump());
+      }
+
       // merge
       workerLog.info("start merge of " + membersChanges.size() + " members");
       mergeManager.setLocalMember(localMember);

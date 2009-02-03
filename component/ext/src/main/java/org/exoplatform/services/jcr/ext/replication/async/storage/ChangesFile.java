@@ -32,14 +32,14 @@ public interface ChangesFile {
    * 
    * @return String return the check sum to file.
    */
-  public String getChecksum();
+  String getChecksum();
 
   /**
    * getTimeStamp.
    * 
    * @return long return the time stamp to ChangesLog.
    */
-  public long getId() ;
+  long getId();
 
   /**
    * Return
@@ -47,8 +47,7 @@ public interface ChangesFile {
    * @return InputStream
    * @throws IOException
    */
-  public InputStream getInputStream() throws IOException ;
-
+  InputStream getInputStream() throws IOException;
 
   /**
    * Delete file and its file-system storage.
@@ -58,8 +57,7 @@ public interface ChangesFile {
    * @throws IOException
    *           on error
    */
-  public boolean delete() throws IOException ;
+  boolean delete() throws IOException;
 
-
-  public long getLength();
+  long getLength();
 }

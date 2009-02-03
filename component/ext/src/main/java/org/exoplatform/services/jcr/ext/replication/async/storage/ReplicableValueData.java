@@ -135,11 +135,13 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       in.close();
     }
     
+    out.writeByte(0x000A);
+    out.writeByte(0x000D);
+    
     //TODO ReplicableValueData must not be used after serialization.
     if(spoolFile!=null && spoolFile.exists()){
       spoolFile.delete();
     }
-    
   }
 
   /**
@@ -181,6 +183,9 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       this.data = new byte[(int) length];
       in.readFully(data);
     }
+    
+    in.readByte();
+    in.readByte();
   }
 
   /**

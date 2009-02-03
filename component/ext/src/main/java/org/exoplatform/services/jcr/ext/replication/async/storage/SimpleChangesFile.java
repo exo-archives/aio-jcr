@@ -23,35 +23,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SimpleChangesFile.java 111 2008-11-11 11:11:11Z serg $
  */
-public class SimpleChangesFile implements ChangesFile{
+public class SimpleChangesFile implements ChangesFile {
 
   /**
    * Check sum to file.
    */
-  private final String       crc;
+  private final String crc;
 
   /**
    * Time stamp to ChangesLog.
    */
-  private final long         id;
+  private final long   id;
 
-  private final File         file;
-  
-  public SimpleChangesFile(File file, String crc, long id){
-    this.crc =crc;
+  private final File   file;
+
+  public SimpleChangesFile(File file, String crc, long id) {
+    this.crc = crc;
     this.id = id;
     this.file = file;
   }
-  
+
   public boolean delete() throws IOException {
     return file.delete();
   }
@@ -67,12 +66,14 @@ public class SimpleChangesFile implements ChangesFile{
   public InputStream getInputStream() throws IOException {
     return new FileInputStream(file);
   }
-  
-  public OutputStream getOutputStream() throws IOException{
+
+  // TODO remove it
+  @Deprecated
+  public OutputStream getOutputStream() throws IOException {
     return new FileOutputStream(file);
   }
 
-  public String toString(){
+  public String toString() {
     return file.getAbsolutePath();
   }
 

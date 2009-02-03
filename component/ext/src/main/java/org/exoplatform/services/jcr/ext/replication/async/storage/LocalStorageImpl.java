@@ -98,7 +98,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       dirIndex = Long.parseLong(lastDir.getName() + 1);
 
       // get last filename as index
-      String[] fileNames = lastDir.list(new ChangesFileNameFilter());
+      String[] fileNames = lastDir.list(new ChangesFilenameFilter());
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
       if (fileNames.length != 0) {
         index = Long.parseLong(fileNames[fileNames.length - 1] + 1);
@@ -135,7 +135,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     }
     File prevDir = new File(storagePath, dirNames[0]);
 
-    String[] fileNames = prevDir.list(new ChangesFileNameFilter());
+    String[] fileNames = prevDir.list(new ChangesFilenameFilter());
 
     java.util.Arrays.sort(fileNames, new ChangesFileComparator());
 
@@ -395,7 +395,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     // check previous dir
     String dirs[] = getSubStorageNames(this.storagePath);
     File prevDir = new File(storagePath, dirs[dirs.length - 1]);
-    String[] subfiles = prevDir.list(new ChangesFileNameFilter());
+    String[] subfiles = prevDir.list(new ChangesFilenameFilter());
     if (subfiles.length == 0) {
       // write empty log to have at least one file to send/compare
       onSaveItems(new TransactionChangesLog());

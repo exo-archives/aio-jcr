@@ -17,31 +17,27 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
-import java.util.Comparator;
+import java.io.FilenameFilter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date:
- * 
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id: ChangesFileComparator.java 111 2008-11-11 11:11:11Z serg $
+ * <br/>Date: 
+ *
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @version $Id: ChangesFileNameFilter.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ChangesFileComparator<F extends File> implements Comparator<F> {
-
-  public int compare(F o1, F o2) {
-
-//    long first = Long.parseLong(o1.getName());
-//    long second = Long.parseLong(o2.getName());
-//    if (first < second) {
-//      return -1;
-//    } else if (first == second) {
-//      return 0;
-//    } else {
-//      return 1;
-//    }
-    
-    return (int) (Long.parseLong(o1.getName()) - Long.parseLong(o2.getName())); 
+public class ChangesFilenameFilter implements FilenameFilter {
+  private final static String FILENAME_REGEX = "[0-9]+"; 
+  private final Pattern PATTERN = Pattern.compile(FILENAME_REGEX);
+  
+  public boolean accept(File dir, String name) {
+    Matcher m = PATTERN.matcher(name);
+    if(!m.matches()) return false;
+    File file = new File(dir, name);
+    return !file.isDirectory();
   }
-
 }

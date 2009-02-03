@@ -1,5 +1,8 @@
+/**
+ * 
+ */
 /*
- * Copyright (C) 2003-2009 eXo Platform SAS.
+ * Copyright (C) 2003-2007 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -16,32 +19,37 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.File;
-import java.util.Comparator;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date:
- * 
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id: ChangesFileComparator.java 111 2008-11-11 11:11:11Z serg $
+ * <br/>Date: 03.02.2009
+ *
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * @version $Id: ChangesLogOutputStream.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class ChangesFileComparator<F extends File> implements Comparator<F> {
+public class ChangesOutputStream extends ObjectOutputStream {
 
-  public int compare(F o1, F o2) {
-
-//    long first = Long.parseLong(o1.getName());
-//    long second = Long.parseLong(o2.getName());
-//    if (first < second) {
-//      return -1;
-//    } else if (first == second) {
-//      return 0;
-//    } else {
-//      return 1;
-//    }
-    
-    return (int) (Long.parseLong(o1.getName()) - Long.parseLong(o2.getName())); 
+  /**
+   * ChangesOutputStream  constructor.
+   *
+   * @param out OutputStream
+   * @throws IOException
+   */
+  public ChangesOutputStream(OutputStream out) throws IOException {
+    super(out);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected void writeStreamHeader() throws IOException {
+    // write nothing
+  }
+
+  
 }

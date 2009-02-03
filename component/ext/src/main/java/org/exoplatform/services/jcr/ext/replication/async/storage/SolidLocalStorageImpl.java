@@ -85,7 +85,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   private File                  currentDir                 = null;
 
-  private RandomChangesFile     currentFile                = null;
+  private File                  currentFile                = null;
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -100,6 +100,11 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     // find last index of storage
 
     String[] dirs = getSubStorageNames(this.storagePath);
+    // check local storage
+    if (dirs.length > 1) {
+      // TODO previous dir wasn't removed. So OnStop or OnCancel wasn't
+      // called. Its incorrect service close. Fix it
+    }
 
     if (dirs.length != 0) {
       dirIndex = Long.parseLong(dirs[dirs.length - 1]) + 1;
@@ -107,16 +112,10 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       currentDir = new File(storagePath, dirs[dirs.length - 1]);
 
       // get last filename as index
-      String[] fileNames = currentDir.list(new ChangesFileNameFilter());
-      java.util.Arrays.sort(fileNames, new ChangesFileComparator());
-      if (fileNames.length != 0) {
-        index = Long.parseLong(fileNames[fileNames.length - 1] + 1);
-      }
-
-      // check local storage
-      if (dirs.length > 1) {
-        // TODO previous dir wasn't removed. So OnStop or OnCancel wasn't
-        // called. Its incorrect service close. Fix it
+      File[] files = currentDir.listFiles(new ChangesFilenameFilter());
+      java.util.Arrays.sort(files, new ChangesFileComparator<File>());
+      if (files.length != 0) {
+        index = Long.parseLong(files[files.length - 1].getName()) + 1;
       }
     } else {
       currentDir = new File(storagePath, Long.toString(dirIndex++));
@@ -138,13 +137,14 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     if (currentDir != null) {
       List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
-      String[] fileNames = currentDir.list(new ChangesFileNameFilter());
+      File[] files = currentDir.listFiles(new ChangesFilenameFilter());
 
-      java.util.Arrays.sort(fileNames, new ChangesFileComparator());
+      java.util.Arrays.sort(files, new ChangesFileComparator<File>());
 
-      for (int j = 0; j < fileNames.length; j++) {
+      for (int j = 0; j < files.length; j++) {
         try {
-          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), currentDir));
+          // chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), currentDir));
+          chFiles.add(new SimpleChangesFile(files[j], "", Long.parseLong(files[j].getName())));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -159,61 +159,50 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public void onSaveItems(ItemStateChangesLog itemStates) {
-    //if (isStarted()) {
-    //  reportException(new IOException("Local storage already stared."));
-   // } else {
-      if (!(itemStates instanceof SynchronizerChangesLog)) {
-        try {
-          addChangesLog(itemStates);
-        } catch (IOException e) {
-          LOG.error("On save items error " + e, e);
-          reportException(e);
-        }
+  public synchronized void onSaveItems(ItemStateChangesLog itemStates) {
+    // if (isStarted()) {
+    // reportException(new IOException("Local storage already stared."));
+    // } else {
+    if (!(itemStates instanceof SynchronizerChangesLog)) {
+      try {
+        LOG.info("onSave \n\r" + itemStates.dump());
+
+        TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
+        writeLog(log);
+      } catch (IOException e) {
+        LOG.error("On save items error " + e, e);
+        reportException(e);
       }
-    //}
+    }
+    // }
   }
 
-  protected void addChangesLog(ItemStateChangesLog itemStates) throws IOException {
+  protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
 
-    // TODO make addition Log to list and writer Thread
-
-    TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
-    writeLog(log);
-  }
-
-  synchronized protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
+    ObjectOutputStream currentOut;
 
     // Create file if not exist or file length more than acceptable
-    if (currentFile == null || (currentFile.getLength() > MAX_FILE_SIZE)) {
-      closeCurrentFile();
-      currentFile = new RandomChangesFile("", getNextFileId(), currentDir);
-    }
+    if (currentFile != null && currentFile.length() < MAX_FILE_SIZE) {
+      currentOut = new ChangesOutputStream(new FileOutputStream(currentFile, true));
+    } else {
+      // currentFile = new RandomChangesFile("", getNextFileId(), currentDir); // TODO
 
-    ObjectOutputStream currentOut = new ObjectOutputStream(currentFile.getOutputStream());
+      long id = getNextFileId();
+      currentFile = new File(currentDir, Long.toString(id));
+      currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
+    }
 
     currentOut.writeObject(itemStates);
-
     currentOut.close();
-    currentOut = null;
-    currentFile.finishWrite();
-  }
 
-  /**
-   * Close current Changes file and release any resources associated with it.
-   * 
-   * @throws IOException
-   */
-  synchronized private void closeCurrentFile() throws IOException {
-    if (currentFile != null) {
-      currentFile = null;
-    }
+    // currentFile.finishWrite(); // TODO
   }
 
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath Path of root directory
+   * @param rootPath
+   *          Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -253,14 +242,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
-  private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
-    ChangesLogIterator chIt = log.getLogIterator();
+  private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
+    final ChangesLogIterator chIt = log.getLogIterator();
 
-    TransactionChangesLog result = new TransactionChangesLog();
+    final TransactionChangesLog result = new TransactionChangesLog();
     result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
     // PlainChangesLogImpl.writeExternal
 
@@ -274,7 +265,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         ItemState item = srcIt.next();
 
         if (item.isNode()) {
-          // skip nodes
+          // use nodes states as is
           destlist.add(item);
         } else {
           TransientPropertyData prop = (TransientPropertyData) item.getData();
@@ -282,16 +273,12 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
           List<ValueData> srcVals = prop.getValues();
           List<ValueData> destVals = new ArrayList<ValueData>();
 
-          if (srcVals != null) {
-            Iterator<ValueData> valIt = prop.getValues().iterator();
-            while (valIt.hasNext()) {
-
-              ValueData val = valIt.next();
+          if (srcVals != null) { // TODO we don't need it actually
+            for (ValueData val : srcVals) {
               ReplicableValueData dest;
               if (val instanceof ReplicableValueData) {
                 dest = (ReplicableValueData) val;
               } else {
-
                 if (val.isByteArray()) {
                   dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
                 } else {
@@ -318,14 +305,12 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
                                           item.isInternallyCreated(),
                                           item.isPersisted());
           destlist.add(nItem);
-
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist,
-                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                       : plog.getSessionId(),
-                                            plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+          ? EXTERNALIZATION_SESSION_ID
+          : plog.getSessionId(), plog.getEventType()));
     }
     return result;
   }
@@ -333,7 +318,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -385,9 +371,10 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       // delete merged content
       deleteDir(currentDir);
 
+      // TODO don't INCREMENT dirIndex - just use one name
       // create folder for new changes logs
       currentDir = new File(storagePath, Long.toString(dirIndex++));
-      
+
       if (!currentDir.mkdirs()) {
         this.reportException(new IOException("LocalStorage subfolder create fails : "
             + currentDir.getAbsolutePath()));
@@ -417,20 +404,15 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     LOG.info("On START");
 
     // check lastDir for any changes;
-    String[] subfiles = currentDir.list(new ChangesFileNameFilter());
+    String[] subfiles = currentDir.list(new ChangesFilenameFilter());
     if (subfiles.length == 0) {
       // write empty log to have at least one file to send/compare
       onSaveItems(new TransactionChangesLog());
     }
-    // close current file
-    try {
-      closeCurrentFile();
-    } catch (IOException e) {
-      this.reportException(e);
-    }
 
-    // keep current directory as source for merge
-    
+    // close current file
+    currentFile = null;
+
     doStart();
   }
 

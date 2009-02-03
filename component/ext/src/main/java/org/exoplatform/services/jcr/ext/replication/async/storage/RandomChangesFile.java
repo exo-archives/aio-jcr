@@ -24,6 +24,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS. <br/>Date: 19.12.2008
  * 
@@ -32,11 +35,14 @@ import java.io.RandomAccessFile;
  */
 public class RandomChangesFile implements ChangesFile {
 
+  protected static final Log LOG                   = ExoLogger.getLogger("ext.RandomChangesFile");
+
   public static final String PREFIX                = "ChangesFile";
+
   public static final String SUFIX                 = "SUFIX";
-  
+
   private static final int   OBJECT_OUT_HEADER_LEN = 4;
-  
+
   /**
    * Check sum to file.
    */
@@ -52,7 +58,8 @@ public class RandomChangesFile implements ChangesFile {
   private RandomAccessFile   fileAccessor;
 
   private boolean            doTruncate            = false;
-  //private FileInputStream    fileInput;
+
+  // private FileInputStream fileInput;
 
   /**
    * Create ChangesFile with file in directory.
@@ -74,13 +81,14 @@ public class RandomChangesFile implements ChangesFile {
 
   /**
    * This constructor used in RemoteExporter
+   * 
    * @param crc
    * @param id
    */
-  public RandomChangesFile(String crc, long id) throws IOException{
+  public RandomChangesFile(String crc, long id) throws IOException {
     this.crc = crc;
     this.id = id;
-    
+
     // create temporary file
     file = File.createTempFile(PREFIX, SUFIX);
   }
@@ -88,9 +96,12 @@ public class RandomChangesFile implements ChangesFile {
   /**
    * Create ChangesFile with already formed file.
    * 
-   * @param file changes file
-   * @param crc checksum
-   * @param timeStamp time stamp
+   * @param file
+   *          changes file
+   * @param crc
+   *          checksum
+   * @param timeStamp
+   *          time stamp
    * @throws IOException
    */
   public RandomChangesFile(File file, String crc, long id) {
@@ -98,7 +109,6 @@ public class RandomChangesFile implements ChangesFile {
     this.id = id;
     this.file = file;
   }
-
 
   /**
    * File checksum.
@@ -120,12 +130,15 @@ public class RandomChangesFile implements ChangesFile {
     return new FileInputStream(file);
   }
 
+  // TODO remove it
+  @Deprecated
   public OutputStream getOutputStream() throws IOException {
     return new OutputStream() {
 
       @Override
       public void write(int b) throws IOException {
         checkFileAccessor();
+        LOG.info("write - b=" + b);
         synchronized (fileAccessor) {
           fileAccessor.write(b);
           trunc();
@@ -134,6 +147,7 @@ public class RandomChangesFile implements ChangesFile {
 
       public void write(byte b[]) throws IOException {
         checkFileAccessor();
+        LOG.info("write - b[]=" + b + " (" + b.length + ")");
         synchronized (fileAccessor) {
           fileAccessor.write(b);
           trunc();
@@ -142,6 +156,7 @@ public class RandomChangesFile implements ChangesFile {
 
       public void write(byte b[], int off, int len) throws IOException {
         checkFileAccessor();
+        LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ", len=" + len);
         synchronized (fileAccessor) {
           fileAccessor.write(b, off, len);
           trunc();
@@ -152,6 +167,8 @@ public class RandomChangesFile implements ChangesFile {
         if (doTruncate) {
           fileAccessor.seek(file.length() - OBJECT_OUT_HEADER_LEN);
           doTruncate = false;
+
+          LOG.info("trunc - seek on " + (file.length() - OBJECT_OUT_HEADER_LEN));
         }
       }
 
@@ -203,6 +220,8 @@ public class RandomChangesFile implements ChangesFile {
         doTruncate = true;
       }
       fileAccessor.seek(file.length());
+
+      LOG.info("checkFileAccessor - seek on " + file.length());
     }
   }
 
@@ -222,14 +241,13 @@ public class RandomChangesFile implements ChangesFile {
   public long getId() {
     return id;
   }
-  
-  public String toString(){
+
+  public String toString() {
     return file.getAbsolutePath();
   }
 
-  public long getLength(){
+  public long getLength() {
     return file.length();
   }
-  
-}
 
+}

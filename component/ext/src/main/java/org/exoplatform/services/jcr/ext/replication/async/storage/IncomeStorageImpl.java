@@ -140,7 +140,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         int memberPriority = Integer.parseInt(memberDir.getName()); // also check - is
         // member folder;
 
-        String[] fileNames = memberDir.list(new ChangesFileNameFilter());
+        String[] fileNames = memberDir.list(new ChangesFilenameFilter());
 
         java.util.Arrays.sort(fileNames, new ChangesFileComparator());
 
