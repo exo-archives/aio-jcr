@@ -168,6 +168,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       qpath = QPath.parse(sQPath);
     } catch (final IllegalPathException e) {
       throw new IOException("Deserialization error. " + e) {
+
         /**
          * {@inheritDoc}
          */
