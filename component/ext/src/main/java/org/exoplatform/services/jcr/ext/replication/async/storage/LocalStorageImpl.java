@@ -76,7 +76,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * The name of local storage sub-directory that contains changes logs.
    */
-  private static final String                                DIRECTORY_NAME             = "errors";
+  private static final String                                DIRECTORY_NAME             = "changes";
 
   private static final long                                  ERROR_TIMEOUT              = 10000;
 
@@ -405,11 +405,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       // leave current directory
 
-      if (!currentDir.mkdirs()) {
+     /* if (!currentDir.mkdirs()) {
         LOG.error("Can't create Local strage subfolder: " + currentDir.getAbsolutePath());
         this.reportException(new IOException("LocalStorage subfolder create fails : "
             + currentDir.getAbsolutePath()));
-      }
+      }*/
     } else
       LOG.warn("Not started or already stopped");
 

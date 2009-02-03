@@ -94,7 +94,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
    * 
    * @throws Exception
    */
-  public void testCreateRestoreStorage() throws Exception {
+ /* public void testCreateRestoreStorage() throws Exception {
 
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
@@ -125,7 +125,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     // check results
     checkIterator(expectedStates, states);
     storage.onStop();
-  }
+  }*/
 
   /**
    * Register LocalStorage as listener to dataManager and check arrived
