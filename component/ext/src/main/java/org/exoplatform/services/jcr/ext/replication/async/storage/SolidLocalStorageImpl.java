@@ -72,20 +72,22 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   private static final String                                EXTERNALIZATION_SESSION_ID = "".intern();
 
-  protected static final String                              ERROR_FILENAME             = "errors";
+  private static final String                                ERROR_FILENAME             = "errors";
 
-  private FileCleaner                                        cleaner                    = new FileCleaner();
+  private static final long                                  ERROR_TIMEOUT              = 10000;
 
   /**
    * Max ChangesLog file size in Kb.
    */
   private static final long                                  MAX_FILE_SIZE              = 32 * 1024 * 1024;
 
-  protected final String                                     storagePath;
+  private final FileCleaner                                  cleaner                    = new FileCleaner();
+
+  private final String                                       storagePath;
 
   private final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
 
-  private final ChangesSpooler                               changesSpooler             = new ChangesSpooler();
+  private ChangesSpooler                                     changesSpooler             = null;
 
   private File                                               currentDir                 = null;
 
@@ -100,7 +102,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   private Long                                               dirIndex                   = new Long(0);
 
-  class ChangesSpoolerProcess extends Thread {
+  class ChangesSpooler extends Thread {
 
     /**
      * {@inheritDoc}
@@ -111,6 +113,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         TransactionChangesLog chl = changesQueue.poll();
         while (chl != null) {
           writeLog(prepareChangesLog(chl));
+
+          Thread.yield();
+
           chl = changesQueue.poll();
         }
       } catch (IOException e) {
@@ -120,7 +125,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         LOG.error("Cannot spool changes queue. Error " + e, e);
         reportException(e);
       } finally {
-        changesSpooler.resetActive();
+        changesSpooler = null; // reset self-reference
       }
     }
 
@@ -230,61 +235,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     }
   }
 
-  class ChangesSpooler extends Thread {
-
-    /**
-     * Wait lock.
-     */
-    private final Object          lock = new Object();
-
-    private ChangesSpoolerProcess active;
-
-    /**
-     * @return the active
-     */
-    void resetActive() {
-      this.active = null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void run() {
-      while (true) {
-        try {
-          synchronized (lock) {
-            if (active == null) {
-              active = new ChangesSpoolerProcess();
-              active.start();
-            }
-
-            lock.wait();
-          }
-        } catch (InterruptedException e) {
-          LOG.error("Cannot start changes spooler process. Wait lock failed " + e, e);
-        } catch (Throwable e) {
-          LOG.error("Cannot start changes spooler process. Error " + e, e);
-          try {
-            sleep(10000);
-          } catch (Throwable e1) {
-            LOG.error("Sleep error " + e1);
-          }
-        }
-      }
-    }
-
-    /**
-     * Touch spooler to save queue to a storage.
-     * 
-     */
-    void spool() {
-      synchronized (lock) {
-        lock.notify();
-      }
-    }
-  }
-
   public SolidLocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
 
@@ -315,9 +265,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     // synchronization is not started for default
     doStop();
-
-    // start onSave changes spooler
-    changesSpooler.start();
   }
 
   /**
@@ -357,7 +304,12 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       LOG.info("onSave \n\r" + itemStates.dump()); // TODO
 
       changesQueue.add((TransactionChangesLog) itemStates);
-      changesSpooler.spool();
+
+      if (changesSpooler == null) {
+        // changesSpooler var can be nulled from ChangesSpooler.run()
+        ChangesSpooler csp = changesSpooler = new ChangesSpooler();
+        csp.start();
+      }
     }
   }
 
@@ -490,6 +442,22 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   public void onStart(List<MemberAddress> members) {
     LOG.info("On START");
+
+    if (changesSpooler != null) {
+      LOG.info("Waitig for the changes spooler done.");
+      try {
+        changesSpooler.join();
+      } catch (InterruptedException e) {
+        LOG.error("Waitig for the changes spooler fails. Data still can be not spooled to the file. Error "
+                      + e,
+                  e);
+        try {
+          Thread.sleep(ERROR_TIMEOUT);
+        } catch (InterruptedException e1) {
+          LOG.error("Sleep error " + e, e);
+        }
+      }
+    }
 
     // check lastDir for any changes;
     String[] subfiles = currentDir.list(new ChangesFilenameFilter());
