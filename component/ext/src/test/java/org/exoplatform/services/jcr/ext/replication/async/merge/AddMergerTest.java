@@ -111,6 +111,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -149,6 +150,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -190,6 +192,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -225,6 +228,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -280,6 +284,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -323,6 +328,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -385,6 +391,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -417,6 +424,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -467,6 +475,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -517,6 +526,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -554,6 +564,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -592,6 +603,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -684,6 +696,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -765,6 +778,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -846,6 +860,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -931,6 +946,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -989,6 +1005,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -1049,6 +1066,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -1122,29 +1140,12 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
-    assertEquals("Wrong changes count ", result.size(), 1);
+    assertEquals("Wrong changes count ", result.size(), 0);
 
-    ItemState res = findStateByPath(result,
-                                    QPath.makeChildPath(localItem21x2A.getQPath(),
-                                                        remoteItem212Add.getData()
-                                                                        .getQPath()
-                                                                        .getEntries()[remoteItem212Add.getData()
-                                                                                                      .getQPath()
-                                                                                                      .getEntries().length - 1]));
-
-    assertNotNull("Remote Add expected ", res);
-
-    assertEquals("Remote Added wrong ID ",
-                 remoteItem212Add.getData().getIdentifier(),
-                 res.getData().getIdentifier());
-
-    // parent /testItem2/item11[1] updated to /testItem2/item11[2]
-    assertEquals("Remote Added wrong parent ID ",
-                 remoteItem212Add.getData().getParentIdentifier(),
-                 res.getData().getParentIdentifier());
   }
 
   /**
@@ -1215,31 +1216,11 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
-    assertEquals("Wrong changes count ", result.size(), 1);
-
-    QPath path1 = QPath.makeChildPath(localItem21x2A.getQPath(),
-                                      remoteItem212Add.getData().getQPath().getEntries()[remoteItem212Add.getData()
-                                                                                                         .getQPath()
-                                                                                                         .getEntries().length - 1]);
-    QPath path2 = QPath.makeChildPath(path1,
-                                      remoteItem2121Add.getData().getQPath().getEntries()[remoteItem2121Add.getData()
-                                                                                                           .getQPath()
-                                                                                                           .getEntries().length - 1]);
-    ItemState res = findStateByPath(result, path2);
-
-    assertNotNull("Remote Add expected ", res);
-
-    assertEquals("Remote Added wrong ID ",
-                 remoteItem2121Add.getData().getIdentifier(),
-                 res.getData().getIdentifier());
-
-    // parent /testItem1/item11[1] updated to /testItem1/item11[2]
-    assertEquals("Remote Added wrong parent ID ",
-                 remoteItem2121Add.getData().getParentIdentifier(),
-                 res.getData().getParentIdentifier());
+    assertEquals("Wrong changes count ", result.size(), 0);
   }
 
   /**
@@ -1308,29 +1289,11 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
-    assertEquals("Wrong changes count ", result.size(), 1);
-
-    ItemState res = findStateByPath(result,
-                                    QPath.makeChildPath(localItem21x2A.getQPath(),
-                                                        remoteItem212Add.getData()
-                                                                        .getQPath()
-                                                                        .getEntries()[remoteItem212Add.getData()
-                                                                                                      .getQPath()
-                                                                                                      .getEntries().length - 1]));
-
-    assertNotNull("Remote Add expected ", res);
-
-    assertEquals("Remote Added wrong ID ",
-                 remoteItem212Add.getData().getIdentifier(),
-                 res.getData().getIdentifier());
-
-    // parent /testItem2/item11[1] updated to /testItem2/item11[2]
-    assertEquals("Remote Added wrong parent ID ",
-                 remoteItem212Add.getData().getParentIdentifier(),
-                 res.getData().getParentIdentifier());
+    assertEquals("Wrong changes count ", result.size(), 4);
   }
 
   /**
@@ -1410,31 +1373,22 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
 
     // check not conflicted node
-    result = addMerger.merge(remoteItem21x22Add, income, local, "./target", new ArrayList<QPath>());
+    result = addMerger.merge(remoteItem21x22Add,
+                             income,
+                             local,
+                             "./target",
+                             new ArrayList<QPath>(),
+                             new ArrayList<QPath>());
     ;
-    assertEquals("Wrong changes count ", result.size(), 1);
+    assertEquals("Wrong changes count ", result.size(), 0);
 
-    // find by reordered path
-    ItemState res = findStateByPath(result,
-                                    QPath.makeChildPath(localItem21x1B.getQPath(),
-                                                        remoteItem21x22.getQPath().getEntries()[remoteItem21x22.getQPath()
-                                                                                                               .getEntries().length - 1]));
-
-    assertNotNull("Remote Add expected ", res);
-
-    assertEquals("Remote Added wrong ID ", remoteItem21x22.getIdentifier(), res.getData()
-                                                                               .getIdentifier());
-
-    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
-    assertEquals("Remote Added wrong parent ID ",
-                 remoteItem21x22.getParentIdentifier(),
-                 res.getData().getParentIdentifier());
   }
 
   /**
@@ -1515,26 +1469,12 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
-    assertEquals("Wrong changes count ", result.size(), 2);
+    assertEquals("Wrong changes count ", result.size(), 4);
 
-    // find by reordered path
-    ItemState res = findStateByPath(result,
-                                    QPath.makeChildPath(localItem21x1B.getQPath(),
-                                                        remoteItem21x21.getQPath().getEntries()[remoteItem21x21.getQPath()
-                                                                                                               .getEntries().length - 1]));
-
-    assertNotNull("Remote Add expected ", res);
-
-    assertEquals("Remote Added wrong ID ", remoteItem21x21.getIdentifier(), res.getData()
-                                                                               .getIdentifier());
-
-    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
-    assertEquals("Remote Added wrong parent ID ",
-                 remoteItem21x21.getParentIdentifier(),
-                 res.getData().getParentIdentifier());
   }
 
   /**
@@ -1568,6 +1508,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -1606,6 +1547,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -1643,6 +1585,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -1673,6 +1616,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 
@@ -1727,6 +1671,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -1769,6 +1714,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                        income,
                                                        local,
                                                        "./target",
+                                                       new ArrayList<QPath>(),
                                                        new ArrayList<QPath>());
     ;
 

@@ -153,6 +153,7 @@ public class MergeDataManager {
         MemberChangesStorage<ItemState> second = membersChanges.next();
 
         List<QPath> skippedList = new ArrayList<QPath>();
+        List<QPath> restoredOrder = new ArrayList<QPath>();
 
         // TODO if we merging two remote members, how localMember can be used for isLocalPriority
         // value?
@@ -233,7 +234,8 @@ public class MergeDataManager {
                                                  income,
                                                  local,
                                                  storageDir,
-                                                 skippedList));
+                                                 skippedList,
+                                                 restoredOrder));
                 break;
               case ItemState.DELETED:
                 // DELETE
@@ -242,7 +244,8 @@ public class MergeDataManager {
                                                       income,
                                                       local,
                                                       storageDir,
-                                                      skippedList));
+                                                      skippedList,
+                                                      restoredOrder));
                 } else {
                   ItemState nextIncomeChange = income.findNextState(incomeChange,
                                                                     incomeChange.getData()
@@ -262,7 +265,8 @@ public class MergeDataManager {
                                                         income,
                                                         local,
                                                         storageDir,
-                                                        skippedList));
+                                                        skippedList,
+                                                        restoredOrder));
 
                     // UPDATE node
                   } else if (nextIncomeChange != null
@@ -271,7 +275,8 @@ public class MergeDataManager {
                                                         income,
                                                         local,
                                                         storageDir,
-                                                        skippedList));
+                                                        skippedList,
+                                                        restoredOrder));
                   } else {
                     LOG.info("Income changes log: " + income.dump());
                     LOG.info("Local changes log: " + local.dump());
@@ -294,7 +299,8 @@ public class MergeDataManager {
                                                       income,
                                                       local,
                                                       storageDir,
-                                                      skippedList));
+                                                      skippedList,
+                                                      restoredOrder));
                 }
                 break;
               case ItemState.MIXIN_CHANGED:
@@ -302,7 +308,8 @@ public class MergeDataManager {
                                                    income,
                                                    local,
                                                    storageDir,
-                                                   skippedList));
+                                                   skippedList,
+                                                   restoredOrder));
                 break;
               }
             }

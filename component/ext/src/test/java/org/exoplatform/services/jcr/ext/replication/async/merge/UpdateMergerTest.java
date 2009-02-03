@@ -138,12 +138,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
-    assertEquals(result.size(), 3);
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
+    assertEquals(result.size(), 0);
   }
 
   /**
@@ -197,6 +195,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 0);
@@ -243,6 +242,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 3);
@@ -291,6 +291,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 0);
@@ -327,6 +328,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 1);
@@ -419,6 +421,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 0);
@@ -475,15 +478,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
-    ;
-    QPath qPath = QPath.makeChildPath(localItem21x1B.getQPath(),
-                                      new InternalQName(null, "testProperty111"));
-    ItemState res = findStateByPath(result, qPath);
-    assertEquals(result.size(), 1);
-    assertNotNull(res);
-    assertEquals(res.getData().getIdentifier(), remoteProperty111.getIdentifier());
-    assertEquals(res.getData().getParentIdentifier(), remoteProperty111.getParentIdentifier());
+    assertEquals(result.size(), 0);
   }
 
   /**
@@ -534,12 +531,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
-    assertEquals(result.size(), 3);
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
+    assertEquals(result.size(), 0);
   }
 
   /**
@@ -584,6 +579,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 0);
@@ -709,23 +705,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
-    ;
-    QPath qPath1 = QPath.makeChildPath(localItem2x2B.getQPath(),
-                                       remoteItem21x2B.getQPath().getEntries()[remoteItem21x2B.getQPath()
-                                                                                              .getEntries().length - 1]);
-    QPath qPath2 = QPath.makeChildPath(localItem2x2B.getQPath(),
-                                       remoteItem21x1B.getQPath().getEntries()[remoteItem21x2B.getQPath()
-                                                                                              .getEntries().length - 1]);
-
-    QPath qPath3 = QPath.makeChildPath(localItem2x2B.getQPath(),
-                                       remoteItem21x2A.getQPath().getEntries()[remoteItem21x2B.getQPath()
-                                                                                              .getEntries().length - 1]);
-
-    assertEquals(result.size(), 3);
-    assertNotNull(findStateByPath(result, qPath1));
-    assertNotNull(findStateByPath(result, qPath2));
-    assertNotNull(findStateByPath(result, qPath3));
+    assertEquals(result.size(), 0);
   }
 
   /**
@@ -793,6 +775,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 0);
@@ -866,12 +849,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
-    assertEquals(result.size(), 3);
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
+    assertEquals(result.size(), 0);
   }
 
   /**
@@ -942,9 +923,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
-    assertEquals(result.size(), 0);
+    assertEquals(result.size(), 1);
   }
 
   /**
@@ -1000,12 +982,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
-    assertEquals(result.size(), 3);
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
+    assertEquals(result.size(), 4);
   }
 
   /**
@@ -1054,18 +1034,21 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
+    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    exportLog.add(new ItemState(localItem21, ItemState.ADDED, false, null));
+
+    UpdateMerger updateMerger = new UpdateMerger(false,
+                                                 new TesterRemoteExporter(exportLog),
+                                                 dataManager,
+                                                 ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 4);
-    assertTrue(hasState(result, new ItemState(remoteItem21x2B, ItemState.ADDED, false, null), true));
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
   }
 
   /**
@@ -1109,6 +1092,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 3);
@@ -1157,10 +1141,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 1);
-    assertTrue(hasState(result, new ItemState(localProperty1, ItemState.ADDED, false, null), true));
   }
 
   /**
@@ -1250,6 +1234,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 3);
@@ -1333,14 +1318,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 5);
-    assertTrue(hasState(result, new ItemState(localItem21_2, ItemState.ADDED, false, null), true));
-    assertTrue(hasState(result, new ItemState(localItem3, ItemState.DELETED, false, null), true));
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
   }
 
   /**
@@ -1412,12 +1393,10 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
-    assertEquals(result.size(), 3);
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
+    assertEquals(result.size(), 5);
   }
 
   /**
@@ -1497,6 +1476,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 3);
@@ -1591,6 +1571,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 6);
@@ -1653,15 +1634,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
-    ;
-    QPath qPath = QPath.makeChildPath(localItem21x1B.getQPath(),
-                                      new InternalQName(null, "testProperty111"));
-    ItemState res = findStateByPath(result, qPath);
-    assertEquals(result.size(), 1);
-    assertNotNull(res);
-    assertEquals(res.getData().getIdentifier(), remoteProperty111.getIdentifier());
-    assertEquals(res.getData().getParentIdentifier(), remoteProperty111.getParentIdentifier());
+    assertEquals(result.size(), 4);
   }
 
   /**
@@ -1707,17 +1682,21 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
+    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    exportLog.add(new ItemState(localProperty111, ItemState.ADDED, false, null));
+
+    UpdateMerger updateMerger = new UpdateMerger(false,
+                                                 new TesterRemoteExporter(exportLog),
+                                                 dataManager,
+                                                 ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
-    assertEquals(result.size(), 3);
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
+    assertEquals(result.size(), 4);
   }
 
   /**
@@ -1762,6 +1741,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 1);
@@ -1888,6 +1868,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           income,
                                                           local,
                                                           "./target",
+                                                          new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
     ;
     QPath qPath1 = QPath.makeChildPath(localItem2x2B.getQPath(),
@@ -1901,9 +1882,6 @@ public class UpdateMergerTest extends BaseMergerTest {
                                        remoteItem21x2A.getQPath().getEntries()[remoteItem21x2B.getQPath()
                                                                                               .getEntries().length - 1]);
 
-    assertEquals(result.size(), 3);
-    assertNotNull(findStateByPath(result, qPath1));
-    assertNotNull(findStateByPath(result, qPath2));
-    assertNotNull(findStateByPath(result, qPath3));
+    assertEquals(result.size(), 6);
   }
 }

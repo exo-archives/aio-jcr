@@ -33,10 +33,9 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -78,15 +77,16 @@ public abstract class AbstractMerger implements ChangesMerger {
    * {@inheritDoc}
    */
   public abstract EditableChangesStorage<ItemState> merge(ItemState itemChange,
-                                                  ChangesStorage<ItemState> income,
-                                                  ChangesStorage<ItemState> local,
-                                                  String mergeTempDir,
-                                                  List<QPath> skippedList) throws RepositoryException,
-                                                                          RemoteExportException,
-                                                                          IOException,
-                                                                          ClassCastException,
-                                                                          ClassNotFoundException,
-                                                                          StorageRuntimeException;
+                                                          ChangesStorage<ItemState> income,
+                                                          ChangesStorage<ItemState> local,
+                                                          String mergeTempDir,
+                                                          List<QPath> skippedList,
+                                                          List<QPath> restoredOrder) throws RepositoryException,
+                                                                                    RemoteExportException,
+                                                                                    IOException,
+                                                                                    ClassCastException,
+                                                                                    ClassNotFoundException,
+                                                                                    StorageRuntimeException;
 
   /**
    * generateDeleleLockProperties.
@@ -128,4 +128,20 @@ public abstract class AbstractMerger implements ChangesMerger {
     return pdef != null;
   }
 
+  // TODO use HashMap instead of List
+  /**
+   * isOrderResotred.
+   * 
+   * @param restoredOrder
+   * @param path
+   * @return
+   */
+  protected boolean isOrderRestored(List<QPath> restoredOrder, QPath path) {
+    for (QPath inPath : restoredOrder) {
+      if (inPath.equals(path))
+        return true;
+    }
+
+    return false;
+  }
 }

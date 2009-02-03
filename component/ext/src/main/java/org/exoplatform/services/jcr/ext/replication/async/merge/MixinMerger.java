@@ -32,12 +32,12 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorageOld;
-import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
@@ -65,15 +65,16 @@ public class MixinMerger extends AbstractMerger {
    * @throws ClassCastException
    */
   public EditableChangesStorage<ItemState> merge(ItemState itemChange,
-                                         ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local,
-                                         String mergeTempDir,
-                                         List<QPath> skippedList) throws RepositoryException,
-                                                                 RemoteExportException,
-                                                                 IOException,
-                                                                 ClassCastException,
-                                                                 ClassNotFoundException,
-                                                                 StorageRuntimeException {
+                                                 ChangesStorage<ItemState> income,
+                                                 ChangesStorage<ItemState> local,
+                                                 String mergeTempDir,
+                                                 List<QPath> skippedList,
+                                                 List<QPath> restoredOrder) throws RepositoryException,
+                                                                           RemoteExportException,
+                                                                           IOException,
+                                                                           ClassCastException,
+                                                                           ClassNotFoundException,
+                                                                           StorageRuntimeException {
 
     boolean itemChangeProcessed = false; // TODO really need?
 
@@ -106,7 +107,15 @@ public class MixinMerger extends AbstractMerger {
 
           // UPDATE node
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            // TODO
+            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            for (ItemState item : updateSeq) {
+              if (incomeData.getQPath().equals(item.getData().getQPath())
+                  || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
+
+                skippedList.add(incomeData.getQPath());
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              }
+            }
             break;
           }
 
@@ -160,7 +169,51 @@ public class MixinMerger extends AbstractMerger {
 
           // UPDATE node
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            // TODO
+            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            for (ItemState st : updateSeq) {
+              if (incomeData.getQPath().isDescendantOf(st.getData().getQPath())
+                  || incomeData.getQPath().equals(st.getData().getQPath())) {
+
+                if (!isOrderRestored(restoredOrder, localData.getQPath().makeParentPath())) {
+                  restoredOrder.add(localData.getQPath().makeParentPath());
+
+                  // restore original order
+                  List<ItemState> locUpdateSeq = local.getUpdateSequence(localState);
+                  for (int i = locUpdateSeq.size() - 1; i >= 0; i--) {
+                    ItemState item = locUpdateSeq.get(i);
+                    NodeData node = (NodeData) item.getData();
+                    if (i == locUpdateSeq.size() - 1) {
+                      resultState.add(new ItemState(item.getData(),
+                                                    ItemState.DELETED,
+                                                    item.isEventFire(),
+                                                    item.getData().getQPath(),
+                                                    item.isInternallyCreated(),
+                                                    false));
+                    } else {
+                      QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
+                                                       node.getQPath().getName(),
+                                                       i == 0
+                                                           ? node.getQPath().getIndex()
+                                                           : node.getQPath().getIndex() - 1);
+                      TransientNodeData newItem = new TransientNodeData(name,
+                                                                        node.getIdentifier(),
+                                                                        node.getPersistedVersion(),
+                                                                        node.getPrimaryTypeName(),
+                                                                        node.getMixinTypeNames(),
+                                                                        node.getOrderNumber(),
+                                                                        node.getParentIdentifier(),
+                                                                        node.getACL());
+                      resultState.add(new ItemState(newItem,
+                                                    ItemState.UPDATED,
+                                                    item.isEventFire(),
+                                                    name,
+                                                    item.isInternallyCreated()));
+                    }
+                  }
+                }
+              }
+            }
+
             break;
           }
 

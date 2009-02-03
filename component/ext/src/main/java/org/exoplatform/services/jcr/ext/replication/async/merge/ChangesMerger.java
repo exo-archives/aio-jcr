@@ -66,14 +66,15 @@ public interface ChangesMerger {
    * @throws ClassCastException
    */
   EditableChangesStorage<ItemState> merge(ItemState itemChange,
-                                  ChangesStorage<ItemState> income,
-                                  ChangesStorage<ItemState> local,
-                                  String mergeTempDir,
-                                  List<QPath> skippedList) throws IllegalPathException,
-                                                          RepositoryException,
-                                                          RemoteExportException,
-                                                          IOException,
-                                                          ClassCastException,
-                                                          ClassNotFoundException;
+                                          ChangesStorage<ItemState> income,
+                                          ChangesStorage<ItemState> local,
+                                          String mergeTempDir,
+                                          List<QPath> skippedList,
+                                          List<QPath> restoredOrder) throws IllegalPathException,
+                                                                    RepositoryException,
+                                                                    RemoteExportException,
+                                                                    IOException,
+                                                                    ClassCastException,
+                                                                    ClassNotFoundException;
 
 }
