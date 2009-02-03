@@ -16,6 +16,10 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -79,22 +83,9 @@ public class ExportChangesTest extends BaseStandaloneTest {
 
   private static final String CH_NAME   = "TestChannel";
 
-  AsyncReplication            replicationService;
-
   AsyncChannelManager         channel;
 
-  public void setUp() throws Exception {
-    super.setUp();
-    replicationService = (AsyncReplication) container.getComponentInstanceOfType(AsyncReplication.class);
-    replicationService.synchronize();
-  }
-
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
-
   public void testGetExport() throws Exception {
-
     // create node
     NodeImpl n = (NodeImpl) root.addNode("testNode", "nt:unstructured");
 
@@ -106,6 +97,8 @@ public class ExportChangesTest extends BaseStandaloneTest {
     AsyncChannelManager channel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
 
     int priority = 50;
+    List<Integer> otherPartisipantsPriority = new ArrayList<Integer>();
+    otherPartisipantsPriority.add(priority);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority);
 
@@ -117,7 +110,7 @@ public class ExportChangesTest extends BaseStandaloneTest {
 
     RemoteExportServer exportServer = new RemoteExportServerImpl(transmitter, dm, ntm);
 
-    AsyncReceiver receiver = new AsyncReceiverImpl(channel, exportServer);
+    AsyncReceiver receiver = new AsyncReceiverImpl(channel, exportServer, otherPartisipantsPriority);
 
     RemoteExporterImpl exporter = new RemoteExporterImpl(transmitter, receiver);
 
@@ -128,7 +121,6 @@ public class ExportChangesTest extends BaseStandaloneTest {
     ChangesStorage<ItemState> it = exporter.exportItem(id);
 
     assertNotNull(it);
-
   }
 
 }

@@ -17,6 +17,8 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
@@ -46,6 +48,10 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
   private CountDownLatch      latch;
 
   public void testReceiveGetExport() throws Exception {
+    int priority = 100;
+    List<Integer> otherPartisipantsPriority = new ArrayList<Integer>();
+    otherPartisipantsPriority.add(priority);
+
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
@@ -55,7 +61,9 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     RemoteExportServerTester exportServer = new RemoteExportServerTester();
 
-    AsyncReceiver asyncReceiver = new AsyncReceiverImpl(channel2, exportServer);
+    AsyncReceiver asyncReceiver = new AsyncReceiverImpl(channel2,
+                                                        exportServer,
+                                                        otherPartisipantsPriority);
 
     channel2.addPacketListener(asyncReceiver);
 
@@ -65,7 +73,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     // send GetExportPacket
     String nodeId = ((NodeImpl) root).getData().getIdentifier();
 
-    GetExportPacket packet = new GetExportPacket(nodeId, -1);
+    GetExportPacket packet = new GetExportPacket(nodeId, priority);
 
     latch = new CountDownLatch(1);
     try {
@@ -76,7 +84,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       // disconnect from channel
       channel1.disconnect();
       channel2.disconnect();
-      
+
       fail("Cannot send export request");
       throw e;
     }
@@ -91,6 +99,10 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
   }
 
   public void testReceiveExport() throws Exception {
+    int priority = 100;
+    List<Integer> otherPartisipantsPriority = new ArrayList<Integer>();
+    otherPartisipantsPriority.add(priority);
+
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
@@ -100,7 +112,9 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     RemoteExportServerTester exportServer = new RemoteExportServerTester();
 
-    AsyncReceiver asyncReceiver = new AsyncReceiverImpl(channel2, exportServer);
+    AsyncReceiver asyncReceiver = new AsyncReceiverImpl(channel2,
+                                                        exportServer,
+                                                        otherPartisipantsPriority);
 
     ExportReceiver exportReceiver = new ExportReceiver();
 
@@ -119,6 +133,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       buf[i] = (byte) i;
 
     ExportChangesPacket packetFirst = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
+                                                              priority,
                                                               "idufifjxkhjfapudasdf",
                                                               System.currentTimeMillis(),
                                                               1,
@@ -126,6 +141,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                               buf);
 
     ExportChangesPacket packetMiddle = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
+                                                               priority,
                                                                "sjkhsklajoieasdfaf",
                                                                System.currentTimeMillis(),
                                                                1,
@@ -133,6 +149,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                                buf);
 
     ExportChangesPacket packetLast = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET,
+                                                             priority,
                                                              "alsjdfpask'dafa;lkajfkas",
                                                              System.currentTimeMillis(),
                                                              1,
@@ -140,7 +157,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                              new byte[0]);
 
     String errorMessage = "Cannot send export data. Internal error ossurs.";
-    ErrorPacket packetError = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, errorMessage, -1);
+    ErrorPacket packetError = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, errorMessage, priority);
 
     try {
       channel1.sendPacket(packetFirst, memberList.get(0).getAddress());
@@ -195,6 +212,10 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
   }
 
   public void testReceiveChanges() throws Exception {
+    int priority = 100;
+    List<Integer> otherPartisipantsPriority = new ArrayList<Integer>();
+    otherPartisipantsPriority.add(priority);
+
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
@@ -204,7 +225,9 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     RemoteExportServerTester exportServer = new RemoteExportServerTester();
 
-    AsyncReceiver asyncReceiver = new AsyncReceiverImpl(channel2, exportServer);
+    AsyncReceiver asyncReceiver = new AsyncReceiverImpl(channel2,
+                                                        exportServer,
+                                                        otherPartisipantsPriority);
 
     ChangesReceiver changesReceiver = new ChangesReceiver();
 
@@ -223,7 +246,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       buf[i] = (byte) i;
 
     ChangesPacket packetFirst = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
-                                                  100,
+                                                  priority,
                                                   "idufifjxkhjfapudasdf",
                                                   System.currentTimeMillis(),
                                                   3,
@@ -231,20 +254,20 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                   buf);
 
     ChangesPacket packetMiddle = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
-                                                         100,
-                                                         "sjkhsklajoieasdfaf",
-                                                         System.currentTimeMillis(),
-                                                         3,
-                                                         32576,
-                                                         buf);
+                                                   priority,
+                                                   "sjkhsklajoieasdfaf",
+                                                   System.currentTimeMillis(),
+                                                   3,
+                                                   32576,
+                                                   buf);
 
     ChangesPacket packetLast = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
-                                                             100,
-                                                             "alsjdfpask'dafa;lkajfkas",
-                                                             System.currentTimeMillis(),
-                                                             3,
-                                                             48768,
-                                                             new byte[0]);
+                                                 priority,
+                                                 "alsjdfpask'dafa;lkajfkas",
+                                                 System.currentTimeMillis(),
+                                                 3,
+                                                 48768,
+                                                 new byte[0]);
 
     try {
       channel1.sendPacket(packetFirst, memberList.get(0).getAddress());
@@ -267,7 +290,8 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     // compare first
     assertEquals(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET, changesReceiver.first.getType());
-    assertEquals(packetFirst.getTransmitterPriority(), changesReceiver.first.getTransmitterPriority());
+    assertEquals(packetFirst.getTransmitterPriority(),
+                 changesReceiver.first.getTransmitterPriority());
     assertEquals(packetFirst.getOffset(), changesReceiver.first.getOffset());
     assertEquals(packetFirst.getTimeStamp(), changesReceiver.first.getTimeStamp());
     assertEquals(packetFirst.getCRC(), changesReceiver.first.getCRC());
@@ -279,7 +303,8 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     // compare middle
     assertEquals(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET, changesReceiver.middle.getType());
-    assertEquals(packetMiddle.getTransmitterPriority(), changesReceiver.middle.getTransmitterPriority());
+    assertEquals(packetMiddle.getTransmitterPriority(),
+                 changesReceiver.middle.getTransmitterPriority());
     assertEquals(packetMiddle.getOffset(), changesReceiver.middle.getOffset());
     assertEquals(packetMiddle.getTimeStamp(), changesReceiver.middle.getTimeStamp());
     assertEquals(packetMiddle.getCRC(), changesReceiver.middle.getCRC());

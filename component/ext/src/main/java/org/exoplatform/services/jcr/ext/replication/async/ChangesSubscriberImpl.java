@@ -30,14 +30,13 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
@@ -69,14 +68,18 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final AsyncTransmitter          transmitter;
 
   protected final AsyncInitializer          initializer;
+  
+  protected final int                       memberWaitTimeout;
 
   protected final int                       membersCount;
 
   protected final int                       localPriority;
 
-  protected HashMap<Integer, Counter>       counterMap;
+  protected final HashMap<Integer, Counter> counterMap;
 
   protected List<MemberAddress>             mergeDoneList = new ArrayList<MemberAddress>();
+  
+  private FirstChangesWaiter                firstChangesWaiter;
 
   /**
    * Map with CRC key and RandomAccess File
@@ -232,8 +235,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
                                ChangesSaveErrorLog errorLog,
+                               int memberWaitTimeout,
                                int localPriority,
                                int membersCount) {
+    this.memberWaitTimeout = memberWaitTimeout;
     this.localPriority = localPriority;
     this.mergeManager = mergeManager;
     this.workspace = workspace;
@@ -242,6 +247,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     this.initializer = initializer;
     this.transmitter = transmitter;
     this.membersCount = membersCount;
+    this.counterMap = new LinkedHashMap<Integer, Counter>();
   }
 
   public void addLocalListener(LocalEventListener listener) {
@@ -303,9 +309,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         mcf.getChangesFile().finishWrite();
         incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
-
-        if (counterMap == null)
-          counterMap = new LinkedHashMap<Integer, Counter>();
 
         Counter counter;
         if (counterMap.containsKey(packet.getTransmitterPriority())) {
@@ -462,6 +465,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void onStart(List<MemberAddress> members) {
     // not interested actually
     LOG.info("On START (local) " + members.size() + " members");
+    
+    //Start first member waiter
+    firstChangesWaiter = new FirstChangesWaiter();
+    firstChangesWaiter.start();
 
     doStart();
   }
@@ -530,5 +537,30 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     public Member getMember() {
       return member;
     }
+  }
+
+  /**
+   * FirstChangesWaiter will be canceled when no changes from member.
+   * 
+   */
+  private class FirstChangesWaiter extends Thread {
+    protected volatile boolean run = true;
+
+    /**
+     * {@inheritDoc}
+     */
+    public void run() {
+      try {
+        Thread.sleep(memberWaitTimeout);
+        
+        if ((counterMap.size() + 1) != membersCount) {
+          LOG.error("No changes from member : ");
+          doCancel();
+        }
+      } catch (InterruptedException e) {
+        LOG.error("FirstChangesWaiter is interrupted : " + e, e);
+      }
+    }
+
   }
 }

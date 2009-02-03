@@ -236,7 +236,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
         List<MemberAddress> disconnectedMembers = new ArrayList<MemberAddress>(currentMembers);
         disconnectedMembers.removeAll(event.getMembers());
-
+        
         if (isStarted()) {
           // if already started
           if (isMemberMergeDone(disconnectedMembers)) {
@@ -349,48 +349,57 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   }
 
   public void receive(AbstractPacket packet, MemberAddress srcMember) {
-
-    if (isStopped()) {
-      LOG.warn("Changes received but initializer was stopped " + srcMember);
-      return;
-    }
-
-    // Member member = syncMember(srcMember, ((AbstractPacket) packet).getTransmitterPriority());
-
-    switch (packet.getType()) {
-    case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
-      try {
-        LOG.info("Do CANCEL (remote) from " + srcMember);
-
-        doStop(CHANNEL_CLOSE_TIMEOUT);
-
-        for (RemoteEventListener rl : listeners())
-          rl.onCancel();
-      } catch (Throwable e) {
-        LOG.warn("Cancel message handle error.", e);
+    
+    // Check the member was configured. 
+    if (otherParticipantsPriority.contains(packet.getTransmitterPriority())) {
+      
+      if (isStopped()) {
+        LOG.warn("Changes received but initializer was stopped " + srcMember);
+        return;
       }
-    }
-      break;
-
-    case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
-      try {
-        LOG.info("Do MERGE (remote) from " + srcMember);
-
-        if (mergingMembers.contains(srcMember)) {
-          doneMember(srcMember);
-
+  
+      // Member member = syncMember(srcMember, ((AbstractPacket) packet).getTransmitterPriority());
+  
+      switch (packet.getType()) {
+      case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
+        try {
+          LOG.info("Do CANCEL (remote) from " + srcMember);
+  
+          doStop(CHANNEL_CLOSE_TIMEOUT);
+  
           for (RemoteEventListener rl : listeners())
-            rl.onMerge(srcMember);
-        } else
-          LOG.warn("Skipp MERGE packet from laready merged member " + srcMember + ". Packet: "
-              + packet);
-      } catch (Throwable e) {
-        LOG.warn("Merge message handle error.", e);
-        doStop(CHANNEL_CLOSE_TIMEOUT);
+            rl.onCancel();
+        } catch (Throwable e) {
+          LOG.warn("Cancel message handle error.", e);
+        }
       }
-    }
-      break;
-    }
+        break;
+  
+      case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
+        try {
+          LOG.info("Do MERGE (remote) from " + srcMember);
+  
+          if (mergingMembers.contains(srcMember)) {
+            doneMember(srcMember);
+  
+            for (RemoteEventListener rl : listeners())
+              rl.onMerge(srcMember);
+          } else
+            LOG.warn("Skipp MERGE packet from already merged member " + srcMember + ". Packet: "
+                + packet);
+        } catch (Throwable e) {
+          LOG.warn("Merge message handle error.", e);
+          doStop(CHANNEL_CLOSE_TIMEOUT);
+        }
+      }
+        break;
+      }
+    } else
+      LOG.warn("Skipp packet from not configured participant : received priority = " 
+             + packet.getTransmitterPriority() + 
+             " ; Other participants priority = " + otherParticipantsPriority + 
+             "\nMember: " + srcMember +
+             "\nPacket: " + packet);
   }
 
   /**

@@ -63,7 +63,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Changes file.
    */
-  private RandomChangesFile        changesFile  = null;
+  private RandomChangesFile        changesFile = null;
 
   private CountDownLatch           latch;
 

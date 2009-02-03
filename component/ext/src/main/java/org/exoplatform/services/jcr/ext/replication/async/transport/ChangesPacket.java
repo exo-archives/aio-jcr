@@ -60,9 +60,9 @@ public class ChangesPacket extends AbstractPacket {
    * 
    * @param type
    *          see AsyncPacketTypes
+   * @param priority
    * @param crc
    * @param timeStamp
-   * @param priority
    * @param fileCount
    * @param offset
    * @param buffer

@@ -276,6 +276,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       }
 
       packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
+                                       priority,
                                        clFile.getChecksum(),
                                        clFile.getId(),
                                        totalFiles,
@@ -298,6 +299,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
         }
 
         packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
+                                         priority,
                                          clFile.getChecksum(),
                                          clFile.getId(),
                                          totalFiles,
@@ -314,6 +316,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
       // Send last packet
       packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET,
+                                       priority,
                                        clFile.getChecksum(),
                                        clFile.getId(),
                                        totalFiles,

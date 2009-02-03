@@ -156,7 +156,7 @@ public class AsyncReplication implements Startable {
 
       this.changesSaveErrorLog = new ChangesSaveErrorLog(storageDir, repoName, wsName);
 
-      this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer);
+      this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer, otherParticipantsPriority);
 
       this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
 
@@ -178,6 +178,7 @@ public class AsyncReplication implements Startable {
                                                   this.mergeManager,
                                                   this.incomeStorage,
                                                   this.changesSaveErrorLog,
+                                                  waitAllMembersTimeout,
                                                   priority,
                                                   otherParticipantsPriority.size() + 1);
 
@@ -316,19 +317,39 @@ public class AsyncReplication implements Startable {
     repositoryNames = repos;
 
     PropertiesParam pps = params.getPropertiesParam("replication-properties");
+    
+    if (pps == null)
+      throw new RuntimeException("replication-properties not specified");
 
     // initialize replication parameters;
+    if (pps.getProperty("priority") == null)
+      throw new RuntimeException("priority not specified");
+    
     priority = Integer.parseInt(pps.getProperty("priority"));
+    
     bindIPAddress = pps.getProperty("bind-ip-address");
+
     String chConfig = pps.getProperty("channel-config");
+    if (chConfig == null)
+      throw new RuntimeException("channel-config not specified");
     channelConfig = chConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
 
     channelName = pps.getProperty("channel-name");
+    if (channelName == null)
+      throw new RuntimeException("channel-config not specified");
+    
+    if (pps.getProperty("wait-all-members") == null)
+      throw new RuntimeException("wait-all-members timeout not specified");
     waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
 
     this.storageDir = pps.getProperty("storage-dir");
+    if (storageDir == null)
+      throw new RuntimeException("storage-dir not specified");
 
     String sOtherParticipantsPriority = pps.getProperty("other-participants-priority");
+    if (sOtherParticipantsPriority == null)
+      throw new RuntimeException("other-participants-priority not specified");
+    
 
     String saOtherParticipantsPriority[] = sOtherParticipantsPriority.split(",");
 
@@ -341,6 +362,11 @@ public class AsyncReplication implements Startable {
 
     for (String sPriority : saOtherParticipantsPriority)
       otherParticipantsPriority.add(Integer.valueOf(sPriority));
+    
+    if (hasDuplicatePriority(this.otherParticipantsPriority, this.priority))
+      throw new RuntimeException("The value of priority is duplicated : " 
+                                 + "Priority = " + this.priority + " ; "
+                                 + "Other participants priority = " + otherParticipantsPriority);
 
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
 
@@ -618,5 +644,21 @@ public class AsyncReplication implements Startable {
     }
 
     return hasChangesSaveError;
+  }
+  
+  private boolean hasDuplicatePriority(List<Integer> other, int ownPriority) {
+    if (other.contains(ownPriority))
+      return true;
+    
+    for(int i=0; i<other.size(); i++) {
+      int pri = other.get(i);
+      List<Integer> oth = new ArrayList<Integer>(other);
+      oth.remove(i);
+      
+      if (oth.contains(pri))
+        return true;
+    }
+    
+    return false;
   }
 }

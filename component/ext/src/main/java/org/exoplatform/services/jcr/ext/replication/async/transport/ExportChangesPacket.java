@@ -25,12 +25,13 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
 public class ExportChangesPacket extends ChangesPacket {
 
   public ExportChangesPacket(int type,
+                             int priority,
                              String crc,
                              long timeStamp,
                              int fileCount,
                              long offset,
                              byte[] buffer) {
-    super(type, 0, crc, timeStamp, fileCount, offset, buffer);
+    super(type, priority, crc, timeStamp, fileCount, offset, buffer);
   }
 
   /**
