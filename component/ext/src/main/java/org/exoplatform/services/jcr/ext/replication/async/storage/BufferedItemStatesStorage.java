@@ -27,7 +27,9 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 30.12.2008
@@ -37,6 +39,8 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  */
 public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T>
     implements EditableChangesStorage<T> {
+
+  private static final Log     LOG             = ExoLogger.getLogger("ext.BufferedItemStatesStorage");
 
   /**
    * Max ChangesLog file size in Kb.
@@ -87,7 +91,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     }
 
     @Override
-   public void write(int b) throws IOException {
+    public void write(int b) throws IOException {
       currentOut.write(b);
       currentOut.flush();
       if (currentByteArray != null && (currentByteArray.size() > maxBufferSize)) {
@@ -178,19 +182,16 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        e.printStackTrace();
         throw new StorageRuntimeException(e.getMessage()
                                               + (currentFile != null ? (" file: ["
                                                   + currentFile.toString() + "]") : " byte array"),
                                           e);
       } catch (ClassNotFoundException e) {
-        e.printStackTrace();
         throw new StorageRuntimeException(e.getMessage()
                                               + (currentFile != null ? (" file: ["
                                                   + currentFile.toString() + "]") : " byte array"),
                                           e);
       } catch (ClassCastException e) {
-        e.printStackTrace();
         throw new StorageRuntimeException(e.getMessage()
                                               + (currentFile != null ? (" file: ["
                                                   + currentFile.toString() + "]") : " byte array"),
@@ -221,7 +222,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
           in.close();
           in = null;
           throw new StorageIOException(e.getMessage(), e);
-        } 
+        }
       } else
         return null;
     }
@@ -231,7 +232,8 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * Class constructor.
    * 
-   * @param storagePath storage Path
+   * @param storagePath
+   *          storage Path
    */
   public BufferedItemStatesStorage(File storagePath, Member member) {
     this.member = member;
@@ -242,7 +244,8 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * Class constructor.
    * 
-   * @param storagePath storage Path
+   * @param storagePath
+   *          storage Path
    */
   public BufferedItemStatesStorage(File storagePath, Member member, long maxBuffer) {
     this.member = member;
@@ -337,7 +340,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    //closeObjectOutputStream();
+    // closeObjectOutputStream();
     return new ArrayOrFileIterator<T>();
   }
 

@@ -81,13 +81,15 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    RandomChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
+    RandomChangesFile cf = storage.createChangesFile("",
+                                                     System.currentTimeMillis(),
+                                                     new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log);
     out.close();
     cf.finishWrite();
 
-    storage.addMemberChanges(new Member(new MemberAddress(new IpAddress()),  20), cf);
+    storage.addMemberChanges(new Member(new MemberAddress(new IpAddress()), 20), cf);
 
     // delete storage object
     storage = null;
@@ -130,7 +132,9 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    RandomChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
+    RandomChangesFile cf = storage.createChangesFile("",
+                                                     System.currentTimeMillis(),
+                                                     new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
@@ -226,7 +230,9 @@ public class IncomStorageTest extends BaseStandaloneTest {
     File difFile = new File(dir, "blabla");
     assertTrue(difFile.createNewFile());
 
-    RandomChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
+    RandomChangesFile cf = storage.createChangesFile("",
+                                                     System.currentTimeMillis(),
+                                                     new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
@@ -279,7 +285,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
                                                                                                                 .getComponent(PersistentDataManager.class);
 
     Member member = new Member(null, 34);
-    
+
     File lsdir = new File("target/LocalStorageTest");
     lsdir.mkdirs();
     LocalStorageImpl locStorage = new LocalStorageImpl(lsdir.getAbsolutePath());
@@ -306,55 +312,62 @@ public class IncomStorageTest extends BaseStandaloneTest {
 
     assertEquals(3, list.size());
     ChangesFile[] files = locStorage.getLocalChanges().getChangesFile();
-    
+
     assertEquals(3, files.length);
-    
-    // store changes in 
+
+    // store changes in
     IncomeStorageImpl inStorage = new IncomeStorageImpl(dir.getAbsolutePath());
-    
+
     // store second
     ChangesFile src = files[1];
     RandomChangesFile dest = inStorage.createChangesFile(src.getChecksum(), src.getId(), member);
-    copyFormLocalToIncom(src,dest);
-   
-    //store third
+    copyFormLocalToIncom(src, dest);
+
+    // store third
     src = files[2];
     dest = inStorage.createChangesFile(src.getChecksum(), src.getId(), member);
-    copyFormLocalToIncom(src,dest);
-    
-    //store first
+    copyFormLocalToIncom(src, dest);
+
+    // store first
     src = files[0];
     dest = inStorage.createChangesFile(src.getChecksum(), src.getId(), member);
-    copyFormLocalToIncom(src,dest);
-    
-    //check storage logs
-    
-    checkIterator(locStorage.getLocalChanges().getChanges(), inStorage.getChanges().get(0).getChanges(), true);
-    
-    //check incom storage logs with original logs
+    copyFormLocalToIncom(src, dest);
+
+    // check storage logs
+
+    checkIterator(locStorage.getLocalChanges().getChanges(), inStorage.getChanges()
+                                                                      .get(0)
+                                                                      .getChanges(), true);
+
+    // check incom storage logs with original logs
     Iterator<ItemState> inIt = inStorage.getChanges().get(0).getChanges();
-    
-    checkIterator(list.get(0).getAllStates().iterator(),inIt, false);
-    checkIterator(list.get(1).getAllStates().iterator(),inIt, false);
-    checkIterator(list.get(2).getAllStates().iterator(),inIt, false);
-    
+
+    checkIterator(list.get(0).getAllStates().iterator(), inIt, false);
+    checkIterator(list.get(1).getAllStates().iterator(), inIt, false);
+    checkIterator(list.get(2).getAllStates().iterator(), inIt, false);
+
     dataManager.removeItemPersistenceListener(locStorage);
   }
-  
-  private  void copyFormLocalToIncom(ChangesFile src, RandomChangesFile dest) throws Exception{
+
+  private void copyFormLocalToIncom(ChangesFile src, RandomChangesFile dest) throws Exception {
     InputStream in = src.getInputStream();
-    byte[] buf = new byte[2048];
-    int length=0;
-    int readed = 0;
-    while((readed = in.read(buf))!=-1){
-      dest.writeData(buf, length);
-      length+=readed;
+    try {
+      byte[] buf = new byte[2048];
+      int length = 0;
+      int readed = 0;
+      while ((readed = in.read(buf)) != -1) {
+        dest.writeData(buf, length);
+        length += readed;
+      }
+      dest.finishWrite();
+    } finally {
+      in.close();
     }
-    dest.finishWrite();
-    in.close();
   }
 
-  private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes, boolean checkSize) throws Exception {
+  private void checkIterator(Iterator<ItemState> expected,
+                             Iterator<ItemState> changes,
+                             boolean checkSize) throws Exception {
     while (expected.hasNext()) {
 
       assertTrue(changes.hasNext());
@@ -385,10 +398,10 @@ public class IncomStorageTest extends BaseStandaloneTest {
         }
       }
     }
-    
-    if(checkSize) {
+
+    if (checkSize) {
       assertFalse(changes.hasNext());
-      
+
     }
   }
 

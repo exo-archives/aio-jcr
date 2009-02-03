@@ -57,7 +57,6 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
 
       this.in = new ObjectInputStream(storage.getInputStream());
       this.nextItem = readNext();
-
     }
 
     /**

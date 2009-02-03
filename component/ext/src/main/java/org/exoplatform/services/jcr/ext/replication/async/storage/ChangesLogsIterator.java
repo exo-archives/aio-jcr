@@ -23,7 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Iterator that goes throw all files in storage and returns TransactionChangesLog objects. Created
@@ -36,6 +38,8 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
  */
 public class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
 
+  private static final Log            LOG = ExoLogger.getLogger("ext.ChangesLogsIterator");
+  
   /**
    * ChangesFiles to iterate.
    */
@@ -114,9 +118,9 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
     if (curFileIndex >= list.size() && currentIn == null) {
       return null;
     } else {
-      if (currentIn == null) {
+      if (currentIn == null)
         currentIn = new ObjectInputStream(list.get(curFileIndex++).getInputStream());
-      }
+
       try {
         return (L) currentIn.readObject();
       } catch (EOFException e) {
@@ -124,6 +128,10 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
         currentIn = null;
         // get next file, and try again
         return (readNextChangesLog());
+      } catch (Throwable e) {
+        currentIn.close();
+        currentIn = null;
+        throw new StorageIOException(e.getMessage(), e);
       }
     }
   }
@@ -138,7 +146,7 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
         currentIn.close();
       currentIn = null;
     } catch (IOException e) {
-      // TODO ?
+      LOG.error(e.getMessage());
     }
   }
 }

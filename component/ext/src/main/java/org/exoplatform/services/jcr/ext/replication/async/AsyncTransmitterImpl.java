@@ -260,71 +260,78 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     InputStream in = clFile.getInputStream();
 
-    byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
-    int len;
-    long offset = 0;
-    AbstractPacket packet;
+    try {
+      byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
+      int len;
+      long offset = 0;
+      AbstractPacket packet;
 
-    // Send first packet in all cases. If InputStream is empty too.
-    len = in.read(buf);
-    if (len < AbstractPacket.MAX_PACKET_SIZE) {
-      // cut buffer to original size;
-      byte[] b = new byte[len];
-      System.arraycopy(buf, 0, b, 0, len);
-      buf = b;
-    }
-
-    packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
-                                     clFile.getChecksum(),
-                                     clFile.getId(),
-                                     totalFiles,
-                                     offset,
-                                     buf);
-    for (MemberAddress dm : destinationAddresses)
-      channel.sendPacket(packet, dm);
-
-    offset += len;
-    if (LOG.isDebugEnabled())
-      LOG.debug("Send PacType [EXPORT_CHANGES_FIRST_PACKET] --> " + offset);
-
-    while ((len = in.read(buf)) > 0) {
-
+      // Send first packet in all cases. If InputStream is empty too.
+      len = in.read(buf);
       if (len < AbstractPacket.MAX_PACKET_SIZE) {
-        byte[] b = new byte[len];
         // cut buffer to original size;
+        byte[] b = new byte[len];
         System.arraycopy(buf, 0, b, 0, len);
         buf = b;
       }
 
-      packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
+      packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
                                        clFile.getChecksum(),
                                        clFile.getId(),
                                        totalFiles,
                                        offset,
                                        buf);
-
       for (MemberAddress dm : destinationAddresses)
         channel.sendPacket(packet, dm);
 
       offset += len;
       if (LOG.isDebugEnabled())
-        LOG.debug("Send PacType [EXPORT_CHANGES_MIDDLE_PACKET] --> " + offset);
+        LOG.debug("Send PacType [EXPORT_CHANGES_FIRST_PACKET] --> " + offset);
+
+      while ((len = in.read(buf)) > 0) {
+
+        if (len < AbstractPacket.MAX_PACKET_SIZE) {
+          byte[] b = new byte[len];
+          // cut buffer to original size;
+          System.arraycopy(buf, 0, b, 0, len);
+          buf = b;
+        }
+
+        packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
+                                         clFile.getChecksum(),
+                                         clFile.getId(),
+                                         totalFiles,
+                                         offset,
+                                         buf);
+
+        for (MemberAddress dm : destinationAddresses)
+          channel.sendPacket(packet, dm);
+
+        offset += len;
+        if (LOG.isDebugEnabled())
+          LOG.debug("Send PacType [EXPORT_CHANGES_MIDDLE_PACKET] --> " + offset);
+      }
+
+      // Send last packet
+      packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET,
+                                       clFile.getChecksum(),
+                                       clFile.getId(),
+                                       totalFiles,
+                                       offset,
+                                       new byte[0]);
+      if (LOG.isDebugEnabled())
+        LOG.debug("Send PacType [EXPORT_CHANGES_LAST_PACKET] --> " + offset);
+
+      for (MemberAddress dm : destinationAddresses)
+        channel.sendPacket(packet, dm);
+
+    } finally {
+      try {
+        in.close();
+      } catch (IOException e) {
+        LOG.error("Error of local storage stream close. " + e, e);
+      }
     }
-
-    // Send last packet
-    packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET,
-                                     clFile.getChecksum(),
-                                     clFile.getId(),
-                                     totalFiles,
-                                     offset,
-                                     new byte[0]);
-    if (LOG.isDebugEnabled())
-      LOG.debug("Send PacType [EXPORT_CHANGES_LAST_PACKET] --> " + offset);
-
-    for (MemberAddress dm : destinationAddresses)
-      channel.sendPacket(packet, dm);
-
-    in.close();
 
     if (LOG.isDebugEnabled())
       LOG.debug("End send : " + clFile.getChecksum());

@@ -44,7 +44,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Logger.
    */
-  private static Log               log         = ExoLogger.getLogger("ext.RemoteExporterImpl");
+  private static final Log               LOG          = ExoLogger.getLogger("ext.RemoteExporterImpl");
 
   protected final AsyncTransmitter transmitter;
 
@@ -53,8 +53,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each members pair merge.
    */
-  protected MemberAddress                 remoteMember;
-  
+  protected MemberAddress          remoteMember;
+
   /**
    * Current changesFile owner.
    */
@@ -63,11 +63,11 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Changes file.
    */
-  private RandomChangesFile              changesFile = null;
+  private RandomChangesFile        changesFile  = null;
 
   private CountDownLatch           latch;
 
-  private RemoteExportException    exception   = null;
+  private RemoteExportException    exception    = null;
 
   RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
     this.transmitter = transmitter;
@@ -108,21 +108,26 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     try {
       DigestInputStream dis = new DigestInputStream(changesFile.getInputStream(),
                                                     MessageDigest.getInstance("MD5"));
-      byte[] buf = new byte[1024];
-      int len;
-      while ((len = dis.read(buf)) > 0) {
-      }
 
-      if (!MessageDigest.isEqual(dis.getMessageDigest().digest(),
-                                 changesFile.getChecksum().getBytes(Constants.DEFAULT_ENCODING))) {
+      try {
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = dis.read(buf)) > 0) {
+        }
 
-        // TODO checksum don't work. fix it
-        // throw new RemoteExportException("Remote export failed. Received data corrupted.");
+        if (!MessageDigest.isEqual(dis.getMessageDigest().digest(),
+                                   changesFile.getChecksum().getBytes(Constants.DEFAULT_ENCODING))) {
+          // TODO checksum don't work. fix it
+          // throw new RemoteExportException("Remote export failed. Received data corrupted.");
+        }
+
+      } finally {
+        dis.close();
       }
 
       if (changesOwner == null)
         throw new RemoteExportException("Changes owner (member) is not set");
-      
+
       // return Iterator based on ChangesFile
       return new ItemStatesStorage<ItemState>(changesFile, changesOwner);
     } catch (IOException e) {
@@ -164,7 +169,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         break;
       }
     } catch (IOException e) {
-      log.error("Cannot save export changes", e);
+      LOG.error("Cannot save export changes", e);
       exception = new RemoteExportException(e);
       latch.countDown();
     }
