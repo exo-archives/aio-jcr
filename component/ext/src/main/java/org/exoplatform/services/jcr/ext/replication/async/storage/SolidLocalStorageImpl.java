@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,41 +60,230 @@ import org.exoplatform.services.log.ExoLogger;
 public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
     LocalEventListener, RemoteEventListener {
 
-  protected static final Log    LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  protected static final Log                                 LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
   /**
    * Stuff for TransactionChangesLog.writeExternal.
    */
-  private static final String   EXTERNALIZATION_SYSTEM_ID  = "".intern();
+  private static final String                                EXTERNALIZATION_SYSTEM_ID  = "".intern();
 
   /**
    * Stuff for PlainChangesLogImpl.writeExternal.
    */
-  private static final String   EXTERNALIZATION_SESSION_ID = "".intern();
+  private static final String                                EXTERNALIZATION_SESSION_ID = "".intern();
 
-  protected static final String ERROR_FILENAME             = "errors";
+  protected static final String                              ERROR_FILENAME             = "errors";
 
-  private FileCleaner           cleaner                    = new FileCleaner();
+  private FileCleaner                                        cleaner                    = new FileCleaner();
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long     MAX_FILE_SIZE              = 32 * 1024 * 1024;
+  private static final long                                  MAX_FILE_SIZE              = 32 * 1024 * 1024;
 
-  protected final String        storagePath;
+  protected final String                                     storagePath;
 
-  private File                  currentDir                 = null;
+  private final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
 
-  private File                  currentFile                = null;
+  private final ChangesSpooler                               changesSpooler             = new ChangesSpooler();
 
-  private ObjectOutputStream    currentOut                 = null;
+  private File                                               currentDir                 = null;
+
+  private File                                               currentFile                = null;
+
+  private ObjectOutputStream                                 currentOut                 = null;
 
   /**
    * This unique index used as name for ChangesFiles.
    */
-  private Long                  index                      = new Long(0);
+  private Long                                               index                      = new Long(0);
 
-  private Long                  dirIndex                   = new Long(0);
+  private Long                                               dirIndex                   = new Long(0);
+
+  class ChangesSpoolerProcess extends Thread {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run() {
+      try {
+        TransactionChangesLog chl = changesQueue.poll();
+        while (chl != null) {
+          writeLog(prepareChangesLog(chl));
+          chl = changesQueue.poll();
+        }
+      } catch (IOException e) {
+        LOG.error("Cannot spool changes queue. I/O error " + e, e);
+        reportException(e);
+      } catch (Throwable e) {
+        LOG.error("Cannot spool changes queue. Error " + e, e);
+        reportException(e);
+      } finally {
+        changesSpooler.resetActive();
+      }
+    }
+
+    /**
+     * Change all TransientValueData to ReplicableValueData.
+     * 
+     * @param log
+     *          local TransactionChangesLog
+     * @return TransactionChangesLog with ValueData replaced.
+     * @throws IOException
+     *           if error occurs
+     */
+    private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
+      final ChangesLogIterator chIt = log.getLogIterator();
+
+      final TransactionChangesLog result = new TransactionChangesLog();
+      result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
+      // PlainChangesLogImpl.writeExternal
+
+      while (chIt.hasNextLog()) {
+        PlainChangesLog plog = chIt.nextLog();
+
+        List<ItemState> destlist = new ArrayList<ItemState>();
+
+        for (ItemState item : plog.getAllStates()) {
+          if (item.isNode()) {
+            // use nodes states as is
+            destlist.add(item);
+          } else {
+            TransientPropertyData prop = (TransientPropertyData) item.getData();
+
+            List<ValueData> srcVals = prop.getValues();
+            List<ValueData> nVals = new ArrayList<ValueData>();
+
+            if (srcVals != null) { // TODO we don't need it actually
+              for (ValueData val : srcVals) {
+                ReplicableValueData dest;
+                if (val instanceof ReplicableValueData) {
+                  dest = (ReplicableValueData) val;
+                } else {
+                  if (val.isByteArray()) {
+                    dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
+                  } else {
+                    if (val instanceof TransientValueData) {
+                      dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
+                                                     val.getOrderNumber());
+                    } else {
+                      // create new dataFile
+                      dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
+                    }
+                  }
+                }
+                nVals.add(dest);
+              }
+            }
+            // rewrite values
+            TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
+                                                                    prop.getIdentifier(),
+                                                                    prop.getPersistedVersion(),
+                                                                    prop.getType(),
+                                                                    prop.getParentIdentifier(),
+                                                                    prop.isMultiValued());
+
+            nProp.setValues(nVals);
+
+            // create new ItemState
+            ItemState nItem = new ItemState(nProp,
+                                            item.getState(),
+                                            item.isEventFire(),
+                                            item.getAncestorToSave(),
+                                            item.isInternallyCreated(),
+                                            item.isPersisted());
+            destlist.add(nItem);
+          }
+        }
+        // create new plain changes log
+        result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+            ? EXTERNALIZATION_SESSION_ID
+            : plog.getSessionId(), plog.getEventType()));
+      }
+      return result;
+    }
+
+    private void writeLog(ItemStateChangesLog itemStates) throws IOException {
+
+      if (currentFile == null) {
+        long id = getNextFileId();
+        currentFile = new File(currentDir, Long.toString(id));
+        currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
+      } else if (currentFile.length() > MAX_FILE_SIZE) {
+        // close stream
+        currentOut.close();
+
+        // create new file
+        long id = getNextFileId();
+        currentFile = new File(currentDir, Long.toString(id));
+        if (currentFile.exists()) {
+          LOG.warn("Changes file :" + currentFile.getAbsolutePath()
+              + " already exist and will be rewrited.");
+        }
+
+        currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
+      }
+
+      currentOut.writeObject(itemStates);
+      // keep stream opened
+    }
+  }
+
+  class ChangesSpooler extends Thread {
+
+    /**
+     * Wait lock.
+     */
+    private final Object          lock = new Object();
+
+    private ChangesSpoolerProcess active;
+
+    /**
+     * @return the active
+     */
+    void resetActive() {
+      this.active = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run() {
+      while (true) {
+        try {
+          synchronized (lock) {
+            if (active == null) {
+              active = new ChangesSpoolerProcess();
+              active.start();
+            }
+
+            lock.wait();
+          }
+        } catch (InterruptedException e) {
+          LOG.error("Cannot start changes spooler process. Wait lock failed " + e, e);
+        } catch (Throwable e) {
+          LOG.error("Cannot start changes spooler process. Error " + e, e);
+          try {
+            sleep(10000);
+          } catch (Throwable e1) {
+            LOG.error("Sleep error " + e1);
+          }
+        }
+      }
+    }
+
+    /**
+     * Touch spooler to save queue to a storage.
+     * 
+     */
+    void spool() {
+      synchronized (lock) {
+        lock.notify();
+      }
+    }
+  }
 
   public SolidLocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -125,6 +315,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     // synchronization is not started for default
     doStop();
+
+    // start onSave changes spooler
+    changesSpooler.start();
   }
 
   /**
@@ -161,47 +354,17 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   public synchronized void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
-      try {
-        LOG.info("onSave \n\r" + itemStates.dump());
+      LOG.info("onSave \n\r" + itemStates.dump()); // TODO
 
-        TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
-        writeLog(log);
-      } catch (IOException e) {
-        LOG.error("On save items error " + e, e);
-        reportException(e);
-      }
+      changesQueue.add((TransactionChangesLog) itemStates);
     }
-  }
-
-  protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
-
-    if (currentFile == null) {
-      long id = getNextFileId();
-      currentFile = new File(currentDir, Long.toString(id));
-      currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
-    } else if (currentFile.length() > MAX_FILE_SIZE) {
-      // close stream
-      currentOut.close();
-
-      // create new file
-      long id = getNextFileId();
-      currentFile = new File(currentDir, Long.toString(id));
-      if (currentFile.exists()) {
-        LOG.warn("Changes file :" + currentFile.getAbsolutePath()
-            + " already exist and will be rewrited.");
-      }
-
-      currentOut = new ChangesOutputStream(new FileOutputStream(currentFile));
-    }
-
-    currentOut.writeObject(itemStates);
-    // keep stream opened
   }
 
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath Path of root directory
+   * @param rootPath
+   *          Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -239,90 +402,12 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   }
 
   /**
-   * Change all TransientValueData to ReplicableValueData.
-   * 
-   * @param log local TransactionChangesLog
-   * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
-   */
-  private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
-    final ChangesLogIterator chIt = log.getLogIterator();
-
-    final TransactionChangesLog result = new TransactionChangesLog();
-    result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
-    // PlainChangesLogImpl.writeExternal
-
-    while (chIt.hasNextLog()) {
-      PlainChangesLog plog = chIt.nextLog();
-
-      List<ItemState> destlist = new ArrayList<ItemState>();
-
-      for (ItemState item : plog.getAllStates()) {
-        if (item.isNode()) {
-          // use nodes states as is
-          destlist.add(item);
-        } else {
-          TransientPropertyData prop = (TransientPropertyData) item.getData();
-
-          List<ValueData> srcVals = prop.getValues();
-          List<ValueData> nVals = new ArrayList<ValueData>();
-
-          if (srcVals != null) { // TODO we don't need it actually
-            for (ValueData val : srcVals) {
-              ReplicableValueData dest;
-              if (val instanceof ReplicableValueData) {
-                dest = (ReplicableValueData) val;
-              } else {
-                if (val.isByteArray()) {
-                  dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
-                } else {
-                  if (val instanceof TransientValueData) {
-                    dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
-                                                   val.getOrderNumber());
-                  } else {
-                    // create new dataFile
-                    dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
-                  }
-                }
-              }
-              nVals.add(dest);
-            }
-          }
-          // rewrite values
-          TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
-                                                                  prop.getIdentifier(),
-                                                                  prop.getPersistedVersion(),
-                                                                  prop.getType(),
-                                                                  prop.getParentIdentifier(),
-                                                                  prop.isMultiValued());
-
-          nProp.setValues(nVals);
-
-          // create new ItemState
-          ItemState nItem = new ItemState(nProp,
-                                          item.getState(),
-                                          item.isEventFire(),
-                                          item.getAncestorToSave(),
-                                          item.isInternallyCreated(),
-                                          item.isPersisted());
-          destlist.add(nItem);
-        }
-      }
-      // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist,
-                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                       : plog.getSessionId(),
-                                            plog.getEventType()));
-    }
-    return result;
-  }
-
-  /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
-  protected void reportException(Exception e) {
+  protected void reportException(Throwable e) {
     try {
       BufferedWriter errorOut = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(storagePath,
                                                                                                         ERROR_FILENAME),
