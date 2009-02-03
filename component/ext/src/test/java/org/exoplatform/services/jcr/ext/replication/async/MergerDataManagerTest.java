@@ -51,6 +51,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -1083,7 +1084,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   public void testAdd1_1() throws Exception {
     Add1_1_UseCase useCase = new Add1_1_UseCase(session3, session4);
-    
+
     // low priority changes
     useCase.initDataLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
@@ -1103,9 +1104,9 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   public void testAdd1_2() throws Exception {
     Add1_2_UseCase useCase = new Add1_2_UseCase(session3, session4);
-    
+
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    
+
     // high priority changes
     useCase.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -1124,11 +1125,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   public void testAdd2_x() throws Exception {
     Add2_x_UseCase useCase = new Add2_x_UseCase(session3, session4);
-    
+
     // low priority changes
     useCase.initDataLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    
+
     // high priority changes
     useCase.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -1147,7 +1148,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   public void testAdd3_1() throws Exception {
     Add3_1_UseCase useCase = new Add3_1_UseCase(session3, session4);
-    
+
     // low priority changes: add
     useCase.initDataLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
@@ -1193,8 +1194,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   public void testAdd4_1() throws Exception {
     Add4_1_UseCase useCase = new Add4_1_UseCase(session3, session4);
-    
- // low priority changes: add node
+
+    // low priority changes: add node
     useCase.initDataLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
     addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
@@ -1414,7 +1415,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   public void testAdd6_1() throws Exception {
     // low priority changes: add node
     Node node = root3.addNode("item1");
-    root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+    node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+    node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
 
     session3.save();
@@ -1430,7 +1434,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     assertTrue(isWorkspacesEquals());
 
     // low priority changes: orgerBefore
-    root3.orderBefore("item1[2]", "item1");
+    root3.orderBefore("item1[3]", "item1");
 
     // high priority changes: add child
     node = root4.getNode("item1").addNode("item11");
@@ -1449,7 +1453,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -1979,7 +1983,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -2027,7 +2031,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -2247,7 +2251,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -2603,7 +2607,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -2860,7 +2864,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -2957,6 +2961,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   public void testUpdate5_2() throws Exception {
     // low priority changes: add same name items
     Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
 
     Node node1_1 = node.addNode("item11");
     node1_1.addMixin("mix:referenceable");
@@ -2995,7 +3000,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -3004,6 +3009,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   public void testUpdate6_1() throws Exception {
     // low priority changes: add same name items
     Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
 
     Node node1_1 = node.addNode("item11");
     node1_1.addMixin("mix:referenceable");
@@ -3040,7 +3046,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -3099,6 +3105,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     Node node1 = root3.addNode("item1");
     node1.addMixin("mix:referenceable");
     Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
 
     node = node1.addNode("item11");
     node.addMixin("mix:referenceable");
@@ -3135,7 +3142,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -3147,6 +3154,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     Node node1 = root3.addNode("item1");
     node1.addMixin("mix:referenceable");
     Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
 
     node = node1.addNode("item11");
     node.addMixin("mix:referenceable");
@@ -3183,7 +3191,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -3194,6 +3202,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     Node node1 = root3.addNode("item1");
     node1.addMixin("mix:referenceable");
     Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
 
     node = node1.addNode("item11");
     node.addMixin("mix:referenceable");
@@ -3228,7 +3237,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -3418,6 +3427,13 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   protected boolean isWorkspacesEquals() throws Exception {
     return isNodesEquals(root3, root4);
+  }
+
+  /**
+   * CompareWorkspaces.
+   */
+  protected boolean isWorkspacesEquals(SessionImpl sessionSrc, SessionImpl sessionDst) throws Exception {
+    return isNodesEquals(sessionSrc.getRootNode(), sessionDst.getRootNode(), sessionSrc, sessionDst);
   }
 
   /**

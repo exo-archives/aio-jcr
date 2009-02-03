@@ -972,10 +972,10 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      
+
     }
   }
-  
+
   /**
    * Add tree of nodes item on low priority, already added on high priority.
    */
@@ -1008,10 +1008,10 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      
+
     }
   }
-  
+
   /**
    * 1. Add item on low priority, no high priority changes.
    */
@@ -1038,10 +1038,10 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      
+
     }
   }
-  
+
   /**
    * 1. Add item on high priority, no low priority changes.
    */
@@ -1068,10 +1068,10 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      
+
     }
   }
-  
+
   /**
    * 2. Add item on low priority, already added on high priority.
    */
@@ -1102,10 +1102,10 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      
+
     }
   }
-  
+
   /**
    * 3. Add item on low priority already added and deleted on high priority.
    */
@@ -1135,10 +1135,10 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      
+
     }
   }
-  
+
   /**
    * 3. Add item on high priority already added and deleted on low priority.
    */
@@ -1166,10 +1166,10 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      
+
     }
   }
-  
+
   /**
    * 4. Add Item on high priority to a deleted parent on low priority (conflict)
    */
@@ -1211,6 +1211,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
    * @return
    */
   protected boolean isNodesEquals(Node src, Node dst) throws Exception {
+
     // compare node name and UUID
     if (!src.getName().equals(dst.getName())
         || src.isNodeType("mix:referenceable") != dst.isNodeType("mix:referenceable")
@@ -1313,6 +1314,108 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     }
 
     return res1 || res2;
+  }
+
+  /**
+   * Compare two nodes.
+   * 
+   * @param src
+   * @param dst
+   * @return
+   */
+  protected boolean isNodesEquals(Node src, Node dst, SessionImpl sessionSrc, SessionImpl sessionDst) throws Exception {
+
+    // compare node name and UUID
+    if (!src.getName().equals(dst.getName())
+        || src.isNodeType("mix:referenceable") != dst.isNodeType("mix:referenceable")
+        || (src.isNodeType("mix:referenceable") && dst.isNodeType("mix:referenceable") && !src.getUUID()
+                                                                                              .equals(dst.getUUID()))) {
+      log.error("Nodes names are not equals: " + src.getName() + " | " + dst.getName());
+      return false;
+    }
+
+    // compare properties
+    PropertyIterator srcProps = src.getProperties();
+    PropertyIterator dstProps = dst.getProperties();
+    while (srcProps.hasNext()) {
+      if (!dstProps.hasNext()) {
+        log.error("Second node has no property: " + srcProps.nextProperty().getName());
+        return false;
+      }
+
+      PropertyImpl srcProp = (PropertyImpl) srcProps.nextProperty();
+      PropertyImpl dstProp = (PropertyImpl) dstProps.nextProperty();
+
+      if (!srcProp.getName().equals(dstProp.getName()) || srcProp.getType() != dstProp.getType()) {
+        log.error("Properties names are not equals: " + srcProp.getName() + " | "
+            + dstProp.getName());
+        return false;
+      }
+
+      Value srcValues[];
+      if (srcProp.isMultiValued()) {
+        srcValues = srcProp.getValues();
+      } else {
+        srcValues = new Value[1];
+        srcValues[0] = srcProp.getValue();
+      }
+
+      Value dstValues[];
+      if (dstProp.isMultiValued()) {
+        dstValues = dstProp.getValues();
+      } else {
+        dstValues = new Value[1];
+        dstValues[0] = dstProp.getValue();
+      }
+
+      if (srcValues.length != dstValues.length) {
+        log.error("Length of properties values are not equals: " + srcProp.getName() + " | "
+            + dstProp.getName());
+        return false;
+      }
+
+      for (int i = 0; i < srcValues.length; i++) {
+        if (!srcValues[i].equals(dstValues[i])) {
+          if (srcValues[i] instanceof BinaryValue) {
+            try {
+              compareStream(srcValues[i].getStream(), dstValues[i].getStream());
+              continue;
+            } catch (Exception e) {
+              return false;
+            }
+          }
+
+          log.error("Properties values are not equals: " + srcProp.getName() + "|"
+              + dstProp.getName());
+          return false;
+        }
+      }
+    }
+
+    if (dstProps.hasNext()) {
+      log.error("First node has no property: " + dstProps.nextProperty().getName());
+      return false;
+    }
+
+    // compare child nodes
+    NodeIterator srcNodes = src.getNodes();
+    NodeIterator dstNodes = dst.getNodes();
+
+    if (srcNodes.getSize() != dstNodes.getSize()) {
+      log.error("Invalid child nodes count: " + src.getName());
+      return false;
+    }
+
+    while (srcNodes.hasNext()) {
+      Node srcChildNode = srcNodes.nextNode();
+      Node dstChildNode = sessionDst.getNodeByUUID(srcChildNode.getUUID());
+
+      if (!isNodesEquals(srcChildNode, dstChildNode)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
 }

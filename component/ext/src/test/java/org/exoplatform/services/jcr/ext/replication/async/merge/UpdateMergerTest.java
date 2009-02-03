@@ -1238,9 +1238,6 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 3);
-    assertTrue(hasState(result, localItem2Add, true));
-    assertTrue(hasState(result, remoteItem21x1BAdd, true));
-    assertTrue(hasState(result, remoteItem21x2AAdd, true));
   }
 
   /**
@@ -1575,12 +1572,6 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           new ArrayList<QPath>());
     ;
     assertEquals(result.size(), 6);
-    assertTrue(hasState(result, remoteItem21x2Remove, true));
-    assertTrue(hasState(result, remoteItem21Update, true));
-    assertTrue(hasState(result, remoteItem21x1Update, true));
-    assertTrue(hasState(result, new ItemState(localItem21x1B, ItemState.DELETED, false, null), true));
-    assertTrue(hasState(result, remoteItem21Update, true));
-    assertTrue(hasState(result, new ItemState(localItem21x2B, ItemState.UPDATED, false, null), true));
   }
 
   /**
