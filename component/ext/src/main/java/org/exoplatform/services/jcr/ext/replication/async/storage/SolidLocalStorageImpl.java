@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
@@ -160,9 +161,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * {@inheritDoc}
    */
   public synchronized void onSaveItems(ItemStateChangesLog itemStates) {
-    // if (isStarted()) {
-    // reportException(new IOException("Local storage already stared."));
-    // } else {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       try {
         LOG.info("onSave \n\r" + itemStates.dump());
@@ -174,7 +172,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         reportException(e);
       }
     }
-    // }
   }
 
   protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
@@ -257,13 +254,10 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     while (chIt.hasNextLog()) {
       PlainChangesLog plog = chIt.nextLog();
-
-      Iterator<ItemState> srcIt = plog.getAllStates().iterator();
+      
       List<ItemState> destlist = new ArrayList<ItemState>();
-      while (srcIt.hasNext()) {
-
-        ItemState item = srcIt.next();
-
+      
+      for (ItemState item : plog.getAllStates()) {
         if (item.isNode()) {
           // use nodes states as is
           destlist.add(item);
@@ -271,7 +265,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
           TransientPropertyData prop = (TransientPropertyData) item.getData();
 
           List<ValueData> srcVals = prop.getValues();
-          List<ValueData> destVals = new ArrayList<ValueData>();
+          List<ValueData> nVals = new ArrayList<ValueData>();
 
           if (srcVals != null) { // TODO we don't need it actually
             for (ValueData val : srcVals) {
@@ -291,14 +285,21 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
                   }
                 }
               }
-              destVals.add(dest);
+              nVals.add(dest);
             }
           }
           // rewrite values
-          prop.setValues(destVals);
+          TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
+                                                                  prop.getIdentifier(),
+                                                                  prop.getPersistedVersion(),
+                                                                  prop.getType(),
+                                                                  prop.getParentIdentifier(),
+                                                                  prop.isMultiValued());
+
+          nProp.setValues(nVals);
 
           // create new ItemState
-          ItemState nItem = new ItemState(prop,
+          ItemState nItem = new ItemState(nProp,
                                           item.getState(),
                                           item.isEventFire(),
                                           item.getAncestorToSave(),

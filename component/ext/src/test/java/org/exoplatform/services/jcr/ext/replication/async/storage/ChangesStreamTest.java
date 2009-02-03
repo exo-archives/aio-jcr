@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
@@ -47,7 +48,7 @@ import org.exoplatform.services.jcr.util.SIDGenerator;
  */
 public class ChangesStreamTest extends BaseStandaloneTest {
 
-  public void testStream() throws Exception {
+  public void _testStream() throws Exception {
 
     PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     TransientNodeData localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
@@ -130,7 +131,7 @@ public class ChangesStreamTest extends BaseStandaloneTest {
 
   }
 
-  public void testStreamWorkspace() throws Exception {
+  public void testMove() throws Exception {
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst", "nt:folder");
@@ -143,7 +144,9 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     // n2.setProperty("secondProp", "ohohohSecond");
     // root.save();
 
-    session.move(n1.getPath(), "/testNodeRenamed");
+    //session.move(n1.getPath(), "/testNodeRenamed");
+    //root.addNode("testNodeSecond", "nt:unstructured");
+    n1.remove();
     root.save();
 
     // test
@@ -151,22 +154,30 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     File temp = File.createTempFile("cout", "test", new File("./target"));
     temp.deleteOnExit();
 
-    final String block= "======BLOCK======";
+    //final String block= "======BLOCK======";
     
-    ChangesOutputStream currentOut = new ChangesOutputStream(new FileOutputStream(temp));
+    FileOutputStream fout = new FileOutputStream(temp);
+    ChangesOutputStream currentOut = new ChangesOutputStream(fout);
 
     currentOut.writeObject(pl.pushChanges().get(0));
-    currentOut.writeObject(block);
-    currentOut.close();
+    //currentOut.writeObject(block);
+    //currentOut.flush();
 
-    currentOut = new ChangesOutputStream(new FileOutputStream(temp, true));
+    //currentOut = new ChangesOutputStream(new FileOutputStream(fd));
 
+    //TransactionChangesLog log1 = pl.pushChanges().get(1);
+    //PlainChangesLog plog1 = new PlainChangesLogImpl("sessionId-1");
+    //plog1.add(log1.getAllStates().get(0));
+    //plog1.add(log1.getAllStates().get(1));
+    //plog1.add(log1.getAllStates().get(2));
+    
     currentOut.writeObject(pl.pushChanges().get(1));
-    currentOut.writeObject(block);
-    currentOut.close();
+    //currentOut.writeObject(block);
+    
+    currentOut.flush();
     currentOut = null;
+    
     // check
-
     ChangesInputStream currentIn = new ChangesInputStream(new FileInputStream(temp));
 
     // 1
@@ -178,7 +189,7 @@ public class ChangesStreamTest extends BaseStandaloneTest {
     //assertTrue(dtlog.getAllStates().get(0).get.equals());
 
     // 2
-    String s = (String) currentIn.readObject();
+    //String s = (String) currentIn.readObject();
     to = currentIn.readObject();
     assertTrue(TransactionChangesLog.class.isInstance(to));
 
@@ -186,7 +197,7 @@ public class ChangesStreamTest extends BaseStandaloneTest {
 
     //assertTrue(dtlog.getAllStates().get(0).equals(item11Add));
 
-    String s2 = (String) currentIn.readObject();
+    //String s2 = (String) currentIn.readObject();
   }
 
 }
