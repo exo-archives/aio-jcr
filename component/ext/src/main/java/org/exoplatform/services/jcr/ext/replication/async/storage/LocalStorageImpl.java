@@ -139,11 +139,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     /**
      * Change all TransientValueData to ReplicableValueData.
      * 
-     * @param log
-     *          local TransactionChangesLog
+     * @param log local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException
-     *           if error occurs
+     * @throws IOException if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
@@ -209,9 +207,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           }
         }
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-            ? EXTERNALIZATION_SESSION_ID
-            : plog.getSessionId(), plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(destlist,
+                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                         : plog.getSessionId(),
+                                              plog.getEventType()));
       }
       return result;
     }
@@ -282,7 +281,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       for (int j = 0; j < files.length; j++) {
         try {
-          chFiles.add(new SimpleChangesFile(files[j], "", Long.parseLong(files[j].getName()), resHolder));
+          chFiles.add(new SimpleChangesFile(files[j],
+                                            "",
+                                            Long.parseLong(files[j].getName()),
+                                            resHolder));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -314,8 +316,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath
-   *          Path of root directory
+   * @param rootPath Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -348,8 +349,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -398,30 +398,33 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     LOG.info("On STOP");
 
     if (isStarted()) {
-    
+
       try {
         resHolder.close();
       } catch (IOException e) {
         LOG.error("Error of data streams close " + e, e);
       }
-    
-      // delete merged content
-      File[] subfiles = currentDir.listFiles();
 
-      for (File f : subfiles) {
-        if (!f.delete()) {
-          LOG.warn("Canot delete file " + f.getAbsolutePath());
-          reportException(new Exception("Canot delete file " + f.getAbsolutePath()));
-        }
+      // delete merged content
+      // File[] subfiles = currentDir.listFiles();
+
+      // for (File f : subfiles) {
+      if (!StorageUtil.deleteDirectory(currentDir, true)) {
+        // LOG.warn("Canot delete file " + f.getAbsolutePath());
+        LOG.warn("One or more files is not deleted on " + currentDir.getAbsolutePath()
+            + " directory.");
+        reportException(new Exception("One or more files is not deleted on "
+            + currentDir.getAbsolutePath() + " directory."));
       }
 
       // leave current directory
 
-     /* if (!currentDir.mkdirs()) {
-        LOG.error("Can't create Local strage subfolder: " + currentDir.getAbsolutePath());
-        this.reportException(new IOException("LocalStorage subfolder create fails : "
-            + currentDir.getAbsolutePath()));
-      }*/
+      /*
+       * if (!currentDir.mkdirs()) { LOG.error("Can't create Local strage
+       * subfolder: " + currentDir.getAbsolutePath()); this.reportException(new
+       * IOException("LocalStorage subfolder create fails : " +
+       * currentDir.getAbsolutePath())); }
+       */
     } else
       LOG.warn("Not started or already stopped");
 
