@@ -140,10 +140,12 @@ public class MergeDataManager {
       EditableChangesStorage<ItemState> accumulated = new CompositeItemStatesStorage<ItemState>(makePath("accumulated-"
                                                                                                     + first.getMember()
                                                                                                            .getPriority()),
-                                                                                                first.getMember(), resHolder);
+                                                                                                first.getMember(),
+                                                                                                resHolder);
 
       EditableChangesStorage<ItemState> result = new CompositeItemStatesStorage<ItemState>(makePath("result"),
-                                                                                           localMember, resHolder);
+                                                                                           localMember,
+                                                                                           resHolder);
 
       MemberChangesStorage<ItemState> local;
       MemberChangesStorage<ItemState> income;
@@ -366,5 +368,20 @@ public class MergeDataManager {
    */
   public void cancel() throws RepositoryException, RemoteExportException {
     run = false;
+  }
+
+  /**
+   * Perform cleaup of resorces.
+   * 
+   */
+  public void cleanup() {
+    try {
+      resHolder.close();
+    } catch (IOException e) {
+      LOG.error("Cannot close merge data streams " + e, e);
+    }
+    
+    // delete files
+    
   }
 }

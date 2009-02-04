@@ -68,7 +68,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final AsyncTransmitter          transmitter;
 
   protected final AsyncInitializer          initializer;
-  
+
   protected final int                       memberWaitTimeout;
 
   protected final int                       membersCount;
@@ -78,7 +78,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final HashMap<Integer, Counter> counterMap;
 
   protected List<MemberAddress>             mergeDoneList = new ArrayList<MemberAddress>();
-  
+
   private FirstChangesWaiter                firstChangesWaiter;
 
   /**
@@ -158,17 +158,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         save();
         doStop();
       }
-    }
-
-    /**
-     * Try cancel merge.
-     * 
-     * @throws RemoteExportException
-     * @throws RepositoryException
-     * 
-     */
-    public void cancel() throws RepositoryException, RemoteExportException {
-      mergeManager.cancel();
     }
 
     private void runMerge(Member localMember) throws RepositoryException,
@@ -375,7 +364,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   @Override
   public void doStop() {
     super.doStop();
+    
     mergeDoneList = null;
+    
+    mergeManager.cleanup();
   }
 
   /**
@@ -385,8 +377,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     LOG.info("On CANCEL");
 
     if (isStarted()) {
-      doStop();
       cancelMerge();
+      doStop();
     } else
       LOG.warn("Not started or already stopped");
   }
@@ -398,11 +390,17 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   private void cancelMerge() {
     if (mergeWorker != null)
       try {
-        mergeWorker.cancel();
+        mergeManager.cancel();
+
+        // 04.02.2009, potentially can wait a long time for the merge end (cancel).
+        // TODO may hung JGroups operation
+        mergeWorker.join();
 
       } catch (RepositoryException e) {
         LOG.error("Error of merge process cancelation " + e, e);
       } catch (RemoteExportException e) {
+        LOG.error("Error of merge process cancelation " + e, e);
+      } catch (InterruptedException e) {
         LOG.error("Error of merge process cancelation " + e, e);
       }
   }
@@ -465,8 +463,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void onStart(List<MemberAddress> members) {
     // not interested actually
     LOG.info("On START (local) " + members.size() + " members");
-    
-    //Start first member waiter
+
+    // Start first member waiter
     firstChangesWaiter = new FirstChangesWaiter();
     firstChangesWaiter.start();
 
@@ -552,7 +550,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     public void run() {
       try {
         Thread.sleep(memberWaitTimeout);
-        
+
         if ((counterMap.size() + 1) != membersCount) {
           LOG.error("No changes from member : ");
           doCancel();
