@@ -266,12 +266,12 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    * {@inheritDoc}
    */
   public ChangesFile[] getChangesFile() {
-    try {
-      closeObjectOutputStream();
-    } catch (IOException e) {
-      throw new StorageRuntimeException(e.getMessage()
-          + (currentFile != null ? (" file: [" + currentFile.toString() + "]") : " byte array"), e);
-    }
+    //try {
+    //  closeObjectOutputStream();
+    //} catch (IOException e) {
+    //  throw new StorageRuntimeException(e.getMessage()
+    //      + (currentFile != null ? (" file: [" + currentFile.toString() + "]") : " byte array"), e);
+    //}
     if (currentFile != null) {
       return new ChangesFile[] { currentFile };
     } else if (currentByteArray != null) {
@@ -314,6 +314,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   private void initOutputStream() throws IOException {
     if (currentStream == null) {
       currentStream = new ObjectOutputStream(new ArrayOrFileOutputStream());
+      resHolder.add(currentStream);
     }
   }
 
