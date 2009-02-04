@@ -36,6 +36,8 @@ public class SimpleOutputChangesFile extends SimpleChangesFile implements Editab
   }
 
   public OutputStream getOutputStream() throws IOException {
-    return new FileOutputStream(file);
+    OutputStream out = new FileOutputStream(file);
+    this.resHolder.add(out);
+    return out;
   }
 }

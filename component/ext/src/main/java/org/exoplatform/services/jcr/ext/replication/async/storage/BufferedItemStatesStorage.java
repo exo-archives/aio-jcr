@@ -314,7 +314,6 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   private void initOutputStream() throws IOException {
     if (currentStream == null) {
       currentStream = new ObjectOutputStream(new ArrayOrFileOutputStream());
-      resHolder.add(currentStream);
     }
   }
 
