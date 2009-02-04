@@ -535,13 +535,21 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   /**
    * {@inheritDoc}
    */
-  public String findNodeInVS(String uuid) throws IOException,
-                                         ClassCastException,
-                                         ClassNotFoundException {
+  public QPath findNodeInVS(String uuid) throws IOException,
+                                        ClassCastException,
+                                        ClassNotFoundException {
+
     Iterator<T> itemStates = getChanges();
     while (itemStates.hasNext()) {
       T item = itemStates.next();
 
+      if (!item.getData().isNode()
+          & item.getData().getQPath().getName().equals(Constants.JCR_VERSIONABLEUUID)) {
+
+        PropertyData prop = (PropertyData) item.getData();
+        if (uuid.equals(new String(prop.getValues().get(0).getAsByteArray())))
+          return item.getData().getQPath().makeParentPath();
+      }
     }
 
     return null;

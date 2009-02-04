@@ -84,7 +84,8 @@ public class UpdateMerger extends AbstractMerger {
     ItemState nextIncomeState = null;
 
     EditableChangesStorage<ItemState> resultState = new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             null, resHolder);
+                                                                                             null,
+                                                                                             resHolder);
     // income update sequence
     List<ItemState> incUpdateSeq = income.getUpdateSequence(incomeState);
 
@@ -117,7 +118,9 @@ public class UpdateMerger extends AbstractMerger {
         case ItemState.ADDED:
           for (ItemState st : incUpdateSeq) {
             if (localData.getQPath().isDescendantOf(st.getData().getQPath())) {
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
           }
           break;
@@ -142,12 +145,16 @@ public class UpdateMerger extends AbstractMerger {
                     || locNodePath.isDescendantOf(item.getData().getQPath())
                     || nextLocNodePath.isDescendantOf(item.getData().getQPath())) {
 
-                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                  null,
+                                                                  resHolder);
                 }
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(locNodePath)) {
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                null,
+                                                                resHolder);
               }
             }
 
@@ -163,7 +170,9 @@ public class UpdateMerger extends AbstractMerger {
                     || locSt.getData().getQPath().equals(incSt.getData().getQPath())
                     || incSt.getData().getQPath().isDescendantOf(locSt.getData().getQPath())) {
 
-                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                  null,
+                                                                  resHolder);
                 }
               }
             break;
@@ -185,19 +194,25 @@ public class UpdateMerger extends AbstractMerger {
                   || item.getData().getQPath().equals(locNodePath)
                   || locNodePath.isDescendantOf(item.getData().getQPath())) {
 
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                null,
+                                                                resHolder);
               }
             }
           } else {
             if (incomeData.isNode()) {
               for (ItemState item : incUpdateSeq) {
                 if (localData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                  null,
+                                                                  resHolder);
                 }
               }
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                null,
+                                                                resHolder);
               }
             }
           }
@@ -208,14 +223,18 @@ public class UpdateMerger extends AbstractMerger {
             if (!incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
 
-                skipVSChanges(incomeState, skippedList);
+                skipVSChanges(incomeState, income, skippedList);
                 skippedList.add(incomeData.getQPath());
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                null,
+                                                                resHolder);
               }
             } else {
               for (ItemState item : incUpdateSeq) {
                 if (localData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                  null,
+                                                                  resHolder);
                 }
               }
             }
@@ -229,7 +248,9 @@ public class UpdateMerger extends AbstractMerger {
           for (ItemState st : incUpdateSeq) {
             if (localData.getQPath().isDescendantOf(st.getData().getQPath())
                 || localData.getQPath().equals(st.getData().getQPath())) {
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
           }
           break;

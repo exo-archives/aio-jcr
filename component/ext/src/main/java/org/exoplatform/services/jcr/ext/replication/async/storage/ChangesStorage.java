@@ -318,6 +318,10 @@ public interface ChangesStorage<T extends ItemState> {
                                                 ClassNotFoundException;
 
   boolean isParentHasCheckIn(ItemState toState, QPath childPath) throws IOException,
-                                                             ClassCastException,
-                                                             ClassNotFoundException;
+                                                                ClassCastException,
+                                                                ClassNotFoundException;
+
+  public QPath findNodeInVS(String uuid) throws IOException,
+                                        ClassCastException,
+                                        ClassNotFoundException;
 }

@@ -56,8 +56,8 @@ public abstract class AbstractMerger implements ChangesMerger {
   protected final DataManager         dataManager;
 
   protected final NodeTypeDataManager ntManager;
-  
-  protected final ResourcesHolder resHolder;
+
+  protected final ResourcesHolder     resHolder;
 
   public AbstractMerger(boolean localPriority,
                         RemoteExporter exporter,
@@ -155,18 +155,22 @@ public abstract class AbstractMerger implements ChangesMerger {
    * 
    * @param skippedState
    * @param skippedList
+   * @throws ClassNotFoundException
+   * @throws IOException
+   * @throws ClassCastException
    */
-  protected void skipVSChanges(ItemState skippedState, List<QPath> skippedList) {
+  protected void skipVSChanges(ItemState skippedState,
+                               ChangesStorage<ItemState> storage,
+                               List<QPath> skippedList) throws ClassCastException,
+                                                       IOException,
+                                                       ClassNotFoundException {
+
     if (!skippedState.getData().isNode())
       return;
 
-    QPath sysPath = QPath.makeChildPath(Constants.ROOT_PATH, Constants.JCR_SYSTEM);
-    QPath vsPath = QPath.makeChildPath(sysPath, Constants.JCR_VERSIONSTORAGE);
+    QPath skippedPath = storage.findNodeInVS(skippedState.getData().getIdentifier());
 
-    QPath skippedPath = QPath.makeChildPath(vsPath, new InternalQName(null,
-                                                                      skippedState.getData()
-                                                                                  .getIdentifier()));
-
-    skippedList.add(skippedPath);
+    if (skippedPath != null)
+      skippedList.add(skippedPath);
   }
 }

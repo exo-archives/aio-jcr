@@ -95,7 +95,8 @@ public class RenameMerger extends AbstractMerger {
         : nextIncomeState.getData().getQPath().makeParentPath();
 
     EditableChangesStorage<ItemState> resultState = new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             null, resHolder);
+                                                                                             null,
+                                                                                             resHolder);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -122,21 +123,25 @@ public class RenameMerger extends AbstractMerger {
                 || nextIncNodePath.isDescendantOf(localData.getQPath())) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-                skipVSChanges(st, skippedList);
+                skipVSChanges(st, income, skippedList);
                 skippedList.add(st.getData().getQPath());
               }
 
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
           } else {
             if (localData.getQPath().isDescendantOf(incNodePath)) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-                skipVSChanges(st, skippedList);
+                skipVSChanges(st, income, skippedList);
                 skippedList.add(st.getData().getQPath());
               }
 
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
           }
           break;
@@ -154,11 +159,13 @@ public class RenameMerger extends AbstractMerger {
                   || nextIncNodePath.isDescendantOf(item.getData().getQPath())) {
 
                 for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-                  skipVSChanges(st, skippedList);
+                  skipVSChanges(st, income, skippedList);
                   skippedList.add(st.getData().getQPath());
                 }
 
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                null,
+                                                                resHolder);
               }
             }
             break;
@@ -181,11 +188,13 @@ public class RenameMerger extends AbstractMerger {
                 || nextLocalPath.isDescendantOf(incNodePath)) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-                skipVSChanges(st, skippedList);
+                skipVSChanges(st, income, skippedList);
                 skippedList.add(st.getData().getQPath());
               }
 
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
             break;
           }
@@ -197,22 +206,26 @@ public class RenameMerger extends AbstractMerger {
                 || nextIncNodePath.isDescendantOf(localData.getQPath())) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-                skipVSChanges(st, skippedList);
+                skipVSChanges(st, income, skippedList);
                 skippedList.add(st.getData().getQPath());
               }
 
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
           } else {
             if (incNodePath.isDescendantOf(localData.getQPath().makeParentPath())
                 || incNodePath.equals(localData.getQPath().makeParentPath())) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-                skipVSChanges(st, skippedList);
+                skipVSChanges(st, income, skippedList);
                 skippedList.add(st.getData().getQPath());
               }
 
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
           }
           break;
@@ -223,11 +236,13 @@ public class RenameMerger extends AbstractMerger {
                 || localData.getQPath().equals(incNodePath)) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-                skipVSChanges(st, skippedList);
+                skipVSChanges(st, income, skippedList);
                 skippedList.add(st.getData().getQPath());
               }
 
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                              null,
+                                                              resHolder);
             }
           }
           break;
@@ -240,7 +255,7 @@ public class RenameMerger extends AbstractMerger {
               || localData.getQPath().isDescendantOf(incNodePath)) {
 
             for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
-              skipVSChanges(st, skippedList);
+              skipVSChanges(st, income, skippedList);
               skippedList.add(st.getData().getQPath());
             }
 
@@ -558,7 +573,7 @@ public class RenameMerger extends AbstractMerger {
 
               List<ItemState> changes = income.getChanges(incomeState, locNodePath);
               for (int i = 0; i < changes.size(); i++)
-                skipVSChanges(changes.get(i), skippedList);
+                skipVSChanges(changes.get(i), income, skippedList);
 
               skippedList.add(locNodePath);
               return resultState;
@@ -695,7 +710,7 @@ public class RenameMerger extends AbstractMerger {
 
               List<ItemState> changes = income.getChanges(incomeState, localData.getQPath());
               for (int i = 0; i < changes.size(); i++)
-                skipVSChanges(changes.get(i), skippedList);
+                skipVSChanges(changes.get(i), income, skippedList);
 
               skippedList.add(localData.getQPath());
 
