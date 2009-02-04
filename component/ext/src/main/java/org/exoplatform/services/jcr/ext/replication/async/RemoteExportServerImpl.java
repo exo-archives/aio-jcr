@@ -111,7 +111,16 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
         } catch (IOException ioe) {
           LOG.error("IO error on send error message " + e, e);
         }
-      } finally {
+      } catch(Throwable e){
+        LOG.error("Exception on remote export request " + e, e);
+        try {
+          transmitter.sendError("error " + e, member);
+        } catch (IOException ioe) {
+          LOG.error("IO error on send error message " + e, e);
+        }
+      }
+      
+      finally {
         workers.remove(this);
       }
     }
