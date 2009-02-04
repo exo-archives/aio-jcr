@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 
@@ -55,15 +56,19 @@ public abstract class AbstractMerger implements ChangesMerger {
   protected final DataManager         dataManager;
 
   protected final NodeTypeDataManager ntManager;
+  
+  protected final ResourcesHolder resHolder;
 
   public AbstractMerger(boolean localPriority,
                         RemoteExporter exporter,
                         DataManager dataManager,
-                        NodeTypeDataManager ntManager) {
+                        NodeTypeDataManager ntManager,
+                        ResourcesHolder resHolder) {
     this.localPriority = localPriority;
     this.exporter = exporter;
     this.dataManager = dataManager;
     this.ntManager = ntManager;
+    this.resHolder = resHolder;
   }
 
   /**

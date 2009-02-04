@@ -86,7 +86,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10));
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder());
     
     Iterator<ItemState> it = expl.iterator();
     while(it.hasNext()){
@@ -146,7 +146,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     File dir = new File("target/testBufferedEdit2");
     dir.mkdirs();
     
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10),32);
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10),32, new ResourcesHolder());
     
     Iterator<ItemState> it = expl.iterator();
     while(it.hasNext()){
@@ -175,7 +175,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10));
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder());
     
     
     //write

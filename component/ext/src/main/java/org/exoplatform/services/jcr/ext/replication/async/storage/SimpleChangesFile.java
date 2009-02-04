@@ -44,11 +44,14 @@ public class SimpleChangesFile implements ChangesFile {
   protected final long   id;
 
   protected final File   file;
+  
+  protected final ResourcesHolder resHolder;
 
-  public SimpleChangesFile(File file, String crc, long id) {
+  public SimpleChangesFile(File file, String crc, long id, ResourcesHolder resHolder) {
     this.crc = crc;
     this.id = id;
     this.file = file;
+    this.resHolder = resHolder;
   }
 
   public boolean delete() throws IOException {
@@ -64,7 +67,9 @@ public class SimpleChangesFile implements ChangesFile {
   }
 
   public InputStream getInputStream() throws IOException {
-    return new FileInputStream(file);
+    InputStream is = new FileInputStream(file);
+    this.resHolder.add(is);
+    return is;
   }
 
   public String toString() {

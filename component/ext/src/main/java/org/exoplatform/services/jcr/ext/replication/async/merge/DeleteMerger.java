@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -51,8 +52,9 @@ public class DeleteMerger extends AbstractMerger {
   public DeleteMerger(boolean localPriority,
                       RemoteExporter exporter,
                       DataManager dataManager,
-                      NodeTypeDataManager ntManager) {
-    super(localPriority, exporter, dataManager, ntManager);
+                      NodeTypeDataManager ntManager,
+                      ResourcesHolder resHolder) {
+    super(localPriority, exporter, dataManager, ntManager, resHolder);
   }
 
   /**
@@ -86,7 +88,7 @@ public class DeleteMerger extends AbstractMerger {
 
     ItemState incomeState = itemChange;
     EditableChangesStorage<ItemState> resultState = new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             null);
+                                                                                             null, resHolder);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -119,8 +121,7 @@ public class DeleteMerger extends AbstractMerger {
 
               skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
               skippedList.add(incNodePath);
-
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
             }
           } else {
             if (!localData.isNode()) {
@@ -128,8 +129,7 @@ public class DeleteMerger extends AbstractMerger {
 
                 skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
-
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
               }
             }
           }
@@ -153,8 +153,7 @@ public class DeleteMerger extends AbstractMerger {
 
                   skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
                   skippedList.add(incNodePath);
-
-                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
                 }
               }
             } else {
@@ -164,8 +163,7 @@ public class DeleteMerger extends AbstractMerger {
 
                   skipVSChanges(incomeState, skippedList);
                   skippedList.add(incomeData.getQPath());
-
-                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
                 }
               }
             }
@@ -199,16 +197,14 @@ public class DeleteMerger extends AbstractMerger {
 
                 skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
                 skippedList.add(incNodePath);
-
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
                 skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
-
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
               }
             }
             break;
@@ -225,8 +221,7 @@ public class DeleteMerger extends AbstractMerger {
 
               skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
               skippedList.add(incNodePath);
-
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
             }
           } else {
             if (localData.isNode()) {
@@ -235,16 +230,14 @@ public class DeleteMerger extends AbstractMerger {
 
                 skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
-
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
                 skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
-
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
               }
             }
           }
@@ -261,16 +254,14 @@ public class DeleteMerger extends AbstractMerger {
 
                 skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
                 skippedList.add(incNodePath);
-
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
               }
             } else {
               if (localData.getQPath().equals(incomeData.getQPath())) {
 
                 skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
-
-                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
               }
             }
           }
@@ -291,8 +282,7 @@ public class DeleteMerger extends AbstractMerger {
 
               skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
               skippedList.add(incNodePath);
-
-              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+              return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
             }
           } else {
             List<ItemState> mixinSeq = local.getMixinSequence(localState);
@@ -304,8 +294,7 @@ public class DeleteMerger extends AbstractMerger {
 
                   skipVSChanges(incomeState, skippedList);
                   skippedList.add(incomeData.getQPath());
-
-                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+                  return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
                 }
               }
             }

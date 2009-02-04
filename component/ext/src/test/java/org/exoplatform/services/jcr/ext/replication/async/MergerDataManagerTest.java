@@ -92,7 +92,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     mergerLow = new MergeDataManager(exporter, dm3, ntm3, "target/storage/low");
     mergerLow.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)),
                                         LOW_PRIORITY));
-    mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null),
+    mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
                                       dm4,
                                       ntm4,
                                       "target/storage/high");
@@ -161,7 +161,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 100);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
                                                    dm4,
                                                    ntm4,
                                                    "target/storage/high");
@@ -188,7 +188,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session3.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
                                                    dm4,
                                                    ntm4,
                                                    "target/storage/high");

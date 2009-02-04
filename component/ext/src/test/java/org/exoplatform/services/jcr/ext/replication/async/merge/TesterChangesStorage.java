@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 
 /**
@@ -57,7 +58,7 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
     TransactionChangesLog tlog = (TransactionChangesLog) log;
     out.writeObject(tlog);
 
-    this.storage.add(new SimpleChangesFile(ch, "", System.currentTimeMillis()));
+    this.storage.add(new SimpleChangesFile(ch, "", System.currentTimeMillis(), new ResourcesHolder()));
   }
 
   /**

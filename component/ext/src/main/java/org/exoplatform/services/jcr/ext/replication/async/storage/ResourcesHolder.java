@@ -16,26 +16,31 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date:
- * 
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id$
+ * <br/>Date: 03.02.2009
+ *
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * @version $Id: ResourcesHolder.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class SimpleOutputChangesFile extends SimpleChangesFile implements EditableChangesFile {
+public class ResourcesHolder {
 
-  public SimpleOutputChangesFile(File file, String crc, long id, ResourcesHolder resHolder) {
-    super(file, crc, id, resHolder);
-  }
+  private final List<Closeable> resources = new ArrayList<Closeable>(); 
 
-  public OutputStream getOutputStream() throws IOException {
-    return new FileOutputStream(file);
+  public void add(Closeable closeable) {
+    resources.add(closeable);
   }
+  
+  public void close() throws IOException {
+    for (Closeable c: resources) {
+      c.close();
+    }
+  }
+  
 }

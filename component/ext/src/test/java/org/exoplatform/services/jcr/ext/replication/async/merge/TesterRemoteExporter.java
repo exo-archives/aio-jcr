@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleOutputChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
@@ -64,34 +65,35 @@ public class TesterRemoteExporter implements RemoteExporter {
    * {@inheritDoc}
    */
   public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
-    
+
     ChangesStorage<ItemState> chs = null;
-    
-  
+
     try {
-      
+
       long timestamp = System.currentTimeMillis();
-      try{
-        
-       //TODO CHANGE ChangesFile naming system!!!!!! 
-       Thread.sleep(100);
-      }catch(InterruptedException e){
+      try {
+
+        // TODO CHANGE ChangesFile naming system!!!!!!
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
       }
-      File file =  File.createTempFile("exportStor", Long.toString(timestamp));
-      
+      File file = File.createTempFile("exportStor", Long.toString(timestamp));
+
       String crc = ""; // crc is ignored
-      SimpleOutputChangesFile chfile  = new SimpleOutputChangesFile(file, crc, timestamp);
+      SimpleOutputChangesFile chfile = new SimpleOutputChangesFile(file,
+                                                                   crc,
+                                                                   timestamp,
+                                                                   new ResourcesHolder());
 
       ObjectOutputStream out = new ObjectOutputStream(chfile.getOutputStream());
-      
+
       Iterator<ItemState> it = changes.getAllStates().iterator();
-      
-      while(it.hasNext()){
+
+      while (it.hasNext()) {
         out.writeObject(it.next());
       }
       out.close();
-      
-      
+
       chs = new ItemStatesStorage<ItemState>(chfile, null); // TODO member
     } catch (IOException e) {
       throw new RemoteExportException(e);
@@ -113,4 +115,12 @@ public class TesterRemoteExporter implements RemoteExporter {
   public void setRemoteMember(MemberAddress address) {
     // dummy
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void cleanup() {
+    // dummy
+  }
+
 }

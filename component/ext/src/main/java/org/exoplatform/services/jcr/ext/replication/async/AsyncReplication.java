@@ -43,6 +43,7 @@ import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
@@ -158,7 +159,7 @@ public class AsyncReplication implements Startable {
 
       this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer, otherParticipantsPriority);
 
-      this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
+      this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver, mergeTempDir);
 
       this.mergeManager = new MergeDataManager(this.exporter, dataManager, ntManager, mergeTempDir);
 

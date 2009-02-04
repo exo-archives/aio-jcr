@@ -44,7 +44,7 @@ public class CompositeItemStatesStorageTest extends BaseStandaloneTest {
 
   public void testAdd() throws Exception {
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null);
+                                                                                         null, new ResourcesHolder());
     cs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
                                                             0,
@@ -92,7 +92,7 @@ public class CompositeItemStatesStorageTest extends BaseStandaloneTest {
     ChangesLogStorage<ItemState> cls = new ChangesLogStorage<ItemState>(cfList);
 
     BufferedItemStatesStorage<ItemState> bs = new BufferedItemStatesStorage<ItemState>(new File("./target"),
-                                                                                       null);
+                                                                                       null, new ResourcesHolder());
 
     bs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
@@ -105,7 +105,7 @@ public class CompositeItemStatesStorageTest extends BaseStandaloneTest {
     initNodes++;
 
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null);
+                                                                                         null, new ResourcesHolder());
     cs.addAll(cls);
     cs.addAll(bs);
 

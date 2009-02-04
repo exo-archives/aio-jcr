@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -24,11 +25,11 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
@@ -41,14 +42,20 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
+  public static final String       FILE_PREFIX  = "exporter";
+
   /**
    * Logger.
    */
-  private static final Log               LOG          = ExoLogger.getLogger("ext.RemoteExporterImpl");
+  private static final Log         LOG          = ExoLogger.getLogger("ext.RemoteExporterImpl");
 
   protected final AsyncTransmitter transmitter;
 
   protected final AsyncReceiver    receiver;
+
+  protected final ResourcesHolder  resHolder = new ResourcesHolder();
+
+  protected final File             tempDir;
 
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each members pair merge.
@@ -63,15 +70,18 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Changes file.
    */
-  private RandomChangesFile        changesFile = null;
+  private RandomChangesFile        changesFile  = null;
 
   private CountDownLatch           latch;
 
   private RemoteExportException    exception    = null;
 
-  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
+  RemoteExporterImpl(AsyncTransmitter transmitter,
+                     AsyncReceiver receiver,
+                     String tempDir) {
     this.transmitter = transmitter;
     this.receiver = receiver;
+    this.tempDir = new File(tempDir);
   }
 
   /**
@@ -189,8 +199,24 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   private void initChangesFile(String crc, long timeStamp) throws IOException {
     if (this.changesFile == null) {
-      changesFile = new RandomChangesFile(crc, timeStamp);
+      changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + timeStamp),
+                                          crc,
+                                          timeStamp);
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public void cleanup() {
+    try {
+      resHolder.close();
+    } catch (IOException e) {
+      LOG.error("Error of data fiels close " + e, e);
+    }
+
+    for (File f : tempDir.listFiles())
+      if (!f.delete())
+        LOG.warn("Cannot delete exporter temp file " + f.getAbsolutePath());
+  }
 }

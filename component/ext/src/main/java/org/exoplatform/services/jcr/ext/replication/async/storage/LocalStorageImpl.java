@@ -94,6 +94,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   private ChangesSpooler                                     changesSpooler             = null;
 
+  private final ResourcesHolder                              resHolder                  = new ResourcesHolder();
+
   private File                                               currentDir                 = null;
 
   private File                                               currentFile                = null;
@@ -137,9 +139,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     /**
      * Change all TransientValueData to ReplicableValueData.
      * 
-     * @param log local TransactionChangesLog
+     * @param log
+     *          local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException if error occurs
+     * @throws IOException
+     *           if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
@@ -205,10 +209,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           }
         }
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(destlist,
-                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                         : plog.getSessionId(),
-                                              plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+            ? EXTERNALIZATION_SESSION_ID
+            : plog.getSessionId(), plog.getEventType()));
       }
       return result;
     }
@@ -279,7 +282,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       for (int j = 0; j < files.length; j++) {
         try {
-          chFiles.add(new SimpleChangesFile(files[j], "", Long.parseLong(files[j].getName())));
+          chFiles.add(new SimpleChangesFile(files[j], "", Long.parseLong(files[j].getName()), resHolder));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -311,7 +314,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath Path of root directory
+   * @param rootPath
+   *          Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -344,7 +348,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -393,6 +398,13 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     LOG.info("On STOP");
 
     if (isStarted()) {
+    
+      try {
+        resHolder.close();
+      } catch (IOException e) {
+        LOG.error("Error of data streams close " + e, e);
+      }
+    
       // delete merged content
       File[] subfiles = currentDir.listFiles();
 

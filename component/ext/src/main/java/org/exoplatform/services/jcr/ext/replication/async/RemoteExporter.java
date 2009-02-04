@@ -54,5 +54,11 @@ public interface RemoteExporter {
    * @throws RemoteExportException
    */
   ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException;
+  
+  /**
+   * Release resources (streams close).
+   *
+   */
+  void cleanup();
 
 }

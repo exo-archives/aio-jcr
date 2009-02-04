@@ -41,6 +41,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.CompositeItemS
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
@@ -62,6 +63,8 @@ public class MergeDataManager {
   protected final DataManager         dataManager;
 
   protected final NodeTypeDataManager ntManager;
+
+  protected final ResourcesHolder     resHolder   = new ResourcesHolder();
 
   /**
    * Flag allowing run of merge.
@@ -137,10 +140,10 @@ public class MergeDataManager {
       EditableChangesStorage<ItemState> accumulated = new CompositeItemStatesStorage<ItemState>(makePath("accumulated-"
                                                                                                     + first.getMember()
                                                                                                            .getPriority()),
-                                                                                                first.getMember());
+                                                                                                first.getMember(), resHolder);
 
       EditableChangesStorage<ItemState> result = new CompositeItemStatesStorage<ItemState>(makePath("result"),
-                                                                                           localMember);
+                                                                                           localMember, resHolder);
 
       MemberChangesStorage<ItemState> local;
       MemberChangesStorage<ItemState> income;
@@ -173,24 +176,36 @@ public class MergeDataManager {
 
         EditableChangesStorage<ItemState> iteration = new BufferedItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                                         second.getMember()),
-                                                                                               second.getMember());
+                                                                                               second.getMember(),
+                                                                                               resHolder);
 
         exporter.setRemoteMember(second.getMember().getAddress());
         // TODO NT reregistration
-        AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
+        AddMerger addMerger = new AddMerger(isLocalPriority,
+                                            exporter,
+                                            dataManager,
+                                            ntManager,
+                                            resHolder);
         DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
-                                                     ntManager);
+                                                     ntManager,
+                                                     resHolder);
         UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
-                                                     ntManager);
+                                                     ntManager,
+                                                     resHolder);
         RenameMerger renameMerger = new RenameMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
-                                                     ntManager);
-        MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
+                                                     ntManager,
+                                                     resHolder);
+        MixinMerger mixinMerger = new MixinMerger(isLocalPriority,
+                                                  exporter,
+                                                  dataManager,
+                                                  ntManager,
+                                                  resHolder);
 
         if (run) {
           Iterator<ItemState> changes = income.getChanges();
@@ -319,7 +334,7 @@ public class MergeDataManager {
           if (isLocalPriority) {
             accumulated.delete();
             accumulated = new CompositeItemStatesStorage<ItemState>(makePath("accumulated-"
-                + second.getMember().getPriority()), second.getMember());
+                + second.getMember().getPriority()), second.getMember(), resHolder);
 
             accumulated.addAll(second);
             accumulated.addAll(iteration);
@@ -339,7 +354,7 @@ public class MergeDataManager {
       return result;
 
     } finally {
-      run = true;
+      run = false; // TODO true for tests?
     }
   }
 

@@ -39,6 +39,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -66,6 +67,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   protected final NodeTypeDataManager ntManager;
 
   protected final Set<ExportWorker>   workers = new LinkedHashSet<ExportWorker>();
+  
+  protected final ResourcesHolder     resHolder = new ResourcesHolder();
 
   protected boolean                   stopped = false;
 
@@ -164,7 +167,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
       exportedNode.accept(exporter);
 
       String crc = new String(digest.digest(), Constants.DEFAULT_ENCODING);
-      return new SimpleChangesFile(chLogFile, crc, System.currentTimeMillis());
+      return new SimpleChangesFile(chLogFile, crc, System.currentTimeMillis(), resHolder);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } finally {
@@ -222,6 +225,13 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
    * {@inheritDoc}
    */
   public void onStop() {
+    
+    try {
+      this.resHolder.close();
+    } catch (IOException e) {
+      LOG.error("Error of data streams close " + e, e);
+    }
+    
     // set flag
     this.stopped = true;
   }

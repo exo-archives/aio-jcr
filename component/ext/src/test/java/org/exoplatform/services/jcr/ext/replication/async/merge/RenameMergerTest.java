@@ -138,7 +138,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -216,7 +216,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -282,7 +282,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -415,7 +415,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem211Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem111Deleted,
                                                           income,
                                                           local,
@@ -493,7 +493,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -567,7 +567,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem3Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem21Deleted,
                                                           income,
                                                           local,
@@ -655,7 +655,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem3Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem211Deleted,
                                                           income,
                                                           local,
@@ -730,7 +730,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem211Rename);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem3Delete,
                                                           income,
                                                           local,
@@ -820,7 +820,7 @@ public class RenameMergerTest extends BaseMergerTest {
 
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Delete,
                                                           income,
                                                           local,
@@ -909,7 +909,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem111Rename);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete,
                                                           income,
                                                           local,
@@ -995,7 +995,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Rename);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete,
                                                           income,
                                                           local,
@@ -1075,7 +1075,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Rename);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(true, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete,
                                                           income,
                                                           local,
@@ -1158,7 +1158,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem211Add);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -1244,7 +1244,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -1317,7 +1317,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -1400,7 +1400,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem211Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
 
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem111Deleted,
                                                           income,
@@ -1482,7 +1482,7 @@ public class RenameMergerTest extends BaseMergerTest {
     RenameMerger renameMerger = new RenameMerger(false,
                                                  new TesterRemoteExporter(exportLog),
                                                  dataManager,
-                                                 ntManager);
+                                                 ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -1556,7 +1556,7 @@ public class RenameMergerTest extends BaseMergerTest {
     RenameMerger renameMerger = new RenameMerger(false,
                                                  new TesterRemoteExporter(exportLog),
                                                  dataManager,
-                                                 ntManager);
+                                                 ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -1647,7 +1647,7 @@ public class RenameMergerTest extends BaseMergerTest {
 
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Delete,
                                                           income,
                                                           local,
@@ -1761,7 +1761,7 @@ public class RenameMergerTest extends BaseMergerTest {
     final RenameMerger renameMerger = new RenameMerger(false,
                                                        new TesterRemoteExporter(exportLog),
                                                        dataManager,
-                                                       ntManager);
+                                                       ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete,
                                                           income,
                                                           local,
@@ -1851,7 +1851,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Rename);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete,
                                                           income,
                                                           local,
@@ -1935,7 +1935,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Rename);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete,
                                                           income,
                                                           local,
@@ -2012,7 +2012,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem3Renamed);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem21Deleted,
                                                           income,
                                                           local,
@@ -2089,7 +2089,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem211Rename);
     income.addLog(new TransactionChangesLog(incomeLog));
 
-    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager);
+    RenameMerger renameMerger = new RenameMerger(false, null, dataManager, ntManager, resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem3Delete,
                                                           income,
                                                           local,

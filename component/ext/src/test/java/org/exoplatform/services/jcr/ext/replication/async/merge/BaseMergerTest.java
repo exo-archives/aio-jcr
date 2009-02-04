@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.AbstractMergeUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManagerTestWrapper;
@@ -83,6 +84,8 @@ public class BaseMergerTest extends AbstractMergeUseCases {
   protected PersistentDataManager           dataManager;
 
   protected NodeTypeDataManager             ntManager;
+
+  protected ResourcesHolder                 resHolder                   = new ResourcesHolder();
 
   /**
    * Test nodetype. UNSTRUCTURED but child nodes SNS disallowed.
@@ -623,6 +626,8 @@ public class BaseMergerTest extends AbstractMergeUseCases {
    * {@inheritDoc}
    */
   protected void tearDown() throws Exception {
+    resHolder.close();
+    
     local.delete();
     income.delete();
 

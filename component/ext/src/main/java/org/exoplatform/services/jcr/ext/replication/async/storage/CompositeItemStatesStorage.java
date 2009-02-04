@@ -40,6 +40,8 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   protected final File                    storageDir;
 
   protected final List<ChangesStorage<T>> storages = new ArrayList<ChangesStorage<T>>();
+  
+  protected final ResourcesHolder resHolder;
 
   protected EditableChangesStorage<T>     current;
 
@@ -112,9 +114,10 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     }
   }
 
-  public CompositeItemStatesStorage(File storageDir, Member member) {
+  public CompositeItemStatesStorage(File storageDir, Member member, ResourcesHolder resHolder) {
     this.member = member;
     this.storageDir = storageDir;
+    this.resHolder = resHolder;
   }
 
   /**
@@ -126,7 +129,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   private EditableChangesStorage<T> current() {
     if (current == null) {
-      current = new BufferedItemStatesStorage<T>(storageDir, member);
+      current = new BufferedItemStatesStorage<T>(storageDir, member, resHolder);
       storages.add(current);
     }
 

@@ -40,41 +40,43 @@ import org.exoplatform.services.log.ExoLogger;
 public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T>
     implements EditableChangesStorage<T> {
 
-  private static final Log     LOG             = ExoLogger.getLogger("ext.BufferedItemStatesStorage");
+  private static final Log        LOG             = ExoLogger.getLogger("ext.BufferedItemStatesStorage");
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long    MAX_BUFFER_SIZE = 2 * 1024 * 1024;
+  private static final long       MAX_BUFFER_SIZE = 2 * 1024 * 1024;
 
   /**
    * ItemStates storage directory.
    */
-  protected final File         storagePath;
+  protected final File            storagePath;
 
-  protected final Member       member;
+  protected final Member          member;
 
-  private final long           maxBufferSize;
+  protected final long            maxBufferSize;
 
-  /**
-   * Output Stream opened on current ChangesFile or ByteArray.
-   */
-  protected ObjectOutputStream currentStream;
-
-  /**
-   * Current ChangesFile to store changes.
-   */
-  protected EditableChangesFile  currentFile;
-
-  /**
-   * Current byte array to store changes.
-   */
-  protected BAOutputStream     currentByteArray;
+  protected final ResourcesHolder resHolder;
 
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
    */
-  private static Long          index           = new Long(0);
+  private static Long             index           = new Long(0);
+
+  /**
+   * Output Stream opened on current ChangesFile or ByteArray.
+   */
+  protected ObjectOutputStream    currentStream;
+
+  /**
+   * Current ChangesFile to store changes.
+   */
+  protected EditableChangesFile   currentFile;
+
+  /**
+   * Current byte array to store changes.
+   */
+  protected BAOutputStream        currentByteArray;
 
   class ArrayOrFileOutputStream extends OutputStream {
 
@@ -235,22 +237,29 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    * @param storagePath
    *          storage Path
    */
-  public BufferedItemStatesStorage(File storagePath, Member member) {
+  public BufferedItemStatesStorage(File storagePath, Member member, ResourcesHolder resHolder) {
     this.member = member;
     this.storagePath = storagePath;
     this.maxBufferSize = MAX_BUFFER_SIZE;
+    this.resHolder = resHolder;
   }
 
   /**
    * Class constructor.
    * 
+   * FOR TESTS!
+   * 
    * @param storagePath
    *          storage Path
    */
-  public BufferedItemStatesStorage(File storagePath, Member member, long maxBuffer) {
+  public BufferedItemStatesStorage(File storagePath,
+                                   Member member,
+                                   long maxBuffer,
+                                   ResourcesHolder resHolder) {
     this.member = member;
     this.storagePath = storagePath;
     this.maxBufferSize = maxBuffer;
+    this.resHolder = resHolder;
   }
 
   /**
@@ -333,7 +342,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     }
 
     String crc = ""; // crc is ignored
-    return new SimpleOutputChangesFile(file, crc, id);
+    return new SimpleOutputChangesFile(file, crc, id, resHolder);
   }
 
   /**
