@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 
@@ -38,6 +39,18 @@ public class ItemStateIterableList<T extends ItemState> implements List<ItemStat
 
   public ItemStateIterableList(ChangesStorage<ItemState> storage) {
     this.storage = storage;
+  }
+
+  public Iterator<ItemState> iterator() {
+    try {
+      return this.storage.getChanges();
+    } catch (IOException e) {
+      throw new StorageRuntimeException(e.getMessage(), e);
+    } catch (ClassCastException e) {
+      throw new StorageRuntimeException(e.getMessage(), e);
+    } catch (ClassNotFoundException e) {
+      throw new StorageRuntimeException(e.getMessage(), e);
+    }
   }
 
   public boolean add(ItemState o) {
@@ -69,7 +82,15 @@ public class ItemStateIterableList<T extends ItemState> implements List<ItemStat
   }
 
   public ItemState get(int index) {
-    throw new RuntimeException("Not implemented!");
+    int i = 0;
+    for (Iterator<ItemState> iter = iterator(); iter.hasNext();) {
+      if (i == index)
+        return iter.next();
+      else
+        i++;
+    }
+    
+    throw new IndexOutOfBoundsException("ItemState at index " + index + " not found.");
   }
 
   public int indexOf(Object o) {
@@ -78,18 +99,6 @@ public class ItemStateIterableList<T extends ItemState> implements List<ItemStat
 
   public boolean isEmpty() {
     throw new RuntimeException("Not implemented!");
-  }
-
-  public Iterator<ItemState> iterator() {
-    try {
-      return this.storage.getChanges();
-    } catch (IOException e) {
-      throw new StorageRuntimeException(e.getMessage(), e);
-    } catch (ClassCastException e) {
-      throw new StorageRuntimeException(e.getMessage(), e);
-    } catch (ClassNotFoundException e) {
-      throw new StorageRuntimeException(e.getMessage(), e);
-    }
   }
 
   public int lastIndexOf(Object o) {

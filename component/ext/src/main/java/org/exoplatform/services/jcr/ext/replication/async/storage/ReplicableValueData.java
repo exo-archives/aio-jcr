@@ -72,8 +72,8 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   }
 
   /**
-   * ReplicableValueData  constructor.
-   *
+   * ReplicableValueData constructor.
+   * 
    */
   public ReplicableValueData() {
     super(0);
@@ -82,13 +82,14 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   /**
    * Creates Replicable value data from InputStream.
    * 
-   * @param inputStream data
+   * @param inputStream
+   *          data
    * @param orderNumber
    * @throws IOException
    */
-  public ReplicableValueData(InputStream inputStream, int orderNumber) throws IOException{
+  public ReplicableValueData(InputStream inputStream, int orderNumber) throws IOException {
     super(orderNumber);
-    //create spool file
+    // create spool file
     byte[] tmpBuff = new byte[2048];
     int read = 0;
     int len = 0;
@@ -97,19 +98,19 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
     sf.acquire(this);
 
     OutputStream sfout = new FileOutputStream(sf);
-    
-    while ((read = inputStream.read(tmpBuff)) >= 0) {
+    try {
+      while ((read = inputStream.read(tmpBuff)) >= 0) {
         // spool to temp file
         sfout.write(tmpBuff, 0, read);
         len += read;
+      }
+    } finally {
+      sfout.close();
     }
 
     // spooled to file
-    sfout.close();
     this.spoolFile = sf;
     this.data = null;
-    
-    
   }
 
   /**
@@ -134,12 +135,12 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       }
       in.close();
     }
-    
+
     out.writeByte(0x000A);
     out.writeByte(0x000D);
-    
-    //TODO ReplicableValueData must not be used after serialization.
-    if(spoolFile!=null && spoolFile.exists()){
+
+    // TODO ReplicableValueData must not be used after serialization.
+    if (spoolFile != null && spoolFile.exists()) {
       spoolFile.delete();
     }
   }
@@ -157,33 +158,33 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
 
       SpoolFile sf = new SpoolFile(File.createTempFile("repValDat", null).getAbsolutePath());
       FileOutputStream sfout = new FileOutputStream(sf);
+      try {
+        byte[] buf = new byte[DEF_MAX_BUF_SIZE];
 
-      byte[] buf = new byte[DEF_MAX_BUF_SIZE];
+        sf.acquire(this);
 
-      sf.acquire(this);
+        // int l = 0;
+        for (; length >= DEF_MAX_BUF_SIZE; length -= DEF_MAX_BUF_SIZE) {
+          in.readFully(buf);
+          sfout.write(buf);
+        }
 
-      // int l = 0;
-      for (; length >= DEF_MAX_BUF_SIZE; length -= DEF_MAX_BUF_SIZE) {
-        in.readFully(buf);
-        sfout.write(buf);
+        if (length > 0) {
+          buf = new byte[(int) length];
+          in.readFully(buf);
+          sfout.write(buf);
+        }
+      } finally {
+        sfout.close();
       }
-
-      if (length > 0) {
-        buf = new byte[(int) length];
-        in.readFully(buf);
-        sfout.write(buf);
-      }
-
-      sfout.close();
-
+      
       this.spoolFile = sf;
-
     } else {
       // store data as bytearray
       this.data = new byte[(int) length];
       in.readFully(data);
     }
-    
+
     in.readByte();
     in.readByte();
   }

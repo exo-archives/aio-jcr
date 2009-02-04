@@ -92,11 +92,16 @@ public class RandomChangesFile implements ChangesFile {
    */
   public InputStream getInputStream() throws IOException {
     finishWrite();
-    return new FileInputStream(file);
+    
+    InputStream in = new FileInputStream(file);
+    resHolder.add(in);
+    return in;
   }
 
-  // TODO remove it
-  @Deprecated
+  /**
+   * NOTE! OutputStream will not be closed by resHandler.
+   */
+  @Deprecated // TODO remove method
   public OutputStream getOutputStream() throws IOException {
     return new OutputStream() {
 

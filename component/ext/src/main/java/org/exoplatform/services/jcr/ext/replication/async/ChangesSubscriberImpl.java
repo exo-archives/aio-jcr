@@ -431,19 +431,15 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     try {
       workspace.save(mergeWorker.result);
     } catch (InvalidItemStateException e) {
-      // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
       errorLog.reportError(e);
     } catch (UnsupportedOperationException e) {
-      // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
       errorLog.reportError(e);
     } catch (RepositoryException e) {
-      // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
       errorLog.reportError(e);
     } catch (SynchronizationException e) {
-      // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
       errorLog.reportError(e);
     }

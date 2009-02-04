@@ -35,6 +35,7 @@ import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -45,6 +46,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
@@ -124,7 +126,7 @@ public class AsyncReplication implements Startable {
 
     protected final NodeTypeDataManager       ntManager;
 
-    protected final LocalStorageImpl     localStorage;
+    protected final LocalStorageImpl          localStorage;
 
     protected final IncomeStorageImpl         incomeStorage;
 
@@ -135,7 +137,9 @@ public class AsyncReplication implements Startable {
                 IncomeStorageImpl incomeStorage,
                 String repoName,
                 String wsName,
-                String chanelNameSufix) {
+                String chanelNameSufix,
+                WorkspaceEntry workspaceConfig,
+                WorkspaceFileCleanerHolder cleanerHolder) {
 
       this.channel = new AsyncChannelManager(channelConfig, channelName + "_" + chanelNameSufix);
 
@@ -151,13 +155,18 @@ public class AsyncReplication implements Startable {
 
       this.transmitter = new AsyncTransmitterImpl(this.channel, priority);
 
-      this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, this.localStorage);
+      this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager,
+                                                        this.localStorage,
+                                                        workspaceConfig,
+                                                        cleanerHolder);
 
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
 
       this.changesSaveErrorLog = new ChangesSaveErrorLog(storageDir, repoName, wsName);
 
-      this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer, otherParticipantsPriority);
+      this.receiver = new AsyncReceiverImpl(this.channel,
+                                            this.exportServer,
+                                            otherParticipantsPriority);
 
       this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver, mergeTempDir);
 
@@ -243,11 +252,11 @@ public class AsyncReplication implements Startable {
       this.channel.removePacketListener(this.receiver);
       this.channel.removePacketListener(this.initializer);
       this.channel.removeStateListener(this.initializer);
-      // Worker and channel are one-shot modules, both will be GCed 
+      // Worker and channel are one-shot modules, both will be GCed
       // this.channel.removeConnectionListener(this);
 
       this.exporter.cleanup();
-      
+
       currentWorkers.remove(this); // remove itself
 
       // set read-write state
@@ -320,16 +329,16 @@ public class AsyncReplication implements Startable {
     repositoryNames = repos;
 
     PropertiesParam pps = params.getPropertiesParam("replication-properties");
-    
+
     if (pps == null)
       throw new RuntimeException("replication-properties not specified");
 
     // initialize replication parameters;
     if (pps.getProperty("priority") == null)
       throw new RuntimeException("priority not specified");
-    
+
     priority = Integer.parseInt(pps.getProperty("priority"));
-    
+
     bindIPAddress = pps.getProperty("bind-ip-address");
 
     String chConfig = pps.getProperty("channel-config");
@@ -340,7 +349,7 @@ public class AsyncReplication implements Startable {
     channelName = pps.getProperty("channel-name");
     if (channelName == null)
       throw new RuntimeException("channel-config not specified");
-    
+
     if (pps.getProperty("wait-all-members") == null)
       throw new RuntimeException("wait-all-members timeout not specified");
     waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
@@ -352,7 +361,6 @@ public class AsyncReplication implements Startable {
     String sOtherParticipantsPriority = pps.getProperty("other-participants-priority");
     if (sOtherParticipantsPriority == null)
       throw new RuntimeException("other-participants-priority not specified");
-    
 
     String saOtherParticipantsPriority[] = sOtherParticipantsPriority.split(",");
 
@@ -365,11 +373,10 @@ public class AsyncReplication implements Startable {
 
     for (String sPriority : saOtherParticipantsPriority)
       otherParticipantsPriority.add(Integer.valueOf(sPriority));
-    
+
     if (hasDuplicatePriority(this.otherParticipantsPriority, this.priority))
-      throw new RuntimeException("The value of priority is duplicated : " 
-                                 + "Priority = " + this.priority + " ; "
-                                 + "Other participants priority = " + otherParticipantsPriority);
+      throw new RuntimeException("The value of priority is duplicated : " + "Priority = "
+          + this.priority + " ; " + "Other participants priority = " + otherParticipantsPriority);
 
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
 
@@ -469,8 +476,8 @@ public class AsyncReplication implements Startable {
    * @throws RepositoryException
    */
   public synchronized boolean synchronize() throws RepositoryException,
-                           RepositoryConfigurationException,
-                           IOException {
+                                           RepositoryConfigurationException,
+                                           IOException {
 
     if (isActive()) {
       LOG.error("[ERROR] Asynchronous replication service already active. Wait for current synchronization finish.");
@@ -540,6 +547,9 @@ public class AsyncReplication implements Startable {
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
     WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
 
+    WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
+    WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
+
     StorageKey skey = new StorageKey(repoName, workspaceName);
     LocalStorageImpl localStorage = localStorages.get(skey);
     IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey));
@@ -551,7 +561,9 @@ public class AsyncReplication implements Startable {
                                               incomeStorage,
                                               repoName,
                                               workspaceName,
-                                              repoName + "_" + workspaceName);
+                                              repoName + "_" + workspaceName,
+                                              wconf,
+                                              wfcleaner);
     synchWorker.run();
 
     currentWorkers.add(synchWorker);
@@ -648,20 +660,20 @@ public class AsyncReplication implements Startable {
 
     return hasChangesSaveError;
   }
-  
+
   private boolean hasDuplicatePriority(List<Integer> other, int ownPriority) {
     if (other.contains(ownPriority))
       return true;
-    
-    for(int i=0; i<other.size(); i++) {
+
+    for (int i = 0; i < other.size(); i++) {
       int pri = other.get(i);
       List<Integer> oth = new ArrayList<Integer>(other);
       oth.remove(i);
-      
+
       if (oth.contains(pri))
         return true;
     }
-    
+
     return false;
   }
 }

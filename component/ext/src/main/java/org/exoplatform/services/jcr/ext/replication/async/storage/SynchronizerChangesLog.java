@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.ReadOnlyThroughChanges;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 
@@ -32,6 +33,10 @@ public class SynchronizerChangesLog extends TransactionChangesLog implements Rea
 
   public SynchronizerChangesLog(ChangesStorage<ItemState> changes) {
     super(new ChangesStorageChangesLog(changes));
+  }
+  
+  public SynchronizerChangesLog(PlainChangesLog changesLog) {
+    super(changesLog);
   }
   
 }
