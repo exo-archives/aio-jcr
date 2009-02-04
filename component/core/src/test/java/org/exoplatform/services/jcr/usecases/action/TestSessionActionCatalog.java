@@ -198,6 +198,36 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     assertEquals(1, catalog.getActions(cond).size());
   }
 
+  public void testMatchSuperNodeTypes() throws Exception {
+    SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
+    catalog.clear();
+
+    // test by path
+    SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.NODE_ADDED,
+                                                          null,
+                                                          true,
+                                                          null,
+                                                          new InternalQName[] { Constants.NT_HIERARCHYNODE },
+                                                          ntHolder);
+    catalog.addAction(matcher, new DummyAction());
+    Condition cond = new Condition();
+    cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
+
+    // test for this nodetype
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_UNSTRUCTURED });
+    assertEquals(0, catalog.getActions(cond).size());
+
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_HIERARCHYNODE });
+    assertEquals(1, catalog.getActions(cond).size());
+
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_FILE });
+    assertEquals(1, catalog.getActions(cond).size());
+
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_FOLDER });
+    assertEquals(1, catalog.getActions(cond).size());
+
+  }
+
   public void testMatchNotDeepPath() throws Exception {
     SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
     catalog.clear();
