@@ -17,7 +17,9 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Calendar;
 
 import javax.jcr.Node;
@@ -27,8 +29,8 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
@@ -42,9 +44,28 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AbstractMergeUseCases.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
+public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
-  private static final Log log = ExoLogger.getLogger("ext.AbstractMergeUseCases");
+  private static final Log  log       = ExoLogger.getLogger("ext.AbstractMergeUseCases");
+
+  protected ResourcesHolder resHolder = new ResourcesHolder();
+
+  protected class TesterRandomChangesFile
+                                         extends
+                                         org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile {
+
+    static final String PREFIX = "ChangesFile";
+
+    static final String SUFIX  = "SUFIX";
+
+    public TesterRandomChangesFile(String crc, long id) throws IOException {
+      super(File.createTempFile(PREFIX, SUFIX), crc, id, resHolder);
+    }
+
+    public TesterRandomChangesFile(File f, String crc, long id) throws IOException {
+      super(f, crc, id, resHolder);
+    }
+  }
 
   protected abstract class BaseMergeUseCase {
     protected final SessionImpl sessionLowPriority;
@@ -1447,6 +1468,16 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     }
 
     return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected void tearDown() throws Exception {
+    resHolder.close();
+
+    super.tearDown();
   }
 
 }

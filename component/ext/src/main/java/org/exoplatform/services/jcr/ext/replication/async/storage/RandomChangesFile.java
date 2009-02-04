@@ -35,63 +35,27 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class RandomChangesFile implements ChangesFile {
 
-  protected static final Log LOG                   = ExoLogger.getLogger("ext.RandomChangesFile");
+  protected static final Log    LOG                   = ExoLogger.getLogger("ext.RandomChangesFile");
 
-  public static final String PREFIX                = "ChangesFile";
-
-  public static final String SUFIX                 = "SUFIX";
-
-  private static final int   OBJECT_OUT_HEADER_LEN = 4;
+  private static final int      OBJECT_OUT_HEADER_LEN = 4;
 
   /**
    * Check sum to file.
    */
-  private final String       crc;
+  private final String          crc;
 
   /**
    * Time stamp to ChangesLog.
    */
-  private final long         id;
+  private final long            id;
 
-  private final File         file;
+  private final File            file;
 
-  private RandomAccessFile   fileAccessor;
+  private final ResourcesHolder resHolder;
 
-  private boolean            doTruncate            = false;
+  private RandomAccessFile      fileAccessor;
 
-  // private FileInputStream fileInput;
-
-  /**
-   * Create ChangesFile with file in directory.
-   * 
-   * @param crc
-   *          constant checksum
-   * @param id
-   *          changes file id
-   * @param directory
-   *          path to directory
-   */
-  public RandomChangesFile(String crc, long id, File directory) throws IOException {
-    this.crc = crc;
-    this.id = id;
-
-    // create file in directory
-    file = new File(directory, Long.toString(this.id));
-  }
-
-  /**
-   * This constructor used in RemoteExporter
-   * 
-   * @param crc
-   * @param id
-   */
-  public RandomChangesFile(String crc, long id) throws IOException {
-    this.crc = crc;
-    this.id = id;
-
-    // create temporary file
-    file = File.createTempFile(PREFIX, SUFIX);
-  }
+  private boolean               doTruncate            = false;
 
   /**
    * Create ChangesFile with already formed file.
@@ -104,10 +68,11 @@ public class RandomChangesFile implements ChangesFile {
    *          time stamp
    * @throws IOException
    */
-  public RandomChangesFile(File file, String crc, long id) {
+  public RandomChangesFile(File file, String crc, long id, ResourcesHolder resHolder) {
     this.crc = crc;
     this.id = id;
     this.file = file;
+    this.resHolder = resHolder;
   }
 
   /**
@@ -138,7 +103,7 @@ public class RandomChangesFile implements ChangesFile {
       @Override
       public void write(int b) throws IOException {
         checkFileAccessor();
-        //LOG.info("write - b=" + b);
+        // LOG.info("write - b=" + b);
         synchronized (fileAccessor) {
           fileAccessor.write(b);
           trunc();
@@ -147,7 +112,7 @@ public class RandomChangesFile implements ChangesFile {
 
       public void write(byte b[]) throws IOException {
         checkFileAccessor();
-        //LOG.info("write - b[]=" + b + " (" + b.length + ")");
+        // LOG.info("write - b[]=" + b + " (" + b.length + ")");
         synchronized (fileAccessor) {
           fileAccessor.write(b);
           trunc();
@@ -156,7 +121,7 @@ public class RandomChangesFile implements ChangesFile {
 
       public void write(byte b[], int off, int len) throws IOException {
         checkFileAccessor();
-        //LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ", len=" + len);
+        // LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ", len=" + len);
         synchronized (fileAccessor) {
           fileAccessor.write(b, off, len);
           trunc();
@@ -168,7 +133,7 @@ public class RandomChangesFile implements ChangesFile {
           fileAccessor.seek(file.length() - OBJECT_OUT_HEADER_LEN);
           doTruncate = false;
 
-          //LOG.info("trunc - seek on " + (file.length() - OBJECT_OUT_HEADER_LEN));
+          // LOG.info("trunc - seek on " + (file.length() - OBJECT_OUT_HEADER_LEN));
         }
       }
 
@@ -221,7 +186,7 @@ public class RandomChangesFile implements ChangesFile {
       }
       fileAccessor.seek(file.length());
 
-      //LOG.info("checkFileAccessor - seek on " + file.length());
+      // LOG.info("checkFileAccessor - seek on " + file.length());
     }
   }
 

@@ -58,7 +58,9 @@ import org.exoplatform.services.log.ExoLogger;
 public class RemoteExportServerImpl implements RemoteExportServer, LocalEventListener,
     RemoteEventListener {
 
-  protected static final Log          LOG     = ExoLogger.getLogger("jcr.RemoteExportServerImpl");
+  protected static final Log          LOG         = ExoLogger.getLogger("jcr.RemoteExportServerImpl");
+
+  public static final String          FILE_PREFIX = "export";
 
   protected final AsyncTransmitter    transmitter;
 
@@ -66,16 +68,16 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
 
   protected final NodeTypeDataManager ntManager;
 
-  protected final Set<ExportWorker>   workers = new LinkedHashSet<ExportWorker>();
-  
-  protected final ResourcesHolder     resHolder = new ResourcesHolder();
+  protected final Set<ExportWorker>   workers     = new LinkedHashSet<ExportWorker>();
 
-  protected boolean                   stopped = false;
+  protected final ResourcesHolder     resHolder   = new ResourcesHolder();
+
+  protected boolean                   stopped     = false;
 
   class ExportWorker extends Thread {
     final MemberAddress member;
 
-    final String nodeId;
+    final String        nodeId;
 
     ExportWorker(MemberAddress member, String nodeId) {
       this.member = member;
@@ -147,8 +149,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
 
     ObjectOutputStream out = null;
     try {
-      //TODO make it simplier
-      File chLogFile = File.createTempFile(RandomChangesFile.PREFIX, RandomChangesFile.SUFIX);
+      // TODO make it simplier
+      File chLogFile = File.createTempFile(FILE_PREFIX, "-" + nodeId);
       MessageDigest digest;
       try {
         digest = MessageDigest.getInstance("MD5");
@@ -225,13 +227,13 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
    * {@inheritDoc}
    */
   public void onStop() {
-    
+
     try {
       this.resHolder.close();
     } catch (IOException e) {
       LOG.error("Error of data streams close " + e, e);
     }
-    
+
     // set flag
     this.stopped = true;
   }

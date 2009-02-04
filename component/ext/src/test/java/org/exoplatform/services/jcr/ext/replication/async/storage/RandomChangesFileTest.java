@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.Random;
 
-import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.AbstractTrasportTest;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -33,12 +33,12 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: TestChangesFile.java 111 2008-11-11 11:11:11Z serg $
  */
-public class RandomChangesFileTest extends BaseStandaloneTest {
+public class RandomChangesFileTest extends AbstractTrasportTest {
 
   private static final String CRC = "CRC";
 
   public void testWriteFile() throws Exception {
-    RandomChangesFile file = new RandomChangesFile(CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile(CRC, System.currentTimeMillis());
 
     int size1 = 316;
     int size2 = 45;
@@ -66,7 +66,7 @@ public class RandomChangesFileTest extends BaseStandaloneTest {
   }
 
   public void testRandomWriteFile() throws Exception {
-    RandomChangesFile file = new RandomChangesFile(CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile(CRC, System.currentTimeMillis());
 
     int size1 = 10;
     int size2 = 5;
@@ -95,7 +95,7 @@ public class RandomChangesFileTest extends BaseStandaloneTest {
   }
 
   public void testCorruptedWriteFile() throws Exception {
-    RandomChangesFile file = new RandomChangesFile(CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile(CRC, System.currentTimeMillis());
 
     int size1 = 316;
     int size2 = 45;
@@ -140,7 +140,7 @@ public class RandomChangesFileTest extends BaseStandaloneTest {
 
     ac.close();
 
-    RandomChangesFile file = new RandomChangesFile(f, CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile(f, CRC, System.currentTimeMillis());
 
     byte[] buf1 = createBLOBTempData(size1);
     file.writeData(buf1, 0);
@@ -166,7 +166,7 @@ public class RandomChangesFileTest extends BaseStandaloneTest {
     byte[] bufetalon = new byte[size1 + size2 + size3];
 
    
-    RandomChangesFile file = new RandomChangesFile( CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile( CRC, System.currentTimeMillis());
 
     byte[] buf1 = createBLOBTempData(size1);
     System.arraycopy(buf1, 0, bufetalon, 0, size1);
@@ -209,7 +209,7 @@ public class RandomChangesFileTest extends BaseStandaloneTest {
     String third = new String("third");
 
 
-    RandomChangesFile file = new RandomChangesFile( CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile( CRC, System.currentTimeMillis());
 
     ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
     str.writeObject(first);
@@ -248,7 +248,7 @@ public class RandomChangesFileTest extends BaseStandaloneTest {
 
     File f  = new File("target/testunclosed");
     
-    RandomChangesFile file = new RandomChangesFile( f ,CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile( f ,CRC, System.currentTimeMillis());
 
     ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
     str.writeObject(first);
@@ -261,7 +261,7 @@ public class RandomChangesFileTest extends BaseStandaloneTest {
     
     file = null;
     
-    file = new RandomChangesFile( f ,CRC, System.currentTimeMillis());
+    file = new TesterRandomChangesFile( f ,CRC, System.currentTimeMillis());
     
     // check file
     ObjectInputStream in = new ObjectInputStream(file.getInputStream());

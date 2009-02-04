@@ -53,7 +53,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   protected final AsyncReceiver    receiver;
 
-  protected final ResourcesHolder  resHolder = new ResourcesHolder();
+  protected final ResourcesHolder  resHolder    = new ResourcesHolder();
 
   protected final File             tempDir;
 
@@ -76,9 +76,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   private RemoteExportException    exception    = null;
 
-  RemoteExporterImpl(AsyncTransmitter transmitter,
-                     AsyncReceiver receiver,
-                     String tempDir) {
+  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver, String tempDir) {
     this.transmitter = transmitter;
     this.receiver = receiver;
     this.tempDir = new File(tempDir);
@@ -201,7 +199,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     if (this.changesFile == null) {
       changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + timeStamp),
                                           crc,
-                                          timeStamp);
+                                          timeStamp,
+                                          resHolder);
     }
   }
 

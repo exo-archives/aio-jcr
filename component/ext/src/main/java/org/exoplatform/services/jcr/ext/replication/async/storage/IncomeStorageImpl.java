@@ -44,11 +44,13 @@ import org.exoplatform.services.log.ExoLogger;
 public class IncomeStorageImpl extends SynchronizationLifeCycle implements IncomeStorage,
     LocalEventListener, RemoteEventListener {
 
-  protected static final Log                     LOG     = ExoLogger.getLogger("jcr.IncomeStorageImpl");
+  protected static final Log                     LOG       = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
   protected final String                         storagePath;
 
-  protected final Map<Member, List<ChangesFile>> changes = new HashMap<Member, List<ChangesFile>>();
+  protected final Map<Member, List<ChangesFile>> changes   = new HashMap<Member, List<ChangesFile>>();
+
+  protected final ResourcesHolder                resHolder = new ResourcesHolder();
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -75,7 +77,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   public RandomChangesFile createChangesFile(String crc, long id, Member member) throws IOException {
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
     dir.mkdirs();
-    return new RandomChangesFile(crc, id, dir);
+    File cf = new File(dir, Long.toString(id));
+    return new RandomChangesFile(cf, crc, id, resHolder);
   }
 
   /**
@@ -84,7 +87,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   public List<MemberChangesStorage<ItemState>> getChanges() throws IOException {
     if (isStopped())
       throw new IOException("Incom storage already stopped.");
-    
+
     return getChangesFromMap();
   }
 
@@ -120,6 +123,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * @throws IOException
    *           on FS error
    */
+  @Deprecated
   private List<ChangesStorage<ItemState>> getChangesFromFS() throws IOException {
 
     File incomStorage = new File(storagePath);
@@ -140,14 +144,14 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         int memberPriority = Integer.parseInt(memberDir.getName()); // also check - is
         // member folder;
 
-        String[] fileNames = memberDir.list(new ChangesFilenameFilter());
+        File[] files = memberDir.listFiles(new ChangesFilenameFilter());
 
-        java.util.Arrays.sort(fileNames, new ChangesFileComparator());
+        java.util.Arrays.sort(files, new ChangesFileComparator<File>());
 
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
-        for (int j = 0; j < fileNames.length; j++) {
-          File ch = new File(memberDir, fileNames[j]);
-          chFiles.add(new RandomChangesFile("", Long.parseLong(fileNames[j]), memberDir));
+        for (int j = 0; j < files.length; j++) {
+          File ch = new File(memberDir, files[j].getName());
+          chFiles.add(new RandomChangesFile(ch, "", Long.parseLong(files[j].getName()), resHolder));
         }
 
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
@@ -220,7 +224,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
     // prepare storage (clean)
     clean();
-    
+
     doStart();
   }
 
@@ -236,17 +240,16 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
       LOG.warn("Not started or already stopped");
   }
 
-  
   /**
    * {@inheritDoc}
    */
   @Override
   public void doStop() {
     super.doStop();
-    
+
     // clean map
     changes.clear();
-    
+
     // clean storage
     clean();
   }

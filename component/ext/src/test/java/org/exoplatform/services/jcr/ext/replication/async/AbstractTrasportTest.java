@@ -16,10 +16,13 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
@@ -32,7 +35,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AbstractTrasportTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public abstract class AbstractTrasportTest extends AbstractMergeUseCases implements AsyncStateListener {
+public abstract class AbstractTrasportTest extends AbstractAsyncUseCases implements AsyncStateListener {
 
   protected List<Member> memberList;
   
@@ -98,5 +101,6 @@ public abstract class AbstractTrasportTest extends AbstractMergeUseCases impleme
       if (!m.equals(event.getLocalMember()))
         memberList.add(new Member(m, -1)); // TODO priority
     }
-  }
+  } 
+  
 }

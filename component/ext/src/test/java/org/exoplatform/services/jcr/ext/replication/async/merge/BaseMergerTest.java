@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.ext.replication.async.AbstractMergeUseCases;
+import org.exoplatform.services.jcr.ext.replication.async.AbstractAsyncUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
@@ -55,7 +55,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: AddMergerTest.java 25005 2008-12-12 16:33:15Z tolusha $
  */
-public class BaseMergerTest extends AbstractMergeUseCases {
+public class BaseMergerTest extends AbstractAsyncUseCases {
 
   protected SessionImpl                     session3;
 
@@ -84,8 +84,6 @@ public class BaseMergerTest extends AbstractMergeUseCases {
   protected PersistentDataManager           dataManager;
 
   protected NodeTypeDataManager             ntManager;
-
-  protected ResourcesHolder                 resHolder                   = new ResourcesHolder();
 
   /**
    * Test nodetype. UNSTRUCTURED but child nodes SNS disallowed.

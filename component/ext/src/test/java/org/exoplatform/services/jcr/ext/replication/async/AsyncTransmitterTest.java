@@ -94,7 +94,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     List<TransactionChangesLog> srcChangesLogList = pl.pushChanges();
 
     for (TransactionChangesLog tcl : srcChangesLogList) {
-      RandomChangesFile cf = new RandomChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
+      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
                                                                      .getTimeInMillis());
 
       ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
@@ -185,7 +185,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     NodeData exportNode = (NodeData) ((NodeImpl) (root.getNode("test_node_l1").getNode("test_node_l2"))).getData();
     NodeData parentNode = (NodeData) dm.getItemData(exportNode.getParentIdentifier());
 
-    RandomChangesFile cf = new RandomChangesFile("123123123123", System.currentTimeMillis());
+    TesterRandomChangesFile cf = new TesterRandomChangesFile("123123123123", System.currentTimeMillis());
     ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
 
     // extract ItemStates
@@ -379,7 +379,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
           case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
             log.info("BINARY_CHANGESLOG_FIRST_PACKET");
 
-            RandomChangesFile cf = new RandomChangesFile(packet.getCRC(), packet.getTimeStamp());
+            TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
 
             cf.writeData(packet.getBuffer(), packet.getOffset());
 
@@ -391,14 +391,14 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
           case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
             log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
 
-            cf = (RandomChangesFile)map.get(packet.getTimeStamp());
+            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
             cf.writeData(packet.getBuffer(), packet.getOffset());
             break;
 
           case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
             log.info("BINARY_CHANGESLOG_LAST_PACKET");
 
-            cf = (RandomChangesFile)map.get(packet.getTimeStamp());
+            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
             cf.finishWrite();
 
             latch.countDown();
@@ -507,7 +507,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   }
 
   private class ExportChangesReceiver implements AsyncPacketListener {
-    private RandomChangesFile exportChangesFile;
+    private TesterRandomChangesFile exportChangesFile;
 
     public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ExportChangesPacket) {
@@ -518,7 +518,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
           case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET:
             log.info("EXPORT_CHANGES_FIRST_PACKET");
 
-            exportChangesFile = new RandomChangesFile(packet.getCRC(), packet.getTimeStamp());
+            exportChangesFile = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
 
             exportChangesFile.writeData(packet.getBuffer(), packet.getOffset());
             break;

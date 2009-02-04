@@ -164,7 +164,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
           case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
             log.info("BINARY_CHANGESLOG_FIRST_PACKET");
 
-            RandomChangesFile cf = new RandomChangesFile(packet.getCRC(), packet.getTimeStamp());
+            TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
 
             cf.writeData(packet.getBuffer(), packet.getOffset());
 
@@ -176,14 +176,14 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
           case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
             log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
 
-            cf = (RandomChangesFile)map.get(packet.getTimeStamp());
+            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
             cf.writeData(packet.getBuffer(), packet.getOffset());
             break;
 
           case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
             log.info("BINARY_CHANGESLOG_LAST_PACKET");
 
-            cf = (RandomChangesFile)map.get(packet.getTimeStamp());
+            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
             cf.finishWrite();
 
             break;

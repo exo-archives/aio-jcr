@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.AbstractAsyncUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: CompositeItemStatesStorageTest.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class CompositeItemStatesStorageTest extends BaseStandaloneTest {
+public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
   public void testAdd() throws Exception {
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
@@ -79,7 +79,7 @@ public class CompositeItemStatesStorageTest extends BaseStandaloneTest {
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
     for (TransactionChangesLog tcl : pl.pushChanges()) {
-      RandomChangesFile cf = new RandomChangesFile("crc", 123l);
+      RandomChangesFile cf = new TesterRandomChangesFile("crc", 123l);
 
       ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
 
