@@ -36,14 +36,6 @@
       <version>${org.exoplatform.kernel.version}</version>
       <scope>provided</scope>
     </dependency>
-<!--    Remove this after removing deprecated PortalContainerInitializedFilter-->
-    <dependency>
-      <groupId>org.exoplatform.ws</groupId>
-      <artifactId>exo.ws.frameworks.servlet</artifactId>
-      <version>${org.exoplatform.ws.version}</version>
-      <scope>compile</scope>
-    </dependency>
-<!--    ======================================= -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>

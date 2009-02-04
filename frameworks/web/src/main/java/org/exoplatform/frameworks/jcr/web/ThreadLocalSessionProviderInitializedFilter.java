@@ -35,6 +35,8 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.StateKey;
+import org.exoplatform.services.security.web.HttpSessionStateKey;
 
 /**
  * Created by The eXo Platform SAS . <br/> Checks out if there are SessionProvider instance in
@@ -81,19 +83,19 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     // NOTE not create new HTTP session, if session is not created yet
     // this means some settings is incorrect, see web.xml for filter
     // org.exoplatform.services.security.web.SetCurrentIdentityFilter
-    HttpSession httpsession = httpRequest.getSession(false);
+    HttpSession httpSession = httpRequest.getSession(false);
     if (state == null) {
       if (log.isDebugEnabled())
         log.debug("Current conversation state is not set");
 
-      if (httpsession != null) {
-        String httpsessionId = httpsession.getId();
+      if (httpSession != null) {
+        StateKey stateKey = new HttpSessionStateKey(httpSession);
         // initialize thread local SessionProvider
-        state = stateRegistry.getState(httpsessionId);
+        state = stateRegistry.getState(stateKey);
         if (state != null)
           provider = new SessionProvider(state);
         else if (log.isDebugEnabled())
-          log.debug("WARN: Conversation State is null, id  " + httpsessionId);
+          log.debug("WARN: Conversation State is null, id  " + httpSession.getId());
       }
     } else {
       provider = new SessionProvider(state);
@@ -107,8 +109,11 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     try {
       if (ConversationState.getCurrent() != null)
         ConversationState.getCurrent().setAttribute(SessionProvider.SESSION_PROVIDER, provider);
+      
       providerService.setSessionProvider(null, provider);
+      
       chain.doFilter(request, response);
+      
     } finally {
       if (ConversationState.getCurrent() != null) {
         try {
