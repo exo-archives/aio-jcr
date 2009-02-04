@@ -509,7 +509,7 @@ public class AddMerger extends AbstractMerger {
                 for (int i = 0; i < changes.size(); i++)
                   skipVSChanges(changes.get(i), skippedList);
                 skippedList.add(localData.getQPath());
-                resultState.addAll(exporter.exportItem(localData.getParentIdentifier()));
+                resultState.addAll(exporter.exportItem(localData.getIdentifier()));
 
                 return resultState;
               }

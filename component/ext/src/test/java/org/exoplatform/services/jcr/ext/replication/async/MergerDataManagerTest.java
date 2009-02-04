@@ -137,6 +137,24 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     assertTrue(checkIn);
   }
 
+  public void testSkipVH() throws Exception {
+    Node node = root.addNode("item1");
+    node.addMixin("mix:versionable");
+    session.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    node.checkin();
+    session.save();
+
+    root4.addNode("item1");
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    assertEquals(res4.size(), 0);
+  }
+
   /**
    * Add tree of nodes item on low priority, already added on high priority.
    */

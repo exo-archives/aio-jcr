@@ -503,6 +503,9 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     return resultStates;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isParentHasCheckIn(ItemState lastState, QPath childPath) throws IOException,
                                                                          ClassCastException,
                                                                          ClassNotFoundException {
@@ -528,4 +531,20 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
 
     return false;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String findNodeInVS(String uuid) throws IOException,
+                                         ClassCastException,
+                                         ClassNotFoundException {
+    Iterator<T> itemStates = getChanges();
+    while (itemStates.hasNext()) {
+      T item = itemStates.next();
+
+    }
+
+    return null;
+  }
+
 }

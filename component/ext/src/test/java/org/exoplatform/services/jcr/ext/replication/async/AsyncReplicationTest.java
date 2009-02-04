@@ -25,6 +25,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -77,7 +78,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
       File storage1 = new File("target/temp/storage/" + System.currentTimeMillis());
       storage1.mkdirs();
-      File storage2 = new File("target/temp/storage/" + (System.currentTimeMillis()+89));
+      File storage2 = new File("target/temp/storage/" + (System.currentTimeMillis() + 89));
       storage2.mkdirs();
 
       List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
@@ -135,7 +136,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
                                     "cName_suffix");
 
       Thread.sleep(25000);
-      
+
       asyncReplication1.removeAllStorageListener();
       asyncReplication2.removeAllStorageListener();
     }
@@ -191,13 +192,13 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     super.tearDown();
   }
 
-  public void testUseCase1() throws Exception {
+  /*public void testUseCase1() throws Exception {
     UseCase1 useCase = new UseCase1(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
     asyncUseCase.initData();
-    
+
     assertTrue(asyncUseCase.checkEquals());
 
     asyncUseCase.useCase();
@@ -400,7 +401,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase2() throws Exception {
     ComplexUseCase2 useCase = new ComplexUseCase2(sessionLowPriority, sessionHigePriority);
 
@@ -414,7 +415,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase3() throws Exception {
     ComplexUseCase3 useCase = new ComplexUseCase3(sessionLowPriority, sessionHigePriority);
 
@@ -428,110 +429,110 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+  */
   public void testComplexUseCase4() throws Exception {
     ComplexUseCase4 useCase = new ComplexUseCase4(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
     asyncUseCase.initData();
-    
+
     Thread.sleep(15000);
 
     assertTrue(asyncUseCase.checkEquals());
 
     asyncUseCase.useCase();
-    
+
     Thread.sleep(15000);
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
-  public void testComplexUseCase5() throws Exception {
-    ComplexUseCase5 useCase = new ComplexUseCase5(sessionLowPriority, sessionHigePriority);
 
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+  /*
+    public void testComplexUseCase5() throws Exception {
+      ComplexUseCase5 useCase = new ComplexUseCase5(sessionLowPriority, sessionHigePriority);
 
-    asyncUseCase.initData();
+      AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    assertTrue(asyncUseCase.checkEquals());
+      asyncUseCase.initData();
 
-    asyncUseCase.useCase();
+      assertTrue(asyncUseCase.checkEquals());
 
-    assertTrue(asyncUseCase.checkEquals());
-  }
-  
-  public void testAdd_1_1_UseCase5() throws Exception {
-    Add1_1_UseCase useCase = new Add1_1_UseCase(sessionLowPriority, sessionHigePriority);
+      asyncUseCase.useCase();
 
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+      assertTrue(asyncUseCase.checkEquals());
+    }
 
-    asyncUseCase.initData();
+    public void testAdd_1_1_UseCase5() throws Exception {
+      Add1_1_UseCase useCase = new Add1_1_UseCase(sessionLowPriority, sessionHigePriority);
 
-    assertTrue(asyncUseCase.checkEquals());
+      AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    asyncUseCase.useCase();
+      asyncUseCase.initData();
 
-    assertTrue(asyncUseCase.checkEquals());
-  }
-  
-  
-  public void testAdd_1_2_UseCase5() throws Exception {
-    Add1_2_UseCase useCase = new Add1_2_UseCase(sessionLowPriority, sessionHigePriority);
+      assertTrue(asyncUseCase.checkEquals());
 
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+      asyncUseCase.useCase();
 
-    asyncUseCase.initData();
+      assertTrue(asyncUseCase.checkEquals());
+    }
 
-    assertTrue(asyncUseCase.checkEquals());
+    public void testAdd_1_2_UseCase5() throws Exception {
+      Add1_2_UseCase useCase = new Add1_2_UseCase(sessionLowPriority, sessionHigePriority);
 
-    asyncUseCase.useCase();
+      AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    assertTrue(asyncUseCase.checkEquals());
-  }
-  
-  public void testAdd_2_x_UseCase5() throws Exception {
-    Add2_x_UseCase useCase = new Add2_x_UseCase(sessionLowPriority, sessionHigePriority);
+      asyncUseCase.initData();
 
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+      assertTrue(asyncUseCase.checkEquals());
 
-    asyncUseCase.initData();
+      asyncUseCase.useCase();
 
-    assertTrue(asyncUseCase.checkEquals());
+      assertTrue(asyncUseCase.checkEquals());
+    }
 
-    asyncUseCase.useCase();
+    public void testAdd_2_x_UseCase5() throws Exception {
+      Add2_x_UseCase useCase = new Add2_x_UseCase(sessionLowPriority, sessionHigePriority);
 
-    assertTrue(asyncUseCase.checkEquals());
-  }
-  
-  public void testAdd_3_1_UseCase5() throws Exception {
-    Add3_1_UseCase useCase = new Add3_1_UseCase(sessionLowPriority, sessionHigePriority);
+      AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+      asyncUseCase.initData();
 
-    asyncUseCase.initData();
+      assertTrue(asyncUseCase.checkEquals());
 
-    assertTrue(asyncUseCase.checkEquals());
+      asyncUseCase.useCase();
 
-    asyncUseCase.useCase();
+      assertTrue(asyncUseCase.checkEquals());
+    }
 
-    assertTrue(asyncUseCase.checkEquals());
-  }
-  
-  public void testAdd_3_2_UseCase5() throws Exception {
-    Add3_2_UseCase useCase = new Add3_2_UseCase(sessionLowPriority, sessionHigePriority);
+    public void testAdd_3_1_UseCase5() throws Exception {
+      Add3_1_UseCase useCase = new Add3_1_UseCase(sessionLowPriority, sessionHigePriority);
 
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+      AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
-    asyncUseCase.initData();
+      asyncUseCase.initData();
 
-    assertTrue(asyncUseCase.checkEquals());
+      assertTrue(asyncUseCase.checkEquals());
 
-    asyncUseCase.useCase();
+      asyncUseCase.useCase();
 
-    assertTrue(asyncUseCase.checkEquals());
-  }
-  
+      assertTrue(asyncUseCase.checkEquals());
+    }
+
+    public void testAdd_3_2_UseCase5() throws Exception {
+      Add3_2_UseCase useCase = new Add3_2_UseCase(sessionLowPriority, sessionHigePriority);
+
+      AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+      asyncUseCase.initData();
+
+      assertTrue(asyncUseCase.checkEquals());
+
+      asyncUseCase.useCase();
+
+      assertTrue(asyncUseCase.checkEquals());
+    }
+  */
   private void printRootNode(SessionImpl ses) throws RepositoryException {
     log.info("Workspace :" + ses.getWorkspace().getName());
     NodeIterator ni = ses.getRootNode().getNodes();

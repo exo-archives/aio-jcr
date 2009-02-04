@@ -699,7 +699,9 @@ public class RenameMerger extends AbstractMerger {
 
               skippedList.add(localData.getQPath());
 
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+              resultState.addAll(exporter.exportItem(localData.isNode()
+                  ? localData.getIdentifier()
+                  : localData.getParentIdentifier()));
 
               return resultState;
             }
