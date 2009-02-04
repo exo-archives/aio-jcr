@@ -246,6 +246,8 @@ public class AsyncReplication implements Startable {
       // Worker and channel are one-shot modules, both will be GCed 
       // this.channel.removeConnectionListener(this);
 
+      this.exporter.cleanup();
+      
       currentWorkers.remove(this); // remove itself
 
       // set read-write state
