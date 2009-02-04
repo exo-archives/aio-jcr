@@ -144,4 +144,24 @@ public abstract class AbstractMerger implements ChangesMerger {
 
     return false;
   }
+
+  /**
+   * addSkippedVS.
+   * 
+   * @param skippedState
+   * @param skippedList
+   */
+  protected void skipVSChanges(ItemState skippedState, List<QPath> skippedList) {
+    if (!skippedState.getData().isNode())
+      return;
+
+    QPath sysPath = QPath.makeChildPath(Constants.ROOT_PATH, Constants.JCR_SYSTEM);
+    QPath vsPath = QPath.makeChildPath(sysPath, Constants.JCR_VERSIONSTORAGE);
+
+    QPath skippedPath = QPath.makeChildPath(vsPath, new InternalQName(null,
+                                                                      skippedState.getData()
+                                                                                  .getIdentifier()));
+
+    skippedList.add(skippedPath);
+  }
 }

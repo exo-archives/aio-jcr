@@ -112,7 +112,9 @@ public class MixinMerger extends AbstractMerger {
               if (incomeData.getQPath().equals(item.getData().getQPath())
                   || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
 
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
@@ -123,7 +125,10 @@ public class MixinMerger extends AbstractMerger {
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
             if (localData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
+
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
@@ -133,7 +138,10 @@ public class MixinMerger extends AbstractMerger {
           // DELETE
           if (localData.isNode()) {
             if (incomeData.getQPath().equals(localData.getQPath())) {
+
+              skipVSChanges(incomeState, skippedList);
               skippedList.add(incomeData.getQPath());
+
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           }
@@ -149,8 +157,10 @@ public class MixinMerger extends AbstractMerger {
           if (incomeData.getQPath().equals(localData.getQPath())) {
             List<ItemState> mixinSequence = income.getMixinSequence(incomeState);
             for (int i = 1; i < mixinSequence.size(); i++) { // first state is MIXIN_CHANGED
+              skipVSChanges(mixinSequence.get(i), skippedList);
               skippedList.add(mixinSequence.get(i).getData().getQPath());
             }
+
             return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
           }
           break;
@@ -339,6 +349,10 @@ public class MixinMerger extends AbstractMerger {
 
             if (incomeData.getQPath().equals(localData.getQPath())
                 || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+
+              List<ItemState> changes = income.getChanges(incomeState, localData.getQPath());
+              for (int i = 0; i < changes.size(); i++)
+                skipVSChanges(changes.get(i), skippedList);
 
               skippedList.add(localData.getQPath());
               resultState.addAll(exporter.exportItem(localData.getIdentifier()));

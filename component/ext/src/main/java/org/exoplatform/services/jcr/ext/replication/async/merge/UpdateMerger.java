@@ -205,7 +205,10 @@ public class UpdateMerger extends AbstractMerger {
           if (!localData.isNode()) {
             if (!incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
+
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {

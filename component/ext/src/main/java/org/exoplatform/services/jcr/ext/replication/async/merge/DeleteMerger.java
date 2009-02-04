@@ -116,13 +116,19 @@ public class DeleteMerger extends AbstractMerger {
                 : incParentNodeState.getData().getQPath();
 
             if (localData.getQPath().isDescendantOf(incNodePath)) {
+
+              skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
               skippedList.add(incNodePath);
+
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (!localData.isNode()) {
               if (localData.getQPath().equals(incomeData.getQPath())) {
+
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
@@ -145,7 +151,9 @@ public class DeleteMerger extends AbstractMerger {
                     || incNodePath.equals(item.getData().getQPath())
                     || incNodePath.isDescendantOf(item.getData().getQPath())) {
 
+                  skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
                   skippedList.add(incNodePath);
+
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
@@ -153,7 +161,10 @@ public class DeleteMerger extends AbstractMerger {
               List<ItemState> updateSeq = local.getUpdateSequence(localState);
               for (ItemState item : updateSeq) {
                 if (incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
+
+                  skipVSChanges(incomeState, skippedList);
                   skippedList.add(incomeData.getQPath());
+
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
@@ -185,12 +196,18 @@ public class DeleteMerger extends AbstractMerger {
 
               if (incNodePath.isDescendantOf(locNodePath) || incNodePath.equals(locNodePath)
                   || nextLocNodePath.isDescendantOf(incNodePath)) {
+
+                skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
                 skippedList.add(incNodePath);
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
@@ -205,19 +222,28 @@ public class DeleteMerger extends AbstractMerger {
 
             if (incNodePath.isDescendantOf(localData.getQPath())
                 || incNodePath.equals(localData.getQPath())) {
+
+              skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
               skippedList.add(incNodePath);
+
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
+
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
@@ -232,12 +258,18 @@ public class DeleteMerger extends AbstractMerger {
                   : incParentNodeState.getData().getQPath();
 
               if (localData.getQPath().isDescendantOf(incNodePath)) {
+
+                skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
                 skippedList.add(incNodePath);
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (localData.getQPath().equals(incomeData.getQPath())) {
+
+                skipVSChanges(incomeState, skippedList);
                 skippedList.add(incomeData.getQPath());
+
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
@@ -256,7 +288,10 @@ public class DeleteMerger extends AbstractMerger {
 
             if (localData.getQPath().equals(incNodePath)
                 || localData.getQPath().isDescendantOf(incNodePath)) {
+
+              skipVSChanges(incomeData.isNode() ? incomeState : incParentNodeState, skippedList);
               skippedList.add(incNodePath);
+
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
@@ -266,7 +301,10 @@ public class DeleteMerger extends AbstractMerger {
               ItemState item = mixinSeq.get(i);
               if (!item.getData().isNode()) {
                 if (item.getData().getQPath().equals(incomeData.getQPath())) {
+
+                  skipVSChanges(incomeState, skippedList);
                   skippedList.add(incomeData.getQPath());
+
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
