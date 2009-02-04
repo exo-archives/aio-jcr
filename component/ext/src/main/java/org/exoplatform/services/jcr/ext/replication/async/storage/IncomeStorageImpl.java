@@ -57,7 +57,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   }
 
   /**
-   * TODO remove {@inheritDoc}
+   * {@inheritDoc}
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
     // TODO check if CRC is valid for received file
@@ -74,7 +74,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public RandomChangesFile createChangesFile(String crc, long id, Member member) throws IOException {
+  public synchronized RandomChangesFile createChangesFile(String crc, long id, Member member) throws IOException {
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
     dir.mkdirs();
     File cf = new File(dir, Long.toString(id));
@@ -179,11 +179,17 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   }
 
   public void clean() {
+    try {
+      resHolder.close();
+    } catch (IOException e) {
+      LOG.error("Error of data streams close " + e, e);
+    }  
+
     // delete all data in storage
     File dir = new File(storagePath);
     if (dir.exists()) {
       deleteStorage(dir);
-    }
+    }    
   }
 
   /**
@@ -263,7 +269,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         }
       }
       if (!file.delete())
-        LOG.warn(">>>>>> Cannot delete file " + file.getAbsolutePath());
+        LOG.warn("Cannot delete file " + file.getAbsolutePath());
     }
   }
 

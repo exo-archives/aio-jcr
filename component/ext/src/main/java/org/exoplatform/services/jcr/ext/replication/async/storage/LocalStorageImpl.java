@@ -411,7 +411,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       for (File f : subfiles) {
         if (!f.delete()) {
           LOG.warn("Canot delete file " + f.getAbsolutePath());
-          reportException(new Exception("Canot delete file " + f.getAbsolutePath()));
+          reportException(new Exception("Cannot delete file " + f.getAbsolutePath()));
         }
       }
 
