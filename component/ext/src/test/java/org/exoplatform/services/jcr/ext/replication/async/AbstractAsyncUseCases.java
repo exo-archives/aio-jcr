@@ -29,6 +29,7 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
@@ -376,6 +377,40 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
 
+  }
+
+  public class ComplexUseCase9 extends BaseMergeUseCase {
+    public ComplexUseCase9(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("file");
+      node = node.addNode("fileA");
+      node.setProperty("data", "value");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("file").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("file").remove();
+
+      Node node = sessionLowPriority.getRootNode().addNode("file");
+      node = node.addNode("fileA");
+      node.setProperty("data", "newValue");
+      sessionLowPriority.save();
+    }
   }
 
   /**

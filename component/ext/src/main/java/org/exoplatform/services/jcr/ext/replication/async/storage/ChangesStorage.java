@@ -174,6 +174,19 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
+  public T findNextState(ItemState fromState, QPath path, int state) throws IOException,
+                                                                    ClassCastException,
+                                                                    ClassNotFoundException;
+
+  /**
+   * Tell if state presents in storage after specified.
+   * 
+   * @param state
+   *          ItemState
+   * @return boolean
+   * @throws IOException
+   *           if error
+   */
   public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException,
                                                                             ClassCastException,
                                                                             ClassNotFoundException;
@@ -191,15 +204,6 @@ public interface ChangesStorage<T extends ItemState> {
                                                                                      ClassCastException,
                                                                                      ClassNotFoundException;
 
-  /**
-   * Tell if state presents in storage before specified.
-   * 
-   * @param state
-   *          ItemState
-   * @return boolean
-   * @throws IOException
-   *           if error
-   */
   public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
                                                                   ClassCastException,
                                                                   ClassNotFoundException;

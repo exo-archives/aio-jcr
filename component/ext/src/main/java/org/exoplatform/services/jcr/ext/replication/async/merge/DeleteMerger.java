@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -361,7 +362,9 @@ public class DeleteMerger extends AbstractMerger {
             if (localData.getQPath().isDescendantOf(incNodePath)
                 || localData.getQPath().equals(incNodePath)) {
 
-              List<ItemState> items = local.getChanges(localState, incNodePath, true);
+              List<String> deletedUUID = new ArrayList<String>();
+
+              List<ItemState> items = local.getUniqueTreeChanges(localState, incNodePath);
               for (int i = items.size() - 1; i >= 0; i--) {
                 ItemState item = items.get(i);
 
@@ -377,11 +380,20 @@ public class DeleteMerger extends AbstractMerger {
                                                 ItemState.DELETED,
                                                 item.isEventFire(),
                                                 item.getData().getQPath()));
+
+                  deletedUUID.add(item.getData().getIdentifier());
                 }
               }
 
               // apply income changes for all subtree
-              for (ItemState st : income.getChanges(incomeState, incNodePath)) {
+              outer: for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
+
+                // skip already deleted items in previous block
+                for (int i = 0; i < deletedUUID.size(); i++)
+                  if (resultState.hasState(deletedUUID.get(i),
+                                           st.getData().getQPath(),
+                                           ItemState.DELETED))
+                    continue outer;
 
                 // delete lock properties if present
                 if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
@@ -392,6 +404,7 @@ public class DeleteMerger extends AbstractMerger {
                 resultState.add(st);
               }
 
+              addToSkipList(incomeState, incNodePath, income, skippedList);
               return resultState;
             }
           }
@@ -532,10 +545,7 @@ public class DeleteMerger extends AbstractMerger {
           }
 
           // DELETE
-          if (local.findNextState(localState,
-                                  localData.getIdentifier(),
-                                  localData.getQPath(),
-                                  ItemState.ADDED) != null) {
+          if (local.findNextState(localState, localData.getQPath(), ItemState.ADDED) != null) {
             break;
           }
 

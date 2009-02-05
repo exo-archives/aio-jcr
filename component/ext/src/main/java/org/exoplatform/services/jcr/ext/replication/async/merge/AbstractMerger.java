@@ -175,26 +175,17 @@ public abstract class AbstractMerger implements ChangesMerger {
       skippedList.add(skippedPath);
   }
 
-  protected void addToSkipList(ItemState skippedState,
+  protected void addToSkipList(ItemState firstState,
+                               QPath rootPath,
                                ChangesStorage<ItemState> storage,
                                List<QPath> skippedList) throws ClassCastException,
                                                        IOException,
                                                        ClassNotFoundException {
 
-    Iterator<ItemState> changes = storage.getTreeChanges(skippedState,
-                                                         skippedState.getData().getQPath())
-                                         .iterator();
+    Iterator<ItemState> changes = storage.getTreeChanges(firstState, rootPath).iterator();
     while (changes.hasNext()) {
       skippedList.add(changes.next().getData().getQPath());
     }
-
-    // skip changes in VersionStorage
-    if (!skippedState.getData().isNode())
-      return;
-
-    QPath skippedPath = storage.findNodeInVS(skippedState.getData().getIdentifier());
-    if (skippedPath != null)
-      skippedList.add(skippedPath);
   }
 
 }

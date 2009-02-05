@@ -58,7 +58,10 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
     TransactionChangesLog tlog = (TransactionChangesLog) log;
     out.writeObject(tlog);
 
-    this.storage.add(new SimpleChangesFile(ch, "", System.currentTimeMillis(), new ResourcesHolder()));
+    this.storage.add(new SimpleChangesFile(ch,
+                                           "",
+                                           System.currentTimeMillis(),
+                                           new ResourcesHolder()));
   }
 
   /**
