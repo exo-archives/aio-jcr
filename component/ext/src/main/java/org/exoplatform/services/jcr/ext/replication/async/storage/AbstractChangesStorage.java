@@ -467,6 +467,9 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     return resultStates;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<T> getTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
                                                                      ClassCastException,
                                                                      ClassNotFoundException {
@@ -501,6 +504,54 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     }
 
     return resultStates;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getUniqueTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                           ClassCastException,
+                                                                           ClassNotFoundException {
+    LinkedHashMap<Object, T> index = new LinkedHashMap<Object, T>();
+
+    Iterator<T> itemStates = getChanges();
+    while (itemStates.hasNext()) {
+      T item = itemStates.next();
+
+      if (item.isSame(firstState)) {
+        boolean checkStartState = false;
+
+        ItemState prevState = null;
+        while (itemStates.hasNext() || !checkStartState) {
+          T instate = checkStartState ? itemStates.next() : item;
+          checkStartState = true;
+
+          if (prevState != null && prevState.getState() == ItemState.DELETED
+              && instate.getState() == ItemState.RENAMED) { // TODO update?
+
+            prevState = null;
+
+            List<T> states = getUniqueTreeChanges(instate, instate.getData().getQPath());
+            for (int i = 0; i < states.size(); i++) {
+              if (index.get(states.get(i).getData().getQPath()) == null) {
+                index.put(states.get(i).getData().getQPath(), states.get(i));
+              }
+            }
+          }
+
+          if (instate.getData().getQPath().isDescendantOf(rootPath)
+              || instate.getData().getQPath().equals(rootPath)) {
+
+            if (index.get(instate.getData().getQPath()) == null) {
+              index.put(instate.getData().getQPath(), instate);
+            }
+            prevState = instate;
+          }
+        }
+      }
+    }
+
+    return new ArrayList<T>(index.values());
   }
 
   /**

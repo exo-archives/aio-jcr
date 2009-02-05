@@ -418,7 +418,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   }
 
   /**
-   * 9. Add node and twice move it
+   * Complex UseCase6
    */
   public void testComplexUsecase6() throws Exception {
     ComplexUseCase6 useCase6 = new ComplexUseCase6(session3, session4);
@@ -436,6 +436,55 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(useCase6.checkEquals());
+  }
+
+  /**
+   * 9. Add node and twice move it
+   */
+  public void testComplexUsecase7() throws Exception {
+    addChangesToChangesStorage(new TransactionChangesLog(), 20);
+
+    Node node = root3.addNode("item1");
+    session3.move("/item1", "/item2");
+    root3.getNode("item2").addNode("fileB");
+    session3.save();
+    addChangesToChangesStorage(cLog, 40);
+
+    node = root4.addNode("item1");
+    session4.move("/item1", "/item2");
+    root4.getNode("item2").addNode("fileA");
+    session4.save();
+    addChangesToChangesStorage(cLog, 60);
+
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
+                                                   dm4,
+                                                   ntm4,
+                                                   "target/storage/60");
+
+    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 60));
+    ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
+    assertTrue(res.size() == 0);
+
+    merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
+                                  dm4,
+                                  ntm4,
+                                  "target/storage/60");
+
+    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 40));
+    res = merger.merge(membersChanges.iterator());
+    saveResultedChanges(res, "ws3");
+    assertTrue(isWorkspacesEquals());
+
+    merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
+                                  dm4,
+                                  ntm4,
+                                  "target/storage/60");
+
+    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
+    res = merger.merge(membersChanges.iterator());
+    log.info(res.dump());
+
+    assertTrue(res.size() == 20);
   }
 
   /**

@@ -119,8 +119,7 @@ public class AddMerger extends AbstractMerger {
           if (localData.isNode()) {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                skipVSChanges(incomeState, income, skippedList);
-                skippedList.add(incomeData.getQPath());
+                addToSkipList(incomeState, income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
@@ -270,10 +269,11 @@ public class AddMerger extends AbstractMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (local.findNextState(localState,
-                                  localData.getIdentifier(),
-                                  localData.getQPath(),
-                                  ItemState.DELETED) != null) {
+          ItemState nextState = local.findNextState(localState,
+                                                    localData.getIdentifier(),
+                                                    localData.getQPath(),
+                                                    ItemState.DELETED);
+          if (nextState != null && nextState.isPersisted()) {
             break;
           }
 
@@ -297,7 +297,7 @@ public class AddMerger extends AbstractMerger {
                 }
 
                 // add DELETE state
-                List<ItemState> items = local.getChanges(localState, localData.getQPath(), true);
+                List<ItemState> items = local.getUniqueTreeChanges(localState, localData.getQPath());
                 for (int i = items.size() - 1; i >= 0; i--) {
                   if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
 
@@ -316,7 +316,7 @@ public class AddMerger extends AbstractMerger {
                 }
 
                 // add all state from income changes
-                for (ItemState st : income.getChanges(incomeState, incomeData.getQPath())) {
+                for (ItemState st : income.getTreeChanges(incomeState, incomeData.getQPath())) {
 
                   // delete lock properties if present
                   if (st.getData().isNode() && st.getState() == ItemState.DELETED) {

@@ -356,7 +356,7 @@ public class MergeDataManager {
       return result;
 
     } finally {
-      run = false; // TODO true for tests?
+      run = true; // TODO true for tests?
     }
   }
 
@@ -380,8 +380,8 @@ public class MergeDataManager {
     } catch (IOException e) {
       LOG.error("Cannot close merge data streams " + e, e);
     }
-    
+
     // delete files
-    
+
   }
 }

@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -173,4 +174,27 @@ public abstract class AbstractMerger implements ChangesMerger {
     if (skippedPath != null)
       skippedList.add(skippedPath);
   }
+
+  protected void addToSkipList(ItemState skippedState,
+                               ChangesStorage<ItemState> storage,
+                               List<QPath> skippedList) throws ClassCastException,
+                                                       IOException,
+                                                       ClassNotFoundException {
+
+    Iterator<ItemState> changes = storage.getTreeChanges(skippedState,
+                                                         skippedState.getData().getQPath())
+                                         .iterator();
+    while (changes.hasNext()) {
+      skippedList.add(changes.next().getData().getQPath());
+    }
+
+    // skip changes in VersionStorage
+    if (!skippedState.getData().isNode())
+      return;
+
+    QPath skippedPath = storage.findNodeInVS(skippedState.getData().getIdentifier());
+    if (skippedPath != null)
+      skippedList.add(skippedPath);
+  }
+
 }

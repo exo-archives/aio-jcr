@@ -324,4 +324,19 @@ public interface ChangesStorage<T extends ItemState> {
   public QPath findNodeInVS(String uuid) throws IOException,
                                         ClassCastException,
                                         ClassNotFoundException;
+
+  /**
+   * getUniqueTreeChanges.
+   * 
+   * @param firstState
+   * @param rootPath
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
+  public List<T> getUniqueTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                           ClassCastException,
+                                                                           ClassNotFoundException;
+
 }
