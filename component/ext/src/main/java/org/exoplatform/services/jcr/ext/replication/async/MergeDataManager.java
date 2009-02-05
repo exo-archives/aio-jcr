@@ -372,6 +372,8 @@ public class MergeDataManager {
    * 
    */
   public void cleanup() {
+    run = false; // but it should be already stopped or canceled
+    
     try {
       resHolder.close();
     } catch (IOException e) {

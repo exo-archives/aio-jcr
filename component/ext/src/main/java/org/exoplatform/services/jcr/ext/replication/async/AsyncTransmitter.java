@@ -40,6 +40,15 @@ public interface AsyncTransmitter {
    * @throws IOException
    */
   void sendChanges(ChangesFile[] changes, List<MemberAddress> subscribers) throws IOException;
+  
+  /**
+   * Send changes file.
+   *
+   * @param changes
+   * @param subscribers
+   * @throws IOException
+   */
+  void sendChanges(ChangesFile changes, List<MemberAddress> subscribers, int totalFiles) throws IOException;
 
   /**
    * Send Get Export request.

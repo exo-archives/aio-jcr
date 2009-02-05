@@ -281,51 +281,59 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                          new MemberChangesFile(cf, member));
       } catch (Throwable e) {
         doCancel();
-        LOG.error("Error of First data packet processing. Member " + member, e);
+        LOG.error("Error of First data packet processing. Packet from " + member, e);
       }
       break;
     }
     case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
-      try {
-        // LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
+      if (isStarted()) {
+        try {
+          // LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
 
-        MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
-        mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
-      } catch (Throwable e) {
-        doCancel();
-        LOG.error("Error of Mid data packet processing. Member " + member, e);
-      }
+          MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
+          mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
+        } catch (Throwable e) {
+          doCancel();
+          LOG.error("Error of Mid data packet processing. Packet from " + member, e);
+        }
+      } else
+        LOG.error("Mid data packet received but the Subscriber is not started. Packet from "
+            + member + " skipped");
       break;
     }
     case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
-      try {
-        LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + member.getName());
+      if (isStarted()) {
+        try {
+          LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + member.getName());
 
-        MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
-        mcf.getChangesFile().finishWrite();
-        incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
+          MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
+          mcf.getChangesFile().finishWrite();
+          incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
 
-        Counter counter;
-        if (counterMap.containsKey(packet.getTransmitterPriority())) {
-          counter = counterMap.get(packet.getTransmitterPriority());
-          counter.countUp();
-        } else {
-          counter = new Counter((int) packet.getFileCount(), 1);
-          counterMap.put(packet.getTransmitterPriority(), counter);
+          Counter counter;
+          if (counterMap.containsKey(packet.getTransmitterPriority())) {
+            counter = counterMap.get(packet.getTransmitterPriority());
+            counter.countUp();
+          } else {
+            counter = new Counter((int) packet.getFileCount(), 1);
+            counterMap.put(packet.getTransmitterPriority(), counter);
+          }
+
+          // if all changes here, doStartMerge
+          if (counter.isTotalTransfer() && isAllTransfered())
+            if (mergeWorker == null) {
+              mergeWorker = new MergeWorker();
+              mergeWorker.start();
+            } else
+              LOG.error("Error, merge process laready activated.");
+
+        } catch (Throwable e) {
+          doCancel();
+          LOG.error("Error of Last data packet processing. Packet from " + member, e);
         }
-
-        // if all changes here, doStartMerge
-        if (counter.isTotalTransfer() && isAllTransfered())
-          if (mergeWorker == null) {
-            mergeWorker = new MergeWorker();
-            mergeWorker.start();
-          } else
-            LOG.error("Error, merge process laready activated.");
-
-      } catch (Throwable e) {
-        doCancel();
-        LOG.error("Error of Last data packet processing. Member " + member, e);
-      }
+      } else
+        LOG.error("Last data packet received but the Subscriber is not started. Packet from "
+            + member + " skipped");
       break;
     }
     }
@@ -386,13 +394,15 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
        */
       @Override
       public void run() {
-        try {
-          mergeWorker.join();
-        } catch (InterruptedException e) {
-          LOG.error("Error of merge process cancelation " + e, e);
-        }
+        if (mergeWorker != null) {
+          try {
+            mergeWorker.join();
+          } catch (InterruptedException e) {
+            LOG.error("Error of merge process cancelation " + e, e);
+          }
 
-        mergeManager.cleanup();
+          mergeManager.cleanup();
+        }
       }
     }.start();
   }

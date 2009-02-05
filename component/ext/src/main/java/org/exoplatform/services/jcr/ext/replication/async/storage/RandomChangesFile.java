@@ -184,7 +184,7 @@ public class RandomChangesFile implements ChangesFile {
    */
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
-      fileAccessor = new RandomAccessFile(file, "rw");
+      fileAccessor = new RandomAccessFile(file, "rwd");
       
       resHolder.add(fileAccessor);
 

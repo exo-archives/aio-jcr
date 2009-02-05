@@ -62,7 +62,10 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   protected PublisherWorker               publisherWorker;
 
   private class PublisherWorker extends Thread {
+
     private final List<MemberAddress> subscribers;
+
+    private volatile boolean          run = true;
 
     public PublisherWorker(List<MemberAddress> subscribers) {
       this.subscribers = new ArrayList<MemberAddress>(subscribers);
@@ -77,12 +80,21 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
         LOG.info("Local changes : "
             + (localChanges = storage.getLocalChanges().getChangesFile()).length);
 
-        if (isStarted())
-          transmitter.sendChanges(localChanges, subscribers);
+        if (isStarted() && run) {
+          for (ChangesFile cf : localChanges)
+            if (run)
+              transmitter.sendChanges(cf, subscribers, localChanges.length);
+            else
+              return;
+        }
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
-          doCancel();
+        doCancel();
       }
+    }
+
+    void cancel() {
+      run = false;
     }
   }
 
@@ -99,8 +111,8 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    */
   public void onCancel() {
     if (isStarted()) {
-      doStop();
       cancelWorker();
+      doStop();
     } else
       LOG.warn("Not started or already stopped");
   }
@@ -139,10 +151,10 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
     LOG.info("On STOP (local)");
 
     if (isStarted()) {
-      doStop();
-
       cancelWorker();
 
+      doStop();
+      
       publisherWorker = null;
     } else
       LOG.warn("Not started or already stopped");
@@ -150,12 +162,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
 
   private void cancelWorker() {
     if (publisherWorker != null)
-      try {
-        // Stop publisher.
-        publisherWorker.join();
-      } catch (InterruptedException e) {
-        LOG.error("Error of publisher worker stop " + e, e);
-      }
+      publisherWorker.cancel();
   }
 
   protected void doCancel() {
@@ -167,7 +174,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
       } catch (IOException ioe) {
         LOG.error("Cannot send 'Cancel' " + ioe, ioe);
       }
-  
+
       for (LocalEventListener syncl : listeners)
         // inform all interested
         syncl.onCancel();

@@ -61,13 +61,18 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * {@inheritDoc}
    */
   public void sendChanges(ChangesFile[] changes, List<MemberAddress> subscribers) throws IOException {
-    try {
-      for (ChangesFile cf : changes)
+
+    for (ChangesFile cf : changes)
+      if (cf != null)
         this.sendChangesLogFile(subscribers, cf, priority, changes.length);
-    } catch (IOException e) {
-      LOG.error("Cannot send changes", e);
-      throw e;
-    }
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void sendChanges(ChangesFile cf, List<MemberAddress> subscribers, int totalFiles) throws IOException {
+    this.sendChangesLogFile(subscribers, cf, priority, totalFiles);
   }
 
   /**
