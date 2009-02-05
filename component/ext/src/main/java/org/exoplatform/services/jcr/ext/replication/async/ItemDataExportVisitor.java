@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
 
 /**
  * 
@@ -101,8 +102,6 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     }
     newProperty.setValues(res);
     
-    //newProperty.setValues(property.getValues());
-
     try {
       out.writeObject(new ItemState(newProperty,
                                     ItemState.ADDED,
@@ -150,7 +149,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
                                                                                     1));
       String ref;
       try {
-        ref = ((TransientValueData) property.getValues().get(0)).getString();
+        ref = ValueDataConvertor.readString(property.getValues().get(0));
       } catch (IOException e) {
         throw new RepositoryException(e);
       }

@@ -52,4 +52,8 @@ public class RemoteExportException extends Exception {
   public RemoteExportException(ClassCastException error) {
     super(error);
   }
+  
+  public RemoteExportException(RemoteExportException error) {
+    super(error);
+  }
 }

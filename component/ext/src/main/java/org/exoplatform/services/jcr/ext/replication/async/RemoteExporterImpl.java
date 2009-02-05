@@ -109,7 +109,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       // Throw internal exceptions
       if (exception != null)
         try {
-          throw exception;
+          throw new RemoteExportException(exception);
         } finally {
           exception = null;
         }

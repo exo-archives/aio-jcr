@@ -50,14 +50,14 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   protected ChangesSubscriber        changesSubscriber;
 
   protected RemoteExportClient       remoteExportListener;
-  
+
   /**
    * The list of names to other participants cluster.
    */
   protected final List<Integer>      otherParticipantsPriority;
 
-  AsyncReceiverImpl(AsyncChannelManager channel, 
-                    RemoteExportServer exportServer, 
+  AsyncReceiverImpl(AsyncChannelManager channel,
+                    RemoteExportServer exportServer,
                     List<Integer> otherParticipantsPriority) {
     this.exportServer = exportServer;
     this.otherParticipantsPriority = otherParticipantsPriority;
@@ -71,8 +71,8 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   protected void onChanges(ChangesPacket packet, MemberAddress member) {
     Member mem = new Member(member, packet.getTransmitterPriority());
 
-    //LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet "
-    //    + packet.getFileCount() + "," + packet.getTimeStamp());
+    // LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet "
+    // + packet.getFileCount() + "," + packet.getTimeStamp());
 
     if (changesSubscriber != null)
       changesSubscriber.onChanges(packet, mem);
@@ -83,7 +83,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   protected void onGetExport(GetExportPacket packet, MemberAddress member) {
     String nodeId = packet.getNodeId();
 
-    //LOG.info("onGetExport member " + member + ", packet nodeId" + nodeId);
+    // LOG.info("onGetExport member " + member + ", packet nodeId" + nodeId);
 
     RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, member);
 
@@ -94,86 +94,85 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * {@inheritDoc}
    */
   public void receive(AbstractPacket packet, MemberAddress address) {
-    
-    // Check the member was configured. 
+
+    // Check the member was configured.
     if (otherParticipantsPriority.contains(packet.getTransmitterPriority())) {
       switch (packet.getType()) {
       case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
-  
+
         onGetExport((GetExportPacket) packet, address);
         break;
       case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
         ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
-  
+
         Member member = new Member(address, exportPacket.getTransmitterPriority());
-  
+
         RemoteExportResponce eventFirst = new RemoteExportResponce(member,
                                                                    RemoteExportResponce.FIRST,
                                                                    exportPacket.getCRC(),
                                                                    exportPacket.getTimeStamp(),
                                                                    exportPacket.getBuffer(),
                                                                    exportPacket.getOffset());
-  
+
         remoteExportListener.onRemoteExport(eventFirst);
       }
         break;
       case AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET: {
         ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
-  
+
         Member member = new Member(address, exportPacket.getTransmitterPriority());
-  
+
         RemoteExportResponce eventMiddle = new RemoteExportResponce(member,
                                                                     RemoteExportResponce.MIDDLE,
                                                                     exportPacket.getCRC(),
                                                                     exportPacket.getTimeStamp(),
                                                                     exportPacket.getBuffer(),
                                                                     exportPacket.getOffset());
-  
+
         remoteExportListener.onRemoteExport(eventMiddle);
       }
         break;
       case AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET: {
         ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
-  
+
         Member member = new Member(address, exportPacket.getTransmitterPriority());
-        
-        RemoteExportResponce eventLast = new RemoteExportResponce(member, 
+
+        RemoteExportResponce eventLast = new RemoteExportResponce(member,
                                                                   RemoteExportResponce.LAST,
                                                                   exportPacket.getCRC(),
                                                                   exportPacket.getTimeStamp(),
                                                                   exportPacket.getBuffer(),
                                                                   exportPacket.getOffset());
-  
+
         remoteExportListener.onRemoteExport(eventLast);
       }
         break;
       case AsyncPacketTypes.EXPORT_ERROR: {
         ErrorPacket errorPacket = (ErrorPacket) packet;
-  
-        RemoteExportError eventError = new RemoteExportError(errorPacket.getErrorMessage());
+
+        RemoteExportError eventError = new RemoteExportError(errorPacket.getErrorMessage()
+            + ". Error from member with priority " + errorPacket.getTransmitterPriority());
         remoteExportListener.onRemoteError(eventError);
       }
         break;
-  
+
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
         onChanges((ChangesPacket) packet, address);
         break;
-  
+
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
         onChanges((ChangesPacket) packet, address);
         break;
-  
+
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
         onChanges((ChangesPacket) packet, address);
         break;
-  
+
       }
     } else
-      LOG.warn("Skipp packet from not configured participant : received priority = " 
-               + packet.getTransmitterPriority() + 
-               " ; Other participants priority = " + otherParticipantsPriority + 
-               "\nMember: " + address + 
-               "\nPacket: " + packet);
+      LOG.warn("Skipp packet from not configured participant : received priority = "
+          + packet.getTransmitterPriority() + " ; Other participants priority = "
+          + otherParticipantsPriority + "\nMember: " + address + "\nPacket: " + packet);
   }
 
   /**
