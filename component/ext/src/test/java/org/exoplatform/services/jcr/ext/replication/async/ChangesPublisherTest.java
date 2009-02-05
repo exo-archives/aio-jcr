@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogsIterator;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -128,9 +129,9 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     // deserialize
     List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
-      ObjectInputStream ois = new ObjectInputStream(changesFile.getInputStream());
-      TransactionChangesLog tcLog = (TransactionChangesLog) ois.readObject();
-      destChangesLogList.add(tcLog);
+      ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(destCfList);
+      while (it.hasNext()) 
+        destChangesLogList.add(it.next());
     }
     
     // compare ChangesLog
