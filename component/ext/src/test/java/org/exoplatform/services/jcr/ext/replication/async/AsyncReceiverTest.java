@@ -207,7 +207,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     assertEquals(0, exportReceiver.last.getBuffer().length);
 
     // compare error
-    assertEquals(errorMessage, exportReceiver.remoteError.getErrorMessage());
+    assertTrue(exportReceiver.remoteError.getErrorMessage().startsWith(errorMessage));
   }
 
   public void testReceiveChanges() throws Exception {
