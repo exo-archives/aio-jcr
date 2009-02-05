@@ -7,7 +7,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.fckeditor</artifactId>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.11-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>eXo FCKeditor using example</name>
   <url>http://www.exoplatform.org</url>
@@ -18,14 +18,14 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.11-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.web</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.11-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 

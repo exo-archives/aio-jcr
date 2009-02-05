@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.product.jcr</artifactId>
 	<packaging>jar</packaging>
-	<version>${org.exoplatform.jcr.version}</version>
+	<version>1.11-SNAPSHOT</version>
 	<name>eXo JCR Product</name>
 	<url>http://www.exoplatform.org</url>
 	<description>eXo JCR Product</description>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.ear</artifactId>
-			<version>${org.exoplatform.jcr.version}</version>
+			<version>1.11-SNAPSHOT</version>
 			<type>ear</type>
 			<scope>runtime</scope>
 		</dependency>
@@ -70,16 +70,16 @@
 						</copy>
 						<!--renaming ear-->
 						<move
-							todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+							todir="${basedir}/target/lib-1.11-SNAPSHOT.dir/">
 							<fileset
-								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+								dir="${basedir}/target/lib-1.11-SNAPSHOT.dir/">
 								<include name="**/*.ear" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="*-${org.exoplatform.jcr.version}.ear" to="*.ear"
+										from="*-1.11-SNAPSHOT.ear" to="*.ear"
 										casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -89,7 +89,7 @@
 							todir="${exo.projects.directory.working}/exo-jonas/apps/autoload/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+								dir="${basedir}/target/lib-1.11-SNAPSHOT.dir/"
 								includes="**/*.ear" />
 						</copy>
 						<!--copying exo-configuration.xml-->
@@ -117,7 +117,7 @@
 						<copy
 							todir="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/">
 							<fileset
-								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+								dir="${basedir}/target/lib-1.11-SNAPSHOT.dir/">
 								<include name="**/hsqldb*.jar" />
 							</fileset>
 						</copy>

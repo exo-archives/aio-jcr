@@ -7,7 +7,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.webdav</artifactId>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.11-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>eXO JCR Webdav web application</name>
   <url>http://www.exoplatform.org</url>
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.web</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.11-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 

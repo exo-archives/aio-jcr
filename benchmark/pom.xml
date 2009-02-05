@@ -8,20 +8,20 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.benchmark</artifactId>
   <packaging>jar</packaging>
-  <version>${org.exoplatform.jcr.version}</version>
+  <version>1.11-SNAPSHOT</version>
   <name>eXo JCR benchmark</name>
 
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.11-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.11-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
