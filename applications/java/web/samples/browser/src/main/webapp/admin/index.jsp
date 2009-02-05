@@ -43,7 +43,7 @@
             if (status == "true") {
               sform.innerHTML = "<form><input name=\"submit\" type=\"submit\" value=\"synchronizing\" disabled=\"disabled\"></form>";    
             } else {
-              sform.innerHTML = "<form><input name=\"submit\" type=\"submit\" value=\"synchronize\" onclick=\"runAreplication()></form>";  
+              sform.innerHTML = "<form><input name=\"submit\" type=\"submit\" value=\"synchronize\" onclick=\"runAreplication()\"></form>";  
             }
           }
         }
@@ -103,13 +103,12 @@
                   <c:otherwise>
                     <form>
                       <input name="submit" type="submit" value="synchronize" onclick="runAreplication()">
-                      <!-- input name="synchronize" type="hidden" value="run" -->
                     </form>
                   </c:otherwise>
                 </c:choose>
               </c:when>
             </c:choose>
-          <span>
+          </span>
         </span>		
 	  </h2>
 	  <h2 class="info">Workspace:&nbsp;
