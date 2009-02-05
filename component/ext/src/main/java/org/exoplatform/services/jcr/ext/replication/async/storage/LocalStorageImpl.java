@@ -240,7 +240,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       currentOut.writeObject(itemStates);
       // keep stream opened
 
-      LOG.info("Write done: \r\n" + itemStates.dump());
+      //LOG.info("Write done: \r\n" + itemStates.dump());
     }
   }
 
@@ -299,8 +299,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
-      LOG.info("onSave \n\r" + itemStates.dump()); // TODO
-
       changesQueue.add((TransactionChangesLog) itemStates);
 
       if (changesSpooler == null) {
@@ -415,13 +413,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         }
       }
 
-      // leave current directory
-
-     /* if (!currentDir.mkdirs()) {
-        LOG.error("Can't create Local strage subfolder: " + currentDir.getAbsolutePath());
-        this.reportException(new IOException("LocalStorage subfolder create fails : "
-            + currentDir.getAbsolutePath()));
-      }*/
+      //reset files index
+      index = new Long(0);
+      
     } else
       LOG.warn("Not started or already stopped");
 
