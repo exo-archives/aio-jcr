@@ -970,6 +970,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     if (lockTokenHeader != null) {
       lockTokenHeader = lockTokenHeader.substring(1, lockTokenHeader.length() - 1);
+      
+      if (lockTokenHeader.contains("opaquelocktoken")){
+        lockTokenHeader = lockTokenHeader.split(":")[1];
+      }
+      
       lockTokens.add(lockTokenHeader);
     }
 
