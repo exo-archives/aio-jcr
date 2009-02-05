@@ -228,7 +228,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     List<ItemState> list = getItemStatesFromChLog(chLogFile);
     ItemState elem = list.get(0);
 
-    assertEquals(p.getQPath(), elem.getAncestorToSave());
+    assertNull(elem.getAncestorToSave());
     assertEquals(p.getQPath(), elem.getData().getQPath());
   }
 
@@ -252,7 +252,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
       ItemState elem = changes.get(i);
 
       assertEquals(expect.getState(), elem.getState());
-      //assertEquals(expect.getAncestorToSave(), elem.getAncestorToSave());
+      assertNull(elem.getAncestorToSave());
       ItemData expData = expect.getData();
       ItemData elemData = elem.getData();
       assertEquals(expData.getQPath(), elemData.getQPath());

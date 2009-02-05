@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -156,17 +157,15 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     assertEquals(size1 + size2 + size3, readed);
     assertEquals(true, java.util.Arrays.equals(bufetalon, bufrez));
   }
-  
+
   public void testUppend() throws Exception {
     int size1 = 6;
     int size2 = 5;
     int size3 = 7;
 
-
     byte[] bufetalon = new byte[size1 + size2 + size3];
 
-   
-    RandomChangesFile file = new TesterRandomChangesFile( CRC, System.currentTimeMillis());
+    RandomChangesFile file = new TesterRandomChangesFile(CRC, System.currentTimeMillis());
 
     byte[] buf1 = createBLOBTempData(size1);
     System.arraycopy(buf1, 0, bufetalon, 0, size1);
@@ -179,58 +178,55 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
 
     file.getOutputStream().write(buf1);
     file.finishWrite();
-    
+
     file.getOutputStream().write(buf2);
     file.finishWrite();
-    
+
     file.getOutputStream().write(buf3);
     file.finishWrite();
-    
+
     // check file
-    
+
     InputStream in = file.getInputStream();
-    
+
     byte[] buf = new byte[1024];
-   
+
     int readed = in.read(buf);
-    
+
     byte[] bufrez = new byte[readed];
-    System.arraycopy(buf, 0, bufrez,0, readed);
-    
+    System.arraycopy(buf, 0, bufrez, 0, readed);
+
     assertEquals(size1 + size2 + size3, readed);
     assertEquals(true, java.util.Arrays.equals(bufetalon, bufrez));
-    
+
   }
-  
-  
+
   public void testUppendObjects() throws Exception {
     String first = new String("first");
     String second = new String("second");
     String third = new String("third");
 
+    RandomChangesFile file = new TesterRandomChangesFile(CRC, System.currentTimeMillis());
 
-    RandomChangesFile file = new TesterRandomChangesFile( CRC, System.currentTimeMillis());
-
-    ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
+    ObjectOutputStream str = new ObjectOutputStream(file.getOutputStream());
     str.writeObject(first);
     str.writeObject(second);
     str.close();
     file.finishWrite();
-    
-    str = new ObjectOutputStream( file.getOutputStream());
+
+    str = new ObjectOutputStream(file.getOutputStream());
     str.writeObject(second);
     str.close();
     file.finishWrite();
 
-    str = new ObjectOutputStream( file.getOutputStream());
+    str = new ObjectOutputStream(file.getOutputStream());
     str.writeObject(third);
     str.close();
     file.finishWrite();
 
-    
     // check file
     ObjectInputStream in = new ObjectInputStream(file.getInputStream());
-    
+
     String rez = (String) in.readObject();
     assertEquals(first, rez);
     rez = (String) in.readObject();
@@ -240,45 +236,96 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     rez = (String) in.readObject();
     assertEquals(third, rez);
   }
-  
+
   public void testReadUnclosedFile() throws Exception {
     String first = new String("first");
     String second = new String("second");
     String third = new String("third");
 
-    File f  = new File("target/testunclosed");
-    
-    RandomChangesFile file = new TesterRandomChangesFile( f ,CRC, System.currentTimeMillis());
+    File f = new File("target/testunclosed");
 
-    ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
+    RandomChangesFile file = new TesterRandomChangesFile(f, CRC, System.currentTimeMillis());
+
+    ObjectOutputStream str = new ObjectOutputStream(file.getOutputStream());
     str.writeObject(first);
     str.writeObject(second);
     str.writeObject(third);
-    //str.close();
-    //file.finishWrite();
-    
+    // str.close();
+    // file.finishWrite();
+
     // uclose streams
-    
+
     file = null;
-    
-    file = new TesterRandomChangesFile( f ,CRC, System.currentTimeMillis());
-    
+
+    file = new TesterRandomChangesFile(f, CRC, System.currentTimeMillis());
+
     // check file
     ObjectInputStream in = new ObjectInputStream(file.getInputStream());
-    
+
     String rez = (String) in.readObject();
     assertEquals(first, rez);
     rez = (String) in.readObject();
     assertEquals(second, rez);
     rez = (String) in.readObject();
     assertEquals(third, rez);
-    
-    try{
+
+    try {
       rez = (String) in.readObject();
       fail();
-    }catch(EOFException e){
-      //ok
+    } catch (EOFException e) {
+      // ok
     }
+  }
+
+  public void testWriteBigFile() throws Exception {
+    final int filesize = 50 * 1024;
+
+    File f = this.createBLOBTempFile(filesize);
+
+    InputStream in = new FileInputStream(f);
+    RandomChangesFile rf = new TesterRandomChangesFile(CRC, System.currentTimeMillis());
+    Random random = new Random();
+    long position = 0;
+    byte[] buf;
+    int readed = -1;
+    do {
+      buf = new byte[random.nextInt(1024) + 1];
+      readed = in.read(buf);
+      if (readed != -1) {
+        if (readed < buf.length) {
+          byte[] b = new byte[readed];
+          System.arraycopy(buf, 0, b, 0, readed);
+          rf.writeData(b, position);
+          break;
+        } else {
+          rf.writeData(buf, position);
+          position+=readed;
+        }
+      }
+    } while (readed != -1);
+
+    rf.finishWrite();
+    in.close();
+    buf = null;
+    
+    //check
+    InputStream inet = new FileInputStream(f);
+    InputStream inch = rf.getInputStream();
+    int readet = -1;
+    int readch = -1;
+    
+    do{
+      byte[] bufet = new byte[2048];
+      byte[] bufch = new byte[2048];
+      
+      readet = inet.read(bufet);
+      readch = inch.read(bufch);
+      assertEquals(readet,readch);
+      assertTrue(java.util.Arrays.equals(bufet, bufch));
+    }while(readet!=-1 && readch!=-1);
+    
+    inet.close();
+    inch.close();
   }
 
   protected byte[] createBLOBTempData(int size) throws IOException {
@@ -287,5 +334,4 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     random.nextBytes(data);
     return data;
   }
-
 }
