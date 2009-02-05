@@ -100,6 +100,11 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
       LOG.info("sendMerge");
     }
 
+    public void sendChanges(ChangesFile changes, List<MemberAddress> subscribers, int totalFiles) throws IOException {
+      // TODO Auto-generated method stub
+      
+    }
+
   }
 
   /**

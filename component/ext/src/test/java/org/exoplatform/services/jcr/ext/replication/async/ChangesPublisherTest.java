@@ -50,6 +50,11 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
   private static final String CH_NAME     = "AsyncRepCh_Test_ChangesSubscriberTest";
 
   private static final String bindAddress = "127.0.0.1";
+  
+  public void tearDown() throws Exception { 
+    Thread.sleep(10000);
+    super.tearDown();
+  }
 
   public void testExchangeChanges() throws Exception {
 
@@ -61,7 +66,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     int priority2 = 100;
     int waitAllMemberTimeout = 120; // 120 seconds.
 
-    File storage = new File("../target/temp/storage/" + System.currentTimeMillis());
+    File storage = new File("target/temp/storage/" + System.currentTimeMillis());
     storage.mkdirs();
 
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
@@ -100,7 +105,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_"
-        + repository.getName() + "_" + session.getWorkspace().getName());
+        + repository.getName() + "_" + session.getWorkspace().getName(), 2);
 
     ChangesPacketReceiver packetReceiver = new ChangesPacketReceiver();
 

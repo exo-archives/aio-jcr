@@ -53,10 +53,10 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel1.addStateListener(this);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
 
     RemoteExportServerTester exportServer = new RemoteExportServerTester();
 
@@ -104,10 +104,10 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel1.addStateListener(this);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
 
     RemoteExportServerTester exportServer = new RemoteExportServerTester();
 
@@ -217,10 +217,10 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel1.addStateListener(this);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
 
     RemoteExportServerTester exportServer = new RemoteExportServerTester();
 

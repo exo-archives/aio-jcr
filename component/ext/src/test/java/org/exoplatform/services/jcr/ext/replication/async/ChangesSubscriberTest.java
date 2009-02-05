@@ -110,7 +110,7 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_"
-        + repository.getName() + "_" + sessionWS1.getWorkspace().getName());
+        + repository.getName() + "_" + sessionWS1.getWorkspace().getName(), 2);
     channel.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority2);

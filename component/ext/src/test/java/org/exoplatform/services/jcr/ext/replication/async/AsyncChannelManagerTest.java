@@ -57,7 +57,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
 
   public void setUp() throws Exception {
     // init channel
-    channel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
+    channel = new AsyncChannelManager(CH_CONFIG, CH_NAME, 2);
     channel.connect();
   }
 
@@ -109,7 +109,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
     channel.addPacketListener(listener);
 
     // send big file;
-    AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
+    AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME, 2);
     tchannel.connect();
 
     MemberAddress adr = new MemberAddress(new IpAddress("127.0.0.1", 7800));
@@ -182,7 +182,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
 
     channel.addPacketListener(listener);
 
-    AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
+    AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME, 2);
     tchannel.connect();
 
     String nodeId = "nodeId";

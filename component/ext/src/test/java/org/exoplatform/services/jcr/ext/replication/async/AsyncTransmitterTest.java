@@ -103,11 +103,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     // send ChangesFile-s
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     ChangesPacketReceiver packetReceiver = new ChangesPacketReceiver();
     channel1.addPacketListener(packetReceiver);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel2.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
@@ -195,11 +195,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     // send ChangesFile-s
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     ExportChangesReceiver exportChangesReceiver = new ExportChangesReceiver();
     channel1.addPacketListener(exportChangesReceiver);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel2.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
@@ -233,11 +233,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   public void testSendCancel() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     CancelReceiver cancelReceiver = new CancelReceiver();
     channel1.addPacketListener(cancelReceiver);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel2.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
@@ -264,11 +264,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   public void testSendMerge() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     MergeReceiver mergeReceiver = new MergeReceiver();
     channel1.addPacketListener(mergeReceiver);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel2.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
@@ -295,11 +295,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   public void testSendExportError() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     ExporErrorReceiver exporErrorReceiver = new ExporErrorReceiver();
     channel1.addPacketListener(exporErrorReceiver);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel2.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
@@ -328,11 +328,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   public void testSendGetExport() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     GetExportReceiver getExportReceiver = new GetExportReceiver();
     channel1.addPacketListener(getExportReceiver);
 
-    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
     channel2.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);

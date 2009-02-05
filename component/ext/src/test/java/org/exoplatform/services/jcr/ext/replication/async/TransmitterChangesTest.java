@@ -82,7 +82,7 @@ public class TransmitterChangesTest extends AbstractTrasportTest {
     
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
     
-    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME, 1);
     channel.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority);

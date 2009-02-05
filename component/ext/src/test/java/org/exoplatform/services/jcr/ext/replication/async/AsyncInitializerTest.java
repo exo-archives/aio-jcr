@@ -51,8 +51,8 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String cName = CH_NAME + "_testTwoMembers";
     
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 2);
+    channel2 = new AsyncChannelManager(chConfig, cName, 2);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -114,9 +114,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String cName = CH_NAME + "_testThreeMembers";
     
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
-    channel3 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 3);
+    channel2 = new AsyncChannelManager(chConfig, cName, 3);
+    channel3 = new AsyncChannelManager(chConfig, cName, 3);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -201,7 +201,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String cName = CH_NAME + "_testTwoMembers_one_NotConnected";
     
-    channel1 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 2);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -241,8 +241,8 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     
     String cName = CH_NAME + "_testThreeMembers_one_NotConnected";
     
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 3);
+    channel2 = new AsyncChannelManager(chConfig, cName, 3);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -311,9 +311,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String cName = CH_NAME + "_testFourMembers_one_NotConnected";
     
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
-    channel3 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 4);
+    channel2 = new AsyncChannelManager(chConfig, cName, 4);
+    channel3 = new AsyncChannelManager(chConfig, cName, 4);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -401,8 +401,8 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     
     String cName = CH_NAME + "_testThreeMembers_one_NotConnected_NotCancel";
 
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 3);
+    channel2 = new AsyncChannelManager(chConfig, cName, 3);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -469,9 +469,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String cName = CH_NAME + "_testFourMembers_disconnect_coordinator";
 
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
-    channel3 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 4);
+    channel2 = new AsyncChannelManager(chConfig, cName, 4);
+    channel3 = new AsyncChannelManager(chConfig, cName, 4);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -565,9 +565,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String cName = CH_NAME + "_testFourMembers_disconnect_coordinator_notCancel";
 
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
-    channel3 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 4);
+    channel2 = new AsyncChannelManager(chConfig, cName, 4);
+    channel3 = new AsyncChannelManager(chConfig, cName, 4);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -670,9 +670,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String cName = CH_NAME + "_testFourMembers_one_NotConnected_NotCancel";
 
-    channel1 = new AsyncChannelManager(chConfig, cName);
-    channel2 = new AsyncChannelManager(chConfig, cName);
-    channel3 = new AsyncChannelManager(chConfig, cName);
+    channel1 = new AsyncChannelManager(chConfig, cName, 4);
+    channel2 = new AsyncChannelManager(chConfig, cName, 4);
+    channel3 = new AsyncChannelManager(chConfig, cName, 4);
 
     // first member parameters
     int memberPriority_1 = 50;

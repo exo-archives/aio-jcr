@@ -94,7 +94,7 @@ public class ExportChangesTest extends BaseStandaloneTest {
 
     String id = d.getIdentifier();
 
-    AsyncChannelManager channel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
+    AsyncChannelManager channel = new AsyncChannelManager(CH_CONFIG, CH_NAME, 1);
 
     int priority = 50;
     List<Integer> otherPartisipantsPriority = new ArrayList<Integer>();
