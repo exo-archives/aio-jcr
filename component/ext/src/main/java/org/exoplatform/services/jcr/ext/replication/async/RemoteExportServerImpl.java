@@ -90,6 +90,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
     @Override
     public void run() {
       try {
+        LOG.info("Remote EXPORT request from member " + member + ", node " + nodeId);
+        
         ChangesFile chl = getExportChanges(nodeId);
         transmitter.sendExport(chl, member);
 

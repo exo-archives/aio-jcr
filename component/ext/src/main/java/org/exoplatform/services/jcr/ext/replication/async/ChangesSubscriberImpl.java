@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -71,7 +72,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   protected final int                       memberWaitTimeout;
 
-  protected final int                       membersCount;
+  protected final int                       confMembersCount;
 
   protected final int                       localPriority;
 
@@ -154,7 +155,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         return;
       }
 
-      if (isStarted() && mergeDoneList.size() == membersCount) {
+      if (isStarted() && mergeDoneList.size() == confMembersCount) {
         save();
         doStop();
       }
@@ -172,6 +173,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
       // add local changes to the list
       List<MemberChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
+
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localMember.getPriority()) {
         membersChanges.add(new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
                                                                localMember));
@@ -226,7 +228,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                ChangesSaveErrorLog errorLog,
                                int memberWaitTimeout,
                                int localPriority,
-                               int membersCount) {
+                               int confMembersCount) {
     this.memberWaitTimeout = memberWaitTimeout;
     this.localPriority = localPriority;
     this.mergeManager = mergeManager;
@@ -235,7 +237,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     this.errorLog = errorLog;
     this.initializer = initializer;
     this.transmitter = transmitter;
-    this.membersCount = membersCount;
+    this.confMembersCount = confMembersCount;
     this.counterMap = new LinkedHashMap<Integer, Counter>();
   }
 
@@ -257,6 +259,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         if (isInitialized()) {
           // Fire START on non-Coordinator
           LOG.info("On START (remote) from " + member.getName());
+
+          // Start first member waiter
+          firstChangesWaiter = new FirstChangesWaiter();
+          firstChangesWaiter.start();
 
           doStart();
 
@@ -326,7 +332,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   }
 
   private boolean isAllTransfered() {
-    if ((counterMap.size() + 1) != membersCount)
+    if ((counterMap.size() + 1) != confMembersCount)
       return false;
 
     for (Map.Entry<Integer, Counter> e : counterMap.entrySet())
@@ -342,13 +348,13 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     if (isStarted()) {
       cancelMerge();
 
+      doStop();
+
       try {
         transmitter.sendCancel();
       } catch (IOException ioe) {
         LOG.error("Cannot send 'Cancel'" + ioe, ioe);
       }
-
-      doStop();
 
       for (LocalEventListener syncl : listeners)
         // inform all interested
@@ -364,10 +370,31 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   @Override
   public void doStop() {
     super.doStop();
-    
+
     mergeDoneList = null;
-    
-    mergeManager.cleanup();
+
+    if (firstChangesWaiter != null)
+      firstChangesWaiter.cancel();
+    else
+      LOG.warn("First changes member is not initialized");
+
+    // 04.02.2009, potentially can wait a long time for the merge end (cancel) - run it in
+    // independent thread.
+    new Thread("Merge canceler, " + new Date()) {
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void run() {
+        try {
+          mergeWorker.join();
+        } catch (InterruptedException e) {
+          LOG.error("Error of merge process cancelation " + e, e);
+        }
+
+        mergeManager.cleanup();
+      }
+    }.start();
   }
 
   /**
@@ -389,20 +416,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    */
   private void cancelMerge() {
     if (mergeWorker != null)
-      try {
-        mergeManager.cancel();
-
-        // 04.02.2009, potentially can wait a long time for the merge end (cancel).
-        // TODO may hung JGroups operation
-        mergeWorker.join();
-
-      } catch (RepositoryException e) {
-        LOG.error("Error of merge process cancelation " + e, e);
-      } catch (RemoteExportException e) {
-        LOG.error("Error of merge process cancelation " + e, e);
-      } catch (InterruptedException e) {
-        LOG.error("Error of merge process cancelation " + e, e);
-      }
+      mergeManager.cancel();
   }
 
   /**
@@ -415,9 +429,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       mergeDoneList.add(member);
 
       LOG.info("On Merge member " + member + ", doneList.size=" + mergeDoneList.size()
-          + " membersCount=" + membersCount);
+          + " membersCount=" + confMembersCount);
 
-      if (mergeDoneList.size() == membersCount) {
+      if (mergeDoneList.size() == confMembersCount) {
         save();
         doStop();
       }
@@ -538,7 +552,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    * 
    */
   private class FirstChangesWaiter extends Thread {
-    protected volatile boolean run = true;
+
+    private volatile boolean run = true;
 
     /**
      * {@inheritDoc}
@@ -547,14 +562,19 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       try {
         Thread.sleep(memberWaitTimeout);
 
-        if ((counterMap.size() + 1) != membersCount) {
-          LOG.error("No changes from member : ");
-          doCancel();
-        }
+        if (run)
+          if ((counterMap.size() + 1) != confMembersCount) {
+            LOG.error("No changes from member : " + (counterMap.size() + 1));
+            doCancel();
+          } else
+            LOG.info("Changes from members : " + (counterMap.size() + 1));
       } catch (InterruptedException e) {
         LOG.error("FirstChangesWaiter is interrupted : " + e, e);
       }
     }
 
+    void cancel() {
+      run = false;
+    }
   }
 }

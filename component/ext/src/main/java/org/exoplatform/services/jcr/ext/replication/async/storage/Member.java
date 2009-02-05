@@ -33,8 +33,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
  */
 public class Member {
 
-  private final int hashCode;
-
   private final MemberAddress       address;
 
   private final int                 priority;
@@ -50,10 +48,6 @@ public class Member {
   public Member(MemberAddress address, int priority) {
     this.address = address;
     this.priority = priority;
-
-    int hk = 7;
-    hk = hk * 31 + this.address.hashCode();
-    this.hashCode = hk * 31 + this.priority;
   }
 
   /**
@@ -78,14 +72,6 @@ public class Member {
           && this.priority == ((Member) obj).priority;
     else
       return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int hashCode() {
-    return this.hashCode;
   }
 
   /**

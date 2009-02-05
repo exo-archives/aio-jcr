@@ -86,13 +86,15 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
-    // registration RemoteChangesListener.
+  public ChangesStorage<ItemState> exportItem(String nodeId) throws RemoteExportException {
+    
+    LOG.info("Remote EXPORT from member " + remoteMember + ", node " + nodeId);
+    
     receiver.setRemoteExportListener(this);
 
     // send request
     try {
-      transmitter.sendGetExport(nodetId, remoteMember);
+      transmitter.sendGetExport(nodeId, remoteMember);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }
@@ -113,6 +115,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         }
     }
 
+    LOG.info("Remote EXPORT DONE from member " + remoteMember + ", node " + nodeId);
+    
     // check checksums
     try {
       DigestInputStream dis = new DigestInputStream(changesFile.getInputStream(),

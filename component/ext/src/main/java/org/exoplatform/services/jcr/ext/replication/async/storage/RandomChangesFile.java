@@ -185,6 +185,8 @@ public class RandomChangesFile implements ChangesFile {
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
       fileAccessor = new RandomAccessFile(file, "rw");
+      
+      resHolder.add(fileAccessor);
 
       if (file.length() > 0) {
         doTruncate = true;

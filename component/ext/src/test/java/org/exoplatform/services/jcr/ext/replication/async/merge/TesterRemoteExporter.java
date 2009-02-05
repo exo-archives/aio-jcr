@@ -64,7 +64,7 @@ public class TesterRemoteExporter implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
+  public ChangesStorage<ItemState> exportItem(String nodeId) throws RemoteExportException {
 
     ChangesStorage<ItemState> chs = null;
 

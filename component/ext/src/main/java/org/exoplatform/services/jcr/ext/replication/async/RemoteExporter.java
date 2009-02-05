@@ -48,12 +48,12 @@ public interface RemoteExporter {
   /**
    * Exports remote item and return chnages log with ADD states.
    * 
-   * @param nodetId
+   * @param nodeId
    *          String
    * @return Iterator of ItemState
    * @throws RemoteExportException
    */
-  ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException;
+  ChangesStorage<ItemState> exportItem(String nodeId) throws RemoteExportException;
   
   /**
    * Release resources (streams close).

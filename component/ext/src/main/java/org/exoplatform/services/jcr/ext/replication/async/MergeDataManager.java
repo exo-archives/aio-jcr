@@ -362,11 +362,8 @@ public class MergeDataManager {
 
   /**
    * Cancel current merge process.
-   * 
-   * @throws RepositoryException
-   * @throws RemoteExportException
    */
-  public void cancel() throws RepositoryException, RemoteExportException {
+  public void cancel() {
     run = false;
   }
 
@@ -382,6 +379,23 @@ public class MergeDataManager {
     }
 
     // delete files
-
+    File dir = new File(storageDir);
+    if (dir.exists()) {
+      File[] files = dir.listFiles();
+      for (File f : files) {
+        deleteStorage(f);
+      }
+    }   
+  }
+  
+  private void deleteStorage(File file) {
+    if (file.isDirectory()) {
+      File[] files = file.listFiles();
+      for (File f : files) {
+        deleteStorage(f);
+      }
+    }
+    if (!file.delete())
+      LOG.warn("Cannot delete file " + file.getAbsolutePath());
   }
 }

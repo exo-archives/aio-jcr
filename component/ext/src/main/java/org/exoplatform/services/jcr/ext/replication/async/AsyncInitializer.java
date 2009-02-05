@@ -109,7 +109,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       try {
         Thread.sleep(timeout);
 
-        close();
+        if (channelManager.isConnected()) // !isStopped()
+          close();
       } catch (Exception e) {
         LOG.error("Cannot disconnect from JChannel", e);
       }

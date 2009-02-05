@@ -73,6 +73,11 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   private final String                   channelName;
 
   /**
+   * Members count according the configuration (other-participants-priority).
+   */
+  private final int                      confMembersCount;
+
+  /**
    * Packet listeners.
    */
   private List<AsyncPacketListener>      packetListeners;
@@ -131,7 +136,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
               mp = queue.poll();
             }
-            
+
             lock.wait();
           }
         } catch (InterruptedException e) {
@@ -176,7 +181,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
           }
         }
       };
-      
+
       thr.start();
     }
   }
@@ -189,9 +194,11 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * @param channelName
    *          name of channel
    */
-  public AsyncChannelManager(String channelConfig, String channelName) {
+  public AsyncChannelManager(String channelConfig, String channelName, int confMembersCount) {
     this.channelConfig = channelConfig;
     this.channelName = channelName;
+    this.confMembersCount = confMembersCount;
+
     this.packetListeners = new ArrayList<AsyncPacketListener>();
     this.stateListeners = new ArrayList<AsyncStateListener>();
     this.connectionListeners = new ArrayList<ConnectionListener>();
@@ -252,7 +259,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       dispatcher.setMembershipListener(null);
       dispatcher.stop();
       dispatcher = null;
-  
+
       LOG.info("dispatcher stopped");
       try {
         Thread.sleep(3000);
@@ -260,20 +267,20 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
         LOG.error("The interapted on disconnect : " + e, e);
       }
     }
-    
+
     if (channel != null) {
       channel.disconnect();
-  
+
       LOG.info("channel disconnected");
       try {
         Thread.sleep(5000);
       } catch (InterruptedException e) {
         LOG.error("The interapted on disconnect : " + e, e);
       }
-  
+
       channel.close();
       channel = null;
-      
+
       LOG.info("Disconnect done, fire connection listeners");
 
       for (ConnectionListener cl : connectionListeners) {
@@ -429,9 +436,15 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
         packetsHandler.add(PacketTransformer.getAsPacket(message.getBuffer()),
                            new MemberAddress(message.getSrc()));
 
-        if (channel.getView() != null && channel.getView().getMembers().size() > 0)
-          packetsHandler.handle();
-        else
+        if (channel.getView() != null) {
+          if (channel.getView().getMembers().size() == confMembersCount)
+            // TODO run without one (few) members will not work, see LastMemberWaiter in initializer
+            packetsHandler.handle();
+          else
+            LOG.warn("Not all members connected to the channel " +
+                     + channel.getView().getMembers().size() + " != " + confMembersCount +
+            		", queue message " + message);
+        } else
           LOG.warn("No members found or channel closed, queue message " + message);
 
         return new String("Success");
@@ -462,7 +475,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       for (Address address : view.getMembers())
         members.add(new MemberAddress(address));
 
-      AsyncStateEvent event = new AsyncStateEvent(new MemberAddress(channel.getLocalAddress()), members);
+      AsyncStateEvent event = new AsyncStateEvent(new MemberAddress(channel.getLocalAddress()),
+                                                  members);
 
       for (AsyncStateListener listener : stateListeners)
         listener.onStateChanged(event);

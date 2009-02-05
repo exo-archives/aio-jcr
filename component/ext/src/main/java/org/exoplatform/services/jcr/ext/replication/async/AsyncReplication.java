@@ -141,7 +141,9 @@ public class AsyncReplication implements Startable {
                 WorkspaceEntry workspaceConfig,
                 WorkspaceFileCleanerHolder cleanerHolder) {
 
-      this.channel = new AsyncChannelManager(channelConfig, channelName + "_" + chanelNameSufix);
+      this.channel = new AsyncChannelManager(channelConfig,
+                                             channelName + "_" + chanelNameSufix,
+                                             otherParticipantsPriority.size() + 1);
 
       this.dataManager = dataManager;
 

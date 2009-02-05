@@ -44,13 +44,25 @@ import org.exoplatform.services.log.ExoLogger;
 public class IncomeStorageImpl extends SynchronizationLifeCycle implements IncomeStorage,
     LocalEventListener, RemoteEventListener {
 
-  protected static final Log                     LOG       = ExoLogger.getLogger("jcr.IncomeStorageImpl");
+  protected static final Log                  LOG       = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
-  protected final String                         storagePath;
+  protected final String                      storagePath;
 
-  protected final Map<Member, List<ChangesFile>> changes   = new HashMap<Member, List<ChangesFile>>();
+  protected final Map<Integer, MemberChanges> changes   = new HashMap<Integer, MemberChanges>();
 
-  protected final ResourcesHolder                resHolder = new ResourcesHolder();
+  protected final ResourcesHolder             resHolder = new ResourcesHolder();
+
+  class MemberChanges {
+
+    final Member            member;
+
+    final List<ChangesFile> changes;
+
+    MemberChanges(Member member, List<ChangesFile> changes) {
+      this.member = member;
+      this.changes = changes;
+    }
+  }
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -62,13 +74,13 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
     // TODO check if CRC is valid for received file
 
-    List<ChangesFile> mch = this.changes.get(member);
+    MemberChanges mch = this.changes.get(member.getPriority());
     if (mch == null) {
-      mch = new ArrayList<ChangesFile>();
-      this.changes.put(member, mch);
+      mch = new MemberChanges(member, new ArrayList<ChangesFile>());
+      this.changes.put(member.getPriority(), mch);
     }
 
-    mch.add(changesFile);
+    mch.changes.add(changesFile);
   }
 
   /**
@@ -78,6 +90,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
     dir.mkdirs();
     File cf = new File(dir, Long.toString(id));
+
+    LOG.info("RandomChangesFile " + cf.getAbsolutePath()); // TODO clean
+
     return new RandomChangesFile(cf, crc, id, resHolder);
   }
 
@@ -99,9 +114,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   private List<MemberChangesStorage<ItemState>> getChangesFromMap() {
 
     List<MemberChangesStorage<ItemState>> result = new ArrayList<MemberChangesStorage<ItemState>>();
-    for (Map.Entry<Member, List<ChangesFile>> entry : changes.entrySet()) {
-      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue()),
-                                                     entry.getKey()));
+    for (Map.Entry<Integer, MemberChanges> entry : changes.entrySet()) {
+      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue().changes),
+                                                     entry.getValue().member));
     }
 
     Collections.sort(result, new Comparator<MemberChangesStorage<ItemState>>() {
@@ -183,13 +198,13 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
       resHolder.close();
     } catch (IOException e) {
       LOG.error("Error of data streams close " + e, e);
-    }  
+    }
 
     // delete all data in storage
     File dir = new File(storagePath);
     if (dir.exists()) {
       deleteStorage(dir);
-    }    
+    }
   }
 
   /**
@@ -199,7 +214,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     LOG.info("On DisconnectMembers " + members);
 
     for (Member member : members)
-      changes.remove(member);
+      changes.remove(member.getPriority());
 
     // Get members directory
 
@@ -261,16 +276,14 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   }
 
   private void deleteStorage(File file) {
-    if (file != null) {
-      if (file.isDirectory()) {
-        File[] files = file.listFiles();
-        for (File f : files) {
-          deleteStorage(f);
-        }
+    if (file.isDirectory()) {
+      File[] files = file.listFiles();
+      for (File f : files) {
+        deleteStorage(f);
       }
-      if (!file.delete())
-        LOG.warn("Cannot delete file " + file.getAbsolutePath());
     }
+    if (!file.delete())
+      LOG.warn("Cannot delete file " + file.getAbsolutePath());
   }
 
   /**
