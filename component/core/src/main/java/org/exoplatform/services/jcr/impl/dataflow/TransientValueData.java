@@ -408,7 +408,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @throws IOException
    */
   public String getString() throws IOException {
-    log.debug("getString");
+    if (log.isDebugEnabled()) 
+      log.debug("getString");
+    
     return new String(getAsByteArray(), Constants.DEFAULT_ENCODING);
   }
 
@@ -598,8 +600,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
     if (type == 1) {
       data = new byte[in.readInt()];
-      for (int i = 0; i < data.length; i++)
-        data[i] = in.readByte();
+      in.readFully(data);
+      //for (int i = 0; i < data.length; i++)
+      //  data[i] = in.readByte();
     }
     orderNumber = in.readInt();
     maxBufferSize = in.readInt();
