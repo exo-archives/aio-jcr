@@ -23,14 +23,16 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.StorageKey;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.AsyncWorker;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
@@ -83,6 +85,10 @@ public class AsyncReplicationTester extends AsyncReplication {
     StorageKey skey = new StorageKey(repoName, workspaceName);
     LocalStorage localStorage = localStorages.get(skey);
     IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey));
+    
+    WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
+    WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
+
 
     AsyncWorker synchWorker = new AsyncWorker(dm, 
                                               ntm, 
@@ -91,7 +97,10 @@ public class AsyncReplicationTester extends AsyncReplication {
                                               (IncomeStorageImpl)incomeStorage,
                                               repoName,
                                               workspaceName,
-                                              channelNameSuffix);
+                                              channelNameSuffix,
+                                              wconf,
+                                              wfcleaner);
+    
     synchWorker.run();
 
     currentWorkers.add(synchWorker);
