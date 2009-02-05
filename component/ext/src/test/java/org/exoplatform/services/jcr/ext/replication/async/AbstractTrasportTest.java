@@ -16,16 +16,16 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -36,8 +36,10 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
  * @version $Id: AbstractTrasportTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public abstract class AbstractTrasportTest extends AbstractAsyncUseCases implements AsyncStateListener {
+  
+  private static Log         log                = ExoLogger.getLogger("ext.AbstractTrasportTest");
 
-  protected List<Member> memberList;
+  protected List<Member>     memberList;
   
   public static final String CH_CONFIG          = "TCP("
                                                        + "start_port=7700;"
@@ -103,4 +105,35 @@ public abstract class AbstractTrasportTest extends AbstractAsyncUseCases impleme
     }
   } 
   
+  public class CountDownLatchThread extends Thread {
+    private CountDownLatch  latch;
+    
+    public CountDownLatchThread(int count) {
+      latch = new CountDownLatch(count);
+    }
+    
+    @Override
+    public void run() {
+      try {
+        sleep(2*60*1000);
+      } catch (InterruptedException e) {
+        log.error("Do not sleep : " + e, e);
+      }
+      
+      if (latch.getCount() > 0);
+        while (latch.getCount() > 0)
+          latch.countDown();
+    }    
+    
+    public void await() throws InterruptedException {
+      this.start();
+      latch.await();
+    }
+    
+    public void countDown() {
+      latch.countDown();
+    }
+  } 
 }
+
+

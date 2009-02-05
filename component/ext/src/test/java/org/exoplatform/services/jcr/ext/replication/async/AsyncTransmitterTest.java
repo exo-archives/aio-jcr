@@ -65,16 +65,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
   private static Log          log         = ExoLogger.getLogger("ext.AsyncTransmitterTest");
 
-  // private List<TransactionChangesLog> srcChangesLogList = new ArrayList<TransactionChangesLog>();
-
-  // private List<TransactionChangesLog> destChangesLogList = new
-  // ArrayList<TransactionChangesLog>();
-
   private static final String CH_NAME     = "AsyncRepCh_Test";
 
   private static final String bindAddress = "127.0.0.1";
 
-  private CountDownLatch      latch;
+  private CountDownLatchThread latch;
 
   public void testSendChanges() throws Exception {
 
@@ -120,7 +115,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(cfList.size());
+    latch = new CountDownLatchThread(cfList.size());
 
     List<MemberAddress> sa = new ArrayList<MemberAddress>();
     for (Member m : memberList)
@@ -212,7 +207,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
 
     transmitter.sendExport(cf, memberList.get(0).getAddress());
 
@@ -250,7 +245,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
 
     transmitter.sendCancel();
 
@@ -281,7 +276,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
 
     transmitter.sendMerge();
 
@@ -312,7 +307,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
 
     Exception e = new Exception("Error message");
 
@@ -345,7 +340,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
 
     String nodeId = ((NodeImpl) root).getData().getIdentifier();
 

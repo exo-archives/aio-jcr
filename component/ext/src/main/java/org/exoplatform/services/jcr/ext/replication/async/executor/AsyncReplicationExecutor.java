@@ -59,6 +59,12 @@ public class AsyncReplicationExecutor implements ResourceContainer {
    * Definition the constants to ReplicationTestService.
    */
   public static final class Constants {
+    
+    /**
+     * The start timeout.
+     */
+    public static final int START_TIMEOUT  = 2000;
+    
     /**
      * The base path to this service.
      */
@@ -186,6 +192,7 @@ public class AsyncReplicationExecutor implements ResourceContainer {
               + Constants.OperationType.START_SYNCHRONIZATION;
 
           try {
+            Thread.sleep(Constants.START_TIMEOUT);
             remoteStart(member, sUrl);
           } catch (ModuleException e) {
             throw new AsyncReplicationExecutorException("Can't execute remote synchronization. Member : "
@@ -195,7 +202,12 @@ public class AsyncReplicationExecutor implements ResourceContainer {
             throw new AsyncReplicationExecutorException("Can't execute remote synchronization. Member : "
                                                             + member,
                                                         e);
-          }
+          } catch (InterruptedException e) {
+            throw new AsyncReplicationExecutorException("Can't execute remote synchronization. Member : "
+                                                        + member,
+                                                    e);
+      }
+           
         }
 
         return true;

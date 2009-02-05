@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;

@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
@@ -38,26 +37,13 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
   private static final String bindAddress = "127.0.0.1";
 
-  private CountDownLatch      latch;
+  private CountDownLatchThread latch;
 
   AsyncChannelManager         channel1;
 
   AsyncChannelManager         channel2;
 
   AsyncChannelManager         channel3;
-
-  protected void tearDown() throws Exception {
-    super.tearDown();
-    
-    if (channel1 != null && channel1.getChannel() != null)
-      channel1.disconnect();
-
-    if (channel2 != null && channel2.getChannel() != null)
-      channel2.disconnect();
-
-    if (channel3 != null && channel3.getChannel() != null)
-      channel3.disconnect();
-  }
 
   public void testTwoMembers() throws Exception {
 
@@ -102,7 +88,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
     initializer2.addRemoteListener(startEventSubscriber2);
     
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
     
     // connect to channel
     channel1.connect();
@@ -184,7 +170,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(false);
     initializer3.addRemoteListener(startEventSubscriber3);
     
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
     
     // connect to channel
     channel3.connect();
@@ -240,7 +226,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel1.connect();
 
     // wait timeout
-    Thread.sleep(memberWaitTimeout + 5000);
+    Thread.sleep(memberWaitTimeout + 20000);
     
     startEventSubscriber1.checkFail();
     
@@ -302,7 +288,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel1.connect();
 
     // wait timeout
-    Thread.sleep(memberWaitTimeout + 5000);
+    Thread.sleep(memberWaitTimeout + 20000);
     
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
@@ -394,7 +380,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel2.connect();
 
     // wait timeout
-    Thread.sleep(memberWaitTimeout + 5000);
+    Thread.sleep(memberWaitTimeout + 20000);
     
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
@@ -454,7 +440,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(false);
     initializer2.addRemoteListener(startEventSubscriber2);
     
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
     
     // connect to channel
     channel2.connect();
@@ -472,7 +458,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     
     // disconnect from channel
     channel1.disconnect();
-    channel2.disconnect();
+    
+    Thread.sleep(memberWaitTimeout);
+    assertNull(channel2.getChannel());
   }
 
   public void testFourMembers_disconnect_coordinator() throws Exception {
@@ -553,10 +541,10 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     Thread.sleep(memberWaitTimeout / 2);
 
     // disconnect coordinator
-    initializer3.onCancel();
+    initializer3.doStop();
 
     // wait timeout
-    Thread.sleep(memberWaitTimeout + 5000);
+    Thread.sleep(memberWaitTimeout + 20000);
 
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
@@ -602,7 +590,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     otherParticipantsPriority_3.add(100);
     otherParticipantsPriority_3.add(20);
 
-    int memberWaitTimeout = 10000; // 10 sec.
+    int memberWaitTimeout = 20000; // 10 sec.
     boolean cancelMemberNotConnected = false;
 
     AsyncInitializer initializer1 = new AsyncInitializer(channel1,
@@ -644,7 +632,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     System.out.println("2 : " + startEventSubscriber2.toString());
     System.out.println("3 : " + startEventSubscriber3.toString());
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
 
     // connect to channel
     channel3.connect();
@@ -652,10 +640,10 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel2.connect();
 
     // wait half timeout
-    Thread.sleep(memberWaitTimeout / 2);
+    Thread.sleep(memberWaitTimeout / 3);
 
     // disconnect coordinator
-    initializer3.onCancel();
+    initializer3.doStop();
 
     // wait timeout
     latch.await();
@@ -666,13 +654,14 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     assertNull(startEventSubscriber2.members);
     assertNotNull(startEventSubscriber1.members);
-    assertNotNull(startEventSubscriber1.members);
 
     assertEquals(1, startEventSubscriber1.members.size());
 
     // disconnect from channel
     channel2.disconnect();
-    channel1.disconnect();
+    
+    Thread.sleep(10000);
+    assertNull(channel1.getChannel());
   }
 
   public void testFourMembers_one_NotConnected_NotCancel() throws Exception {
@@ -740,7 +729,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(false);
     initializer3.addRemoteListener(startEventSubscriber3);
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
 
     // connect to channel
     channel3.connect();
@@ -754,7 +743,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel1.disconnect();
     channel2.disconnect();
     channel3.disconnect();
-
+    
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
     startEventSubscriber3.checkFail();

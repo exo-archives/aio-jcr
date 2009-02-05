@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
@@ -45,7 +44,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
   private static final String bindAddress = "127.0.0.1";
 
-  private CountDownLatch      latch;
+  private CountDownLatchThread latch;
 
   public void testReceiveGetExport() throws Exception {
     int priority = 100;
@@ -75,7 +74,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     GetExportPacket packet = new GetExportPacket(nodeId, priority);
 
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatchThread(1);
     try {
       channel1.sendPacket(packet, memberList.get(0).getAddress());
       // wait receive
@@ -125,7 +124,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(4);
+    latch = new CountDownLatchThread(4);
 
     // create binary data
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
@@ -238,7 +237,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatch(3);
+    latch = new CountDownLatchThread(3);
 
     // create binary data
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];

@@ -255,11 +255,9 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   
       LOG.info("dispatcher stopped");
       try {
-        // if (channel.isConnected())
         Thread.sleep(3000);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.error("The interapted on disconnect : " + e, e);
       }
     }
     
@@ -268,11 +266,9 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   
       LOG.info("channel disconnected");
       try {
-        // if (channel.isConnected())
         Thread.sleep(5000);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.error("The interapted on disconnect : " + e, e);
       }
   
       channel.close();
