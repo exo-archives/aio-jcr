@@ -69,7 +69,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     // restore
     RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
                                                      .getComponentInstanceOfType(RepositoryEntry.class);
-    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back", "jdbcjcr3");
+    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back", "jdbcjcr_backup_only_use_1");
 
     repository.configWorkspace(ws1back);
 
@@ -139,7 +139,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     // restore
     RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
                                                      .getComponentInstanceOfType(RepositoryEntry.class);
-    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr", "jdbcjcr4");
+    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr", "jdbcjcr_backup_only_use_2");
 
     repository.configWorkspace(ws1back);
 
@@ -256,7 +256,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     // restore
     RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
                                                      .getComponentInstanceOfType(RepositoryEntry.class);
-    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr2", "jdbcjcr5");
+    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr2", "jdbcjcr_backup_only_use_3");
 
     repository.configWorkspace(ws1back);
 
