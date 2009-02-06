@@ -102,18 +102,6 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                  InvalidItemStateException,
                                                                  UnsupportedOperationException,
                                                                  RepositoryException {
-    // dump
-    try {
-      LOG.info("save \r\n" + synchronizedChanges.dump());
-    } catch (ClassCastException e1) {
-      LOG.error("Changes dump error " + e1);
-    } catch (IOException e1) {
-      LOG.error("Changes dump error " + e1);
-    } catch (ClassNotFoundException e1) {
-      LOG.error("Changes dump error " + e1);
-    } catch (StorageRuntimeException e1) {
-      LOG.error("Changes dump error " + e1);
-    }
 
     OnSynchronizationWorkspaceListenersFilter apiFilter = new OnSynchronizationWorkspaceListenersFilter();
     workspace.addItemPersistenceListenerFilter(apiFilter);
@@ -156,7 +144,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                                           IllegalStateException,
                                                                                           ClassNotFoundException {
     List<ItemState> states = new ArrayList<ItemState>();
-
+    
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState state = iter.next();
       if (state.isNode()) {
@@ -169,39 +157,23 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
         List<ValueData> nVals = new ArrayList<ValueData>();
 
         for (ValueData vd : prop.getValues()) {
-          TransientValueData dest;
-          /*  int orderNumber,
-              byte[] bytes,
-              InputStream stream,
-              File spoolFile,
-              FileCleaner fileCleaner,
-              int maxBufferSize,
-              File tempDirectory,
-              boolean deleteSpoolFile*/
           if (vd.isByteArray()) {
-            dest = new TransientValueData(vd.getOrderNumber(),
-                                          vd.getAsByteArray(),
-                                          null,
-                                          null,
-                                          null,
-                                          maxBufferSize,
-                                          null,
-                                          true);
+            nVals.add(vd);
           } else {
-            dest = new TransientValueData(vd.getOrderNumber(),
+            ReplicableValueData rvd = (ReplicableValueData) vd;
+            nVals.add(new TransientValueData(vd.getOrderNumber(),
                                           null,
-                                          vd.getAsStream(),
                                           null,
+                                          rvd.getSpoolFile(),
                                           cleanerHolder.getFileCleaner(),
                                           maxBufferSize,
                                           tempDirectory,
-                                          true);
+                                          true));
+            rvd.getSpoolFile().release(rvd); // release file used by ReplicableValueData
           }
-
-          nVals.add(dest);
         }
 
-        // rewrite values
+        // rewrite values, TODO use values setter
         TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
                                                                 prop.getIdentifier(),
                                                                 prop.getPersistedVersion(),

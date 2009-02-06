@@ -44,7 +44,9 @@ import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCyc
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -91,7 +93,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   private final String                                       storagePath;
 
-  private final FileCleaner                   fileCleaner;
+  private final FileCleaner                                  fileCleaner;
 
   private final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
 
@@ -171,30 +173,31 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
             List<ValueData> nVals = new ArrayList<ValueData>();
 
             if (srcVals != null) { // TODO we don't need it actually
-              for (ValueData val : srcVals) {
-                ReplicableValueData dest;
-                if (val instanceof ReplicableValueData) {
-                  dest = (ReplicableValueData) val;
+              for (ValueData vd : srcVals) {
+                if (vd.isByteArray()) {
+                  nVals.add(vd);
                 } else {
-                  if (val.isByteArray()) {
-                    dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
-                  } else {
-                    // if (val instanceof TransientValueData) {
-                    // dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
-                    // val.getOrderNumber());
-                    // } else {
-                    // // create new dataFile
-                    // dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
-                    // }
-                    dest = new ReplicableValueData(val.getAsStream(),
-                                                   val.getOrderNumber(),
-                                                   fileCleaner);
-                  }
+                  // create new dataFile
+                  if (vd instanceof TransientValueData) {
+                    File vdf = ((TransientValueData) vd).getSpoolFile();
+                    if (vdf instanceof SpoolFile) {
+                      nVals.add(new ReplicableValueData((SpoolFile) vdf,
+                                                        vd.getOrderNumber(),
+                                                        fileCleaner));
+                    } else {
+                      // TODO, check how it's possible with EditableValueData
+                      nVals.add(new ReplicableValueData(new SpoolFile(vdf.getCanonicalPath()),
+                                                        vd.getOrderNumber(),
+                                                        fileCleaner));
+                    }
+
+                  } else
+                    throw new StorageIOException("Non transient value data " + vd);
                 }
-                nVals.add(dest);
               }
             }
-            // rewrite values
+
+            // rewrite values, TODO use setter
             TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
                                                                     prop.getIdentifier(),
                                                                     prop.getPersistedVersion(),
@@ -289,8 +292,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       for (int j = 0; j < files.length; j++) {
         try {
-          chFiles.add(new SimpleChangesFile(files[j],
-                                            new byte[]{}, //TODO make corretc 
+          chFiles.add(new SimpleChangesFile(files[j], new byte[] {}, // TODO make corretc
                                             Long.parseLong(files[j].getName()),
                                             resHolder));
         } catch (NumberFormatException e) {

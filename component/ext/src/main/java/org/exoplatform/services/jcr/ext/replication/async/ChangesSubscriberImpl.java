@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
@@ -37,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
@@ -78,7 +80,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   protected final HashMap<Integer, Counter>     counterMap;
 
-  protected List<MemberAddress>                 mergeDoneList = new ArrayList<MemberAddress>();
+  // protected List<MemberAddress>                 mergeDoneList = new ArrayList<MemberAddress>();
+
+  protected final CountDownLatch                mergeBarier;
 
   private FirstChangesWaiter                    firstChangesWaiter;
 
@@ -112,13 +116,14 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
         // add local done;
         if (isStarted()) {
-          mergeDoneList.add(localAddress);
+          // mergeDoneList.add(localAddress);
+          mergeBarier.countDown();
 
           try {
             transmitter.sendMerge();
           } catch (IOException ioe) {
             // TODO do we can continue on such error?
-            LOG.error("Cannot send 'Cancel'" + ioe, ioe);
+            workerLog.error("Cannot send 'Merge done'" + ioe, ioe);
           }
         }
       } catch (RepositoryException e) {
@@ -155,9 +160,16 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         return;
       }
 
-      if (isStarted() && mergeDoneList.size() == confMembersCount) {
-        save();
-        doStop();
+      if (isStarted()) {
+        try {
+          workerLog.info("Local Merge done. Wait for other members."); // TODO
+          mergeBarier.await();
+          save();
+          doStop();
+        } catch (InterruptedException e) {
+          workerLog.error("Save error " + e, e);
+          doCancel();
+        }
       }
     }
 
@@ -237,6 +249,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     this.errorLog = errorLog;
     this.initializer = initializer;
     this.transmitter = transmitter;
+    this.mergeBarier = new CountDownLatch(confMembersCount);
     this.confMembersCount = confMembersCount;
     this.counterMap = new LinkedHashMap<Integer, Counter>();
   }
@@ -356,9 +369,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     LOG.error("Do CANCEL (local)");
 
     if (isStarted()) {
-      cancelMerge();
-
       doStop();
+      cancelMerge();
 
       try {
         transmitter.sendCancel();
@@ -381,7 +393,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void doStop() {
     super.doStop();
 
-    mergeDoneList = null;
+    // mergeDoneList = null;
 
     if (firstChangesWaiter != null)
       firstChangesWaiter.cancel();
@@ -416,8 +428,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     LOG.info("On CANCEL");
 
     if (isStarted()) {
-      cancelMerge();
       doStop();
+      cancelMerge();
     } else
       LOG.warn("Not started or already stopped");
   }
@@ -427,8 +439,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    * 
    */
   private void cancelMerge() {
-    if (mergeWorker != null)
+    if (mergeWorker != null) {
       mergeManager.cancel();
+    }
   }
 
   /**
@@ -438,15 +451,16 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
     if (isStarted()) {
 
-      mergeDoneList.add(member);
+      LOG.info("On Merge member " + member + ", done=" + mergeBarier.getCount() + " members="
+          + confMembersCount);
 
-      LOG.info("On Merge member " + member + ", doneList.size=" + mergeDoneList.size()
-          + " membersCount=" + confMembersCount);
+      // mergeDoneList.add(member);
+      mergeBarier.countDown();
 
-      if (mergeDoneList.size() == confMembersCount) {
-        save();
-        doStop();
-      }
+      // if (mergeDoneList.size() == confMembersCount) {
+      // save();
+      // doStop();
+      // }
     } else
       LOG.warn("Subscriber stopped. On Merge member " + member + " ignored.");
   }
@@ -455,7 +469,21 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     LOG.info("save");
 
     try {
+      // TODO dump
+      try {
+        LOG.info("save \r\n" + mergeWorker.result.dump());
+      } catch (ClassCastException e1) {
+        LOG.error("Changes dump error " + e1);
+      } catch (IOException e1) {
+        LOG.error("Changes dump error " + e1);
+      } catch (ClassNotFoundException e1) {
+        LOG.error("Changes dump error " + e1);
+      } catch (StorageRuntimeException e1) {
+        LOG.error("Changes dump error " + e1);
+      }
+
       workspace.save(mergeWorker.result);
+
     } catch (InvalidItemStateException e) {
       LOG.error("Save error " + e, e);
       errorLog.reportError(e);

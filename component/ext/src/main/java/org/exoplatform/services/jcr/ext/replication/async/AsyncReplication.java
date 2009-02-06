@@ -44,6 +44,7 @@ import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
@@ -69,7 +70,7 @@ public class AsyncReplication implements Startable {
   /**
    * Service file cleaner period.
    */
-  public final int                                            FILE_CLEANER_PERIOD = 150000;                                     
+  public final int                                            FILE_CLEANER_PERIOD = 150000;
 
   protected final RepositoryService                           repoService;
 
@@ -210,7 +211,7 @@ public class AsyncReplication implements Startable {
       this.channel.addStateListener(this.initializer);
       this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
 
-      this.receiver.setChangesSubscriber(this.subscriber);
+      this.receiver.setChangesSubscriber(this.subscriber); // TODO not a good way, use constructor
 
       this.initializer.addRemoteListener(this.localStorage);
       this.initializer.addRemoteListener(this.incomeStorage);
@@ -409,7 +410,7 @@ public class AsyncReplication implements Startable {
     File mergeTempDir = new File(storageDir + "/merge-temp");
     mergeTempDir.mkdirs();
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
-    
+
     this.fileCleaner = new FileCleaner(FILE_CLEANER_PERIOD, false);
   }
 
@@ -621,8 +622,12 @@ public class AsyncReplication implements Startable {
                                  incomeDirPerWorkspace.getAbsolutePath());
         }
       }
-      
+
       this.fileCleaner.start();
+      this.fileCleaner.setName("AsyncReplication FileCleaner");
+      
+      // care about ReplicableValueData files
+      ReplicableValueData.initFileCleaner(this.fileCleaner);
     } catch (Throwable e) {
       LOG.error("Asynchronous replication start fails" + e, e);
       throw new RuntimeException("Asynchronous replication start fails " + e, e);

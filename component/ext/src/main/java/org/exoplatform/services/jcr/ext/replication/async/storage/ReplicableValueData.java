@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.ByteArrayInputStream;
 import java.io.Externalizable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,13 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -46,37 +43,47 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ReplicableValueData extends AbstractValueData implements Externalizable {
 
-  protected static final Log LOG              = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  protected static final Log                  LOG              = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
-  public static final String FILE_PREFIX      = "repValDat";
+  public static final String                  FILE_PREFIX      = "jcrrvd";
 
-  private static final int   DEF_MAX_BUF_SIZE = 20480;                                      // 20kb
+  private static final int                    DEF_MAX_BUF_SIZE = 20480;
 
-  // private final ResourcesHolder resHolder;
+  /**
+   * Flag, if true BLOB data will be readed to spool file in readExternal, if false - empty virtual
+   * file will be used.
+   */
+  protected static final ThreadLocal<Boolean> readBlobData     = new ThreadLocal<Boolean>();
 
-  private FileCleaner        cleaner;
+  protected static FileCleaner                serviceCleaner;
 
-  private byte[]             data;
+  private final FileCleaner                   cleaner;
 
-  private File               spoolFile;
+  private SpoolFile                           spoolFile;
+
+  private boolean                             localFile        = false;
+
+  public static void initFileCleaner(FileCleaner cleaner) {
+    serviceCleaner = cleaner;
+  }
+
+  public static void setReadBlobData(boolean flag) {
+    readBlobData.set(flag);
+  }
+
+  //
+  // public static boolean isReadBlobData() {
+  // final Boolean res = readBlobData.get();
+  // return res != null ? res.booleanValue() : false;
+  // }
 
   // TODO
-  // public ReplicableValueData(File file, int order) throws IOException {
+  // public ReplicableValueData(byte[] data, int order) {
   // super(order);
-  // this.spoolFile = file;
-  // if (spoolFile != null) {
-  // if (spoolFile instanceof SpoolFile)
-  // ((SpoolFile) spoolFile).acquire(this);
+  // this.spoolFile = null;
+  // this.data = data;
+  // this.cleaner = null;
   // }
-  // this.data = null;
-  // }
-
-  public ReplicableValueData(byte[] data, int order) {
-    super(order);
-    this.spoolFile = null;
-    this.data = data;
-    this.cleaner = null;
-  }
 
   /**
    * ReplicableValueData constructor.
@@ -84,49 +91,64 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
    */
   public ReplicableValueData() {
     super(0);
-    this.cleaner = null;
+    this.cleaner = serviceCleaner;
   }
 
-  /**
-   * Creates Replicable value data from InputStream.
-   * 
-   * @param inputStream
-   *          data
-   * @param orderNumber
-   * @throws IOException
-   */
-  public ReplicableValueData(InputStream inputStream, int orderNumber, FileCleaner cleaner) throws IOException {
+  public ReplicableValueData(SpoolFile file, int orderNumber, FileCleaner cleaner) throws IOException {
     super(orderNumber);
+    this.spoolFile = file;
 
     this.cleaner = cleaner;
 
-    // create spool file
-    byte[] tmpBuff = new byte[2048];
-    int read = 0;
-    int len = 0;
-    SpoolFile sf = null;
-    sf = new SpoolFile(File.createTempFile(FILE_PREFIX, null).getAbsolutePath());
-    sf.acquire(this);
+    this.spoolFile.acquire(this);
 
-    try {
-      OutputStream sfout = new FileOutputStream(sf);
-      try {
-        while ((read = inputStream.read(tmpBuff)) >= 0) {
-          // spool to temp file
-          sfout.write(tmpBuff, 0, read);
-          len += read;
-        }
-      } finally {
-        sfout.close();
-      }
-    } finally {
-      inputStream.close();
-    }
-
-    // spooled to file
-    this.spoolFile = sf;
-    this.data = null;
   }
+
+  public SpoolFile getSpoolFile() {
+    return spoolFile;
+  }
+
+  // /**
+  // * Creates Replicable value data from InputStream.
+  // *
+  // * @param inputStream
+  // * data
+  // * @param orderNumber
+  // * @throws IOException
+  // */
+  // public ReplicableValueData(InputStream inputStream, int orderNumber, FileCleaner cleaner)
+  // throws IOException {
+  // super(orderNumber);
+  //
+  // // this.cleaner = cleaner;
+  //
+  // // create spool file
+  // byte[] tmpBuff = new byte[2048];
+  // int read = 0;
+  // int len = 0;
+  // SpoolFile sf = null;
+  // sf = new SpoolFile(File.createTempFile(FILE_PREFIX, null).getAbsolutePath());
+  // sf.acquire(this);
+  //
+  // try {
+  // OutputStream sfout = new FileOutputStream(sf);
+  // try {
+  // while ((read = inputStream.read(tmpBuff)) >= 0) {
+  // // spool to temp file
+  // sfout.write(tmpBuff, 0, read);
+  // len += read;
+  // }
+  // } finally {
+  // sfout.close();
+  // }
+  // } finally {
+  // inputStream.close();
+  // }
+  //
+  // // spooled to file
+  // this.spoolFile = sf;
+  // // this.data = null;
+  // }
 
   /**
    * {@inheritDoc}
@@ -134,12 +156,15 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(orderNumber);
 
-    // write data
-    if (this.isByteArray()) {
-      long f = data.length;
-      out.writeLong(f);
-      out.write(data);
+    out.writeBoolean(localFile);
+
+    if (localFile) {
+      // write file path
+      byte[] cpath = spoolFile.getCanonicalPath().getBytes(Constants.DEFAULT_ENCODING);
+      out.writeLong(cpath.length);
+      out.write(cpath);
     } else {
+      // write file content
       long length = this.spoolFile.length();
       out.writeLong(length);
       InputStream in = new FileInputStream(spoolFile);
@@ -161,96 +186,130 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     this.orderNumber = in.readInt();
 
+    this.localFile = in.readBoolean();
+
     long length = in.readLong();
 
-    if (length > DEF_MAX_BUF_SIZE) {
-      // store data as file
+    // if (length >= DEF_MAX_BUF_SIZE) {
+    // store data as file
 
+    // ask if we have to read large data from Obj stream to a spool file
+    // Boolean read = readBlobData.get();
+    // if (read != null && read.booleanValue()) {
+
+    if (this.localFile) {
+      byte[] cpath = new byte[(int) length];
+      in.readFully(cpath);
+
+      SpoolFile sf = new SpoolFile(new String(cpath, Constants.DEFAULT_ENCODING));
+      sf.acquire(this);
+      this.spoolFile = sf;
+    } else {
       SpoolFile sf = new SpoolFile(File.createTempFile(FILE_PREFIX, null).getAbsolutePath());
       FileOutputStream sfout = new FileOutputStream(sf);
       try {
-        byte[] buf = new byte[DEF_MAX_BUF_SIZE];
+        byte[] buff = new byte[DEF_MAX_BUF_SIZE];
 
         sf.acquire(this);
 
         // int l = 0;
         for (; length >= DEF_MAX_BUF_SIZE; length -= DEF_MAX_BUF_SIZE) {
-          in.readFully(buf);
-          sfout.write(buf);
+          in.readFully(buff);
+          sfout.write(buff);
         }
 
         if (length > 0) {
-          buf = new byte[(int) length];
-          in.readFully(buf);
-          sfout.write(buf);
+          buff = new byte[(int) length];
+          in.readFully(buff);
+          sfout.write(buff);
         }
       } finally {
         sfout.close();
       }
 
       this.spoolFile = sf;
-    } else {
-      // store data as bytearray
-      this.data = new byte[(int) length];
-      in.readFully(data);
+      this.localFile = true;
     }
+
+    // } else {
+    // // store data as bytearray
+    // byte[] buff = new byte[(int) length];
+    // in.readFully(buff);
+    //
+    // this.spoolFile = null;
+    // }
   }
 
   /**
    * {@inheritDoc}
    */
-  public byte[] getAsByteArray() throws IllegalStateException, IOException {
-    if (data != null) {
-      return data;
-    } else if (spoolFile != null) {
-      FileChannel fch = new FileInputStream(spoolFile).getChannel();
+  public byte[] getAsByteArray() throws IOException {
 
-      if (LOG.isDebugEnabled() && fch.size() > DEF_MAX_BUF_SIZE)
-        LOG.warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
-            + fch.size() + " bytes");
+    throw new IOException("This is Stream data.");
 
-      try {
-        ByteBuffer bb = ByteBuffer.allocate((int) fch.size());
-        fch.read(bb);
-        if (bb.hasArray()) {
-          return bb.array();
-        } else {
-          // impossible code in most cases, as we use heap backed buffer
-          byte[] tmpb = new byte[bb.capacity()];
-          bb.get(tmpb);
-          return tmpb;
-        }
-      } finally {
-        fch.close();
-      }
-    } else
-      throw new NullPointerException("Null Stream data ");
+    // if (data != null) {
+    // return data;
+    // } else if (spoolFile != null) {
+    //      
+    // if (spoolFile.exists()) {
+    // FileChannel fch = new FileInputStream(spoolFile).getChannel();
+    //  
+    // if (LOG.isDebugEnabled() && fch.size() > DEF_MAX_BUF_SIZE)
+    // LOG.warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
+    // + fch.size() + " bytes");
+    //  
+    // try {
+    // ByteBuffer bb = ByteBuffer.allocate((int) fch.size());
+    // fch.read(bb);
+    // if (bb.hasArray()) {
+    // return bb.array();
+    // } else {
+    // // impossible code in most cases, as we use heap backed buffer
+    // byte[] tmpb = new byte[bb.capacity()];
+    // bb.get(tmpb);
+    // return tmpb;
+    // }
+    // } finally {
+    // fch.close();
+    // }
+    // } else
+    // throw new IOException("Empty Stream data. Check readBlobData value.");
+    // } else
+    // throw new NullPointerException("Null Stream data ");
   }
 
   /**
    * {@inheritDoc}
    */
   public InputStream getAsStream() throws IOException {
-    if (data != null) {
-      return new ByteArrayInputStream(data);
-    } else if (spoolFile != null && spoolFile.exists()) {
+    // if (data != null) {
+    // return new ByteArrayInputStream(data);
+    // } else if (spoolFile != null) {
+    // if (spoolFile.exists())
+    // return new FileInputStream(spoolFile);
+    // else
+    // throw new IOException("Empty Stream data. Check readBlobData value.");
+    // } else
+    // throw new NullPointerException("Null Stream data ");
+
+    if (spoolFile.exists())
       return new FileInputStream(spoolFile);
-    } else
-      throw new NullPointerException("Null Stream data ");
+    else
+      throw new IOException("Empty Stream data. Check readBlobData value.");
   }
 
   /**
    * {@inheritDoc}
    */
   public long getLength() {
-    return (isByteArray() ? data.length : spoolFile.length());
+    return spoolFile.length();
   }
 
   /**
    * {@inheritDoc}
    */
   public boolean isByteArray() {
-    return (data != null);
+    return false;
   }
 
   /**
@@ -258,20 +317,29 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
    */
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
-    try {
-      // array
-      if (isByteArray()) {
-        // bytes, make a copy of real data
-        byte[] newBytes = new byte[data.length];
-        System.arraycopy(data, 0, newBytes, 0, newBytes.length);
-        return new TransientValueData(orderNumber, newBytes, null, null, null, -1, null, false);
-      } else {
-        // file
-        return new TransientValueData(orderNumber, null, null, spoolFile, null, -1, null, false);
-      }
-    } catch (IOException e) {
-      throw new RepositoryException(e);
-    }
+    throw new RepositoryException("Not supported");
+
+    // try {
+    // spoolFile.release(this);
+    // return new TransientValueData(orderNumber, null, null, spoolFile, null, -1, null, true);
+    // } catch (IOException e) {
+    // throw new RepositoryException(e);
+    // }
+
+    // try {
+    // // array
+    // if (isByteArray()) {
+    // // bytes, make a copy of real data
+    // // byte[] newBytes = new byte[data.length];
+    // // System.arraycopy(data, 0, newBytes, 0, newBytes.length);
+    // return new TransientValueData(orderNumber, data, null, null, null, -1, null, true);
+    // } else {
+    // // file
+    // return new TransientValueData(orderNumber, null, null, spoolFile, null, -1, null, false);
+    // }
+    // } catch (IOException e) {
+    // throw new RepositoryException(e);
+    // }
   }
 
   /**
@@ -280,10 +348,7 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   protected void finalize() throws Throwable {
     // same code as in TransientValueData (05.02.2009)
     if (spoolFile != null) {
-      if (spoolFile instanceof SpoolFile)
-        ((SpoolFile) spoolFile).release(this);
-
-      if (spoolFile.exists()) {
+      if (!spoolFile.inUse() && spoolFile.exists()) {
         if (!spoolFile.delete())
           if (cleaner != null) {
             log.info("Could not remove file. Add to fileCleaner " + spoolFile);
