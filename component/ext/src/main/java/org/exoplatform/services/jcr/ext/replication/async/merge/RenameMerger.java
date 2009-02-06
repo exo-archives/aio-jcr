@@ -485,22 +485,34 @@ public class RenameMerger extends AbstractMerger {
             // rename same node
             if (incNodePath.equals(locNodePath)) {
 
-              List<ItemState> rename = local.getRenameSequence(localState);
-              for (int i = rename.size() - 1; i >= 0; i--) {
-                ItemState item = rename.get(i);
-                if (item.getState() == ItemState.RENAMED) { // generate delete state for new place
+              List<ItemState> locRenSeq = local.getRenameSequence(localState);
+
+              // Delete all local changes
+              List<ItemState> items = local.getUniqueTreeChanges(localState, locNodePath);
+              for (int i = items.size() - 1; i >= 0; i--) {
+                ItemState item = items.get(i);
+
+                if (local.findLastState(item.getData().getQPath()) != ItemState.DELETED) {
 
                   // delete lock properties if present
                   if (item.getData().isNode()) {
-                    for (ItemState inSt : generateDeleleLockProperties((NodeData) item.getData()))
-                      resultState.add(inSt);
+                    for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
+                      resultState.add(st);
                   }
 
-                  resultState.add(new ItemState(item.getData(),
-                                                ItemState.DELETED,
-                                                item.isEventFire(),
-                                                item.getData().getQPath()));
-                } else if (item.getState() == ItemState.DELETED) { // generate add state for old
+                  ItemState newState = new ItemState(item.getData(),
+                                                     ItemState.DELETED,
+                                                     item.isEventFire(),
+                                                     item.getData().getQPath());
+                  resultState.add(newState);
+                }
+              }
+
+              // restore nodes
+              for (int i = locRenSeq.size() - 1; i >= 0; i--) {
+                ItemState item = locRenSeq.get(i);
+
+                if (item.getState() == ItemState.DELETED) { // generate add state for old
                   // place
                   if (item.getData().isNode()) {
                     resultState.add(new ItemState(item.getData(),
@@ -516,7 +528,8 @@ public class RenameMerger extends AbstractMerger {
                                                                                prop.getType(),
                                                                                prop.getParentIdentifier(),
                                                                                prop.isMultiValued());
-                    propData.setValues(((PropertyData) rename.get(rename.size() - i - 1).getData()).getValues());
+                    propData.setValues(((PropertyData) locRenSeq.get(locRenSeq.size() - i - 1)
+                                                                .getData()).getValues());
                     resultState.add(new ItemState(propData,
                                                   ItemState.ADDED,
                                                   item.isEventFire(),
@@ -525,8 +538,8 @@ public class RenameMerger extends AbstractMerger {
                 }
               }
 
-              // apply income rename
-              for (ItemState st : income.getRenameSequence(incomeState)) {
+              // apply income changes for all subtree
+              for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
 
                 // delete lock properties if present
                 if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
@@ -537,6 +550,7 @@ public class RenameMerger extends AbstractMerger {
                 resultState.add(st);
               }
 
+              addToSkipList(incomeState, incNodePath, income, skippedList);
               return resultState;
 
               // destination node is renamed locally

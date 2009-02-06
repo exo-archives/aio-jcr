@@ -699,6 +699,45 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   }
 
   /**
+   * testComplexUsecase11 (modified demo usecase 11).
+   */
+  public void testComplexUsecase11() throws Exception {
+
+    ComplexUseCase11 complexUseCase11 = new ComplexUseCase11(session3, session4);
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+
+    complexUseCase11.initDataHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase11.checkEquals());
+
+    membersChanges.clear();
+
+    // low
+    complexUseCase11.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    // high
+    complexUseCase11.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase11.checkEquals());
+  }
+
+  /**
    * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
    * 
    * 1. Add text file /fileA.txt on server 1
