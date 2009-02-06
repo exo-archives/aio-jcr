@@ -86,7 +86,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change,
                                                           income,
                                                           local,
@@ -122,7 +123,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change,
                                                           income,
                                                           local,
@@ -161,7 +163,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteProperty1Change,
                                                           income,
                                                           local,
@@ -198,7 +201,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change,
                                                           income,
                                                           local,
@@ -238,7 +242,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change,
                                                           income,
                                                           local,
@@ -275,7 +280,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change,
                                                           income,
                                                           local,
@@ -313,7 +319,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -354,7 +361,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -406,7 +414,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -473,7 +482,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem11Change,
                                                           income,
                                                           local,
@@ -524,7 +534,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem3Change,
                                                           income,
                                                           local,
@@ -608,7 +619,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem21x1Delete,
                                                           income,
                                                           local,
@@ -692,7 +704,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem212Delete,
                                                           income,
                                                           local,
@@ -791,7 +804,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem2121Delete,
                                                           income,
                                                           local,
@@ -858,7 +872,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(true,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem3Delete,
                                                           income,
                                                           local,
@@ -897,7 +912,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem11Change,
                                                           income,
                                                           local,
@@ -937,7 +953,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -980,7 +997,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -1038,7 +1056,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -1076,7 +1095,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -1120,7 +1140,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -1160,7 +1181,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change,
                                                           income,
                                                           local,
@@ -1199,7 +1221,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -1237,7 +1260,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -1279,7 +1303,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
@@ -1320,7 +1345,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem111Change,
                                                           income,
                                                           local,
@@ -1400,7 +1426,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem21x1Delete,
                                                           income,
                                                           local,
@@ -1468,7 +1495,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem2Delete,
                                                           income,
                                                           local,
@@ -1552,7 +1580,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteProperty21x1_1Delete,
                                                           income,
                                                           local,
@@ -1616,17 +1645,15 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change,
                                                           income,
                                                           local,
                                                           "./target",
                                                           new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
-    ;
-
-    assertEquals("Wrong changes count ", result.size(), 1);
-    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
+    assertEquals("Wrong changes count ", result.size(), 3);
   }
 
   /**
@@ -1689,20 +1716,15 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem11Delete,
                                                           income,
                                                           local,
                                                           "./target",
                                                           new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
-    ;
-
-    assertEquals("Wrong changes count ", result.size(), 1);
-    assertTrue("Remote Added wrong parent ID ", hasState(result, new ItemState(localItem21,
-                                                                               ItemState.DELETED,
-                                                                               false,
-                                                                               null), true));
+    assertEquals("Wrong changes count ", result.size(), 3);
   }
 
   /**
@@ -1804,7 +1826,8 @@ public class DeleteMergerTest extends BaseMergerTest {
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(exportLog),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Delete,
                                                           income,
                                                           local,

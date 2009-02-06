@@ -200,9 +200,12 @@ public class RenameMerger extends AbstractMerger {
           }
 
           // simple DELETE
+          // TODO common block
           if (localData.isNode()) {
             if (incNodePath.isDescendantOf(localData.getQPath())
                 || incNodePath.equals(localData.getQPath())
+                || localData.getQPath().equals(incNodePath)
+                || localData.getQPath().isDescendantOf(incNodePath)
                 || nextIncNodePath.isDescendantOf(localData.getQPath())) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
@@ -216,7 +219,10 @@ public class RenameMerger extends AbstractMerger {
             }
           } else {
             if (incNodePath.isDescendantOf(localData.getQPath().makeParentPath())
-                || incNodePath.equals(localData.getQPath().makeParentPath())) {
+                || incNodePath.equals(localData.getQPath().makeParentPath())
+                || localData.getQPath().makeParentPath().equals(incNodePath)
+                || localData.getQPath().makeParentPath().isDescendantOf(incNodePath)
+                || nextIncNodePath.isDescendantOf(localData.getQPath().makeParentPath())) {
 
               for (ItemState st : income.getTreeChanges(incomeState, incNodePath)) {
                 skipVSChanges(st, income, skippedList);

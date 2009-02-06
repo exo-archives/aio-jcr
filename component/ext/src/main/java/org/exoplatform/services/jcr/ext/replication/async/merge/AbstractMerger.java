@@ -188,4 +188,37 @@ public abstract class AbstractMerger implements ChangesMerger {
     }
   }
 
+  /**
+   * Will be used as key.
+   */
+  protected class ItemStateKey {
+    private final QPath  path;
+
+    private final String uuid;
+
+    private final int    state;
+
+    public ItemStateKey(QPath path, String uuid, int state) {
+      this.path = path;
+      this.uuid = uuid;
+      this.state = state;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(Object o) {
+      ItemStateKey k = (ItemStateKey) o;
+
+      return path.equals(k.path) && uuid.equals(k.uuid) && state == k.state;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode() {
+      return path.hashCode() ^ uuid.hashCode() ^ state;
+    }
+  }
+
 }

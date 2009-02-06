@@ -422,7 +422,6 @@ public class RenameMergerTest extends BaseMergerTest {
                                                           "./target",
                                                           new ArrayList<QPath>(),
                                                           new ArrayList<QPath>());
-    ;
     assertEquals("Wrong changes count ", result.size(), 0);
 
     result = renameMerger.merge(remoteItem11Deleted,
@@ -432,9 +431,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                 new ArrayList<QPath>(),
                                 new ArrayList<QPath>());
     ;
-    assertEquals("Wrong changes count ", result.size(), 2);
-    assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
-    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem21Renamed, true));
+    assertEquals("Wrong changes count ", result.size(), 0);
   }
 
   /**
@@ -1482,7 +1479,8 @@ public class RenameMergerTest extends BaseMergerTest {
     RenameMerger renameMerger = new RenameMerger(false,
                                                  new TesterRemoteExporter(exportLog),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -1556,7 +1554,8 @@ public class RenameMergerTest extends BaseMergerTest {
     RenameMerger renameMerger = new RenameMerger(false,
                                                  new TesterRemoteExporter(exportLog),
                                                  dataManager,
-                                                 ntManager, resHolder);
+                                                 ntManager,
+                                                 resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted,
                                                           income,
                                                           local,
@@ -1761,7 +1760,8 @@ public class RenameMergerTest extends BaseMergerTest {
     final RenameMerger renameMerger = new RenameMerger(false,
                                                        new TesterRemoteExporter(exportLog),
                                                        dataManager,
-                                                       ntManager, resHolder);
+                                                       ntManager,
+                                                       resHolder);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete,
                                                           income,
                                                           local,
