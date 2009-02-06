@@ -777,7 +777,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   }
 
   /**
-   * testComplexUsecase19 (modified demo usecase 20).
+   * testComplexUsecase13 (modified demo usecase 20).
    */
   public void testComplexUsecase13() throws Exception {
 
@@ -813,6 +813,45 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(complexUseCase13.checkEquals());
+  }
+
+  /**
+   * testComplexUsecase14
+   */
+  public void testComplexUsecase14() throws Exception {
+
+    ComplexUseCase14 complexUseCase14 = new ComplexUseCase14(session3, session4);
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+
+    complexUseCase14.initDataHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase14.checkEquals());
+
+    membersChanges.clear();
+
+    // low
+    complexUseCase14.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    // high
+    complexUseCase14.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase14.checkEquals());
   }
 
   /**

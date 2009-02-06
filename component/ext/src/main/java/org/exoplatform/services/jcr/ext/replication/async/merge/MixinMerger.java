@@ -115,7 +115,7 @@ public class MixinMerger extends AbstractMerger {
                   || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
 
                 skipVSChanges(incomeState, income, skippedList);
-                skippedList.add(incomeData.getQPath());
+                addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
@@ -130,7 +130,7 @@ public class MixinMerger extends AbstractMerger {
               if (incomeData.getQPath().equals(localData.getQPath())) {
 
                 skipVSChanges(incomeState, income, skippedList);
-                skippedList.add(incomeData.getQPath());
+                addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
@@ -144,7 +144,7 @@ public class MixinMerger extends AbstractMerger {
             if (incomeData.getQPath().equals(localData.getQPath())) {
 
               skipVSChanges(incomeState, income, skippedList);
-              skippedList.add(incomeData.getQPath());
+              addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
                                                               resHolder);
@@ -306,7 +306,7 @@ public class MixinMerger extends AbstractMerger {
               for (int i = 0; i < changes.size(); i++)
                 skipVSChanges(changes.get(i), income, skippedList);
 
-              skippedList.add(localData.getQPath());
+              addToSkipList(incomeState, localData.getQPath(), income, skippedList);
               resultState.addAll(exporter.exportItem(localData.getIdentifier()));
 
               return resultState;

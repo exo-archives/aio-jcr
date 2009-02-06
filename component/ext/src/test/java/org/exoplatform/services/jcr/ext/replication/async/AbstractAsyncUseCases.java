@@ -545,6 +545,40 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
+  public class ComplexUseCase14 extends BaseMergeUseCase {
+    public ComplexUseCase14(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("test");
+      node = node.addNode("test-folder");
+      node = node.addNode("fileB");
+      node.setProperty("data", "value");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().addNode("newFolder");
+      sessionLowPriority.move("/newFolder", "/test1");
+      Node node = sessionLowPriority.getRootNode().getNode("test1");
+      node.addNode("newFolder");
+      sessionLowPriority.move("/test1", "/subf1");
+      sessionLowPriority.move("/test/test-folder", "/subf1/test-folder");
+      sessionLowPriority.save();
+    }
+  }
+
   /**
    * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
    * 
