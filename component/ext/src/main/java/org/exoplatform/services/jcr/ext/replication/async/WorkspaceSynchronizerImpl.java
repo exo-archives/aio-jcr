@@ -49,6 +49,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -221,6 +222,6 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     // create new changes log
-    return new SynchronizerChangesLog(new PlainChangesLogImpl(states, null));
+    return new SynchronizerChangesLog(new PlainChangesLogImpl(states, IdGenerator.generate()));
   }
 }
