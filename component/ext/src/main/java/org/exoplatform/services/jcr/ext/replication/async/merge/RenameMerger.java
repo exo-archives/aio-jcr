@@ -640,10 +640,7 @@ public class RenameMerger extends AbstractMerger {
           }
 
           // DELETE
-          if (local.findNextState(localState,
-                                  localData.getIdentifier(),
-                                  localData.getQPath(),
-                                  ItemState.ADDED) != null) {
+          if (local.findNextState(localState, localData.getQPath(), ItemState.ADDED) != null) {
             break;
           }
 

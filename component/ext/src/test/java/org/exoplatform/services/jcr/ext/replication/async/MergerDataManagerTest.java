@@ -441,7 +441,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   /**
    * Complex UseCase 7
    */
-  public void testComplexUsecase7() throws Exception {
+  public void testComplexUsecase7_1() throws Exception {
     addChangesToChangesStorage(new TransactionChangesLog(), 20);
 
     Node node = root3.addNode("item1");
@@ -464,33 +464,72 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 60));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
     assertTrue(res.size() == 0);
+  }
 
-    merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
-                                  dm4,
-                                  ntm4,
-                                  "target/storage/60");
+  /**
+   * Complex UseCase 7
+   */
+  public void testComplexUsecase7_2() throws Exception {
+    addChangesToChangesStorage(new TransactionChangesLog(), 20);
+
+    Node node = root3.addNode("item1");
+    session3.move("/item1", "/item2");
+    root3.getNode("item2").addNode("fileB");
+    session3.save();
+    addChangesToChangesStorage(cLog, 40);
+
+    node = root4.addNode("item1");
+    session4.move("/item1", "/item2");
+    root4.getNode("item2").addNode("fileA");
+    session4.save();
+    addChangesToChangesStorage(cLog, 60);
+
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
+                                                   dm4,
+                                                   ntm4,
+                                                   "target/storage/40");
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 40));
-    res = merger.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
     saveResultedChanges(res, "ws3");
     assertTrue(isWorkspacesEquals());
+  }
 
-    merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
-                                  dm4,
-                                  ntm4,
-                                  "target/storage/60");
+  /**
+   * Complex UseCase 7
+   */
+  public void testComplexUsecase7_3() throws Exception {
+    addChangesToChangesStorage(new TransactionChangesLog(), 20);
+
+    Node node = root.addNode("item1");
+    session.move("/item1", "/item2");
+    root.getNode("item2").addNode("fileB");
+    session.save();
+    addChangesToChangesStorage(cLog, 40);
+
+    node = root4.addNode("item1");
+    session4.move("/item1", "/item2");
+    root4.getNode("item2").addNode("fileA");
+    session4.save();
+    addChangesToChangesStorage(cLog, 60);
+
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
+                                                   dm4,
+                                                   ntm4,
+                                                   "target/storage/20");
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
-    res = merger.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
     log.info(res.dump());
 
-    assertTrue(res.size() == 20);
+    saveResultedChanges(res, "ws3");
+    assertTrue(isWorkspacesEquals());
   }
 
   /**
    * Complex UseCase 8
    */
-  public void testComplexUsecase8() throws Exception {
+  public void testComplexUsecase8_1() throws Exception {
     addChangesToChangesStorage(new TransactionChangesLog(), 20);
 
     Node node = root3.addNode("item1");
@@ -515,31 +554,74 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 60));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
     assertTrue(res.size() == 0);
-
-    merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
-                                  dm4,
-                                  ntm4,
-                                  "target/storage/60");
-
-    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 40));
-    res = merger.merge(membersChanges.iterator());
-    saveResultedChanges(res, "ws3");
-    assertTrue(isWorkspacesEquals());
-
-    merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
-                                  dm4,
-                                  ntm4,
-                                  "target/storage/60");
-
-    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
-    res = merger.merge(membersChanges.iterator());
-    log.info(res.dump());
-
-    assertTrue(res.size() == 26);
   }
 
   /**
-   * testComplexUsecase9 (demo usecase 4).
+   * Complex UseCase 8
+   */
+  public void testComplexUsecase8_2() throws Exception {
+    addChangesToChangesStorage(new TransactionChangesLog(), 20);
+
+    Node node = root3.addNode("item1");
+    session3.move("/item1", "/item2");
+    root3.getNode("item2").addNode("file");
+    root3.getNode("item2").getNode("file").addNode("fileB");
+    session3.save();
+    addChangesToChangesStorage(cLog, 40);
+
+    node = root4.addNode("item1");
+    session4.move("/item1", "/item2");
+    root4.getNode("item2").addNode("file");
+    root4.getNode("item2").getNode("file").addNode("fileA");
+    session4.save();
+    addChangesToChangesStorage(cLog, 60);
+
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
+                                                   dm4,
+                                                   ntm4,
+                                                   "target/storage/60");
+
+    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 40));
+    ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
+    saveResultedChanges(res, "ws3");
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Complex UseCase 8
+   */
+  public void testComplexUsecase8_3() throws Exception {
+    addChangesToChangesStorage(new TransactionChangesLog(), 20);
+
+    Node node = root.addNode("item1");
+    session.move("/item1", "/item2");
+    root.getNode("item2").addNode("file");
+    root.getNode("item2").getNode("file").addNode("fileB");
+    session.save();
+    addChangesToChangesStorage(cLog, 40);
+
+    node = root4.addNode("item1");
+    session4.move("/item1", "/item2");
+    root4.getNode("item2").addNode("file");
+    root4.getNode("item2").getNode("file").addNode("fileA");
+    session4.save();
+    addChangesToChangesStorage(cLog, 60);
+
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target"),
+                                                   dm4,
+                                                   ntm4,
+                                                   "target/storage/60");
+
+    merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
+    ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
+    log.info(res.dump());
+
+    saveResultedChanges(res, "ws3");
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * testComplexUsecase9 (modified demo usecase 4).
    */
   public void testComplexUsecase9() throws Exception {
 
@@ -568,8 +650,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     complexUseCase9.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
-    // exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
-
     res3 = mergerLow.merge(membersChanges.iterator());
     res4 = mergerHigh.merge(membersChanges.iterator());
 
@@ -577,6 +657,45 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(complexUseCase9.checkEquals());
+  }
+
+  /**
+   * testComplexUsecase10 (modified demo usecase 9).
+   */
+  public void testComplexUsecase10() throws Exception {
+
+    ComplexUseCase10 complexUseCase10 = new ComplexUseCase10(session3, session4);
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+
+    complexUseCase10.initDataHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase10.checkEquals());
+
+    membersChanges.clear();
+
+    // low
+    complexUseCase10.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    // high
+    complexUseCase10.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase10.checkEquals());
   }
 
   /**

@@ -496,23 +496,23 @@ public class DeleteMerger extends AbstractMerger {
 
             if ((incomeData.isNode() || incParentNodeState != null)) {
 
-              if (localData.isNode()) {
-                if (incomeData.getQPath().equals(localData.getQPath())) {
+              // if (localData.isNode()) {
+              if (incomeData.getQPath().equals(localData.getQPath())) {
 
-                  // delete lock properties if present
-                  if (nextLocalState.getData().isNode())
-                    for (ItemState st : generateDeleleLockProperties((NodeData) nextLocalState.getData()))
-                      resultState.add(st);
+                // delete lock properties if present
+                if (nextLocalState.getData().isNode())
+                  for (ItemState st : generateDeleleLockProperties((NodeData) nextLocalState.getData()))
+                    resultState.add(st);
 
-                  resultState.add(new ItemState(nextLocalState.getData(),
-                                                ItemState.DELETED,
-                                                nextLocalState.isEventFire(),
-                                                nextLocalState.getData().getQPath()));
+                resultState.add(new ItemState(nextLocalState.getData(),
+                                              ItemState.DELETED,
+                                              nextLocalState.isEventFire(),
+                                              nextLocalState.getData().getQPath()));
 
-                  itemChangeProcessed = true;
-                  break;
-                }
+                itemChangeProcessed = true;
+                break;
               }
+              // }
             } else {
               if (localData.isNode()) {
                 if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {

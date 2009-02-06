@@ -510,10 +510,7 @@ public class AddMerger extends AbstractMerger {
           }
 
           // Simple DELETE
-          if (income.findNextState(incomeState,
-                                   incomeData.getIdentifier(),
-                                   incomeData.getQPath(),
-                                   ItemState.ADDED) != null) {
+          if (income.findNextState(incomeState, incomeData.getQPath(), ItemState.ADDED) != null) {
             break;
           }
 
