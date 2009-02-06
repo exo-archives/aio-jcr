@@ -39,6 +39,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -121,6 +122,81 @@ public abstract class AbstractMerger implements ChangesMerger {
   }
 
   /**
+   * Restore original order for SNS nodes.
+   * 
+   * @param firstState
+   * @param storage
+   * @return
+   * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
+  protected List<ItemState> generateRestoreOrder(ItemState firstState,
+                                                 ChangesStorage<ItemState> storage) throws ClassCastException,
+                                                                                   IOException,
+                                                                                   ClassNotFoundException {
+
+    List<ItemState> resultState = new ArrayList<ItemState>();
+
+    List<ItemState> updateSeq = storage.getUpdateSequence(firstState);
+    for (int i = 1; i <= updateSeq.size() - 1; i++) {
+      ItemState item = updateSeq.get(i);
+      NodeData node = (NodeData) item.getData();
+      if (i == 1) {
+        resultState.add(new ItemState(item.getData(),
+                                      ItemState.DELETED,
+                                      item.isEventFire(),
+                                      item.getData().getQPath(),
+                                      item.isInternallyCreated(),
+                                      false));
+      } else {
+        QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
+                                         node.getQPath().getName(),
+                                         node.getQPath().getIndex() - 1);
+
+        TransientNodeData newItem = new TransientNodeData(name,
+                                                          node.getIdentifier(),
+                                                          node.getPersistedVersion(),
+                                                          node.getPrimaryTypeName(),
+                                                          node.getMixinTypeNames(),
+                                                          node.getOrderNumber(),
+                                                          node.getParentIdentifier(),
+                                                          node.getACL());
+        resultState.add(new ItemState(newItem,
+                                      ItemState.UPDATED,
+                                      item.isEventFire(),
+                                      name,
+                                      item.isInternallyCreated()));
+
+      }
+      if (i == updateSeq.size() - 1) {
+        item = updateSeq.get(1);
+        node = (NodeData) item.getData();
+
+        QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
+                                         node.getQPath().getName(),
+                                         updateSeq.size() - 1);
+
+        TransientNodeData newItem = new TransientNodeData(name,
+                                                          node.getIdentifier(),
+                                                          node.getPersistedVersion(),
+                                                          node.getPrimaryTypeName(),
+                                                          node.getMixinTypeNames(),
+                                                          node.getOrderNumber(),
+                                                          node.getParentIdentifier(),
+                                                          node.getACL());
+        resultState.add(new ItemState(newItem,
+                                      ItemState.UPDATED,
+                                      item.isEventFire(),
+                                      name,
+                                      item.isInternallyCreated()));
+      }
+    }
+
+    return resultState;
+  }
+
+  /**
    * isPropertyAllowed.
    * 
    * @param propertyName
@@ -175,6 +251,17 @@ public abstract class AbstractMerger implements ChangesMerger {
       skippedList.add(skippedPath);
   }
 
+  /**
+   * addToSkipList.
+   * 
+   * @param firstState
+   * @param rootPath
+   * @param storage
+   * @param skippedList
+   * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
   protected void addToSkipList(ItemState firstState,
                                QPath rootPath,
                                ChangesStorage<ItemState> storage,
@@ -185,39 +272,6 @@ public abstract class AbstractMerger implements ChangesMerger {
     Iterator<ItemState> changes = storage.getTreeChanges(firstState, rootPath).iterator();
     while (changes.hasNext()) {
       skippedList.add(changes.next().getData().getQPath());
-    }
-  }
-
-  /**
-   * Will be used as key.
-   */
-  protected class ItemStateKey {
-    private final QPath  path;
-
-    private final String uuid;
-
-    private final int    state;
-
-    public ItemStateKey(QPath path, String uuid, int state) {
-      this.path = path;
-      this.uuid = uuid;
-      this.state = state;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean equals(Object o) {
-      ItemStateKey k = (ItemStateKey) o;
-
-      return path.equals(k.path) && uuid.equals(k.uuid) && state == k.state;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int hashCode() {
-      return path.hashCode() ^ uuid.hashCode() ^ state;
     }
   }
 

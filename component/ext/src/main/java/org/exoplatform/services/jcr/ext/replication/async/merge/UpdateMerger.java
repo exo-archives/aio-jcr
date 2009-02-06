@@ -38,14 +38,9 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 10.12.2008
- * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AddMerger.java 24880 2008-12-11 11:49:03Z tolusha $
  */
@@ -310,59 +305,8 @@ public class UpdateMerger extends AbstractMerger {
                     restoredOrder.add(localData.getQPath().makeParentPath());
 
                     // restore original order
-                    for (int i = 1; i <= locUpdateSeq.size() - 1; i++) {
-                      ItemState item = locUpdateSeq.get(i);
-                      NodeData node = (NodeData) item.getData();
-                      if (i == 1) {
-                        resultState.add(new ItemState(item.getData(),
-                                                      ItemState.DELETED,
-                                                      item.isEventFire(),
-                                                      item.getData().getQPath(),
-                                                      item.isInternallyCreated(),
-                                                      false));
-                      } else {
-                        QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
-                                                         node.getQPath().getName(),
-                                                         node.getQPath().getIndex() - 1);
-
-                        TransientNodeData newItem = new TransientNodeData(name,
-                                                                          node.getIdentifier(),
-                                                                          node.getPersistedVersion(),
-                                                                          node.getPrimaryTypeName(),
-                                                                          node.getMixinTypeNames(),
-                                                                          node.getOrderNumber(),
-                                                                          node.getParentIdentifier(),
-                                                                          node.getACL());
-                        resultState.add(new ItemState(newItem,
-                                                      ItemState.UPDATED,
-                                                      item.isEventFire(),
-                                                      name,
-                                                      item.isInternallyCreated()));
-
-                      }
-                      if (i == locUpdateSeq.size() - 1) {
-                        item = locUpdateSeq.get(1);
-                        node = (NodeData) item.getData();
-
-                        QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
-                                                         node.getQPath().getName(),
-                                                         locUpdateSeq.size() - 1);
-
-                        TransientNodeData newItem = new TransientNodeData(name,
-                                                                          node.getIdentifier(),
-                                                                          node.getPersistedVersion(),
-                                                                          node.getPrimaryTypeName(),
-                                                                          node.getMixinTypeNames(),
-                                                                          node.getOrderNumber(),
-                                                                          node.getParentIdentifier(),
-                                                                          node.getACL());
-                        resultState.add(new ItemState(newItem,
-                                                      ItemState.UPDATED,
-                                                      item.isEventFire(),
-                                                      name,
-                                                      item.isInternallyCreated()));
-                      }
-                    }
+                    for (ItemState inSt : generateRestoreOrder(localState, local))
+                      resultState.add(inSt);
                   }
 
                   break outer;

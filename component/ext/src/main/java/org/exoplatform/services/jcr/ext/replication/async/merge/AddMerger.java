@@ -357,60 +357,8 @@ public class AddMerger extends AbstractMerger {
                   restoredOrder.add(localData.getQPath().makeParentPath());
 
                   // restore original order
-                  List<ItemState> locUpdateSeq = local.getUpdateSequence(localState);
-                  for (int i = 1; i <= locUpdateSeq.size() - 1; i++) {
-                    ItemState item = locUpdateSeq.get(i);
-                    NodeData node = (NodeData) item.getData();
-                    if (i == 1) {
-                      resultState.add(new ItemState(item.getData(),
-                                                    ItemState.DELETED,
-                                                    item.isEventFire(),
-                                                    item.getData().getQPath(),
-                                                    item.isInternallyCreated(),
-                                                    false));
-                    } else {
-                      QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
-                                                       node.getQPath().getName(),
-                                                       node.getQPath().getIndex() - 1);
-
-                      TransientNodeData newItem = new TransientNodeData(name,
-                                                                        node.getIdentifier(),
-                                                                        node.getPersistedVersion(),
-                                                                        node.getPrimaryTypeName(),
-                                                                        node.getMixinTypeNames(),
-                                                                        node.getOrderNumber(),
-                                                                        node.getParentIdentifier(),
-                                                                        node.getACL());
-                      resultState.add(new ItemState(newItem,
-                                                    ItemState.UPDATED,
-                                                    item.isEventFire(),
-                                                    name,
-                                                    item.isInternallyCreated()));
-
-                    }
-                    if (i == locUpdateSeq.size() - 1) {
-                      item = locUpdateSeq.get(1);
-                      node = (NodeData) item.getData();
-
-                      QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
-                                                       node.getQPath().getName(),
-                                                       locUpdateSeq.size() - 1);
-
-                      TransientNodeData newItem = new TransientNodeData(name,
-                                                                        node.getIdentifier(),
-                                                                        node.getPersistedVersion(),
-                                                                        node.getPrimaryTypeName(),
-                                                                        node.getMixinTypeNames(),
-                                                                        node.getOrderNumber(),
-                                                                        node.getParentIdentifier(),
-                                                                        node.getACL());
-                      resultState.add(new ItemState(newItem,
-                                                    ItemState.UPDATED,
-                                                    item.isEventFire(),
-                                                    name,
-                                                    item.isInternallyCreated()));
-                    }
-                  }
+                  for (ItemState inSt : generateRestoreOrder(localState, local))
+                    resultState.add(inSt);
                 }
               }
             }

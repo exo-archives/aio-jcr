@@ -738,6 +738,84 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   }
 
   /**
+   * testComplexUsecase19 (modified demo usecase 19).
+   */
+  public void testComplexUsecase12() throws Exception {
+
+    ComplexUseCase12 complexUseCase12 = new ComplexUseCase12(session3, session4);
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+
+    complexUseCase12.initDataHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase12.checkEquals());
+
+    membersChanges.clear();
+
+    // low
+    complexUseCase12.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    // high
+    complexUseCase12.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase12.checkEquals());
+  }
+
+  /**
+   * testComplexUsecase19 (modified demo usecase 20).
+   */
+  public void testComplexUsecase13() throws Exception {
+
+    ComplexUseCase13 complexUseCase13 = new ComplexUseCase13(session3, session4);
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+
+    complexUseCase13.initDataHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase13.checkEquals());
+
+    membersChanges.clear();
+
+    // low
+    complexUseCase13.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    // high
+    complexUseCase13.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase13.checkEquals());
+  }
+
+  /**
    * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
    * 
    * 1. Add text file /fileA.txt on server 1

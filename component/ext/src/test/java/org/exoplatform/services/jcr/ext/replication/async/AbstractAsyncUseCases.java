@@ -480,6 +480,71 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
+  public class ComplexUseCase12 extends BaseMergeUseCase {
+    public ComplexUseCase12(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("folder1");
+      node = sessionHighPriority.getRootNode().addNode("fileA");
+      node.setProperty("data", "value");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("folder1").addNode("fileAA");
+      node.setProperty("data", "value2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.move("/fileA", "/folder1/fileA");
+      sessionLowPriority.move("/folder1/fileA", "/folder1/fileAA");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCase13 extends BaseMergeUseCase {
+    public ComplexUseCase13(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("folder1");
+      node = sessionHighPriority.getRootNode().addNode("fileA");
+      node.setProperty("data", "value");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.move("/fileA", "/folder1/fileA");
+      sessionHighPriority.move("/folder1/fileA", "/folder1/fileZZ");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("folder1");
+      node = node.addNode("fileZZ");
+      node.setProperty("data", "value");
+      sessionLowPriority.save();
+    }
+  }
+
   /**
    * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
    * 
