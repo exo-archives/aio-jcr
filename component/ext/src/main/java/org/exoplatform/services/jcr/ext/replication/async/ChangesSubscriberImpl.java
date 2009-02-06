@@ -85,7 +85,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected HashMap<Key, MemberChangesFile> incomChanges  = new HashMap<Key, MemberChangesFile>();
+  protected HashMap<Integer, MemberChangesFile> incomChanges  = new HashMap<Integer, MemberChangesFile>();
 
   protected MergeWorker                     mergeWorker   = null;
 
@@ -277,8 +277,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
         // packet.getFileCount(); // TODO remeber whole packets count for this member
 
-        incomChanges.put(new Key(packet.getCRC(), packet.getTimeStamp()),
-                         new MemberChangesFile(cf, member));
+        incomChanges.put(packet.getTransmitterPriority(), new MemberChangesFile(cf, member));
       } catch (Throwable e) {
         doCancel();
         LOG.error("Error of First data packet processing. Packet from " + member, e);
@@ -290,7 +289,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         try {
           // LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
 
-          MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
+          MemberChangesFile mcf = incomChanges.get(packet.getTransmitterPriority());
           mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
         } catch (Throwable e) {
           doCancel();
@@ -306,7 +305,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         try {
           LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + member.getName());
 
-          MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
+          MemberChangesFile mcf = incomChanges.get(packet.getTransmitterPriority());
           mcf.getChangesFile().finishWrite();
           incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
 
@@ -501,41 +500,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       doStop();
     else
       LOG.warn("Not started or already stopped");
-  }
-
-  private class Key {
-    private final String crc;
-
-    private final Long   timeStamp;
-
-    public Key(String crc, long timeStamp) {
-      this.crc = crc;
-      this.timeStamp = timeStamp;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean equals(Object o) {
-      Key k = (Key) o;
-
-      return crc.equals(k.getCrc()) && timeStamp == k.getTimeStamp();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int hashCode() {
-      return crc.hashCode() ^ timeStamp.hashCode();
-    }
-
-    public String getCrc() {
-      return crc;
-    }
-
-    public long getTimeStamp() {
-      return timeStamp;
-    }
   }
 
   private class MemberChangesFile {
