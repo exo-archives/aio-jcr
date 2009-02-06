@@ -40,13 +40,13 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class TransmitterChangesTest extends AbstractTrasportTest {
   
-  private static Log                       log       = ExoLogger.getLogger("ext.TestTransmitterChanges");
+  private static Log                  log       = ExoLogger.getLogger("ext.TestTransmitterChanges");
   
   private static final String         CH_NAME   = "AsyncRepCh";
 
   private static final int            priority  = 50;
   
-  private static final String         bindAddress = "192.168.0.3"; 
+  private static final String         bindAddress = "127.0.0.1"; 
   
   public void tearDown() throws Exception {
     super.tearDown();
