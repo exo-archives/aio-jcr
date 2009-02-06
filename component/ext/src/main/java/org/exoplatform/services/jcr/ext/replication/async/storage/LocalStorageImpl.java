@@ -44,7 +44,8 @@ import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCyc
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -89,6 +90,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * Path to Local Storage.
    */
   private final String                                       storagePath;
+
+  private final FileCleaner                   fileCleaner;
 
   private final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
 
@@ -176,13 +179,16 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
                   if (val.isByteArray()) {
                     dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
                   } else {
-                    if (val instanceof TransientValueData) {
-                      dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
-                                                     val.getOrderNumber());
-                    } else {
-                      // create new dataFile
-                      dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
-                    }
+                    // if (val instanceof TransientValueData) {
+                    // dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
+                    // val.getOrderNumber());
+                    // } else {
+                    // // create new dataFile
+                    // dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
+                    // }
+                    dest = new ReplicableValueData(val.getAsStream(),
+                                                   val.getOrderNumber(),
+                                                   fileCleaner);
                   }
                 }
                 nVals.add(dest);
@@ -240,12 +246,13 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       currentOut.writeObject(itemStates);
       // keep stream opened
 
-      //LOG.info("Write done: \r\n" + itemStates.dump());
+      // LOG.info("Write done: \r\n" + itemStates.dump());
     }
   }
 
-  public LocalStorageImpl(String storagePath) {
+  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) {
     this.storagePath = storagePath;
+    this.fileCleaner = fileCleaner;
 
     // find last index of storage
 
@@ -282,7 +289,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       for (int j = 0; j < files.length; j++) {
         try {
-          chFiles.add(new SimpleChangesFile(files[j], "", Long.parseLong(files[j].getName()), resHolder));
+          chFiles.add(new SimpleChangesFile(files[j],
+                                            "",
+                                            Long.parseLong(files[j].getName()),
+                                            resHolder));
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -300,6 +310,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       changesQueue.add((TransactionChangesLog) itemStates);
+
+      LOG.info("onSaveItems : \r\n" + itemStates.dump());
 
       if (changesSpooler == null) {
         // changesSpooler var can be nulled from ChangesSpooler.run()
@@ -396,13 +408,13 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     LOG.info("On STOP");
 
     if (isStarted()) {
-    
+
       try {
         resHolder.close();
       } catch (IOException e) {
         LOG.error("Error of data streams close " + e, e);
       }
-    
+
       // delete merged content
       File[] subfiles = currentDir.listFiles();
 
@@ -413,9 +425,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         }
       }
 
-      //reset files index
+      // reset files index
       index = new Long(0);
-      
+
     } else
       LOG.warn("Not started or already stopped");
 

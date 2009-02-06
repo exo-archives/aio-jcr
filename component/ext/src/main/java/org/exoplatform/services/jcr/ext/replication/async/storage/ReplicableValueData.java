@@ -34,6 +34,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -47,28 +48,34 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
 
   protected static final Log LOG              = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
-  private static final int   DEF_MAX_BUF_SIZE = 2048;                                       // 2kb
+  public static final String FILE_PREFIX      = "repValDat";
 
-  // private int orderNumber;
+  private static final int   DEF_MAX_BUF_SIZE = 20480;                                      // 20kb
+
+  // private final ResourcesHolder resHolder;
+
+  private FileCleaner        cleaner;
 
   private byte[]             data;
 
   private File               spoolFile;
 
-  public ReplicableValueData(File file, int order) throws IOException {
-    super(order);
-    this.spoolFile = file;
-    if (spoolFile != null) {
-      if (spoolFile instanceof SpoolFile)
-        ((SpoolFile) spoolFile).acquire(this);
-    }
-    this.data = null;
-  }
+  // TODO
+  // public ReplicableValueData(File file, int order) throws IOException {
+  // super(order);
+  // this.spoolFile = file;
+  // if (spoolFile != null) {
+  // if (spoolFile instanceof SpoolFile)
+  // ((SpoolFile) spoolFile).acquire(this);
+  // }
+  // this.data = null;
+  // }
 
   public ReplicableValueData(byte[] data, int order) {
     super(order);
     this.spoolFile = null;
     this.data = data;
+    this.cleaner = null;
   }
 
   /**
@@ -77,6 +84,7 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
    */
   public ReplicableValueData() {
     super(0);
+    this.cleaner = null;
   }
 
   /**
@@ -87,25 +95,32 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
    * @param orderNumber
    * @throws IOException
    */
-  public ReplicableValueData(InputStream inputStream, int orderNumber) throws IOException {
+  public ReplicableValueData(InputStream inputStream, int orderNumber, FileCleaner cleaner) throws IOException {
     super(orderNumber);
+
+    this.cleaner = cleaner;
+
     // create spool file
     byte[] tmpBuff = new byte[2048];
     int read = 0;
     int len = 0;
     SpoolFile sf = null;
-    sf = new SpoolFile(File.createTempFile("repValDat", null).getAbsolutePath());
+    sf = new SpoolFile(File.createTempFile(FILE_PREFIX, null).getAbsolutePath());
     sf.acquire(this);
 
-    OutputStream sfout = new FileOutputStream(sf);
     try {
-      while ((read = inputStream.read(tmpBuff)) >= 0) {
-        // spool to temp file
-        sfout.write(tmpBuff, 0, read);
-        len += read;
+      OutputStream sfout = new FileOutputStream(sf);
+      try {
+        while ((read = inputStream.read(tmpBuff)) >= 0) {
+          // spool to temp file
+          sfout.write(tmpBuff, 0, read);
+          len += read;
+        }
+      } finally {
+        sfout.close();
       }
     } finally {
-      sfout.close();
+      inputStream.close();
     }
 
     // spooled to file
@@ -128,20 +143,15 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       long length = this.spoolFile.length();
       out.writeLong(length);
       InputStream in = new FileInputStream(spoolFile);
-      byte[] buf = new byte[length > DEF_MAX_BUF_SIZE ? DEF_MAX_BUF_SIZE : (int) length];
-      int l = 0;
-      while ((l = in.read(buf)) != -1) {
-        out.write(buf, 0, l);
+      try {
+        byte[] buf = new byte[length > DEF_MAX_BUF_SIZE ? DEF_MAX_BUF_SIZE : (int) length];
+        int l = 0;
+        while ((l = in.read(buf)) != -1) {
+          out.write(buf, 0, l);
+        }
+      } finally {
+        in.close();
       }
-      in.close();
-    }
-
-    out.writeByte(0x000A);
-    out.writeByte(0x000D);
-
-    // TODO ReplicableValueData must not be used after serialization.
-    if (spoolFile != null && spoolFile.exists()) {
-      spoolFile.delete();
     }
   }
 
@@ -156,7 +166,7 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
     if (length > DEF_MAX_BUF_SIZE) {
       // store data as file
 
-      SpoolFile sf = new SpoolFile(File.createTempFile("repValDat", null).getAbsolutePath());
+      SpoolFile sf = new SpoolFile(File.createTempFile(FILE_PREFIX, null).getAbsolutePath());
       FileOutputStream sfout = new FileOutputStream(sf);
       try {
         byte[] buf = new byte[DEF_MAX_BUF_SIZE];
@@ -177,16 +187,13 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       } finally {
         sfout.close();
       }
-      
+
       this.spoolFile = sf;
     } else {
       // store data as bytearray
       this.data = new byte[(int) length];
       in.readFully(data);
     }
-
-    in.readByte();
-    in.readByte();
   }
 
   /**
@@ -264,6 +271,27 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       }
     } catch (IOException e) {
       throw new RepositoryException(e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected void finalize() throws Throwable {
+    // same code as in TransientValueData (05.02.2009)
+    if (spoolFile != null) {
+      if (spoolFile instanceof SpoolFile)
+        ((SpoolFile) spoolFile).release(this);
+
+      if (spoolFile.exists()) {
+        if (!spoolFile.delete())
+          if (cleaner != null) {
+            log.info("Could not remove file. Add to fileCleaner " + spoolFile);
+            cleaner.addFile(spoolFile);
+          } else {
+            log.warn("Could not remove temporary file on finalize " + spoolFile.getAbsolutePath());
+          }
+      }
     }
   }
 }

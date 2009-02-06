@@ -44,8 +44,8 @@ import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
@@ -59,12 +59,17 @@ import org.picocontainer.Startable;
  */
 public class AsyncReplication implements Startable {
 
-  private static final Log                                    LOG                = ExoLogger.getLogger("ext.AsyncReplication");
+  private static final Log                                    LOG                 = ExoLogger.getLogger("ext.AsyncReplication");
 
   /**
    * The template for ip-address in configuration.
    */
-  private static final String                                 IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
+  private static final String                                 IP_ADRESS_TEMPLATE  = "[$]bind-ip-address";
+
+  /**
+   * Service file cleaner period.
+   */
+  public final int                                            FILE_CLEANER_PERIOD = 150000;                                     
 
   protected final RepositoryService                           repoService;
 
@@ -95,6 +100,11 @@ public class AsyncReplication implements Startable {
   protected final String                                      incomeStorageDir;
 
   protected final String[]                                    repositoryNames;
+
+  /**
+   * Internal FileCleaner used by local storage.
+   */
+  protected final FileCleaner                                 fileCleaner;
 
   class AsyncWorker implements ConnectionListener {
 
@@ -139,7 +149,7 @@ public class AsyncReplication implements Startable {
                 String wsName,
                 String chanelNameSufix,
                 WorkspaceEntry workspaceConfig,
-                WorkspaceFileCleanerHolder cleanerHolder) {
+                WorkspaceFileCleanerHolder workspaceCleanerHolder) {
 
       this.channel = new AsyncChannelManager(channelConfig,
                                              channelName + "_" + chanelNameSufix,
@@ -160,7 +170,7 @@ public class AsyncReplication implements Startable {
       this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager,
                                                         this.localStorage,
                                                         workspaceConfig,
-                                                        cleanerHolder);
+                                                        workspaceCleanerHolder);
 
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
 
@@ -399,6 +409,8 @@ public class AsyncReplication implements Startable {
     File mergeTempDir = new File(storageDir + "/merge-temp");
     mergeTempDir.mkdirs();
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
+    
+    this.fileCleaner = new FileCleaner(FILE_CLEANER_PERIOD, false);
   }
 
   /**
@@ -460,6 +472,8 @@ public class AsyncReplication implements Startable {
     File mergeTempDir = new File(storageDir + "/merge-temp");
     mergeTempDir.mkdirs();
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
+
+    this.fileCleaner = new FileCleaner(FILE_CLEANER_PERIOD, false);
   }
 
   /**
@@ -589,7 +603,8 @@ public class AsyncReplication implements Startable {
               + File.separator + wsName);
           localDirPerWorkspace.mkdirs();
 
-          LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath());
+          LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
+                                                               fileCleaner);
           localStorages.put(skey, localStorage);
 
           // add local storage as persistence listener
@@ -606,6 +621,8 @@ public class AsyncReplication implements Startable {
                                  incomeDirPerWorkspace.getAbsolutePath());
         }
       }
+      
+      this.fileCleaner.start();
     } catch (Throwable e) {
       LOG.error("Asynchronous replication start fails" + e, e);
       throw new RuntimeException("Asynchronous replication start fails " + e, e);

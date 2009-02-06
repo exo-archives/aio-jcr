@@ -307,7 +307,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    *          list of members
    */
   private void doStart(List<MemberAddress> members) {
-    LOG.info("Do START (remote) member count " + members.size());
+    LOG.info("Do START (local) member count " + members.size());
 
     // list of remote (other) members
     List<MemberAddress> mlist = new ArrayList<MemberAddress>(members.size() - 1);
@@ -414,7 +414,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * {@inheritDoc}
    */
   public void onStart(List<MemberAddress> members) {
-    LOG.info("On START (local) members count " + members.size());
+    LOG.info("On START (remote) members count " + members.size());
 
     // TODO set from Subscriber (this is not a Coordinator)
     this.mergingMembers = members;

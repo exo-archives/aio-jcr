@@ -56,43 +56,43 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Logger.
    */
-  protected static final Log                LOG           = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  protected static final Log                    LOG           = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
-  protected final MergeDataManager          mergeManager;
+  protected final MergeDataManager              mergeManager;
 
-  protected final WorkspaceSynchronizer     workspace;
+  protected final WorkspaceSynchronizer         workspace;
 
-  protected final IncomeStorage             incomeStorrage;
+  protected final IncomeStorage                 incomeStorrage;
 
-  protected final ChangesSaveErrorLog       errorLog;
+  protected final ChangesSaveErrorLog           errorLog;
 
-  protected final AsyncTransmitter          transmitter;
+  protected final AsyncTransmitter              transmitter;
 
-  protected final AsyncInitializer          initializer;
+  protected final AsyncInitializer              initializer;
 
-  protected final int                       memberWaitTimeout;
+  protected final int                           memberWaitTimeout;
 
-  protected final int                       confMembersCount;
+  protected final int                           confMembersCount;
 
-  protected final int                       localPriority;
+  protected final int                           localPriority;
 
-  protected final HashMap<Integer, Counter> counterMap;
+  protected final HashMap<Integer, Counter>     counterMap;
 
-  protected List<MemberAddress>             mergeDoneList = new ArrayList<MemberAddress>();
+  protected List<MemberAddress>                 mergeDoneList = new ArrayList<MemberAddress>();
 
-  private FirstChangesWaiter                firstChangesWaiter;
+  private FirstChangesWaiter                    firstChangesWaiter;
 
   /**
    * Map with CRC key and RandomAccess File
    */
   protected HashMap<Integer, MemberChangesFile> incomChanges  = new HashMap<Integer, MemberChangesFile>();
 
-  protected MergeWorker                     mergeWorker   = null;
+  protected MergeWorker                         mergeWorker   = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<LocalEventListener>   listeners     = new LinkedHashSet<LocalEventListener>();
+  protected final Set<LocalEventListener>       listeners     = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
 
@@ -254,7 +254,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     switch (packet.getType()) {
     case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
       try {
-        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + member.getName());
+        LOG.info("FIRST packet from " + member.getName());
 
         if (isInitialized()) {
           // Fire START on non-Coordinator
@@ -270,17 +270,20 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
             syncl.onStart(initializer.getOtherMembers());
         }
 
-        RandomChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
-                                                                packet.getTimeStamp(),
-                                                                member);
-        cf.writeData(packet.getBuffer(), packet.getOffset());
+        if (isStarted()) {
 
-        // packet.getFileCount(); // TODO remeber whole packets count for this member
+          RandomChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
+                                                                  packet.getTimeStamp(),
+                                                                  member);
+          cf.writeData(packet.getBuffer(), packet.getOffset());
 
-        incomChanges.put(packet.getTransmitterPriority(), new MemberChangesFile(cf, member));
+          incomChanges.put(packet.getTransmitterPriority(), new MemberChangesFile(cf, member));
+        } else
+          LOG.error("First data packet received but the Subscriber is not started. Packet from "
+              + member.getName() + " skipped");
       } catch (Throwable e) {
         doCancel();
-        LOG.error("Error of First data packet processing. Packet from " + member, e);
+        LOG.error("Error of First data packet processing. Packet from " + member.getName(), e);
       }
       break;
     }
@@ -293,18 +296,18 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
         } catch (Throwable e) {
           doCancel();
-          LOG.error("Error of Mid data packet processing. Packet from " + member, e);
+          LOG.error("Error of Mid data packet processing. Packet from " + member.getName(), e);
         }
       } else
         LOG.error("Mid data packet received but the Subscriber is not started. Packet from "
-            + member + " skipped");
+            + member.getName() + " skipped");
       break;
     }
     case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
       if (isStarted()) {
-        try {
-          LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + member.getName());
+        LOG.info("LAST packet from " + member.getName());
 
+        try {
           MemberChangesFile mcf = incomChanges.get(packet.getTransmitterPriority());
           mcf.getChangesFile().finishWrite();
           incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
@@ -328,7 +331,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
         } catch (Throwable e) {
           doCancel();
-          LOG.error("Error of Last data packet processing. Packet from " + member, e);
+          LOG.error("Error of Last data packet processing. Packet from " + member.getName(), e);
         }
       } else
         LOG.error("Last data packet received but the Subscriber is not started. Packet from "

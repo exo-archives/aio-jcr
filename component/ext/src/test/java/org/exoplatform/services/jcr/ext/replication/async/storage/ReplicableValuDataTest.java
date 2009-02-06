@@ -67,7 +67,7 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
   public void testBLOBValue() throws Exception {
     
     File f = this.createBLOBTempFile(1024);
-    ReplicableValueData val = new ReplicableValueData(f, 10);
+    ReplicableValueData val = new ReplicableValueData(new FileInputStream(f), 10);
 
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
 
