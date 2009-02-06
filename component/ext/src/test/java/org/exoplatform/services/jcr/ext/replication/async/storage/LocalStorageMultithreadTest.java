@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -93,7 +94,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     dir.mkdirs();
     
     // storage created and listen for a JCR changes
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(storage);
 
     // concurent work in JCR

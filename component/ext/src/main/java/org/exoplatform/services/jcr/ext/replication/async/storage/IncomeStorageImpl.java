@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,7 +74,13 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
-    // TODO check if CRC is valid for received file
+   /* try {
+      if (!ChangesFileValidator.validate(changesFile)) {
+        throw new IOException("ChangesFile content's checksum is not equal to original.");
+      }
+    } catch (NoSuchAlgorithmException e) {
+      throw new IOException(e.getMessage());
+    }*/ //TODO
 
     MemberChanges mch = this.changes.get(member.getPriority());
     if (mch == null) {
@@ -87,7 +94,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public synchronized RandomChangesFile createChangesFile(String crc, long id, Member member) throws IOException {
+  public synchronized RandomChangesFile createChangesFile(byte[] crc, long id, Member member) throws IOException {
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
     dir.mkdirs();
     File cf = new File(dir, Long.toString(id));
@@ -133,11 +140,11 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   }
 
   /**
-   * Get changes from FS. Usefull when we wants load changes from persistence - file system.
+   * Get changes from FS. Usefull when we wants load changes from persistence -
+   * file system.
    * 
    * @return List of ChangesStorage
-   * @throws IOException
-   *           on FS error
+   * @throws IOException on FS error
    */
   @Deprecated
   private List<ChangesStorage<ItemState>> getChangesFromFS() throws IOException {
@@ -157,7 +164,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     List<ChangesStorage<ItemState>> changeStorages = new ArrayList<ChangesStorage<ItemState>>();
     for (File memberDir : memberDirs) {
       try {
-        int memberPriority = Integer.parseInt(memberDir.getName()); // also check - is
+        int memberPriority = Integer.parseInt(memberDir.getName()); // also
+                                                                    // check -
+                                                                    // is
         // member folder;
 
         File[] files = memberDir.listFiles(new ChangesFilenameFilter());
@@ -167,7 +176,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
         for (int j = 0; j < files.length; j++) {
           File ch = new File(memberDir, files[j].getName());
-          chFiles.add(new RandomChangesFile(ch, "", Long.parseLong(files[j].getName()), resHolder));
+          chFiles.add(new RandomChangesFile(ch, new byte[]{}, Long.parseLong(files[j].getName()), resHolder));
         }
 
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());

@@ -33,10 +33,10 @@ public class MemoryChangesFile implements ChangesFile {
 
   private byte[] buf; 
   
-  private String crc;
+  private byte[] crc;
   
   private long id;
-  MemoryChangesFile(String crc, long id, byte[]buf){
+  MemoryChangesFile(byte[] crc, long id, byte[]buf){
     this.buf = buf;
     this.crc = crc;
     this.id = id;
@@ -47,7 +47,7 @@ public class MemoryChangesFile implements ChangesFile {
     return true;
   }
 
-  public String getChecksum() {
+  public byte[] getChecksum() {
     return crc;
   }
 

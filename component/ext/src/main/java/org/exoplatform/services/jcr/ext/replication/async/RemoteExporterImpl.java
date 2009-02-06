@@ -129,7 +129,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         }
 
         if (!MessageDigest.isEqual(dis.getMessageDigest().digest(),
-                                   changesFile.getChecksum().getBytes(Constants.DEFAULT_ENCODING))) {
+                                   changesFile.getChecksum())) {
           // TODO checksum don't work. fix it
           // throw new RemoteExportException("Remote export failed. Received data corrupted.");
         }
@@ -178,7 +178,23 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
       case RemoteExportResponce.LAST:
         changesFile.finishWrite();
+        
+        //check received file
+        MessageDigest digest;
+        try {
+          digest = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+          throw new IOException(e.getMessage());
+        }
+        DigestInputStream in = new DigestInputStream(changesFile.getInputStream(),digest);
+        
+        byte[] buf  = new byte[1024];
+        while(in.read(buf)!=-1);
+        
+        String d = new String(digest.digest(),"UTF-8");
+        
         latch.countDown();
+        
         break;
       }
     } catch (IOException e) {
@@ -200,7 +216,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     latch.countDown();
   }
 
-  private void initChangesFile(String crc, long timeStamp) throws IOException {
+  private void initChangesFile(byte[] crc, long timeStamp) throws IOException {
     if (this.changesFile == null) {
       changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + timeStamp),
                                           crc,

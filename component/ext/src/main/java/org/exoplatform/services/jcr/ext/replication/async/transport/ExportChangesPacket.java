@@ -26,7 +26,7 @@ public class ExportChangesPacket extends ChangesPacket {
 
   public ExportChangesPacket(int type,
                              int priority,
-                             String crc,
+                             byte[] crc,
                              long timeStamp,
                              int fileCount,
                              long offset,

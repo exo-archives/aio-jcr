@@ -43,6 +43,7 @@ import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistence
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
 /**
@@ -141,7 +142,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"ss");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -199,7 +200,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     //File dir = new File(STORAGE_DIR + "ss");
     //dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst", "nt:folder");
@@ -247,7 +248,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"startstop");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -284,7 +285,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
    */
   public void testImportEmptyLog() throws Exception {
 
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     storage.onStart(null);
 
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
@@ -306,7 +307,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"ss");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n = (NodeImpl) root.addNode("testNode");
@@ -360,7 +361,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(storage);
 
     n.remove();
@@ -387,7 +388,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     // dir.mkdirs();
     class TestLocalStorage extends LocalStorageImpl {
       public TestLocalStorage(String path, int pr) {
-        super(path);
+        super(path,new FileCleaner());
       }
 
       public void report(Exception e) {
@@ -406,7 +407,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage = null;
 
-    storage = new LocalStorageImpl(dir.getAbsolutePath());
+    storage = new LocalStorageImpl(dir.getAbsolutePath(),new FileCleaner());
 
     // check exception
     String[] errs = storage.getErrors();

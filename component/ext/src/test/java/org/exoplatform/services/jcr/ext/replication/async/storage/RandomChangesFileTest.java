@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.AbstractTrasportTest;
  */
 public class RandomChangesFileTest extends AbstractTrasportTest {
 
-  private static final String CRC = "CRC";
+  private static final byte[] CRC = "CRC".getBytes();
 
   public void testWriteFile() throws Exception {
     RandomChangesFile file = new TesterRandomChangesFile(CRC, System.currentTimeMillis());

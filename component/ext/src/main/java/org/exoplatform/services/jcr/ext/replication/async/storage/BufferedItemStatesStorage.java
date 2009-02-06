@@ -279,7 +279,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       synchronized (index) {
         id = index++;
       }
-      return new ChangesFile[] { new MemoryChangesFile("", id, currentByteArray.toByteArray()) };
+      return new ChangesFile[] { new MemoryChangesFile(new byte[]{}, id, currentByteArray.toByteArray()) };
     } else {
       return new ChangesFile[] {};
     }
@@ -341,7 +341,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       throw new IOException("File already exists " + file.getAbsolutePath());
     }
 
-    String crc = ""; // crc is ignored
+    byte[] crc = new byte[]{}; // crc is ignored
     return new SimpleOutputChangesFile(file, crc, id, resHolder);
   }
 

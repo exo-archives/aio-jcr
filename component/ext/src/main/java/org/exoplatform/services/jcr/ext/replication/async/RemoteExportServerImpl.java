@@ -179,7 +179,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
                                                                  dataManager);
       exportedNode.accept(exporter);
 
-      String crc = new String(digest.digest(), Constants.DEFAULT_ENCODING);
+      byte[] crc = digest.digest();
       return new SimpleChangesFile(chLogFile, crc, System.currentTimeMillis(), resHolder);
     } catch (IOException e) {
       throw new RemoteExportException(e);

@@ -59,11 +59,11 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     static final String SUFIX  = "SUFIX";
 
-    public TesterRandomChangesFile(String crc, long id) throws IOException {
+    public TesterRandomChangesFile(byte[] crc, long id) throws IOException {
       super(File.createTempFile(PREFIX, SUFIX), crc, id, resHolder);
     }
 
-    public TesterRandomChangesFile(File f, String crc, long id) throws IOException {
+    public TesterRandomChangesFile(File f, byte[] crc, long id) throws IOException {
       super(f, crc, id, resHolder);
     }
   }

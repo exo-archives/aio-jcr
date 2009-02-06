@@ -69,7 +69,7 @@ public class TransmitterChangesTest extends AbstractTrasportTest {
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
     for (TransactionChangesLog tcl : pl.pushChanges()) {
-      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
+      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
                                                                      .getTimeInMillis());
 
       ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());

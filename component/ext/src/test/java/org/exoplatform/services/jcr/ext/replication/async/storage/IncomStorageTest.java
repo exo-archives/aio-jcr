@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.jgroups.stack.IpAddress;
 
@@ -81,7 +82,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    RandomChangesFile cf = storage.createChangesFile("",
+    RandomChangesFile cf = storage.createChangesFile(new byte[]{},
                                                      System.currentTimeMillis(),
                                                      new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
@@ -132,7 +133,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    RandomChangesFile cf = storage.createChangesFile("",
+    RandomChangesFile cf = storage.createChangesFile(new byte[]{},
                                                      System.currentTimeMillis(),
                                                      new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
@@ -141,14 +142,14 @@ public class IncomStorageTest extends BaseStandaloneTest {
     cf.finishWrite();
     // storage.addMemberChanges(new Member(null, 20), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 10));
+    cf = storage.createChangesFile(new byte[]{}, System.currentTimeMillis(), new Member(null, 10));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log2);
     out.close();
     cf.finishWrite();
     // storage.addMemberChanges(new Member(null, 10), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 45));
+    cf = storage.createChangesFile(new byte[]{}, System.currentTimeMillis(), new Member(null, 45));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log3);
     out.close();
@@ -230,7 +231,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     File difFile = new File(dir, "blabla");
     assertTrue(difFile.createNewFile());
 
-    RandomChangesFile cf = storage.createChangesFile("",
+    RandomChangesFile cf = storage.createChangesFile(new byte[]{},
                                                      System.currentTimeMillis(),
                                                      new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
@@ -239,7 +240,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     cf.finishWrite();
     // storage.addMemberChanges(new Member(null, 20), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 10));
+    cf = storage.createChangesFile(new byte[]{}, System.currentTimeMillis(), new Member(null, 10));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log2);
     out.close();
@@ -248,7 +249,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     File subDifFile = new File(dir, "10/subfile");
     assertTrue(subDifFile.createNewFile());
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 45));
+    cf = storage.createChangesFile(new byte[]{}, System.currentTimeMillis(), new Member(null, 45));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log3);
     out.close();
@@ -288,7 +289,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
 
     File lsdir = new File("target/LocalStorageTest");
     lsdir.mkdirs();
-    LocalStorageImpl locStorage = new LocalStorageImpl(lsdir.getAbsolutePath());
+    LocalStorageImpl locStorage = new LocalStorageImpl(lsdir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(locStorage);
 
     // create node

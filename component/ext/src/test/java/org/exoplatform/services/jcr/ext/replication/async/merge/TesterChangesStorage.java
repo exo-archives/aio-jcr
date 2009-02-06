@@ -59,7 +59,7 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
     out.writeObject(tlog);
 
     this.storage.add(new SimpleChangesFile(ch,
-                                           "",
+                                           new byte[]{},
                                            System.currentTimeMillis(),
                                            new ResourcesHolder()));
   }

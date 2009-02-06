@@ -31,7 +31,7 @@ import java.io.OutputStream;
  */
 public class SimpleOutputChangesFile extends SimpleChangesFile implements EditableChangesFile {
 
-  public SimpleOutputChangesFile(File file, String crc, long id, ResourcesHolder resHolder) {
+  public SimpleOutputChangesFile(File file, byte[] crc, long id, ResourcesHolder resHolder) {
     super(file, crc, id, resHolder);
   }
 

@@ -42,7 +42,7 @@ public class RandomChangesFile implements ChangesFile {
   /**
    * Check sum to file.
    */
-  private final String          crc;
+  private final byte[]          crc;
 
   /**
    * Time stamp to ChangesLog.
@@ -68,7 +68,7 @@ public class RandomChangesFile implements ChangesFile {
    *          time stamp
    * @throws IOException
    */
-  public RandomChangesFile(File file, String crc, long id, ResourcesHolder resHolder) {
+  public RandomChangesFile(File file, byte[] crc, long id, ResourcesHolder resHolder) {
     this.crc = crc;
     this.id = id;
     this.file = file;
@@ -80,7 +80,7 @@ public class RandomChangesFile implements ChangesFile {
    * 
    * @return String return the check sum to file.
    */
-  public String getChecksum() {
+  public byte[] getChecksum() {
     return crc;
   }
 

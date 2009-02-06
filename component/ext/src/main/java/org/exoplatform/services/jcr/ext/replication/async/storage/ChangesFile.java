@@ -32,7 +32,7 @@ public interface ChangesFile {
    * 
    * @return String return the check sum to file.
    */
-  String getChecksum();
+  byte[] getChecksum();
 
   /**
    * getTimeStamp.

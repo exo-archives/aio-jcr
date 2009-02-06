@@ -36,7 +36,7 @@ public class SimpleChangesFile implements ChangesFile {
   /**
    * Check sum to file.
    */
-  protected final String crc;
+  protected final byte[] crc;
 
   /**
    * Time stamp to ChangesLog.
@@ -47,7 +47,7 @@ public class SimpleChangesFile implements ChangesFile {
   
   protected final ResourcesHolder resHolder;
 
-  public SimpleChangesFile(File file, String crc, long id, ResourcesHolder resHolder) {
+  public SimpleChangesFile(File file, byte[] crc, long id, ResourcesHolder resHolder) {
     this.crc = crc;
     this.id = id;
     this.file = file;
@@ -58,7 +58,7 @@ public class SimpleChangesFile implements ChangesFile {
     return file.delete();
   }
 
-  public String getChecksum() {
+  public byte[] getChecksum() {
     return crc;
   }
 

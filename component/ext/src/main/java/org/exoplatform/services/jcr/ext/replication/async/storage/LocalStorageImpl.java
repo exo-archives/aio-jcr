@@ -290,7 +290,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       for (int j = 0; j < files.length; j++) {
         try {
           chFiles.add(new SimpleChangesFile(files[j],
-                                            "",
+                                            new byte[]{}, //TODO make corretc 
                                             Long.parseLong(files[j].getName()),
                                             resHolder));
         } catch (NumberFormatException e) {

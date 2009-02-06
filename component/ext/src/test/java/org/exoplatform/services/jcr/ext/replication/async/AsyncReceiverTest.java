@@ -133,7 +133,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     ExportChangesPacket packetFirst = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
                                                               priority,
-                                                              "idufifjxkhjfapudasdf",
+                                                              "idufifjxkhjfapudasdf".getBytes(),
                                                               System.currentTimeMillis(),
                                                               1,
                                                               16420,
@@ -141,7 +141,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     ExportChangesPacket packetMiddle = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
                                                                priority,
-                                                               "sjkhsklajoieasdfaf",
+                                                               "sjkhsklajoieasdfaf".getBytes(),
                                                                System.currentTimeMillis(),
                                                                1,
                                                                32576,
@@ -149,7 +149,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     ExportChangesPacket packetLast = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET,
                                                              priority,
-                                                             "alsjdfpask'dafa;lkajfkas",
+                                                             "alsjdfpask'dafa;lkajfkas".getBytes(),
                                                              System.currentTimeMillis(),
                                                              1,
                                                              48768,
@@ -246,7 +246,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     ChangesPacket packetFirst = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
                                                   priority,
-                                                  "idufifjxkhjfapudasdf",
+                                                  "idufifjxkhjfapudasdf".getBytes(),
                                                   System.currentTimeMillis(),
                                                   3,
                                                   16420,
@@ -254,7 +254,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     ChangesPacket packetMiddle = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
                                                    priority,
-                                                   "sjkhsklajoieasdfaf",
+                                                   "sjkhsklajoieasdfaf".getBytes(),
                                                    System.currentTimeMillis(),
                                                    3,
                                                    32576,
@@ -262,7 +262,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     ChangesPacket packetLast = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
                                                  priority,
-                                                 "alsjdfpask'dafa;lkajfkas",
+                                                 "alsjdfpask'dafa;lkajfkas".getBytes(),
                                                  System.currentTimeMillis(),
                                                  3,
                                                  48768,

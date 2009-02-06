@@ -40,7 +40,7 @@ public class RemoteExportResponce {
 
   private final long      offset;
 
-  private final String    crc;
+  private final byte[]    crc;
 
   private final long      timeStamp;
 
@@ -48,7 +48,7 @@ public class RemoteExportResponce {
 
   RemoteExportResponce(Member member,
                        int type,
-                       String crc,
+                       byte[] crc,
                        long timeStamp,
                        byte[] buffer,
                        long offset) {
@@ -71,7 +71,7 @@ public class RemoteExportResponce {
     return type;
   }
 
-  public String getCRC() {
+  public byte[] getCRC() {
     return crc;
   }
 

@@ -32,6 +32,7 @@ import java.util.Random;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -67,7 +68,7 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
   public void testBLOBValue() throws Exception {
     
     File f = this.createBLOBTempFile(1024);
-    ReplicableValueData val = new ReplicableValueData(new FileInputStream(f), 10);
+    ReplicableValueData val = new ReplicableValueData(new FileInputStream(f), 10, new FileCleaner());
 
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
 

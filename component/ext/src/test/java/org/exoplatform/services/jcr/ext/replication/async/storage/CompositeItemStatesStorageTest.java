@@ -79,7 +79,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
     for (TransactionChangesLog tcl : pl.pushChanges()) {
-      RandomChangesFile cf = new TesterRandomChangesFile("crc", 123l);
+      RandomChangesFile cf = new TesterRandomChangesFile(new byte[]{}, 123l);
 
       ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
 

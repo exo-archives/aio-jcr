@@ -89,7 +89,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     List<TransactionChangesLog> srcChangesLogList = pl.pushChanges();
 
     for (TransactionChangesLog tcl : srcChangesLogList) {
-      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
+      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
                                                                      .getTimeInMillis());
 
       ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
@@ -180,7 +180,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     NodeData exportNode = (NodeData) ((NodeImpl) (root.getNode("test_node_l1").getNode("test_node_l2"))).getData();
     NodeData parentNode = (NodeData) dm.getItemData(exportNode.getParentIdentifier());
 
-    TesterRandomChangesFile cf = new TesterRandomChangesFile("123123123123", System.currentTimeMillis());
+    TesterRandomChangesFile cf = new TesterRandomChangesFile(("123123123123".getBytes()), System.currentTimeMillis());
     ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
 
     // extract ItemStates

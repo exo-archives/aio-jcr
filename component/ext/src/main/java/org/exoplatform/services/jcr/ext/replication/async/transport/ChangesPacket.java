@@ -38,7 +38,7 @@ public class ChangesPacket extends AbstractPacket {
   /**
    * CRC.
    */
-  private String crc;
+  private byte[] crc;
 
   /**
    * ChangesLog file count
@@ -69,13 +69,13 @@ public class ChangesPacket extends AbstractPacket {
    */
   public ChangesPacket(int type,
                        int priority,
-                       String crc,
+                       byte[] checksum,
                        long timeStamp,
                        int fileCount,
                        long offset,
                        byte[] buffer) {
     super(type, priority);
-    this.crc = crc;
+    this.crc = checksum;
     this.timeStamp = timeStamp;
     this.fileCount = fileCount;
     this.offset = offset;
@@ -90,7 +90,7 @@ public class ChangesPacket extends AbstractPacket {
     super();
   }
 
-  public String getCRC() {
+  public byte[] getCRC() {
     return this.crc;
   }
 
@@ -119,10 +119,9 @@ public class ChangesPacket extends AbstractPacket {
     out.writeInt(priority);
 
     if (crc != null) {
-      byte[] b = crc.getBytes(Constants.DEFAULT_ENCODING);
       out.writeInt(NOT_NULL_VALUE);
-      out.writeInt(b.length);
-      out.write(b);
+      out.writeInt(crc.length);
+      out.write(crc);
     } else {
       out.writeInt(NULL_VALUE);
     }
@@ -147,9 +146,8 @@ public class ChangesPacket extends AbstractPacket {
 
     priority = in.readInt();
     if (in.readInt() == NOT_NULL_VALUE) {
-      byte[] buf = new byte[in.readInt()];
-      in.readFully(buf);
-      crc = new String(buf, Constants.DEFAULT_ENCODING);
+      byte[] crc = new byte[in.readInt()];
+      in.readFully(crc);
     } else {
       crc = null;
     }

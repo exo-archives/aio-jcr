@@ -79,7 +79,7 @@ public class TesterRemoteExporter implements RemoteExporter {
       }
       File file = File.createTempFile("exportStor", Long.toString(timestamp));
 
-      String crc = ""; // crc is ignored
+      byte[] crc = new byte[]{}; // crc is ignored
       SimpleOutputChangesFile chfile = new SimpleOutputChangesFile(file,
                                                                    crc,
                                                                    timestamp,
