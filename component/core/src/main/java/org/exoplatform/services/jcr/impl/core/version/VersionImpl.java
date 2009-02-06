@@ -69,9 +69,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     super.invalidate();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.version.Version#getCreated()
+  /**
+   * {@inheritDoc}
    */
   public Calendar getCreated() throws RepositoryException {
 
@@ -91,9 +90,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     return created.getDate();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.version.Version#getSuccessors()
+  /**
+   * {@inheritDoc}
    */
   public Version[] getSuccessors() throws RepositoryException {
 
@@ -127,9 +125,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.version.Version#getPredecessors()
+  /**
+   * {@inheritDoc}
    */
   public Version[] getPredecessors() throws RepositoryException {
 
@@ -356,6 +353,9 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public VersionHistoryImpl getContainingHistory() throws RepositoryException {
 
     checkValid();

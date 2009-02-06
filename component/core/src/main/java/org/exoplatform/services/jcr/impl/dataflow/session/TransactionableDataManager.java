@@ -45,24 +45,18 @@ import org.exoplatform.services.transaction.TransactionResource;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: TransactionableDataManager.java 11907 2008-03-13 15:36:21Z ksm
- *          $
+ * @version $Id: TransactionableDataManager.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TransactionableDataManager implements TransactionResource, DataManager {
 
   private WorkspaceStorageDataManagerProxy storageDataManager;
 
-  // private SessionImpl session;
-
   protected static Log                     log = ExoLogger.getLogger("jcr.TransactionableDataManager");
 
-  // private SessionChangesLog transactionLog;
   private TransactionChangesLog            transactionLog;
 
   public TransactionableDataManager(LocalWorkspaceDataManagerStub dataManager, SessionImpl session) throws RepositoryException {
     super();
-    // this.session = session;
-
     try {
       this.storageDataManager = new LocalWorkspaceStorageDataManagerProxy(dataManager,
                                                                           session.getValueFactory());
@@ -70,16 +64,12 @@ public class TransactionableDataManager implements TransactionResource, DataMana
       String infoString = "[Error of read value factory: " + e1.getMessage() + "]";
       throw new RepositoryException(infoString);
     }
-
   }
 
   // --------------- ItemDataConsumer --------
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData
-   * (org.exoplatform.services .jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
     List<NodeData> nodes = storageDataManager.getChildNodesData(parent);
@@ -95,11 +85,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     return nodes;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData
-   * (org.exoplatform .services.jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     List<PropertyData> props = storageDataManager.getChildPropertiesData(parent);
@@ -115,6 +102,9 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     return props;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException {
     List<PropertyData> props = storageDataManager.listChildPropertiesData(parent);
 
@@ -129,11 +119,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     return props;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.
-   * exoplatform.services .jcr.datamodel.InternalQPath)
+  /**
+   * {@inheritDoc}
    */
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     ItemData data = null;
@@ -148,11 +135,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
       return storageDataManager.getItemData(parentData, name);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java
-   * .lang.String)
+  /**
+   * {@inheritDoc}
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
     ItemData data = null;
@@ -167,11 +151,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
       return storageDataManager.getItemData(identifier);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData
-   * (java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
     return storageDataManager.getReferencesData(identifier, skipVersionStorage);
@@ -179,11 +160,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
 
   // --------------- --------
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#start(org
-   * .exoplatform.services .jcr.impl.dataflow.TransactionLifecycleManager)
+  /**
+   * {@inheritDoc}
    */
   public void start() {
     log.debug("tx start() " + this + " txStarted(): " + txStarted());
@@ -191,11 +169,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
       transactionLog = new TransactionChangesLog();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#commit(org
-   * .exoplatform.services .jcr.impl.dataflow.TransactionLifecycleManager)
+  /**
+   * {@inheritDoc}
    */
   public void commit() throws TransactionException {
     if (txStarted()) {
@@ -211,11 +186,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#rollback
-   * (org.exoplatform.services .jcr.impl.dataflow.TransactionLifecycleManager)
+  /**
+   * {@inheritDoc}
    */
   public void rollback() {
     log.debug("tx rollback() " + this
@@ -225,10 +197,9 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   }
 
   /**
-   * Updates the manager with new changes If transaction is started it will fill
-   * manager's changes log, else just move changes to workspace storage manager
-   * It saves the changes AS IS - i.e. id DOES NOT care about cloning of this
-   * objects etc. Here PlainChangesLog expected
+   * Updates the manager with new changes. If transaction is started it will fill manager's changes
+   * log, else just move changes to workspace storage manager. It saves the changes AS IS - i.e. id
+   * DOES NOT care about cloning of this objects etc. Here PlainChangesLog expected.
    * 
    * @param changes
    * @throws RepositoryException
@@ -257,66 +228,6 @@ public class TransactionableDataManager implements TransactionResource, DataMana
 
   public WorkspaceStorageDataManagerProxy getStorageDataManager() {
     return storageDataManager;
-  }
-
-  @Deprecated
-  // TODO remove it
-  protected ItemData locate(final ItemData idata) throws RepositoryException {
-    if (idata == null)
-      return null;
-
-    final ItemState[] renamedStates = transactionLog.findRenamed(idata);
-    if (renamedStates != null)
-      // change item location
-      return relocate(renamedStates, idata);
-    else
-      return idata;
-  }
-
-  /**
-   * Change item location according the RENAME operation states.
-   * 
-   * @param renamedStates
-   * @param idata
-   * @return
-   * @throws RepositoryException
-   */
-  @Deprecated
-  // TODO remove it
-  protected ItemData relocate(final ItemState[] renamedStates, final ItemData idata) throws RepositoryException {
-    NodeData dancestor = (NodeData) renamedStates[0].getData(); // deleted
-    NodeData rancestor = (NodeData) renamedStates[1].getData(); // renamed
-    QPathEntry[] dpath = dancestor.getQPath().getEntries();
-    QPathEntry[] rpath = rancestor.getQPath().getEntries();
-    QPathEntry[] ipath = idata.getQPath().getEntries();
-
-    QPathEntry[] iNewPath = new QPathEntry[ipath.length - dpath.length + rpath.length];
-    // renamed ancestor path first
-    System.arraycopy(rpath, 0, iNewPath, 0, rpath.length);
-    // rel path of the item (moved subtree)
-    System.arraycopy(ipath, dpath.length, iNewPath, rpath.length, ipath.length - dpath.length);
-
-    if (idata.isNode()) {
-      TransientNodeData ndata = (TransientNodeData) idata;
-      return new TransientNodeData(new QPath(iNewPath),
-                                   ndata.getIdentifier(),
-                                   ndata.getPersistedVersion(),
-                                   ndata.getPrimaryTypeName(),
-                                   ndata.getMixinTypeNames(),
-                                   ndata.getOrderNumber(),
-                                   ndata.getParentIdentifier(),
-                                   ndata.getACL());
-    } else {
-      TransientPropertyData pdata = (TransientPropertyData) idata;
-      TransientPropertyData newpd = new TransientPropertyData(new QPath(iNewPath),
-                                                              pdata.getIdentifier(),
-                                                              pdata.getPersistedVersion(),
-                                                              pdata.getType(),
-                                                              pdata.getParentIdentifier(),
-                                                              pdata.isMultiValued());
-      newpd.setValues(pdata.getValues());
-      return newpd;
-    }
   }
 
 }

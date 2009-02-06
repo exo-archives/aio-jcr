@@ -76,6 +76,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
           + " is not nt:versionHistory type");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void loadData(ItemData vhData) throws RepositoryException,
                                        InvalidItemStateException,
@@ -87,10 +90,16 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
                                                 session.getWorkspace().getNodeTypesHolder()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public VersionHistoryDataHelper getData() {
     return (VersionHistoryDataHelper) super.getData();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String getVersionableUUID() throws RepositoryException {
 
     checkValid();
@@ -112,6 +121,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
         + getPath());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version getRootVersion() throws RepositoryException {
 
     checkValid();
@@ -126,6 +138,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return version;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public VersionIterator getAllVersions() throws RepositoryException {
 
     checkValid();
@@ -142,6 +157,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version getVersion(String versionName) throws VersionException, RepositoryException {
 
     checkValid();
@@ -168,6 +186,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return version;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version getVersionByLabel(String label) throws RepositoryException {
 
     checkValid();
@@ -188,6 +209,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasVersionLabel(String label) throws RepositoryException {
 
     checkValid();
@@ -198,6 +222,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasVersionLabel(Version version, String label) throws VersionException,
                                                                RepositoryException {
 
@@ -210,6 +237,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String[] getVersionLabels() throws RepositoryException {
 
     checkValid();
@@ -247,6 +277,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return vlabels;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String[] getVersionLabels(Version version) throws VersionException, RepositoryException {
 
     checkValid();
@@ -259,6 +292,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return res;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void removeVersion(String versionName) throws ReferentialIntegrityException,
                                                AccessDeniedException,
                                                UnsupportedRepositoryOperationException,
@@ -400,6 +436,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return version;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void addVersionLabel(String versionName, String label, boolean moveLabel) throws VersionException,
                                                                                   RepositoryException {
 
@@ -436,6 +475,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     dataManager.getTransactManager().save(changesLog);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void removeVersionLabel(String labelName) throws VersionException, RepositoryException {
 
     checkValid();
@@ -502,7 +544,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     changesLog.add(ItemState.createAddedState(propData));
 
     // A reference to V is added to the jcr:successors property of
-    // each of the versions identified in V’s jcr:predecessors property.
+    // each of the versions identified in Vs jcr:predecessors property.
     List<ValueData> predecessors = ((PropertyData) dataManager.getItemData(versionableNodeData,
                                                                            new QPathEntry(Constants.JCR_PREDECESSORS,
                                                                                           0))).getValues();
