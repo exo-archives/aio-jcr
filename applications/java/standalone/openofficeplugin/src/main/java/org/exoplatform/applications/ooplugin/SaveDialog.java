@@ -496,6 +496,12 @@ public class SaveDialog extends BrowseDialog {
   protected boolean doSave(String localPath, String remotePath) {
     try {
       File inFile = new File(localPath);
+      
+      remotePath = remotePath.replace("//", "/");
+      
+      if(remotePath.contains("?version")){
+        remotePath = remotePath.substring(0, remotePath.lastIndexOf("?"));
+      }
 
       HTTPConnection connection = WebDavUtils.getAuthConnection(config);
 
