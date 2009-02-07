@@ -57,6 +57,9 @@
           <includes>
             <include>**/*.java</include>
           </includes>
+          <excludes>
+            <exclude>**/FtpServerTest.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
