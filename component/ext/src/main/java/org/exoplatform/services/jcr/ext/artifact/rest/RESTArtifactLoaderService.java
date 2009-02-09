@@ -33,6 +33,7 @@ import javax.jcr.Session;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -52,13 +53,8 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.resource.ResourceContainer;
-import javax.ws.rs.QueryParam;
-import org.exoplatform.services.security.Authenticator;
-import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.Credential;
-import org.exoplatform.services.security.PasswordCredential;
-import org.exoplatform.services.security.UsernameCredential;
 
 /**
  * @author Volodymyr Krasnikov volodymyr.krasnikov@exoplatform.com.ua
@@ -67,7 +63,7 @@ import org.exoplatform.services.security.UsernameCredential;
 @Path("/maven2/")
 public class RESTArtifactLoaderService implements ResourceContainer {
 
-  private static final Log                  log      = ExoLogger.getLogger(RESTArtifactLoaderService.class);
+  private static final Log                  LOG      = ExoLogger.getLogger(RESTArtifactLoaderService.class);
 
   /**
    * XHTML namespace.
@@ -78,12 +74,6 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * Uses for represent JCR node in comfortable form.
    */
   private NodeRepresentationService         nodeRepresentationService;
-
-  /**
-   * Prepared JCR session. Can be null if username or password is not presents
-   * in configuration.
-   */
-  private Session                           session;
 
   /**
    * Root node for maven repository.
@@ -117,14 +107,12 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @param sessionProviderService the ThreadLocalSessionProviderService.
    * @param repositoryService the RepositoryService.
    * @param nodeRepresentationService the NodeRepresentationService.
-   * @param authenticator the Authenticator.
    * @throws Exception if any errors occur or not valid configuration.
    */
   public RESTArtifactLoaderService(InitParams initParams,
                                    ThreadLocalSessionProviderService sessionProviderService,
                                    RepositoryService repositoryService,
-                                   NodeRepresentationService nodeRepresentationService,
-                                   Authenticator authenticator) throws Exception {
+                                   NodeRepresentationService nodeRepresentationService) throws Exception {
 
     PropertiesParam props = initParams.getPropertiesParam("artifact.workspace");
 
@@ -144,20 +132,6 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     if (!mavenRoot.endsWith("/"))
       mavenRoot += "/";
 
-    String username = props.getProperty("username");
-    String password = props.getProperty("password");
-    // prepare session if user will come as anonymous.
-    if (username != null && password != null) {
-      String userId = authenticator.validateUser(new Credential[] {
-          new UsernameCredential(username), new PasswordCredential(password) });
-
-      SessionProvider sessionProvider = new SessionProvider(new ConversationState(authenticator.createIdentity(userId)));
-      this.session = sessionProvider.getSession(workspace,
-                                                this.repositoryService.getRepository(repository));
-    } else {
-      log.info("Default username and password for access to JCR storage were not specified.");
-    }
-
   }
 
   /**
@@ -170,57 +144,62 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    */
   @GET
   @Path("/{path:.*}/")
-
   public Response getResource(@PathParam("path") String mavenPath,
                               final @Context UriInfo uriInfo,
                               final @QueryParam("view") String view,
                               final @QueryParam("gadget") String gadget) {
 
     String resourcePath = mavenRoot + mavenPath; // JCR resource
-    String shaResourcePath = mavenPath.endsWith(".sha1") ? mavenRoot + mavenPath : mavenRoot + mavenPath + ".sha1";
+    String shaResourcePath = mavenPath.endsWith(".sha1") ? mavenRoot + mavenPath : mavenRoot
+        + mavenPath + ".sha1";
 
+    mavenPath = uriInfo.getBaseUriBuilder().path(getClass()).path(mavenPath).build().toString();
+    
     Session ses = null;
-    boolean preparedSession = false;
 
     try {
       // JCR resource
       SessionProvider sp = sessionProviderService.getSessionProvider(null);
-      if (sp != null) {
-        ses = sp.getSession(workspace, repositoryService.getRepository(repository));
-      } else {
-        ses = session;
-        preparedSession = true;
-      }
-      if (ses == null) {
-        throw new RepositoryException("Access to JCR Repository denied. "
-            + "SessionProvider is null and prepared session is null.");
-      }
+      if (sp == null)
+        throw new RepositoryException("Access to JCR Repository denied. SessionProvider is null.");
+
+      ses = sp.getSession(workspace, repositoryService.getRepository(repository));
 
       ExtendedNode node = (ExtendedNode) ses.getRootNode().getNode(resourcePath);
-      
+
       if (isFile(node)) {
-       if (view != null && view.equalsIgnoreCase("true")) {
+        if (view != null && view.equalsIgnoreCase("true")) {
           ExtendedNode shaNode = null;
-          try { 
+          try {
             shaNode = (ExtendedNode) ses.getRootNode().getNode(shaResourcePath);
-          } catch (RepositoryException e){ //no .sh1 file found
+          } catch (RepositoryException e) { // no .sh1 file found
           }
           return getArtifactInfo(node, mavenPath, gadget, shaNode);
-        }  else {
+        } else {
           return downloadArtifact(node);
         }
       } else {
         return browseRepository(node, mavenPath, gadget);
       }
 
-
     } catch (PathNotFoundException e) {
+      if (LOG.isDebugEnabled())
+        e.printStackTrace();
       return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (AccessDeniedException e) {
+      if (LOG.isDebugEnabled())
+        e.printStackTrace();
+      if (ses.getUserID().equals(SystemIdentity.ANONIM))
+        return Response.status(Response.Status.UNAUTHORIZED)
+                       .header(ExtHttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"exo-domain\"")
+                       .build();
+      else
+        return Response.status(Response.Status.FORBIDDEN).build();
     } catch (Exception e) {
-      log.error("Failed get maven artifact", e);
+      LOG.error("Failed get maven artifact", e);
       throw new WebApplicationException(e);
     } finally {
-      if (ses != null && !preparedSession)
+      if (ses != null)
         ses.logout();
     }
 
@@ -233,13 +212,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @return @see {@link Response}.
    */
   @GET
-  
-  public Response getRootNodeList(final   @Context UriInfo uriInfo,
+  public Response getRootNodeList(final @Context UriInfo uriInfo,
                                   final @QueryParam("view") String view,
                                   final @QueryParam("gadget") String gadget) {
     return getResource("", uriInfo, view, gadget);
   }
-  
 
   /**
    * Check is node represents file.
@@ -283,19 +260,20 @@ public class RESTArtifactLoaderService implements ResourceContainer {
               + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
           xsw.writeCharacters("\n");
           if (gadget == null || !gadget.equalsIgnoreCase("true")) {
-          xsw.writeStartElement("html");
-          xsw.writeDefaultNamespace(XHTML_NS);
-          xsw.writeStartElement("head");
-          xsw.writeStartElement("style");
-          xsw.writeAttribute("type", "text/css");
+            xsw.writeStartElement("html");
+            xsw.writeDefaultNamespace(XHTML_NS);
+            xsw.writeStartElement("head");
+            xsw.writeStartElement("style");
+            xsw.writeAttribute("type", "text/css");
             xsw.writeCharacters("a {text-decoration: none; color: #10409C; }"
-                + "a:hover {text-decoration: underline;}" + ".centered { text-align: center; }"
+                + "a:hover {text-decoration: underline;}"
+                + ".centered { text-align: center; }"
                 + ".underlined { border-bottom : 1px solid #cccccc;  font-weight: bold;  text-align: center; }\n");
-          xsw.writeEndElement(); // style
-          xsw.writeStartElement("title");
-          xsw.writeCharacters("Maven2 Repository Browser");
-          xsw.writeEndElement(); // title
-          xsw.writeEndElement(); // head
+            xsw.writeEndElement(); // style
+            xsw.writeStartElement("title");
+            xsw.writeCharacters("Maven2 Repository Browser");
+            xsw.writeEndElement(); // title
+            xsw.writeEndElement(); // head
           }
           xsw.writeStartElement("body");
           //
@@ -339,7 +317,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           String parent = mavenPath.substring(0, mavenPath.lastIndexOf('/'));
           xsw.writeStartElement("td");
           xsw.writeAttribute("class", "parenticon");
-          xsw.writeEndElement();//td
+          xsw.writeEndElement();// td
 
           xsw.writeStartElement("td");
           xsw.writeStartElement("a");
@@ -355,13 +333,14 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           while (iterator.hasNext()) {
             Node node = iterator.nextNode();
             xsw.writeStartElement("tr");
-            if (RESTArtifactLoaderService.isFile(node) ) {
+            if (RESTArtifactLoaderService.isFile(node)) {
               if (node.getName().endsWith("sha1"))
-                 continue;
-              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node, null);
+                continue;
+              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
+                                                                                                      null);
               xsw.writeStartElement("td");
               xsw.writeAttribute("class", "fileicon");
-              xsw.writeEndElement();//td
+              xsw.writeEndElement();// td
 
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
@@ -387,7 +366,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             } else {
               xsw.writeStartElement("td");
               xsw.writeAttribute("class", "foldericon");
-              xsw.writeEndElement();//td
+              xsw.writeEndElement();// td
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
               xsw.writeAttribute("href",
@@ -419,7 +398,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           xsw.writeEndElement(); // table
           xsw.writeEndElement(); // body
           if (gadget == null || !gadget.equalsIgnoreCase("true")) {
-          xsw.writeEndElement(); // html
+            xsw.writeEndElement(); // html
           }
 
           xsw.writeEndDocument();
@@ -454,11 +433,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private Response downloadArtifact(Node node) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
                                                                                             null);
-if (node.canAddMixin("exo:mavencounter")) {
+    if (node.canAddMixin("exo:mavencounter")) {
       node.addMixin("exo:mavencounter");
       node.getSession().save();
     }
-    node.setProperty("exo:downloadcounter",  node.getProperty("exo:downloadcounter").getLong() + 1l);
+    node.setProperty("exo:downloadcounter", node.getProperty("exo:downloadcounter").getLong() + 1l);
     node.getSession().save();
     long lastModified = nodeRepresentation.getLastModified();
     String contentType = nodeRepresentation.getMediaType();
@@ -471,25 +450,23 @@ if (node.canAddMixin("exo:mavencounter")) {
     return response;
   }
 
-
-
-
-
- /**
+  /**
    * Get JCR node information.
    * 
    * @param node the node.
    * @return @see {@link Response}.
    * @throws Exception if any errors occurs.
    */
-  private Response getArtifactInfo(Node node, final String mavenPath, final String gadget, Node shaNode) throws Exception {
+  private Response getArtifactInfo(Node node,
+                                   final String mavenPath,
+                                   final String gadget,
+                                   Node shaNode) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
                                                                                             null);
-    
+
     NodeRepresentation shNodeRepresentation = null;
     if (shaNode != null)
-    shNodeRepresentation = nodeRepresentationService.getNodeRepresentation(shaNode,
-                                                                                            null);
+      shNodeRepresentation = nodeRepresentationService.getNodeRepresentation(shaNode, null);
 
     final PipedOutputStream po = new PipedOutputStream();
     final PipedInputStream pi = new PipedInputStream(po);
@@ -500,11 +477,11 @@ if (node.canAddMixin("exo:mavencounter")) {
     try {
 
       if (node.canAddMixin("exo:mavencounter")) {
-            node.addMixin("exo:mavencounter");
-            node.getSession().save();
+        node.addMixin("exo:mavencounter");
+        node.getSession().save();
       }
-     int count = (int)node.getProperty("exo:downloadcounter").getLong();   
-      
+      int count = (int) node.getProperty("exo:downloadcounter").getLong();
+
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
       XMLStreamWriter xsw = factory.createXMLStreamWriter(po, Constants.DEFAULT_ENCODING);
@@ -546,13 +523,14 @@ if (node.canAddMixin("exo:mavencounter")) {
                                                 : mavenPath);
       xsw.writeCharacters("Link");
       xsw.writeEndElement(); // a
-      
-      if (shNodeRepresentation != null){
-      xsw.writeEmptyElement("br");
-      xsw.writeCharacters("Checksum:  " +getStreamAsString(shNodeRepresentation.getInputStream()));
-      xsw.writeEmptyElement("br");
+
+      if (shNodeRepresentation != null) {
+        xsw.writeEmptyElement("br");
+        xsw.writeCharacters("Checksum:  "
+            + getStreamAsString(shNodeRepresentation.getInputStream()));
+        xsw.writeEmptyElement("br");
       }
-      
+
       xsw.writeEmptyElement("br");
       xsw.writeCharacters("Downloads count :  " + count);
       xsw.writeEmptyElement("br");
@@ -561,8 +539,10 @@ if (node.canAddMixin("exo:mavencounter")) {
       xsw.writeStartElement("a");
       xsw.writeAttribute("href",
                          (mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length() - 1)
-                                                             .substring(0, mavenPath.lastIndexOf("/"))
-                                                 : mavenPath.substring(0, mavenPath.lastIndexOf("/")))
+                                                             .substring(0,
+                                                                        mavenPath.lastIndexOf("/"))
+                                                 : mavenPath.substring(0,
+                                                                       mavenPath.lastIndexOf("/")))
                              + "?view=true&gadget=" + gadget);
       xsw.writeCharacters("Back to browsing");
       xsw.writeEndElement(); // a
@@ -589,7 +569,7 @@ if (node.canAddMixin("exo:mavencounter")) {
     return Response.ok(pi, "text/html").build();
 
   }
-  
+
   protected String getStreamAsString(InputStream stream) throws IOException {
     byte[] buff = new byte[stream.available()];
     stream.read(buff);

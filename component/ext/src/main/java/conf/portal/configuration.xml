@@ -190,9 +190,6 @@
         <property name="workspace" value="production" />
         <property name="repository" value="repository" />
         <property name="mavenRoot" value="/test/" />
-        
-        <property name="username" value="root" />
-        <property name="password" value="exo" />
       </properties-param>
     </init-params>
   </component>

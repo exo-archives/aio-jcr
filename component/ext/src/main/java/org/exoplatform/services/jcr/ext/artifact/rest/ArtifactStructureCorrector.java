@@ -54,6 +54,7 @@ import org.exoplatform.services.security.UsernameCredential;
  * Created by The eXo Platform SARL Author : Volodymyr Krasnikov
  * volodymyr.krasnikov@exoplatform.com.ua 29.10.2007
  */
+@Path("/maven2-structure-corrector/")
 public class ArtifactStructureCorrector implements ResourceContainer {
   private static final Log  log = ExoLogger.getLogger(ArtifactStructureCorrector.class);
 
@@ -93,7 +94,6 @@ public class ArtifactStructureCorrector implements ResourceContainer {
   }
 
   @GET
-  @Path("/corrector/")
   public Response correctStructure() throws RepositoryException {
     new Thread(new ChecksumGenerator(currentSession(sessionProvider)),
                "Correct jcr struct, Append checksums to artifacts").start();
