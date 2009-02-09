@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -67,7 +68,6 @@ public class LocalStorageTest extends BaseStandaloneTest {
   public void tearDown() throws Exception {
     deleteDir(dir);
     super.tearDown();
-
   }
 
   /**
@@ -387,8 +387,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
     // File dir = new File(STORAGE_DIR+"errors");
     // dir.mkdirs();
     class TestLocalStorage extends LocalStorageImpl {
-      public TestLocalStorage(String path, int pr) {
-        super(path,new FileCleaner());
+      public TestLocalStorage(String path, int pr) throws NoSuchAlgorithmException {
+        super(path, new FileCleaner());
       }
 
       public void report(Exception e) {

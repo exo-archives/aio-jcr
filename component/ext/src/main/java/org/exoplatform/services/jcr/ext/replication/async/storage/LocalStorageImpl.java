@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -81,6 +84,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   private static final String                                DIRECTORY_NAME             = "changes";
 
+  private static final String                                DIGESTFILE_EXTENTION       = "dgs";
+
   private static final long                                  ERROR_TIMEOUT              = 10000;
 
   /**
@@ -104,6 +109,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   private File                                               currentDir                 = null;
 
   private File                                               currentFile                = null;
+
+  private MessageDigest                                      digest;
 
   private ObjectOutputStream                                 currentOut                 = null;
 
@@ -144,11 +151,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     /**
      * Change all TransientValueData to ReplicableValueData.
      * 
-     * @param log
-     *          local TransactionChangesLog
+     * @param log local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException
-     *           if error occurs
+     * @throws IOException if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
@@ -218,9 +223,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           }
         }
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-            ? EXTERNALIZATION_SESSION_ID
-            : plog.getSessionId(), plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(destlist,
+                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                         : plog.getSessionId(),
+                                              plog.getEventType()));
       }
       return result;
     }
@@ -230,10 +236,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       if (currentFile == null) {
         long id = getNextFileId();
         currentFile = new File(currentDir, Long.toString(id));
-        currentOut = new ObjectOutputStream(new FileOutputStream(currentFile));
+
+        currentOut = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(currentFile),
+                                                                   digest));
       } else if (currentFile.length() > MAX_FILE_SIZE) {
         // close stream
-        currentOut.close();
+        closeCurrentOutput();
 
         // create new file
         long id = getNextFileId();
@@ -243,7 +251,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
               + " already exist and will be rewrited.");
         }
 
-        currentOut = new ObjectOutputStream(new FileOutputStream(currentFile));
+        currentOut = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(currentFile),
+                                                                   digest));
       }
 
       currentOut.writeObject(itemStates);
@@ -253,12 +262,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     }
   }
 
-  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) {
+  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException {
     this.storagePath = storagePath;
     this.fileCleaner = fileCleaner;
+    this.digest = MessageDigest.getInstance("MD5");
 
     // find last index of storage
-
     String[] dirs = getSubStorageNames(storagePath);
     // check local storage
     if (dirs.length > 1) {
@@ -292,9 +301,24 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       for (int j = 0; j < files.length; j++) {
         try {
-          chFiles.add(new SimpleChangesFile(files[j], new byte[] {}, // TODO make corretc
-                                            Long.parseLong(files[j].getName()),
-                                            resHolder));
+          File curFile = files[j];
+          // read digest
+          File dFile = new File(currentDir, curFile.getName() + DIGESTFILE_EXTENTION);
+          if (!dFile.exists() || dFile.length() == 0) {
+            LOG.warn(curFile.getName() + " does not have digest file. File may be uncomplete!");
+            // TODO
+          } else {
+            FileInputStream din = new FileInputStream(dFile);
+
+            byte[] crc = new byte[(int) dFile.length()];
+            din.read(crc);
+            din.close();
+
+            chFiles.add(new SimpleChangesFile(curFile,
+                                              crc,
+                                              Long.parseLong(curFile.getName()),
+                                              resHolder));
+          }
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
         }
@@ -326,8 +350,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath
-   *          Path of root directory
+   * @param rootPath Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -360,8 +383,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -480,8 +502,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     // close current file
     try {
-      if (currentOut != null)
-        currentOut.close();
+      closeCurrentOutput();
 
     } catch (IOException e) {
       LOG.error("Can't close current output stream " + e, e);
@@ -513,6 +534,25 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       fileId = index++;
     }
     return fileId;
+  }
+
+  private void closeCurrentOutput() throws IOException {
+    if (currentOut != null) {
+
+      // close stream
+      currentOut.close();
+
+      // flush digest
+      File digestFile = new File(currentDir, currentFile.getName() + DIGESTFILE_EXTENTION);
+      FileOutputStream foutDigest = new FileOutputStream(digestFile);
+      byte[] crc = digest.digest();
+      foutDigest.write(crc);
+      foutDigest.close();
+      digest.reset();
+
+      currentOut = null;
+    }
+
   }
 
 }

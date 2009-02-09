@@ -169,7 +169,7 @@ public class ChangesPacket extends AbstractPacket {
    */
   @Override
   public String toString() {
-    return super.toString() + " [fc:" + getFileCount() + ", t:" + getTimeStamp() + "]";
+    return super.toString() + " [fc:" + getFileCount() + ", id:" + getTimeStamp() + "]";
   }
 
 }

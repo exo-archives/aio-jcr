@@ -74,13 +74,13 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
-   /* try {
+    try {
       if (!ChangesFileValidator.validate(changesFile)) {
         throw new IOException("ChangesFile content's checksum is not equal to original.");
       }
     } catch (NoSuchAlgorithmException e) {
       throw new IOException(e.getMessage());
-    }*/ //TODO
+    }
 
     MemberChanges mch = this.changes.get(member.getPriority());
     if (mch == null) {
