@@ -86,14 +86,26 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   // }
 
   /**
-   * ReplicableValueData constructor.
-   * 
+   * ReplicableValueData constructor. Used on read-side, i.e. on Subscriber (local and remote)
    */
   public ReplicableValueData() {
     super(0);
     this.cleaner = serviceCleaner;
   }
 
+  /**
+   * 
+   * ReplicableValueData constructor. Used in Local storage (creation side).
+   * 
+   * @param file
+   *          SpoolFile
+   * @param orderNumber
+   *          int
+   * @param cleaner
+   *          FileCleaner
+   * @throws IOException
+   *           if I/O error occurs
+   */
   public ReplicableValueData(SpoolFile file, int orderNumber, FileCleaner cleaner) throws IOException {
     super(orderNumber);
     this.spoolFile = file;
@@ -101,7 +113,6 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
     this.cleaner = cleaner;
 
     this.spoolFile.acquire(this);
-
   }
 
   public SpoolFile getSpoolFile() {
@@ -184,9 +195,9 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
    * {@inheritDoc}
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    this.orderNumber = in.readInt();
+    orderNumber = in.readInt();
 
-    this.localFile = in.readBoolean();
+    localFile = in.readBoolean();
 
     long length = in.readLong();
 
@@ -197,7 +208,7 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
     // Boolean read = readBlobData.get();
     // if (read != null && read.booleanValue()) {
 
-    if (this.localFile) {
+    if (localFile) {
       byte[] cpath = new byte[(int) length];
       in.readFully(cpath);
 

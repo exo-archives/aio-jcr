@@ -56,8 +56,6 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    */
   class ItemStateIterator<C extends ItemState> implements Iterator<C> {
 
-    // private final List<ChangesFile> store;
-
     private final ChangesLogsIterator<TransactionChangesLog> logIterator;
 
     private Iterator<C>                                      currentChangesLog;

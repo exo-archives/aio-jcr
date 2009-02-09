@@ -18,8 +18,8 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by The eXo Platform SAS.
@@ -31,15 +31,27 @@ import java.util.List;
  */
 public class ResourcesHolder {
 
-  private final List<Closeable> resources = new ArrayList<Closeable>(); 
+  private final Queue<Closeable> resources = new ConcurrentLinkedQueue<Closeable>(); 
 
+  /**
+   * Add <code>Closeable</code> resource to the holder.
+   *
+   * @param closeable Closeable
+   */
   public void add(Closeable closeable) {
     resources.add(closeable);
   }
   
+  /**
+   * Close <code>Closeable</code> resource and remove it from the holder.
+   *
+   * @throws IOException if close error occurs
+   */
   public void close() throws IOException {
-    for (Closeable c: resources) {
+    Closeable c = resources.poll();
+    while (c != null) {
       c.close();
+      c = resources.poll();
     }
   }
   

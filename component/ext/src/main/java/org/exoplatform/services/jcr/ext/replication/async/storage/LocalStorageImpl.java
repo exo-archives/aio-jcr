@@ -119,8 +119,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   private Long                                               index                      = new Long(0);
 
-  // private Long dirIndex = new Long(0);
-
   class ChangesSpooler extends Thread {
 
     /**

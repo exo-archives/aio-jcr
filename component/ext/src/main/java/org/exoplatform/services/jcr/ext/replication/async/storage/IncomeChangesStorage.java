@@ -16,7 +16,11 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -33,6 +37,8 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
 
   protected static final Log        LOG = ExoLogger.getLogger("jcr.IncomeChangesStorage");
 
+  protected final List<T> cache = new ArrayList<T>(); 
+  
   /**
    * Storage owner member info.
    */
@@ -43,11 +49,54 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
     this.member = member;
   }
 
+  private void preload() throws ClassCastException, IOException, ClassNotFoundException {
+    for (Iterator<T> iter = super.getChanges(); iter.hasNext();)
+      cache.add(iter.next());
+  }
+  
   /**
    * {@inheritDoc}
    */
   public Member getMember() {
     return member;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
+    // cache iterator, it's fixed and unchanged collection
+    if (cache.size() <= 0)
+      preload();
+
+    final Iterator<T> iter = cache.iterator();
+    
+    return new Iterator<T>() {
+
+      /**
+       * {@inheritDoc}
+       */
+      public boolean hasNext() {
+        return iter.hasNext();
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public T next() {
+        return iter.next();
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public void remove() {
+        throw new RuntimeException("Not implemented");
+      }
+    };
+  }
+  
+  
 }
 
