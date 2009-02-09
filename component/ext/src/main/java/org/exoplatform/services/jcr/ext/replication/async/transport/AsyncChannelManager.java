@@ -119,6 +119,11 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * Packets queue.
      */
     private final ConcurrentLinkedQueue<MemberPacket> queue = new ConcurrentLinkedQueue<MemberPacket>();
+    
+    /**
+     * User flag.
+     */
+    private MemberPacket current;
 
     /**
      * {@inheritDoc}
@@ -128,13 +133,13 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       while (true) {
         try {
           synchronized (lock) {
-            MemberPacket mp = queue.poll();
-            while (mp != null) {
+            current = queue.poll();
+            while (current != null) {
               AsyncPacketListener[] pl = packetListeners.toArray(new AsyncPacketListener[packetListeners.size()]);
               for (AsyncPacketListener handler : pl)
-                handler.receive(mp.packet, mp.member);
+                handler.receive(current.packet, current.member);
 
-              mp = queue.poll();
+              current = queue.poll();
             }
 
             lock.wait();
@@ -169,20 +174,26 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * 
      */
     void handle() {
-      // TODO can we do this?
-      Thread thr = new Thread() {
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void run() {
-          synchronized (lock) {
-            lock.notify();
-          }
+      
+      if (current == null)
+        synchronized (lock) {
+          lock.notify();
         }
-      };
-
-      thr.start();
+      
+//      // FIXME can be a cause of OME, use one thread instance
+//      Thread thr = new Thread() {
+//        /**
+//         * {@inheritDoc}
+//         */
+//        @Override
+//        public void run() {
+//          synchronized (lock) {
+//            lock.notify();
+//          }
+//        }
+//      };
+//
+//      thr.start();
     }
   }
 

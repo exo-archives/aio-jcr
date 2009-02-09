@@ -68,31 +68,33 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
         cache.add(iter.next());
     }
 
-    final Iterator<T> iter = cache.iterator();
-    
-    return new Iterator<T>() {
-
-      /**
-       * {@inheritDoc}
-       */
-      public boolean hasNext() {
-        return iter.hasNext();
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      public T next() {
-        return iter.next();
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      public void remove() {
-        throw new RuntimeException("Not implemented");
-      }
-    };
+    return new ReadOnlyIterator<T>(cache.iterator());
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void delete() throws IOException {
+    if (cache != null) {
+      cache.clear();
+      cache = null;
+    }
+    
+    super.delete();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int size() throws IOException, ClassNotFoundException {
+    if (cache != null)
+      return cache.size();
+    else
+      return super.size();
+  }
+ 
+  
 }
 

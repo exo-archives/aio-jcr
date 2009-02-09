@@ -25,7 +25,6 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -35,7 +34,6 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.DeleteMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.MixinMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.RenameMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
-import org.exoplatform.services.jcr.ext.replication.async.storage.BufferedItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.CompositeItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
@@ -176,7 +174,7 @@ public class MergeDataManager {
             + second.getMember().getPriority() + " (" + second.getMember().getAddress()
             + ") members");
 
-        EditableChangesStorage<ItemState> iteration = new BufferedItemStatesStorage<ItemState>(makePath(first.getMember(),
+        EditableChangesStorage<ItemState> iteration = new CompositeItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                                         second.getMember()),
                                                                                                second.getMember(),
                                                                                                resHolder);
