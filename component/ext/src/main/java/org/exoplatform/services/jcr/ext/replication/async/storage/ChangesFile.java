@@ -35,6 +35,14 @@ public interface ChangesFile {
   byte[] getChecksum();
 
   /**
+   * Validate file CRC.
+   * 
+   * @throws InvalidChecksumException
+   *           if orogonal and actual CRCis is not equals.
+   */
+  void validate() throws InvalidChecksumException;
+
+  /**
    * getTimeStamp.
    * 
    * @return long return the time stamp to ChangesLog.
