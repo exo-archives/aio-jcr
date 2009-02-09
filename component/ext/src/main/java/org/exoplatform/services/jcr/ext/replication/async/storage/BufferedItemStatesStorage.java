@@ -45,7 +45,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long       MAX_BUFFER_SIZE = 2 * 1024 * 1024;
+  private static final long       MAX_BUFFER_SIZE = 20 * 1024 * 1024;
 
   /**
    * ItemStates storage directory.

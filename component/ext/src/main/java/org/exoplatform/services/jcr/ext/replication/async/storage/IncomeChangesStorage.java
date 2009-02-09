@@ -37,7 +37,7 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
 
   protected static final Log        LOG = ExoLogger.getLogger("jcr.IncomeChangesStorage");
 
-  protected final List<T> cache = new ArrayList<T>(); 
+  protected List<T> cache = null; 
   
   /**
    * Storage owner member info.
@@ -49,11 +49,6 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
     this.member = member;
   }
 
-  private void preload() throws ClassCastException, IOException, ClassNotFoundException {
-    for (Iterator<T> iter = super.getChanges(); iter.hasNext();)
-      cache.add(iter.next());
-  }
-  
   /**
    * {@inheritDoc}
    */
@@ -67,8 +62,11 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
   @Override
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     // cache iterator, it's fixed and unchanged collection
-    if (cache.size() <= 0)
-      preload();
+    if (cache == null) {
+      cache = new ArrayList<T>();
+      for (Iterator<T> iter = super.getChanges(); iter.hasNext();)
+        cache.add(iter.next());
+    }
 
     final Iterator<T> iter = cache.iterator();
     
@@ -96,7 +94,5 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
       }
     };
   }
-  
-  
 }
 

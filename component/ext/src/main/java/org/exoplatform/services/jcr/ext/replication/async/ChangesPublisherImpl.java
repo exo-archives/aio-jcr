@@ -110,6 +110,8 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * {@inheritDoc}
    */
   public void onCancel() {
+    LOG.info("On CANCEL (local)");
+  
     if (isStarted()) {
       cancelWorker();
       doStop();

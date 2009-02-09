@@ -215,14 +215,14 @@ public class MergeDataManager {
             outer: while (changes.hasNext() && run) {
               ItemState incomeChange = changes.next();
 
-              LOG.info("\t\tMerging income item "
-                  + ItemState.nameFromValue(incomeChange.getState()) + " "
-                  + incomeChange.getData().getQPath().getAsString());
+//              LOG.info("\t\tMerging income item "
+//                  + ItemState.nameFromValue(incomeChange.getState()) + " "
+//                  + incomeChange.getData().getQPath().getAsString());
 
               // skip already processed itemstate
               if (iteration.hasState(incomeChange)) {
-                LOG.info("\t\tSkip income item " + ItemState.nameFromValue(incomeChange.getState())
-                    + " " + incomeChange.getData().getQPath().getAsString());
+//                LOG.info("\t\tSkip income item " + ItemState.nameFromValue(incomeChange.getState())
+//                    + " " + incomeChange.getData().getQPath().getAsString());
                 continue;
               }
 
@@ -230,9 +230,9 @@ public class MergeDataManager {
               for (int i = 0; i < skippedList.size(); i++) {
                 if (incomeChange.getData().getQPath().equals(skippedList.get(i))
                     || incomeChange.getData().getQPath().isDescendantOf(skippedList.get(i))) {
-                  LOG.info("\t\tMerging income item "
-                      + ItemState.nameFromValue(incomeChange.getState()) + " "
-                      + incomeChange.getData().getQPath().getAsString());
+//                  LOG.info("\t\tMerging income item "
+//                      + ItemState.nameFromValue(incomeChange.getState()) + " "
+//                      + incomeChange.getData().getQPath().getAsString());
                   continue outer;
                 }
               }

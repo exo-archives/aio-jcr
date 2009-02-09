@@ -200,10 +200,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       }
 
       // TODO debug
-      for (MemberChangesStorage<ItemState> ms : membersChanges) {
-        LOG.info(">>> Member " + ms.getMember().getName() + " changes");
-        LOG.info(ms.dump());
-      }
+//      for (MemberChangesStorage<ItemState> ms : membersChanges) {
+//        LOG.info(">>> Member " + ms.getMember().getName() + " changes");
+//        LOG.info(ms.dump());
+//      }
 
       // merge
       workerLog.info("start merge of " + membersChanges.size() + " members");
@@ -380,7 +380,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
       for (LocalEventListener syncl : listeners)
         // inform all interested
-        syncl.onCancel(); // local done - null
+        syncl.onCancel();
     } else
       LOG.warn("Cannot cancel. Already stopped.");
 
@@ -470,17 +470,11 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
     try {
       // TODO dump
-      try {
-        LOG.info("save \r\n" + mergeWorker.result.dump());
-      } catch (ClassCastException e1) {
-        LOG.error("Changes dump error " + e1);
-      } catch (IOException e1) {
-        LOG.error("Changes dump error " + e1);
-      } catch (ClassNotFoundException e1) {
-        LOG.error("Changes dump error " + e1);
-      } catch (StorageRuntimeException e1) {
-        LOG.error("Changes dump error " + e1);
-      }
+//      try {
+//        LOG.info("save \r\n" + mergeWorker.result.dump());
+//      } catch (Throwable e1) {
+//        LOG.error("Changes dump error " + e1);
+//      } 
 
       workspace.save(mergeWorker.result);
 

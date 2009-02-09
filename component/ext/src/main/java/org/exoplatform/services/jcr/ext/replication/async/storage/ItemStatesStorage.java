@@ -36,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
 public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
     MemberChangesStorage<T> {
 
-  protected static final Log LOG = ExoLogger.getLogger("jcr.ItemStatesStorage");
+  protected static final Log LOG = ExoLogger.getLogger("ext.ItemStatesStorage");
 
   private final ChangesFile  storage;
 
@@ -149,8 +149,6 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public void delete() throws IOException {
-    // for (ChangesFile cf : storage)
-    // cf.delete();
     storage.delete();
   }
 
@@ -158,7 +156,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public ChangesFile[] getChangesFile() {
-    return new ChangesFile[] { storage };// storage.toArray(new ChangesFile[storage.size()]);
+    return new ChangesFile[] { storage };
   }
 
   /**
