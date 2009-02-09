@@ -80,4 +80,8 @@ public class SimpleChangesFile implements ChangesFile {
     return file.length();
   }
 
+  public void validate() throws InvalidChecksumException {
+    //do nothing
+  }
+
 }

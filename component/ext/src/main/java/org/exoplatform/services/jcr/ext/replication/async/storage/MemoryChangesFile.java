@@ -63,4 +63,8 @@ public class MemoryChangesFile implements ChangesFile {
     return buf.length;
   }
 
+  public void validate() throws InvalidChecksumException {
+    //do nothing
+  }
+
 }

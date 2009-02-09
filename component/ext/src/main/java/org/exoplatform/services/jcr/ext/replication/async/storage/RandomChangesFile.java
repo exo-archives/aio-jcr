@@ -222,4 +222,9 @@ public class RandomChangesFile implements ChangesFile {
     return file.length();
   }
 
+  public void validate() throws InvalidChecksumException {
+    // TODO Auto-generated method stub
+    
+  }
+
 }
