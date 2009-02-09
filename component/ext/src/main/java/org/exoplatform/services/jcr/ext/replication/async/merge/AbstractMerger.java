@@ -210,7 +210,6 @@ public abstract class AbstractMerger implements ChangesMerger {
     return pdef != null;
   }
 
-  // TODO use HashMap instead of List
   /**
    * isOrderResotred.
    * 
@@ -228,31 +227,7 @@ public abstract class AbstractMerger implements ChangesMerger {
   }
 
   /**
-   * addSkippedVS.
-   * 
-   * @param skippedState
-   * @param skippedList
-   * @throws ClassNotFoundException
-   * @throws IOException
-   * @throws ClassCastException
-   */
-  protected void skipVSChanges(ItemState skippedState,
-                               ChangesStorage<ItemState> storage,
-                               List<QPath> skippedList) throws ClassCastException,
-                                                       IOException,
-                                                       ClassNotFoundException {
-
-    if (!skippedState.getData().isNode())
-      return;
-
-    QPath skippedPath = storage.findNodeInVS(skippedState.getData().getIdentifier());
-
-    if (skippedPath != null)
-      skippedList.add(skippedPath);
-  }
-
-  /**
-   * addToSkipList.
+   * accumulateSkippedList.
    * 
    * @param firstState
    * @param rootPath
@@ -262,17 +237,24 @@ public abstract class AbstractMerger implements ChangesMerger {
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  protected void addToSkipList(ItemState firstState,
-                               QPath rootPath,
-                               ChangesStorage<ItemState> storage,
-                               List<QPath> skippedList) throws ClassCastException,
-                                                       IOException,
-                                                       ClassNotFoundException {
+  protected void accumulateSkippedList(ItemState firstState,
+                                       QPath rootPath,
+                                       ChangesStorage<ItemState> storage,
+                                       List<QPath> skippedList) throws ClassCastException,
+                                                               IOException,
+                                                               ClassNotFoundException {
 
     Iterator<ItemState> changes = storage.getTreeChanges(firstState, rootPath).iterator();
     while (changes.hasNext()) {
-      skippedList.add(changes.next().getData().getQPath());
+      ItemState item = changes.next();
+      skippedList.add(item.getData().getQPath());
+
+      if (item.getData().isNode()) {
+        QPath skippedPath = storage.findNodeInVS(item.getData().getIdentifier());
+
+        if (skippedPath != null)
+          skippedList.add(skippedPath);
+      }
     }
   }
-
 }

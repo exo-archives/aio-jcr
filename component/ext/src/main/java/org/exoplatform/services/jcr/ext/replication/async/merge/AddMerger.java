@@ -119,8 +119,7 @@ public class AddMerger extends AbstractMerger {
           if (localData.isNode()) {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                skipVSChanges(incomeState, income, skippedList);
-                addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
@@ -139,8 +138,7 @@ public class AddMerger extends AbstractMerger {
 
                 if (!isPropertyAllowed(propertyName,
                                        (NodeData) dataManager.getItemData(parentIdentifier))) {
-                  skipVSChanges(incomeState, income, skippedList);
-                  addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                  accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
                                                                   resHolder);
@@ -162,8 +160,7 @@ public class AddMerger extends AbstractMerger {
 
                 if (!isPropertyAllowed(propertyName,
                                        (NodeData) dataManager.getItemData(parentIdentifier))) {
-                  skipVSChanges(incomeState, income, skippedList);
-                  addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                  accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
                                                                   resHolder);
@@ -173,8 +170,7 @@ public class AddMerger extends AbstractMerger {
 
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                skipVSChanges(incomeState, income, skippedList);
-                addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
@@ -192,8 +188,7 @@ public class AddMerger extends AbstractMerger {
             List<ItemState> updateSeq = local.getUpdateSequence(localState);
             for (ItemState item : updateSeq) {
               if (incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                skipVSChanges(incomeState, income, skippedList);
-                addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
@@ -209,8 +204,7 @@ public class AddMerger extends AbstractMerger {
                 if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                     || incomeData.getQPath().equals(nextLocalState.getData().getQPath())) {
 
-                  skipVSChanges(incomeState, income, skippedList);
-                  addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                  accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
                                                                   resHolder);
@@ -219,8 +213,7 @@ public class AddMerger extends AbstractMerger {
               } else {
                 if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
-                  skipVSChanges(incomeState, income, skippedList);
-                  addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                  accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
                                                                   resHolder);
@@ -236,8 +229,7 @@ public class AddMerger extends AbstractMerger {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
-                skipVSChanges(incomeState, income, skippedList);
-                addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
@@ -245,13 +237,10 @@ public class AddMerger extends AbstractMerger {
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-
-                skipVSChanges(incomeState, income, skippedList);
-                addToSkipList(incomeState, incomeData.getQPath(), income, skippedList);
+                accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
                                                                 resHolder);
-
               }
             }
           }
@@ -526,11 +515,8 @@ public class AddMerger extends AbstractMerger {
           if (localData.isNode()) {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                List<ItemState> changes = income.getChanges(incomeState, localData.getQPath());
-                for (int i = 0; i < changes.size(); i++)
-                  skipVSChanges(changes.get(i), income, skippedList);
 
-                addToSkipList(incomeState, localData.getQPath(), income, skippedList);
+                accumulateSkippedList(incomeState, localData.getQPath(), income, skippedList);
                 resultState.addAll(exporter.exportItem(localData.getIdentifier()));
 
                 return resultState;
