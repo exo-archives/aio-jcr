@@ -85,41 +85,41 @@ public class AsyncReplicationTester extends AsyncReplication {
     StorageKey skey = new StorageKey(repoName, workspaceName);
     LocalStorage localStorage = localStorages.get(skey);
     IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey));
-    
+
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
 
-
-    AsyncWorker synchWorker = new AsyncWorker(dm, 
-                                              ntm, 
+    AsyncWorker synchWorker = new AsyncWorker(dm,
+                                              ntm,
                                               dc,
-                                              (LocalStorageImpl)localStorage, 
-                                              (IncomeStorageImpl)incomeStorage,
+                                              (LocalStorageImpl) localStorage,
+                                              (IncomeStorageImpl) incomeStorage,
                                               repoName,
                                               workspaceName,
                                               channelNameSuffix,
                                               wconf,
                                               wfcleaner);
-    
+
     synchWorker.run();
 
     currentWorkers.add(synchWorker);
   }
-  
-  protected void removeAllStorageListener() throws RepositoryException, RepositoryConfigurationException {
+
+  protected void removeAllStorageListener() throws RepositoryException,
+                                           RepositoryConfigurationException {
     for (String repositoryName : repositoryNames) {
       ManageableRepository repository = repoService.getRepository(repositoryName);
 
       for (String wsName : repository.getWorkspaceNames()) {
         StorageKey skey = new StorageKey(repositoryName, wsName);
-        
+
         WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
         PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-        
+
         LocalStorageImpl sls = localStorages.get(skey);
         System.out.println("Remove ItemPersistenceListener : " + sls);
         dm.removeItemPersistenceListener(localStorages.get(skey));
       }
-  }
     }
+  }
 }

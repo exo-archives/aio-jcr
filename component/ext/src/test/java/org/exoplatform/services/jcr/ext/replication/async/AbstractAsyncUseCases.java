@@ -69,12 +69,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
-  protected abstract class BaseMergeUseCase {
+  protected abstract class BaseTwoMembersMergeUseCase {
     protected final SessionImpl sessionLowPriority;
 
     protected final SessionImpl sessionHighPriority;
 
-    public BaseMergeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+    public BaseTwoMembersMergeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       this.sessionLowPriority = sessionLowPriority;
       this.sessionHighPriority = sessionHighPriority;
     }
@@ -91,6 +91,30 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     public abstract void useCaseHighPriority() throws Exception;
   }
+  
+  protected abstract class BaseThreeMembersMergeUseCase extends BaseTwoMembersMergeUseCase {
+    protected final SessionImpl sessionMiddlePriority;
+
+    public BaseThreeMembersMergeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionMiddlePriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+      this.sessionMiddlePriority = sessionMiddlePriority;
+    }
+
+    public boolean checkEquals() throws Exception {
+      if(!isNodesEquals(sessionHighPriority.getRootNode(), sessionMiddlePriority.getRootNode()))
+        return false;
+      else if (!isNodesEquals(sessionHighPriority.getRootNode(), sessionLowPriority.getRootNode()))
+        return false;
+      else if (!isNodesEquals(sessionMiddlePriority.getRootNode(), sessionLowPriority.getRootNode()))
+        return false;
+      else
+        return true;
+    }
+
+    public abstract void initDataMiddlePriority() throws Exception;
+
+    public abstract void useCaseMiddlePriority() throws Exception;
+  }
 
   /**
    * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
@@ -103,7 +127,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * 4. Initialize synchronization on server 2
    */
-  public class ComplexUseCase1 extends BaseMergeUseCase {
+  public class ComplexUseCase1 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase1(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -138,7 +162,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * Update property with size = 200kb
    */
-  public class ComplexUseCase2 extends BaseMergeUseCase {
+  public class ComplexUseCase2 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase2(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -170,7 +194,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * Complex UseCase1 3 (server 1 - high priority, server 2 -low priority)
    */
-  public class ComplexUseCase3 extends BaseMergeUseCase {
+  public class ComplexUseCase3 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase3(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -207,7 +231,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * With complex node type (nt:file + mixin dc:elementSet)
    */
-  public class ComplexUseCase4 extends BaseMergeUseCase {
+  public class ComplexUseCase4 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase4(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -314,7 +338,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * With complex node type (nt:file + mixin dc:elementSet)
    */
-  public class ComplexUseCase5 extends BaseMergeUseCase {
+  public class ComplexUseCase5 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase5(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -353,7 +377,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * Complex UseCase6 Add node and twice move it
    * 
    */
-  public class ComplexUseCase6 extends BaseMergeUseCase {
+  public class ComplexUseCase6 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase6(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -380,7 +404,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
   }
 
-  public class ComplexUseCase9 extends BaseMergeUseCase {
+  public class ComplexUseCase9 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase9(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -414,7 +438,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
-  public class ComplexUseCase10 extends BaseMergeUseCase {
+  public class ComplexUseCase10 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase10(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -448,7 +472,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
-  public class ComplexUseCase11 extends BaseMergeUseCase {
+  public class ComplexUseCase11 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase11(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -481,7 +505,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
-  public class ComplexUseCase12 extends BaseMergeUseCase {
+  public class ComplexUseCase12 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase12(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -513,7 +537,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
-  public class ComplexUseCase13 extends BaseMergeUseCase {
+  public class ComplexUseCase13 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase13(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -546,7 +570,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
   }
 
-  public class ComplexUseCase14 extends BaseMergeUseCase {
+  public class ComplexUseCase14 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase14(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -610,7 +634,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * 5. After synchronization ends check if files exist, if content of files same as original.
    */
-  public class UseCase1 extends BaseMergeUseCase {
+  public class UseCase1 extends BaseTwoMembersMergeUseCase {
     public UseCase1(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -652,7 +676,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if /fileA.txt exists only, if /fileA.txt content equals to
    * server1
    */
-  public class UseCase2 extends BaseMergeUseCase {
+  public class UseCase2 extends BaseTwoMembersMergeUseCase {
     public UseCase2(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -696,7 +720,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * 6. After synchronization ends check if no files exists on both servers
    */
-  public class UseCase3 extends BaseMergeUseCase {
+  public class UseCase3 extends BaseTwoMembersMergeUseCase {
     public UseCase3(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -741,7 +765,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * 6. After synchronization ends check if /fileA.txt deleted both servers
    */
-  public class UseCase4 extends BaseMergeUseCase {
+  public class UseCase4 extends BaseTwoMembersMergeUseCase {
     public UseCase4(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -786,7 +810,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 6. After synchronization ends check if /fileA.txt exists on both servers, if /fileA.txt content
    * equals to edited on server 1
    */
-  public class UseCase5 extends BaseMergeUseCase {
+  public class UseCase5 extends BaseTwoMembersMergeUseCase {
     public UseCase5(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -831,7 +855,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if file /fileZZ.txt only exists on both servers with
    * content from server 1
    */
-  public class UseCase8 extends BaseMergeUseCase {
+  public class UseCase8 extends BaseTwoMembersMergeUseCase {
     public UseCase8(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -876,7 +900,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if file /fileA.txt only exist son both servers with content
    * from server 1 (edited)
    */
-  public class UseCase9 extends BaseMergeUseCase {
+  public class UseCase9 extends BaseTwoMembersMergeUseCase {
     public UseCase9(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -919,7 +943,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
    * servers
    */
-  public class UseCase12 extends BaseMergeUseCase {
+  public class UseCase12 extends BaseTwoMembersMergeUseCase {
     public UseCase12(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -960,7 +984,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
    * servers
    */
-  public class UseCase13 extends BaseMergeUseCase {
+  public class UseCase13 extends BaseTwoMembersMergeUseCase {
     public UseCase13(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1003,7 +1027,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if /fileA.txt content equals to edited on server 1 on both
    * servers
    */
-  public class UseCase14 extends BaseMergeUseCase {
+  public class UseCase14 extends BaseTwoMembersMergeUseCase {
     public UseCase14(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1047,7 +1071,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * 5. After synchronization ends check if /fileA.txt not exists on both server
    */
-  public class UseCase15 extends BaseMergeUseCase {
+  public class UseCase15 extends BaseTwoMembersMergeUseCase {
     public UseCase15(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1091,7 +1115,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 
    * 5. After synchronization ends check if /fileA.txt not exists on both server
    */
-  public class UseCase16 extends BaseMergeUseCase {
+  public class UseCase16 extends BaseTwoMembersMergeUseCase {
     public UseCase16(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1137,7 +1161,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
    * edited
    */
-  public class UseCase17 extends BaseMergeUseCase {
+  public class UseCase17 extends BaseTwoMembersMergeUseCase {
     public UseCase17(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1182,7 +1206,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
    * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
    * edited
    */
-  public class UseCase18 extends BaseMergeUseCase {
+  public class UseCase18 extends BaseTwoMembersMergeUseCase {
     public UseCase18(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1214,7 +1238,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * Add tree of nodes item on low priority, already added on high priority.
    */
-  public class AddSameTreeUseCase extends BaseMergeUseCase {
+  public class AddSameTreeUseCase extends BaseTwoMembersMergeUseCase {
     public AddSameTreeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1250,7 +1274,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * Add tree of nodes item on low priority, already added on high priority.
    */
-  public class AddDiffTreeUseCase extends BaseMergeUseCase {
+  public class AddDiffTreeUseCase extends BaseTwoMembersMergeUseCase {
     public AddDiffTreeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1286,7 +1310,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * 1. Add item on low priority, no high priority changes.
    */
-  public class Add1_1_UseCase extends BaseMergeUseCase {
+  public class Add1_1_UseCase extends BaseTwoMembersMergeUseCase {
     public Add1_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1316,7 +1340,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * 1. Add item on high priority, no low priority changes.
    */
-  public class Add1_2_UseCase extends BaseMergeUseCase {
+  public class Add1_2_UseCase extends BaseTwoMembersMergeUseCase {
     public Add1_2_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1346,7 +1370,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * 2. Add item on low priority, already added on high priority.
    */
-  public class Add2_x_UseCase extends BaseMergeUseCase {
+  public class Add2_x_UseCase extends BaseTwoMembersMergeUseCase {
     public Add2_x_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1380,7 +1404,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * 3. Add item on low priority already added and deleted on high priority.
    */
-  public class Add3_1_UseCase extends BaseMergeUseCase {
+  public class Add3_1_UseCase extends BaseTwoMembersMergeUseCase {
     public Add3_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1413,7 +1437,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * 3. Add item on high priority already added and deleted on low priority.
    */
-  public class Add3_2_UseCase extends BaseMergeUseCase {
+  public class Add3_2_UseCase extends BaseTwoMembersMergeUseCase {
     public Add3_2_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1444,7 +1468,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   /**
    * 4. Add Item on high priority to a deleted parent on low priority (conflict)
    */
-  public class Add4_1_UseCase extends BaseMergeUseCase {
+  public class Add4_1_UseCase extends BaseTwoMembersMergeUseCase {
     public Add4_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
     }
@@ -1471,6 +1495,128 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
       Node node = sessionLowPriority.getRootNode().getNode("item1");
       node.remove();
       sessionLowPriority.save();
+    }
+  }
+  
+  public class ThreeMemberMoveUseCase extends BaseThreeMembersMergeUseCase {
+    
+    private final int subTree; 
+
+    public ThreeMemberMoveUseCase(SessionImpl sessionLowPriority,
+                                     SessionImpl sessionMiddlePriority,
+                                     SessionImpl sessionHighPriority,
+                                     int subtree) {
+      super(sessionLowPriority, sessionMiddlePriority, sessionHighPriority);
+      this.subTree = subtree;
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("node_low_priority");
+      for (int i=0; i< 10; i++) {
+        Node l1 = node.addNode("low_level_1_" + i);
+        
+        for (int j=0; j< subTree; j++) {
+          Node file = l1.addNode("low_level_2_" + j);
+          
+          Node cool = file.addNode("nnn", "nt:file");
+          Node contentNode = cool.addNode("jcr:content", "nt:resource");
+          contentNode.setProperty("jcr:encoding", "UTF-8");
+          contentNode.setProperty("jcr:data", new FileInputStream(createBLOBTempFile(5)));
+          contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+          contentNode.setProperty("jcr:lastModified",
+                                  sessionLowPriority.getValueFactory()
+                                                     .createValue(Calendar.getInstance()));
+          
+        }
+        sessionLowPriority.save();
+      }
+      sessionLowPriority.save();
+    }
+    
+    @Override
+    public void initDataMiddlePriority() throws Exception {
+      Node node = sessionMiddlePriority.getRootNode().addNode("node_middle_priority");
+      for (int i=0; i< 10; i++) {
+        Node l1 = node.addNode("middle_level_1_" + i);
+        
+        for (int j=0; j< subTree; j++) {
+          Node file = l1.addNode("middle_level_2_" + j);
+          
+          Node cool = file.addNode("nnn", "nt:file");
+          Node contentNode = cool.addNode("jcr:content", "nt:resource");
+          contentNode.setProperty("jcr:encoding", "UTF-8");
+          contentNode.setProperty("jcr:data", new FileInputStream(createBLOBTempFile(5)));
+          contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+          contentNode.setProperty("jcr:lastModified",
+                                  sessionMiddlePriority.getValueFactory()
+                                                     .createValue(Calendar.getInstance()));
+        }
+        sessionMiddlePriority.save();
+      }
+      sessionMiddlePriority.save();
+    }
+    
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("node_high_priority");
+      for (int i=0; i< 10; i++) {
+        Node l1 = node.addNode("high_level_1_" + i);
+        
+        for (int j=0; j< subTree; j++) {
+          Node file  = l1.addNode("high_level_2_" + j);
+          
+          Node cool = file.addNode("nnn", "nt:file");
+          Node contentNode = cool.addNode("jcr:content", "nt:resource");
+          contentNode.setProperty("jcr:encoding", "UTF-8");
+          contentNode.setProperty("jcr:data", new FileInputStream(createBLOBTempFile(5)));
+          contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+          contentNode.setProperty("jcr:lastModified",
+                                  sessionHighPriority.getValueFactory()
+                                                     .createValue(Calendar.getInstance()));
+        }
+        sessionHighPriority.save();
+      }
+      sessionHighPriority.save();
+    }
+    
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node destNode = sessionLowPriority.getRootNode().addNode("dest_low");
+      sessionLowPriority.save();
+      
+      NodeIterator ni = sessionLowPriority.getRootNode().getNode("node_low_priority").getNodes();
+      
+      while (ni.hasNext()) {
+        sessionLowPriority.move(ni.nextNode().getPath(), destNode.getPath());
+        sessionLowPriority.save();
+      }
+    }
+
+    @Override
+    public void useCaseMiddlePriority() throws Exception {
+      Node destNode = sessionMiddlePriority.getRootNode().addNode("dest_middle");
+      sessionMiddlePriority.save();
+      
+      NodeIterator ni = sessionMiddlePriority.getRootNode().getNode("node_middle_priority").getNodes();
+      
+      while (ni.hasNext()) {
+        sessionMiddlePriority.move(ni.nextNode().getPath(), destNode.getPath());
+        sessionMiddlePriority.save();
+      }
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node destNode = sessionHighPriority.getRootNode().addNode("dest_high");
+      sessionHighPriority.save();
+      
+      NodeIterator ni = sessionHighPriority.getRootNode().getNode("node_high_priority").getNodes();
+      
+      while (ni.hasNext()) {
+        sessionHighPriority.move(ni.nextNode().getPath(), destNode.getPath());
+        sessionHighPriority.save();
+      }
     }
   }
 

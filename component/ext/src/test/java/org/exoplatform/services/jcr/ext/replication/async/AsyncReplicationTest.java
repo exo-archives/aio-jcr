@@ -43,26 +43,26 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
   private static Log          log         = ExoLogger.getLogger("ext.AsyncReplicationTest");
 
-  private static final String CH_NAME     = "AsyncRepCh_testChangesExchenge";
+  protected static final String CH_NAME     = "AsyncRepCh_testChangesExchenge";
 
-  private static final String bindAddress = "127.0.0.1";
+  protected static final String bindAddress = "127.0.0.1";
 
-  private RepositoryImpl      repositoryLowPriority;
+  protected RepositoryImpl      repositoryLowPriority;
 
-  private RepositoryImpl      repositoryHigePriority;
+  protected RepositoryImpl      repositoryHigePriority;
 
-  private SessionImpl         sessionLowPriority;
+  protected SessionImpl         sessionLowPriority;
 
-  private SessionImpl         sessionHigePriority;
+  protected SessionImpl         sessionHigePriority;
 
   private class AsyncReplicationUseCase {
-    private final BaseMergeUseCase useCase;
+    private final BaseTwoMembersMergeUseCase useCase;
 
     private AsyncReplicationTester asyncReplication1;
 
     private AsyncReplicationTester asyncReplication2;
 
-    public AsyncReplicationUseCase(BaseMergeUseCase useCase) {
+    public AsyncReplicationUseCase(BaseTwoMembersMergeUseCase useCase) {
       this.useCase = useCase;
     }
 
@@ -464,6 +464,90 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
   
   public void testComplexUseCase6() throws Exception {
     ComplexUseCase6 useCase = new ComplexUseCase6(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testComplexUseCase9() throws Exception {
+    ComplexUseCase9 useCase = new ComplexUseCase9(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testComplexUseCase10() throws Exception {
+    ComplexUseCase10 useCase = new ComplexUseCase10(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testComplexUseCase11() throws Exception {
+    ComplexUseCase11 useCase = new ComplexUseCase11(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testComplexUseCase12() throws Exception {
+    ComplexUseCase12 useCase = new ComplexUseCase12(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testComplexUseCase13() throws Exception {
+    ComplexUseCase13 useCase = new ComplexUseCase13(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+
+    assertTrue(asyncUseCase.checkEquals());
+  }
+  
+  public void testComplexUseCase14() throws Exception {
+    ComplexUseCase14 useCase = new ComplexUseCase14(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
