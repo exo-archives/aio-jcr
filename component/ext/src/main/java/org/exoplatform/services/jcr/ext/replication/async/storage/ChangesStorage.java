@@ -204,6 +204,10 @@ public interface ChangesStorage<T extends ItemState> {
                                                                                      ClassCastException,
                                                                                      ClassNotFoundException;
 
+  public T findPrevState(ItemState toState, String identifier) throws IOException,
+                                                              ClassCastException,
+                                                              ClassNotFoundException;
+
   public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
                                                                   ClassCastException,
                                                                   ClassNotFoundException;

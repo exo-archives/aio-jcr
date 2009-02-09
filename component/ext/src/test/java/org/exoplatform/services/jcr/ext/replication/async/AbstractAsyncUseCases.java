@@ -78,7 +78,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
       this.sessionHighPriority = sessionHighPriority;
     }
 
-    public final boolean checkEquals() throws Exception {
+    public boolean checkEquals() throws Exception {
       return isNodesEquals(sessionHighPriority.getRootNode(), sessionLowPriority.getRootNode());
     }
 
@@ -553,8 +553,11 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     @Override
     public void initDataHighPriority() throws Exception {
       Node node = sessionHighPriority.getRootNode().addNode("test");
+      node.addMixin("mix:referenceable");
       node = node.addNode("test-folder");
+      node.addMixin("mix:referenceable");
       node = node.addNode("fileB");
+      node.addMixin("mix:referenceable");
       node.setProperty("data", "value");
       sessionHighPriority.save();
     }
@@ -565,17 +568,31 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("newFolder");
+      node.addMixin("mix:referenceable");
+      sessionHighPriority.move("/newFolder", "/test2");
+      sessionHighPriority.move("/test/test-folder", "/test2/test-folder");
+      sessionHighPriority.save();
     }
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      sessionLowPriority.getRootNode().addNode("newFolder");
+      Node node = sessionLowPriority.getRootNode().addNode("newFolder");
+      node.addMixin("mix:referenceable");
       sessionLowPriority.move("/newFolder", "/test1");
-      Node node = sessionLowPriority.getRootNode().getNode("test1");
+      node = sessionLowPriority.getRootNode().getNode("test1");
       node.addNode("newFolder");
-      sessionLowPriority.move("/test1", "/subf1");
-      sessionLowPriority.move("/test/test-folder", "/subf1/test-folder");
+      node.addMixin("mix:referenceable");
+      sessionLowPriority.move("/test1/newFolder", "/test1/subf1");
+      sessionLowPriority.move("/test/test-folder", "/test1/subf1/test-folder");
       sessionLowPriority.save();
+    }
+
+    public boolean checkEquals() throws Exception {
+      return isNodesEquals(sessionHighPriority.getRootNode(),
+                           sessionLowPriority.getRootNode(),
+                           sessionHighPriority,
+                           sessionLowPriority);
     }
   }
 

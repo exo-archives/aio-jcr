@@ -313,6 +313,60 @@ public class AddMerger extends AbstractMerger {
                                                   ItemState.DELETED,
                                                   items.get(i).isEventFire(),
                                                   items.get(i).getData().getQPath()));
+
+                    // restore renamed nodes
+                    if (items.get(i).getState() == ItemState.RENAMED
+                        && (i == 0 || items.get(i - 1).getState() != ItemState.RENAMED)) {
+
+                      for (int j = i; j < items.size(); j++) {
+                        if (items.get(j).getState() != ItemState.RENAMED)
+                          break;
+
+                        ItemState item = local.findPrevState(items.get(j), items.get(j)
+                                                                                .getData()
+                                                                                .getIdentifier());
+
+                        if (item.getData()
+                                .getQPath()
+                                .makeParentPath()
+                                .equals(items.get(j).getData().getQPath().makeParentPath()))
+                          break;
+
+                        if (item.getData().isNode()) {
+                          NodeData node = (NodeData) item.getData();
+                          TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                                            node.getIdentifier(),
+                                                                            node.getPersistedVersion(),
+                                                                            node.getPrimaryTypeName(),
+                                                                            node.getMixinTypeNames(),
+                                                                            node.getOrderNumber(),
+                                                                            node.getParentIdentifier(),
+                                                                            node.getACL());
+
+                          ItemState newItem = new ItemState(newNode,
+                                                            ItemState.ADDED,
+                                                            item.isEventFire(),
+                                                            node.getQPath());
+                          resultState.add(newItem);
+
+                        } else {
+                          PropertyData prop = (PropertyData) item.getData();
+                          TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                                    prop.getIdentifier(),
+                                                                                    prop.getPersistedVersion(),
+                                                                                    prop.getType(),
+                                                                                    prop.getParentIdentifier(),
+                                                                                    prop.isMultiValued());
+
+                          newProp.setValues(((PropertyData) items.get(j).getData()).getValues());
+                          ItemState newItem = new ItemState(newProp,
+                                                            ItemState.ADDED,
+                                                            item.isEventFire(),
+                                                            prop.getQPath());
+                          resultState.add(newItem);
+                        }
+                      }
+                    }
                   }
                 }
 
