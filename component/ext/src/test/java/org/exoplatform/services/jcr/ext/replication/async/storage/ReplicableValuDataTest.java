@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,15 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
 
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -66,8 +60,7 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
 //  }
 
   public void testBLOBValue() throws Exception {
-    
-    File f = this.createBLOBTempFile(1024);
+    SpoolFile f = new SpoolFile(this.createBLOBTempFile(1024).getAbsolutePath());
     ReplicableValueData val = new ReplicableValueData(f, 10, null);
 
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
