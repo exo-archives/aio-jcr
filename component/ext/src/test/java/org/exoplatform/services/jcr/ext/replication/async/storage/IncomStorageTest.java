@@ -16,9 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -82,21 +85,31 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    RandomChangesFile cf = storage.createChangesFile(new byte[]{},
-                                                     System.currentTimeMillis(),
-                                                     new Member(null, 20));
-    ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
+   
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    MessageDigest digest = MessageDigest.getInstance("MD5");
+    DigestOutputStream dout = new DigestOutputStream(bytes, digest);
+    
+    ObjectOutputStream out = new ObjectOutputStream(dout);
     out.writeObject(log);
     out.close();
+    
+    
+    RandomChangesFile cf = storage.createChangesFile(digest.digest(),
+                                                     System.currentTimeMillis(),
+                                                     new Member(new MemberAddress(new IpAddress()), 20));
+    
+    
+    cf.writeData(bytes.toByteArray(), 0);
     cf.finishWrite();
-
+    
     storage.addMemberChanges(new Member(new MemberAddress(new IpAddress()), 20), cf);
 
     // delete storage object
-    storage = null;
+    //storage = null;
 
     // create new storage object on old context
-    storage = new IncomeStorageImpl(dir.getAbsolutePath());
+    //storage = new IncomeStorageImpl(dir.getAbsolutePath());
     List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
     Iterator<ItemState> states = ch.get(0).getChanges();
     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
@@ -157,10 +170,10 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // storage.addMemberChanges(new Member(null, 45), cf);
 
     // delete storage object
-    storage = null;
+  //  storage = null;
 
     // create new storage object on old context
-    storage = new IncomeStorageImpl(dir.getAbsolutePath());
+   // storage = new IncomeStorageImpl(dir.getAbsolutePath());
     List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
     assertEquals(3, ch.size());
 
@@ -257,10 +270,10 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // storage.addMemberChanges(new Member(null, 45), cf);
 
     // delete storage object
-    storage = null;
+    //    storage = null;
 
     // create new storage object on old context
-    storage = new IncomeStorageImpl(dir.getAbsolutePath());
+    //   storage = new IncomeStorageImpl(dir.getAbsolutePath());
     List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
     assertEquals(3, ch.size());
 

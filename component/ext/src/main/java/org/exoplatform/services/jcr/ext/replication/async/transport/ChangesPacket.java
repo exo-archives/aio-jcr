@@ -146,7 +146,7 @@ public class ChangesPacket extends AbstractPacket {
 
     priority = in.readInt();
     if (in.readInt() == NOT_NULL_VALUE) {
-      byte[] crc = new byte[in.readInt()];
+      crc = new byte[in.readInt()];
       in.readFully(crc);
     } else {
       crc = null;

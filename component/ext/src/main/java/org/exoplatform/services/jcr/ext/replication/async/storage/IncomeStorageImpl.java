@@ -75,8 +75,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
     try {
-      if (!ChangesFileValidator.validate(changesFile)) {
-        throw new IOException("ChangesFile content's checksum is not equal to original.");
+      ChangesFileValidator validator = new ChangesFileValidator(); 
+      if (!validator.validate(changesFile)) {
+        throw new InvalidChecksum("ChangesFile content's checksum is not equal to original.");
       }
     } catch (NoSuchAlgorithmException e) {
       throw new IOException(e.getMessage());
@@ -98,8 +99,6 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
     dir.mkdirs();
     File cf = new File(dir, Long.toString(id));
-
-    LOG.info("RandomChangesFile " + cf.getAbsolutePath()); // TODO clean
 
     return new RandomChangesFile(cf, crc, id, resHolder);
   }
@@ -165,8 +164,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     for (File memberDir : memberDirs) {
       try {
         int memberPriority = Integer.parseInt(memberDir.getName()); // also
-                                                                    // check -
-                                                                    // is
+        // check -
+        // is
         // member folder;
 
         File[] files = memberDir.listFiles(new ChangesFilenameFilter());
@@ -176,7 +175,10 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
         for (int j = 0; j < files.length; j++) {
           File ch = new File(memberDir, files[j].getName());
-          chFiles.add(new RandomChangesFile(ch, new byte[]{}, Long.parseLong(files[j].getName()), resHolder));
+          chFiles.add(new RandomChangesFile(ch,
+                                            new byte[] {},
+                                            Long.parseLong(files[j].getName()),
+                                            resHolder));
         }
 
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());

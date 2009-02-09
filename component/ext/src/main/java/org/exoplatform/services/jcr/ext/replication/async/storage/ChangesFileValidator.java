@@ -36,7 +36,7 @@ public class ChangesFileValidator {
    * @throws NoSuchAlgorithmException if the <code>MD5</code> algorithm is not available in the caller's environment.
    * @throws IOException if exception occurs on file content read.
    */
-  public static boolean validate(ChangesFile file) throws NoSuchAlgorithmException, IOException {
+  public boolean validate(ChangesFile file) throws NoSuchAlgorithmException, IOException {
 
     MessageDigest digest = MessageDigest.getInstance("MD5");
     DigestInputStream in = new DigestInputStream(file.getInputStream(), digest);
