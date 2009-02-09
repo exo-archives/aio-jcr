@@ -74,21 +74,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
-    try {
-
-      if (changesFile.getChecksum() == null || changesFile.getChecksum().length == 0) {
-        throw new ChecksumNotFoundException("There is no checksum asigned to changes file");
-      }
-
-      ChangesFileValidator validator = new ChangesFileValidator();
-      if (!validator.validate(changesFile)) {
-        throw new InvalidChecksumException("ChangesFile content's checksum is not equal to original.");
-      }
-      
-    } catch (NoSuchAlgorithmException e) {
-      throw new IOException(e.getMessage());
-    }
-
+    changesFile.validate();
+    
     MemberChanges mch = this.changes.get(member.getPriority());
     if (mch == null) {
       mch = new MemberChanges(member, new ArrayList<ChangesFile>());
@@ -106,7 +93,11 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     dir.mkdirs();
     File cf = new File(dir, Long.toString(id));
 
+    try{
     return new RandomChangesFile(cf, crc, id, resHolder);
+    }catch (NoSuchAlgorithmException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
   /**
@@ -181,10 +172,14 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
         for (int j = 0; j < files.length; j++) {
           File ch = new File(memberDir, files[j].getName());
+          try{
           chFiles.add(new RandomChangesFile(ch,
                                             new byte[] {},
                                             Long.parseLong(files[j].getName()),
                                             resHolder));
+          }catch (NoSuchAlgorithmException e) {
+            throw new IOException(e.getMessage());
+          }
         }
 
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());

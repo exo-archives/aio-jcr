@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -195,6 +196,9 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
           }
         } catch (IOException e) {
+          log.error("Cannot save changes " + e, e);
+          fail("Cannot save changes " + e);
+        }catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
         }

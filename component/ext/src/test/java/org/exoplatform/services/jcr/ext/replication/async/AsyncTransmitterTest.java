@@ -19,12 +19,12 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import javax.jcr.Node;
 
@@ -36,7 +36,6 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
-import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -374,7 +373,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
           case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
             log.info("BINARY_CHANGESLOG_FIRST_PACKET");
 
-            TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
+            TesterRandomChangesFile cf;
+              
+                cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
+              
 
             cf.writeData(packet.getBuffer(), packet.getOffset());
 
@@ -402,6 +404,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
           }
         } catch (IOException e) {
+          log.error("Cannot save changes " + e, e);
+          fail("Cannot save changes " + e);
+        }catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
         }
@@ -536,6 +541,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         } catch (IOException e) {
           log.error("Cannot save export changes " + e, e);
           fail("Cannot save export changes " + e);
+        }catch (NoSuchAlgorithmException e) {
+          log.error("Cannot save changes " + e, e);
+          fail("Cannot save changes " + e);
         }
       } else
         fail("Han been received not ExportChangesPacket.");

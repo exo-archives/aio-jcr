@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 
 import javax.jcr.Node;
@@ -59,11 +60,11 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     static final String SUFIX  = "SUFIX";
 
-    public TesterRandomChangesFile(byte[] crc, long id) throws IOException {
+    public TesterRandomChangesFile(byte[] crc, long id) throws IOException, NoSuchAlgorithmException {
       super(File.createTempFile(PREFIX, SUFIX), crc, id, resHolder);
     }
 
-    public TesterRandomChangesFile(File f, byte[] crc, long id) throws IOException {
+    public TesterRandomChangesFile(File f, byte[] crc, long id) throws IOException, NoSuchAlgorithmException {
       super(f, crc, id, resHolder);
     }
   }

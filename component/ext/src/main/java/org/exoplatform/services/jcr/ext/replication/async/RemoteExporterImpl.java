@@ -180,18 +180,20 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         changesFile.finishWrite();
         
         //check received file
-        MessageDigest digest;
-        try {
-          digest = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-          throw new IOException(e.getMessage());
-        }
-        DigestInputStream in = new DigestInputStream(changesFile.getInputStream(),digest);
+        //MessageDigest digest;
+        //try {
+        //  digest = MessageDigest.getInstance("MD5");
+        //} catch (NoSuchAlgorithmException e) {
+        //  throw new IOException(e.getMessage());
+        //}
+        //DigestInputStream in = new DigestInputStream(changesFile.getInputStream(),digest);
         
-        byte[] buf  = new byte[1024];
-        while(in.read(buf)!=-1);
+        //byte[] buf  = new byte[1024];
+        //while(in.read(buf)!=-1);
         
-        String d = new String(digest.digest(),"UTF-8");
+        //String d = new String(digest.digest(),"UTF-8");
+        
+        changesFile.validate();
         
         latch.countDown();
         
@@ -218,10 +220,16 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   private void initChangesFile(byte[] crc, long timeStamp) throws IOException {
     if (this.changesFile == null) {
-      changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + timeStamp),
-                                          crc,
-                                          timeStamp,
-                                          resHolder);
+      
+      try {
+        changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + timeStamp),
+                                            crc,
+                                            timeStamp,
+                                            resHolder);
+      } catch (NoSuchAlgorithmException e) {
+        throw new IOException (e.getMessage());
+      }
+      
     }
   }
 

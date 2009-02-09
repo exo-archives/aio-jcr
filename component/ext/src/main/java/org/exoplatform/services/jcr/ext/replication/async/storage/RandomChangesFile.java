@@ -18,11 +18,12 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
@@ -35,14 +36,19 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class RandomChangesFile implements ChangesFile {
 
-  protected static final Log    LOG                   = ExoLogger.getLogger("ext.RandomChangesFile");
+  protected static final Log    LOG     = ExoLogger.getLogger("ext.RandomChangesFile");
 
-  private static final int      OBJECT_OUT_HEADER_LEN = 4;
+  // private static final int OBJECT_OUT_HEADER_LEN = 4;
 
   /**
-   * Check sum to file.
+   * Checksum to file (set in constructor).
    */
   private final byte[]          crc;
+
+  /**
+   * Checksum calculated form content of file.
+   */
+  private byte[]                crcCalc = null;
 
   /**
    * Time stamp to ChangesLog.
@@ -55,24 +61,25 @@ public class RandomChangesFile implements ChangesFile {
 
   private RandomAccessFile      fileAccessor;
 
-  private boolean               doTruncate            = false;
+  // private boolean doTruncate = false;
+
+  private MessageDigest         digest;
 
   /**
    * Create ChangesFile with already formed file.
    * 
-   * @param file
-   *          changes file
-   * @param crc
-   *          checksum
-   * @param timeStamp
-   *          time stamp
+   * @param file changes file
+   * @param crc checksum
+   * @param timeStamp time stamp
+   * @throws NoSuchAlgorithmException
    * @throws IOException
    */
-  public RandomChangesFile(File file, byte[] crc, long id, ResourcesHolder resHolder) {
+  public RandomChangesFile(File file, byte[] crc, long id, ResourcesHolder resHolder) throws NoSuchAlgorithmException {
     this.crc = crc;
     this.id = id;
     this.file = file;
     this.resHolder = resHolder;
+    this.digest = MessageDigest.getInstance("MD5");
   }
 
   /**
@@ -92,7 +99,7 @@ public class RandomChangesFile implements ChangesFile {
    */
   public InputStream getInputStream() throws IOException {
     finishWrite();
-    
+
     InputStream in = new FileInputStream(file);
     resHolder.add(in);
     return in;
@@ -101,7 +108,8 @@ public class RandomChangesFile implements ChangesFile {
   /**
    * NOTE! OutputStream will not be closed by resHandler.
    */
-  @Deprecated // TODO remove method
+  @Deprecated
+  // TODO remove method
   public OutputStream getOutputStream() throws IOException {
     return new OutputStream() {
 
@@ -111,7 +119,7 @@ public class RandomChangesFile implements ChangesFile {
         // LOG.info("write - b=" + b);
         synchronized (fileAccessor) {
           fileAccessor.write(b);
-          trunc();
+          // trunc();
         }
       }
 
@@ -120,27 +128,26 @@ public class RandomChangesFile implements ChangesFile {
         // LOG.info("write - b[]=" + b + " (" + b.length + ")");
         synchronized (fileAccessor) {
           fileAccessor.write(b);
-          trunc();
+          // trunc();
         }
       }
 
       public void write(byte b[], int off, int len) throws IOException {
         checkFileAccessor();
-        // LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ", len=" + len);
+        // LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ",
+        // len=" + len);
         synchronized (fileAccessor) {
           fileAccessor.write(b, off, len);
-          trunc();
+          // trunc();
         }
       }
 
-      private void trunc() throws IOException {
-        if (doTruncate) {
-          fileAccessor.seek(file.length() - OBJECT_OUT_HEADER_LEN);
-          doTruncate = false;
-
-          // LOG.info("trunc - seek on " + (file.length() - OBJECT_OUT_HEADER_LEN));
-        }
-      }
+      /*
+       * private void trunc() throws IOException { if (doTruncate) {
+       * fileAccessor.seek(file.length() - OBJECT_OUT_HEADER_LEN); doTruncate =
+       * false; // LOG.info("trunc - seek on " + (file.length() -
+       * OBJECT_OUT_HEADER_LEN)); } }
+       */
 
     };
   }
@@ -148,49 +155,51 @@ public class RandomChangesFile implements ChangesFile {
   /**
    * Write data to file.
    * 
-   * @param data
-   *          byte buffer
-   * @param position
-   *          to write
+   * @param data byte buffer
+   * @param position to write
    * @throws IOException
    */
   public void writeData(byte[] data, long position) throws IOException {
     checkFileAccessor();
     synchronized (fileAccessor) {
+      // write to file
       fileAccessor.seek(position);
       fileAccessor.write(data);
+      // update digest
+      digest.update(data);
     }
   }
 
   /**
    * Say internal writer that file write stopped.
    * 
-   * @throws IOException
-   *           error on file accessor close.
+   * @throws IOException error on file accessor close.
    */
   public void finishWrite() throws IOException {
     if (fileAccessor != null) {
       // close writer
       fileAccessor.close();
       fileAccessor = null;
+
+      crcCalc = digest.digest();
+      digest = null; // set to null - to prevent write to file again
     }
   }
 
   /**
    * Check is file accessor created. Create if not.
    * 
-   * @throws IOException
-   *           error on file accessor creation.
+   * @throws IOException error on file accessor creation.
    */
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
       fileAccessor = new RandomAccessFile(file, "rwd");
-      
+
       resHolder.add(fileAccessor);
 
-      if (file.length() > 0) {
-        doTruncate = true;
-      }
+      // if (file.length() > 0) {
+      // doTruncate = true;
+      // }
       fileAccessor.seek(file.length());
 
       // LOG.info("checkFileAccessor - seek on " + file.length());
@@ -202,8 +211,7 @@ public class RandomChangesFile implements ChangesFile {
    * 
    * @return boolean, true if delete successful.
    * @see java.io.File.delete()
-   * @throws IOException
-   *           on error
+   * @throws IOException on error
    */
   public boolean delete() throws IOException {
     finishWrite();
@@ -223,8 +231,13 @@ public class RandomChangesFile implements ChangesFile {
   }
 
   public void validate() throws InvalidChecksumException {
-    // TODO Auto-generated method stub
-    
+    if (crc == null || crc.length == 0) {
+      throw new InvalidChecksumException("File checksum is null or empty.");
+    }
+
+    if (!java.util.Arrays.equals(crc, crcCalc)) {
+      throw new InvalidChecksumException("File content isn't match checksum.");
+    }
   }
 
 }

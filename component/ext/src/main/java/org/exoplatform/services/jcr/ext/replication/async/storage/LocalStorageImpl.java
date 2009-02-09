@@ -175,7 +175,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
             List<ValueData> srcVals = prop.getValues();
             List<ValueData> nVals = new ArrayList<ValueData>();
 
-            if (srcVals != null) { // TODO we don't need it actually
+           
               for (ValueData vd : srcVals) {
                 if (vd.isByteArray()) {
                   nVals.add(vd);
@@ -198,7 +198,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
                     throw new StorageIOException("Non transient value data " + vd);
                 }
               }
-            }
+           
 
             // rewrite values, TODO use setter
             TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
