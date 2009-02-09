@@ -26,9 +26,9 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
  * @version $Id: InvalidChecksum.java 111 2008-11-11 11:11:11Z serg $
  */
-public class InvalidChecksum extends StorageIOException {
+public class InvalidChecksumException extends StorageIOException {
 
-  public InvalidChecksum(String message) {
+  public InvalidChecksumException(String message) {
     super(message);
   }
 }

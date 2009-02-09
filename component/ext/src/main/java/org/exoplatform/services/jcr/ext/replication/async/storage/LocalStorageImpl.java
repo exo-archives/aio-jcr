@@ -84,7 +84,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   private static final String                                DIRECTORY_NAME             = "changes";
 
-  private static final String                                DIGESTFILE_EXTENTION       = "dgs";
+  private static final String                                DIGESTFILE_EXTENTION       = ".md5";
 
   private static final long                                  ERROR_TIMEOUT              = 10000;
 
@@ -303,7 +303,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           // read digest
           File dFile = new File(currentDir, curFile.getName() + DIGESTFILE_EXTENTION);
           if (!dFile.exists() || dFile.length() == 0) {
-            LOG.warn(curFile.getName() + " does not have digest file. File may be uncomplete!");
+            LOG.error(curFile.getName() + " does not have digest file. File may be uncomplete!");
             // TODO
           } else {
             FileInputStream din = new FileInputStream(dFile);

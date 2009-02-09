@@ -75,10 +75,16 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
     try {
-      ChangesFileValidator validator = new ChangesFileValidator(); 
-      if (!validator.validate(changesFile)) {
-        throw new InvalidChecksum("ChangesFile content's checksum is not equal to original.");
+
+      if (changesFile.getChecksum() == null || changesFile.getChecksum().length == 0) {
+        throw new ChecksumNotFoundException("There is no checksum asigned to changes file");
       }
+
+      ChangesFileValidator validator = new ChangesFileValidator();
+      if (!validator.validate(changesFile)) {
+        throw new InvalidChecksumException("ChangesFile content's checksum is not equal to original.");
+      }
+      
     } catch (NoSuchAlgorithmException e) {
       throw new IOException(e.getMessage());
     }
