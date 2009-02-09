@@ -334,9 +334,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       changesQueue.add((TransactionChangesLog) itemStates);
-
-      //LOG.info("onSaveItems : \r\n" + itemStates.dump());
-
       if (changesSpooler == null) {
         // changesSpooler var can be nulled from ChangesSpooler.run()
         ChangesSpooler csp = changesSpooler = new ChangesSpooler();

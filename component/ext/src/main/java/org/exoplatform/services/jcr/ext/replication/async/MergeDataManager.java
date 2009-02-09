@@ -215,14 +215,17 @@ public class MergeDataManager {
             outer: while (changes.hasNext() && run) {
               ItemState incomeChange = changes.next();
 
-//              LOG.info("\t\tMerging income item "
-//                  + ItemState.nameFromValue(incomeChange.getState()) + " "
-//                  + incomeChange.getData().getQPath().getAsString());
+              if (LOG.isDebugEnabled())
+                LOG.debug("\t\tMerging income item "
+                    + ItemState.nameFromValue(incomeChange.getState()) + " "
+                    + incomeChange.getData().getQPath().getAsString());
 
               // skip already processed itemstate
               if (iteration.hasState(incomeChange)) {
-//                LOG.info("\t\tSkip income item " + ItemState.nameFromValue(incomeChange.getState())
-//                    + " " + incomeChange.getData().getQPath().getAsString());
+                if (LOG.isDebugEnabled())
+                  LOG.debug("\t\tSkip income item "
+                      + ItemState.nameFromValue(incomeChange.getState()) + " "
+                      + incomeChange.getData().getQPath().getAsString());
                 continue;
               }
 
@@ -230,9 +233,10 @@ public class MergeDataManager {
               for (int i = 0; i < skippedList.size(); i++) {
                 if (incomeChange.getData().getQPath().equals(skippedList.get(i))
                     || incomeChange.getData().getQPath().isDescendantOf(skippedList.get(i))) {
-//                  LOG.info("\t\tMerging income item "
-//                      + ItemState.nameFromValue(incomeChange.getState()) + " "
-//                      + incomeChange.getData().getQPath().getAsString());
+                  if (LOG.isDebugEnabled())
+                    LOG.debug("\t\tMerging income item "
+                        + ItemState.nameFromValue(incomeChange.getState()) + " "
+                        + incomeChange.getData().getQPath().getAsString());
                   continue outer;
                 }
               }
@@ -295,8 +299,10 @@ public class MergeDataManager {
                                                         skippedList,
                                                         restoredOrder));
                   } else {
-                    LOG.info("Income changes log: " + income.dump());
-                    LOG.info("Local changes log: " + local.dump());
+                    if (LOG.isDebugEnabled())
+                      LOG.debug("Income changes log: " + income.dump());
+                    if (LOG.isDebugEnabled())
+                      LOG.debug("Local changes log: " + local.dump());
 
                     throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."
                         + "[path="
@@ -373,7 +379,7 @@ public class MergeDataManager {
    */
   public void cleanup() {
     run = false; // but it should be already stopped or canceled
-    
+
     try {
       resHolder.close();
     } catch (IOException e) {
@@ -387,9 +393,9 @@ public class MergeDataManager {
       for (File f : files) {
         deleteStorage(f);
       }
-    }   
+    }
   }
-  
+
   private void deleteStorage(File file) {
     if (file.isDirectory()) {
       File[] files = file.listFiles();

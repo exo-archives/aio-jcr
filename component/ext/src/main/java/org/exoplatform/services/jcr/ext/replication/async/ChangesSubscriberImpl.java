@@ -58,7 +58,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Logger.
    */
-  protected static final Log                    LOG           = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  protected static final Log                    LOG          = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   protected final MergeDataManager              mergeManager;
 
@@ -80,7 +80,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   protected final HashMap<Integer, Counter>     counterMap;
 
-  // protected List<MemberAddress>                 mergeDoneList = new ArrayList<MemberAddress>();
+  // protected List<MemberAddress> mergeDoneList = new ArrayList<MemberAddress>();
 
   protected final CountDownLatch                mergeBarier;
 
@@ -89,14 +89,14 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected HashMap<Integer, MemberChangesFile> incomChanges  = new HashMap<Integer, MemberChangesFile>();
+  protected HashMap<Integer, MemberChangesFile> incomChanges = new HashMap<Integer, MemberChangesFile>();
 
-  protected MergeWorker                         mergeWorker   = null;
+  protected MergeWorker                         mergeWorker  = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<LocalEventListener>       listeners     = new LinkedHashSet<LocalEventListener>();
+  protected final Set<LocalEventListener>       listeners    = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
 
@@ -200,10 +200,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       }
 
       // TODO debug
-//      for (MemberChangesStorage<ItemState> ms : membersChanges) {
-//        LOG.info(">>> Member " + ms.getMember().getName() + " changes");
-//        LOG.info(ms.dump());
-//      }
+      // for (MemberChangesStorage<ItemState> ms : membersChanges) {
+      // LOG.info(">>> Member " + ms.getMember().getName() + " changes");
+      // LOG.info(ms.dump());
+      // }
 
       // merge
       workerLog.info("start merge of " + membersChanges.size() + " members");
@@ -303,8 +303,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
       if (isStarted()) {
         try {
-          // LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
-
           MemberChangesFile mcf = incomChanges.get(packet.getTransmitterPriority());
           mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
         } catch (Throwable e) {
@@ -470,11 +468,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
     try {
       // TODO dump
-//      try {
-//        LOG.info("save \r\n" + mergeWorker.result.dump());
-//      } catch (Throwable e1) {
-//        LOG.error("Changes dump error " + e1);
-//      } 
+      if (LOG.isDebugEnabled())
+        try {
+          LOG.debug("save \r\n" + mergeWorker.result.dump());
+        } catch (Throwable e1) {
+          LOG.error("Changes dump error " + e1);
+        }
 
       workspace.save(mergeWorker.result);
 
@@ -492,7 +491,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       errorLog.reportError(e);
     }
 
-    LOG.info("Fire Stop (local)");
+    if (LOG.isDebugEnabled())
+      LOG.debug("Fire Stop (local)");
+
     for (LocalEventListener ll : listeners)
       ll.onStop();
   }
