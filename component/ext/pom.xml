@@ -183,7 +183,7 @@
             <exclude>**/backup/*.java</exclude>
             <exclude>**/access/*.java</exclude>
             
-            <exclude>**/LocalStorageMultithreadTest.javaa</exclude>
+            <exclude>**/LocalStorageMultithreadTest.java</exclude>
             
             <!--<exclude>**/groovy/*Test.java</exclude>-->
             
