@@ -23,7 +23,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
 import org.exoplatform.services.jcr.impl.storage.value.cas.RecordAlreadyExistsException;
+import org.exoplatform.services.jcr.impl.storage.value.cas.RecordNotFoundException;
+import org.exoplatform.services.jcr.impl.storage.value.cas.VCASException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
@@ -32,7 +35,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id$
+ * @version $Id: CASableSimpleFileIOChannel.java 20384 2008-09-24 16:25:43Z
+ *          pnedonosko $
  */
 
 public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
@@ -43,7 +47,7 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
 
   private final ValueContentAddressStorage vcas;
 
-  public CASableSimpleFileIOChannel(File rootDir,
+    public CASableSimpleFileIOChannel(File rootDir,
                                     FileCleaner cleaner,
                                     String storageId,
                                     ValueContentAddressStorage vcas,
@@ -55,10 +59,11 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
   }
 
   @Override
-  public void write(String propertyId, ValueData value) throws IOException {
+  public ValueFile write(String propertyId, ValueData value) throws IOException {
     // calc digest hash
     // TODO optimize with NIO
-    // we need hash at first to know do we have to store file or just use one existing (with same
+    // we need hash at first to know do we have to store file or just use one
+    // existing (with same
     // hash)
     File temp = new File(rootDir, propertyId + value.getOrderNumber() + ".cas-temp");
     FileDigestOutputStream out = cas.openFile(temp);
@@ -71,7 +76,9 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
     try {
       vcas.add(propertyId, value.getOrderNumber(), out.getDigestHash());
       // rename to VCAS-named
-      cas.saveFile(out);
+      File vcasFile = cas.saveFile(out);
+      return new CASValueFileImpl(propertyId, vcasFile, vcas, cleaner);
+      
     } catch (RecordAlreadyExistsException e) {
       if (!temp.delete()) {
         LOG.warn("Can't delete cas-temp file. Added to file cleaner. " + temp.getAbsolutePath());
@@ -79,17 +86,17 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
       }
       throw new RecordAlreadyExistsException("Write error: " + e, e);
     }
+    
   }
 
   /**
-   * Delete given property value.<br/> Special logic implemented for Values CAS. As the storage may
-   * have one file (same hash) for multiple properties/values.<br/> The implementation assumes that
-   * delete operations based on {@link getFiles()} method result.
+   * Delete given property value.<br/> Special logic implemented for Values
+   * CAS. As the storage may have one file (same hash) for multiple
+   * properties/values.<br/> The implementation assumes that delete operations
+   * based on {@link getFiles()} method result.
    * 
    * @see getFiles()
-   * 
-   * @param propertyId
-   *          - property id to be deleted
+   * @param propertyId - property id to be deleted
    */
   @Override
   public boolean delete(String propertyId) throws IOException {
@@ -107,19 +114,18 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
   }
 
   /**
-   * Returns storage files list by propertyId.<br/>
-   * 
-   * NOTE: Files list used for <strong>delete</strong> operation. The list will not contains files
-   * shared with other properties!
+   * Returns storage files list by propertyId.<br/> NOTE: Files list used for
+   * <strong>delete</strong> operation. The list will not contains files shared
+   * with other properties!
    * 
    * @see ValueContentAddressStorage.getIdentifiers()
-   * 
    * @param propertyId
    * @return actual files on file system related to given propertyId
    */
   @Override
   protected File[] getFiles(String propertyId) throws IOException {
-    List<String> hids = vcas.getIdentifiers(propertyId, true); // return only own ids
+    List<String> hids = vcas.getIdentifiers(propertyId, true); // return only
+    // own ids
     File[] files = new File[hids.size()];
     for (int i = 0; i < hids.size(); i++)
       files[i] = super.getFile(hids.get(i), CASableIOSupport.HASHFILE_ORDERNUMBER);

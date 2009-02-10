@@ -513,6 +513,7 @@
                 <include>**/impl/**/Test*.java</include>
               </includes>
               <excludes>
+                <exclude>**/TestRollbackBigFiles.java</exclude>
                 <exclude>**/TestErrorMultithreading.java</exclude>
                 <exclude>**/api/**/TestSameNameItems.java</exclude>
                 <exclude>**/api/**/TestVersionRestore.java</exclude>

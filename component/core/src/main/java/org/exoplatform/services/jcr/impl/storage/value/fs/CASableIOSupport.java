@@ -85,7 +85,7 @@ public class CASableIOSupport {
    * @throws IOException
    * @throws RecordAlreadyExistsException
    */
-  void saveFile(FileDigestOutputStream dout) throws IOException, RecordAlreadyExistsException {
+  File saveFile(FileDigestOutputStream dout) throws IOException, RecordAlreadyExistsException {
 
     // work with digest
     File vcasFile = new File(channel.rootDir, channel.makeFilePath(dout.getDigestHash(), 0));
@@ -102,5 +102,6 @@ public class CASableIOSupport {
     else if (!dout.getFile().renameTo(vcasFile)) // rename propetynamed file to hashnamed one
       throw new VCASException("File " + dout.getFile().getAbsolutePath()
           + " can't be renamed to VCAS-named " + vcasFile.getAbsolutePath());
+    return vcasFile;
   }
 }
