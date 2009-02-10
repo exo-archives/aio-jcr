@@ -259,7 +259,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     }
   }
 
-  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException {
+  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException, ChecksumNotFoundException {
     this.storagePath = storagePath;
     this.fileCleaner = fileCleaner;
     this.digest = MessageDigest.getInstance("MD5");
@@ -275,6 +275,21 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     if (!currentDir.exists()) {
       currentDir.mkdirs();
+    }
+    
+    //check files
+    
+    File[] files = currentDir.listFiles(new ChangesFilenameFilter());
+
+    java.util.Arrays.sort(files, new ChangesFileComparator<File>());
+
+    for (int j = 0; j < files.length; j++) {
+      File curFile = files[j];
+        // read digest
+      File dFile = new File(currentDir, curFile.getName() + DIGESTFILE_EXTENTION);
+      if (!dFile.exists() || dFile.length() == 0) {
+        throw new ChecksumNotFoundException(curFile.getName() + " does not have digest file. File may be uncomplete!");
+      }
     }
 
     // synchronization is not started for default
@@ -302,8 +317,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           // read digest
           File dFile = new File(currentDir, curFile.getName() + DIGESTFILE_EXTENTION);
           if (!dFile.exists() || dFile.length() == 0) {
-            LOG.error(curFile.getName() + " does not have digest file. File may be uncomplete!");
-            // TODO
+            throw new ChecksumNotFoundException(curFile.getName() + " does not have digest file. File may be uncomplete!");
           } else {
             FileInputStream din = new FileInputStream(dFile);
 

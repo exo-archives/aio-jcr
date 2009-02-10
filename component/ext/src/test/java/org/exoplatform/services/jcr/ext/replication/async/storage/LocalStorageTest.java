@@ -387,7 +387,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     // File dir = new File(STORAGE_DIR+"errors");
     // dir.mkdirs();
     class TestLocalStorage extends LocalStorageImpl {
-      public TestLocalStorage(String path, int pr) throws NoSuchAlgorithmException {
+      public TestLocalStorage(String path, int pr) throws NoSuchAlgorithmException, ChecksumNotFoundException {
         super(path, new FileCleaner());
       }
 
