@@ -118,7 +118,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     channel.connect();
 
     // Wait end of changes publishing.
-    Thread.sleep(30000);
+    Thread.sleep(40000);
 
     // disconnect from cahnel
     channel.disconnect();
