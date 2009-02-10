@@ -533,8 +533,11 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
           if (prevAddedState != null && prevAddedState.getState() == ItemState.DELETED
               && instate.getState() == ItemState.RENAMED) { // TODO update?
 
-            prevAddedState = null;
-            resultStates.addAll(getTreeChanges(instate, instate.getData().getQPath()));
+            if (!instate.getData().getQPath().isDescendantOf(rootPath)
+                && !instate.getData().getQPath().equals(rootPath)) {
+              prevAddedState = null;
+              resultStates.addAll(getTreeChanges(instate, instate.getData().getQPath()));
+            }
           }
 
           if (instate.getData().getQPath().isDescendantOf(rootPath)

@@ -658,33 +658,8 @@ public class RenameMerger extends AbstractMerger {
           if (incomeData.isNode()) {
             if (localData.getQPath().equals(incomeData.getQPath())) {
 
-              // restore local changes
-              resultState.add(localState);
-
-              List<ItemState> localMixinSeq = local.getMixinSequence(localState);
-              for (int i = localMixinSeq.size() - 1; i > 0; i--) {
-                ItemState item = localMixinSeq.get(i);
-
-                if (item.getState() == ItemState.ADDED) {
-
-                  // delete lock properties if present
-                  if (item.getData().isNode() && item.getState() == ItemState.DELETED) {
-                    for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
-                      resultState.add(st);
-                  }
-
-                  resultState.add(new ItemState(item.getData(),
-                                                ItemState.DELETED,
-                                                item.isEventFire(),
-                                                item.getData().getQPath()));
-
-                } else if (item.getState() == ItemState.DELETED) {
-                  resultState.add(new ItemState(item.getData(),
-                                                ItemState.ADDED,
-                                                item.isEventFire(),
-                                                item.getData().getQPath()));
-                }
-              }
+              for (ItemState item : generateRestoreMixinChanges(localState, local))
+                resultState.add(item);
             }
           }
           break;

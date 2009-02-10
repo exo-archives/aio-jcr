@@ -164,6 +164,56 @@ public abstract class AbstractMerger implements ChangesMerger {
   }
 
   /**
+   * Restore mixin changes.
+   * 
+   * @param firstState
+   * @param storage
+   * @return
+   * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   * @throws RepositoryException
+   */
+  protected List<ItemState> generateRestoreMixinChanges(ItemState firstState,
+                                                        ChangesStorage<ItemState> storage) throws ClassCastException,
+                                                                                          IOException,
+                                                                                          ClassNotFoundException,
+                                                                                          RepositoryException {
+
+    List<ItemState> resultState = new ArrayList<ItemState>();
+
+    // restore local changes
+    resultState.add(firstState);
+
+    List<ItemState> localMixinSeq = storage.getMixinSequence(firstState);
+    for (int i = localMixinSeq.size() - 1; i > 0; i--) {
+      ItemState item = localMixinSeq.get(i);
+
+      if (item.getState() == ItemState.ADDED) {
+
+        // delete lock properties if present
+        if (item.getData().isNode() && item.getState() == ItemState.DELETED) {
+          for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
+            resultState.add(st);
+        }
+
+        resultState.add(new ItemState(item.getData(),
+                                      ItemState.DELETED,
+                                      item.isEventFire(),
+                                      item.getData().getQPath()));
+
+      } else if (item.getState() == ItemState.DELETED) {
+        resultState.add(new ItemState(item.getData(),
+                                      ItemState.ADDED,
+                                      item.isEventFire(),
+                                      item.getData().getQPath()));
+      }
+    }
+
+    return resultState;
+  }
+
+  /**
    * Restore original order for SNS nodes.
    * 
    * @param firstState
@@ -262,6 +312,22 @@ public abstract class AbstractMerger implements ChangesMerger {
   protected boolean isOrderRestored(List<QPath> restoredOrder, QPath path) {
     for (QPath inPath : restoredOrder) {
       if (inPath.equals(path))
+        return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * isOrderResotred.
+   * 
+   * @param restoredOrder
+   * @param path
+   * @return
+   */
+  protected boolean isNodeRenamed(List<QPath> restoredOrder, QPath path) {
+    for (QPath inPath : restoredOrder) {
+      if (inPath.equals(path) || path.isDescendantOf(inPath))
         return true;
     }
 
