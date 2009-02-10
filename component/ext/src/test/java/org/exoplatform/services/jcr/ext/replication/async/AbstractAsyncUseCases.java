@@ -100,14 +100,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     }
 
     public boolean checkEquals() throws Exception {
-      if(!isNodesEquals(sessionHighPriority.getRootNode(), sessionMiddlePriority.getRootNode()))
-        return false;
-      else if (!isNodesEquals(sessionHighPriority.getRootNode(), sessionLowPriority.getRootNode()))
-        return false;
-      else if (!isNodesEquals(sessionMiddlePriority.getRootNode(), sessionLowPriority.getRootNode()))
-        return false;
-      else
-        return true;
+      return isNodesEquals(sessionHighPriority.getRootNode(), sessionMiddlePriority.getRootNode())
+              && isNodesEquals(sessionHighPriority.getRootNode(), sessionLowPriority.getRootNode());
     }
 
     public abstract void initDataMiddlePriority() throws Exception;
