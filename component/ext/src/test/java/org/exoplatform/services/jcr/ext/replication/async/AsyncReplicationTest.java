@@ -119,7 +119,8 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
                                     sessionHigePriority.getWorkspace().getName(),
                                     "cName_suffix");
 
-      Thread.sleep(25000);
+      while (asyncReplication1.isActive() || asyncReplication2.isActive())
+        Thread.sleep(5000);
     }
 
     public void useCase() throws Exception {
@@ -134,7 +135,8 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
                                     sessionHigePriority.getWorkspace().getName(),
                                     "cName_suffix");
 
-      Thread.sleep(25000);
+      while (asyncReplication1.isActive() || asyncReplication2.isActive())
+        Thread.sleep(5000);
 
       asyncReplication1.removeAllStorageListener();
       asyncReplication2.removeAllStorageListener();
