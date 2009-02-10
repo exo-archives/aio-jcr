@@ -2,13 +2,13 @@
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>exo.jcr.applications.config</artifactId>
-		<version>1.11-SNAPSHOT</version>
+		<version>1.11.1-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.product.jcr</artifactId>
 	<packaging>jar</packaging>
-	<version>1.11-SNAPSHOT</version>
+	<version>1.11.1-SNAPSHOT</version>
 	<name>eXo JCR Product</name>
 	<url>http://www.exoplatform.org</url>
 	<description>eXo JCR Product</description>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.ear</artifactId>
-			<version>1.11-SNAPSHOT</version>
+			<version>1.11.1-SNAPSHOT</version>
 			<type>ear</type>
 			<scope>runtime</scope>
 		</dependency>
@@ -70,16 +70,16 @@
 						</copy>
 						<!--renaming ear-->
 						<move
-							todir="${basedir}/target/lib-1.11-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.11-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/">
 								<include name="**/*.ear" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="*-1.11-SNAPSHOT.ear" to="*.ear"
+										from="*-1.11.1-SNAPSHOT.ear" to="*.ear"
 										casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -89,7 +89,7 @@
 							todir="${exo.projects.directory.working}/exo-jonas/apps/autoload/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/"
 								includes="**/*.ear" />
 						</copy>
 						<!--copying exo-configuration.xml-->
@@ -117,7 +117,7 @@
 						<copy
 							todir="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/">
 							<fileset
-								dir="${basedir}/target/lib-1.11-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/">
 								<include name="**/hsqldb*.jar" />
 							</fileset>
 						</copy>

@@ -14,8 +14,8 @@
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11</developerConnection>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11.1</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11.1</developerConnection>
   </scm>
 
 
@@ -45,8 +45,16 @@
     <module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
 
-    <!-- module>applications/java/standalone/openofficeplugin</module -->
-    <!-- module>applications/jcr-console</module -->
+    <module>applications/java/standalone/openofficeplugin</module>
+    <module>applications/java/standalone/samples/repoload</module>
+    <module>applications/java/web/console</module>
+
+    <module>connectors/rmiadapter</module>
+    <module>connectors/ejb/webdav2_1</module>
+    <module>connectors/ejb/webdav3_0</module>
+
+    <module>benchmark</module>
+
     <!-- module>site</module -->
   </modules>
   <dependencies>
@@ -195,8 +203,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -205,15 +213,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
@@ -305,7 +313,6 @@
         <org.exoplatform.kernel.version>2.1</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>2.2</org.exoplatform.core.version>
         <org.exoplatform.ws.version>2.0</org.exoplatform.ws.version>
-        <org.exoplatform.jcr.version>1.11-SNAPSHOT</org.exoplatform.jcr.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>

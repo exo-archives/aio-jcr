@@ -1,5 +1,5 @@
 <assembly>
-  <id>1.11-SNAPSHOT</id>
+  <id>binnary</id>
   <formats>
       <format>dir</format>
       <!--<format>jar</format>-->
@@ -25,7 +25,7 @@
         <include>org.exoplatform.jcr:exo.jcr.component.core</include>
         <include>org.exoplatform.jcr:exo.jcr.component.rmi</include>
         <include>org.exoplatform.jcr:exo.jcr.applications.rmi-client</include>
-		</includes>
+      </includes>
     </dependencySet>
   </dependencySets>
 </assembly>
