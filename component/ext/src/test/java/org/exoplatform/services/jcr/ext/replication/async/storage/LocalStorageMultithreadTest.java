@@ -195,7 +195,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
   }
 
   static int fails = 0;
-
+/*
   private void checkIteratorSecond(Iterator<ItemState> expected,
                                    Iterator<ItemState> changes,
                                    boolean checkSize) throws Exception {
@@ -215,7 +215,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
     }
   }
-
+*/
   private void checkLocalStorage(LocalStorageImpl storage) throws Exception {
 
     final int size = (threadCount*(subnodesCount*3+2));

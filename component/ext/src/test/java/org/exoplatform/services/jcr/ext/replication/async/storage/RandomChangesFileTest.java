@@ -158,7 +158,11 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     assertEquals(true, java.util.Arrays.equals(bufetalon, bufrez));
   }
 
-  public void testUppend() throws Exception {
+  /**
+   * Out of date
+   * @throws Exception
+   */
+  /*public void testUppend() throws Exception {
     int size1 = 6;
     int size2 = 5;
     int size3 = 7;
@@ -199,9 +203,12 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     assertEquals(size1 + size2 + size3, readed);
     assertEquals(true, java.util.Arrays.equals(bufetalon, bufrez));
 
-  }
+  }*/
 
-  public void testUppendObjects() throws Exception {
+  /**
+   * Out of date
+   */
+  /*public void testUppendObjects() throws Exception {
     String first = new String("first");
     String second = new String("second");
     String third = new String("third");
@@ -235,8 +242,9 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     assertEquals(second, rez);
     rez = (String) in.readObject();
     assertEquals(third, rez);
-  }
+  }*/
 
+  /*
   public void testReadUnclosedFile() throws Exception {
     String first = new String("first");
     String second = new String("second");
@@ -275,7 +283,7 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     } catch (EOFException e) {
       // ok
     }
-  }
+  }*/
 
   public void testWriteBigFile() throws Exception {
     final int filesize = 50 * 1024;

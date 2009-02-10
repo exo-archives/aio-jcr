@@ -79,7 +79,7 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
 
     ReplicableValueData res = (ReplicableValueData) in.readObject();
 
-  //  checkStreams(new FileInputStream(f), res.getAsStream());
+    checkStreams(new FileInputStream(f), res.getAsStream());
 
   }
 
