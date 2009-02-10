@@ -2,12 +2,12 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.11</version>
+    <version>1.11.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.framework.web</artifactId>
   <packaging>jar</packaging>
-  <version>1.11</version>
+  <version>1.11.1-SNAPSHOT</version>
   <name>eXo JCR Web framework</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR REST adapter</description>
@@ -15,13 +15,13 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
-      <version>1.11</version>
+      <version>1.11.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.command</artifactId>
-      <version>1.11</version>
+      <version>1.11.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
