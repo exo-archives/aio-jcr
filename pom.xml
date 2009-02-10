@@ -14,8 +14,8 @@
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches</developerConnection>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11</developerConnection>
   </scm>
 
 
