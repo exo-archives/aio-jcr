@@ -1,1 +1,1 @@
-@start mvn -Dmaven.test.skip=true clean install
+@start mvn -Djava.io.tmpdir="D:\Tmp" -Dmaven.test.skip=true clean install

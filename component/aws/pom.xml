@@ -141,7 +141,7 @@
                 </property>
               </systemProperties>
               <includes>
-                <include>**/SDBWorkspace*Test_.java</include>
+                <include>**/jcr/aws/storage/**/SDB*Test.java</include>
 				
                 <include>**/SDBWorkspaceStorageConnectionWriteTest_.java</include>
                 <include>**/SDBWorkspaceStorageConnectionReadTest_.java</include>
