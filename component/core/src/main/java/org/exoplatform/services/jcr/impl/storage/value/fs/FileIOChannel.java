@@ -190,10 +190,8 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @throws IOException
    */
   protected void writeValue(File file, ValueData value) throws IOException {
-    // OutputStream out = openOutput(file);//TODO
     OutputStream out = new FileOutputStream(file);
     writeOutput(out, value);
-    // closeOutput(out);
     out.close();
   }
 

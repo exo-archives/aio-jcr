@@ -58,16 +58,6 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
 
     List<ValueStorageEntry> storages = wsConfig.getContainer().getValueStorages();
 
-    // TODO ValueStorage plugins properties inherited from storage container
-    // i.e. plugin properties will contains particular parameters and
-    // parameters inherited from container in form of 'container.$PARAM_NAME=$PARAM_VALUE'.
-    // JIRA http://jira.exoplatform.org/browse/JCR-473
-    // Properties containerProps = new Properties();
-    // List<SimpleParameterEntry> containerParamEntries = wsConfig.getContainer().getParameters();
-    // for (SimpleParameterEntry paramEntry : containerParamEntries) {
-    // containerProps.setProperty("container." + paramEntry.getName(), paramEntry.getValue());
-    // }
-
     if (storages != null)
       for (ValueStorageEntry storageEntry : storages) {
 
@@ -108,9 +98,6 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
         for (SimpleParameterEntry paramEntry : paramEntries) {
           props.setProperty(paramEntry.getName(), paramEntry.getValue());
         }
-
-        // TODO see above
-        // props.putAll(containerProps);
 
         plugin.init(props);
         plugin.setId(storageEntry.getId());

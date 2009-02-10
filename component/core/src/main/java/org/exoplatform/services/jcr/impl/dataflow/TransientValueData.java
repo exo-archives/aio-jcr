@@ -628,8 +628,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     if (type == 1) {
       data = new byte[in.readInt()];
       in.readFully(data);
-      // for (int i = 0; i < data.length; i++)
-      // data[i] = in.readByte();
     }
     orderNumber = in.readInt();
     maxBufferSize = in.readInt();
