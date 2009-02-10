@@ -42,7 +42,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
   private static Log          log         = ExoLogger.getLogger("ext.AsyncReplicationTest");
 
-  protected static final String CH_NAME     = "AsyncRepCh_testChangesExchenge";
+  protected static final String CH_NAME     = "AsyncRepCh_AsyncReplicationTest";
 
   protected static final String bindAddress = "127.0.0.1";
 

@@ -37,25 +37,43 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncReplicationThreeMebmersTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class AsyncReplicationThreeMebmersTest extends AsyncReplicationTest {
+public class AsyncReplicationThreeMebmersTest extends AbstractTrasportTest {
 
   private static Log       log = ExoLogger.getLogger("ext.AsyncReplicationThreeMebmersTest");
+  
+  protected static final String CH_NAME     = "AsyncRepCh_AsyncReplicationThreeMebmersTest";
+
+  protected static final String bindAddress = "127.0.0.1";
 
   protected RepositoryImpl repositoryMiddlePriority;
 
   protected SessionImpl    sessionMiddlePriority;
+
+  protected RepositoryImpl repositoryLowPriority;
+
+  protected RepositoryImpl repositoryHigePriority;
+
+  protected SessionImpl    sessionLowPriority;
+
+  protected SessionImpl    sessionHigePriority;
 
   public void setUp() throws Exception {
     super.setUp();
 
     CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
     repositoryMiddlePriority = (RepositoryImpl) repositoryService.getRepository("db1");
-    sessionMiddlePriority = (SessionImpl) repositoryHigePriority.login(credentials, "ws5");
+    sessionMiddlePriority = (SessionImpl) repositoryMiddlePriority.login(credentials, "ws5");
+    repositoryLowPriority = (RepositoryImpl) repositoryService.getRepository("db1");
+    sessionLowPriority = (SessionImpl) repositoryLowPriority.login(credentials, "ws3");
+    repositoryHigePriority = (RepositoryImpl) repositoryService.getRepository("db1");
+    sessionHigePriority = (SessionImpl) repositoryHigePriority.login(credentials, "ws4");
   }
 
   protected void tearDown() throws Exception {
     List<SessionImpl> sessions = new ArrayList<SessionImpl>();
     sessions.add(sessionMiddlePriority);
+    sessions.add(sessionLowPriority);
+    sessions.add(sessionHigePriority);
 
     log.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
     for (SessionImpl ses : sessions)
@@ -182,8 +200,8 @@ public class AsyncReplicationThreeMebmersTest extends AsyncReplicationTest {
                                          sessionMiddlePriority.getWorkspace().getName(),
                                          "cName_suffix");
 
-      while (asyncReplicationLow.isActive() && asyncReplicationMiddle.isActive()
-          && asyncReplicationHigh.isActive())
+      while (asyncReplicationLow.isActive() || asyncReplicationMiddle.isActive()
+          || asyncReplicationHigh.isActive())
         Thread.sleep(5000);
     }
 
@@ -204,8 +222,8 @@ public class AsyncReplicationThreeMebmersTest extends AsyncReplicationTest {
                                          sessionMiddlePriority.getWorkspace().getName(),
                                          "cName_suffix");
 
-      while (asyncReplicationLow.isActive() && asyncReplicationMiddle.isActive()
-          && asyncReplicationHigh.isActive())
+      while (asyncReplicationLow.isActive() || asyncReplicationMiddle.isActive()
+          || asyncReplicationHigh.isActive())
         Thread.sleep(5000);
 
       asyncReplicationLow.removeAllStorageListener();
@@ -218,11 +236,11 @@ public class AsyncReplicationThreeMebmersTest extends AsyncReplicationTest {
     }
   }
 
-  public void testComplexUseCase5() throws Exception {
+  public void testComplexUseCaseThreeMember() throws Exception {
     ThreeMemberMoveUseCase useCase = new ThreeMemberMoveUseCase(sessionLowPriority,
                                                                 sessionMiddlePriority,
                                                                 sessionHigePriority,
-                                                                10);
+                                                                2);
 
     AsyncReplicationThreeMembersUseCase asyncUseCase = new AsyncReplicationThreeMembersUseCase(useCase);
 
