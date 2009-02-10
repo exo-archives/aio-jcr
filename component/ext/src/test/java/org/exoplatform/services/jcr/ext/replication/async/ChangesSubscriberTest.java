@@ -17,7 +17,10 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -63,12 +66,21 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
       TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
                                                                      .getTimeInMillis());
 
-      ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
-
+      MessageDigest digest = MessageDigest.getInstance("MD5");
+      ObjectOutputStream oos = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(File.createTempFile("tmp", "tmp")),
+                                                                             digest));
       oos.writeObject(tcl);
       oos.flush();
+      
+      TesterRandomChangesFile cf2 = new TesterRandomChangesFile(digest.digest(), Calendar.getInstance()
+                                                               .getTimeInMillis());
+      
+      ObjectOutputStream oos2 = new ObjectOutputStream(cf2.getOutputStream());
 
-      cfList.add(cf);
+      oos2.writeObject(tcl);
+      oos2.flush();
+
+      cfList.add(cf2);
     }
 
     // Initialization AsyncReplication (ChangesSubscriber).
