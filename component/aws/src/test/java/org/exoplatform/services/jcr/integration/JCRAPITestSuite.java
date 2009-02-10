@@ -29,17 +29,17 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id$
  */
-public class JCRAPITest extends TestSuite {
+public class JCRAPITestSuite extends TestSuite {
   /**
    * Class logger.
    */
   private final Log log = ExoLogger.getLogger("jcr.JCRAPInew");
 
   public static Test suite() throws InterruptedException {
-    return new JCRAPITest();
+    return new JCRAPITestSuite();
   }
 
-  public JCRAPITest() {
+  public JCRAPITestSuite() {
 
     TestSuite suite = new TestSuite("javax.jcr init tests");
     suite.addTestSuite(PrepareTestRepository.class);
