@@ -481,7 +481,7 @@
                 <include>**/**/TestCASableSimpleFileIOChannel__.java</include>
                 <include>**/**/TestCASableTreeFileIOChannel__.java</include>
                 				
-				<include>**/**/TestValueImpl.java</include>
+				<include>**/**/TestInvalidItemState__.java</include>
               </includes>
             </configuration>
           </execution>
