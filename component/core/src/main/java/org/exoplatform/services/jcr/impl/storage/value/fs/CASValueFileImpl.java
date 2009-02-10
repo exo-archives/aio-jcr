@@ -64,10 +64,8 @@ public class CASValueFileImpl implements ValueFile {
         }
       }
     } catch (RecordNotFoundException e) {
-      // TODO handle exception
       LOG.error(e.getMessage(), e);
     } catch (VCASException e) {
-      // TODO handle exception
       LOG.error(e.getMessage(), e);
     }
   }
