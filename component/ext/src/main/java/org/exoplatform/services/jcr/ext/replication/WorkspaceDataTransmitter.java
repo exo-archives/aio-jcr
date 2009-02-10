@@ -35,8 +35,6 @@ import org.jgroups.Address;
 import org.jgroups.MembershipListener;
 import org.jgroups.View;
 
-import com.sun.swing.internal.plaf.synth.resources.synth;
-
 /**
  * Created by The eXo Platform SAS.
  * 

@@ -34,11 +34,7 @@ import javax.jcr.Session;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.picocontainer.Startable;
-import org.xml.sax.SAXException;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValueParam;
@@ -49,6 +45,8 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
+import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS . <br/> Centralized collector for JCR based entities (services,

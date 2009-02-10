@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
-import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 
 /**

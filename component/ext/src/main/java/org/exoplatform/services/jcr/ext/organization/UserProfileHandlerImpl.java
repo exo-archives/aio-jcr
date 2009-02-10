@@ -28,7 +28,6 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;

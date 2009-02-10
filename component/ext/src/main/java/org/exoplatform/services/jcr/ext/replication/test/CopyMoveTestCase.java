@@ -29,7 +29,6 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.ext.artifact.ArtifactManagingServiceImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
