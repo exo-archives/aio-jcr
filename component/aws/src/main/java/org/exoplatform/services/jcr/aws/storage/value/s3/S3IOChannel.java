@@ -129,7 +129,7 @@ public abstract class S3IOChannel implements ValueIOChannel {
        * {@inheritDoc}
        */
       public void rollback() {
-        // TODO fix it with Values delete on Proeprty delete
+        // TODO fix it with Values delete on Property delete
       }
     };
   }
