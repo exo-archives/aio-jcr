@@ -1,8 +1,9 @@
 <repository-service default-repository="db1">
-  <repositories>
+  <repositories>  
     <repository name="db1" system-workspace="ws" default-workspace="ws">
       <security-domain>exo-domain</security-domain>
       <!-- access-control>optional</access-control -->
+      <!-- access-control>disable</access-control -->
       <session-max-age>1h</session-max-age>
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator</authentication-policy>
       <workspaces>
@@ -11,21 +12,21 @@
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
-			  <property name="aws-access-key" value="14C2QKW74YST25Q33082"/>
-			  <property name="aws-secret-access-key" value="oUeSTl+b/l5ARhrpTD7xp86XH+lg0T1ienRibDl7"/>
-			  <property name="domain-name" value="jcr-test-ws"/>
+              <property name="aws-access-key" value="z"/>
+              <property name="aws-secret-access-key" value="z"/>
+              <property name="domain-name" value="jcr-test-ws"/>
             </properties>
             <value-storages>
               <value-storage id="ws" class="org.exoplatform.services.jcr.aws.storage.value.s3.SimpleS3ValueStorage">
                 <properties>
                   <property name="bucket" value="jcr-test"/>
-                  <property name="aws-access-key" value="14C2QKW74YST25Q33082"/>
-                  <property name="aws-secret-access-key" value="oUeSTl+b/l5ARhrpTD7xp86XH+lg0T1ienRibDl7"/>
+                  <property name="aws-access-key" value="z"/>
+                  <property name="aws-secret-access-key" value="z"/>
                   <property name="s3-swap-directory" value="target/temp/s3swap/ws"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary" min-value-size="850"/>
-				  <filter property-type="String" min-value-size="1020"/>
+                  <filter property-type="String" min-value-size="1020"/>
                 </filters>
               </value-storage>
             </value-storages>
@@ -67,9 +68,9 @@
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws1"/>
-			  <property name="aws-access-key" value="14C2QKW74YST25Q33082"/>
-			  <property name="aws-secret-access-key" value="oUeSTl+b/l5ARhrpTD7xp86XH+lg0T1ienRibDl7"/>
-			  <property name="domain-name" value="jcr-test-ws1"/>
+              <property name="aws-access-key" value="z"/>
+              <property name="aws-secret-access-key" value="z"/>
+              <property name="domain-name" value="jcr-test-ws1"/>
             </properties>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
@@ -109,9 +110,9 @@
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>
-			  <property name="aws-access-key" value="14C2QKW74YST25Q33082"/>
-			  <property name="aws-secret-access-key" value="oUeSTl+b/l5ARhrpTD7xp86XH+lg0T1ienRibDl7"/>
-			  <property name="domain-name" value="jcr-test-ws2"/>
+              <property name="aws-access-key" value="z"/>
+              <property name="aws-secret-access-key" value="z"/>
+              <property name="domain-name" value="jcr-test-ws2"/>
             </properties>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
