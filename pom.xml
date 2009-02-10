@@ -294,12 +294,12 @@
     <repository>
       <id>objectweb.org-snapshot</id>
       <url>http://maven.objectweb.org/maven2-snapshot/</url>
-    </repository-->
+    </repository>
     <repository>
       <id>java.net</id>
       <url>https://maven-repository.dev.java.net/nonav/repository</url>
       <layout>legacy</layout>
-    </repository>
+    </repository -->
   </repositories>
 
   <profiles>
