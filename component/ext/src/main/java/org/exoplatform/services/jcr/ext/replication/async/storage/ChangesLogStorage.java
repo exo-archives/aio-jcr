@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.log.ExoLogger;

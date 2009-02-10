@@ -251,7 +251,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
             // 2. if some member (or all) was disconnected but local merge doesn't finished,
             // it's usecase of imposible remote export (if will), will be handled by exporter.
             // [PN, 28.01.2009] cancel (stop) in any case
-            LOG.error("FATAL: member disconnected after the start. Stopping synchrinization.");
+            LOG.error("FATAL: member disconnected after the start. Stopping synchronization.");
 
             doStop(CHANNEL_CLOSE_TIMEOUT);
 

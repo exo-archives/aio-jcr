@@ -25,7 +25,6 @@ import java.io.ObjectOutputStream;
 
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**

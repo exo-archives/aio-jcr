@@ -61,8 +61,6 @@ public class RandomChangesFile implements ChangesFile {
 
   private RandomAccessFile      fileAccessor;
 
-  // private boolean doTruncate = false;
-
   private MessageDigest         digest;
 
   /**

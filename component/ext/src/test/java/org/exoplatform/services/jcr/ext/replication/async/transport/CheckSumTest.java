@@ -24,11 +24,9 @@ import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import org.exoplatform.services.jcr.ext.replication.async.AbstractTrasportTest;
-import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 
 
 /**

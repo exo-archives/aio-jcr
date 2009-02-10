@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.exoplatform.services.jcr.impl.Constants;
-
 /**
  * Created by The eXo Platform SAS.
  * 

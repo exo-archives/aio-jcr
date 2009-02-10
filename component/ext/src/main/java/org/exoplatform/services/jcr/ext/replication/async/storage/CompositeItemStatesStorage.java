@@ -40,8 +40,8 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   protected final File                    storageDir;
 
   protected final List<ChangesStorage<T>> storages = new ArrayList<ChangesStorage<T>>();
-  
-  protected final ResourcesHolder resHolder;
+
+  protected final ResourcesHolder         resHolder;
 
   protected EditableChangesStorage<T>     current;
 
@@ -86,7 +86,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
           }
         } while (sIter != null);
       }
-      
+
       return null;
     }
 
@@ -147,21 +147,41 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
    * {@inheritDoc}
    */
   public void addAll(ChangesStorage<T> changes) throws IOException {
-//    if (changes instanceof BufferedItemStatesStorage) {
-//      // special kind of storage, may be buffered itself
-//      // we have to copy changes to a current
-//
-//      try {
-//        for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
-//          add(chi.next());
-//      } catch (ClassCastException e) {
-//        throw new StorageIOException(e.getMessage(), e);
-//      } catch (ClassNotFoundException e) {
-//        throw new StorageIOException(e.getMessage(), e);
-//      }
-//    } else 
-    if (changes == this) {
+    if (changes instanceof BufferedItemStatesStorage) {
+      // special kind of storage, may be buffered itself
+      // we have to copy changes to a current
+
+      try {
+        for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
+          add(chi.next());
+      } catch (ClassCastException e) {
+        throw new StorageIOException(e.getMessage(), e);
+      } catch (ClassNotFoundException e) {
+        throw new StorageIOException(e.getMessage(), e);
+      }
+    } else if (changes == this) {
       throw new StorageIOException("Cannot add itself to the storage");
+    } else if (changes instanceof CompositeItemStatesStorage) {
+      CompositeItemStatesStorage<T> c = (CompositeItemStatesStorage<T>) changes;
+      
+      if (c.current != null && c.storages.size() == 1) {
+        // only one and it's current
+        // wrap current BufferedItemStatesStorage
+        try {
+          for (Iterator<T> chi = c.current.getChanges(); chi.hasNext();)
+            add(chi.next());
+        } catch (ClassCastException e) {
+          throw new StorageIOException(e.getMessage(), e);
+        } catch (ClassNotFoundException e) {
+          throw new StorageIOException(e.getMessage(), e);
+        }
+      } else {
+        // close my current, don't use it anymore
+        current = null;
+        
+        // add all storages
+        storages.addAll(c.storages);
+      }
     } else {
       // close current, don't use it anymore
       current = null;

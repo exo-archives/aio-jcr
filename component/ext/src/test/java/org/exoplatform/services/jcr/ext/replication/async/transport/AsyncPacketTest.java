@@ -16,13 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Calendar;
-
 import junit.framework.TestCase;
 
 /**

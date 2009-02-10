@@ -16,11 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**

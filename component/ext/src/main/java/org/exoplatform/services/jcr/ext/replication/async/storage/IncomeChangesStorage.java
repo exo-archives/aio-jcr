@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -35,14 +36,17 @@ import org.exoplatform.services.log.ExoLogger;
 public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage<T> implements
     MemberChangesStorage<T> {
 
-  protected static final Log        LOG = ExoLogger.getLogger("jcr.IncomeChangesStorage");
+  protected static final Log       LOG   = ExoLogger.getLogger("jcr.IncomeChangesStorage");
 
-  protected List<T> cache = null; 
-  
+  /**
+   * On-read cache (see getChanges()).
+   */
+  protected SoftReference<List<T>> cache = new SoftReference<List<T>>(null);
+
   /**
    * Storage owner member info.
    */
-  protected final Member            member;
+  protected final Member           member;
 
   public IncomeChangesStorage(ChangesStorage<T> income, Member member) {
     super(Arrays.asList(income.getChangesFile()));
@@ -62,13 +66,16 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
   @Override
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     // cache iterator, it's fixed and unchanged collection
-    if (cache == null) {
-      cache = new ArrayList<T>();
+    List<T> list = cache.get();
+    if (list == null) {
+      list = new ArrayList<T>();
       for (Iterator<T> iter = super.getChanges(); iter.hasNext();)
-        cache.add(iter.next());
+        list.add(iter.next());
+
+      cache = new SoftReference<List<T>>(list);
     }
 
-    return new ReadOnlyIterator<T>(cache.iterator());
+    return new ReadOnlyIterator<T>(list.iterator());
   }
 
   /**
@@ -76,10 +83,12 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
    */
   @Override
   public void delete() throws IOException {
-    if (cache != null) {
-      cache.clear();
-      cache = null;
-    }
+    // TODO
+//    List<T> list = cache.get();
+//    if (list != null) {
+//      list.clear();
+//      cache.clear();
+//    }
     
     super.delete();
   }
@@ -89,12 +98,11 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
    */
   @Override
   public int size() throws IOException, ClassNotFoundException {
-    if (cache != null)
-      return cache.size();
+    List<T> list = cache.get();
+    if (list != null)
+      return list.size();
     else
       return super.size();
   }
- 
-  
-}
 
+}

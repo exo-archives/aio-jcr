@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,7 +37,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
@@ -564,10 +562,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
         if (run)
           if ((counterMap.size() + 1) != confMembersCount) {
-            LOG.error("No changes from member : " + (counterMap.size() + 1));
+            LOG.error("No changes from one of members, received " + (counterMap.size() + 1)
+                + ", expected " + confMembersCount + ".");
             doCancel();
-          } else
-            LOG.info("Changes from members : " + (counterMap.size() + 1));
+          } else if (LOG.isDebugEnabled())
+            LOG.debug("FirstChangesWaiter stopped. Changes from all members ("
+                + (counterMap.size() + 1) + ") received.");
       } catch (InterruptedException e) {
         LOG.error("FirstChangesWaiter is interrupted : " + e, e);
       }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,48 +43,54 @@ import org.exoplatform.services.log.ExoLogger;
 public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T>
     implements EditableChangesStorage<T> {
 
-  private static final Log        LOG             = ExoLogger.getLogger("ext.BufferedItemStatesStorage");
+  private static final Log         LOG             = ExoLogger.getLogger("ext.BufferedItemStatesStorage");
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long       MAX_BUFFER_SIZE = 16 * 1024 * 1024;
+  private static final long        MAX_BUFFER_SIZE = 16 * 1024 * 1024;
 
   /**
    * ItemStates storage directory.
    */
-  protected final File            storagePath;
+  protected final File             storagePath;
 
-  protected final Member          member;
+  protected final Member           member;
 
-  protected final long            maxBufferSize;
+  protected final long             maxBufferSize;
 
-  protected final ResourcesHolder resHolder;
+  protected final ResourcesHolder  resHolder;
 
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
    */
-  private static Long             index           = new Long(0);
+  private static Long              index           = new Long(0);
 
   /**
    * Output Stream opened on current ChangesFile or ByteArray.
    */
-  protected ObjectOutputStream    currentStream;
+  protected ObjectOutputStream     currentStream;
 
   /**
    * Current ChangesFile to store changes.
    */
-  protected EditableChangesFile   currentFile;
+  protected EditableChangesFile    currentFile;
 
   /**
    * Current byte array to store changes.
    */
-  protected BAOutputStream        currentByteArray;
+  protected BAOutputStream         currentByteArray;
 
   /**
    * Internal cache.
    */
-  protected final List<T>         cache           = new ArrayList<T>();
+  protected SoftReference<List<T>> cache           = new SoftReference<List<T>>(null);
+
+  /**
+   * Cache index. Used as value for cache invalidation. If the value equals -1, the cache is
+   * invalid.
+   */
+  protected int                    cacheIndex      = -1;
 
   class ArrayOrFileOutputStream extends OutputStream {
 
@@ -304,7 +311,18 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     currentStream.flush();
 
     // cache
-    cache.add(change);
+    List<T> list = cache.get();
+    if (list == null) {
+      if (cacheIndex >= 0)
+        // invalid cache, i.e. ref was enqueued by GC - will not cache this change
+        return;
+
+      // initial cache creation
+      cache = new SoftReference<List<T>>(list = new ArrayList<T>());
+    }
+
+    list.add(change);
+    cacheIndex++;
   }
 
   /**
@@ -313,12 +331,24 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   public void addAll(ChangesStorage<T> changes) throws IOException {
     initOutputStream();
     try {
+      List<T> list = cache.get();
+      if (list == null) {
+        if (cacheIndex == -1)
+          // initial cache creation
+          cache = new SoftReference<List<T>>(list = new ArrayList<T>());
+        // else it's invalid cache, i.e. soft ref was enqueued by GC - will not cache this changes
+      }
+
       for (Iterator<T> chi = changes.getChanges(); chi.hasNext();) {
-        T ch = chi.next();
+        T change = chi.next();
 
-        currentStream.writeObject(ch);
+        currentStream.writeObject(change);
 
-        cache.add(ch);
+        // caching
+        if (list != null) {
+          list.add(change);
+          cacheIndex++;
+        }
       }
 
       currentStream.flush();
@@ -370,7 +400,17 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     if (currentStream != null)
       currentStream.flush();
 
-    return new ReadOnlyIterator<T>(cache.iterator());
+    List<T> list = cache.get();
+    if (list == null) {
+      // read all in cache
+      list = new ArrayList<T>();
+      for (Iterator<T> iter = new ItemStateIterator<T>(); iter.hasNext();)
+        list.add(iter.next());
+
+      cache = new SoftReference<List<T>>(list);
+    }
+
+    return new ReadOnlyIterator<T>(list.iterator());
   }
 
   public Member getMember() {
@@ -378,17 +418,30 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   }
 
   public void delete() throws IOException {
-    if (cache != null)
+    List<T> list = cache.get();
+    if (list != null) {
+      list.clear();
       cache.clear();
+    }
 
     if (currentFile != null)
       currentFile.delete();
   }
 
   public int size() throws IOException, ClassCastException, ClassNotFoundException {
-    getChanges(); // read all in cache
+    Iterator<T> it = getChanges(); // read all in cache
 
-    return cache.size();
+    List<T> list = cache.get();
+    if (list != null) {
+      return list.size();
+    } else {
+      int i = 0;
+      while (it.hasNext()) {
+        i++;
+        it.next();
+      }
+      return i;
+    }
   }
 
 }

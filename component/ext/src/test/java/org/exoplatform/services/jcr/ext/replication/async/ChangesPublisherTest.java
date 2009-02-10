@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

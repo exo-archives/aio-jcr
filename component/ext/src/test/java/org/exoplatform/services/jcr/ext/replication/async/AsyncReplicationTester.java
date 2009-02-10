@@ -28,7 +28,6 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.AsyncWorker;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;

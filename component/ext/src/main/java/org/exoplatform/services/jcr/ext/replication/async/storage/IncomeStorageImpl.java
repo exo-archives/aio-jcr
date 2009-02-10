@@ -34,7 +34,6 @@ import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -75,7 +74,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
     changesFile.validate();
-    
+
     MemberChanges mch = this.changes.get(member.getPriority());
     if (mch == null) {
       mch = new MemberChanges(member, new ArrayList<ChangesFile>());
@@ -93,9 +92,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     dir.mkdirs();
     File cf = new File(dir, Long.toString(id));
 
-    try{
-    return new RandomChangesFile(cf, crc, id, resHolder);
-    }catch (NoSuchAlgorithmException e) {
+    try {
+      return new RandomChangesFile(cf, crc, id, resHolder);
+    } catch (NoSuchAlgorithmException e) {
       throw new IOException(e.getMessage());
     }
   }
@@ -136,11 +135,11 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   }
 
   /**
-   * Get changes from FS. Usefull when we wants load changes from persistence -
-   * file system.
+   * Get changes from FS. Usefull when we wants load changes from persistence - file system.
    * 
    * @return List of ChangesStorage
-   * @throws IOException on FS error
+   * @throws IOException
+   *           on FS error
    */
   @Deprecated
   private List<ChangesStorage<ItemState>> getChangesFromFS() throws IOException {
@@ -172,12 +171,12 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
         for (int j = 0; j < files.length; j++) {
           File ch = new File(memberDir, files[j].getName());
-          try{
-          chFiles.add(new RandomChangesFile(ch,
-                                            new byte[] {},
-                                            Long.parseLong(files[j].getName()),
-                                            resHolder));
-          }catch (NoSuchAlgorithmException e) {
+          try {
+            chFiles.add(new RandomChangesFile(ch,
+                                              new byte[] {},
+                                              Long.parseLong(files[j].getName()),
+                                              resHolder));
+          } catch (NoSuchAlgorithmException e) {
             throw new IOException(e.getMessage());
           }
         }

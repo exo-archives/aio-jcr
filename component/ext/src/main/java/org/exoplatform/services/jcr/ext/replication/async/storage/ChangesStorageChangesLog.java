@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.Externalizable;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
