@@ -148,9 +148,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     /**
      * Change all TransientValueData to ReplicableValueData.
      * 
-     * @param log local TransactionChangesLog
+     * @param log
+     *          local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException if error occurs
+     * @throws IOException
+     *           if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
@@ -174,30 +176,28 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
             List<ValueData> srcVals = prop.getValues();
             List<ValueData> nVals = new ArrayList<ValueData>();
 
-           
-              for (ValueData vd : srcVals) {
-                if (vd.isByteArray()) {
-                  nVals.add(vd);
-                } else {
-                  // create new dataFile
-                  if (vd instanceof TransientValueData) {
-                    File vdf = ((TransientValueData) vd).getSpoolFile();
-                    if (vdf instanceof SpoolFile) {
-                      nVals.add(new ReplicableValueData((SpoolFile) vdf,
-                                                        vd.getOrderNumber(),
-                                                        fileCleaner));
-                    } else {
-                      // TODO, check how it's possible with EditableValueData
-                      nVals.add(new ReplicableValueData(new SpoolFile(vdf.getCanonicalPath()),
-                                                        vd.getOrderNumber(),
-                                                        fileCleaner));
-                    }
+            for (ValueData vd : srcVals) {
+              if (vd.isByteArray()) {
+                nVals.add(vd);
+              } else {
+                // create new dataFile
+                if (vd instanceof TransientValueData) {
+                  File vdf = ((TransientValueData) vd).getSpoolFile();
+                  if (vdf instanceof SpoolFile) {
+                    nVals.add(new ReplicableValueData((SpoolFile) vdf,
+                                                      vd.getOrderNumber(),
+                                                      fileCleaner));
+                  } else {
+                    // TODO, check how it's possible with EditableValueData
+                    nVals.add(new ReplicableValueData(new SpoolFile(vdf.getCanonicalPath()),
+                                                      vd.getOrderNumber(),
+                                                      fileCleaner));
+                  }
 
-                  } else
-                    throw new StorageIOException("Non transient value data " + vd);
-                }
+                } else
+                  throw new StorageIOException("Non transient value data " + vd);
               }
-           
+            }
 
             // rewrite values, TODO use setter
             TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
@@ -220,10 +220,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           }
         }
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(destlist,
-                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                         : plog.getSessionId(),
-                                              plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+            ? EXTERNALIZATION_SESSION_ID
+            : plog.getSessionId(), plog.getEventType()));
       }
       return result;
     }
@@ -257,7 +256,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     }
   }
 
-  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException, ChecksumNotFoundException {
+  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException,
+      ChecksumNotFoundException {
     this.storagePath = storagePath;
     this.fileCleaner = fileCleaner;
     this.digest = MessageDigest.getInstance("MD5");
@@ -274,19 +274,20 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     if (!currentDir.exists()) {
       currentDir.mkdirs();
     }
-    
-    //check files
-    
+
+    // check files
+
     File[] files = currentDir.listFiles(new ChangesFilenameFilter());
 
     java.util.Arrays.sort(files, new ChangesFileComparator<File>());
 
     for (int j = 0; j < files.length; j++) {
       File curFile = files[j];
-        // read digest
+      // read digest
       File dFile = new File(currentDir, curFile.getName() + DIGESTFILE_EXTENTION);
       if (!dFile.exists() || dFile.length() == 0) {
-        throw new ChecksumNotFoundException(curFile.getName() + " does not have digest file. File may be uncomplete!");
+        throw new ChecksumNotFoundException(curFile.getName()
+            + " does not have digest file. File may be uncomplete!");
       }
     }
 
@@ -315,7 +316,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           // read digest
           File dFile = new File(currentDir, curFile.getName() + DIGESTFILE_EXTENTION);
           if (!dFile.exists() || dFile.length() == 0) {
-            throw new ChecksumNotFoundException(curFile.getName() + " does not have digest file. File may be uncomplete!");
+            throw new ChecksumNotFoundException(curFile.getName()
+                + " does not have digest file. File may be uncomplete!");
           } else {
             FileInputStream din = new FileInputStream(dFile);
 
@@ -356,7 +358,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath Path of root directory
+   * @param rootPath
+   *          Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -375,7 +378,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -480,7 +484,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     ChangesSpooler csp = changesSpooler;
     if (csp != null) {
-      LOG.info("Waitig for the changes spooler done.");
+      if (LOG.isDebugEnabled())
+        LOG.debug("Waitig for the changes spooler done.");
       try {
         csp.join();
       } catch (InterruptedException e) {
