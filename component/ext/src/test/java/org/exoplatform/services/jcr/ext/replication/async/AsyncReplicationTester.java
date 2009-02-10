@@ -89,6 +89,7 @@ public class AsyncReplicationTester extends AsyncReplication {
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
 
     AsyncWorker synchWorker = new AsyncWorker(dm,
+                                              dm, // TODO system DM
                                               ntm,
                                               dc,
                                               (LocalStorageImpl) localStorage,

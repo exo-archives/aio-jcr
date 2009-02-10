@@ -133,6 +133,8 @@ public class AsyncReplication implements Startable {
 
     protected final PersistentDataManager     dataManager;
 
+    protected final PersistentDataManager     systemDataManager;
+
     protected final WorkspaceDataContainer    dataContainer;
 
     protected final NodeTypeDataManager       ntManager;
@@ -142,6 +144,7 @@ public class AsyncReplication implements Startable {
     protected final IncomeStorageImpl         incomeStorage;
 
     AsyncWorker(PersistentDataManager dataManager,
+                PersistentDataManager systemDataManager,
                 NodeTypeDataManager ntManager,
                 WorkspaceDataContainer dataContainer,
                 LocalStorageImpl localStorage,
@@ -158,6 +161,8 @@ public class AsyncReplication implements Startable {
 
       this.dataManager = dataManager;
 
+      this.systemDataManager = systemDataManager;
+
       this.ntManager = ntManager;
 
       this.dataContainer = dataContainer;
@@ -169,6 +174,7 @@ public class AsyncReplication implements Startable {
       this.transmitter = new AsyncTransmitterImpl(this.channel, priority);
 
       this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager,
+                                                        systemDataManager,
                                                         this.localStorage,
                                                         workspaceConfig,
                                                         workspaceCleanerHolder);
@@ -374,9 +380,6 @@ public class AsyncReplication implements Startable {
 
     String saOtherParticipantsPriority[] = sOtherParticipantsPriority.split(",");
 
-    // TODO restore previous state if it's restart
-    // handle local restoration or cleanups of unfinished or breaked work
-
     // Ready to begin...
 
     this.otherParticipantsPriority = new ArrayList<Integer>();
@@ -555,6 +558,11 @@ public class AsyncReplication implements Startable {
                                                                    RepositoryConfigurationException {
     ManageableRepository repository = repoService.getRepository(repoName);
 
+    WorkspaceContainerFacade syswsc = repository.getWorkspaceContainer(repository.getConfiguration()
+                                                                                 .getSystemWorkspaceName());
+
+    PersistentDataManager sysdm = (PersistentDataManager) syswsc.getComponent(PersistentDataManager.class);
+
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(workspaceName);
 
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
@@ -569,6 +577,7 @@ public class AsyncReplication implements Startable {
     IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey));
 
     AsyncWorker synchWorker = new AsyncWorker(dm,
+                                              sysdm,
                                               ntm,
                                               dc,
                                               localStorage,
@@ -622,7 +631,7 @@ public class AsyncReplication implements Startable {
 
       this.fileCleaner.start();
       this.fileCleaner.setName("AsyncReplication FileCleaner");
-      
+
       // care about ReplicableValueData files
       ReplicableValueData.initFileCleaner(this.fileCleaner);
     } catch (Throwable e) {

@@ -33,6 +33,7 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
@@ -40,6 +41,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValu
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizerChangesLog;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
@@ -59,7 +61,9 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
   protected final LocalStorage               storage;
 
-  protected final PersistentDataManager      workspace;
+  protected final PersistentDataManager     workspace;
+  
+  protected final PersistentDataManager systemWorkspace;
 
   protected final File                       tempDirectory;
 
@@ -68,12 +72,14 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
   protected final WorkspaceFileCleanerHolder cleanerHolder;
 
   public WorkspaceSynchronizerImpl(PersistentDataManager workspace,
+                                   PersistentDataManager systemWorkspace,
                                    LocalStorage storage,
                                    WorkspaceEntry workspaceConfig,
                                    WorkspaceFileCleanerHolder cleanerHolder) {
     this.storage = storage;
     this.workspace = workspace;
-
+    this.systemWorkspace = systemWorkspace;
+    
     this.maxBufferSize = workspaceConfig.getContainer()
                                         .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
                                                              WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
@@ -100,10 +106,11 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
     OnSynchronizationWorkspaceListenersFilter apiFilter = new OnSynchronizationWorkspaceListenersFilter();
     workspace.addItemPersistenceListenerFilter(apiFilter);
+    systemWorkspace.addItemPersistenceListenerFilter(apiFilter);
 
     try {
       try {
-        workspace.save(prepareChangesLog(synchronizedChanges));
+        saveChangesLog(synchronizedChanges);
       } catch (ClassCastException e) {
         throw new SynchronizationException("Error of merge result save " + e, e);
       } catch (IOException e) {
@@ -120,6 +127,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
       throw new SynchronizationException("Error of merge result read on save " + e, e);
     } finally {
       workspace.removeItemPersistenceListenerFilter(apiFilter);
+      systemWorkspace.removeItemPersistenceListenerFilter(apiFilter);
     }
   }
 
@@ -133,18 +141,28 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    * @throws ClassCastException
    * @throws IllegalStateException
    * @throws ClassNotFoundException
+   * @throws RepositoryException
+   * @throws UnsupportedOperationException
+   * @throws InvalidItemStateException
    */
-  private SynchronizerChangesLog prepareChangesLog(final ChangesStorage<ItemState> changes) throws IOException,
-                                                                                          ClassCastException,
-                                                                                          IllegalStateException,
-                                                                                          ClassNotFoundException {
+  private void saveChangesLog(final ChangesStorage<ItemState> changes) throws IOException,
+                                                                                        ClassCastException,
+                                                                                        IllegalStateException,
+                                                                                        ClassNotFoundException,
+                                                                                        InvalidItemStateException,
+                                                                                        UnsupportedOperationException,
+                                                                                        RepositoryException {
     List<ItemState> states = new ArrayList<ItemState>();
-    
+    List<ItemState> sysStates = new ArrayList<ItemState>();
+
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState state = iter.next();
       if (state.isNode()) {
         // use as is
-        states.add(state);
+        if (isSystemDescendant(state.getData().getQPath()))
+          sysStates.add(state);
+        else
+          states.add(state);
       } else {
         // replace ReplicableValueData to Transient
         TransientPropertyData prop = (TransientPropertyData) state.getData();
@@ -157,13 +175,13 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
           } else {
             ReplicableValueData rvd = (ReplicableValueData) vd;
             nVals.add(new TransientValueData(vd.getOrderNumber(),
-                                          null,
-                                          null,
-                                          rvd.getSpoolFile(),
-                                          cleanerHolder.getFileCleaner(),
-                                          maxBufferSize,
-                                          tempDirectory,
-                                          true));
+                                             null,
+                                             null,
+                                             rvd.getSpoolFile(),
+                                             cleanerHolder.getFileCleaner(),
+                                             maxBufferSize,
+                                             tempDirectory,
+                                             true));
             rvd.getSpoolFile().release(rvd); // release file used by ReplicableValueData
           }
         }
@@ -179,16 +197,28 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
         nProp.setValues(nVals);
 
         // create new ItemState
-        states.add(new ItemState(nProp,
-                                 state.getState(),
-                                 state.isEventFire(),
-                                 state.getAncestorToSave(),
-                                 state.isInternallyCreated(),
-                                 state.isPersisted()));
+        ItemState newState = new ItemState(nProp,
+                                           state.getState(),
+                                           state.isEventFire(),
+                                           state.getAncestorToSave(),
+                                           state.isInternallyCreated(),
+                                           state.isPersisted());
+
+        if (isSystemDescendant(state.getData().getQPath()))
+          sysStates.add(newState);
+        else
+          states.add(newState);
       }
     }
 
-    // create new changes log
-    return new SynchronizerChangesLog(new PlainChangesLogImpl(states, IdGenerator.generate()));
+    // create new changes logs
+    systemWorkspace.save(new SynchronizerChangesLog(new PlainChangesLogImpl(sysStates,IdGenerator.generate())));
+
+    workspace.save(new SynchronizerChangesLog(new PlainChangesLogImpl(states,
+                                                                      IdGenerator.generate())));
+  }
+
+  private boolean isSystemDescendant(QPath path) {
+    return path.isDescendantOf(Constants.JCR_SYSTEM_PATH) || path.equals(Constants.JCR_SYSTEM_PATH);
   }
 }
