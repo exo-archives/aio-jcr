@@ -158,7 +158,7 @@
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
           <forkMode>${exo.test.forkMode}</forkMode>
           <includes>
-            <!-- include>**/audit/*Test.java</include>
+            <include>**/audit/*Test.java</include>
             <include>**/actions/*Test.java</include>
             <include>**/metadata/*Test.java</include>
             <include>**/owner/*Test.java</include>
@@ -170,15 +170,6 @@
             <include>**/replication/external/*.java</include>
             <include>**/replication/async/**/*.java</include>
             <include>**/organization/Test*.java</include>            
-            <include>**/replication/async/**/*Test.java</include -->
-			
-			<include>**/replication/async/**/LocalStorageMultithreadTest__.java</include>
-			<include>**/replication/async/**/RemoteExportServerImplTest__.java</include>
-			
-			<include>**/replication/async/**/CompositeItemStatesStorageTest__.java</include>
-			
-			<include>**/replication/async/merge/*Test.java</include>
-			
           </includes>
           <excludes>
             <exclude>**/*$*</exclude>
@@ -191,6 +182,8 @@
             <exclude>**/replication/external/BaseTestCaseChecker.java</exclude>
             <exclude>**/backup/*.java</exclude>
             <exclude>**/access/*.java</exclude>
+            
+            <exclude>**/LocalStorageMultithreadTest.javaa</exclude>
             
             <!--<exclude>**/groovy/*Test.java</exclude>-->
             
