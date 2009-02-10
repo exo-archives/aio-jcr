@@ -59,11 +59,13 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     static final String SUFIX  = "SUFIX";
 
-    public TesterRandomChangesFile(byte[] crc, long id) throws IOException, NoSuchAlgorithmException {
+    public TesterRandomChangesFile(byte[] crc, long id) throws IOException,
+        NoSuchAlgorithmException {
       super(File.createTempFile(PREFIX, SUFIX), crc, id, resHolder);
     }
 
-    public TesterRandomChangesFile(File f, byte[] crc, long id) throws IOException, NoSuchAlgorithmException {
+    public TesterRandomChangesFile(File f, byte[] crc, long id) throws IOException,
+        NoSuchAlgorithmException {
       super(f, crc, id, resHolder);
     }
   }
@@ -73,7 +75,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     protected final SessionImpl sessionHighPriority;
 
-    public BaseTwoMembersMergeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+    public BaseTwoMembersMergeUseCase(SessionImpl sessionLowPriority,
+                                      SessionImpl sessionHighPriority) {
       this.sessionLowPriority = sessionLowPriority;
       this.sessionHighPriority = sessionHighPriority;
     }
@@ -90,18 +93,20 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     public abstract void useCaseHighPriority() throws Exception;
   }
-  
+
   protected abstract class BaseThreeMembersMergeUseCase extends BaseTwoMembersMergeUseCase {
     protected final SessionImpl sessionMiddlePriority;
 
-    public BaseThreeMembersMergeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionMiddlePriority, SessionImpl sessionHighPriority) {
+    public BaseThreeMembersMergeUseCase(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionMiddlePriority,
+                                        SessionImpl sessionHighPriority) {
       super(sessionLowPriority, sessionHighPriority);
       this.sessionMiddlePriority = sessionMiddlePriority;
     }
 
     public boolean checkEquals() throws Exception {
       return isNodesEquals(sessionHighPriority.getRootNode(), sessionMiddlePriority.getRootNode())
-              && isNodesEquals(sessionHighPriority.getRootNode(), sessionLowPriority.getRootNode());
+          && isNodesEquals(sessionHighPriority.getRootNode(), sessionLowPriority.getRootNode());
     }
 
     public abstract void initDataMiddlePriority() throws Exception;
@@ -1490,15 +1495,15 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   public class ThreeMemberMoveUseCase extends BaseThreeMembersMergeUseCase {
-    
-    private final int subTree; 
+
+    private final int subTree;
 
     public ThreeMemberMoveUseCase(SessionImpl sessionLowPriority,
-                                     SessionImpl sessionMiddlePriority,
-                                     SessionImpl sessionHighPriority,
-                                     int subtree) {
+                                  SessionImpl sessionMiddlePriority,
+                                  SessionImpl sessionHighPriority,
+                                  int subtree) {
       super(sessionLowPriority, sessionMiddlePriority, sessionHighPriority);
       this.subTree = subtree;
     }
@@ -1506,12 +1511,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     @Override
     public void initDataLowPriority() throws Exception {
       Node node = sessionLowPriority.getRootNode().addNode("node_low_priority");
-      for (int i=0; i< 10; i++) {
+      for (int i = 0; i < 10; i++) {
         Node l1 = node.addNode("low_level_1_" + i);
-        
-        for (int j=0; j< subTree; j++) {
+
+        for (int j = 0; j < subTree; j++) {
           Node file = l1.addNode("low_level_2_" + j);
-          
+
           Node cool = file.addNode("nnn", "nt:file");
           Node contentNode = cool.addNode("jcr:content", "nt:resource");
           contentNode.setProperty("jcr:encoding", "UTF-8");
@@ -1519,23 +1524,39 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
           contentNode.setProperty("jcr:mimeType", "application/octet-stream");
           contentNode.setProperty("jcr:lastModified",
                                   sessionLowPriority.getValueFactory()
-                                                     .createValue(Calendar.getInstance()));
-          
+                                                    .createValue(Calendar.getInstance()));
+
+          cool.addMixin("dc:elementSet");
+
+          cool.setProperty("dc:creator", new String[] { "Creator 1", "Creator 2", "Creator 3" });
+
+          ValueFactory vf = cool.getSession().getValueFactory();
+          cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+              vf.createValue(Calendar.getInstance()), vf.createValue(Calendar.getInstance()) });
+
+          cool.setProperty("dc:source", new String[] { "Source 1", "Source 2", "Source 3" });
+          cool.setProperty("dc:description", new String[] { "description 1", "description 2",
+              "description 3", "description 4" });
+          cool.setProperty("dc:publisher", new String[] { "publisher 1", "publisher 2",
+              "publisher 3" });
+          cool.setProperty("dc:language", new String[] { "language 1", "language 2", "language3",
+              "language 4", "language5" });
+
         }
         sessionLowPriority.save();
       }
       sessionLowPriority.save();
     }
-    
+
     @Override
     public void initDataMiddlePriority() throws Exception {
       Node node = sessionMiddlePriority.getRootNode().addNode("node_middle_priority");
-      for (int i=0; i< 10; i++) {
+      for (int i = 0; i < 10; i++) {
         Node l1 = node.addNode("middle_level_1_" + i);
-        
-        for (int j=0; j< subTree; j++) {
+
+        for (int j = 0; j < subTree; j++) {
           Node file = l1.addNode("middle_level_2_" + j);
-          
+
           Node cool = file.addNode("nnn", "nt:file");
           Node contentNode = cool.addNode("jcr:content", "nt:resource");
           contentNode.setProperty("jcr:encoding", "UTF-8");
@@ -1543,22 +1564,38 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
           contentNode.setProperty("jcr:mimeType", "application/octet-stream");
           contentNode.setProperty("jcr:lastModified",
                                   sessionMiddlePriority.getValueFactory()
-                                                     .createValue(Calendar.getInstance()));
+                                                       .createValue(Calendar.getInstance()));
+
+          cool.addMixin("dc:elementSet");
+
+          cool.setProperty("dc:creator", new String[] { "Creator 1", "Creator 2", "Creator 3" });
+
+          ValueFactory vf = cool.getSession().getValueFactory();
+          cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+              vf.createValue(Calendar.getInstance()), vf.createValue(Calendar.getInstance()) });
+
+          cool.setProperty("dc:source", new String[] { "Source 1", "Source 2", "Source 3" });
+          cool.setProperty("dc:description", new String[] { "description 1", "description 2",
+              "description 3", "description 4" });
+          cool.setProperty("dc:publisher", new String[] { "publisher 1", "publisher 2",
+              "publisher 3" });
+          cool.setProperty("dc:language", new String[] { "language 1", "language 2", "language3",
+              "language 4", "language5" });
         }
         sessionMiddlePriority.save();
       }
       sessionMiddlePriority.save();
     }
-    
+
     @Override
     public void initDataHighPriority() throws Exception {
       Node node = sessionHighPriority.getRootNode().addNode("node_high_priority");
-      for (int i=0; i< 10; i++) {
+      for (int i = 0; i < 10; i++) {
         Node l1 = node.addNode("high_level_1_" + i);
-        
-        for (int j=0; j< subTree; j++) {
-          Node file  = l1.addNode("high_level_2_" + j);
-          
+
+        for (int j = 0; j < subTree; j++) {
+          Node file = l1.addNode("high_level_2_" + j);
+
           Node cool = file.addNode("nnn", "nt:file");
           Node contentNode = cool.addNode("jcr:content", "nt:resource");
           contentNode.setProperty("jcr:encoding", "UTF-8");
@@ -1567,48 +1604,91 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
           contentNode.setProperty("jcr:lastModified",
                                   sessionHighPriority.getValueFactory()
                                                      .createValue(Calendar.getInstance()));
+
+          cool.addMixin("dc:elementSet");
+
+          cool.setProperty("dc:creator", new String[] { "Creator 1", "Creator 2", "Creator 3" });
+
+          ValueFactory vf = cool.getSession().getValueFactory();
+          cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+              vf.createValue(Calendar.getInstance()), vf.createValue(Calendar.getInstance()) });
+
+          cool.setProperty("dc:source", new String[] { "Source 1", "Source 2", "Source 3" });
+          cool.setProperty("dc:description", new String[] { "description 1", "description 2",
+              "description 3", "description 4" });
+          cool.setProperty("dc:publisher", new String[] { "publisher 1", "publisher 2",
+              "publisher 3" });
+          cool.setProperty("dc:language", new String[] { "language 1", "language 2", "language3",
+              "language 4", "language5" });
         }
         sessionHighPriority.save();
       }
       sessionHighPriority.save();
     }
-    
+
     @Override
     public void useCaseLowPriority() throws Exception {
-      Node destNode = sessionLowPriority.getRootNode().addNode("dest_low");
-      sessionLowPriority.save();
-      
-      NodeIterator ni = sessionLowPriority.getRootNode().getNode("node_low_priority").getNodes();
-      
-      while (ni.hasNext()) {
-        sessionLowPriority.move(ni.nextNode().getPath(), destNode.getPath());
-        sessionLowPriority.save();
+      NodeIterator ni_l1 = sessionLowPriority.getRootNode().getNode("node_low_priority").getNodes();
+
+      while (ni_l1.hasNext()) {
+        NodeIterator ni_l2 = ni_l1.nextNode().getNodes();
+
+        while (ni_l2.hasNext()) {
+          Node cool = ni_l2.nextNode().getNode("nnn");
+
+          ValueFactory vf = cool.getSession().getValueFactory();
+          cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+              vf.createValue(Calendar.getInstance()) });
+
+          Node contentNode = cool.getNode("jcr:content");
+          contentNode.setProperty("jcr:lastModified", vf.createValue(Calendar.getInstance()));
+
+          sessionLowPriority.save();
+        }
       }
     }
 
     @Override
     public void useCaseMiddlePriority() throws Exception {
-      Node destNode = sessionMiddlePriority.getRootNode().addNode("dest_middle");
-      sessionMiddlePriority.save();
-      
-      NodeIterator ni = sessionMiddlePriority.getRootNode().getNode("node_middle_priority").getNodes();
-      
-      while (ni.hasNext()) {
-        sessionMiddlePriority.move(ni.nextNode().getPath(), destNode.getPath());
-        sessionMiddlePriority.save();
+      NodeIterator ni_l1 = sessionMiddlePriority.getRootNode().getNode("node_middle_priority").getNodes();
+
+      while (ni_l1.hasNext()) {
+        NodeIterator ni_l2 = ni_l1.nextNode().getNodes();
+
+        while (ni_l2.hasNext()) {
+          Node cool = ni_l2.nextNode().getNode("nnn");
+
+          ValueFactory vf = cool.getSession().getValueFactory();
+          cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+              vf.createValue(Calendar.getInstance()) });
+
+          Node contentNode = cool.getNode("jcr:content");
+          contentNode.setProperty("jcr:lastModified", vf.createValue(Calendar.getInstance()));
+
+          sessionMiddlePriority.save();
+        }
       }
     }
 
     @Override
     public void useCaseHighPriority() throws Exception {
-      Node destNode = sessionHighPriority.getRootNode().addNode("dest_high");
-      sessionHighPriority.save();
-      
-      NodeIterator ni = sessionHighPriority.getRootNode().getNode("node_high_priority").getNodes();
-      
-      while (ni.hasNext()) {
-        sessionHighPriority.move(ni.nextNode().getPath(), destNode.getPath());
-        sessionHighPriority.save();
+      NodeIterator ni_l1 = sessionHighPriority.getRootNode().getNode("node_high_priority").getNodes();
+
+      while (ni_l1.hasNext()) {
+        NodeIterator ni_l2 = ni_l1.nextNode().getNodes();
+
+        while (ni_l2.hasNext()) {
+          Node cool = ni_l2.nextNode().getNode("nnn");
+
+          ValueFactory vf = cool.getSession().getValueFactory();
+          cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+              vf.createValue(Calendar.getInstance()) });
+
+          Node contentNode = cool.getNode("jcr:content");
+          contentNode.setProperty("jcr:lastModified", vf.createValue(Calendar.getInstance()));
+
+          sessionHighPriority.save();
+        }
       }
     }
   }

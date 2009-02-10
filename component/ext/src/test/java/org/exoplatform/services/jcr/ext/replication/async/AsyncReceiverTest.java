@@ -182,7 +182,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     assertEquals(RemoteExportResponce.FIRST, exportReceiver.first.getType());
     assertEquals(packetFirst.getOffset(), exportReceiver.first.getOffset());
     assertEquals(packetFirst.getTimeStamp(), exportReceiver.first.getTimeStamp());
-    assertEquals(packetFirst.getCRC(), exportReceiver.first.getCRC());
     assertEquals(packetFirst.getBuffer().length, exportReceiver.first.getBuffer().length);
 
     for (int i = 0; i < packetFirst.getBuffer().length; i++)
@@ -192,7 +191,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     assertEquals(RemoteExportResponce.MIDDLE, exportReceiver.middle.getType());
     assertEquals(packetMiddle.getOffset(), exportReceiver.middle.getOffset());
     assertEquals(packetMiddle.getTimeStamp(), exportReceiver.middle.getTimeStamp());
-    assertEquals(packetMiddle.getCRC(), exportReceiver.middle.getCRC());
     assertEquals(packetMiddle.getBuffer().length, exportReceiver.middle.getBuffer().length);
 
     for (int i = 0; i < packetMiddle.getBuffer().length; i++)
@@ -202,7 +200,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     assertEquals(RemoteExportResponce.LAST, exportReceiver.last.getType());
     assertEquals(packetLast.getOffset(), exportReceiver.last.getOffset());
     assertEquals(packetLast.getTimeStamp(), exportReceiver.last.getTimeStamp());
-    assertEquals(packetLast.getCRC(), exportReceiver.last.getCRC());
     assertEquals(packetLast.getBuffer().length, exportReceiver.last.getBuffer().length);
     assertEquals(0, exportReceiver.last.getBuffer().length);
 
@@ -293,7 +290,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                  changesReceiver.first.getTransmitterPriority());
     assertEquals(packetFirst.getOffset(), changesReceiver.first.getOffset());
     assertEquals(packetFirst.getTimeStamp(), changesReceiver.first.getTimeStamp());
-    assertEquals(packetFirst.getCRC(), changesReceiver.first.getCRC());
     assertEquals(packetFirst.getFileCount(), changesReceiver.first.getFileCount());
     assertEquals(packetFirst.getBuffer().length, changesReceiver.first.getBuffer().length);
 
@@ -306,7 +302,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                  changesReceiver.middle.getTransmitterPriority());
     assertEquals(packetMiddle.getOffset(), changesReceiver.middle.getOffset());
     assertEquals(packetMiddle.getTimeStamp(), changesReceiver.middle.getTimeStamp());
-    assertEquals(packetMiddle.getCRC(), changesReceiver.middle.getCRC());
     assertEquals(packetMiddle.getFileCount(), changesReceiver.middle.getFileCount());
     assertEquals(packetMiddle.getBuffer().length, changesReceiver.middle.getBuffer().length);
 
@@ -318,7 +313,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     assertEquals(packetLast.getTransmitterPriority(), changesReceiver.last.getTransmitterPriority());
     assertEquals(packetLast.getOffset(), changesReceiver.last.getOffset());
     assertEquals(packetLast.getTimeStamp(), changesReceiver.last.getTimeStamp());
-    assertEquals(packetLast.getCRC(), changesReceiver.last.getCRC());
     assertEquals(packetLast.getFileCount(), changesReceiver.last.getFileCount());
     assertEquals(packetLast.getBuffer().length, changesReceiver.last.getBuffer().length);
     assertEquals(0, changesReceiver.last.getBuffer().length);
