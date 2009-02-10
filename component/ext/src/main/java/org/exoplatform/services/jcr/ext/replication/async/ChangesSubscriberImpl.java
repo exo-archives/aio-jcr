@@ -160,7 +160,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
       if (isStarted()) {
         try {
-          workerLog.info("Local Merge done. Wait for other members."); // TODO
+          workerLog.info("Waiting for other members.");
           mergeBarier.await();
           save();
           doStop();
@@ -179,7 +179,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                              MergeDataManagerException,
                                              StorageRuntimeException {
 
-      LOG.info("run merge on " + localMember);
+      if (LOG.isDebugEnabled())
+        LOG.debug("Run merge on " + localMember);
 
       // add local changes to the list
       List<MemberChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
@@ -197,17 +198,18 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         }
       }
 
-      // TODO debug
-      // for (MemberChangesStorage<ItemState> ms : membersChanges) {
-      // LOG.info(">>> Member " + ms.getMember().getName() + " changes");
-      // LOG.info(ms.dump());
-      // }
+      if (LOG.isDebugEnabled())
+        for (MemberChangesStorage<ItemState> ms : membersChanges) {
+          LOG.debug(">>> Member " + ms.getMember().getName() + " changes");
+          LOG.debug(ms.dump());
+        }
 
       // merge
-      workerLog.info("start merge of " + membersChanges.size() + " members");
+      workerLog.info("Start merge of " + membersChanges.size() + " members");
       mergeManager.setLocalMember(localMember);
       result = mergeManager.merge(membersChanges.iterator());
-      workerLog.info("merge done");
+      
+      workerLog.info("Local merge done");
     }
   }
 
@@ -265,11 +267,11 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     switch (packet.getType()) {
     case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
       try {
-        LOG.info("FIRST packet from " + member.getName());
+        LOG.info("Receiving member " + member.getName() + " changes.");
 
         if (isInitialized()) {
           // Fire START on non-Coordinator
-          LOG.info("On START (remote) from " + member.getName());
+          LOG.info("START. Initiated by " + member.getName());
 
           // Start first member waiter
           firstChangesWaiter = new FirstChangesWaiter();
@@ -314,7 +316,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     }
     case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
       if (isStarted()) {
-        LOG.info("LAST packet from " + member.getName());
+        LOG.info("Member " + member.getName() + " changes received.");
 
         try {
           MemberChangesFile mcf = incomChanges.get(packet.getTransmitterPriority());
@@ -362,7 +364,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   }
 
   private void doCancel() {
-    LOG.error("Do CANCEL (local)");
+    if (LOG.isDebugEnabled())
+      LOG.debug("Do CANCEL (local)");
 
     if (isStarted()) {
       doStop();
@@ -388,8 +391,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   @Override
   public void doStop() {
     super.doStop();
-
-    // mergeDoneList = null;
 
     if (firstChangesWaiter != null)
       firstChangesWaiter.cancel();
@@ -421,7 +422,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    * {@inheritDoc}
    */
   public void onCancel() {
-    LOG.info("On CANCEL");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On CANCEL");
 
     if (isStarted()) {
       doStop();
@@ -447,25 +449,19 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
     if (isStarted()) {
 
-      LOG.info("On Merge member " + member + ", done=" + mergeBarier.getCount() + " members="
+      if (LOG.isDebugEnabled())
+        LOG.debug("On Merge member " + member + ", done=" + mergeBarier.getCount() + " members="
           + confMembersCount);
 
-      // mergeDoneList.add(member);
       mergeBarier.countDown();
-
-      // if (mergeDoneList.size() == confMembersCount) {
-      // save();
-      // doStop();
-      // }
     } else
       LOG.warn("Subscriber stopped. On Merge member " + member + " ignored.");
   }
 
   private synchronized void save() {
-    LOG.info("save");
+    LOG.info("Save changes.");
 
     try {
-      // TODO dump
       if (LOG.isDebugEnabled())
         try {
           LOG.debug("save \r\n" + mergeWorker.result.dump());
@@ -505,7 +501,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   public void onStart(List<MemberAddress> members) {
     // not interested actually
-    LOG.info("On START (local) " + members.size() + " members");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On START (local) " + members.size() + " members");
 
     // Start first member waiter
     firstChangesWaiter = new FirstChangesWaiter();
@@ -518,7 +515,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    * {@inheritDoc}
    */
   public void onStop() {
-    LOG.info("On STOP (local)");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On STOP (local)");
 
     if (isStarted())
       doStop();

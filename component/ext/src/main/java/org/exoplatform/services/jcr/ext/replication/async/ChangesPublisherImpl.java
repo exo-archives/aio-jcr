@@ -73,9 +73,9 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
      */
     public void run() {
       try {
-        ChangesFile[] localChanges;
-        LOG.info("Local changes : "
-            + (localChanges = storage.getLocalChanges().getChangesFile()).length);
+        ChangesFile[] localChanges = storage.getLocalChanges().getChangesFile();
+        if (LOG.isDebugEnabled())
+          LOG.debug("Local changes : " + localChanges.length);
 
         if (isStarted() && run) {
           for (ChangesFile cf : localChanges)
@@ -107,8 +107,9 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * {@inheritDoc}
    */
   public void onCancel() {
-    LOG.info("On CANCEL (local)");
-  
+    if (LOG.isDebugEnabled())
+      LOG.debug("On CANCEL (local)");
+
     if (isStarted()) {
       cancelWorker();
       doStop();
@@ -134,11 +135,11 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * {@inheritDoc}
    */
   public void onStart(List<MemberAddress> members) {
-    LOG.info("On START (local) " + members.size() + " members");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On START (local) " + members.size() + " members");
 
     doStart();
 
-    // TODO sendChanges(members);
     publisherWorker = new PublisherWorker(members);
     publisherWorker.start();
   }
@@ -147,13 +148,14 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * {@inheritDoc}
    */
   public void onStop() {
-    LOG.info("On STOP (local)");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On STOP (local)");
 
     if (isStarted()) {
       cancelWorker();
 
       doStop();
-      
+
       publisherWorker = null;
     } else
       LOG.warn("Not started or already stopped");
@@ -165,7 +167,8 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   }
 
   protected void doCancel() {
-    LOG.error("Do CANCEL (local)");
+    if (LOG.isDebugEnabled())
+      LOG.debug("Do CANCEL (local)");
 
     if (isStarted()) {
       try {

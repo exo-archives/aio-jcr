@@ -179,21 +179,6 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
         synchronized (lock) {
           lock.notify();
         }
-      
-//      // FIXME can be a cause of OME, use one thread instance
-//      Thread thr = new Thread() {
-//        /**
-//         * {@inheritDoc}
-//         */
-//        @Override
-//        public void run() {
-//          synchronized (lock) {
-//            lock.notify();
-//          }
-//        }
-//      };
-//
-//      thr.start();
     }
   }
 
@@ -228,7 +213,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   }
 
   /**
-   * connect. Connect to channel. // TODO
+   * Connect to channel.
    * 
    * @throws ReplicationException
    *           Will be generated the ReplicationException.
@@ -271,7 +256,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       dispatcher.stop();
       dispatcher = null;
 
-      LOG.info("dispatcher stopped");
+      if (LOG.isDebugEnabled())
+        LOG.debug("dispatcher stopped");
       try {
         Thread.sleep(3000);
       } catch (InterruptedException e) {
@@ -282,7 +268,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     if (channel != null) {
       channel.disconnect();
 
-      LOG.info("channel disconnected");
+      if (LOG.isDebugEnabled())
+        LOG.debug("channel disconnected");
       try {
         Thread.sleep(5000);
       } catch (InterruptedException e) {
@@ -292,7 +279,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       channel.close();
       channel = null;
 
-      LOG.info("Disconnect done, fire connection listeners");
+      if (LOG.isDebugEnabled())
+        LOG.debug("Disconnect done, fire connection listeners");
 
       for (ConnectionListener cl : connectionListeners) {
         cl.onDisconnect();
@@ -441,8 +429,6 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public Object handle(final Message message) {
     if (isConnected()) {
-      //LOG.info("Handle message " + message); // TODO - debug
-
       try {
         packetsHandler.add(PacketTransformer.getAsPacket(message.getBuffer()),
                            new MemberAddress(message.getSrc()));
@@ -502,16 +488,12 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * {@inheritDoc}
    */
   public void block() {
-    // TODO Auto-generated method stub
-
   }
 
   /**
    * {@inheritDoc}
    */
   public void suspect(Address arg0) {
-    // TODO Auto-generated method stub
-
   }
 
   // *****************************************

@@ -240,8 +240,6 @@ public class AsyncReplication implements Startable {
     }
 
     private void doFinalyze() {
-      LOG.info("Do Finalize");
-
       this.receiver.setChangesSubscriber(null);
 
       this.publisher.removeLocalListener(this.exportServer);
@@ -275,7 +273,7 @@ public class AsyncReplication implements Startable {
       // set read-write state
       this.dataContainer.setReadOnly(false);
 
-      LOG.info("Done Finalize");
+      LOG.info("Synchronization done.");
     }
 
     /**
@@ -287,7 +285,6 @@ public class AsyncReplication implements Startable {
         this.dataContainer.setReadOnly(true);
 
         this.channel.connect();
-        // this.initializer.waitStop();
       } catch (ReplicationException e) {
         LOG.error("Synchronization start error " + e, e);
         doFinalyze();

@@ -254,8 +254,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       currentOut.writeObject(itemStates);
       // keep stream opened
-
-      // LOG.info("Write done: \r\n" + itemStates.dump());
     }
   }
 
@@ -365,25 +363,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     File storage = new File(rootPath);
     String[] dirNames = storage.list(new FilenameFilter() {
-      // private final static String FILENAME_REGEX = "[0-9]+";
-
-      // private final Pattern PATTERN = Pattern.compile(FILENAME_REGEX);
-
       public boolean accept(File dir, String name) {
         File file = new File(dir, name);
-        // Matcher m = PATTERN.matcher(name);
-        // if (!m.matches())
-        // return false;
         return file.isDirectory();
       }
     });
-
-    /*
-     * java.util.Arrays.sort(dirNames, new Comparator<String>() { public int
-     * compare(String o1, String o2) { long first = Long.parseLong(o1); long
-     * second = Long.parseLong(o2); if (first < second) { return -1; } else if
-     * (first == second) { return 0; } else { return 1; } } });
-     */
 
     return dirNames;
   }
@@ -437,7 +421,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onStop() {
-    LOG.info("On STOP");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On STOP");
 
     if (isStarted()) {
 
@@ -470,7 +455,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onCancel() {
-    LOG.info("On CANCEL");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On CANCEL");
 
     if (isStarted()) {
       doStop();
@@ -482,7 +468,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onStart(List<MemberAddress> members) {
-    LOG.info("On START");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On START");
 
     // check lastDir for any changes;
     String[] subfiles = currentDir.list(new ChangesFilenameFilter());

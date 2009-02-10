@@ -211,6 +211,9 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
    * {@inheritDoc}
    */
   public void onCancel() {
+    if (LOG.isDebugEnabled())
+      LOG.debug("On CANCEL");
+    
     for (ExportWorker worker : workers) {
       try {
         worker.join();
@@ -238,6 +241,9 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
    */
   public void onStop() {
 
+    if (LOG.isDebugEnabled())
+      LOG.debug("On STOP");
+      
     try {
       this.resHolder.close();
     } catch (IOException e) {

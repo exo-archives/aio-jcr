@@ -181,7 +181,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
           }
         }
 
-        LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
+        if (LOG.isDebugEnabled())
+          LOG.debug("The ChangesFiles in IncomeStorage = " + chFiles.size());
 
         IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles),
                                                                                       null); // TODO
@@ -223,7 +224,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> members) {
-    LOG.info("On DisconnectMembers " + members);
+    if (LOG.isDebugEnabled())
+      LOG.debug("On DisconnectMembers " + members);
 
     for (Member member : members)
       changes.remove(member.getPriority());
@@ -241,7 +243,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onCancel() {
-    LOG.info("On CANCEL");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On CANCEL");
 
     if (isStarted())
       doStop();
@@ -253,7 +256,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onStart(List<MemberAddress> members) {
-    LOG.info("On START");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On START");
 
     // prepare storage (clean)
     clean();
@@ -265,7 +269,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onStop() {
-    LOG.info("On STOP");
+    if (LOG.isDebugEnabled())
+      LOG.debug("On STOP");
 
     if (isStarted()) {
       doStop();
