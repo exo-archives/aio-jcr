@@ -20,8 +20,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.log.ExoLogger;
@@ -118,15 +118,20 @@ public abstract class S3IOChannel implements ValueIOChannel {
                                    cleaner);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String,
-   * org.exoplatform.services.jcr.datamodel.ValueData)
-   */
-  public void write(String propertyId, ValueData value) throws IOException {
+  public ValueFile write(String propertyId, ValueData value) throws IOException {
     String s3fileName = getFile(propertyId, value.getOrderNumber());
     S3ValueIOUtil.writeValue(bucket, awsAccessKey, awsSecretAccessKey, s3fileName, value);
     // return "/" + bucket + "/" +s3fileName;
+    
+    return new ValueFile() {
+
+      /**
+       * {@inheritDoc}
+       */
+      public void rollback() {
+        // TODO fix it with Values delete on Proeprty delete
+      }
+    };
   }
 
   /**
