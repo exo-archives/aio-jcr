@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
@@ -40,6 +41,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolde
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -119,6 +121,46 @@ public abstract class AbstractMerger implements ChangesMerger {
     }
 
     return result;
+  }
+
+  /**
+   * generateRestoreRenamedItem.
+   * 
+   * @param deleteState
+   * @param renameState
+   * @return
+   * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
+  protected ItemState generateRestoreRenamedItem(ItemState deleteState, ItemState renameState) throws ClassCastException,
+                                                                                              IOException,
+                                                                                              ClassNotFoundException {
+
+    if (deleteState.getData().isNode()) {
+      NodeData node = (NodeData) deleteState.getData();
+      TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                        node.getIdentifier(),
+                                                        node.getPersistedVersion(),
+                                                        node.getPrimaryTypeName(),
+                                                        node.getMixinTypeNames(),
+                                                        node.getOrderNumber(),
+                                                        node.getParentIdentifier(),
+                                                        node.getACL());
+
+      return new ItemState(newNode, ItemState.ADDED, deleteState.isEventFire(), node.getQPath());
+    }
+
+    PropertyData prop = (PropertyData) deleteState.getData();
+    TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                              prop.getIdentifier(),
+                                                              prop.getPersistedVersion(),
+                                                              prop.getType(),
+                                                              prop.getParentIdentifier(),
+                                                              prop.isMultiValued());
+    newProp.setValues(((PropertyData) renameState.getData()).getValues());
+
+    return new ItemState(newProp, ItemState.ADDED, deleteState.isEventFire(), prop.getQPath());
   }
 
   /**

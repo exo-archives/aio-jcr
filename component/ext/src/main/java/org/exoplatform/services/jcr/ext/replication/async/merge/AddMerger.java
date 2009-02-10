@@ -30,7 +30,6 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
@@ -41,8 +40,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -88,8 +85,8 @@ public class AddMerger extends AbstractMerger {
     ItemState incomeState = itemChange;
 
     EditableChangesStorage<ItemState> resultState = new CompositeItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             null,
-                                                                                             resHolder);
+                                                                                              null,
+                                                                                              resHolder);
 
     List<QPath> locSkippedList = new ArrayList<QPath>();
 
@@ -321,39 +318,7 @@ public class AddMerger extends AbstractMerger {
                                 .equals(items.get(j).getData().getQPath().makeParentPath()))
                           break;
 
-                        if (item.getData().isNode()) {
-                          NodeData node = (NodeData) item.getData();
-                          TransientNodeData newNode = new TransientNodeData(node.getQPath(),
-                                                                            node.getIdentifier(),
-                                                                            node.getPersistedVersion(),
-                                                                            node.getPrimaryTypeName(),
-                                                                            node.getMixinTypeNames(),
-                                                                            node.getOrderNumber(),
-                                                                            node.getParentIdentifier(),
-                                                                            node.getACL());
-
-                          ItemState newItem = new ItemState(newNode,
-                                                            ItemState.ADDED,
-                                                            item.isEventFire(),
-                                                            node.getQPath());
-                          resultState.add(newItem);
-
-                        } else {
-                          PropertyData prop = (PropertyData) item.getData();
-                          TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
-                                                                                    prop.getIdentifier(),
-                                                                                    prop.getPersistedVersion(),
-                                                                                    prop.getType(),
-                                                                                    prop.getParentIdentifier(),
-                                                                                    prop.isMultiValued());
-
-                          newProp.setValues(((PropertyData) items.get(j).getData()).getValues());
-                          ItemState newItem = new ItemState(newProp,
-                                                            ItemState.ADDED,
-                                                            item.isEventFire(),
-                                                            prop.getQPath());
-                          resultState.add(newItem);
-                        }
+                        resultState.add(generateRestoreRenamedItem(item, items.get(j)));
                       }
                     }
                   }
@@ -452,39 +417,8 @@ public class AddMerger extends AbstractMerger {
 
                 } else if (item.getState() == ItemState.DELETED) {
                   if (!incNodePath.equals(locNodePath)) {
-                    if (item.getData().isNode()) {
-                      NodeData node = (NodeData) item.getData();
-                      TransientNodeData newNode = new TransientNodeData(node.getQPath(),
-                                                                        node.getIdentifier(),
-                                                                        node.getPersistedVersion(),
-                                                                        node.getPrimaryTypeName(),
-                                                                        node.getMixinTypeNames(),
-                                                                        node.getOrderNumber(),
-                                                                        node.getParentIdentifier(),
-                                                                        node.getACL());
-
-                      ItemState newItem = new ItemState(newNode,
-                                                        ItemState.ADDED,
-                                                        item.isEventFire(),
-                                                        node.getQPath());
-                      resultState.add(newItem);
-
-                    } else {
-                      PropertyData prop = (PropertyData) item.getData();
-                      TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
-                                                                                prop.getIdentifier(),
-                                                                                prop.getPersistedVersion(),
-                                                                                prop.getType(),
-                                                                                prop.getParentIdentifier(),
-                                                                                prop.isMultiValued());
-
-                      newProp.setValues(((PropertyData) items.get(items.size() - i - 1).getData()).getValues());
-                      ItemState newItem = new ItemState(newProp,
-                                                        ItemState.ADDED,
-                                                        item.isEventFire(),
-                                                        prop.getQPath());
-                      resultState.add(newItem);
-                    }
+                    resultState.add(generateRestoreRenamedItem(item,
+                                                               items.get(items.size() - i - 1)));
                   }
                 }
               }

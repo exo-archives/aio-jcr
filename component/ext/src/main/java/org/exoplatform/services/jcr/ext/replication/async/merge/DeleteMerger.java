@@ -29,7 +29,6 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
@@ -39,7 +38,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -463,29 +461,9 @@ public class DeleteMerger extends AbstractMerger {
                 for (int i = locRenSeq.size() - 1; i >= 0; i--) {
                   ItemState item = locRenSeq.get(i);
 
-                  if (item.getState() == ItemState.DELETED) { // generate add state for old
-                    // place
-                    if (item.getData().isNode()) {
-                      resultState.add(new ItemState(item.getData(),
-                                                    ItemState.ADDED,
-                                                    item.isEventFire(),
-                                                    item.getData().getQPath()));
-
-                    } else {
-                      PropertyData prop = (PropertyData) item.getData();
-                      TransientPropertyData propData = new TransientPropertyData(prop.getQPath(),
-                                                                                 prop.getIdentifier(),
-                                                                                 prop.getPersistedVersion(),
-                                                                                 prop.getType(),
-                                                                                 prop.getParentIdentifier(),
-                                                                                 prop.isMultiValued());
-                      propData.setValues(((PropertyData) locRenSeq.get(locRenSeq.size() - i - 1)
-                                                                  .getData()).getValues());
-                      resultState.add(new ItemState(propData,
-                                                    ItemState.ADDED,
-                                                    item.isEventFire(),
-                                                    prop.getQPath()));
-                    }
+                  if (item.getState() == ItemState.DELETED) {
+                    resultState.add(generateRestoreRenamedItem(item, locRenSeq.get(locRenSeq.size()
+                        - i - 1)));
                   }
                 }
 

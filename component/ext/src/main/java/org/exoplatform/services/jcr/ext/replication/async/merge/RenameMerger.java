@@ -28,7 +28,6 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
@@ -39,7 +38,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -95,8 +93,8 @@ public class RenameMerger extends AbstractMerger {
         : nextIncomeState.getData().getQPath().makeParentPath();
 
     EditableChangesStorage<ItemState> resultState = new CompositeItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             null,
-                                                                                             resHolder);
+                                                                                              null,
+                                                                                              resHolder);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -428,28 +426,8 @@ public class RenameMerger extends AbstractMerger {
                 ItemState item = locRenSeq.get(i);
 
                 if (item.getState() == ItemState.DELETED) { // generate add state for old
-                  // place
-                  if (item.getData().isNode()) {
-                    resultState.add(new ItemState(item.getData(),
-                                                  ItemState.ADDED,
-                                                  item.isEventFire(),
-                                                  item.getData().getQPath()));
-
-                  } else {
-                    PropertyData prop = (PropertyData) item.getData();
-                    TransientPropertyData propData = new TransientPropertyData(prop.getQPath(),
-                                                                               prop.getIdentifier(),
-                                                                               prop.getPersistedVersion(),
-                                                                               prop.getType(),
-                                                                               prop.getParentIdentifier(),
-                                                                               prop.isMultiValued());
-                    propData.setValues(((PropertyData) locRenSeq.get(locRenSeq.size() - i - 1)
-                                                                .getData()).getValues());
-                    resultState.add(new ItemState(propData,
-                                                  ItemState.ADDED,
-                                                  item.isEventFire(),
-                                                  prop.getQPath()));
-                  }
+                  resultState.add(generateRestoreRenamedItem(item, locRenSeq.get(locRenSeq.size()
+                      - i - 1)));
                 }
               }
 
@@ -528,28 +506,9 @@ public class RenameMerger extends AbstractMerger {
                                                 ItemState.DELETED,
                                                 item.isEventFire(),
                                                 item.getData().getQPath()));
-                } else if (item.getState() == ItemState.DELETED) { // generate delete state for old
-                  // place
-                  if (item.getData().isNode()) {
-                    resultState.add(new ItemState(item.getData(),
-                                                  ItemState.ADDED,
-                                                  item.isEventFire(),
-                                                  item.getData().getQPath()));
-
-                  } else {
-                    PropertyData prop = (PropertyData) item.getData();
-                    TransientPropertyData propData = new TransientPropertyData(prop.getQPath(),
-                                                                               prop.getIdentifier(),
-                                                                               prop.getPersistedVersion(),
-                                                                               prop.getType(),
-                                                                               prop.getParentIdentifier(),
-                                                                               prop.isMultiValued());
-                    propData.setValues(((PropertyData) rename.get(rename.size() - i - 1).getData()).getValues());
-                    resultState.add(new ItemState(propData,
-                                                  ItemState.ADDED,
-                                                  item.isEventFire(),
-                                                  prop.getQPath()));
-                  }
+                } else if (item.getState() == ItemState.DELETED) {
+                  resultState.add(generateRestoreRenamedItem(item,
+                                                             rename.get(rename.size() - i - 1)));
                 }
               }
 
