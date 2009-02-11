@@ -138,9 +138,11 @@ public class DBConstants {
 
   public final static String    DB_DIALECT_DERBY      = "Derby".intern();
 
+  public final static String    DB_DIALECT_INGRES     = "Ingres".intern();
+
   public final static String[]  DB_DIALECTS           = { DB_DIALECT_GENERIC, DB_DIALECT_ORACLE,
       DB_DIALECT_ORACLEOCI, DB_DIALECT_PGSQL, DB_DIALECT_MYSQL, DB_DIALECT_HSQLDB, DB_DIALECT_DB2,
       DB_DIALECT_DB2V8, DB_DIALECT_MSSQL, DB_DIALECT_SYBASE, DB_DIALECT_DERBY,
-      DB_DIALECT_MYSQL_UTF8                          };
+      DB_DIALECT_MYSQL_UTF8, DB_DIALECT_INGRES       };
 
 }

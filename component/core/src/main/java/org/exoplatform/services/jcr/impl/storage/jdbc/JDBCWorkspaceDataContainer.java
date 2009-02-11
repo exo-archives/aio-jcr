@@ -548,6 +548,10 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sybase.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
+    } else if (dbDialect == DBConstants.DB_DIALECT_INGRES) {
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ingres.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
     } else {
       // generic, DB_HSQLDB
       this.connFactory = defaultConnectionFactory();
