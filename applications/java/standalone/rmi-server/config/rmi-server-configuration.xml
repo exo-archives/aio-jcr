@@ -64,15 +64,15 @@
     </init-params>
   </component>
   
-  <!--component>
+  <component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
-  </component-->
+  </component>
   
   <component>
     <key>org.exoplatform.services.security.Authenticator</key>
     <type>org.exoplatform.services.organization.auth.OrganizationAuthenticatorImpl</type>
   </component>
-  <component>
+  <!--component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.jcr.ext.organization.JCROrganizationServiceImpl</type>
     <init-params>
@@ -82,7 +82,7 @@
         <value>production</value>
       </value-param>
     </init-params>
-  </component>
+  </component-->
 
   <!-- org service initializer, copied from ECM portal.war -->
   <external-component-plugins>
