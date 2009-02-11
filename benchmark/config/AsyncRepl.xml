@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite name="Stress testing of AsyncReplication" xmlns="http://www.sun.com/japex/testSuite">
+
+  <param name="japex.reportsDirectory" value="../reports" />
+  <param name="japex.plotGroupSize" value="5" />
+  <param name="japex.resultUnit" value="tps" />
+  <param name="japex.warmupIterations" value="0" />
+  <param name="japex.runIterations" value="1" />
+  <!--param name="japex.runTime" value="03" /-->
+  <!-- 10 for 10 sec -->
+  <!-- 15:00 for 15min -->
+
+  <driverGroup name="ThreadDriverGroup" xmlns="http://www.sun.com/japex/testSuite">
+    <param name="japex.classPath" value="../lib/*.jar" />
+    <param name="japex.driverClass" value="org.exoplatform.jcr.benchmark.AsyncDriver" />
+    <param name="jcr.user" value="root" />
+    <param name="jcr.password" value="exo" />
+    <param name="jcr.workspace" value="collaboration" />
+    <param name="jcr.sessionPolicy" value="multiple" />
+    <param name="exo.jaasConf" value="login.conf" />
+    <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
+    <driver name="AsyncDriver">
+      <param name="japex.numberOfThreads" value="1" />
+    </driver>
+  </driverGroup>
+
+  <!-- Accessing the Repository -->
+  <testCase name="LoadFilesAndSynchronizeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.LoadFilesAndSynchronizeTest" />
+    <param name="ext.rootFolder" value="folderFirst" />
+    <param name="ext.oponentRootFolder" value="folderSecond" />
+  </testCase>
+
+</testSuite>
