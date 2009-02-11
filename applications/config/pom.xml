@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>exo.jcr.applications.config</artifactId>
-  <name>eXo JCR product config</name>
+  <name>eXo JCR applications config</name>
   <version>1.11.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <dependencies>
