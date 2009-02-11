@@ -375,13 +375,17 @@ public class RepositoryContainer extends ExoContainer {
       initWorkspace(ws);
       WorkspaceContainer workspaceContainer = getWorkspaceContainer(ws.getName());
       SearchManager searchManager = (SearchManager) workspaceContainer.getComponentInstanceOfType(SearchManager.class);
-      typeManager.addQueryHandler(searchManager.getHandler());
-      namespaceRegistry.addQueryHandler(searchManager.getHandler());
+      if (searchManager != null) {
+        typeManager.addQueryHandler(searchManager.getHandler());
+        namespaceRegistry.addQueryHandler(searchManager.getHandler());
+      }
     }
 
     SystemSearchManagerHolder searchManager = (SystemSearchManagerHolder) this.getComponentInstanceOfType(SystemSearchManagerHolder.class);
-    typeManager.addQueryHandler(searchManager.get().getHandler());
-    namespaceRegistry.addQueryHandler(searchManager.get().getHandler());
+    if (searchManager != null) {
+      typeManager.addQueryHandler(searchManager.get().getHandler());
+      namespaceRegistry.addQueryHandler(searchManager.get().getHandler());
+    }
 
   }
 
