@@ -124,7 +124,7 @@
     </component-plugins>
   </component>
 
- <component>
+ <!--component>
     <type>org.exoplatform.services.jcr.ext.replication.async.AsyncReplication</type>
     <init-params>
       <values-param>
@@ -142,7 +142,7 @@
         <property name="wait-all-members" value="15"/>
       </properties-param>
     </init-params>
-  </component>
+  </component-->
 
 
   <!--external-component-plugins>
