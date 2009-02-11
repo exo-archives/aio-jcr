@@ -140,7 +140,6 @@ public class SearchManager implements Startable, MandatoryItemsPersistenceListen
     itemMgr.addItemPersistenceListener(this);
     initializeQueryHandler();
 
-    log.info(config.getIndexDir() + "  !" + config);
   }
 
   /**
