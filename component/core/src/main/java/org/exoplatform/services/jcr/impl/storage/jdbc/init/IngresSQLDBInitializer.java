@@ -25,30 +25,44 @@ import java.sql.SQLException;
  * 
  * 26.03.2007
  * 
- * PgSQL convert all db object names to lower case, so respect it.
- * Same as Ingres initializer.
+ * Ingres convert all db object names to lower case, so respect it.
+ * Same as PgSQL initializer.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class PgSQLDBInitializer extends DBInitializer {
+public class IngresSQLDBInitializer extends DBInitializer {
 
-  public PgSQLDBInitializer(String containerName,
+  public IngresSQLDBInitializer(String containerName,
                             Connection connection,
                             String scriptPath,
                             boolean multiDb) throws IOException {
     super(containerName, connection, scriptPath, multiDb);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected boolean isIndexExists(Connection conn, String tableName, String indexName) throws SQLException {
     return super.isIndexExists(conn, tableName.toUpperCase().toLowerCase(), indexName.toUpperCase()
                                                                                      .toLowerCase());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected boolean isTableExists(Connection conn, String tableName) throws SQLException {
     return super.isTableExists(conn, tableName.toUpperCase().toLowerCase());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected boolean isSequenceExists(Connection conn, String sequenceName) throws SQLException {
+    return super.isSequenceExists(conn, sequenceName.toUpperCase().toLowerCase());
   }
 
 }

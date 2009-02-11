@@ -352,8 +352,16 @@
     <scope>compile</scope>
     </dependency -->
     
-    <!-- H2 Database -->
+    <!-- Ingres Database (local repository) -->
     <!-- dependency>
+    <groupId>com.ingres.jdbc</groupId>
+    <artifactId>iijdbc</artifactId>
+    <version>9.2</version>
+    <scope>test</scope>
+    </dependency -->
+	
+	<!-- H2 Database -->
+	<!-- dependency>
     <groupId>com.h2database</groupId>
     <artifactId>h2</artifactId>
     <version>1.0.74</version>
@@ -465,11 +473,6 @@
               <includes>
                 <include>**/**/TestErrorMultithreading__.java</include>
                 <include>**/**/TestConcurrentItems__.java</include>
-                
-                <include>**/**/TestJDBCValueContentAddressStorageImpl__.java</include>
-                <include>**/**/TestCASableSimpleFileIOChannel__.java</include>
-                <include>**/**/TestCASableTreeFileIOChannel__.java</include>
-                				
 				<include>**/**/TestInvalidItemState__.java</include>
               </includes>
             </configuration>
@@ -736,7 +739,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
+        <jcr.test.configuration.file>/conf/standalone/test-configuration.ingres.xml</jcr.test.configuration.file>
         <exo.devtest.skip>true</exo.devtest.skip>
       </properties>
     </profile>

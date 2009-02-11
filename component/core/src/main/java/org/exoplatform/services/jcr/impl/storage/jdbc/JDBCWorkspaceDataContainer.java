@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.db.OracleConnectionFactory
 import org.exoplatform.services.jcr.impl.storage.jdbc.db.WorkspaceStorageConnectionFactory;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.DBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.DBInitializerException;
+import org.exoplatform.services.jcr.impl.storage.jdbc.init.IngresSQLDBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.OracleDBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.PgSQLDBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.update.StorageUpdateManager;
@@ -551,7 +552,11 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     } else if (dbDialect == DBConstants.DB_DIALECT_INGRES) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ingres.sql";
-      dbInitilizer = defaultDBInitializer(sqlPath);
+      // using Postgres initializer
+      dbInitilizer = new IngresSQLDBInitializer(containerName,
+                                            this.connFactory.getJdbcConnection(),
+                                            sqlPath,
+                                            multiDb);
     } else {
       // generic, DB_HSQLDB
       this.connFactory = defaultConnectionFactory();
