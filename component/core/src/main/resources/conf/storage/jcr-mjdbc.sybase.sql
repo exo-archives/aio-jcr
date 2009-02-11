@@ -38,7 +38,7 @@ go
 -- NOTE: set number of user connection according your pool configuration: sp_configure "number of user connection", 200
 */
 
-CREATE TABLE JCR_CONTAINER(
+CREATE TABLE JCR_MCONTAINER(
   VERSION VARCHAR(255) NOT NULL PRIMARY KEY
   );
 CREATE TABLE JCR_MITEM(
