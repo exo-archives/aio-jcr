@@ -1,5 +1,5 @@
 <assembly>
-	<id>binnary</id>
+	<id>binary</id>
 	<formats>
 		<format>zip</format>
 	</formats>

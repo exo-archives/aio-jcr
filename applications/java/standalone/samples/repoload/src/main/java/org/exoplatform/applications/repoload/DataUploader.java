@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -50,7 +51,6 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak
@@ -172,7 +172,7 @@ public class DataUploader {
       if (repository != null)
         log.info("--->>> perository");
 
-      session = repository.login(credentials, sWorkspace);
+      session = (SessionImpl) repository.login(credentials, sWorkspace);
       if (session != null)
         log.info("--->>> session");
 

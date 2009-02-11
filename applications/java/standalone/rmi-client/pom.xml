@@ -79,7 +79,7 @@
               <classpath>
                 <pathelement path="${classpath}" />
                 <fileset dir="${basedir}/target">
-                  <include name="**/rmi-client-binnary.dir/*.jar" />
+                  <include name="**/rmi-client-binary.dir/*.jar" />
                 </fileset>
               </classpath>
             </java>
