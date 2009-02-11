@@ -2,13 +2,13 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.11-SNAPSHOT</version>
+    <version>1.11</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.connectors.rmiadapter</artifactId>
   <packaging>rar</packaging>
-  <version>1.11-SNAPSHOT</version>
+  <version>1.11</version>
   <name>eXo JCR RMI resource adapter</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR RMI resource adapter</description>
@@ -17,14 +17,14 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.11-SNAPSHOT</version>
+      <version>1.11</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.rmi</artifactId>
-      <version>1.11-SNAPSHOT</version>
+      <version>1.11</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
