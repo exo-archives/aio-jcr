@@ -378,6 +378,8 @@ public class RepositoryContainer extends ExoContainer {
       if (searchManager != null) {
         typeManager.addQueryHandler(searchManager.getHandler());
         namespaceRegistry.addQueryHandler(searchManager.getHandler());
+      } else {
+        log.warn("Search manager not configured for " + ws.getName());
       }
     }
 
@@ -385,6 +387,8 @@ public class RepositoryContainer extends ExoContainer {
     if (searchManager != null) {
       typeManager.addQueryHandler(searchManager.get().getHandler());
       namespaceRegistry.addQueryHandler(searchManager.get().getHandler());
+    } else {
+      log.warn("System search manager not configured ");
     }
 
   }
