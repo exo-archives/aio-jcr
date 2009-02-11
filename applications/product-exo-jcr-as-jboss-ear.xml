@@ -70,9 +70,9 @@
 						</copy>
 						<!--renaming ear-->
 						<move
-							todir="${basedir}/target/lib-1.11.dir/">
+							todir="${basedir}/target/lib-binary.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/*.ear" />
 							</fileset>
 							<mapper>
@@ -89,7 +89,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								includes="**/*.ear" />
 						</copy>
 						<!--copying exo-configuration.xml-->
@@ -111,7 +111,7 @@
 						<copy
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/lib/">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/hsqldb*.jar" />
 							</fileset>
 						</copy>

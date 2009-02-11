@@ -66,7 +66,7 @@
 							todir="${exo.projects.directory.working}/exo-jonas/lib/apps/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir">
+								dir="${basedir}/target/lib-binary.dir">
 								<exclude name="**/*.war" />
 								<exclude name="**/*.rar" />
 							</fileset>
@@ -80,9 +80,9 @@
 						</copy>
 						<!--renaming wars-->
 						<move
-							todir="${basedir}/target/lib-1.11.dir/">
+							todir="${basedir}/target/lib-binary.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/*.war" />
 							</fileset>
 							<mapper>
@@ -96,9 +96,9 @@
 						</move>
 						<!--renaming rars-->
 						<move
-							todir="${basedir}/target/lib-1.11.dir/">
+							todir="${basedir}/target/lib-binary.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/*.rar" />
 							</fileset>
 							<mapper>
@@ -115,7 +115,7 @@
 							todir="${exo.projects.directory.working}/exo-jonas/apps/autoload/exoplatform.ear/"
 							verbose="true" flatten="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								casesensitive="yes">
 								<include name="**/*.war" />
 								<include name="**/*.rar" />
@@ -127,7 +127,7 @@
 						<copy
 							todir="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/hsqldb*.jar" />
 							</fileset>
 						</copy>

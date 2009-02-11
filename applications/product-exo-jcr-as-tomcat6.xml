@@ -48,7 +48,7 @@
 				<configuration>
 					<tasks>
 					    <delete>
-					     <fileset dir="${basedir}/target/lib-1.11.dir/">
+					     <fileset dir="${basedir}/target/lib-binary.dir/">
 						   <include name="ejb*.jar" />
 						   <include name="jetty*.jar" />
 						 </fileset>
@@ -66,7 +66,7 @@
 							todir="${exo.projects.directory.working}/exo-tomcat/lib/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								excludes="**/*.war" />
 						</copy>
 						<copy
@@ -76,9 +76,9 @@
 								dir="${basedir}/product-patches/as/tomcat/" />
 						</copy>
 						<move
-							todir="${basedir}/target/lib-1.11.dir/">
+							todir="${basedir}/target/lib-binary.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/*.war" />
 							</fileset>
 							<mapper>
@@ -94,7 +94,7 @@
 							todir="${exo.projects.directory.working}/exo-tomcat/webapps/"
 							verbose="true" flatten="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								casesensitive="yes">
 								<include name="**/*.war" />
 							</fileset>
