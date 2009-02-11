@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.storage.jdbc.init;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -62,7 +63,29 @@ public class IngresSQLDBInitializer extends DBInitializer {
    */
   @Override
   protected boolean isSequenceExists(Connection conn, String sequenceName) throws SQLException {
-    return super.isSequenceExists(conn, sequenceName.toUpperCase().toLowerCase());
+    String seqName = sequenceName.toUpperCase().toLowerCase();
+    try {
+      ResultSet srs = conn.createStatement().executeQuery("SELECT NEXT VALUE FOR " + seqName);
+      if (srs.next()) {
+        return true;
+      }
+      srs.close();
+      return false;
+    } catch (final SQLException e) {
+      // check if sequence does not exist
+      if (e.getMessage().indexOf("DEFINE CURSOR") >= 0 && e.getMessage().indexOf("Sequence") >= 0)
+        return false;
+      throw new SQLException(e.getMessage()) {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Throwable getCause() {
+          return e;
+        }        
+      };
+    }
   }
 
 }
