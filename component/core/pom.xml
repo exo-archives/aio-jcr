@@ -739,7 +739,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <jcr.test.configuration.file>/conf/standalone/test-configuration.ingres.xml</jcr.test.configuration.file>
+        <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
         <exo.devtest.skip>true</exo.devtest.skip>
       </properties>
     </profile>
