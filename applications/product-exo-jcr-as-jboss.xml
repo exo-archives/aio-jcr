@@ -51,7 +51,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								excludes="**/*.war" />
 						</copy>
 						<copy
@@ -67,9 +67,9 @@
 								dir="${basedir}/product-patches/as/jboss/" includes="*.xml" />
 						</copy>
 						<move
-							todir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-binary.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/*.war" />
 							</fileset>
 							<mapper>
@@ -85,7 +85,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar"
 							verbose="true" flatten="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.11.1-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								casesensitive="yes">
 								<include name="**/*.war" />
 							</fileset>
