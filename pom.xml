@@ -276,6 +276,8 @@
         <configuration>
           <aggregate>true</aggregate>
           <reportOutputDirectory>target/javadoc</reportOutputDirectory>
+          <maxmemory>512m</maxmemory>
+          <minmemory>256m</minmemory>
         </configuration>
       </plugin>
 
