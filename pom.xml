@@ -14,10 +14,9 @@
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11.1</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.11.1</developerConnection>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</developerConnection>
   </scm>
-
 
   <modules>
     <module>component/core</module>
@@ -203,8 +202,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/">
+                  <merge outfile="target/coverage.es">
+                    <fileset dir=".">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -213,15 +212,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/">
+                      <dirset dir=".">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/">
+                    <fileset dir="target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.11.1-SNAPSHOT/target/coverage.xml" />
+                    <html outfile="target/coverage.html" />
+                    <xml outfile="target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
