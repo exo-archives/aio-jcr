@@ -178,6 +178,7 @@
             -->
             <exclude>**/BaseStandaloneTest.java</exclude>
             <exclude>**/replication/*.java</exclude>
+            <exclude>**/replication/async/**/*.java</exclude>
             <exclude>**/replication/external/*.java</exclude>
             <exclude>**/replication/external/BaseTestCaseChecker.java</exclude>
             <exclude>**/backup/*.java</exclude>
