@@ -36,6 +36,10 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -44,10 +48,6 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.IdGenerator;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 
 public class TransientNodeData extends TransientItemData implements Comparable, MutableNodeData,
     Externalizable, JCRExternalizable {

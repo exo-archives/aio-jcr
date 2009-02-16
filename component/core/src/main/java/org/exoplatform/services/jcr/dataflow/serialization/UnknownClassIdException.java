@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.util.jcrexternalizable;
+package org.exoplatform.services.jcr.dataflow.serialization;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:

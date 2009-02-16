@@ -28,10 +28,10 @@ import java.util.StringTokenizer;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

@@ -23,10 +23,10 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 
 /**
  * Created by The eXo Platform SAS.

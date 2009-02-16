@@ -22,16 +22,16 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.MutableItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

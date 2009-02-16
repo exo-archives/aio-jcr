@@ -39,6 +39,10 @@ import java.util.Calendar;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -46,10 +50,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
-import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 
 /**
  * Created by The eXo Platform SAS.<br/>
