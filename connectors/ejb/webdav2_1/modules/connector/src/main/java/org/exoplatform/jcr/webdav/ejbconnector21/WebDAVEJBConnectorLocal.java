@@ -21,8 +21,9 @@ import java.io.IOException;
 
 import javax.ejb.EJBLocalObject;
 
-import org.exoplatform.common.transport.SerialRequest;
-import org.exoplatform.common.transport.SerialResponse;
+import org.exoplatform.services.rest.ext.transport.SerialRequest;
+import org.exoplatform.services.rest.ext.transport.SerialResponse;
+
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>

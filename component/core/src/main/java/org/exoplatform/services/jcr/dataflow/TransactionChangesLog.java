@@ -23,11 +23,15 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -36,7 +40,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * @version $Id: TransactionChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class TransactionChangesLog implements CompositeChangesLog, Externalizable {
+public class TransactionChangesLog implements CompositeChangesLog, Externalizable, JCRExternalizable {
 
   private static final long       serialVersionUID = 4866736965040228027L;
 
@@ -51,14 +55,10 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public TransactionChangesLog(PlainChangesLog changesLog) {
     changesLogs = new ArrayList<PlainChangesLog>();
     changesLogs.add(changesLog);
-    // this.systemId = changesLog.getSessionId();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.CompositeChangesLog#addLog(org.exoplatform.services.jcr
-   * .dataflow.PlainChangesLog)
+  /**
+   * {@inheritDoc}
    */
   public void addLog(PlainChangesLog log) {
     changesLogs.add(log);
@@ -101,17 +101,17 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return size;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getSystemId()
+  /**
+   * {@inheritDoc}
    */
   public String getSystemId() {
     return systemId;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#setSystemId(java.lang.String)
+  /**
+   * setSystemId.
+   * 
+   * @param systemId
    */
   public void setSystemId(String systemId) {
     this.systemId = systemId;
@@ -127,22 +127,12 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
-  public ItemState getItemState(NodeData parentData, QPathEntry name) throws IllegalPathException {
+  public ItemState getItemState(NodeData parentData, QPathEntry name) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState state = allStates.get(i);
       if (state.getData().getParentIdentifier().equals(parentData.getIdentifier())
           && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1].isSame(name))
-        return state;
-    }
-    return null;
-  }
-
-  public ItemState getItemState(QPath itemPath) {
-    List<ItemState> allStates = getAllStates();
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState state = allStates.get(i);
-      if (state.getData().getQPath().equals(itemPath))
         return state;
     }
     return null;
@@ -167,6 +157,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    *         renaming is not detected.
    * @throws IllegalPathException
    */
+  @Deprecated
   public ItemState[] findRenamed(ItemData item) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     // search from the end for DELETED state.
@@ -241,11 +232,9 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 
     if (in.readInt() == 1) {
-      String DEFAULT_ENCODING = "UTF-8";
       byte[] buf = new byte[in.readInt()];
       in.readFully(buf);
-
-      systemId = new String(buf, DEFAULT_ENCODING);
+      systemId = new String(buf, Constants.DEFAULT_ENCODING);
     }
 
     int listSize = in.readInt();
@@ -253,4 +242,31 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
       changesLogs.add((PlainChangesLogImpl) in.readObject());
   }
   // ------------------ [ END ] ------------------
+
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    if (in.readInt() == 1) {
+      byte[] buf = new byte[in.readInt()];
+      in.readFully(buf);
+      systemId = new String(buf, Constants.DEFAULT_ENCODING);
+    }
+
+    int listSize = in.readInt();
+    for (int i = 0; i < listSize; i++)
+      changesLogs.add((PlainChangesLogImpl) in.readObject());
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    if (systemId != null) {
+      out.writeInt(1);
+      out.writeInt(systemId.getBytes().length);
+      out.write(systemId.getBytes());
+    } else {
+      out.writeInt(-1);
+    }
+
+    int listSize = changesLogs.size();
+    out.writeInt(listSize);
+    for (int i = 0; i < listSize; i++)
+      out.writeObject((JCRExternalizable)changesLogs.get(i));
+  }
 }

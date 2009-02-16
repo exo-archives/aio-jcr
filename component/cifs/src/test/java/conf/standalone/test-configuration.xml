@@ -105,8 +105,9 @@
           <values-param>
             <name>autoCreatedInNewRepository</name>
             <description>Node types configuration file</description>
-            <value>jar:/conf/test/nodetypes-tck.xml</value>
-            <value>jar:/conf/test/nodetypes-impl.xml</value>
+            <!--value>jar:/conf/test/nodetypes-impl.xml</value-->
+            <value>jar:/conf/test/nodetypes-test.xml</value>
+            <value>jar:/conf/test/nodetypes-test2.xml</value>
             <value>jar:/conf/test/nodetypes-usecase.xml</value>
           </values-param>
           
@@ -159,7 +160,108 @@
   <component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
-  
+
+<component>
+		<key>org.exoplatform.services.cifs.CIFSService</key>
+		<type>org.exoplatform.services.cifs.CIFSServiceImpl</type>
+		<init-params>
+
+			<!-- Repository configuration -->
+				
+			<value-param>
+				<name>repository-name</name>
+				<value>db1</value>
+			</value-param>
+
+                        <!-- comment this prop for testing -->
+			<value-param>
+				<name>jndi-repository-name</name>
+				<value>repository</value>
+			</value-param>
+
+			<!--Available workspaces - used if non eXo-repository used -->
+			<!--value-param>
+				<name>workspaces</name>
+				<value>ws,ws1,ws2</value>
+			</value-param-->
+			
+			<!-- Server Configuration -->
+			
+			<!-- Enable server -->
+			<value-param>
+			       <name>enable_smb</name>
+			       <value>true</value>
+			</value-param>
+			
+			<!-- Broadcast mask, if not specified 255.255.255.0 assign -->
+			<value-param>
+			       <name>broadcast_mask</name>
+			       <value>255.255.255.255</value>
+			</value-param>
+			
+			
+			<!--Host name-->
+			<value-param>
+				<name>host_name</name>
+				<value>SmbUniqSs</value>
+			</value-param>
+
+			<!--Worgroup - if not determined used local domain name-->
+			<value-param>
+				<name>workgroup</name>
+				<value>office</value>
+			</value-param>
+
+			<!--Comment - set server comment-->
+			<value-param>
+				<name>comment</name>
+				<value>This server is specific SMB server which works with JCR
+					repository.</value>
+			</value-param>
+			
+			<!--Bind server to address, if not specified used ALL adresses -->
+			<!--value-param>
+			        <name>bind_address</name>
+			        <value>192.168.0.66</value>
+			</value-param -->
+			
+                        <!-- NetBIOS transport (Java impl) configuration-->
+                        <properties-param>
+ 		            <name>netbios_java</name>
+ 		            <property name="enabled" value="false"/>
+ 		            <property name="session_port" value="139"/>
+ 		            <property name="datagram_port" value="138"/>
+ 		            <property name="name_port" value="137"/>
+ 		            <!-- NetBIOS host announce config -->
+ 		            <property name="announce_enabled" value="true"/>
+ 		            <property name="announce_interval" value = "5"/>
+ 		        </properties-param>
+ 	
+			<!--use JNI NetBIOS SMB transport layer - only for Windows-->
+                        <properties-param>
+ 		            <name>winnetbios</name>
+ 		            <property name="enabled" value="true"/>
+ 		            <property name="netbiosname" value="UniqCIFS"/>
+ 		            <!--LANA - if not determined or equal -1 used all available -->
+ 		            <property name="lanas" value="-1"/>
+ 		            <!-- native API for Win NetBIOS : netbios or winsock -->
+ 		            <property name="nativeapi" value="netbios"/>
+ 		            <!-- Win32 NetBIOS host announce config -->
+ 		            <property name="announce_enabled" value ="true"/>
+ 		            <property name="announce_interval" value = "5"/>
+ 		        </properties-param>
+ 		        
+ 		        <!-- set security mode -->
+ 		        <!-- security signatures is not suported -->
+ 		        			
+                        <properties-param>
+ 		            <name>security_param</name>
+ 		            <property name="challenge_response" value="true"/>
+ 		        </properties-param>
+ 		        
+ 		</init-params>
+	</component>
+
   <component>
     <key>org.exoplatform.services.security.Authenticator</key>
     <type>org.exoplatform.services.organization.auth.OrganizationAuthenticatorImpl</type>
@@ -180,85 +282,6 @@
     </init-params>
   </component>
   
-  <component>
-    <key>org.exoplatform.services.cifs.CIFSService</key>
-    <type>org.exoplatform.services.cifs.CIFSServiceImpl</type>
-    <init-params>
-      <!-- Repository configuration -->
-      <value-param>
-        <name>repository-name</name>
-        <value>db1</value>
-      </value-param>
-    
-      <!-- Server Configuration -->
-    
-      <!-- Enable server -->
-      <value-param>
-        <name>enable_smb</name>
-        <value>true</value>
-      </value-param>
-    
-      <!-- Broadcast mask, if not specified 255.255.255.0 assign -->
-      <value-param>
-        <name>broadcast_mask</name>
-        <value>255.255.255.0</value>
-      </value-param>
-			
-      <!--Host name-->
-      <value-param>
-        <name>host_name</name>
-        <value>SmbUniqSs</value>
-      </value-param>
-
-      <!--Worgroup - if not determined used local domain name-->
-      <value-param>
-        <name>workgroup</name>
-        <value>office</value>
-      </value-param>
-
-      <!--Comment - set server comment-->
-      <value-param>
-        <name>comment</name>
-        <value>This server is specific SMB server which works with JCR repository.</value>
-      </value-param>
-			
-      <!-- NetBIOS transport (Java impl) configuration-->
-      <properties-param>
-        <name>netbios_java</name>
-        <property name="enabled" value="false"/>
-        <property name="session_port" value="139"/>
-        <property name="datagram_port" value="138"/>
-        <property name="name_port" value="137"/>
-        <!-- NetBIOS host announce config -->
-        <property name="announce_enabled" value="true"/>
-        <property name="announce_interval" value = "5"/>
-      </properties-param>
- 	
-      <!--use JNI NetBIOS SMB transport layer - only for Windows-->
-      <properties-param>
-        <name>winnetbios</name>
-        <property name="enabled" value="true"/>
-        <property name="netbiosname" value="TestServ"/>
-        <!--LANA - if not determined or equal -1 used all available -->
-        <property name="lanas" value="-1"/>
-        <!-- native API for Win NetBIOS : netbios or winsock -->
-        <property name="nativeapi" value="netbios"/>
-        <!-- Win32 NetBIOS host announce config -->
-        <property name="announce_enabled" value ="true"/>
-        <property name="announce_interval" value = "5"/>
-      </properties-param>
- 		        
-      <!-- set security mode -->
-      <!-- security signatures is not suported -->
- 		        			
-      <properties-param>
-        <name>security_param</name>
-        <property name="challenge_response" value="true"/>
-      </properties-param>
- 		        
-    </init-params>
-  </component>
-
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
     <component-plugin>
@@ -342,89 +365,7 @@
         </properties-param>
       </init-params>
     </component-plugin>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>jdbcjcrtck</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/portaltck"/>
-          <property name="username" value="sa"/>
-          <property name="password" value=""/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>jdbcjcr1tck</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcrtck"/>
-          <property name="username" value="sa"/>
-          <property name="password" value=""/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>jdbcjcr2tck</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2tck"/>
-          <property name="username" value="sa"/>
-          <property name="password" value=""/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-    <!-- Resource configuration for UserTransaction
-    use JOTM
+    <!-- Resource configuration for UserTransaction    use JOTM
     -->
     <component-plugin>
       <name>jotm.tx</name>

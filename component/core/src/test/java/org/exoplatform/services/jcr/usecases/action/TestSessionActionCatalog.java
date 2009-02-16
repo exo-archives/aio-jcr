@@ -33,6 +33,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.command.action.ActionMatcher;
 import org.exoplatform.services.command.action.Condition;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -48,6 +49,8 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 public class TestSessionActionCatalog extends BaseUsecasesTest {
 
+  private NodeTypeDataManager ntHolder;
+
   public void testDumpMatcher() throws Exception {
     NodeImpl node = (NodeImpl) root.addNode("test");
     NodeImpl node1 = (NodeImpl) root.addNode("test1");
@@ -59,8 +62,15 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           new InternalQName[] { Constants.NT_BASE,
                                                               Constants.NT_UNSTRUCTURED,
-                                                              Constants.NT_QUERY });
+                                                              Constants.NT_QUERY },
+                                                          ntHolder);
     System.out.println(matcher.dump());
+  }
+
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    ntHolder = session.getWorkspace().getNodeTypesHolder();
   }
 
   public void testIfServicePresent() throws Exception {
@@ -84,7 +94,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           true,
                                                           null,
-                                                          new InternalQName[] { Constants.NT_UNSTRUCTURED });
+                                                          new InternalQName[] { Constants.NT_UNSTRUCTURED },
+                                                          ntHolder);
     DummyAction dAction = new DummyAction();
     catalog.addAction(matcher, dAction);
 
@@ -110,7 +121,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           new QPath[] { node.getInternalPath() },
                                                           true,
                                                           null,
-                                                          null);
+                                                          null,
+                                                          ntHolder);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
 
@@ -148,7 +160,12 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     // ((NodeTypeImpl)node.getPrimaryNodeType()).getQName());
 
     // test by event type
-    SessionEventMatcher matcher = new SessionEventMatcher(Event.NODE_ADDED, null, true, null, null);
+    SessionEventMatcher matcher = new SessionEventMatcher(Event.NODE_ADDED,
+                                                          null,
+                                                          true,
+                                                          null,
+                                                          null,
+                                                          ntHolder);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
     cond.put(SessionEventMatcher.EVENTTYPE_KEY, Event.NODE_ADDED);
@@ -167,7 +184,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           true,
                                                           null,
-                                                          new InternalQName[] { Constants.MIX_LOCKABLE });
+                                                          new InternalQName[] { Constants.MIX_LOCKABLE },
+                                                          ntHolder);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
     cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.ADD_MIXIN);
@@ -180,6 +198,36 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     assertEquals(1, catalog.getActions(cond).size());
   }
 
+  public void testMatchSuperNodeTypes() throws Exception {
+    SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
+    catalog.clear();
+
+    // test by path
+    SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.NODE_ADDED,
+                                                          null,
+                                                          true,
+                                                          null,
+                                                          new InternalQName[] { Constants.NT_HIERARCHYNODE },
+                                                          ntHolder);
+    catalog.addAction(matcher, new DummyAction());
+    Condition cond = new Condition();
+    cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
+
+    // test for this nodetype
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_UNSTRUCTURED });
+    assertEquals(0, catalog.getActions(cond).size());
+
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_HIERARCHYNODE });
+    assertEquals(1, catalog.getActions(cond).size());
+
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_FILE });
+    assertEquals(1, catalog.getActions(cond).size());
+
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { Constants.NT_FOLDER });
+    assertEquals(1, catalog.getActions(cond).size());
+
+  }
+
   public void testMatchNotDeepPath() throws Exception {
     SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
     catalog.clear();
@@ -190,7 +238,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           new QPath[] { ((NodeImpl) root).getInternalPath() },
                                                           false,
                                                           null,
-                                                          null);
+                                                          null,
+                                                          ntHolder);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
 
@@ -221,7 +270,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           true,
                                                           new String[] { "production" },
-                                                          null);
+                                                          null,
+                                                          ntHolder);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
     cond.put(SessionEventMatcher.EVENTTYPE_KEY, Event.NODE_ADDED);
@@ -295,7 +345,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           new QPath[] { prop.getData().getQPath() },
                                                           true,
                                                           null,
-                                                          new InternalQName[] { Constants.NT_UNSTRUCTURED });
+                                                          new InternalQName[] { Constants.NT_UNSTRUCTURED },
+                                                          ntHolder);
     DummyAction dAction = new DummyAction();
 
     catalog.addAction(matcher, dAction);
@@ -317,7 +368,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           new InternalQName[] {
                                                               Constants.MIX_REFERENCEABLE,
-                                                              Constants.EXO_OWNEABLE });
+                                                              Constants.EXO_OWNEABLE },
+                                                          ntHolder);
     DummyAction dAction = new DummyAction();
     catalog.addAction(matcher, dAction);
 
@@ -339,7 +391,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           true,
                                                           null,
-                                                          new InternalQName[] { Constants.EXO_OWNEABLE });
+                                                          new InternalQName[] { Constants.EXO_OWNEABLE },
+                                                          ntHolder);
     DummyAction dAction = new DummyAction();
     catalog.addAction(matcher, dAction);
 

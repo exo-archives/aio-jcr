@@ -28,19 +28,18 @@ import org.exoplatform.services.jcr.impl.core.XASessionImpl;
 import org.exoplatform.services.transaction.TransactionException;
 
 /**
- * Created by The eXo Platform SAS.<p/>
+ * Created by The eXo Platform SAS.<p/> Manager provides consistency of
+ * transaction operations performed by same user but in different Repository
+ * Sessions.<p/> Manager stores list of XASessions involved in transaction by a
+ * user and then can be used to broadcast transaction start/commit/rollback to
+ * all live Sessions of the user.<p/> Broadcast of operations it's an atomic
+ * operation regarding to the Sessions list. Until operation broadcast request
+ * is active other requests or list modifications will wait for.<p/>
  * 
- * Manager provides consistency of transaction operations performed by same user but in different
- * Repository Sessions.<p/>
- * 
- * Manager stores list of XASessions involved in transaction by a user and then can be used to
- * broadcast transaction start/commit/rollback to all live Sessions of the user.<p/>
- * 
- * Broadcast of operations it's an atomic operation regarding to the Sessions list. Until operation
- * broadcast request is active other requests or list modifications will wait for.<p/>
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: TransactionableResourceManager.java 25730 2008-12-24 17:35:13Z
+ *          pnedonosko $
  */
 public class TransactionableResourceManager {
 
@@ -51,7 +50,6 @@ public class TransactionableResourceManager {
 
   /**
    * TransactionableResourceManager constructor.
-   * 
    */
   public TransactionableResourceManager() {
   }
@@ -59,20 +57,23 @@ public class TransactionableResourceManager {
   /**
    * Add session to the transaction group.
    * 
-   * @param userSession
-   *          user XASession
+   * @param userSession user XASession
    */
   public void add(XASessionImpl userSession) {
     final List<SoftReference<XASessionImpl>> joinedList = txManagers.get(userSession.getUserID());
     if (joinedList != null) {
       // remove unused session from user list and put this list at the end
-      synchronized (joinedList) { // sync for comodifications from concurrent threads of same user
+      synchronized (joinedList) { // sync for comodifications from concurrent
+        // threads of same user
         for (Iterator<SoftReference<XASessionImpl>> siter = joinedList.iterator(); siter.hasNext();) {
           try {
             XASessionImpl xaSession = siter.next().get();
-            if (xaSession == null || !xaSession.isLive())
+            if (xaSession == null || !xaSession.isLive()) {
+              // System.err.println("session remove on add, new session " +
+              // userSession + ", thread " + Thread.currentThread()); // TODO
               siter.remove();
-          } catch (ConcurrentModificationException e) {
+            }
+          } catch(ConcurrentModificationException e) {
             e.printStackTrace();
             System.err.println("same user >>> " + e); // TODO
           }
@@ -81,7 +82,8 @@ public class TransactionableResourceManager {
         joinedList.add(new SoftReference<XASessionImpl>(userSession));
       }
 
-      // make sure the list is not removed by another Session of same user, see remove()
+      // make sure the list is not removed by another Session of same user, see
+      // remove()
       txManagers.putIfAbsent(userSession.getUserID(), joinedList);
     } else {
       // sync for same userId operations
@@ -98,18 +100,22 @@ public class TransactionableResourceManager {
   /**
    * Remove session from user Sessions list.
    * 
-   * @param userSession
-   *          user XASession
+   * @param userSession user XASession
    */
   public void remove(XASessionImpl userSession) {
     final List<SoftReference<XASessionImpl>> joinedList = txManagers.get(userSession.getUserID());
     if (joinedList != null) {
       // traverse and remove unused sessions and given one
-      synchronized (joinedList) { // sync for comodifications from concurrent threads of same user
+      synchronized (joinedList) { // sync for comodifications from concurrent
+        // threads of same user
         for (Iterator<SoftReference<XASessionImpl>> siter = joinedList.iterator(); siter.hasNext();) {
           XASessionImpl xaSession = siter.next().get();
-          if (xaSession == null || !xaSession.isLive() || xaSession == userSession)
+          if (xaSession == null || !xaSession.isLive() || xaSession == userSession) {
+            // System.err.println("session remove, session " + userSession +
+            // ", thread "
+            // + Thread.currentThread()); // TODO
             siter.remove();
+          }
         }
 
         // if list is empty - remove mapping to the list
@@ -122,10 +128,8 @@ public class TransactionableResourceManager {
   /**
    * Commit all sessions.
    * 
-   * @param userSession
-   *          commit initializing session
-   * @throws TransactionException
-   *           Transaction error
+   * @param userSession commit initializing session
+   * @throws TransactionException Transaction error
    */
   public void commit(XASessionImpl userSession) throws TransactionException {
     List<SoftReference<XASessionImpl>> joinedList = txManagers.remove(userSession.getUserID());
@@ -145,8 +149,7 @@ public class TransactionableResourceManager {
   /**
    * Start transaction on all sessions.
    * 
-   * @param userSession
-   *          start initializing session
+   * @param userSession start initializing session
    */
   public void start(XASessionImpl userSession) {
     List<SoftReference<XASessionImpl>> joinedList = txManagers.get(userSession.getUserID());
@@ -166,8 +169,7 @@ public class TransactionableResourceManager {
   /**
    * Rollback transaction on all sessions.
    * 
-   * @param userSession
-   *          rollback initializing session
+   * @param userSession rollback initializing session
    */
   public void rollback(XASessionImpl userSession) {
     List<SoftReference<XASessionImpl>> joinedList = txManagers.remove(userSession.getUserID());

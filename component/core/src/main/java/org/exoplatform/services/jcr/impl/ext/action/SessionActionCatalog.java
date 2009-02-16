@@ -25,6 +25,7 @@ import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.command.action.Action;
 import org.exoplatform.services.command.action.ActionCatalog;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -41,14 +42,17 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class SessionActionCatalog extends ActionCatalog {
 
-  private static Log            log = ExoLogger.getLogger("jcr.SessionActionCatalog");
+  private static Log                log = ExoLogger.getLogger("jcr.SessionActionCatalog");
 
-  private final LocationFactory locFactory;
+  private final LocationFactory     locFactory;
+
+  private final NodeTypeDataManager typeDataManager;
 
   public SessionActionCatalog(RepositoryService repService) throws RepositoryException {
 
     RepositoryImpl rep = (RepositoryImpl) repService.getCurrentRepository();
-    locFactory = rep.getLocationFactory();
+    this.locFactory = rep.getLocationFactory();
+    this.typeDataManager = rep.getNodeTypesHolder();
 
   }
 
@@ -62,7 +66,8 @@ public class SessionActionCatalog extends ActionCatalog {
                                                                 getPaths(ac.getPath()),
                                                                 ac.isDeep(),
                                                                 getWorkspaces(ac.getWorkspace()),
-                                                                getNames(ac.getNodeTypes()));
+                                                                getNames(ac.getNodeTypes()),
+                                                                typeDataManager);
 
           Action action = (Action) Class.forName(ac.getActionClassName()).newInstance();
           addAction(matcher, action);

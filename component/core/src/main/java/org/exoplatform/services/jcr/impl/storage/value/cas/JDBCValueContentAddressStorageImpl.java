@@ -99,11 +99,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   protected String           sqlVCASIDX;
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#init(java.util
-   * .Properties)
+  /**
+   * {@inheritDoc}
    */
   public void init(Properties props) throws RepositoryConfigurationException, VCASException {
     // init database metadata
@@ -119,8 +116,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
     sqlVCASIDX = tableName + "_IDX";
 
-    if (DBConstants.DB_DIALECT_PGSQL.equalsIgnoreCase(dialect)) {
-      // use lowercase for postgres metadata.getTable(), HSQLDB wants UPPERCASE
+    if (DBConstants.DB_DIALECT_PGSQL.equalsIgnoreCase(dialect) || DBConstants.DB_DIALECT_INGRES.equalsIgnoreCase(dialect)) {
+      // use lowercase for postgres/ingres metadata.getTable(), HSQLDB wants UPPERCASE
       // for other seems not matter
       tableName = tableName.toUpperCase().toLowerCase();
       sqlConstraintPK = sqlConstraintPK.toUpperCase().toLowerCase();
@@ -133,7 +130,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     sqlSelectRecords = "SELECT CAS_ID, ORDER_NUM FROM " + tableName
         + " WHERE PROPERTY_ID=? ORDER BY ORDER_NUM";
 
-    // TODO CLEANUP. this script owrks ok if shared exists only
+    // TODO CLEANUP. this script works ok if shared exists only
     // sqlSelectOwnRecords =
     // "SELECT DISTINCT OWN.cas_id, OWN.order_num FROM jcr_vcas_test OWN, jcr_vcas_test S, jcr_vcas_test P "
     // +
@@ -188,11 +185,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
           + " parameter should be set");
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#add(java.lang
-   * .String, int, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
                                                                      VCASException {
@@ -248,11 +242,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#delete(java.
-   * lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void delete(String propertyId) throws RecordNotFoundException, VCASException {
     try {
@@ -273,11 +264,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifier
-   * (java.lang.String, int)
+  /**
+   * {@inheritDoc}
    */
   public String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException,
                                                               VCASException {
@@ -302,11 +290,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifiers
-   * (java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public List<String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException,
                                                                         VCASException {

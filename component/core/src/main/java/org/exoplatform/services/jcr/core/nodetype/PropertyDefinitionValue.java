@@ -21,11 +21,12 @@ import java.util.List;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id: PropertyDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class PropertyDefinitionValue extends ItemDefinitionValue {
+public final class PropertyDefinitionValue extends ItemDefinitionValue {
 
   private int          requiredType;
 
@@ -39,6 +40,33 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
+   * @param autoCreate
+   * @param mandatory
+   * @param name
+   * @param onVersion
+   * @param readOnly
+   * @param defaultValueStrings
+   * @param multiple
+   * @param requiredType
+   * @param valueConstraints
+   */
+  public PropertyDefinitionValue(String name,
+                                 boolean autoCreate,
+                                 boolean mandatory,
+                                 int onVersion,
+                                 boolean readOnly,
+                                 List<String> defaultValueStrings,
+                                 boolean multiple,
+                                 int requiredType,
+                                 List<String> valueConstraints) {
+    super(name, autoCreate, mandatory, onVersion, readOnly);
+    this.defaultValueStrings = defaultValueStrings;
+    this.multiple = multiple;
+    this.requiredType = requiredType;
+    this.valueConstraints = valueConstraints;
+  }
+
+  /**
    * @return Returns the defaultValues.
    */
   public List<String> getDefaultValueStrings() {
@@ -46,8 +74,7 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
-   * @param defaultValues
-   *          The defaultValues to set.
+   * @param defaultValues The defaultValues to set.
    */
   public void setDefaultValueStrings(List<String> defaultValues) {
     this.defaultValueStrings = defaultValues;
@@ -61,8 +88,7 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
-   * @param multiple
-   *          The multiple to set.
+   * @param multiple The multiple to set.
    */
   public void setMultiple(boolean multiple) {
     this.multiple = multiple;
@@ -76,8 +102,7 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
-   * @param requiredType
-   *          The requiredType to set.
+   * @param requiredType The requiredType to set.
    */
   public void setRequiredType(int requiredType) {
     this.requiredType = requiredType;
@@ -91,8 +116,7 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
-   * @param valueConstraints
-   *          The valueConstraints to set.
+   * @param valueConstraints The valueConstraints to set.
    */
   public void setValueConstraints(List<String> valueConstraints) {
     this.valueConstraints = valueConstraints;

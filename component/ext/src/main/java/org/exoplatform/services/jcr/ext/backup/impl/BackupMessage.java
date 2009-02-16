@@ -19,8 +19,6 @@ package org.exoplatform.services.jcr.ext.backup.impl;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import org.exoplatform.services.jcr.ext.backup.impl.BackupManagerImpl.MessagesListener;
-
 /**
  * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 15.01.2008

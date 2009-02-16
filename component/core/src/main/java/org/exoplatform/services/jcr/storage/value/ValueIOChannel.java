@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.storage.value;
 import java.io.IOException;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
 
 /**
  * Created by The eXo Platform SAS.
@@ -48,7 +49,7 @@ public interface ValueIOChannel {
    *          - list of ValueData
    * @throws IOException
    */
-  void write(String propertyId, ValueData data) throws IOException;
+  ValueFile write(String propertyId, ValueData data) throws IOException;
 
   /**
    * deletes values

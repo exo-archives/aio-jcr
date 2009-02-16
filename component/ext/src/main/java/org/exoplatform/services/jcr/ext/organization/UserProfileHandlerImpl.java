@@ -28,7 +28,6 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
@@ -132,29 +131,9 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     }
 
     try {
-      String attrPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
-          + userName + "/" + UserHandlerImpl.EXO_PROFILE + "/" + EXO_ATTRIBUTES;
-
-      // if attributes is absent return null
-      if (!session.itemExists(attrPath)) {
-        return null;
-      }
-
-      Node attrNode = (Node) session.getItem(attrPath);
-
-      UserProfile userProfile = new UserProfileImpl(userName);
-      for (PropertyIterator props = attrNode.getProperties(); props.hasNext();) {
-        Property prop = props.nextProperty();
-
-        // ignore system properties
-        if (!(prop.getName()).startsWith("jcr:") && !(prop.getName()).startsWith("exo:")) {
-          userProfile.setAttribute(prop.getName(), prop.getString());
-        }
-      }
-      return userProfile;
-
+      return readUserProfile(session, userName);
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find user profile", e);
+      throw new OrganizationServiceException("Can not find '" + userName + "' profile", e);
     }
   }
 
@@ -190,8 +169,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS);
       for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
-        Node uNode = nodes.nextNode();
-        UserProfile userProfile = findUserProfileByName(session, uNode.getName());
+        UserProfile userProfile = readUserProfile(session, nodes.nextNode().getName());
         if (userProfile != null) {
           types.add(userProfile);
         }
@@ -235,13 +213,9 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     }
 
     try {
-      UserProfile userProfile = findUserProfileByName(session, userName);
-      if (userProfile == null) {
-        return null;
-      }
-
       Node profileNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/" + UserHandlerImpl.EXO_PROFILE);
+      UserProfile userProfile = readObjectFromNode(session, profileNode.getNode(EXO_ATTRIBUTES));
 
       if (broadcast) {
         preDelete(userProfile);
@@ -256,6 +230,8 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
 
       return userProfile;
 
+    } catch (PathNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove '" + userName + "' profile", e);
     }
@@ -307,16 +283,12 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + profile.getUserName());
 
-      try {
-        uNode.getNode(UserHandlerImpl.EXO_PROFILE);
-      } catch (PathNotFoundException e) {
+      if (!session.itemExists(uNode.getPath() + "/" + UserHandlerImpl.EXO_PROFILE)) {
         uNode.addNode(UserHandlerImpl.EXO_PROFILE);
       }
       Node profileNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE);
 
-      try {
-        profileNode.getNode(EXO_ATTRIBUTES);
-      } catch (PathNotFoundException e) {
+      if (!session.itemExists(profileNode.getPath() + "/" + EXO_ATTRIBUTES)) {
         profileNode.addNode(EXO_ATTRIBUTES);
       }
       Node attrNode = profileNode.getNode(EXO_ATTRIBUTES);
@@ -325,9 +297,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
         preSave(profile, false);
       }
 
-      Object[] keys = profile.getUserInfoMap().keySet().toArray();
-      for (int i = 0; i < keys.length; i++) {
-        String key = (String) keys[i];
+      for (String key : profile.getUserInfoMap().keySet()) {
         attrNode.setProperty(key, profile.getAttribute(key));
       }
 
@@ -337,9 +307,66 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
         postSave(profile, false);
       }
 
+    } catch (PathNotFoundException e) {
+      return;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save '" + profile.getUserName() + "' profile",
                                              e);
+    }
+  }
+
+  /**
+   * Read user profile data for specific user.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user name
+   * @return The user profile data or null if profile does not exist
+   * @throws Exception
+   *           An exception is thrown if method can not get access to the database
+   */
+  private UserProfile readUserProfile(Session session, String userName) throws Exception {
+    try {
+      Node attrNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/" + UserHandlerImpl.EXO_PROFILE
+          + "/" + EXO_ATTRIBUTES);
+
+      return readObjectFromNode(session, attrNode);
+
+    } catch (PathNotFoundException e) {
+      return null;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not read user profile data", e);
+    }
+  }
+
+  /**
+   * Read user profile from the node in the storage.
+   * 
+   * @param session
+   *          The current session
+   * @param node
+   *          The node to read from
+   * @return The user profile data
+   * @throws Exception
+   *           An exception is thrown if method can not get access to the database
+   */
+  private UserProfile readObjectFromNode(Session session, Node node) throws Exception {
+    try {
+      UserProfile userProfile = new UserProfileImpl(node.getParent().getParent().getName());
+      for (PropertyIterator props = node.getProperties(); props.hasNext();) {
+        Property prop = props.nextProperty();
+
+        // ignore system properties
+        if (!(prop.getName()).startsWith("jcr:") && !(prop.getName()).startsWith("exo:")) {
+          userProfile.setAttribute(prop.getName(), prop.getString());
+        }
+      }
+      return userProfile;
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not read user profile data from node", e);
     }
   }
 

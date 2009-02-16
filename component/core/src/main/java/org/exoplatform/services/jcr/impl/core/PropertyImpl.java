@@ -28,15 +28,17 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -51,15 +53,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 public class PropertyImpl extends ItemImpl implements Property {
 
-  protected int                 type;
+  protected int                  type;
 
-  // private PropertyDefinitions definitions;
-  private PropertyDefinition    propertyDef;
+  private PropertyDefinitionData propertyDef;
 
-  /**
-   * just to simplify operations
-   */
-  private TransientPropertyData propertyData;
+  private TransientPropertyData  propertyData;
 
   PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException,
       ConstraintViolationException {
@@ -70,8 +68,8 @@ public class PropertyImpl extends ItemImpl implements Property {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform.services.jcr.datamodel
-   * .ItemData)
+   * org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform
+   * .services.jcr.datamodel .ItemData)
    */
   void loadData(ItemData data) throws RepositoryException, ConstraintViolationException {
 
@@ -83,7 +81,6 @@ public class PropertyImpl extends ItemImpl implements Property {
     this.propertyData = (TransientPropertyData) data;
     this.type = propertyData.getType();
 
-    // [PN] 03.01.07
     this.location = session.getLocationFactory().createJCRPath(getData().getQPath());
     this.propertyDef = null;
     initDefinitions(this.propertyData.isMultiValued());
@@ -236,8 +233,34 @@ public class PropertyImpl extends ItemImpl implements Property {
       throw new RepositoryException("FATAL: property definition is NULL " + getPath() + " "
           + propertyData.getValues());
     }
+    String name = locationFactory.createJCRName(propertyDef.getName() != null ? propertyDef.getName()
+                                                                             : Constants.JCR_ANY_NAME)
+                                 .getAsString();
+    ExtendedNodeTypeManager nodeTypeManager = (ExtendedNodeTypeManager) session.getWorkspace()
+                                                                               .getNodeTypeManager();
 
-    return propertyDef;
+    Value[] defaultValues = new Value[propertyDef.getDefaultValues().length];
+    String[] propVal = propertyDef.getDefaultValues();
+    // there can be null in definition but should not be null value
+    if (propVal != null) {
+      for (int i = 0; i < propVal.length; i++) {
+        if (propertyDef.getRequiredType() == PropertyType.UNDEFINED)
+          defaultValues[i] = valueFactory.createValue(propVal[i]);
+        else
+          defaultValues[i] = valueFactory.createValue(propVal[i], propertyDef.getRequiredType());
+      }
+    }
+
+    return new PropertyDefinitionImpl(name,
+                                      nodeTypeManager.findNodeType(propertyDef.getDeclaringNodeType()),
+                                      propertyDef.getRequiredType(),
+                                      propertyDef.getValueConstraints(),
+                                      defaultValues,
+                                      propertyDef.isAutoCreated(),
+                                      propertyDef.isMandatory(),
+                                      propertyDef.getOnParentVersion(),
+                                      propertyDef.isProtected(),
+                                      propertyDef.isMultiple());
 
   }
 
@@ -247,45 +270,27 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   private void initDefinitions(boolean multiple) throws RepositoryException,
                                                 ConstraintViolationException {
-
-    PropertyDefinitions definitions = null;
+    //
+    // PropertyDefinitions definitions = null;
+    // 
+    // for (ExtendedNodeType nt : getParentNodeTypes()) {
+    // PropertyDefinitions defs = nt.getPropertyDefinitions(pname);
+    // if (defs.getAnyDefinition() != null) { // includes residual set
+    // definitions = defs;
+    // if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
+    // break;
+    // }
+    // }
+    NodeData parent = parentData();
     InternalQName pname = getData().getQPath().getName();
-    for (ExtendedNodeType nt : getParentNodeTypes()) {
-      PropertyDefinitions defs = nt.getPropertyDefinitions(pname);
-      if (defs.getAnyDefinition() != null) { // includes residual set
-        definitions = defs;
-        if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
-          break;
-      }
-    }
-
+    PropertyDefinitionDatas definitions = session.getWorkspace()
+                                                 .getNodeTypesHolder()
+                                                 .findPropertyDefinitions(pname,
+                                                                          parent.getPrimaryTypeName(),
+                                                                          parent.getMixinTypeNames());
     if (definitions == null)
       throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
 
-    propertyDef = definitions.getDefinition(multiple);
-  }
-
-  /**
-   * @throws RepositoryException
-   * @throws ConstraintViolationException
-   */
-  private void initDefinitions_Old(boolean multiple) throws RepositoryException,
-                                                    ConstraintViolationException {
-
-    NodeType[] nodeTypes = parent().getAllNodeTypes();
-    PropertyDefinitions defs = null;
-    PropertyDefinitions definitions = null;
-    for (int i = 0; i < nodeTypes.length; i++) {
-      defs = ((ExtendedNodeType) nodeTypes[i]).getPropertyDefinitions(getInternalName());
-      if (defs.getAnyDefinition() != null) { // includes residual set
-        definitions = defs;
-        if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
-          break;
-      }
-    }
-
-    if (definitions == null)
-      throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
     propertyDef = definitions.getDefinition(multiple);
   }
 
@@ -325,9 +330,10 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @return multiValued property of data field (PropertyData) it's a life-state property field
-   *         which contains multiple-valued flag for value(s) data. Can be set in property creation
-   *         time or from persistent storage.
+   * @return multiValued property of data field (PropertyData) it's a life-state
+   *         property field which contains multiple-valued flag for value(s)
+   *         data. Can be set in property creation time or from persistent
+   *         storage.
    */
   public boolean isMultiValued() {
     return ((PropertyData) data).isMultiValued();

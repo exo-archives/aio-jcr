@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -295,12 +294,10 @@ public class PendingChangesLog {
   private int analysisItemDataChangesLog() throws IOException {
     int itemDataChangesLogType = PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM;
 
-    List<ItemState> listItemState = itemDataChangesLog.getAllStates();
-
-    for (int i = 0; i < listItemState.size(); i++) {
-      ItemState itemState = listItemState.get(i);
+    int i = 0;
+    for (ItemState itemState : itemDataChangesLog.getAllStates()) {
       ItemData itemData = itemState.getData();
-
+      
       if (itemData instanceof TransientPropertyData) {
         TransientPropertyData propertyData = (TransientPropertyData) itemData;
         if ((propertyData.getValues() != null))
@@ -319,10 +316,7 @@ public class PendingChangesLog {
             }
       }
 
-      if (itemData instanceof TransientNodeData) {
-        TransientNodeData propertyData = (TransientNodeData) itemData;
-      }
-
+      i++;
     }
 
     return itemDataChangesLogType;
@@ -458,8 +452,8 @@ public class PendingChangesLog {
    *           will be generated the IOException
    */
   public void restore() throws IOException {
+    List<ItemState> listItemState = itemDataChangesLog.getAllStates();
     for (int i = 0; i < this.listFixupStream.size(); i++) {
-      List<ItemState> listItemState = itemDataChangesLog.getAllStates();
       ItemState itemState = listItemState.get(listFixupStream.get(i).getItemSateId());
       ItemData itemData = itemState.getData();
 

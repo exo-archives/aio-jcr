@@ -29,14 +29,14 @@ import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.common.transport.SerialRequest;
-import org.exoplatform.common.transport.SerialResponse;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ext.transport.SerialRequest;
+import org.exoplatform.services.rest.ext.transport.SerialResponse;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -61,7 +61,12 @@ public class WebDAVEJBConnectorBean implements SessionBean {
   /**
    * Logger.
    */
-  private static final Log  LOG              = ExoLogger.getLogger(WebDAVEJBConnectorBean.class.getName()); 
+  private static final Log  LOG              = ExoLogger.getLogger(WebDAVEJBConnectorBean.class.getName());
+
+  /**
+   * Portal container name.
+   */
+  private String            containerName;
 
   /**
    * @param request wrapper for REST request that gives possibility transfer
@@ -71,14 +76,19 @@ public class WebDAVEJBConnectorBean implements SessionBean {
    * @throws IOException if any i/o errors occurs
    */
   public final SerialResponse service(final SerialRequest request) throws IOException {
-    
-    ExoContainer container = getContainer();
-    
-    IdentityRegistry identityRegistry =
-      (IdentityRegistry) container.getComponentInstanceOfType(IdentityRegistry.class);
 
-    ThreadLocalSessionProviderService sessionProviderService =
-      (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
+    try {
+      InitialContext ctx = new InitialContext();
+      containerName = (String) ctx.lookup("java:comp/env/exo.container.name");
+    } catch (NamingException e1) {
+      LOG.error("Can't construct an initial context or get portal container name. ");
+    }
+
+    ExoContainer container = getContainer();
+
+    IdentityRegistry identityRegistry = (IdentityRegistry) container.getComponentInstanceOfType(IdentityRegistry.class);
+
+    ThreadLocalSessionProviderService sessionProviderService = (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
 
     String userId = context.getCallerPrincipal().getName();
     Identity identity = identityRegistry.getIdentity(userId);
@@ -87,15 +97,15 @@ public class WebDAVEJBConnectorBean implements SessionBean {
       ConversationState state = new ConversationState(identity);
       SessionProvider provider = new SessionProvider(state);
       state.setAttribute(SessionProvider.SESSION_PROVIDER, provider);
-      
+
       ConversationState.setCurrent(state);
       sessionProviderService.setSessionProvider(null, provider);
-      
+
       InitialContext initialContext = new InitialContext();
       Object obj = initialContext.lookup("RestEJBConnectorLocal");
       RestEJBConnectorLocalHome bean = (RestEJBConnectorLocalHome) PortableRemoteObject.narrow(obj,
-          RestEJBConnectorLocalHome.class);
-      
+                                                                                               RestEJBConnectorLocalHome.class);
+
       return bean.create().service(request);
     } catch (NamingException e) {
       throw new EJBException("RestEJBConnectorLocal not found in jndi!", e);
@@ -107,6 +117,7 @@ public class WebDAVEJBConnectorBean implements SessionBean {
       try {
         sessionProviderService.removeSessionProvider(null);
         ConversationState.setCurrent(null);
+        ExoContainerContext.setCurrentContainer(null);
       } catch (Exception e) {
         LOG.warn("Failed reset ThreadLocal variables", e);
       }
@@ -137,7 +148,7 @@ public class WebDAVEJBConnectorBean implements SessionBean {
   public void ejbCreate() {
     // nothing to do here
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -150,8 +161,10 @@ public class WebDAVEJBConnectorBean implements SessionBean {
    */
   protected ExoContainer getContainer() {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-    if (container instanceof RootContainer)
-      return RootContainer.getInstance().getPortalContainer("portal");
+    if (container instanceof RootContainer) {
+      container = RootContainer.getInstance().getPortalContainer(containerName);
+      ExoContainerContext.setCurrentContainer(container);
+    }
 
     return container;
   }

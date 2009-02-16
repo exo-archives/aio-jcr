@@ -21,7 +21,9 @@ import javax.jcr.RepositoryException;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -33,8 +35,13 @@ import org.exoplatform.services.jcr.RepositoryService;
 public class LockTestCase extends BaseReplicationTestCase {
 
   /**
-   * LockTestCase  constructor.
-   *
+   * The apache logger.
+   */
+  private static final Log log = ExoLogger.getLogger(LockTestCase.class);
+
+  /**
+   * LockTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -57,11 +64,10 @@ public class LockTestCase extends BaseReplicationTestCase {
 
   /**
    * lock.
-   *
+   * 
    * @param repoPath
    *          repository path
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer lock(String repoPath) {
     StringBuffer sb = new StringBuffer();
@@ -86,11 +92,10 @@ public class LockTestCase extends BaseReplicationTestCase {
 
   /**
    * isLocked.
-   *
+   * 
    * @param repoPath
    *          repository path
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer isLocked(String repoPath) {
     StringBuffer sb = new StringBuffer();

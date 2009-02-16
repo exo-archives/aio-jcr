@@ -35,7 +35,7 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.command.action.Action;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.document.HandlerNotFoundException;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -108,12 +108,12 @@ public class AddMetadataAction implements Action {
                                 .createJCRName(new InternalQName(qname.getNamespace(),
                                                                  qname.getName()));
 
-      PropertyDefinitions pds = parent.getSession()
-                                      .getWorkspace()
-                                      .getNodeTypeManager()
-                                      .findPropertyDefinitions(jcrName.getInternalName(),
-                                                               ((NodeData) parent.getData()).getPrimaryTypeName(),
-                                                               ((NodeData) parent.getData()).getMixinTypeNames());
+      PropertyDefinitionDatas pds = parent.getSession()
+                                          .getWorkspace()
+                                          .getNodeTypesHolder()
+                                          .findPropertyDefinitions(jcrName.getInternalName(),
+                                                                   ((NodeData) parent.getData()).getPrimaryTypeName(),
+                                                                   ((NodeData) parent.getData()).getMixinTypeNames());
       if (pds.getDefinition(true) != null) {
         Value[] values = { createValue(entry.getValue(), property.getSession().getValueFactory()) };
         parent.setProperty(jcrName.getAsString(), values);

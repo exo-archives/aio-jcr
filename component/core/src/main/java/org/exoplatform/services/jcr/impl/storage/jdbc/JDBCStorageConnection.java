@@ -27,6 +27,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -35,7 +36,6 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -55,6 +55,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedV
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataNotFoundException;
+import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
@@ -99,6 +100,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   protected final String                     containerName;
 
   protected final SQLExceptionHandler        exceptionHandler;
+  
+  protected final List<ValueFile>            currentChanges;
 
   /**
    * JDBCStorageConnection constructor.
@@ -145,6 +148,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
     prepareQueries();
     this.exceptionHandler = new SQLExceptionHandler(containerName, this);
+    
+    this.currentChanges = new ArrayList<ValueFile>();
   }
 
   /**
@@ -227,6 +232,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       dbConnection.rollback();
       dbConnection.close();
+
+      Iterator<ValueFile> it = currentChanges.iterator();
+      while(it.hasNext()){
+        it.next().rollback();
+      }
+      currentChanges.clear();
     } catch (SQLException e) {
       throw new RepositoryException(e);
     }
@@ -240,6 +251,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       dbConnection.commit();
       dbConnection.close();
+      currentChanges.clear();
     } catch (SQLException e) {
       throw new RepositoryException(e);
     }
@@ -1646,7 +1658,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         }
         storageId = null;
       } else {
-        channel.write(data.getIdentifier(), vd);
+        currentChanges.add(channel.write(data.getIdentifier(), vd));
         storageId = channel.getStorageId();
         stream = null;
         streamLength = 0;

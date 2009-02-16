@@ -23,7 +23,9 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -31,14 +33,37 @@ import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
  */
 public class GroovyScript2RestUpdateListener implements EventListener {
 
-  private String                  repository;
+  /**
+   * Logger.
+   */
+  private static final Log              LOG = ExoLogger.getLogger(GroovyScript2RestUpdateListener.class.getName());
 
-  private String                  workspace;
+  /**
+   * Repository name.
+   */
+  private final String                  repository;
 
-  private GroovyScript2RestLoader groovyScript2RestLoader;
+  /**
+   * Workspace name.
+   */
+  private final String                  workspace;
 
-  private Session                 session;
+  /**
+   * See {@link GroovyScript2RestLoader}.
+   */
+  private final GroovyScript2RestLoader groovyScript2RestLoader;
 
+  /**
+   * See {@link Session}.
+   */
+  private final Session                 session;
+
+  /**
+   * @param repository repository name
+   * @param workspace workspace name
+   * @param groovyScript2RestLoader See {@link GroovyScript2RestLoader}
+   * @param session JCR session
+   */
   public GroovyScript2RestUpdateListener(String repository,
                                          String workspace,
                                          GroovyScript2RestLoader groovyScript2RestLoader,
@@ -49,54 +74,59 @@ public class GroovyScript2RestUpdateListener implements EventListener {
     this.session = session;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.observation.EventListener#onEvent(javax.jcr.observation.EventIterator)
+  /**
+   * {@inheritDoc}
    */
   public void onEvent(EventIterator eventIterator) {
-    // waiting for Event.PROPERTY_ADDED and Event.PROPERTY_CHANGED
+    // waiting for Event.PROPERTY_ADDED, Event.PROPERTY_REMOVED,
+    // Event.PROPERTY_CHANGED
     try {
       while (eventIterator.hasNext()) {
         Event event = eventIterator.nextEvent();
         String path = event.getPath();
 
-        // interesting about change script source code
         if (path.endsWith("/jcr:data")) {
-
-          Node node = session.getItem(path).getParent();
-          // check is script should be automatically loaded
-          if (node.getProperty("exo:autoload").getBoolean()) {
-            String unifiedNodePath = new UnifiedNodeReference(repository, workspace, node.getPath()).getURL()
-                                                                                                    .toString();
-            if (event.getType() == Event.PROPERTY_CHANGED) {
-              groovyScript2RestLoader.unloadScript(unifiedNodePath);
-              groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data")
-                                                                      .getStream());
-            } else {
-              // if Event.PROPERTY_ADDED
-              groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data")
-                                                                      .getStream());
-            }
-          }
-        }
-        // property 'exo:autoload' changed, if it false script should be removed
-        // from ResourceBinder. Not care about Event.ADDED_NODE it will be catched
-        // by path.endsWith("/jcr:data").
-        if (path.endsWith("/exo:autoload") && event.getType() == Event.PROPERTY_CHANGED) {
-          Node node = session.getItem(path).getParent();
-          String unifiedNodePath = new UnifiedNodeReference(repository, workspace, node.getPath()).getURL()
-                                                                                                  .toString();
-          if (node.getProperty("exo:autoload").getBoolean()) {
-            groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data")
-                                                                    .getStream());
-          } else {
-            groovyScript2RestLoader.unloadScript(unifiedNodePath);
+          // jcr:data removed 'exo:groovyResourceContainer' then unbind resource
+          if (event.getType() == Event.PROPERTY_REMOVED) {
+            unloadScript(path.substring(0, path.lastIndexOf('/')));
+          } else if (event.getType() == Event.PROPERTY_ADDED
+              || event.getType() == Event.PROPERTY_CHANGED) {
+            Node node = session.getItem(path).getParent();
+            if (node.getProperty("exo:autoload").getBoolean())
+              loadScript(node);
           }
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Process event failed. ", e);
     }
+  }
+
+  /**
+   * Load script form supplied node.
+   * 
+   * @param node JCR node
+   * @throws Exception if any error occurs
+   */
+  private void loadScript(Node node) throws Exception {
+    String unifiedNodePath = new UnifiedNodeReference(repository, workspace, node.getPath()).getURL()
+                                                                                            .toString();
+    if (groovyScript2RestLoader.isLoaded(unifiedNodePath))
+      groovyScript2RestLoader.unloadScript(unifiedNodePath);
+    groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data").getStream());
+  }
+
+  /**
+   * Unload script.
+   * 
+   * @param path unified JCR node path
+   * @throws Exception if any error occurs
+   */
+  private void unloadScript(String path) throws Exception {
+    String unifiedNodePath = new UnifiedNodeReference(repository, workspace, path).getURL()
+                                                                                  .toString();
+    if (groovyScript2RestLoader.isLoaded(unifiedNodePath))
+      groovyScript2RestLoader.unloadScript(unifiedNodePath);
   }
 
 }

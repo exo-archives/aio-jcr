@@ -101,27 +101,27 @@ public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
     registerNamespace("dc", "http://purl.org/dc/elements/1.1/");
 
     InputStream xml = this.getClass()
-                          .getResourceAsStream("/conf/test/ext-nodetypes-config.xml");
+                          .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/ext-nodetypes-config.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
     InputStream xml1 = this.getClass()
-                           .getResourceAsStream("/conf/test/nodetypes-config.xml");
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml1, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
     InputStream xml2 = this.getClass()
-                           .getResourceAsStream("/conf/test/nodetypes-config-extended.xml");
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config-extended.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml2, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
     InputStream xml3 = this.getClass()
-                           .getResourceAsStream("/conf/test/nodetypes-ecm.xml");
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-ecm.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml3, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
     InputStream xml4 = this.getClass()
-                           .getResourceAsStream("/conf/test/business-process-nodetypes.xml");
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/business-process-nodetypes.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml4, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);

@@ -289,7 +289,6 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     for (RepositoryEntry repoConfig : config.getRepositoryConfigurations()) {
       registerNodeTypes(repoConfig.getName());
     }
-
   }
 
   private void registerNodeTypes(String repositoryName) throws RepositoryException {

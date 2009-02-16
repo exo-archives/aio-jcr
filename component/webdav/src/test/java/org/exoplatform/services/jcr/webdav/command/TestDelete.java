@@ -22,23 +22,26 @@ import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com Aug 13, 2008
  */
+
 public class TestDelete extends BaseWebDavTest {
 
-  private final String folderName  = TestUtils.getFolderName();
-
-  private final String fileName    = TestUtils.getFullWorkSpacePath() + "/"
-                                       + TestUtils.getFileName();
+  private String       fileName    = TestUtils.getFileName();
 
   private final String fileContent = "TEST FILE CONTENT...";
 
+  private final String testFile = TestUtils.getFullWorkSpacePath() + "/" + fileName;
+
+  private final String folderName  = TestUtils.getFolderName();
+
   public void testDeleteForNonCollection() throws Exception {
 
-    HTTPResponse response = connection.Put(fileName, fileContent);
+    HTTPResponse response = connection.Put(testFile, fileContent);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
 
-    response = connection.Delete(fileName);
+    response = connection.Delete(testFile);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
 
   }

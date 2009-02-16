@@ -23,6 +23,11 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -30,7 +35,7 @@ import java.util.List;
  * @version $Id: PlainChangesLogImpl.java 14464 2008-05-19 11:05:20Z pnedonosko $ Stores collection
  *          of ItemStates
  */
-public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
+public class PlainChangesLogImpl implements Externalizable, JCRExternalizable, PlainChangesLog {
 
   private static final long serialVersionUID = 5624550860372364084L;
 
@@ -179,7 +184,35 @@ public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
     items = new ArrayList<ItemState>();
     int listSize = in.readInt();
     for (int i = 0; i < listSize; i++)
-      add((ItemState) in.readObject()); 
+      add((ItemState) in.readObject());
   }
   // ------------------ [ END ] ------------------
+
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    eventType = in.readInt();
+
+    String DEFAULT_ENCODING = "UTF-8";
+    byte[] buf;
+
+    buf = new byte[in.readInt()];
+    in.readFully(buf);
+    sessionId = new String(buf, DEFAULT_ENCODING);
+
+    items = new ArrayList<ItemState>();
+    int listSize = in.readInt();
+    for (int i = 0; i < listSize; i++)
+      add((ItemState) in.readObject());
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    out.writeInt(eventType);
+
+    out.writeInt(sessionId.getBytes().length);
+    out.write(sessionId.getBytes());
+
+    int listSize = items.size();
+    out.writeInt(listSize);
+    for (int i = 0; i < listSize; i++)
+      out.writeObject(items.get(i));
+  }
 }

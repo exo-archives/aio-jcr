@@ -23,15 +23,19 @@ import java.util.List;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
+import javax.jcr.query.QueryManager;
+import javax.management.MBeanServer;
 
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.jmx.MX4JComponentAdapterFactory;
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NamespaceDataPersister;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
@@ -42,11 +46,11 @@ import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.core.WorkspaceInitializer;
 import org.exoplatform.services.jcr.impl.core.access.DefaultAccessManagerImpl;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
-import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManagerHolder;
@@ -78,7 +82,8 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * MBean server for the container.
    */
-  // private final MBeanServer mbeanServer;
+  private final MBeanServer             mbeanServer;
+
   /**
    * System workspace DataManager.
    */
@@ -89,7 +94,7 @@ public class RepositoryContainer extends ExoContainer {
    */
   private final Log                     log               = ExoLogger.getLogger("jcr.RepositoryContainer");
 
-  // private final String mbeanContext;
+  private final String                  mbeanContext;
 
   /**
    * RepositoryContainer constructor.
@@ -102,19 +107,36 @@ public class RepositoryContainer extends ExoContainer {
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
       RepositoryConfigurationException {
 
-    super(parent);
+    super(new MX4JComponentAdapterFactory(), parent);
 
     // Defaults:
     if (config.getAccessControl() == null)
       config.setAccessControl(AccessControlPolicy.OPTIONAL);
 
     this.config = config;
+    this.mbeanServer = createMBeanServer("jcrrep" + getName() + "mx");
+    final String parentContext = parent.getMBeanContext();
+    this.mbeanContext = (parentContext == null ? "" : parentContext + ",") + "repository="
+        + getName();
 
     registerComponents();
   }
 
   public LocationFactory getLocationFactory() {
     return (LocationFactory) getComponentInstanceOfType(LocationFactory.class);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public MBeanServer getMBeanServer() {
+    return this.mbeanServer;
+  }
+
+  @Override
+  public String getMBeanContext() {
+    return mbeanContext;
   }
 
   /**
@@ -227,7 +249,7 @@ public class RepositoryContainer extends ExoContainer {
       // Query handler
       if (wsConfig.getQueryHandler() != null) {
         workspaceContainer.registerComponentImplementation(SearchManager.class);
-        workspaceContainer.registerComponentImplementation(QueryManagerImpl.class);
+        workspaceContainer.registerComponentImplementation(QueryManager.class);
         workspaceContainer.registerComponentImplementation(QueryManagerFactory.class);
         workspaceContainer.registerComponentInstance(wsConfig.getQueryHandler());
         if (isSystem) {
@@ -311,10 +333,6 @@ public class RepositoryContainer extends ExoContainer {
       init();
 
       load();
-
-      // TODO
-      // doStart();
-
     } catch (RepositoryException e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -340,22 +358,6 @@ public class RepositoryContainer extends ExoContainer {
   }
 
   /**
-   * Start workspaces. Start internal processes like search index etc.
-   * <p>
-   * Runs on container start.
-   * 
-   * @throws RepositoryException
-   * @throws RepositoryConfigurationException
-   */
-  @Deprecated
-  private void doStart() throws RepositoryException, RepositoryConfigurationException {
-    List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
-    for (WorkspaceEntry ws : wsEntries) {
-      startWorkspace(ws);
-    }
-  }
-
-  /**
    * Initialize worspaces (root node and jcr:system for system workspace).
    * <p>
    * Runs on container start.
@@ -365,9 +367,30 @@ public class RepositoryContainer extends ExoContainer {
    */
   private void init() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
+
+    NodeTypeDataManager typeManager = (NodeTypeDataManager) this.getComponentInstanceOfType(NodeTypeDataManager.class);
+    NamespaceRegistryImpl namespaceRegistry = (NamespaceRegistryImpl) this.getComponentInstanceOfType(NamespaceRegistry.class);
+
     for (WorkspaceEntry ws : wsEntries) {
       initWorkspace(ws);
+      WorkspaceContainer workspaceContainer = getWorkspaceContainer(ws.getName());
+      SearchManager searchManager = (SearchManager) workspaceContainer.getComponentInstanceOfType(SearchManager.class);
+      if (searchManager != null) {
+        typeManager.addQueryHandler(searchManager.getHandler());
+        namespaceRegistry.addQueryHandler(searchManager.getHandler());
+      } else {
+        log.warn("Search manager not configured for " + ws.getName());
+      }
     }
+
+    SystemSearchManagerHolder searchManager = (SystemSearchManagerHolder) this.getComponentInstanceOfType(SystemSearchManagerHolder.class);
+    if (searchManager != null) {
+      typeManager.addQueryHandler(searchManager.get().getHandler());
+      namespaceRegistry.addQueryHandler(searchManager.get().getHandler());
+    } else {
+      log.warn("System search manager not configured ");
+    }
+
   }
 
   /**
@@ -386,6 +409,13 @@ public class RepositoryContainer extends ExoContainer {
     // Init Root and jcr:system if workspace is system workspace
     WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
     wsInitializer.initWorkspace();
+
+    // SearchManager searchManager = (SearchManager)
+    // workspaceContainer.getComponentInstanceOfType(SearchManager.class);
+    // NodeTypeManagerImpl typeManager = (NodeTypeManagerImpl)
+    // workspaceContainer.getComponentInstanceOfType(NodeTypeManagerImpl.class);
+    // typeManager.setQueryHandler(searchManager.getHandler());
+
   }
 
   // ////// initialize --------------
@@ -412,6 +442,7 @@ public class RepositoryContainer extends ExoContainer {
 
     registerComponentImplementation(NodeTypeDataPersister.class);
     registerComponentImplementation(NodeTypeManagerImpl.class);
+    registerComponentImplementation(NodeTypeDataManagerImpl.class);
 
     registerComponentImplementation(DefaultAccessManagerImpl.class);
 
@@ -448,25 +479,6 @@ public class RepositoryContainer extends ExoContainer {
   }
 
   /**
-   * Do actual start of the workspace.
-   * 
-   * @param wsConfig
-   * @throws RepositoryException
-   */
-  @Deprecated
-  private void startWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
-
-    // TODO 21.10.08 do we need it here
-
-    WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
-
-    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
-
-    // start workspace
-    // wsInitializer.start();
-  }
-
-  /**
    * Load namespaces and nodetypes from persistent repository.
    * <p>
    * Runs on container start.
@@ -475,11 +487,17 @@ public class RepositoryContainer extends ExoContainer {
    */
   private void load() throws RepositoryException {
     NamespaceRegistryImpl nsRegistry = (NamespaceRegistryImpl) getNamespaceRegistry();
-    NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) getNodeTypeManager();
+    // NodeTypeDataPersister ntManager = (NodeTypeDataPersister)
+    // getComponentInstanceOfType(NodeTypeDataPersister.class);
+    //
+    // NodeTypeDataManager nodeTypeDataManager = (NodeTypeDataManager)
+    // getComponentInstanceOfType(NodeTypeDataManager.class);
+
+    NodeTypeDataPersister nodeTypeDataPersister = (NodeTypeDataPersister) getComponentInstanceOfType(NodeTypeDataPersister.class);
 
     // Load from persistence
     nsRegistry.loadFromStorage();
-    ntManager.loadFromStorage();
+    nodeTypeDataPersister.loadFromStorage();
   }
 
   /**

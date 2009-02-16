@@ -23,17 +23,18 @@ import javax.jcr.Node;
 import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/> Date: 12.05.2008 <br/>
@@ -43,6 +44,9 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
  */
 
 public class AuditVersionableTest extends BaseStandaloneTest {
+  
+  private static final Log      log = ExoLogger.getLogger(AuditVersionableTest.class);
+  
   private Node                 testRoot;
 
   private AuditService         service;

@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.test.priority;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
@@ -23,6 +24,7 @@ import org.exoplatform.services.jcr.ext.replication.WorkspaceDataTransmitter;
 import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -34,13 +36,18 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
+   * Logger.
+   */
+  private static final Log           log = ExoLogger.getLogger(BasePriorityTestCase.class);
+
+  /**
    * The workspaceDataTransmitter will be used for getting the ChannelManager.
    */
   protected WorkspaceDataTransmitter dataTransmitter;
 
   /**
-   * BasePriorityTestCase  constructor.
-   *
+   * BasePriorityTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -67,9 +74,8 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * disconnectClusterNode.
-   *
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer disconnectClusterNode() {
     StringBuffer sb = new StringBuffer();
@@ -93,11 +99,10 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * disconnectClusterNode.
-   *
+   * 
    * @param id
-   *          the changed id 
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   *          the changed id
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer disconnectClusterNode(int id) {
     StringBuffer sb = new StringBuffer();
@@ -121,9 +126,8 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * allowConnect.
-   *
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer allowConnect() {
     StringBuffer sb = new StringBuffer();
@@ -142,9 +146,8 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * allowConnectForced.
-   *
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer allowConnectForced() {
     StringBuffer sb = new StringBuffer();
@@ -168,11 +171,10 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * isReadOnly.
-   *
+   * 
    * @param workspaceName
    *          the workspace name
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer isReadOnly(String workspaceName) {
     StringBuffer sb = new StringBuffer();

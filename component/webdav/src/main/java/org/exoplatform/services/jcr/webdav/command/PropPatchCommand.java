@@ -25,16 +25,18 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
-import org.exoplatform.common.http.client.HTTPConnection;
+import org.apache.commons.logging.Log;
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -43,6 +45,8 @@ import org.exoplatform.services.rest.Response;
  */
 
 public class PropPatchCommand {
+
+  private static Log                      log = ExoLogger.getLogger(PropPatchCommand.class);
 
   protected final NullResourceLocksHolder lockHolder;
 
@@ -79,14 +83,19 @@ public class PropPatchCommand {
                                                                    uri,
                                                                    setList,
                                                                    removeList);
-      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(entity).build();
+
+      return Response.status(HTTPStatus.MULTISTATUS)
+                     .entity(entity)
+                     .type(MediaType.TEXT_XML)
+                     .build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      log.error(exc.getMessage(), exc);
+      return Response.serverError().build();
     }
 
   }

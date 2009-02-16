@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -40,10 +42,11 @@ import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.dataflow.persistent.MandatoryItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -51,14 +54,13 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Acts as a global entry point to execute queries and index nodes.
  */
-public class SearchManager implements Startable, ItemsPersistenceListener {
+public class SearchManager implements Startable, MandatoryItemsPersistenceListener {
 
   /**
    * Logger instance for this class
@@ -90,10 +92,11 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   /**
    * The node type registry.
    */
-  protected final NodeTypeManagerImpl   ntReg;
+  protected final NodeTypeDataManager   nodeTypeDataManager;
 
   /**
-   * QueryHandler of the parent search manager or <code>null</code> if there is none.
+   * QueryHandler of the parent search manager or <code>null</code> if there is
+   * none.
    */
   protected final SearchManager         parentSearchManager;
 
@@ -111,16 +114,16 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * @param ntReg the node type registry.
    * @param itemMgr the shared item state manager.
    * @param rootNodeId the id of the root node.
-   * @param parentMgr the parent search manager or <code>null</code> if there is no parent search
-   *          manager.
-   * @param excludedNodeId id of the node that should be excluded from indexing. Any descendant of
-   *          that node will also be excluded from indexing.
+   * @param parentMgr the parent search manager or <code>null</code> if there is
+   *          no parent search manager.
+   * @param excludedNodeId id of the node that should be excluded from indexing.
+   *          Any descendant of that node will also be excluded from indexing.
    * @throws RepositoryException if the search manager cannot be initialized
    * @throws RepositoryConfigurationException
    */
   public SearchManager(QueryHandlerEntry config,
                        NamespaceRegistryImpl nsReg,
-                       NodeTypeManagerImpl ntReg,
+                       NodeTypeDataManager ntReg,
                        WorkspacePersistentDataManager itemMgr,
                        SystemSearchManagerHolder parentSearchManager,
                        DocumentReaderService extractor,
@@ -130,28 +133,26 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     this.extractor = extractor;
 
     this.config = config;
-    this.ntReg = ntReg;
+    this.nodeTypeDataManager = ntReg;
     this.nsReg = nsReg;
     this.itemMgr = itemMgr;
     this.cfm = cfm;
-    
+
     this.parentSearchManager = parentSearchManager != null ? parentSearchManager.get() : null;
     itemMgr.addItemPersistenceListener(this);
     initializeQueryHandler();
-    
-    log.info(config.getIndexDir() + "  !" + config);
   }
 
   /**
    * Creates a query object from a node that can be executed on the workspace.
    * 
    * @param session the session of the user executing the query.
-   * @param itemMgr the item manager of the user executing the query. Needed to return
-   *          <code>Node</code> instances in the result set.
+   * @param itemMgr the item manager of the user executing the query. Needed to
+   *          return <code>Node</code> instances in the result set.
    * @param node a node of type nt:query.
    * @return a <code>Query</code> instance to execute.
-   * @throws InvalidQueryException if <code>absPath</code> is not a valid persisted query (that is,
-   *           a node of type nt:query)
+   * @throws InvalidQueryException if <code>absPath</code> is not a valid
+   *           persisted query (that is, a node of type nt:query)
    * @throws RepositoryException if any other error occurs.
    */
   public Query createQuery(SessionImpl session, SessionDataManager sessionDataManager, Node node) throws InvalidQueryException,
@@ -165,13 +166,13 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * Creates a query object that can be executed on the workspace.
    * 
    * @param session the session of the user executing the query.
-   * @param itemMgr the item manager of the user executing the query. Needed to return
-   *          <code>Node</code> instances in the result set.
+   * @param itemMgr the item manager of the user executing the query. Needed to
+   *          return <code>Node</code> instances in the result set.
    * @param statement the actual query statement.
    * @param language the syntax of the query statement.
    * @return a <code>Query</code> instance to execute.
-   * @throws InvalidQueryException if the query is malformed or the <code>language</code> is
-   *           unknown.
+   * @throws InvalidQueryException if the query is malformed or the
+   *           <code>language</code> is unknown.
    * @throws RepositoryException if any other error occurs.
    */
   public Query createQuery(SessionImpl session,
@@ -201,50 +202,110 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     final Set<String> removedNodes = new HashSet<String>();
     // nodes that need to be added to the index.
     final Set<String> addedNodes = new HashSet<String>();
-    // property events
-    List<ItemState> propEvents = new ArrayList<ItemState>();
-    List<ItemState> itemStates = changesLog.getAllStates();
-    for (ItemState itemState : itemStates) {
+
+    final Map<String, List<ItemState>> updatedNodes = new HashMap<String, List<ItemState>>();
+
+    for (Iterator<ItemState> iter = changesLog.getAllStates().iterator(); iter.hasNext();) {
+      ItemState itemState = iter.next();
+
       if (!isExcluded(itemState)) {
-        if (itemState.isNode()) {
-          if (itemState.isAdded() || itemState.isRenamed()) {
-            addedNodes.add(itemState.getData().getIdentifier());
-          } else if (itemState.isDeleted()) {
-            addedNodes.remove(itemState.getData().getIdentifier());
-            removedNodes.add(itemState.getData().getIdentifier());
-          } else if (itemState.isMixinChanged()) {
-            removedNodes.add(itemState.getData().getIdentifier());
-            addedNodes.add(itemState.getData().getIdentifier());
+        String uuid = itemState.isNode() ? itemState.getData().getIdentifier()
+                                        : itemState.getData().getParentIdentifier();
+
+        if (itemState.isAdded()) {
+          if (itemState.isNode()) {
+            addedNodes.add(uuid);
+          } else {
+            if (!addedNodes.contains(uuid)) {
+              createNewOrAdd(uuid, itemState, updatedNodes);
+            }
           }
-        } else {
-          propEvents.add(itemState);
+        } else if (itemState.isRenamed()) {
+          if (itemState.isNode()) {
+            addedNodes.add(uuid);
+          } else {
+            createNewOrAdd(uuid, itemState, updatedNodes);
+          }
+        } else if (itemState.isUpdated()) {
+          createNewOrAdd(uuid, itemState, updatedNodes);
+        } else if (itemState.isMixinChanged()) {
+          createNewOrAdd(uuid, itemState, updatedNodes);
+        } else if (itemState.isDeleted()) {
+          if (itemState.isNode()) {
+            if (addedNodes.contains(uuid)) {
+              addedNodes.remove(uuid);
+              removedNodes.remove(uuid);
+            } else {
+              removedNodes.add(uuid);
+            }
+            // remove all changes after node remove
+            updatedNodes.remove(uuid);
+          } else {
+            if (!removedNodes.contains(uuid) && !addedNodes.contains(uuid)) {
+              createNewOrAdd(uuid, itemState, updatedNodes);
+            }
+          }
         }
       }
+    }
+    // TODO make quick changes
+    for (String uuid : updatedNodes.keySet()) {
+      removedNodes.add(uuid);
+      addedNodes.add(uuid);
     }
 
-    // sort out property events
-    for (int i = 0; i < propEvents.size(); i++) {
-      ItemState event = propEvents.get(i);
-      String nodeId = event.getData().getParentIdentifier();
-      if (event.isAdded()) {
-        if (!addedNodes.contains(nodeId)) {
-          // only property added
-          // need to re-index
-          addedNodes.add(nodeId);
-          removedNodes.add(nodeId);
-        } else {
-          // the node where this prop belongs to is also new
-        }
-      } else if (event.isRenamed() || event.isUpdated()) {
-        // need to re-index
-        addedNodes.add(nodeId);
-        removedNodes.add(nodeId);
-      } else if (event.isDeleted()) {
-        // property removed event is only generated when node still exists
-        addedNodes.remove(nodeId);
-        removedNodes.add(nodeId);
-      }
-    }
+    // // property events
+    // List<ItemState> propEvents = new ArrayList<ItemState>();
+    // List<ItemState> itemStates = changesLog.getAllStates();
+    //
+    // final Set<String> allRemovedNodesId = new HashSet<String>();
+    // final Set<String> allAddedNodesId = new HashSet<String>();
+    // for (ItemState itemState : itemStates) {
+    // if (!isExcluded(itemState)) {
+    // if (itemState.isNode()) {
+    // if (itemState.isAdded() || itemState.isRenamed()) {
+    // addedNodes.add(itemState.getData().getIdentifier());
+    // allAddedNodesId.add(itemState.getData().getIdentifier());
+    // } else if (itemState.isDeleted()) {
+    // // remove node from add list, and if node not in add list add it to
+    // // removed list
+    // if (!addedNodes.remove(itemState.getData().getIdentifier()))
+    // removedNodes.add(itemState.getData().getIdentifier());
+    // allRemovedNodesId.add(itemState.getData().getIdentifier());
+    // } else if (itemState.isMixinChanged()) {
+    // removedNodes.add(itemState.getData().getIdentifier());
+    // addedNodes.add(itemState.getData().getIdentifier());
+    // }
+    // } else {
+    // propEvents.add(itemState);
+    // }
+    // }
+    // }
+    //
+    // // sort out property events
+    // for (int i = 0; i < propEvents.size(); i++) {
+    // ItemState event = propEvents.get(i);
+    // String nodeId = event.getData().getParentIdentifier();
+    // if (event.isAdded()) {
+    // if (!addedNodes.contains(nodeId) && !allAddedNodesId.contains(nodeId)) {
+    // // only property added
+    // // need to re-index
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // } else {
+    // // the node where this prop belongs to is also new
+    // }
+    // } else if (event.isRenamed() || event.isUpdated()) {
+    // // need to re-index
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // } else if (event.isDeleted()) {
+    // if (!allRemovedNodesId.contains(nodeId)) {
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // }
+    // }
+    // }
 
     Iterator<NodeData> addedStates = new Iterator<NodeData>() {
       private final Iterator<String> iter = addedNodes.iterator();
@@ -312,11 +373,8 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
         log.error("Error indexing changes " + e, e);
         try {
           handler.logErrorChanges(removedNodes, addedNodes);
-          Thread.sleep(1000); // wait a bit
         } catch (IOException ioe) {
           log.warn("Exception occure when errorLog writed. Error log is not complete. " + ioe, ioe);
-        } catch (InterruptedException ie) {
-          log.warn("Exception occure when wait for errorLog" + ie, ie);
         }
       }
     }
@@ -327,11 +385,21 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     }
   }
 
+  public void createNewOrAdd(String key, ItemState state, Map<String, List<ItemState>> updatedNodes) {
+    List<ItemState> list = updatedNodes.get(key);
+    if (list == null) {
+      list = new ArrayList<ItemState>();
+      updatedNodes.put(key, list);
+    }
+    list.add(state);
+
+  }
+
   public void start() {
-    
+
     if (log.isDebugEnabled())
       log.debug("start");
-    
+
     // Calculating excluded node identifiers
     excludedPaths.add(Constants.JCR_SYSTEM_PATH);
 
@@ -369,10 +437,12 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   }
 
   /**
-   * Checks if the given event should be excluded based on the {@link #excludePath} setting.
+   * Checks if the given event should be excluded based on the
+   * {@link #excludePath} setting.
    * 
    * @param event observation event
-   * @return <code>true</code> if the event should be excluded, <code>false</code> otherwise
+   * @return <code>true</code> if the event should be excluded,
+   *         <code>false</code> otherwise
    */
   protected boolean isExcluded(ItemState event) {
 
@@ -391,7 +461,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     QueryHandlerContext context = new QueryHandlerContext(itemMgr,
                                                           config.getRootNodeIdentifer() != null ? config.getRootNodeIdentifer()
                                                                                                : Constants.ROOT_UUID,
-                                                          ntReg,
+                                                          nodeTypeDataManager,
                                                           nsReg,
                                                           parentHandler,
                                                           config.getIndexDir(),

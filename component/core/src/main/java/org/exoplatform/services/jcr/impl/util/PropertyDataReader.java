@@ -16,9 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.util;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,11 +30,6 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
-import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
-import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
  * Created by The eXo Platform SAS 15.05.2006
@@ -62,8 +54,6 @@ public class PropertyDataReader extends ItemDataReader {
 
     private ValueData       valueData    = null;
 
-    private Value           value        = null;
-
     private int             type         = PropertyType.STRING;
 
     PropertyInfo(InternalQName propertyName, int type) {
@@ -83,21 +73,7 @@ public class PropertyDataReader extends ItemDataReader {
       this.multiValued = multiValued;
     }
 
-    public List<Value> getValues() throws ValueFormatException,
-                                  PathNotFoundException,
-                                  RepositoryException {
-      if (mValue == null) {
-        List<ValueData> vds = getValueDatas();
-        List<Value> vs = new ArrayList<Value>();
-        for (ValueData vd : vds) {
-          vs.add(makeValue(vd, getType()));
-        }
-        mValue = vs;
-      }
-      return mValue;
-    }
-
-    public List<ValueData> getValueDatas() throws ValueFormatException, PathNotFoundException {
+    public List<ValueData> getValues() throws ValueFormatException, PathNotFoundException {
       if (multiValued) {
         if (mValueData != null) {
           return mValueData;
@@ -113,13 +89,6 @@ public class PropertyDataReader extends ItemDataReader {
     public void setValueDatas(List<ValueData> mValue) {
       this.mValueData = mValue;
       this.multiValued = true;
-    }
-
-    public Value getValue() throws ValueFormatException, PathNotFoundException, RepositoryException {
-      if (value == null) {
-        value = makeValue(getValueData(), getType());
-      }
-      return value;
     }
 
     public ValueData getValueData() throws ValueFormatException, PathNotFoundException {
@@ -145,8 +114,8 @@ public class PropertyDataReader extends ItemDataReader {
     }
   }
 
-  public PropertyDataReader(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
-    super(parent, dataManager, valueFactory);
+  public PropertyDataReader(NodeData parent, DataManager dataManager) {
+    super(parent, dataManager);
   }
 
   public PropertyDataReader forProperty(InternalQName name, int type) {
@@ -154,24 +123,12 @@ public class PropertyDataReader extends ItemDataReader {
     return this;
   }
 
-  public List<ValueData> getPropertyValueDatas(InternalQName name) throws ValueFormatException,
+  public List<ValueData> getPropertyValues(InternalQName name) throws ValueFormatException,
                                                                   PathNotFoundException {
-    return propeties.get(name).getValueDatas();
-  }
-
-  public List<Value> getPropertyValues(InternalQName name) throws ValueFormatException,
-                                                          PathNotFoundException,
-                                                          RepositoryException {
     return propeties.get(name).getValues();
   }
 
-  public Value getPropertyValue(InternalQName name) throws ValueFormatException,
-                                                   PathNotFoundException,
-                                                   RepositoryException {
-    return propeties.get(name).getValue();
-  }
-
-  public ValueData getPropertyValueData(InternalQName name) throws ValueFormatException,
+  public ValueData getPropertyValue(InternalQName name) throws ValueFormatException,
                                                            PathNotFoundException {
     return propeties.get(name).getValueData();
   }
@@ -191,23 +148,5 @@ public class PropertyDataReader extends ItemDataReader {
       }
     }
   }
-
-  private Value makeValue(ValueData valueData, int type) throws RepositoryException {
-    if (valueFactory != null) {
-      TransientValueData tvd = ((AbstractValueData) valueData).createTransientCopy();
-      return valueFactory.loadValue(tvd, type);
-    }
-    try {
-      return new StringValue(new String(valueData.getAsByteArray(), Constants.DEFAULT_ENCODING));
-    } catch (UnsupportedEncodingException e) {
-      try {
-        return new StringValue(new String(valueData.getAsByteArray()));
-      } catch (IOException e1) {
-        throw new RepositoryException("Can't make value from value data: " + e1.getMessage(), e1);
-      }
-    } catch (IOException e) {
-      throw new RepositoryException("Can't make value from value data: " + e.getMessage(), e);
-    }
-  }
-
 }
+

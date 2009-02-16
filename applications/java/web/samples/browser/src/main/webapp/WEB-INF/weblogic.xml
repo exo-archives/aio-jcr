@@ -1,10 +1,10 @@
 <weblogic-web-app>
   <security-role-assignment>
-    <role-name>admin</role-name>
+    <role-name>administrators</role-name>
     <externally-defined/>
   </security-role-assignment>
   <security-role-assignment>
-    <role-name>exo</role-name>
+    <role-name>users</role-name>
     <externally-defined/>
   </security-role-assignment>
 </weblogic-web-app>

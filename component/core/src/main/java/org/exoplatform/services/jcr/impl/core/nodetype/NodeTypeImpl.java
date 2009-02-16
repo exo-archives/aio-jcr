@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -24,371 +24,433 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.ValueFactory;
+import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.ItemDefinition;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
-import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionValue;
-import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
+import org.apache.commons.logging.Log;
+
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.value.NameValue;
+import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 02.12.2008
  * 
- * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: NodeTypeImpl.java 12298 2008-03-24 08:04:52Z ksm $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: NodeTypeImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class NodeTypeImpl implements ExtendedNodeType {
+public class NodeTypeImpl implements NodeType {
 
-  protected static final Value[]  NULL_VALUES       = { null };
+  protected static final Log              LOG = ExoLogger.getLogger("jcr.NodeTypeImpl");
 
-  protected static final String[] EMPTY_CONSTRAINTS = new String[0];
+  protected final NodeTypeData            data;
 
-  protected boolean               mixin;
+  protected final NodeTypeDataManager     typesHolder;
 
-  protected boolean               orderableChild;
+  protected final ExtendedNodeTypeManager typesManager;
 
-  protected String                primaryItemName;
+  protected final LocationFactory         locationFactory;
 
-  protected NodeType[]            declaredSupertypes;
+  protected final ValueFactory            valueFactory;
 
-  protected PropertyDefinition[]  declaredPropertyDefinitions;
-
-  protected NodeDefinition[]      declaredChildNodeDefinitions;
-
-  protected NodeTypeManagerImpl   manager;
-
-  protected InternalQName         qName;
-
-  protected NodeTypeImpl(NodeTypeManagerImpl manager) {
-    this.manager = manager;
+  public NodeTypeImpl(NodeTypeData data,
+                      NodeTypeDataManager typesHolder,
+                      ExtendedNodeTypeManager typesManager,
+                      LocationFactory locationFactory,
+                      ValueFactory valueFactory) {
+    this.data = data;
+    this.typesHolder = typesHolder;
+    this.typesManager = typesManager;
+    this.locationFactory = locationFactory;
+    this.valueFactory = valueFactory;
   }
 
-  NodeTypeImpl(NodeTypeManagerImpl manager, NodeTypeValue value) throws NoSuchNodeTypeException,
-      ConstraintViolationException,
-      RepositoryException {
-    this(manager);
-
-    this.qName = manager.getLocationFactory().parseJCRName(value.getName()).getInternalName();
-    this.mixin = value.isMixin();
-    this.orderableChild = value.isOrderableChild();
-    this.primaryItemName = value.getPrimaryItemName();
-
-    List<String> supertypesList = value.getDeclaredSupertypeNames();
-    this.declaredSupertypes = new NodeType[supertypesList.size()];
-    for (int i = 0; i < supertypesList.size(); i++) {
-      declaredSupertypes[i] = manager.getNodeType(supertypesList.get(i));
-    }
-
-    List declaredPropertyDefList = value.getDeclaredPropertyDefinitionValues();
-
-    this.declaredPropertyDefinitions = new PropertyDefinition[declaredPropertyDefList.size()];
-    for (int i = 0; i < declaredPropertyDefList.size(); i++) {
-      PropertyDefinitionValue p = (PropertyDefinitionValue) declaredPropertyDefList.get(i);
-
-      // According the specification constraints can be null, indicationg
-      // that value constraint information is unavailable
-      String[] constraints = null;
-      if (p.getValueConstraints() != null) {
-
-        // Or an array interpreted as disjunctive set of constraints
-        // Empty array means that constraints is available and that no
-        // constaraints are placed
-
-        constraints = new String[p.getValueConstraints().size()];
-        for (int j = 0; j < p.getValueConstraints().size(); j++) {
-          constraints[j] = (String) p.getValueConstraints().get(j);
-        }
-      }
-
-      // According the specification defValues can be null, indicationg
-      // that has no fixed default value for property definition
-      Value[] defValues = null;
-      if (p.getDefaultValueStrings() != null) {
-        // Or an array of values objects
-        defValues = new Value[p.getDefaultValueStrings().size()];
-        for (int j = 0; j < p.getDefaultValueStrings().size(); j++) {
-          defValues[j] = manager.getValueFactory().createValue((String) p.getDefaultValueStrings()
-                                                                         .get(j),
-                                                               p.getRequiredType());
-        }
-      }
-
-      InternalQName pdName = manager.getLocationFactory()
-                                    .parseJCRName(p.getName())
-                                    .getInternalName();
-      declaredPropertyDefinitions[i] = new PropertyDefinitionImpl(p.getName(),
-                                                                  this,
-                                                                  p.getRequiredType(),
-                                                                  constraints,
-                                                                  defValues,
-                                                                  p.isAutoCreate(),
-                                                                  p.isMandatory(),
-                                                                  p.getOnVersion(),
-                                                                  p.isReadOnly(),
-                                                                  p.isMultiple(),
-                                                                  pdName);
-    }
-
-    List declaredChildNodeDefList = value.getDeclaredChildNodeDefinitionValues();
-    this.declaredChildNodeDefinitions = new NodeDefinition[declaredChildNodeDefList.size()];
-    for (int i = 0; i < declaredChildNodeDefList.size(); i++) {
-      NodeDefinitionValue ndv = (NodeDefinitionValue) declaredChildNodeDefList.get(i);
-
-      NodeType[] requiredTypes = new NodeType[ndv.getRequiredNodeTypeNames().size()];
-      for (int j = 0; j < ndv.getRequiredNodeTypeNames().size(); j++) {
-        requiredTypes[j] = manager.getNodeType((String) ndv.getRequiredNodeTypeNames().get(j));
-      }
-
-      // According the specification DefaultPrimaryType can be null,
-      // indicationg that DefaultPrimaryType is not specified
-
-      NodeType nt = null;
-
-      if (ndv.getDefaultNodeTypeName() != null) {
-
-        if (ndv.getDefaultNodeTypeName().equals(getName())) {
-          // requires himself
-          nt = this;
-        } else {
-          nt = manager.getNodeType(ndv.getDefaultNodeTypeName());
-        }
-      }
-
-      InternalQName ndName = manager.getLocationFactory()
-                                    .parseJCRName(ndv.getName())
-                                    .getInternalName();
-      declaredChildNodeDefinitions[i] = new NodeDefinitionImpl(ndv.getName(),
-                                                               this,
-                                                               requiredTypes,
-                                                               nt,
-                                                               ndv.isAutoCreate(),
-                                                               ndv.isMandatory(),
-                                                               ndv.getOnVersion(),
-                                                               ndv.isReadOnly(),
-                                                               ndv.isSameNameSiblings(),
-                                                               ndName);
-    }
-  }
+  // JSR-170 stuff ==========================
 
   /**
    * {@inheritDoc}
    */
-  public String getName() {
+  public boolean canAddChildNode(String childNodeName) {
 
-    String n;
     try {
-      n = manager.getLocationFactory().createJCRName(qName).getAsString();
+      InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
+
+      NodeDefinitionData childNodeDef = typesHolder.findChildNodeDefinition(cname, data.getName());
+      return !(childNodeDef == null || childNodeDef.isProtected() || childNodeDef.getDefaultPrimaryType() == null);
     } catch (RepositoryException e) {
-      // should never happen
-      throw new RuntimeException("TYPE NAME >>> " + qName + " " + e, e);
+      LOG.error("canAddChildNode " + e, e);
+      return false;
     }
-    return n;
-
   }
 
   /**
    * {@inheritDoc}
    */
-  public boolean isMixin() {
-    return mixin;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean hasOrderableChildNodes() {
-    return orderableChild;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public String getPrimaryItemName() {
-    return primaryItemName;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeType[] getSupertypes() {
-    ArrayList<NodeType> stypesList = new ArrayList<NodeType>();
-    fillSupertypes(stypesList, this);
-    if (stypesList.size() > 0) {
-      NodeType[] supertypes = new NodeType[stypesList.size()];
-      for (int i = 0; i < stypesList.size(); i++) {
-        supertypes[i] = stypesList.get(i);
-      }
-      return supertypes;
-    }
-    return new NodeType[0];
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeType[] getDeclaredSupertypes() {
-    if (declaredSupertypes != null)
-      return declaredSupertypes;
-    else
-      return new NodeType[0];
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isNodeType(String nodeTypeName) {
-    NodeType superType = null;
+  public boolean canAddChildNode(String childNodeName, String nodeTypeName) {
     try {
-      superType = manager.getNodeType(nodeTypeName);
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(" NodeTypeImpl.isNodeType (" + superType + ") failed Reason:" + e);
+      InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
+      InternalQName ntname = locationFactory.parseJCRName(nodeTypeName).getInternalName();
+
+      NodeDefinitionData childNodeDef = typesHolder.findChildNodeDefinition(cname,
+                                                                            ntname,
+                                                                            data.getName());
+      return !(childNodeDef == null || childNodeDef.isProtected())
+          && isChildNodePrimaryTypeAllowed(nodeTypeName);
+    } catch (RepositoryException e) {
+      if (LOG.isDebugEnabled())
+        LOG.debug("canAddChildNode " + e, e);
+      return false;
     }
-    return isSameOrSubType(superType, this);
   }
 
   /**
    * {@inheritDoc}
    */
-  public boolean isNodeType(InternalQName nodeTypeQName) {
-    NodeType superType = null;
+  public boolean canRemoveItem(String itemName) {
     try {
-      superType = manager.getNodeType(nodeTypeQName);
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(" NodeTypeImpl.isNodeType (" + superType + ") failed Reason:" + e);
-    }
-    return isSameOrSubType(superType, this);
-  }
+      InternalQName iname = locationFactory.parseJCRName(itemName).getInternalName();
 
-  /**
-   * {@inheritDoc}
-   */
-  public PropertyDefinition[] getPropertyDefinitions() {
-
-    Set<PropertyDefinition> propertyDefsList = new LinkedHashSet<PropertyDefinition>();
-    if (declaredPropertyDefinitions != null) {
-      for (int i = 0; i < declaredPropertyDefinitions.length; i++) {
-        propertyDefsList.add(declaredPropertyDefinitions[i]);
+      PropertyDefinitionDatas pdefs = typesHolder.getPropertyDefinitions(iname, data.getName());
+      if (pdefs != null) {
+        PropertyDefinitionData pd = pdefs.getAnyDefinition();
+        if (pd != null)
+          return !(pd.isMandatory() || pd.isProtected());
       }
-    }
-    NodeType[] supertypes = getSupertypes();
-    if (supertypes != null) {
-      for (int i = 0; i < supertypes.length; i++) {
-        if (supertypes[i].getDeclaredPropertyDefinitions() != null) {
-          for (int j = 0; j < supertypes[i].getDeclaredPropertyDefinitions().length; j++) {
-            if (!propertyDefsList.contains(supertypes[i].getDeclaredPropertyDefinitions()[j]))
-              propertyDefsList.add(supertypes[i].getDeclaredPropertyDefinitions()[j]);
-          }
-        }
-      }
-    }
-    if (propertyDefsList.size() > 0) {
-      PropertyDefinition[] propertyDefs = new PropertyDefinition[propertyDefsList.size()];
+      NodeDefinitionData cndef = typesHolder.findChildNodeDefinition(iname, data.getName());
+      if (cndef != null)
+        return !(cndef.isMandatory() || cndef.isProtected());
 
-      return propertyDefsList.toArray(propertyDefs);
+      return false;
+    } catch (RepositoryException e) {
+      if (LOG.isDebugEnabled())
+        LOG.debug("canRemoveItem " + e, e);
+      return false;
     }
-    return new PropertyDefinition[0];
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public PropertyDefinition[] getDeclaredPropertyDefinitions() {
-    if (declaredPropertyDefinitions != null)
-      return declaredPropertyDefinitions;
-    else
-      return new PropertyDefinition[0];
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeDefinition[] getChildNodeDefinitions() {
-    ArrayList<NodeDefinition> nodeDefsList = new ArrayList<NodeDefinition>();
-    if (declaredChildNodeDefinitions != null) {
-      for (int i = 0; i < declaredChildNodeDefinitions.length; i++) {
-        nodeDefsList.add(declaredChildNodeDefinitions[i]);
-      }
-    }
-    NodeType[] supertypes = getSupertypes();
-    if (supertypes != null) {
-      for (int i = 0; i < supertypes.length; i++) {
-        if (supertypes[i].getDeclaredChildNodeDefinitions() != null) {
-          for (int j = 0; j < supertypes[i].getDeclaredChildNodeDefinitions().length; j++) {
-            if (!nodeDefsList.contains(supertypes[i].getDeclaredChildNodeDefinitions()[j])) {
-              nodeDefsList.add(supertypes[i].getDeclaredChildNodeDefinitions()[j]);
-            }
-          }
-        }
-      }
-    }
-    if (nodeDefsList.size() > 0) {
-      NodeDefinition[] childNodeDefs = new NodeDefinition[nodeDefsList.size()];
-      for (int i = 0; i < nodeDefsList.size(); i++) {
-        childNodeDefs[i] = nodeDefsList.get(i);
-      }
-      return childNodeDefs;
-    }
-    return new NodeDefinition[0];
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeDefinition[] getDeclaredChildNodeDefinitions() {
-    if (declaredChildNodeDefinitions != null)
-      return declaredChildNodeDefinitions;
-    else
-      return new NodeDefinition[0];
   }
 
   /**
    * {@inheritDoc}
    */
   public boolean canSetProperty(String propertyName, Value value) {
-    PropertyDefinition def = getPropertyDefinitions(propertyName).getDefinition(false);
-    
-    if (def != null) {
-      if (def.isProtected()) {
-        return false;
-      } else {
-        int requiredType = def.getRequiredType();
-        return canSetPropertyForType(requiredType, propertyName, value, def.getValueConstraints());
+    try {
+      InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
+
+      PropertyDefinitionDatas pdefs = typesHolder.getPropertyDefinitions(pname, data.getName());
+      if (pdefs != null) {
+        PropertyDefinitionData pd = pdefs.getDefinition(false);
+        if (pd != null) {
+          if (pd.isProtected())
+            // can set (edit)
+            return false;
+          else if (value != null)
+            // can set (add or edit)
+            return canSetPropertyForType(pd.getRequiredType(), value, pd.getValueConstraints());
+          else
+            // can remove
+            return !pd.isMandatory();
+        }
       }
-    } else {
+      return false;
+    } catch (RepositoryException e) {
+      LOG.error("canSetProperty value " + e, e);
       return false;
     }
   }
 
-  private boolean canSetPropertyForType(int requiredType,
-                                        String propertyName,
-                                        Value value,
-                                        String[] constrains) {
+  /**
+   * {@inheritDoc}
+   */
+  public boolean canSetProperty(String propertyName, Value[] values) {
+    try {
+      InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
 
-    if (value == null) {
-      return canRemoveItem(propertyName);
-    } else if (requiredType == value.getType()) {
+      PropertyDefinitionDatas pdefs = typesHolder.getPropertyDefinitions(pname, data.getName());
+      PropertyDefinitionData pd = pdefs.getDefinition(true);
+      if (pd != null) {
+        if (pd.isProtected())
+          // can set (edit)
+          return false;
+        else if (values != null) {
+          // can set (add or edit)
+          int res = 0;
+          for (Value value : values) {
+            if (canSetPropertyForType(pd.getRequiredType(), value, pd.getValueConstraints()))
+              res++;
+          }
+          return res == values.length;
+        } else
+          // can remove
+          return !pd.isMandatory();
+      } else
+        return false;
+    } catch (RepositoryException e) {
+      LOG.error("canSetProperty value " + e, e);
+      return false;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public NodeDefinition[] getChildNodeDefinitions() {
+    NodeDefinitionData[] nodeDefs = typesHolder.getAllChildNodeDefinitions(new InternalQName[] { data.getName() });
+    // TODO declared and from super
+    NodeDefinition[] ndefs = new NodeDefinition[nodeDefs.length];
+    for (int i = 0; i < nodeDefs.length; i++) {
+      NodeDefinitionData cnd = nodeDefs[i];
+      try {
+        ndefs[i] = makeNodeDefinition(cnd);
+      } catch (NoSuchNodeTypeException e) {
+        LOG.error("Node type not found " + e, e);
+      } catch (RepositoryException e) {
+        LOG.error("Error of declared child node definition create " + e, e);
+      }
+    }
+
+    return ndefs;
+  }
+
+  public NodeDefinition[] getDeclaredChildNodeDefinitions() {
+    NodeDefinitionData[] cndefs = data.getDeclaredChildNodeDefinitions();
+    NodeDefinition[] ndefs = new NodeDefinition[cndefs.length];
+    for (int i = 0; i < cndefs.length; i++) {
+      NodeDefinitionData cnd = cndefs[i];
+      try {
+        ndefs[i] = makeNodeDefinition(cnd);
+      } catch (NoSuchNodeTypeException e) {
+        LOG.error("Node type not found " + e, e);
+      } catch (RepositoryException e) {
+        LOG.error("Error of declared child node definition create " + e, e);
+      }
+    }
+
+    return ndefs;
+  }
+
+  private NodeDefinition makeNodeDefinition(NodeDefinitionData data) throws NoSuchNodeTypeException,
+                                                                    RepositoryException {
+    InternalQName[] rnames = data.getRequiredPrimaryTypes();
+    NodeType[] rnts = new NodeType[rnames.length];
+    for (int j = 0; j < rnames.length; j++) {
+      rnts[j] = typesManager.findNodeType(rnames[j]);
+    }
+
+    String name = locationFactory.createJCRName(data.getName() != null ? data.getName()
+                                                                      : Constants.JCR_ANY_NAME)
+                                 .getAsString();
+    NodeType defType = data.getDefaultPrimaryType() != null ? typesManager.findNodeType(data.getDefaultPrimaryType())
+                                                           : null;
+    return new NodeDefinitionImpl(name,
+                                  this,
+                                  rnts,
+                                  defType,
+                                  data.isAutoCreated(),
+                                  data.isMandatory(),
+                                  data.getOnParentVersion(),
+                                  data.isProtected(),
+                                  data.isAllowsSameNameSiblings());
+  }
+
+  public PropertyDefinition[] getDeclaredPropertyDefinitions() {
+    PropertyDefinitionData[] pdefs = data.getDeclaredPropertyDefinitions();
+    return getPropertyDefinition(pdefs);
+  }
+
+  private PropertyDefinition[] getPropertyDefinition(PropertyDefinitionData[] pdefs) {
+    PropertyDefinition[] propertyDefinitions = new PropertyDefinition[pdefs.length];
+    // TODO same in PropertyImpl
+    for (int i = 0; i < pdefs.length; i++) {
+
+      try {
+        PropertyDefinitionData propertyDef = pdefs[i];
+        String name = locationFactory.createJCRName(propertyDef.getName() != null ? propertyDef.getName()
+                                                                                 : Constants.JCR_ANY_NAME)
+                                     .getAsString();
+
+        Value[] defaultValues = new Value[propertyDef.getDefaultValues().length];
+        String[] propVal = propertyDef.getDefaultValues();
+        // there can be null in definition but should not be null value
+        if (propVal != null) {
+          for (int j = 0; j < propVal.length; j++) {
+            if (propertyDef.getRequiredType() == PropertyType.UNDEFINED)
+              defaultValues[j] = valueFactory.createValue(propVal[j]);
+            else
+              defaultValues[j] = valueFactory.createValue(propVal[j], propertyDef.getRequiredType());
+          }
+        }
+
+        propertyDefinitions[i] = new PropertyDefinitionImpl(name,
+                                                            typesManager.findNodeType(propertyDef.getDeclaringNodeType()),
+                                                            propertyDef.getRequiredType(),
+                                                            propertyDef.getValueConstraints(),
+                                                            defaultValues,
+                                                            propertyDef.isAutoCreated(),
+                                                            propertyDef.isMandatory(),
+                                                            propertyDef.getOnParentVersion(),
+                                                            propertyDef.isProtected(),
+                                                            propertyDef.isMultiple());
+      } catch (ValueFormatException e) {
+        e.printStackTrace();
+      } catch (NoSuchNodeTypeException e) {
+        e.printStackTrace();
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
+    }
+    return propertyDefinitions;
+  }
+
+  public NodeType[] getDeclaredSupertypes() {
+    InternalQName[] snames = data.getDeclaredSupertypeNames();
+
+    NodeType[] supers = new NodeType[snames.length];
+
+    for (int i = 0; i < snames.length; i++) {
+      supers[i] = new NodeTypeImpl(typesHolder.findNodeType(snames[i]),
+                                   typesHolder,
+                                   typesManager,
+                                   locationFactory,
+                                   valueFactory);
+    }
+
+    return supers;
+  }
+
+  public String getName() {
+    try {
+      return locationFactory.createJCRName(data.getName()).getAsString();
+    } catch (RepositoryException e) {
+      // TODO
+      throw new RuntimeException("Wrong name in data " + e, e);
+    }
+  }
+
+  public String getPrimaryItemName() {
+    try {
+      if (data.getPrimaryItemName() != null)
+        return locationFactory.createJCRName(data.getPrimaryItemName()).getAsString();
+      else
+        return null;
+    } catch (RepositoryException e) {
+      // TODO
+      throw new RuntimeException("Wrong primary item name in data " + e, e);
+    }
+  }
+
+  public PropertyDefinition[] getPropertyDefinitions() {
+    // TODO Auto-generated method stub
+    PropertyDefinitionData[] propertyDefs = typesHolder.getAllPropertyDefinitions(data.getName());
+    return getPropertyDefinition(propertyDefs);
+  }
+
+  public NodeType[] getSupertypes() {
+    InternalQName[] dsupers = data.getDeclaredSupertypeNames();
+    // TODO traverse inherited supers
+    NodeType[] superTypes = new NodeType[dsupers.length];
+    for (int i = 0; i < dsupers.length; i++) {
+      try {
+        superTypes[i] = typesManager.findNodeType(dsupers[i]);
+      } catch (NoSuchNodeTypeException e) {
+        e.printStackTrace();
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
+    }
+    return superTypes;
+  }
+
+  public boolean hasOrderableChildNodes() {
+    return data.hasOrderableChildNodes();
+  }
+
+  public boolean isMixin() {
+    return data.isMixin();
+  }
+
+  public boolean isNodeType(String nodeTypeName) {
+    try {
+      return typesHolder.isNodeType(locationFactory.parseJCRName(nodeTypeName).getInternalName(),
+                                    data.getName());
+    } catch (RepositoryException e) {
+      throw new RuntimeException("Wrong nodetype name " + e, e);
+    }
+  }
+
+  // eXo stuff =====
+
+  public NodeDefinition getChildNodeDefinition(InternalQName name) {
+    return null;
+  }
+
+  public NodeDefinition getChildNodeDefinition(String name) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public ArrayList<ItemDefinition> getManadatoryItemDefs() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public PropertyDefinitions getPropertyDefinitions(InternalQName name) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public PropertyDefinitions getPropertyDefinitions(String name) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+
+  public InternalQName getQName() {
+    return data.getName();
+  }
+
+  public boolean isChildNodePrimaryTypeAllowed(String typeName) {
+    try {
+      InternalQName iname = locationFactory.parseJCRName(typeName).getInternalName();
+
+      return typesHolder.isChildNodePrimaryTypeAllowed(iname, data.getName(), new InternalQName[0]);
+    } catch (RepositoryException e) {
+      return false;
+    }
+  }
+
+  public boolean isNodeType(InternalQName nodeTypeQName) {
+    return typesHolder.isNodeType(nodeTypeQName, data.getName(), new InternalQName[0]);
+  }
+
+  // internal stuff ============================
+
+  /**
+   * Ported from 1.10. Check on empty value (property remove) removed.
+   */
+  private boolean canSetPropertyForType(int requiredType, Value value, String[] constrains) {
+
+    if (requiredType == value.getType()) {
       return checkValueConstraints(constrains, value);
     } else if (requiredType == PropertyType.BINARY
         && (value.getType() == PropertyType.STRING || value.getType() == PropertyType.DATE
@@ -499,7 +561,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
           return false;
         }
         try {
-          Value nameValue = manager.getValueFactory().createValue(likeNameString, requiredType);
+          Value nameValue = valueFactory.createValue(likeNameString, requiredType);
           return nameValue != null && checkValueConstraints(constrains, value);
         } catch (Exception e) {
           return false;
@@ -520,7 +582,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
           return false;
         }
         try {
-          Value nameValue = manager.getValueFactory().createValue(likeNameString, requiredType);
+          Value nameValue = valueFactory.createValue(likeNameString, requiredType);
           return nameValue != null && checkValueConstraints(constrains, value);
         } catch (Exception e) {
           return false;
@@ -551,6 +613,24 @@ public class NodeTypeImpl implements ExtendedNodeType {
     }
   }
 
+  private boolean checkValueConstraints(String[] constraints, Value value) {
+
+    if (constraints != null && constraints.length > 0) {
+      for (int i = 0; i < constraints.length; i++) {
+        try {
+          if (constraints[i].equals(value.getString())) {
+            return true;
+          }
+        } catch (RepositoryException e) {
+          LOG.error("Can't get value's string value " + e, e);
+        }
+      }
+    } else
+      return true;
+
+    return false;
+  }
+
   private String getCharsetString(String source, String charSetName) {
     try {
       CharBuffer cb = CharBuffer.wrap(source.toCharArray());
@@ -578,302 +658,4 @@ public class NodeTypeImpl implements ExtendedNodeType {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean canSetProperty(String propertyName, Value[] values) {
-    PropertyDefinition def = getPropertyDefinitions(propertyName).getDefinition(true);
-    if (def != null) {
-      if (def.isProtected()) {
-        return false;
-      } else {
-        if (values != null) {
-          int requiredType = def.getRequiredType();
-          if (values.length > 0) {
-            int res = 0;
-            for (int i = 0; i < values.length; i++) {
-              try {
-                if (canSetPropertyForType(requiredType,
-                                          propertyName,
-                                          values[i],
-                                          def.getValueConstraints())) {
-                  res++;
-                }
-              } catch (Exception e) {
-              }
-            }
-            return res == values.length;
-          } else {
-            return true;
-          }
-        } else {
-          return canRemoveItem(propertyName);
-        }
-      }
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean canAddChildNode(String childNodeName) {
-    NodeDefinition childNodeDef = getChildNodeDefinition(childNodeName);
-    return !(childNodeDef == null || childNodeDef.isProtected() || childNodeDef.getDefaultPrimaryType() == null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean canAddChildNode(String childNodeName, String nodeTypeName) {
-    NodeDefinition childNodeDef = getChildNodeDefinition(childNodeName);
-    return !(childNodeDef == null || childNodeDef.isProtected())
-        && isChildNodePrimaryTypeAllowed(nodeTypeName);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean canRemoveItem(String itemName) {
-    PropertyDefinition propDef = getPropertyDefinitions(itemName).getAnyDefinition();
-    if (propDef != null)
-      return !(propDef.isMandatory() || propDef.isProtected());
-
-    NodeDefinition nodeDef = getChildNodeDefinition(itemName);
-    if (nodeDef != null)
-      return !(nodeDef.isMandatory() || nodeDef.isProtected());
-
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public PropertyDefinitions getPropertyDefinitions(String name) {
-    final PropertyDefinitions defs = new PropertyDefinitions();
-
-    for (PropertyDefinition pd : getPropertyDefinitions()) {
-      PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) pd;
-
-      if (propDef.getName().equals(name) || propDef.isResidualSet()) {
-        defs.setDefinition(propDef);
-      }
-    }
-    return defs;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeDefinition getChildNodeDefinition(String name) {
-    NodeDefinition residual = null;
-    for (NodeDefinition nodeDef : getChildNodeDefinitions()) {
-      if (nodeDef.getName().equals(name)) {
-        return nodeDef;
-      } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
-        residual = nodeDef;
-      }
-    }
-    return residual;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean equals(Object obj) {
-    if ((obj instanceof ExtendedNodeType))
-      return qName.equals(((ExtendedNodeType) obj).getQName());
-    else
-      return false;
-  }
-
-  protected boolean checkValueConstraints(String[] constraints, Value value) {
-
-    if (constraints != null && constraints.length > 0) {
-      for (int i = 0; i < constraints.length; i++) {
-        try {
-          if (constraints[i].equals(value.getString())) {
-            return true;
-          }
-        } catch (RepositoryException e) {
-          System.err.println("Error! Can't get value's string value: " + e);
-        }
-      }
-    } else {
-      return true;
-    }
-
-    return false;
-  }
-
-  protected void fillSupertypes(final List<NodeType> list, final NodeType subtype) {
-    if (subtype.getDeclaredSupertypes() != null) {
-      for (int i = 0; i < subtype.getDeclaredSupertypes().length; i++) {
-        list.add(subtype.getDeclaredSupertypes()[i]);
-        fillSupertypes(list, subtype.getDeclaredSupertypes()[i]);
-      }
-    }
-  }
-
-  /**
-   * Is same or sub type.
-   * 
-   * @param superType
-   *          NodeType
-   * @param subType
-   *          NodeType
-   * @return boolean
-   */
-  public static boolean isSameOrSubType(NodeType superType, NodeType subType) {
-    if (superType.equals(subType))
-      return true;
-    else {
-      NodeType[] superTypes = subType.getSupertypes();
-      for (int j = 0; j < superTypes.length; j++) {
-        NodeType testSuperType = superTypes[j];
-        if (testSuperType.equals(superType))
-          return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ArrayList<ItemDefinition> getManadatoryItemDefs() {
-    final ArrayList<ItemDefinition> itemDefs = new ArrayList<ItemDefinition>();
-
-    for (int i = 0; i < getPropertyDefinitions().length; i++) {
-      if (getPropertyDefinitions()[i].isMandatory())
-        itemDefs.add(getPropertyDefinitions()[i]);
-    }
-
-    for (int i = 0; i < getChildNodeDefinitions().length; i++) {
-      if (getChildNodeDefinitions()[i].isMandatory())
-        itemDefs.add(getChildNodeDefinitions()[i]);
-    }
-
-    return itemDefs;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isChildNodePrimaryTypeAllowed(String typeName) {
-
-    final NodeDefinition[] definitions = this.getChildNodeDefinitions();
-
-    NodeType testType;
-    try {
-      testType = manager.getNodeType(typeName);
-    } catch (RepositoryException e) {
-      throw new RuntimeException("Error " + e);
-    }
-
-    for (int i = 0; i < definitions.length; i++) {
-      NodeType[] requiredTypes = definitions[i].getRequiredPrimaryTypes();
-      for (int j = 0; j < requiredTypes.length; j++) {
-        if (((NodeType) requiredTypes[j]).equals(testType))
-          return true;
-        NodeType[] testSuperTypes = testType.getSupertypes();
-        for (int k = 0; k < testSuperTypes.length; k++) {
-          if (((NodeType) testSuperTypes[k]).equals((NodeType) requiredTypes[j]))
-            return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setMixin(boolean mixin) {
-    this.mixin = mixin;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setName(String name) throws RepositoryException {
-    this.qName = ((NameValue) manager.getValueFactory().createValue(name, PropertyType.NAME)).getQName();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setOrderableChild(boolean orderableChild) {
-    this.orderableChild = orderableChild;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setPrimaryItemName(String primaryItemName) {
-    this.primaryItemName = primaryItemName;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setDeclaredNodeDefs(NodeDefinition[] declaredNodeDefs) {
-    this.declaredChildNodeDefinitions = declaredNodeDefs;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setDeclaredPropertyDefs(PropertyDefinition[] declaredPropertyDefs) {
-    this.declaredPropertyDefinitions = declaredPropertyDefs;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setDeclaredSupertypes(NodeType[] declaredSupertypes) {
-    this.declaredSupertypes = declaredSupertypes;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public InternalQName getQName() {
-    return qName;
-  }
-
-  // //////////////// NEW METHODS (since 1.2) //////////
-
-  /**
-   * {@inheritDoc}
-   */
-  public PropertyDefinitions getPropertyDefinitions(InternalQName name) {
-    final PropertyDefinitions defs = new PropertyDefinitions();
-
-    for (PropertyDefinition pd : getPropertyDefinitions()) {
-      PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) pd;
-      if (propDef.getQName().equals(name) || propDef.isResidualSet()) {
-        defs.setDefinition(propDef);
-      }
-    }
-    return defs;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeDefinition getChildNodeDefinition(InternalQName name) {
-    NodeDefinition residual = null;
-
-    for (NodeDefinition cnd : getChildNodeDefinitions()) {
-      NodeDefinitionImpl nodeDef = (NodeDefinitionImpl) cnd;
-      if (nodeDef.getQName().equals(name)) {
-        return nodeDef;
-      } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
-        residual = nodeDef;
-      }
-    }
-    return residual;
-  }
 }

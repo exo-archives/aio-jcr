@@ -20,8 +20,6 @@ import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.exoplatform.services.jcr.datamodel.InternalQName;
-
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -37,14 +35,7 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
 
   private Value[]   defaultValues;
 
-  @Override
-  public int hashCode() {
-    return this.hashCode;
-  }
-
   private final boolean multiple;
-
-  // protected int hashCode;
 
   public PropertyDefinitionImpl(String name,
                                 NodeType declaringNodeType,
@@ -55,34 +46,37 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
                                 boolean mandatory,
                                 int onVersion,
                                 boolean readOnly,
-                                boolean multiple,
-                                InternalQName qName) {
+                                boolean multiple) {
 
-    super(name, declaringNodeType, autoCreate, onVersion, readOnly, mandatory, qName);
+    super(name, declaringNodeType, autoCreate, onVersion, readOnly, mandatory);
 
     this.requiredType = requiredType;
     this.valueConstraints = valueConstraints;
     this.defaultValues = defaultValues;
     this.multiple = multiple;
-    this.hashCode = (31 * this.hashCode + requiredType) * 31 + (multiple ? 0 : 31);
+    
+    int hk = 31 * this.hashCode + requiredType; 
+    hk = 31 * hk + valueConstraints.hashCode();
+    hk = 31 * hk + defaultValues.hashCode();
+    this.hashCode = 31 * hk + (multiple ? 0 : 1);
   }
 
   /**
-   * @see javax.jcr.nodetype.PropertyDefinition#getRequiredType
+   * {@inheritDoc}
    */
   public int getRequiredType() {
     return requiredType;
   }
 
   /**
-   * @see javax.jcr.nodetype.PropertyDefinition#getValueConstraints
+   * {@inheritDoc}
    */
   public String[] getValueConstraints() {
     return valueConstraints;
   }
 
   /**
-   * @see javax.jcr.nodetype.PropertyDefinition#getDefaultValues
+   * {@inheritDoc}
    */
   public Value[] getDefaultValues() {
     if (defaultValues != null && defaultValues.length > 0)
@@ -92,7 +86,7 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
   }
 
   /**
-   * @see javax.jcr.nodetype.PropertyDefinition#isMultiple
+   * {@inheritDoc}
    */
   public boolean isMultiple() {
     return multiple;
@@ -117,7 +111,6 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
   /**
    * Compare property definitions for equality by name, required type and miltiplicity flag. NOTE:
    * UNDEFINED is equals to UNDEFINED only. NOTE: PD without name is equals to PD without name
-   * (TODO: but where to use it?)
    */
   public boolean equals(Object obj) {
     if (obj == null)

@@ -22,16 +22,12 @@ import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com Aug 13, 2008
  */
 public class TestMkCol extends BaseWebDavTest {
 
   private final String destName = TestUtils.getFolderName();
-
-  // @Override
-  // protected void setUp() throws Exception {
-  // super.setUp();
-  // }
 
   @Override
   protected void tearDown() throws Exception {
@@ -48,20 +44,19 @@ public class TestMkCol extends BaseWebDavTest {
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
   }
 
-  // public void testForbidden() throws Exception {
-  //
-  // HTTPResponse response = connection.MkCol(TestUtils.SERVLET_PATH + TestUtils.INAVLID_WORKSPACE +
-  // destName);
-  // assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
-  //    
-  // }
-  //  
-  // public void testConflict() throws Exception {
-  //    
-  // HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + "/path" +
-  // destName);
-  // assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
-  //    
-  // }
+  public void testForbidden() throws Exception {
+
+    HTTPResponse response = connection.MkCol(TestUtils.SERVLET_PATH + TestUtils.INAVLID_WORKSPACE
+        + destName);
+    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
+
+  }
+
+  public void testConflict() throws Exception {
+
+    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + "/path" + destName);
+    assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
+
+  }
 
 }

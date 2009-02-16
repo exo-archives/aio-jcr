@@ -91,7 +91,7 @@ public class TestSessionCleaner extends JcrImplBaseTest {
 
   }
 
-    public void testSessionLoginLogoutSimultaneouslyMultiThread() throws Exception {
+  public void testSessionLoginLogoutSimultaneouslyMultiThread() throws Exception {
     assertNotNull(sessionRegistry);
 
     class AgentLogin extends Thread {
@@ -179,7 +179,6 @@ public class TestSessionCleaner extends JcrImplBaseTest {
 
     assertFalse(sessionRegistry.isInUse("ws"));
   }
-
 
   public void testSessionLoginLogoutMultiThread() throws InterruptedException {
     assertNotNull(sessionRegistry);

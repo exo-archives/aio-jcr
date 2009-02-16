@@ -22,14 +22,8 @@ import java.util.Map;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -38,6 +32,12 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.security.ConversationState;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -53,7 +53,7 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
                                 int uuidBehavior,
                                 ItemDataKeeper dataKeeper,
                                 ItemDataConsumer dataConsumer,
-                                NodeTypeManagerImpl ntManager,
+                                NodeTypeDataManager ntManager,
                                 LocationFactory locationFactory,
                                 ValueFactoryImpl valueFactory,
                                 NamespaceRegistry namespaceRegistry,
@@ -91,17 +91,27 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @seeorg.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.
-   * exoplatform.services.jcr.impl.core.NodeImpl, int,
-   * org.exoplatform.services.jcr.impl.xml.XmlSaveType,
-   * org.exoplatform.services.ext.action.InvocationContext)
+  /**
+   * Create ContentImporter.
+   * 
+   * @param parent
+   * @param uuidBehavior
+   * @param dataConsumer
+   * @param ntManager
+   * @param locationFactory
+   * @param valueFactory
+   * @param namespaceRegistry
+   * @param accessManager
+   * @param userState
+   * @param context
+   * @param repository
+   * @param currentWorkspaceName
+   * @return
    */
   public ContentImporter createContentImporter(NodeData parent,
                                                int uuidBehavior,
                                                ItemDataConsumer dataConsumer,
-                                               NodeTypeManagerImpl ntManager,
+                                               NodeTypeDataManager ntManager,
                                                LocationFactory locationFactory,
                                                ValueFactoryImpl valueFactory,
                                                NamespaceRegistry namespaceRegistry,
@@ -126,9 +136,8 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#endDocument()
+  /**
+   * {@inheritDoc}
    */
   public void endDocument() throws SAXException {
     try {
@@ -142,10 +151,8 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String,
-   * java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void endElement(String uri, String localName, String qName) throws SAXException {
     try {
@@ -155,59 +162,57 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
     }
 
   }
-
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#endPrefixMapping(java.lang.String)
+  
+  /**
+   * {@inheritDoc}
    */
   public void endPrefixMapping(String arg0) throws SAXException {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void error(SAXParseException exception) throws SAXException {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void fatalError(SAXParseException exception) throws SAXException {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#ignorableWhitespace(char[], int, int)
+  /**
+   * {@inheritDoc}
    */
   public void ignorableWhitespace(char[] arg0, int arg1, int arg2) throws SAXException {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#processingInstruction(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void processingInstruction(String arg0, String arg1) throws SAXException {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#setDocumentLocator(org.xml.sax.Locator)
+  /**
+   * {@inheritDoc}
    */
   public void setDocumentLocator(Locator arg0) {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#skippedEntity(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void skippedEntity(String arg0) throws SAXException {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#startDocument()
+  /**
+   * {@inheritDoc}
    */
   public void startDocument() throws SAXException {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#startElement(java.lang.String, java.lang.String,
-   * java.lang.String, org.xml.sax.Attributes)
+  /**
+   * {@inheritDoc}
    */
   public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
     try {
@@ -225,15 +230,17 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void startPrefixMapping(String prefix, String uri) throws SAXException {
     importer.registerNamespace(prefix, uri);
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void warning(SAXParseException exception) throws SAXException {
   }
 

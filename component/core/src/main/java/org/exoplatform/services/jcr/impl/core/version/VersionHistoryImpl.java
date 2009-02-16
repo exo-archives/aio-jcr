@@ -47,7 +47,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -77,6 +76,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
           + " is not nt:versionHistory type");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void loadData(ItemData vhData) throws RepositoryException,
                                        InvalidItemStateException,
@@ -85,13 +87,19 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     super.loadData(new VersionHistoryDataHelper((NodeData) vhData,
                                                 session.getTransientNodesManager()
                                                        .getTransactManager(),
-                                                session.getWorkspace().getNodeTypeManager()));
+                                                session.getWorkspace().getNodeTypesHolder()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public VersionHistoryDataHelper getData() {
     return (VersionHistoryDataHelper) super.getData();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String getVersionableUUID() throws RepositoryException {
 
     checkValid();
@@ -104,15 +112,18 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
       try {
         return new String(versionableUuid.getValues().get(0).getAsByteArray());
       } catch (IllegalStateException e) {
-        log.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
+        LOG.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
       } catch (IOException e) {
-        log.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
+        LOG.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
       }
 
     throw new ItemNotFoundException("A property jcr:versionableUuid is not found. Version history "
         + getPath());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version getRootVersion() throws RepositoryException {
 
     checkValid();
@@ -127,6 +138,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return version;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public VersionIterator getAllVersions() throws RepositoryException {
 
     checkValid();
@@ -143,6 +157,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version getVersion(String versionName) throws VersionException, RepositoryException {
 
     checkValid();
@@ -151,7 +168,8 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
   }
 
   /**
-   * For internal use. Doesn't check InvalidItemStateException. May return unpooled Version object.
+   * For internal use. Doesn't check InvalidItemStateException. May return
+   * unpooled Version object.
    */
   public Version version(String versionName, boolean pool) throws VersionException,
                                                           RepositoryException {
@@ -168,6 +186,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return version;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version getVersionByLabel(String label) throws RepositoryException {
 
     checkValid();
@@ -188,6 +209,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasVersionLabel(String label) throws RepositoryException {
 
     checkValid();
@@ -198,6 +222,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasVersionLabel(Version version, String label) throws VersionException,
                                                                RepositoryException {
 
@@ -210,6 +237,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String[] getVersionLabels() throws RepositoryException {
 
     checkValid();
@@ -247,6 +277,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return vlabels;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String[] getVersionLabels(Version version) throws VersionException, RepositoryException {
 
     checkValid();
@@ -259,6 +292,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return res;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void removeVersion(String versionName) throws ReferentialIntegrityException,
                                                AccessDeniedException,
                                                UnsupportedRepositoryOperationException,
@@ -269,7 +305,8 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     VersionImpl version = (VersionImpl) version(versionName, true);
 
     // check references.
-    // Note: References from /jcr:system/jcr:versionStorage never included to getReferences!
+    // Note: References from /jcr:system/jcr:versionStorage never included to
+    // getReferences!
     List<PropertyData> refs = dataManager.getReferencesData(version.getInternalIdentifier(), true);
     if (refs.size() > 0)
       throw new ReferentialIntegrityException("There are Reference property pointed to this Version "
@@ -399,6 +436,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return version;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void addVersionLabel(String versionName, String label, boolean moveLabel) throws VersionException,
                                                                                   RepositoryException {
 
@@ -435,6 +475,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     dataManager.getTransactManager().save(changesLog);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void removeVersionLabel(String labelName) throws VersionException, RepositoryException {
 
     checkValid();
@@ -501,7 +544,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     changesLog.add(ItemState.createAddedState(propData));
 
     // A reference to V is added to the jcr:successors property of
-    // each of the versions identified in V’s jcr:predecessors property.
+    // each of the versions identified in Vs jcr:predecessors property.
     List<ValueData> predecessors = ((PropertyData) dataManager.getItemData(versionableNodeData,
                                                                            new QPathEntry(Constants.JCR_PREDECESSORS,
                                                                                           0))).getValues();
@@ -552,14 +595,17 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
                                                         new TransientValueData(frozenData.getIdentifier()));
     changesLog.add(ItemState.createAddedState(propData));
 
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    // NodeTypeManagerImpl ntManager =
+    // session.getWorkspace().getNodeTypesHolder();
     FrozenNodeInitializer visitor = new FrozenNodeInitializer(frozenData,
                                                               session.getTransientNodesManager(),
-                                                              ntManager,
-                                                              changesLog);
+                                                              session.getWorkspace()
+                                                                     .getNodeTypesHolder(),
+                                                              changesLog,
+                                                              session.getValueFactory());
 
-    if (log.isDebugEnabled())
-      log.debug("Before frozen visitor: " + changesLog.dump());
+    if (LOG.isDebugEnabled())
+      LOG.debug("Before frozen visitor: " + changesLog.dump());
 
     versionableNodeData.accept(visitor);
 

@@ -42,7 +42,7 @@ public abstract class BaseReplicationTestCase {
   /**
    * The apache logger.
    */
-  protected static Log       log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
+  private static final Log   log         = ExoLogger.getLogger(BaseReplicationTestCase.class);
 
   /**
    * Definition the size of buffer.
@@ -70,7 +70,7 @@ public abstract class BaseReplicationTestCase {
   protected Node             rootNode;
 
   /**
-   * The Credentials to workspace. 
+   * The Credentials to workspace.
    */
   private Credentials        credentials;
 
@@ -80,8 +80,8 @@ public abstract class BaseReplicationTestCase {
   protected Repository       repository;
 
   /**
-   * BaseReplicationTestCase  constructor.
-   *
+   * BaseReplicationTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -116,12 +116,11 @@ public abstract class BaseReplicationTestCase {
 
   /**
    * addNodePath.
-   *
+   * 
    * @param repoPath
    *          the repository path
-   * @return Node
-   *           the Node
-   * @throws RepositoryException 
+   * @return Node the Node
+   * @throws RepositoryException
    *           will be generated the RepositoryException.
    */
   protected Node addNodePath(String repoPath) throws RepositoryException {
@@ -139,19 +138,20 @@ public abstract class BaseReplicationTestCase {
 
   /**
    * getNormalizePath.
-   *
+   * 
    * @param repoPath
-   *         the repository path split '::' 
-   * @return String
-   *          return the repository path split '/' 
+   *          the repository path split '::'
+   * @return String return the repository path split '/'
    */
   protected String getNormalizePath(String repoPath) {
+    // return repoPath;
+    // TODO remove it ?
     return repoPath.replaceAll("[:][:]", "/");
   }
 
   /**
    * compareStream.
-   *
+   * 
    * @param etalon
    *          the eatalon stream
    * @param data
@@ -172,7 +172,7 @@ public abstract class BaseReplicationTestCase {
    *          the etalon stream
    * @param data
    *          testing stream
-   * @param etalonPos 
+   * @param etalonPos
    *          etalon position
    * @param dataPos
    *          testing position
@@ -221,7 +221,7 @@ public abstract class BaseReplicationTestCase {
           erindex++;
           dindex++;
           if (length > 0 && dindex >= length)
-            return; // tested length reached
+            return;
         }
 
         if (dread < eread)

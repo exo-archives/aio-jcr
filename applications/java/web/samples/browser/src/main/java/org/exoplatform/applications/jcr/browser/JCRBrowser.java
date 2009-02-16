@@ -17,14 +17,21 @@
 package org.exoplatform.applications.jcr.browser;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+import org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutor;
+import org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutorException;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>
@@ -33,10 +40,14 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * 
  * JavaBean for JCRBrowser sample application.<br/>
  * 
+ * Since JCR 1.11 Browser supports Ext Repository synchronization.<br/>
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: JCRBrowser.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class JCRBrowser {
+  
+  private static final Log                                       LOG                = ExoLogger.getLogger("samples.JCRBrowser");
 
   protected RepositoryService    repositoryService;
 
@@ -148,5 +159,77 @@ public class JCRBrowser {
    */
   public void setRepositoryService(RepositoryService repositoryService) {
     this.repositoryService = repositoryService;
+  }
+
+  /**
+   * Tell if Asynchronous Replication service available.
+   *
+   * @return boolean
+   */
+  public boolean isAsynchronousReplicationPresent() {
+    return getAsynchronousReplication() != null;
+  }
+  
+  /**
+   * Tell if Asynchronous Replication service available.
+   *
+   * @return boolean
+   */
+  public boolean isAsynchronousReplicationActive() {
+    AsyncReplication arep = getAsynchronousReplication();
+    return arep != null && arep.isActive();
+  }
+  
+  /**
+   * Runs synchronization process if service is present.
+   *
+   */
+  public void runSynchronization() {
+    AsyncReplicationExecutor arep = getAsynchronousReplicationExecutor();
+    if (arep != null) {
+      try {
+        long start = System.currentTimeMillis();
+        if (arep.synchronize())
+          LOG.info("Synchronization started " + new Date() + ", " + (System.currentTimeMillis() - start) / 1000 + "sec.");
+        else
+          LOG.info("Synchronization star failed. " + (System.currentTimeMillis() - start) / 1000 + "sec.");
+      } catch (AsyncReplicationExecutorException e) {
+        LOG.error("Synchronization fails. Repository error " + e, e);
+      }
+    } else
+      LOG.warn("Synchronization impossible. Service is not present.");
+  }
+  /**
+   * Return Asynchronous Replication service handler.
+   *
+   * @return AsyncReplication
+   */
+  private AsyncReplication getAsynchronousReplication() {
+    if (this.repository != null) {
+      WorkspaceContainerFacade container = this.repository.getWorkspaceContainer(this.repository.getConfiguration()
+                                                                                                .getDefaultWorkspaceName());
+      
+      if (container != null)
+        return (AsyncReplication) container.getComponent(AsyncReplication.class);
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Return Asynchronous Replication service executor.
+   *
+   * @return AsyncReplication
+   */
+  private AsyncReplicationExecutor getAsynchronousReplicationExecutor() {
+    if (this.repository != null) {
+      WorkspaceContainerFacade container = this.repository.getWorkspaceContainer(this.repository.getConfiguration()
+                                                                                                .getDefaultWorkspaceName());
+      
+      if (container != null)
+        return (AsyncReplicationExecutor) container.getComponent(AsyncReplicationExecutor.class);
+    }
+    
+    return null;
   }
 }

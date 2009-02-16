@@ -22,19 +22,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.ws.rs.core.StreamingOutput;
+
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
-import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
-import org.exoplatform.services.rest.transformer.SerializableEntity;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ExtHttpHeaders;
+
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class MultipartByterangesEntity implements SerializableEntity {
+public class MultipartByterangesEntity implements StreamingOutput {
+  
+  private static Log log = ExoLogger.getLogger(MultipartByterangesEntity.class);
 
   private final Resource    resource_;
 
@@ -59,7 +65,7 @@ public class MultipartByterangesEntity implements SerializableEntity {
    * @see
    * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
    */
-  public void writeObject(OutputStream ostream) throws IOException {
+  public void write(OutputStream ostream) throws IOException {
     try {
       for (Range range : ranges_) {
         InputStream istream = null;
@@ -73,10 +79,10 @@ public class MultipartByterangesEntity implements SerializableEntity {
         print("--" + WebDavConst.BOUNDARY, ostream);
         println(ostream);
         // content-type
-        print(WebDavHeaders.CONTENTTYPE + ": " + contentType_, ostream);
+        print(ExtHttpHeaders.CONTENT_TYPE + ": " + contentType_, ostream);
         println(ostream);
         // current range
-        print(WebDavHeaders.CONTENTRANGE + ": bytes " + range.getStart() + "-" + range.getEnd()
+        print(ExtHttpHeaders.CONTENTRANGE + ": bytes " + range.getStart() + "-" + range.getEnd()
             + "/" + contentLength_, ostream);
         println(ostream);
         println(ostream);
@@ -94,9 +100,9 @@ public class MultipartByterangesEntity implements SerializableEntity {
       println(ostream);
       print("--" + WebDavConst.BOUNDARY + "--", ostream);
       println(ostream);
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException("Can't write to stream, caused " + e);
+    } catch (Exception exc) {
+      log.error(exc.getMessage(), exc);
+      throw new IOException("Can't write to stream, caused " + exc);
     }
   }
 

@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +29,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.<br>
- * Helper for creating namespace mapping dependent entities like JCR path, name, uuid
+ * Helper for creating namespace mapping dependent entities like JCR path, name,
+ * uuid
  * 
  * @author Gennady Azarenkov
  * @version $Id: LocationFactory.java 11907 2008-03-13 15:36:21Z ksm $
@@ -52,12 +52,10 @@ public class LocationFactory {
   /**
    * Creates JCRPath from parent path and relPath
    * 
-   * @param parentLoc
-   *          parent path
-   * @param relPath
-   *          related path
-   * @param setIndexIfNotDefined
-   *          if necessary to set index = 1 if not defined (usable for node's path only)
+   * @param parentLoc parent path
+   * @param relPath related path
+   * @param setIndexIfNotDefined if necessary to set index = 1 if not defined
+   *          (usable for node's path only)
    * @return
    * @throws RepositoryException
    */
@@ -129,6 +127,13 @@ public class LocationFactory {
     return new JCRName(qname.getNamespace(), qname.getName(), prefix);
   }
 
+  public String formatPathElement(QPathEntry qe) throws RepositoryException {
+    String prefix = namespaces.getNamespacePrefixByURI(qe.getNamespace());
+    JCRPath p = new JCRPath();
+    p.addEntry(qe.getNamespace(), qe.getName(), prefix, qe.getIndex());
+    return p.getEntries()[0].getAsString(false);
+  }
+
   /**
    * Parses absolute JCR name from string (JCR format ns:name[index])
    * 
@@ -136,7 +141,7 @@ public class LocationFactory {
    * @return
    * @throws RepositoryException
    */
-  public JCRName parseJCRName(String name) throws PathNotFoundException, RepositoryException {
+  public JCRName parseJCRName(String name) throws RepositoryException {
     JCRPath.PathElement entry = parsePathEntry(new JCRPath(), name);
 
     return new JCRName(entry.getNamespace(), entry.getName(), entry.getPrefix());
@@ -153,8 +158,7 @@ public class LocationFactory {
     return path.getEntries();
   }
 
-  private JCRPath.PathElement parsePathEntry(JCRPath path, String name) throws PathNotFoundException,
-                                                                       RepositoryException {
+  private JCRPath.PathElement parsePathEntry(JCRPath path, String name) throws RepositoryException {
 
     // should be reset here (if there is explicit index) or
     // in JCRPath.Entry() (with index == 1)
@@ -205,8 +209,7 @@ public class LocationFactory {
     }
   }
 
-  private JCRPath parseNames(String path, boolean absolute) throws PathNotFoundException,
-                                                           RepositoryException {
+  private JCRPath parseNames(String path, boolean absolute) throws RepositoryException {
 
     if (path == null) {
       throw new RepositoryException("Illegal relPath " + path);

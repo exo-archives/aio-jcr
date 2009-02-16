@@ -224,6 +224,20 @@
       <supertype>nt:unstructured</supertype>
     </supertypes>
   </nodeType>  
+  
+  <nodeType name="exojcrtest:selfDependend" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+    <supertypes>
+      <supertype>nt:base</supertype>
+    </supertypes>
+    <childNodeDefinitions>
+      <childNodeDefinition name="subNode" defaultPrimaryType="exojcrtest:selfDependend" autoCreated="false" mandatory="false"
+        onParentVersion="COPY" protected="false" sameNameSiblings="false">
+        <requiredPrimaryTypes>
+          <requiredPrimaryType>exojcrtest:selfDependend</requiredPrimaryType>
+        </requiredPrimaryTypes>
+      </childNodeDefinition>
+	</childNodeDefinitions>  
+  </nodeType>
 
   <!-- nodeType name="exo:metadata" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
     <propertyDefinitions>

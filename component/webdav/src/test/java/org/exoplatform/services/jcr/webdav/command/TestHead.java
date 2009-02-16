@@ -16,61 +16,45 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-//import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.CookieModule;
-import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.services.jcr.webdav.ContainerStarter;
+import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
-import junit.framework.TestCase;
-
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com Aug 13, 2008
  */
-public class TestHead extends TestCase {
+public class TestHead extends BaseWebDavTest {
+  
+  private String       fileName    = TestUtils.getFileName();
 
-  private final String            fileName    = TestUtils.getFullWorkSpacePath() + "/"
-                                                  + TestUtils.getFileName();
+  private final String fileContent = "TEST FILE CONTENT...";
 
-  private final String            fileContent = "TEST FILE CONTENT...";
-
-//  private InstalledLocalContainer container;
-
-  private HTTPConnection          connection;
-
-  @Override
+  private final String testFile = TestUtils.getFullWorkSpacePath() + "/" + fileName;
+      
   protected void setUp() throws Exception {
 
-    // container = ContainerStarter.cargoContainerStart("8088", null);
-    // assertTrue(container.getState().isStarted());
-
-    CookieModule.setCookiePolicyHandler(null);
-
-    connection = TestUtils.GetAuthConnection();
-
-    HTTPResponse response = connection.Put(fileName, fileContent);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
     super.setUp();
+
+    HTTPResponse response = connection.Put(testFile, fileContent);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    
+
   }
 
   @Override
   protected void tearDown() throws Exception {
 
-    HTTPResponse response = connection.Delete(fileName);
+    HTTPResponse response = connection.Delete(testFile);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-    // ContainerStarter.cargoContainerStop(container);
-    // assertTrue(container.getState().isStopped());
 
     super.tearDown();
   }
 
   public void testSimpleHead() throws Exception {
 
-    HTTPResponse response = connection.Head(fileName);
+    HTTPResponse response = connection.Head(testFile);
     assertEquals(HTTPStatus.OK, response.getStatusCode());
 
   }

@@ -25,6 +25,9 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
  * 16.01.2007 15:21:45
@@ -33,6 +36,8 @@ import javax.jcr.PathNotFoundException;
  */
 
 public class ReplicationStreamTest extends BaseReplicationTest {
+  
+  private static final Log      log = ExoLogger.getLogger(ReplicationStreamTest.class);
 
   public void testAddNode() throws Exception {
     long start, end;

@@ -19,8 +19,6 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 
-import org.exoplatform.services.jcr.datamodel.InternalQName;
-
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -30,11 +28,11 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 public class NodeDefinitionImpl extends ItemDefinitionImpl implements NodeDefinition {
 
-  private NodeType   defaultNodeType;
+  private final NodeType   defaultNodeType;
 
-  private NodeType[] requiredNodeTypes;
+  private final NodeType[] requiredNodeTypes;
 
-  private boolean    multiple;
+  private final boolean    multiple;
 
   public NodeDefinitionImpl(String name,
                             NodeType declaringNodeType,
@@ -44,24 +42,22 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements NodeDefini
                             boolean mandatory,
                             int onVersion,
                             boolean readOnly,
-                            boolean multiple,
-                            InternalQName qName) {
+                            boolean multiple) {
 
-    super(name, declaringNodeType, autoCreate, onVersion, readOnly, mandatory, qName);
+    super(name, declaringNodeType, autoCreate, onVersion, readOnly, mandatory);
 
-    this.declaringNodeType = declaringNodeType;
     this.requiredNodeTypes = requiredNodeTypes;
     this.defaultNodeType = defaultNodeType;
     this.multiple = multiple;
 
-  }
-
-  public NodeDefinitionImpl(String name, InternalQName qName) {
-    super(name, qName);
+    int hk = 31 * this.hashCode + requiredNodeTypes.hashCode();
+    if (defaultNodeType != null)
+      hk = 31 * hk + defaultNodeType.hashCode();
+    this.hashCode = 31 * hk + (multiple ? 0 : 1);
   }
 
   /**
-   * @see javax.jcr.nodetype.NodeDefinition#getRequiredPrimaryTypes
+   * {@inheritDoc}
    */
   public NodeType[] getRequiredPrimaryTypes() {
 
@@ -69,43 +65,22 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements NodeDefini
   }
 
   /**
-   * @see javax.jcr.nodetype.NodeDefinition#getDefaultPrimaryType
+   * {@inheritDoc}
    */
   public NodeType getDefaultPrimaryType() {
     return defaultNodeType;
   }
 
   /**
-   * @see javax.jcr.nodetype.NodeDefinition#allowSameNameSibs
+   * {@inheritDoc}
    */
   public boolean allowsSameNameSiblings() {
     return multiple;
   }
 
   /**
-   * @param defaultNodeType
-   *          The defaultNodeType to set.
+   * {@inheritDoc}
    */
-  public void setDefaultNodeType(NodeType defaultNodeType) {
-    this.defaultNodeType = defaultNodeType;
-  }
-
-  /**
-   * @param multiple
-   *          The multiple to set.
-   */
-  public void setMultiple(boolean multiple) {
-    this.multiple = multiple;
-  }
-
-  /**
-   * @param requiredNodeTypes
-   *          The requiredNodeTypes to set.
-   */
-  public void setRequiredNodeTypes(NodeType[] requiredNodeTypes) {
-    this.requiredNodeTypes = requiredNodeTypes;
-  }
-
   public boolean equals(Object obj) {
     if (obj == null)
       return false;

@@ -25,9 +25,10 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.VersionException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -35,7 +36,6 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -43,18 +43,20 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS 19.12.2006 Helper class. Contains some functions for a version
- * history operations. Actually it's a wrapper for NodeData with additional methods. For use instead
- * a VersionHistoryImpl.
+ * Created by The eXo Platform SAS 19.12.2006 Helper class. Contains some
+ * functions for a version history operations. Actually it's a wrapper for
+ * NodeData with additional methods. For use instead a VersionHistoryImpl.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: VersionHistoryDataHelper.java 17564 2007-07-06 15:26:07Z peterit $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: VersionHistoryDataHelper.java 17564 2007-07-06 15:26:07Z
+ *          peterit $
  */
 public class VersionHistoryDataHelper extends TransientNodeData {
 
   protected final ItemDataConsumer    dataManager;
 
-  protected final NodeTypeManagerImpl ntManager;
+  protected final NodeTypeDataManager ntManager;
 
   private final String                versionHistoryIdentifier;
 
@@ -63,14 +65,13 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   /**
    * Create helper using existed version history node data
    * 
-   * @param source
-   *          - existed version history node data
+   * @param source - existed version history node data
    * @param dataManager
    * @param ntManager
    */
   public VersionHistoryDataHelper(NodeData source,
                                   ItemDataConsumer dataManager,
-                                  NodeTypeManagerImpl ntManager) {
+                                  NodeTypeDataManager ntManager) {
     super(source.getQPath(),
           source.getIdentifier(),
           source.getPersistedVersion(),
@@ -87,21 +88,19 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
 
   /**
-   * Create helper as we create a new version history. All changes will be placed into changes log.
-   * No persisted changes will be performed.
+   * Create helper as we create a new version history. All changes will be
+   * placed into changes log. No persisted changes will be performed.
    * 
-   * @param versionable
-   *          - mix:versionable node data
-   * @param changes
-   *          - changes log
+   * @param versionable - mix:versionable node data
+   * @param changes - changes log
    * @param dataManager
    * @param ntManager
    * @throws RepositoryException
    */
   public VersionHistoryDataHelper(NodeData versionable,
-                                  PlainChangesLogImpl changes,
+                                  PlainChangesLog changes,
                                   ItemDataConsumer dataManager,
-                                  NodeTypeManagerImpl ntManager) throws RepositoryException {
+                                  NodeTypeDataManager ntManager) throws RepositoryException {
 
     this(versionable,
          changes,
@@ -112,21 +111,19 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
 
   /**
-   * Create helper as we create a new version history. All changes will be placed into changes log.
-   * No persisted changes will be performed.
+   * Create helper as we create a new version history. All changes will be
+   * placed into changes log. No persisted changes will be performed.
    * 
-   * @param versionable
-   *          - mix:versionable node data
-   * @param changes
-   *          - changes log
+   * @param versionable - mix:versionable node data
+   * @param changes - changes log
    * @param dataManager
    * @param ntManager
    * @throws RepositoryException
    */
   public VersionHistoryDataHelper(NodeData versionable,
-                                  PlainChangesLogImpl changes,
+                                  PlainChangesLog changes,
                                   ItemDataConsumer dataManager,
-                                  NodeTypeManagerImpl ntManager,
+                                  NodeTypeDataManager ntManager,
                                   String versionHistoryIdentifier,
                                   String baseVersionIdentifier) throws RepositoryException {
     this.dataManager = dataManager;
@@ -239,7 +236,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     return null;
   }
 
-  private TransientNodeData init(NodeData versionable, PlainChangesLogImpl changes) throws RepositoryException {
+  private TransientNodeData init(NodeData versionable, PlainChangesLog changes) throws RepositoryException {
 
     // ----- VERSION STORAGE nodes -----
     // ----- version history -----
@@ -247,7 +244,8 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
     NodeData versionStorageData = (NodeData) dataManager.getItemData(rootItem,
                                                                      new QPathEntry(Constants.JCR_VERSIONSTORAGE,
-                                                                                    1)); //Constants.
+                                                                                    1)); // Constants
+    // .
     // JCR_VERSION_STORAGE_PATH
 
     InternalQName vhName = new InternalQName(null, versionHistoryIdentifier);

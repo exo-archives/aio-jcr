@@ -476,6 +476,49 @@
   <testCase name="QueryResultGetRowsTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryResultGetRowsTest" />
   </testCase>
+  
+  <!-- nodetype tests -->
+   <testCase name="ChangeExistedNodeDefinition">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.ChangeExistedNodeDefinition" />
+  </testCase>
+  <testCase name="ChangeExistedPropertyDefinition">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.ChangeExistedPropertyDefinition" />
+  </testCase>
+  <testCase name="CreateNodeType">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.CreateNodeType" />
+  </testCase>
+  <testCase name="DeleteExistedNodeDefinition">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.DeleteExistedNodeDefinition" />
+  </testCase>
+  <testCase name="DeleteExistedPropertyDefinition">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.DeleteExistedPropertyDefinition" />
+  </testCase>
+  <testCase name="UnregisterNodeType">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.UnregisterNodeType" />
+  </testCase>
+  <testCase name="UpdateExistedNodeDefinition">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.UpdateExistedNodeDefinition" />
+  </testCase>
+  <testCase name="UpdateExistedNodeTypeValue">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.UpdateExistedNodeTypeValue" />
+  </testCase>
+  <testCase name="UpdateExistedPropertyDefinition">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.UpdateExistedPropertyDefinition" />
+  </testCase>
+  <testCase name="UpdateExistedSuperTypeDefinition">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.nodetype.UpdateExistedSuperTypeDefinition" />
+  </testCase>
+  
+  <!-- namespace tests -->
+    <testCase name="AddNamespace">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.namespace.AddNamespace" />
+  </testCase>
+  <testCase name="ChangeNamespace">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.namespace.ChangeNamespace" />
+  </testCase>
+  <testCase name="DeleteNamespace">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.namespace.DeleteNamespace" />
+  </testCase>
 
   <!-- Temporary excluded tests -->
   <!--testCase name="TEMPORARY EXCLUDED">

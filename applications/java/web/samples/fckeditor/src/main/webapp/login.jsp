@@ -7,8 +7,8 @@
 <body>
   <h1>eXo Platform JCR FCKeditor sample</h1>
   <form name="loginForm" method="post" action="<%=loginAction%>">
-    Enter your login and password to view requested content: <input name="j_username" value="admin"/>
-    <input type="password" name="j_password" value="admin"/>
+    Enter your login and password to view requested content: <input name="j_username" value="root"/>
+    <input type="password" name="j_password" value="exo"/>
     <input name="submit" type="submit" value="Login">
   </form>
 </body>  

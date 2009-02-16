@@ -46,13 +46,13 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.RepositoryContainer;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
@@ -79,6 +79,7 @@ public class RepositoryImpl implements ManageableRepository {
    */
   private static final CredentialsImpl   SYSTEM_CREDENTIALS = new CredentialsImpl(SystemIdentity.SYSTEM,
                                                                                   "".toCharArray());
+
   /**
    * Logger.
    */
@@ -135,12 +136,9 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * RepositoryImpl constructor.
    * 
-   * @param container
-   *          Repository container
-   * @throws RepositoryException
-   *           error of initialization
-   * @throws RepositoryConfigurationException
-   *           error of configuration
+   * @param container Repository container
+   * @throws RepositoryException error of initialization
+   * @throws RepositoryConfigurationException error of configuration
    */
   public RepositoryImpl(RepositoryContainer container) throws RepositoryException,
       RepositoryConfigurationException {
@@ -158,8 +156,8 @@ public class RepositoryImpl implements ManageableRepository {
    * {@inheritDoc}
    */
   public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
-    WorkspacePersistentDataManager pmanager = (WorkspacePersistentDataManager) repositoryContainer.getWorkspaceContainer(workspaceName)
-                                                                                                  .getComponentInstanceOfType(WorkspacePersistentDataManager.class);
+    PersistentDataManager pmanager = (PersistentDataManager) repositoryContainer.getWorkspaceContainer(workspaceName)
+                                                                                .getComponentInstanceOfType(PersistentDataManager.class);
 
     pmanager.addItemPersistenceListener(listener);
   }
@@ -194,17 +192,19 @@ public class RepositoryImpl implements ManageableRepository {
   }
 
   /**
-   * Creation contains three steps. First <code>configWorkspace(WorkspaceEntry wsConfig)</code> -
-   * registration a new configuration in RepositoryContainer and create WorkspaceContainer. Second,
-   * the main step, is <code>initWorkspace(String workspaceName, String rootNodeType)</code> -
-   * initializing workspace by name and root nodetype. Third, final step, starting all components of
-   * workspace. Before creation workspace <b>must be configured</b>
+   * Creation contains three steps. First
+   * <code>configWorkspace(WorkspaceEntry wsConfig)</code> - registration a new
+   * configuration in RepositoryContainer and create WorkspaceContainer. Second,
+   * the main step, is
+   * <code>initWorkspace(String workspaceName, String rootNodeType)</code> -
+   * initializing workspace by name and root nodetype. Third, final step,
+   * starting all components of workspace. Before creation workspace <b>must be
+   * configured</b>
    * 
    * @see org.exoplatform.services.jcr.core.RepositoryImpl#configWorkspace(org.exoplatform.services.jcr.config.WorkspaceEntry
    *      )
    * @see org.exoplatform.services.jcr.core.RepositoryImpl#initWorkspace(java.lang.String,java.lang.String)
-   * @param workspaceName
-   *          - Creates a new Workspace with the specified name
+   * @param workspaceName - Creates a new Workspace with the specified name
    * @throws RepositoryException
    */
   public void createWorkspace(String workspaceName) throws RepositoryException {
@@ -299,14 +299,14 @@ public class RepositoryImpl implements ManageableRepository {
   public SessionImpl getSystemSession(String workspaceName) throws RepositoryException {
     if (getState() == OFFLINE)
       LOG.warn("Repository " + getName() + " is OFFLINE.");
-    
+
     WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(workspaceName);
     if (workspaceContainer == null
         || !workspaceContainer.getWorkspaceInitializer().isWorkspaceInitialized()) {
       throw new RepositoryException("Workspace " + workspaceName
           + " not found or workspace is not initialized");
     }
-    
+
     SessionFactory sessionFactory = workspaceContainer.getSessionFactory();
 
     return sessionFactory.createSession(authenticationPolicy.authenticate(SYSTEM_CREDENTIALS));
@@ -365,7 +365,8 @@ public class RepositoryImpl implements ManageableRepository {
                                                                ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
                                                                dataManager,
                                                                dataManager,
-                                                               (NodeTypeManagerImpl) getNodeTypeManager(),
+                                                               sysSession.getWorkspace()
+                                                                         .getNodeTypesHolder(),
                                                                sysSession.getLocationFactory(),
                                                                sysSession.getValueFactory(),
                                                                getNamespaceRegistry(),
@@ -402,10 +403,8 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * Internal Remove Workspace.
    * 
-   * @param workspaceName
-   *          workspace name
-   * @throws RepositoryException
-   *           error of remove
+   * @param workspaceName workspace name
+   * @throws RepositoryException error of remove
    */
   public void internalRemoveWorkspace(String workspaceName) throws RepositoryException {
     WorkspaceContainer workspaceContainer = null;
@@ -471,7 +470,7 @@ public class RepositoryImpl implements ManageableRepository {
 
     if (getState() == OFFLINE)
       LOG.warn("Repository " + getName() + " is OFFLINE.");
-    
+
     ConversationState state;
 
     if (credentials != null)
@@ -486,17 +485,12 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * Internal login.
    * 
-   * @param state
-   *          ConversationState
-   * @param workspaceName
-   *          workspace name
+   * @param state ConversationState
+   * @param workspaceName workspace name
    * @return SessionImpl
-   * @throws LoginException
-   *           error of logic
-   * @throws NoSuchWorkspaceException
-   *           if no workspace found with name
-   * @throws RepositoryException
-   *           Repository error
+   * @throws LoginException error of logic
+   * @throws NoSuchWorkspaceException if no workspace found with name
+   * @throws RepositoryException Repository error
    */
   SessionImpl internalLogin(ConversationState state, String workspaceName) throws LoginException,
                                                                           NoSuchWorkspaceException,
@@ -571,8 +565,7 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * Set all repository workspaces ReadOnly status.
    * 
-   * @param wsStatus
-   *          ReadOnly workspace status
+   * @param wsStatus ReadOnly workspace status
    */
   private void setAllWorkspacesReadOnly(boolean wsStatus) {
     WorkspaceContainerFacade wsFacade;
@@ -581,5 +574,10 @@ public class RepositoryImpl implements ManageableRepository {
       WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
       dataContainer.setReadOnly(wsStatus);
     }
+  }
+
+  public NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
+    return (NodeTypeDataManager) repositoryContainer.getComponentInstanceOfType(NodeTypeDataManager.class);
+
   }
 }

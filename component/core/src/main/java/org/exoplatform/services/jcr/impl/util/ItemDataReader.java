@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.impl.util;
 
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 
 /**
  * Created by The eXo Platform SAS 15.05.2006
@@ -32,14 +31,11 @@ public abstract class ItemDataReader {
 
   protected DataManager      dataManager;
 
-  protected ValueFactoryImpl valueFactory = null;
-
   protected NodeData         parent;
 
-  public ItemDataReader(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
+  public ItemDataReader(NodeData parent, DataManager dataManager) {
     this.dataManager = dataManager;
     this.parent = parent;
-    this.valueFactory = valueFactory;
   }
 
   public NodeData getParentNode() {

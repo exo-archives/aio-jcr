@@ -19,15 +19,18 @@ package org.exoplatform.jcr.webdav.ejbconnector30;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.net.URI;
 import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.ws.rs.core.MultivaluedMap;
 
-import org.exoplatform.common.transport.SerialInputData;
-import org.exoplatform.common.transport.SerialRequest;
-import org.exoplatform.common.transport.SerialResponse;
+import org.exoplatform.services.rest.ext.transport.SerialInputData;
+import org.exoplatform.services.rest.ext.transport.SerialRequest;
+import org.exoplatform.services.rest.ext.transport.SerialResponse;
+import org.exoplatform.services.rest.impl.InputHeadersMap;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -38,6 +41,11 @@ public class Main {
   // default rules for name easybeans container on Jonas
   private static final String JNDI_NAME = "org.exoplatform.jcr.webdav.ejbconnector30.WebDAVEJBConnector" +
       "_" + WebDAVEJBConnectorRemote.class.getName() + "@Remote";
+
+//  /**
+//   * mappedName="WebDAVEJBConnector"
+//   */
+//  private static final String JNDI_NAME = "WebDAVEJBConnector";
 
   private static final String BASE_URL = "/jcr/repository/production/";
 
@@ -65,89 +73,62 @@ public class Main {
     Main main = new Main();
 
     WebDAVEJBConnectorRemote bean = main.getBean();
-    SerialResponse response = null;
-    
     // create directory 1
-    String testDir1 = BASE_URL + "test " + System.currentTimeMillis();
+    String testDir1 = BASE_URL + "test" + System.currentTimeMillis();
     System.out.println("MKCOL : create directory : " + testDir1);
-    response = bean.service(createRequest("MKCOL", testDir1, null, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    callService("MKCOL", new URI(testDir1), null, null, bean);
 
     // upload file test.txt
     System.out.println("PUT : upload file in created directory");
-    response = bean.service(createRequest("PUT", testDir1 + "/test.txt", null, null,
-        new SerialInputData(data.getBytes())));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    callService("PUT", new URI(testDir1 + "/test.txt"), null, new SerialInputData(data.getBytes()), bean);
 
     // create directory 2
-    String testDir2 = BASE_URL + "test " + System.currentTimeMillis();
+    String testDir2 = BASE_URL + "test" + System.currentTimeMillis();
     System.out.println("MKCOL : create directory : " + testDir2);
-    response = bean.service(createRequest("MKCOL", testDir2, null, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    callService("MKCOL", new URI(testDir2), null, null, bean);
 
     // copy file from directory 1 to directory 2
     System.out.println("COPY : copy file from " + testDir1 + " to " + testDir2);
-    HashMap<String, String> headers = new HashMap<String, String>();
-    headers.put("Destination", testDir2 + "/test.txt");
-    response = bean.service(createRequest("COPY", testDir1 + "/test.txt", headers, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.add("Destination", testDir2 + "/test.txt");
+    callService("COPY", new URI(testDir1 + "/test.txt"), new InputHeadersMap(headers), null, bean);
 
     // remove first file
     System.out.println("DELETE : delete first file");
-    response = bean.service(createRequest("DELETE", testDir1 + "/test.txt", null, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    callService("DELETE", new URI(testDir1 + "/test.txt"), null, null, bean);
     
     // move file from directory 2 to directory 1
     System.out.println("MOVE : move file from " + testDir2 + " to " + testDir1);
-    headers = new HashMap<String, String>();
-    headers.put("Destination", testDir1 + "/test.txt");
-    response = bean.service(createRequest("MOVE", testDir2 + "/test.txt", headers, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    headers.clear();
+    headers.add("Destination", testDir1 + "/test.txt");
+    callService("MOVE", new URI(testDir2 + "/test.txt"), new InputHeadersMap(headers), null, bean);
 
     // remove directory 2
     System.out.println("DELETE : delete directory " + testDir2);
-    response = bean.service(createRequest("DELETE", testDir2, null, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    callService("DELETE", new URI(testDir2), null, null, bean);
 
     // get file test.txt
     System.out.println("GET : get file " + testDir1 + "/test.txt");
-    response = bean.service(createRequest("GET", testDir1 + "/test.txt", null, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    callService("GET", new URI(testDir1 + "/test.txt"), null, null, bean);
 
     // remove directory 1
     System.out.println("DELETE : delete directory " + testDir1);
-    response = bean.service(createRequest("DELETE", testDir1, null, null, null));
-    System.out.println(response.getStatus());
-    if (response.getData() != null)
-      printStream(response.getData().getStream());
+    callService("DELETE", new URI(testDir1), null, null, bean);
 
   }
 
-  private static SerialRequest createRequest(String method, String url,
-      HashMap<String, String> headers, HashMap<String, String> queries, SerialInputData data) {
-    SerialRequest request = new SerialRequest();
-    request.setMethod(method);
-    request.setUrl(url);
-    request.setHeaders(headers);
-    request.setQueries(queries);
-    request.setData(data);
-    return request;
+  private static void callService(String method,
+                                  URI serviceURI,
+                                  MultivaluedMap<String, String> headers,
+                                  SerialInputData data,
+                                  WebDAVEJBConnectorRemote bean) throws Exception {
+    System.out.println("\t>>> method " + method);
+    SerialRequest request = new SerialRequest(method, serviceURI, headers, data);
+
+    SerialResponse response = bean.service(request);
+    System.out.println("response status: " + response.getStatus());
+    if (response.getData() != null)
+      printStream(response.getData().getStream());
   }
 
   private static void printStream(InputStream in) throws IOException {

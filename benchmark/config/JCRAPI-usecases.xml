@@ -92,7 +92,7 @@
     <param name="jcr.level4NodesCount" value="50" />
     <param name="japex.runIterationDelay" value="0" />
     </testCase>
-
+ 
   <!--testCase name="TraverseInnerFoldersTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.TraverseInnerFoldersTest" />
     <param name="jcr.amountOfInnerFolders" value="5" />

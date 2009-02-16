@@ -28,6 +28,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -40,7 +41,6 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -49,14 +49,13 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS 06.02.2007 Traverse through merging nodes
+ * (destenation) and do merge to correspondent version states.
  * 
- * 06.02.2007
- * 
- * Traverse through merging nodes (destenation) and do merge to correspondent version states.
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataMergeVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: ItemDataMergeVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov
+ *          $
  */
 public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
@@ -106,7 +105,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     RemoveVisitor() throws RepositoryException {
       super(mergeSession.getTransientNodesManager(),
             null,
-            mergeSession.getWorkspace().getNodeTypeManager(),
+            mergeSession.getWorkspace().getNodeTypesHolder(),
             mergeSession.getAccessManager(),
             mergeSession.getUserState());
     }
@@ -237,7 +236,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
           ItemDataCopyVisitor copier = new ItemDataCopyVisitor(context.getParent(),
                                                                corrNode.getQPath().getName(),
                                                                mergeSession.getWorkspace()
-                                                                           .getNodeTypeManager(),
+                                                                           .getNodeTypesHolder(),
                                                                mergeDataManager,
                                                                true);
           corrNode.accept(copier);
@@ -362,12 +361,10 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       TransientPropertyData mcp = new TransientPropertyData(QPath.makeChildPath(mergePath,
                                                                                 cp.getQPath()
                                                                                   .getName()),
-                                                            existed != null
-                                                                ? existed.getIdentifier()
-                                                                : cp.getIdentifier(),
-                                                            existed != null
-                                                                ? existed.getPersistedVersion()
-                                                                : cp.getPersistedVersion(),
+                                                            existed != null ? existed.getIdentifier()
+                                                                           : cp.getIdentifier(),
+                                                            existed != null ? existed.getPersistedVersion()
+                                                                           : cp.getPersistedVersion(),
                                                             cp.getType(),
                                                             mergedNode.getIdentifier(),
                                                             cp.isMultiValued());
@@ -385,11 +382,13 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     // let C be the set of nodes in S and in S'
     // let D be the set of nodes in S but not in S'.
     // let D' be the set of nodes in S' but not in S.
-    // remove from n all child nodes in D. <<< will occurs in doMerge() on particular child
+    // remove from n all child nodes in D. <<< will occurs in doMerge() on
+    // particular child
     // for each child node of n' in D' copy it (and its subtree) to n
     // as a new child node (if an incoming node has the same
     // UUID as a node already existing in this workspace,
-    // the already existing node is removed) <<< will occurs in doMerge() on particular child
+    // the already existing node is removed) <<< will occurs in doMerge() on
+    // particular child
 
     // for each child node m of n in C domerge(m).
   }
@@ -416,7 +415,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   protected TransientNodeData getBaseVersionData(final TransientNodeData node,
                                                  final SessionImpl session) throws RepositoryException {
 
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManager ntManager = session.getWorkspace().getNodeTypesHolder();
     if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
                              node.getPrimaryTypeName(),
                              node.getMixinTypeNames())) {
@@ -445,7 +444,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
     SessionDataManager corrDataManager = corrSession.getTransientNodesManager();
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
-    NodeTypeManagerImpl mergeNtManager = mergeSession.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManager mergeNtManager = mergeSession.getWorkspace().getNodeTypesHolder();
 
     if (mergeNtManager.isNodeType(Constants.MIX_REFERENCEABLE,
                                   mergeNode.getPrimaryTypeName(),

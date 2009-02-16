@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -39,41 +39,41 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   /**
    * 
    */
-  private static Log                   log       = ExoLogger.getLogger("jcr.ImportedNodeData");
+  private static Log               log = ExoLogger.getLogger("jcr.ImportedNodeData");
 
   /**
    * 
    */
-  private String                       baseVersionIdentifier;
+  private String                   baseVersionIdentifier;
 
   /**
    * 
    */
-  private boolean                      isContainsVersionhistory;
+  private boolean                  isContainsVersionhistory;
 
   /**
    * 
    */
-  private boolean                      isMixReferenceable;
+  private boolean                  isMixReferenceable;
 
   /**
    * 
    */
-  private boolean                      isMixVersionable;
+  private boolean                  isMixVersionable;
 
-  private boolean                      newIdentifer;
-
-  /**
-   * 
-   */
-  private final List<ExtendedNodeType> nodeTypes = new ArrayList<ExtendedNodeType>();
-
-  private String                       predecessorsIdentifier;
+  private boolean                  newIdentifer;
 
   /**
    * 
    */
-  private String                       versionHistoryIdentifier;
+  private final List<NodeTypeData> nodeTypes;
+
+  private String                   predecessorsIdentifier;
+
+  /**
+   * 
+   */
+  private String                   versionHistoryIdentifier;
 
   /**
    * @param parent
@@ -84,6 +84,7 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     super();
     this.qpath = QPath.makeChildPath(parent.getQPath(), name, index);
     this.parentIdentifier = parent.getIdentifier();
+    this.nodeTypes = new ArrayList<NodeTypeData>();
   }
 
   /**
@@ -112,12 +113,13 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
           orderNum,
           parentIdentifier,
           acl);
+    this.nodeTypes = new ArrayList<NodeTypeData>();
   }
 
   /**
    * @return the currentNodeTypes
    */
-  public void addNodeType(ExtendedNodeType nt) {
+  public void addNodeType(NodeTypeData nt) {
     nodeTypes.add(nt);
   }
 
@@ -128,16 +130,19 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     return baseVersionIdentifier;
   }
 
-  /**
-   * @return the currentNodeTypes
-   */
-  public List<ExtendedNodeType> getCurrentNodeTypes() {
-    return nodeTypes;
-  }
+  //
+  // /**
+  // * @return the currentNodeTypes
+  // */
+  // public List<ExtendedNodeType> getCurrentNodeTypes() {
+  // return nodeTypes;
+  // }
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.dataflow.TransientNodeData#getMixinTypeNames()
+   * @see
+   * org.exoplatform.services.jcr.impl.dataflow.TransientNodeData#getMixinTypeNames
+   * ()
    */
   @Override
   public InternalQName[] getMixinTypeNames() {
@@ -150,7 +155,7 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   /**
    * @return the nodeTypes
    */
-  public List<ExtendedNodeType> getNodeTypes() {
+  public List<NodeTypeData> getNodeTypes() {
     return nodeTypes;
   }
 
@@ -191,16 +196,14 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param baseVersionIdentifier
-   *          the baseVersionIdentifier to set
+   * @param baseVersionIdentifier the baseVersionIdentifier to set
    */
   public void setBaseVersionIdentifier(String baseVersionIdentifier) {
     this.baseVersionIdentifier = baseVersionIdentifier;
   }
 
   /**
-   * @param isContainsVersionhistory
-   *          the isContainsVersionhistory to set
+   * @param isContainsVersionhistory the isContainsVersionhistory to set
    */
   public void setContainsVersionhistory(boolean isContainsVersionhistory) {
     this.isContainsVersionhistory = isContainsVersionhistory;
@@ -211,16 +214,14 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param isMixReferenceable
-   *          the isMixReferenceable to set
+   * @param isMixReferenceable the isMixReferenceable to set
    */
   public void setMixReferenceable(boolean isMixReferenceable) {
     this.isMixReferenceable = isMixReferenceable;
   }
 
   /**
-   * @param isMixVersionable
-   *          the isMixVersionable to set
+   * @param isMixVersionable the isMixVersionable to set
    */
   public void setMixVersionable(boolean isMixVersionable) {
     this.isMixVersionable = isMixVersionable;
@@ -253,8 +254,7 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param versionHistoryIdentifier
-   *          the versionHistoryIdentifier to set
+   * @param versionHistoryIdentifier the versionHistoryIdentifier to set
    */
   public void setVersionHistoryIdentifier(String versionHistoryIdentifier) {
     this.versionHistoryIdentifier = versionHistoryIdentifier;

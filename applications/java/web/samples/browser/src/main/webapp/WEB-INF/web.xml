@@ -8,6 +8,11 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
   <display-name>exoplatform-jcr</display-name>
 
   <filter>
+    <filter-name>SetCurrentIdentityFilter</filter-name>
+    <filter-class>org.exoplatform.services.security.web.SetCurrentIdentityFilter</filter-class>
+  </filter>
+  
+  <filter>
     <filter-name>ThreadLocalSessionProviderInitializedFilter</filter-name>
     <filter-class>org.exoplatform.frameworks.jcr.web.ThreadLocalSessionProviderInitializedFilter</filter-class>
   </filter>
@@ -18,6 +23,11 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
   </filter>
   
   <filter-mapping>
+    <filter-name>SetCurrentIdentityFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+	
+  <filter-mapping>
     <filter-name>ThreadLocalSessionProviderInitializedFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
@@ -26,9 +36,9 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     <filter-name>JCRBrowserFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-	
-	<listener>
-    <listener-class>org.exoplatform.frameworks.jcr.web.StandaloneContainerInitializedListener</listener-class>
+  
+  <listener>
+    <listener-class>org.exoplatform.ws.frameworks.servlet.StandaloneContainerInitializedListener</listener-class>
   </listener>
   
   <welcome-file-list>
@@ -53,8 +63,8 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
       <http-method>GET</http-method>
     </web-resource-collection>
     <auth-constraint>
-      <role-name>exo</role-name>
-			<role-name>admin</role-name>
+      <role-name>users</role-name>
+			<role-name>administrators</role-name>
     </auth-constraint>
     <user-data-constraint>
       <transport-guarantee>NONE</transport-guarantee>
@@ -69,8 +79,8 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
       <http-method>GET</http-method>
     </web-resource-collection>
     <auth-constraint>
-      <role-name>exo</role-name>
-      <role-name>admin</role-name>
+      <role-name>users</role-name>
+      <role-name>administrators</role-name>
     </auth-constraint>
     <user-data-constraint>
       <transport-guarantee>NONE</transport-guarantee>
@@ -88,11 +98,11 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
 
   <security-role id="ID_EXO_USER">
     <description>a simple user role</description>
-    <role-name>exo</role-name>
+    <role-name>users</role-name>
   </security-role>
   <security-role id="ID_EXO_ADMIN">
     <description>a simple admin role</description>
-    <role-name>admin</role-name>
+    <role-name>administrators</role-name>
   </security-role>
 
 </web-app>

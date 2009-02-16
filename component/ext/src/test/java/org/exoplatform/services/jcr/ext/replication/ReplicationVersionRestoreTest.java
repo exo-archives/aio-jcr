@@ -24,6 +24,9 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.version.Version;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
  * 02.03.2007 14:31:17
@@ -32,6 +35,8 @@ import javax.jcr.version.Version;
  */
 
 public class ReplicationVersionRestoreTest extends BaseReplicationTest {
+  
+  private static final Log      log = ExoLogger.getLogger(ReplicationVersionRestoreTest.class);
 
   public void testRestore() throws Exception {
     Node srcVersionNode = root.addNode("Version node 1");

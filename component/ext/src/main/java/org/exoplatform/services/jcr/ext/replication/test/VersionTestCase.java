@@ -20,7 +20,9 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -32,8 +34,13 @@ import org.exoplatform.services.jcr.RepositoryService;
 public class VersionTestCase extends BaseReplicationTestCase {
 
   /**
-   * VersionTestCase  constructor.
-   *
+   * The apache logger.
+   */
+  private static final Log log = ExoLogger.getLogger(VersionTestCase.class);
+
+  /**
+   * VersionTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -56,13 +63,12 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
   /**
    * addVersionNode.
-   *
+   * 
    * @param repoPath
    *          repository path
    * @param value
    *          the String value
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer addVersionNode(String repoPath, String value) {
     StringBuffer sb = new StringBuffer();
@@ -84,13 +90,12 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
   /**
    * checkVersionNode.
-   *
+   * 
    * @param repoPath
    *          repository path
    * @param checkedValue
    *          the checked String value
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer checkVersionNode(String repoPath, String checkedValue) {
     StringBuffer sb = new StringBuffer();
@@ -113,13 +118,12 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
   /**
    * addNewVersion.
-   *
+   * 
    * @param repoPath
    *          repository path
    * @param newValue
    *          the new String value
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer addNewVersion(String repoPath, String newValue) {
     StringBuffer sb = new StringBuffer();
@@ -146,11 +150,10 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
   /**
    * restorePreviousVersion.
-   *
+   * 
    * @param repoPath
    *          repository path
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer restorePreviousVersion(String repoPath) {
     StringBuffer sb = new StringBuffer();
@@ -174,11 +177,10 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
   /**
    * restoreBaseVersion.
-   *
+   * 
    * @param repoPath
    *          repository path
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer restoreBaseVersion(String repoPath) {
     StringBuffer sb = new StringBuffer();

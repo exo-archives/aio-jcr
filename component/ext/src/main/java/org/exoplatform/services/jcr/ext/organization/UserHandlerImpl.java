@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -28,7 +29,6 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.log.ExoLogger;
@@ -155,16 +155,16 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     }
 
     try {
-      User user = findUserByName(session, username);
-
-      boolean authenticated = (user != null ? user.getPassword().equals(password) : false);
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
+          + username);
+      boolean authenticated = readStringProperty(uNode, EXO_PASSWORD).equals(password);
       if (authenticated) {
-        user.setLastLoginTime(Calendar.getInstance().getTime());
-        saveUser(session, user, false);
+        uNode.setProperty(EXO_LAST_LOGIN_TIME, Calendar.getInstance());
       }
-
       return authenticated;
 
+    } catch (PathNotFoundException e) {
+      return false;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not authenticate user '" + username + "'", e);
     }
@@ -207,7 +207,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
       // set default value for createdDate
       if (user.getCreatedDate() == null) {
-        user.setCreatedDate(Calendar.getInstance().getTime());
+        Calendar calendar = Calendar.getInstance();
+        user.setCreatedDate(calendar.getTime());
       }
 
       if (broadcast) {
@@ -319,39 +320,40 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       log.debug("User.findUsers method is started");
     }
 
-    String where = "jcr:path LIKE '" + "%" + "'";
-    if (query.getEmail() != null) {
-      where += " AND " + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
-    }
-    if (query.getFirstName() != null) {
-      where += " AND " + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
-    }
-    if (query.getLastName() != null) {
-      where += " AND " + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
-    }
+    try {
+      String where = "jcr:path LIKE '" + "%" + "'";
+      if (query.getEmail() != null) {
+        where += " AND " + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
+      }
+      if (query.getFirstName() != null) {
+        where += " AND " + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
+      }
+      if (query.getLastName() != null) {
+        where += " AND " + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
+      }
 
-    List<User> types = new ArrayList<User>();
+      List<User> types = new ArrayList<User>();
 
-    String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
-    Query uQuery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
-    QueryResult uRes = uQuery.execute();
-    for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
-      Node uNode = uNodes.nextNode();
-      String userName = uNode.getName();
-      if (query.getUserName() == null || userName.indexOf(removeAsterix(query.getUserName())) != -1) {
-        User user = findUserByName(session, uNode.getName());
-        if ((user != null)
-            && (query.getFromLoginDate() == null || (user.getLastLoginTime() != null && query.getFromLoginDate()
-                                                                                             .getTime() <= user.getLastLoginTime()
-                                                                                                               .getTime()))
-            && (query.getToLoginDate() == null || (user.getLastLoginTime() != null && query.getToLoginDate()
-                                                                                           .getTime() >= user.getLastLoginTime()
-                                                                                                             .getTime()))) {
-          types.add(user);
+      String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
+      Query uQuery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
+      QueryResult uRes = uQuery.execute();
+      for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
+        Node uNode = uNodes.nextNode();
+        if (query.getUserName() == null || isNameLike(uNode.getName(), query.getUserName())) {
+          Date lastLoginTime = readDateProperty(uNode, EXO_LAST_LOGIN_TIME);
+          if ((query.getFromLoginDate() == null || (lastLoginTime != null && query.getFromLoginDate()
+                                                                                  .getTime() <= lastLoginTime.getTime()))
+              && (query.getToLoginDate() == null || (lastLoginTime != null && query.getToLoginDate()
+                                                                                   .getTime() >= lastLoginTime.getTime()))) {
+            types.add(readObjectFromNode(uNode));
+          }
         }
       }
+      return new ObjectPageList(types, 10);
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find users", e);
     }
-    return new ObjectPageList(types, 10);
   }
 
   /**
@@ -382,35 +384,25 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       log.debug("User.findUsersByGroup method is started");
     }
 
+    List<User> users = new ArrayList<User>();
     try {
-      List<User> users = new ArrayList<User>();
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId);
 
-      // get UUId of the group
-      String gPath = service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId;
-      if (session.itemExists(gPath)) {
-        Node gNode = (Node) session.getItem(gPath);
-
-        // find memberships
-        String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
-            + "'";
-        Query mquery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
-        QueryResult mres = mquery.execute();
-        for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
-          Node membership = membs.nextNode();
-
-          // get user
-          Node userNode = membership.getParent();
-          User user = findUserByName(session, userNode.getName());
-          if (user != null) {
-            users.add(user);
-          }
-        }
+      // find memberships
+      String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
+          + "'";
+      Query mquery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
+      QueryResult mres = mquery.execute();
+      for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
+        users.add(readObjectFromNode(membs.nextNode().getParent()));
       }
-
       return new ObjectPageList(users, 10);
 
+    } catch (PathNotFoundException e) {
+      return new ObjectPageList(users, 10);
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not users by group '" + groupId + "'", e);
+      throw new OrganizationServiceException("Can not find users by group '" + groupId + "'", e);
     }
   }
 
@@ -447,13 +439,12 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       List<User> types = new ArrayList<User>();
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
       for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
-        User user = readObjectFromNode(uNodes.nextNode());
-        types.add(user);
+        types.add(readObjectFromNode(uNodes.nextNode()));
       }
       return new ObjectPageList(types, pageSize);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find users", e);
+      throw new OrganizationServiceException("Can not get user page list", e);
     }
   }
 
@@ -493,25 +484,20 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
           + userName);
+      User user = readObjectFromNode(uNode);
 
-      try {
-        User user = readObjectFromNode(uNode);
-
-        if (broadcast) {
-          preDelete(user);
-        }
-
-        uNode.remove();
-        session.save();
-
-        if (broadcast) {
-          postDelete(user);
-        }
-        return user;
-
-      } catch (Exception e) {
-        throw new OrganizationServiceException("Can not remove user '" + userName + "'", e);
+      if (broadcast) {
+        preDelete(user);
       }
+
+      uNode.remove();
+      session.save();
+
+      if (broadcast) {
+        postDelete(user);
+      }
+
+      return user;
 
     } catch (PathNotFoundException e) {
       return null;
@@ -571,9 +557,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       String srcPath = uNode.getPath();
       int pos = srcPath.lastIndexOf('/');
       String prevName = srcPath.substring(pos + 1);
-      String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
 
       if (!prevName.equals(user.getUserName())) {
+        String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
         session.move(srcPath, destPath);
         uNode = (Node) session.getItem(destPath);
       }
@@ -724,6 +710,31 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       str = str.substring(0, str.length() - 1);
     }
     return str;
+  }
+
+  private boolean isNameLike(String userName, String queryName) {
+    boolean startWith = false;
+    boolean endWith = false;
+
+    if (queryName.startsWith("*")) {
+      startWith = true;
+      queryName = queryName.substring(1);
+    }
+
+    if (queryName.endsWith("*")) {
+      endWith = true;
+      queryName = queryName.substring(0, queryName.length() - 1);
+    }
+
+    if (startWith && endWith) {
+      return userName.indexOf(queryName) != -1;
+    } else if (startWith) {
+      return userName.startsWith(queryName);
+    } else if (endWith) {
+      return userName.endsWith(queryName);
+    } else {
+      return userName.equals(queryName);
+    }
   }
 
 }

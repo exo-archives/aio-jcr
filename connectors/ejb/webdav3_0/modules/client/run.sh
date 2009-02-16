@@ -8,9 +8,11 @@ fi
 $JAVA_HOME/bin/java -Djava.security.manager=default  \
 -Djava.security.policy=$JONAS_ROOT/conf/java.policy \
 -cp \
-../connector/target/exo.jcr.webdav.ejbconnector3_0.bean-1.10.2.jar:\
-$JONAS_ROOT/lib/apps/exo.core.component.security.core-2.1.3.jar:\
-$JONAS_ROOT/lib/apps/exo.ws.commons-1.3.2.jar:\
+../connector/target/exo.jcr.webdav.ejbconnector3_0.bean-1.11-SNAPSHOT.jar:\
+$JONAS_ROOT/lib/apps/exo.core.component.security.core-2.1.4-SNAPSHOT.jar:\
+$JONAS_ROOT/lib/apps/exo.ws.rest.core-2.0-SNAPSHOT.jar:\
+$JONAS_ROOT/lib/apps/exo.ws.rest.ext-2.0-SNAPSHOT.jar:\
+$JONAS_ROOT/lib/apps/jsr311-api-1.0.jar:\
 $JONAS_ROOT/lib/client.jar:\
 target/rar/easybeans-component-smartclient-client-1.0.1.jar:\
 target/rar/easybeans-component-smartclient-api-1.0.1.jar:\
@@ -22,8 +24,4 @@ target/rar/util-log-1.0.6.jar:\
 target/rar/util-i18n-1.0.6.jar:\
 target/rar/easybeans-asm-3.0.jar:\
 target/rar/easybeans-util-1.0.1.jar \
-org.objectweb.jonas.client.ClientContainer target/exo.jcr.webdav.ejbconnector3_0.client-1.10.2.jar
-
-
-
-
+org.objectweb.jonas.client.ClientContainer target/exo.jcr.webdav.ejbconnector3_0.client-1.11-SNAPSHOT.jar

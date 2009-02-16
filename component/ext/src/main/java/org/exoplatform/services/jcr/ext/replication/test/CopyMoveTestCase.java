@@ -27,7 +27,9 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -37,10 +39,15 @@ import org.exoplatform.services.jcr.RepositoryService;
  */
 
 public class CopyMoveTestCase extends BaseReplicationTestCase {
-    
+
   /**
-   * CopyMoveTestCase  constructor.
-   *
+   * The apache logger.
+   */
+  private static final Log log = ExoLogger.getLogger(CopyMoveTestCase.class);
+
+  /**
+   * CopyMoveTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -63,7 +70,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
   /**
    * workspaceCopy.
-   *
+   * 
    * @param srcRepoPath
    *          source repository path
    * @param nodeName
@@ -72,8 +79,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
    *          destination node name
    * @param contentSize
    *          content size
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'} 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer workspaceCopy(String srcRepoPath,
                                     String nodeName,
@@ -127,7 +133,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
   /**
    * workspaceMove.
-   *
+   * 
    * @param srcRepoPath
    *          source repository path
    * @param nodeName
@@ -136,8 +142,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
    *          destination node name
    * @param contentSize
    *          content size
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer workspaceMove(String srcRepoPath,
                                     String nodeName,
@@ -191,7 +196,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
   /**
    * sessionMove.
-   *
+   * 
    * @param srcRepoPath
    *          source repository path
    * @param nodeName
@@ -200,8 +205,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
    *          destination node name
    * @param contentSize
    *          content size
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer sessionMove(String srcRepoPath,
                                   String nodeName,
@@ -255,7 +259,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
   /**
    * checkCopyMoveNode.
-   *
+   * 
    * @param srcRepoPath
    *          source repository path
    * @param nodeName
@@ -264,8 +268,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
    *          destination node name
    * @param contentSize
    *          content size
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer checkCopyMoveNode(String srcRepoPath,
                                         String nodeName,

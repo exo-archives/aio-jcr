@@ -26,6 +26,10 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.MutablePropertyData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -41,7 +45,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 
 public class TransientPropertyData extends TransientItemData implements MutablePropertyData,
-    Externalizable {
+    Externalizable, JCRExternalizable {
 
   private static final long  serialVersionUID = -8224902483861330191L;
 
@@ -236,6 +240,37 @@ public class TransientPropertyData extends TransientItemData implements MutableP
       values = new ArrayList<ValueData>();
       for (int i = 0; i < listSize; i++)
         values.add((ValueData) in.readObject());
+    }
+  }
+  
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    super.readExternal(in);
+
+    type = in.readInt();
+
+    multiValued = in.readBoolean();
+
+    int listSize = in.readInt();
+    if (listSize != NULL_VALUES) {
+      values = new ArrayList<ValueData>();
+      for (int i = 0; i < listSize; i++)
+        values.add((ValueData) in.readObject());
+    }
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    super.writeExternal(out);
+
+    out.writeInt(type);
+    out.writeBoolean(multiValued);
+
+    if (values != null) {
+      int listSize = values.size();
+      out.writeInt(listSize);
+      for (int i = 0; i < listSize; i++)
+        out.writeObject((JCRExternalizable) values.get(i));
+    } else {
+      out.writeInt(NULL_VALUES);
     }
   }
 }

@@ -11,6 +11,11 @@
       <ejb-class>org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnectorBean</ejb-class>
       <session-type>Stateless</session-type>
       <transaction-type>Bean</transaction-type>
+      <env-entry>
+        <env-entry-name>exo.container.name</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>portal</env-entry-value>
+      </env-entry>
       <security-identity>
         <use-caller-identity />
       </security-identity>

@@ -239,13 +239,10 @@
     </supertypes>
     <propertyDefinitions>
       <propertyDefinition name="exo:autoload" requiredType="Boolean" autoCreated="false"
-      mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
+        mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
         <valueConstraints />
-        <defaultValues>
-          <defaultValue>true</defaultValue>
-        </defaultValues>
       </propertyDefinition>
     </propertyDefinitions>
 	</nodeType>
-
+  
 </nodeTypes>

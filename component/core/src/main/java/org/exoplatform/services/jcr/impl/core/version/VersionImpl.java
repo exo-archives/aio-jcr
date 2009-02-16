@@ -69,9 +69,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     super.invalidate();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.version.Version#getCreated()
+  /**
+   * {@inheritDoc}
    */
   public Calendar getCreated() throws RepositoryException {
 
@@ -91,9 +90,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     return created.getDate();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.version.Version#getSuccessors()
+  /**
+   * {@inheritDoc}
    */
   public Version[] getSuccessors() throws RepositoryException {
 
@@ -127,9 +125,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.version.Version#getPredecessors()
+  /**
+   * {@inheritDoc}
    */
   public Version[] getPredecessors() throws RepositoryException {
 
@@ -356,6 +353,9 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public VersionHistoryImpl getContainingHistory() throws RepositoryException {
 
     checkValid();
@@ -376,8 +376,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
                                       boolean removeExisting,
                                       SessionChangesLog delegatedLog) throws RepositoryException {
 
-    if (log.isDebugEnabled())
-      log.debug("Restore on parent " + destParent.getQPath().getAsString() + " as "
+    if (LOG.isDebugEnabled())
+      LOG.debug("Restore on parent " + destParent.getQPath().getAsString() + " as "
           + name.getAsString() + ", removeExisting=" + removeExisting);
 
     DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();
@@ -407,10 +407,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
 
     NodeData vh = (NodeData) dmanager.getItemData(nodeData().getParentIdentifier()); // version
     // parent it's a VH
-    VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
+    VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper(vh,
                                                                           dmanager,
                                                                           session.getWorkspace()
-                                                                                 .getNodeTypeManager());
+                                                                                 .getNodeTypesHolder());
 
     SessionChangesLog changesLog = restoreLog(destParent,
                                               name,

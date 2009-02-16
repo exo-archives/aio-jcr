@@ -19,10 +19,10 @@
  */
 package org.exoplatform.services.jcr.ext.organization;
 
-import java.util.Calendar;
 import java.util.Collection;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
@@ -35,11 +35,11 @@ import org.exoplatform.services.organization.UserProfileHandler;
  * @version $Id: TestUserProfileHandlerImpl.java 111 2008-11-11 11:11:11Z $
  */
 public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
-  private JCROrganizationServiceImpl organizationService;
+  private OrganizationService organizationService;
 
-  private UserHandler                uHandler;
+  private UserHandler         uHandler;
 
-  private UserProfileHandler         upHandler;
+  private UserProfileHandler  upHandler;
 
   /**
    * {@inheritDoc}
@@ -47,122 +47,121 @@ public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
   public void setUp() throws Exception {
     super.setUp();
 
-    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
+    organizationService = (OrganizationService) container.getComponentInstance(OrganizationService.class);
 
-    upHandler = new UserProfileHandlerImpl(organizationService);
-    uHandler = new UserHandlerImpl(organizationService);
+    upHandler = organizationService.getUserProfileHandler();
+    uHandler = organizationService.getUserHandler();
   }
 
   /**
    * Find user profile by user name and check attributes.
    */
-  public void testFindUserProfileByName() {
+  public void testFindUserProfileByName() throws Exception {
     UserProfile up;
     try {
       createUserProfile("userP1", true);
       up = upHandler.findUserProfileByName("userP1");
-      assertTrue("Can not find user profile by name 'userP1'", up != null);
-      assertTrue("User name is not equal 'userP1' but equal '" + up.getUserName() + "'",
-                 up.getUserName().equals("userP1"));
-      assertTrue("Attribute 'key1' is not equal 'value1' but equal '" + up.getAttribute("key1")
-          + "'", up.getAttribute("key1").equals("value1"));
-      assertTrue("Attribute 'key2' is not equal 'value2' but equal '" + up.getAttribute("key2")
-          + "'", up.getAttribute("key2").equals("value2"));
-      uHandler.removeUser("userP1", true);
+      assertNotNull(up);
+      assertEquals(up.getUserName(), "userP1");
+      assertEquals(up.getAttribute("key1"), "value1");
+      assertEquals(up.getAttribute("key2"), "value2");
 
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Exception should not be thrown");
-    }
+      // find profile for not existed user
+      assertNull(upHandler.findUserProfileByName("not-existed-user"));
 
-    try {
+      // find not existed profile
       createUserProfile("userP2", false);
-      up = upHandler.findUserProfileByName("userP2");
-      assertTrue("User profile 'userP2' is found", up == null);
-      uHandler.removeUser("userP2", true);
+      assertNull(upHandler.findUserProfileByName("userP2"));
 
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
+    } finally {
+      upHandler.removeUserProfile("userP1", true);
+      upHandler.removeUserProfile("userP2", true);
+      uHandler.removeUser("userP1", true);
+      uHandler.removeUser("userP2", true);
     }
   }
 
   /**
    * Find all profiles and check it count.
    */
-  public void testFindUserProfiles() {
+  public void testFindUserProfiles() throws Exception {
     try {
-      createUserProfile("userP3", true);
-      createUserProfile("userP4", true);
-
+      createUserProfile("userP1", true);
+      createUserProfile("userP2", true);
       Collection list = upHandler.findUserProfiles();
-      assertTrue("Found " + list.size() + " user profiles.", list.size() == 2);
-
-      uHandler.removeUser("userP3", true);
-      uHandler.removeUser("userP4", true);
+      assertNotNull(list);
+      assertEquals(list.size(), 2);
 
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
+    } finally {
+      upHandler.removeUserProfile("userP1", true);
+      upHandler.removeUserProfile("userP2", true);
+      uHandler.removeUser("userP1", true);
+      uHandler.removeUser("userP2", true);
     }
   }
 
   /**
    * Create user profile and than try to remove it.
    */
-  public void testRemoveUserProfile() {
+  public void testRemoveUserProfile() throws Exception {
     UserProfile up;
     try {
-      createUserProfile("userP5", true);
+      createUserProfile("userP1", true);
 
-      up = upHandler.removeUserProfile("userP5", true);
-      assertTrue("Attribute 'key1' is not equal 'value1' but equal '" + up.getAttribute("key1")
-          + "'", up.getAttribute("key1").equals("value1"));
-      assertTrue("Attribute 'key2' is not equal 'value2' but equal '" + up.getAttribute("key2")
-          + "'", up.getAttribute("key2").equals("value2"));
+      up = upHandler.removeUserProfile("userP1", true);
+      assertEquals(up.getAttribute("key1"), "value1");
+      assertEquals(up.getAttribute("key2"), "value2");
+      assertNull(upHandler.findUserProfileByName("userP1"));
 
-      up = upHandler.findUserProfileByName("userP5");
-      uHandler.removeUser("userP5", true);
-      assertTrue("User profile still present but was removed", up == null);
+      // remove not existed profile
+      assertNull(upHandler.removeUserProfile("not-existed-user", true));
 
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
-    }
-
-    try {
-      up = upHandler.removeUserProfile("userP6", true);
-      assertTrue("User profile 'userP6' is removed", up == null);
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Exception should not be thrown");
+    } finally {
+      upHandler.removeUserProfile("userP1", true);
+      uHandler.removeUser("userP1", true);
     }
   }
 
   /**
    * Create user profile, make changes, save and than try to check it.
    */
-  public void testSaveUserProfile() {
+  public void testSaveUserProfile() throws Exception {
     try {
-      createUserProfile("userP7", true);
+      createUserProfile("userP1", true);
 
-      UserProfile up = upHandler.findUserProfileByName("userP7");
+      UserProfile up = upHandler.findUserProfileByName("userP1");
       up.setAttribute("key1", "value11");
       up.setAttribute("key2", null);
       upHandler.saveUserProfile(up, true);
 
-      up = upHandler.findUserProfileByName("userP7");
-      assertTrue("Attribute 'key1' is not equal 'value11' but equal '" + up.getAttribute("key1")
-          + "'", up.getAttribute("key1").equals("value11"));
-      assertTrue("Attribute 'key2' is not equal 'null' but equal '" + up.getAttribute("key2") + "'",
-                 up.getAttribute("key2") == null);
+      up = upHandler.findUserProfileByName("userP1");
+      assertEquals(up.getAttribute("key1"), "value11");
+      assertNull(up.getAttribute("key2"));
 
-      uHandler.removeUser("userP7", true);
+      // save user profile for not existed user
+      try {
+        up = upHandler.createUserProfileInstance("not-existed-user");
+        upHandler.saveUserProfile(up, true);
+      } catch (Exception e) {
+        e.printStackTrace();
+        fail("Exception should not be thrown");
+      }
 
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
+    } finally {
+      upHandler.removeUserProfile("userP1", true);
+      uHandler.removeUser("userP1", true);
     }
   }
 
@@ -172,14 +171,11 @@ public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
   private void createUserProfile(String userName, boolean createProfile) {
     // create users
     try {
-      User u = uHandler.createUserInstance();
+      User u = uHandler.createUserInstance(userName);
       u.setEmail("email");
       u.setFirstName("first");
-      u.setLastLoginTime(Calendar.getInstance().getTime());
-      u.setCreatedDate(Calendar.getInstance().getTime());
       u.setLastName("last");
       u.setPassword("pwd");
-      u.setUserName(userName);
       uHandler.createUser(u, true);
 
       // create profile

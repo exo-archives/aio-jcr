@@ -23,6 +23,7 @@ import java.util.Stack;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -32,7 +33,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -73,7 +73,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
   /**
    * The NodeTypeManager
    */
-  protected NodeTypeManagerImpl ntManager;
+  protected NodeTypeDataManager ntManager;
 
   protected QPath               ancestorToSave    = null;
 
@@ -94,7 +94,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
 
   public ItemDataMoveVisitor(NodeData parent,
                              InternalQName dstNodeName,
-                             NodeTypeManagerImpl nodeTypeManager,
+                             NodeTypeDataManager nodeTypeManager,
                              SessionDataManager srcDataManager,
                              boolean keepIdentifiers) {
     super(srcDataManager);

@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
+import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.log.ExoLogger;
@@ -53,6 +54,25 @@ public abstract class FileIOChannel implements ValueIOChannel {
 
   protected String            storageId;
 
+  
+  class ValueFileImpl implements ValueFile{
+    private File file;
+    private FileCleaner cleaner;
+    ValueFileImpl(File f, FileCleaner cleaner){
+      this.file = f;
+      this.cleaner = cleaner;
+    }
+    
+    public void  rollback(){
+      if(file.exists() && !file.delete()){
+        cleaner.addFile(file);
+      }
+    }
+    
+  }
+  
+  
+  
   public FileIOChannel(File rootDir, FileCleaner cleaner, String storageId) {
     this.rootDir = rootDir;
     this.cleaner = cleaner;
@@ -90,8 +110,11 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String,
    *      org.exoplatform.services.jcr.datamodel.ValueData)
    */
-  public void write(String propertyId, ValueData value) throws IOException {
-    writeValue(getFile(propertyId, value.getOrderNumber()), value);
+  public ValueFile write(String propertyId, ValueData value) throws IOException {
+    File f = getFile(propertyId, value.getOrderNumber());
+    writeValue(f, value);
+    
+    return new ValueFileImpl(f,cleaner);
   }
 
   /**
@@ -167,10 +190,8 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @throws IOException
    */
   protected void writeValue(File file, ValueData value) throws IOException {
-    // OutputStream out = openOutput(file);//TODO
     OutputStream out = new FileOutputStream(file);
     writeOutput(out, value);
-    // closeOutput(out);
     out.close();
   }
 

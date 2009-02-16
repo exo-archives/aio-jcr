@@ -60,8 +60,7 @@ public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + relPath[i] + "/" + fileName[i] + "/" + iterations[i] + "/" + simpleContent[i]
-          + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-          + ReplicationTestService.Constants.OperationType.CREATE_CONTENT;
+          + "/" + ReplicationTestService.Constants.OperationType.CREATE_CONTENT;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
       String result = client.execute(url);
@@ -81,7 +80,6 @@ public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
             + workingRepository + "/" + workingWorkspace + "/" + getMaxPriorityMember().getLogin()
             + "/" + getMaxPriorityMember().getPassword() + "/" + srcRelPath1 + "/" + srcFileName1
             + "/" + destRelPath + "/" + destFileName + "/" + updateIterations + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.START_THREAD_UPDATER;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(getMaxPriorityMember());
@@ -98,7 +96,6 @@ public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
             + workingRepository + "/" + workingWorkspace + "/" + getMinPriorityMember().getLogin()
             + "/" + getMinPriorityMember().getPassword() + "/" + srcRelPath2 + "/" + srcFileName2
             + "/" + destRelPath + "/" + destFileName + "/" + updateIterations + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.START_THREAD_UPDATER;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(getMinPriorityMember());
@@ -123,7 +120,6 @@ public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + memberInfo.getLogin() + "/" + memberInfo.getPassword() + "/"
             + srcRelPath2 + "/" + srcFileName2 + "/" + destRelPath + "/" + destFileName + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.COMPARE_DATA;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(getMinPriorityMember());
@@ -138,7 +134,6 @@ public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + memberInfo.getLogin() + "/" + memberInfo.getPassword() + "/"
             + srcRelPath1 + "/" + srcFileName1 + "/" + destRelPath + "/" + destFileName + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.COMPARE_DATA;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(memberInfo);

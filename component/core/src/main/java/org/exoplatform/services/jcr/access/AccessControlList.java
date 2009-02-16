@@ -28,6 +28,10 @@ import java.util.StringTokenizer;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -37,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: AccessControlList.java 14556 2008-05-21 15:22:15Z pnedonosko $
  */
 
-public class AccessControlList implements Externalizable {
+public class AccessControlList implements Externalizable, JCRExternalizable {
 
   private static final long              serialVersionUID = 5848327750178729120L;
 
@@ -240,5 +244,56 @@ public class AccessControlList implements Externalizable {
    */
   List<AccessControlEntry> getPermissionsList() {
     return accessList;
+  }
+
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    // reading owner
+    byte[] buf;
+    int ownLength = in.readInt();
+    if (ownLength != 0) {
+      buf = new byte[ownLength];
+      in.readFully(buf);
+      this.owner = new String(buf, "UTF-8");
+    } else {
+      this.owner = null;
+    }
+    accessList.clear();
+    // reading access control entrys size
+    int listSize = in.readInt();
+    for (int i = 0; i < listSize; i++) {
+      // reading access control entrys identity
+      buf = new byte[in.readInt()];
+      in.readFully(buf);
+      String ident = new String(buf, "UTF-8");
+      // reading permission
+      buf = new byte[in.readInt()];
+      in.readFully(buf);
+      String perm = new String(buf, "UTF-8");
+
+      accessList.add(new AccessControlEntry(ident, perm));
+    }
+    
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    // Writing owner
+    if (owner != null) {
+      out.writeInt(owner.getBytes().length);
+      out.write(owner.getBytes());
+    } else {
+      out.writeInt(0);
+    }
+
+    // writing access control entrys size
+    out.writeInt(accessList.size());
+
+    for (AccessControlEntry entry : accessList) {
+      // writing access control entrys identity
+      out.writeInt(entry.getIdentity().getBytes().length);
+      out.write(entry.getIdentity().getBytes());
+      // writing permission
+      out.writeInt(entry.getPermission().getBytes().length);
+      out.write(entry.getPermission().getBytes());
+    }
   }
 }

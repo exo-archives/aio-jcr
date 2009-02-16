@@ -51,7 +51,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + relPath + "/" + baseVersionValue[i] + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.ADD_VERSIONODE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -72,7 +71,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + relPath + "/" + baseVersionValue[i] + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
@@ -97,7 +95,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + relPathArray[i] + "/" + versionValue_1[i] + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.ADD_NEW_VERSION;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -118,7 +115,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + relPath + "/" + versionValue_1[i] + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
@@ -144,7 +140,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + relPathArray[i] + "/" + versionValue_2[i] + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.ADD_NEW_VERSION;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -165,7 +160,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + relPath + "/" + versionValue_2[i] + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
@@ -188,9 +182,7 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
-          + "/" + relPathArray[i] + ReplicationTestService.Constants.OPERATION_PREFIX
-          + ReplicationTestService.Constants.OperationType.RESTORE_RPEVIOUS_VERSION;
-
+          + "/" + relPathArray[i] + "/" + ReplicationTestService.Constants.OperationType.RESTORE_RPEVIOUS_VERSION;
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
       String result = client.execute(url);
       System.out.println(url);
@@ -209,7 +201,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + relPath + "/" + versionValue_1[i] + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
@@ -232,8 +223,7 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
-          + "/" + relPathArray[i] + ReplicationTestService.Constants.OPERATION_PREFIX
-          + ReplicationTestService.Constants.OperationType.RESTORE_BASE_VERSION;
+          + "/" + relPathArray[i] + "/" + ReplicationTestService.Constants.OperationType.RESTORE_BASE_VERSION;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
       String result = client.execute(url);
@@ -253,7 +243,6 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + relPath + "/" + baseVersionValue[i] + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);

@@ -32,15 +32,13 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -55,8 +53,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -94,8 +90,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
   protected final NamespaceRegistry   namespaceRegistry;
 
-  // protected final ExtendedNodeTypeManager ntManager; // TODO use interface
-  protected final NodeTypeManagerImpl ntManager;
+  protected final NodeTypeDataManager nodeTypeDataManager;
 
   protected final RepositoryImpl      repository;
 
@@ -113,7 +108,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
                          QPath ancestorToSave,
                          int uuidBehavior,
                          ItemDataConsumer dataConsumer,
-                         NodeTypeManagerImpl ntManager,
+                         NodeTypeDataManager ntManager,
                          LocationFactory locationFactory,
                          ValueFactoryImpl valueFactory,
                          NamespaceRegistry namespaceRegistry,
@@ -131,7 +126,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     this.context = context;
 
-    this.ntManager = ntManager;
+    this.nodeTypeDataManager = ntManager;
     this.locationFactory = locationFactory;
     this.uuidBehavior = uuidBehavior;
     this.repository = repository;
@@ -152,7 +147,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.ContentImporter#getChanges()
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.ContentImporter#getChanges
+   * ()
    */
   public PlainChangesLog getChanges() {
 
@@ -221,9 +218,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     int newIndex = 1;
 
-    NodeDefinitionImpl nodedef = ntManager.findNodeDefinition(name,
-                                                              parentData.getPrimaryTypeName(),
-                                                              parentData.getMixinTypeNames());
+    NodeDefinitionData nodedef = nodeTypeDataManager.findChildNodeDefinition(name,
+                                                                             parentData.getPrimaryTypeName(),
+                                                                             parentData.getMixinTypeNames());
 
     ItemData sameNameNode = null;
     try {
@@ -242,7 +239,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
                                                                ItemState.DELETED,
                                                                null);
 
-    if (!nodedef.allowsSameNameSiblings()
+    if (!nodedef.isAllowsSameNameSiblings()
         && ((sameNameNode != null) || (transientAddChilds.size() > 0))) {
       if ((sameNameNode != null) && (transientDeletedChilds.size() < 1)) {
         throw new ItemExistsException("The node  already exists in "
@@ -279,8 +276,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.xml.importing.Importer#registerNamespace(java.lang.String,
-   * java.lang.String)
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#registerNamespace
+   * (java.lang.String, java.lang.String)
    */
   public void registerNamespace(String prefix, String uri) {
     try {
@@ -331,7 +328,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     new VersionHistoryDataHelper(nodeData,
                                  changes,
                                  dataConsumer,
-                                 ntManager,
+                                 nodeTypeDataManager,
                                  nodeData.getVersionHistoryIdentifier(),
                                  nodeData.getBaseVersionIdentifier());
 
@@ -347,44 +344,51 @@ public abstract class BaseXmlImporter implements ContentImporter {
     }
   }
 
-  /**
-   * Find proper nodeType for subnode with name <b>name</b> and parent node type
-   * <b>parentNodeType</b> and mixin types <b>parentMixinNames</b>.
-   * 
-   * @param parentNodeType
-   * @param parentMixinNames
-   * @param name
-   * @return
-   * @throws RepositoryException
-   * @throws ConstraintViolationException
-   */
-  protected InternalQName findNodeType(InternalQName parentNodeType,
-                                       InternalQName[] parentMixinNames,
-                                       String name) throws RepositoryException,
-                                                   ConstraintViolationException {
-
-    List<ExtendedNodeType> nodeTypes = ntManager.getNodeTypes(parentNodeType, parentMixinNames);
-    String residualNodeTypeName = null;
-    for (ExtendedNodeType extendedNodeType : nodeTypes) {
-      NodeDefinition[] nodeDefs = extendedNodeType.getChildNodeDefinitions();
-      for (int i = 0; i < nodeDefs.length; i++) {
-        NodeDefinition nodeDef = nodeDefs[i];
-        if (nodeDef.getName().equals(name)) {
-          if (nodeDef.getDefaultPrimaryType() != null)
-            return locationFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName())
-                                  .getInternalName();
-        } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
-          if (nodeDef.getDefaultPrimaryType() != null)
-            residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
-        }
-      }
-    }
-
-    if (residualNodeTypeName == null)
-      throw new ConstraintViolationException("Can not define node-type for node " + name
-          + ", parent node type " + parentNodeType.getAsString());
-    return locationFactory.parseJCRName(residualNodeTypeName).getInternalName();
-  }
+  // /**
+  // * Find proper nodeType for subnode with name <b>name</b> and parent node
+  // type
+  // * <b>parentNodeType</b> and mixin types <b>parentMixinNames</b>.
+  // *
+  // * @param parentNodeType
+  // * @param parentMixinNames
+  // * @param name
+  // * @return
+  // * @throws RepositoryException
+  // * @throws ConstraintViolationException
+  // */
+  // @Deprecated
+  // protected InternalQName findNodeType(InternalQName parentNodeType,
+  // InternalQName[] parentMixinNames,
+  // String name) throws RepositoryException,
+  // ConstraintViolationException {
+  //
+  // List<ExtendedNodeType> nodeTypes =
+  // nodeTypeDataManager.getNodeTypes(parentNodeType,
+  // parentMixinNames);
+  // String residualNodeTypeName = null;
+  // for (ExtendedNodeType extendedNodeType : nodeTypes) {
+  // NodeDefinition[] nodeDefs = extendedNodeType.getChildNodeDefinitions();
+  // for (int i = 0; i < nodeDefs.length; i++) {
+  // NodeDefinition nodeDef = nodeDefs[i];
+  // if (nodeDef.getName().equals(name)) {
+  // if (nodeDef.getDefaultPrimaryType() != null)
+  // return
+  // locationFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName())
+  // .getInternalName();
+  // } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
+  // if (nodeDef.getDefaultPrimaryType() != null)
+  // residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
+  // }
+  // }
+  // }
+  //
+  // if (residualNodeTypeName == null)
+  // throw new ConstraintViolationException("Can not define node-type for node "
+  // + name
+  // + ", parent node type " + parentNodeType.getAsString());
+  // return
+  // locationFactory.parseJCRName(residualNodeTypeName).getInternalName();
+  // }
 
   /**
    * @return parent node.
@@ -393,48 +397,59 @@ public abstract class BaseXmlImporter implements ContentImporter {
     return tree.peek();
   }
 
-  /**
-   * Check if parentNodeType and parentMixinNames allowed nodeTypeName as nodetype of subnode.
-   * 
-   * @param parentNodeType
-   * @param parentMixinNames
-   * @param nodeTypeName
-   * @return
-   * @throws NoSuchNodeTypeException
-   * @throws RepositoryException
-   */
-  protected boolean isChildNodePrimaryTypeAllowed(InternalQName parentNodeType,
-                                                  InternalQName[] parentMixinNames,
-                                                  String nodeTypeName) throws NoSuchNodeTypeException,
-                                                                      RepositoryException {
+  // /**
+  // * Check if parentNodeType and parentMixinNames allowed nodeTypeName as
+  // * nodetype of subnode.
+  // *
+  // * @param parentNodeType
+  // * @param parentMixinNames
+  // * @param nodeTypeName
+  // * @return
+  // * @throws NoSuchNodeTypeException
+  // * @throws RepositoryException
+  // */
+  // protected boolean isChildNodePrimaryTypeAllowed(InternalQName
+  // parentNodeType,
+  // InternalQName[] parentMixinNames,
+  // String nodeTypeName) throws NoSuchNodeTypeException,
+  // RepositoryException {
+  //
+  // List<ExtendedNodeType> parenNt =
+  // nodeTypeDataManager.getNodeTypes(parentNodeType,
+  // parentMixinNames);
+  //
+  //    
+  // for (int i = 0; i < parentMixinNames.length; i++) {
+  // nodeTypeDataManager.findNodeType(parentMixinNames[i]).
+  // }
+  //    
+  // for (ExtendedNodeType extendedNodeType : parenNt) {
+  // if (extendedNodeType.isChildNodePrimaryTypeAllowed(nodeTypeName)) {
+  // return true;
+  // }
+  // }
+  //
+  // return false;
+  //
+  // }
 
-    List<ExtendedNodeType> parenNt = ntManager.getNodeTypes(parentNodeType, parentMixinNames);
-
-    for (ExtendedNodeType extendedNodeType : parenNt) {
-      if (extendedNodeType.isChildNodePrimaryTypeAllowed(nodeTypeName)) {
-        return true;
-      }
-    }
-
-    return false;
-
-  }
-
-  /**
-   * Check if name node type exists in nodeTypes.
-   * 
-   * @param name
-   * @param nodeTypes
-   * @return
-   */
-  protected boolean isNodeType(InternalQName name, List<ExtendedNodeType> nodeTypes) {
-    for (ExtendedNodeType nt : nodeTypes) {
-      if (nt.isNodeType(name)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  // /**
+  // * Check if name node type exists in nodeTypes.
+  // *
+  // * @param name
+  // * @param nodeTypes
+  // * @return
+  // */
+  // @Deprecated
+  // protected boolean isNodeType(InternalQName name, List<ExtendedNodeType>
+  // nodeTypes) {
+  // for (ExtendedNodeType nt : nodeTypes) {
+  // if (nt.isNodeType(name)) {
+  // return true;
+  // }
+  // }
+  // return false;
+  // }
 
   /**
    * Check uuid collision. If collision happen reload path information.
@@ -501,13 +516,15 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Check if item with uuid=identifier exists. If no item exist return same identifier. If same
-   * uuid item exist and depend on uuidBehavior do:
+   * Check if item with uuid=identifier exists. If no item exist return same
+   * identifier. If same uuid item exist and depend on uuidBehavior do:
    * <ol>
-   * <li>IMPORT_UUID_CREATE_NEW - return null. Caller will create new identifier.</li>
-   * <li>IMPORT_UUID_COLLISION_REMOVE_EXISTING - Remove same uuid item and his subtree. Also if item
-   * MIX_VERSIONABLE, remove version history</li>
-   * <li>IMPORT_UUID_COLLISION_REPLACE_EXISTING - Remove same uuid item and his subtree.</li>
+   * <li>IMPORT_UUID_CREATE_NEW - return null. Caller will create new
+   * identifier.</li>
+   * <li>IMPORT_UUID_COLLISION_REMOVE_EXISTING - Remove same uuid item and his
+   * subtree. Also if item MIX_VERSIONABLE, remove version history</li>
+   * <li>IMPORT_UUID_COLLISION_REPLACE_EXISTING - Remove same uuid item and his
+   * subtree.</li>
    * <li>IMPORT_UUID_COLLISION_THROW - throw new ItemExistsException</li>
    * </ol>
    * 
@@ -523,8 +540,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
         ItemState lastState = getLastItemState(identifier);
 
         if (sameUuidItem != null && (lastState == null || !lastState.isDeleted())) {
-          boolean isMixVersionable = ntManager.isNodeType(Constants.MIX_VERSIONABLE,
-                                                          sameUuidItem.getMixinTypeNames());
+          boolean isMixVersionable = nodeTypeDataManager.isNodeType(Constants.MIX_VERSIONABLE,
+                                                                    sameUuidItem.getMixinTypeNames());
 
           switch (uuidBehavior) {
           case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
@@ -568,14 +585,10 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Return list of changes for item.
    * 
-   * @param parentData
-   *          - parent item
-   * @param name
-   *          - item name
-   * @param state
-   *          - state
-   * @param skipIdentifier
-   *          - skipped identifier.
+   * @param parentData - parent item
+   * @param name - item name
+   * @param state - state
+   * @param skipIdentifier - skipped identifier.
    * @return
    */
   private List<ItemState> getItemStatesList(NodeData parentData,
@@ -616,10 +629,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Check if item <b>parent</b> is parent item of item <b>data</b>.
    * 
-   * @param data
-   *          - Possible child ItemData.
-   * @param parent
-   *          - Possible parent ItemData.
+   * @param data - Possible child ItemData.
+   * @param parent - Possible parent ItemData.
    * @return True if parent of both ItemData the same.
    */
   private boolean isParent(ItemData data, ItemData parent) {
@@ -644,9 +655,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
                                                    ConstraintViolationException,
                                                    PathNotFoundException {
 
-    if (!ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                              sameUuidItem.getPrimaryTypeName(),
-                              sameUuidItem.getMixinTypeNames())) {
+    if (!nodeTypeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                        sameUuidItem.getPrimaryTypeName(),
+                                        sameUuidItem.getMixinTypeNames())) {
       throw new RepositoryException("An incoming referenceable node has the same "
           + " UUID as a identifier of non mix:referenceable"
           + " node already existing in the workspace!");
@@ -672,7 +683,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     ItemDataRemoveVisitor visitor = new ItemDataRemoveVisitor(dataConsumer,
                                                               getAncestorToSave(),
-                                                              ntManager,
+                                                              nodeTypeDataManager,
                                                               accessManager,
                                                               userState);
     sameUuidItem.accept(visitor);
@@ -683,8 +694,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Remove version history of versionable node.
    * 
-   * @param mixVersionableNode
-   *          - node
+   * @param mixVersionableNode - node
    * @throws RepositoryException
    * @throws ConstraintViolationException
    * @throws VersionException
@@ -700,7 +710,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
         String vhID = new String(vhpd.getValues().get(0).getAsByteArray());
         VersionHistoryRemover historyRemover = new VersionHistoryRemover(vhID,
                                                                          dataConsumer,
-                                                                         ntManager,
+                                                                         nodeTypeDataManager,
                                                                          repository,
                                                                          currentWorkspaceName,
                                                                          null,
@@ -718,7 +728,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Class helps sort ItemStates list. After sorting the delete states has to be on top of the list
+   * Class helps sort ItemStates list. After sorting the delete states has to be
+   * on top of the list
    */
   private class PathSorter implements Comparator<ItemState> {
     /*

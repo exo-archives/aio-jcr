@@ -23,6 +23,9 @@ import java.io.FileOutputStream;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -31,6 +34,9 @@ import javax.jcr.RepositoryException;
  *          rainf0x $
  */
 public class ReplicationExternalizableTest extends BaseReplicationTest {
+  
+  private static final Log      log = ExoLogger.getLogger(ReplicationExternalizableTest.class);
+  
   private static final int BUFFER_SIZE = 1024;
 
   private Node             rootNode;

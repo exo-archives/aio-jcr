@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 import javax.jcr.RepositoryException;
 
@@ -128,7 +127,7 @@ public interface ArtifactManagingService {
   void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, File folder) throws RepositoryException,
                                                                                       FileNotFoundException;
 
-  /**
+ /**
    * Returns acess control list for the specified artifact
    * 
    * @param sp

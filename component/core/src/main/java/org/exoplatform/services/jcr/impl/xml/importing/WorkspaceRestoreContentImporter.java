@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -32,7 +33,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportNodeData;
 import org.exoplatform.services.log.ExoLogger;
@@ -41,16 +41,19 @@ import org.exoplatform.services.security.ConversationState;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: WorkspaceRestoreContentImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: WorkspaceRestoreContentImporter.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class WorkspaceRestoreContentImporter extends WorkspaceContentImporter {
 
   protected final Log log = ExoLogger.getLogger("jcr.WorkspaceRestoreContentImporter");
 
   /**
-   * Class used to import content of workspace, using "System View XML Mapping", e.g. for restore
-   * data during backup. <br/> Assumes that there is not root, i.e. workspace not initialized.
+   * Class used to import content of workspace, using "System View XML Mapping",
+   * e.g. for restore data during backup. <br/> Assumes that there is not root,
+   * i.e. workspace not initialized.
    * 
    * @param dataConsumer
    * @param ntManager
@@ -62,7 +65,7 @@ public class WorkspaceRestoreContentImporter extends WorkspaceContentImporter {
    * @param context
    */
   public WorkspaceRestoreContentImporter(ItemDataConsumer dataConsumer,
-                                         NodeTypeManagerImpl ntManager,
+                                         NodeTypeDataManager ntManager,
                                          LocationFactory locationFactory,
                                          ValueFactoryImpl valueFactory,
                                          NamespaceRegistry namespaceRegistry,

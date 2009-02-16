@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * 
  * @author <a href="mailto:peterit@rambler.ru">Petro Nedonosko</a>
  */
-public class NodeTypeValuesList {
+public final class NodeTypeValuesList {
 
   private ArrayList nodeTypeValuesList = null;
 

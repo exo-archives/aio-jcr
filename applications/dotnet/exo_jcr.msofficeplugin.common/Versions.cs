@@ -176,7 +176,17 @@ namespace exo_jcr.msofficeplugin.common
         private void button1_Click(object sender, EventArgs e)
         {
             String selectedFileName = selectedhref.Substring(selectedhref.LastIndexOf("/") + 1);
-            String currentFileName = this.application.getActiveDocumentName();
+            String currentFileName;
+            try
+            {
+                 currentFileName = this.application.getActiveDocumentName();
+            }
+            catch (Exception exc) {
+                MessageBox.Show("There is no active file to compare.", "Error");
+                this.Close();
+                return;
+            }
+            
 
             if (currentFileName.Contains("%3F")) {
                 currentFileName = currentFileName.Substring(0, currentFileName.LastIndexOf("%3F"));

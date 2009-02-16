@@ -20,32 +20,36 @@ package org.exoplatform.services.jcr.webdav;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDav;
+import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.apache.commons.logging.Log;
 
 import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com 22 Sep 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com 22 Sep 2008
  */
 public class BaseWebDavTest extends TestCase {
 
-  protected static Log              log = ExoLogger.getLogger("jcr.WebDavTest");
+  protected static Log     log         = ExoLogger.getLogger("jcr.WebDavTest");
 
-//  protected InstalledLocalContainer container;
+  // protected InstalledLocalContainer container;
 
-  protected HTTPConnection          connection;
+  protected HTTPConnection connection;
 
   @Override
   protected void setUp() throws Exception {
 
-//    container = ContainerStarter.cargoContainerStart(WebDav.PORT_STRING, null);
-//    assertTrue(container.getState().isStarted());
+    // container = ContainerStarter.cargoContainerStart(WebDav.PORT_STRING,
+    // null);
+    // assertTrue(container.getState().isStarted());
+
+    super.setUp();
 
     CookieModule.setCookiePolicyHandler(null);
     connection = TestUtils.GetAuthConnection();
 
-    super.setUp();
   }
 
   @Override
@@ -53,8 +57,8 @@ public class BaseWebDavTest extends TestCase {
 
     // TODO Auto-generated method stub
 
-//    ContainerStarter.cargoContainerStop(container);
-//    assertTrue(container.getState().isStopped());
+    // ContainerStarter.cargoContainerStop(container);
+    // assertTrue(container.getState().isStopped());
 
     super.tearDown();
   }

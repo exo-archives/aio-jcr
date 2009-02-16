@@ -22,6 +22,8 @@ import java.util.Calendar;
 
 import javax.jcr.ValueFormatException;
 
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
@@ -87,4 +89,11 @@ public class ValueDataConvertor {
     return Boolean.valueOf(new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING))
                   .booleanValue();
   }
+
+  public static InternalQName readQName(ValueData value) throws UnsupportedEncodingException,
+                                                  IllegalNameException,
+                                                  IOException {
+    return InternalQName.parse(readString(value));
+  }
+
 }

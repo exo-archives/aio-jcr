@@ -28,7 +28,6 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
@@ -128,8 +127,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     try {
       String parentId = (parent == null) ? "" : parent.getId();
-      String parentPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + parentId;
-      Node parentNode = (Node) session.getItem(parentPath);
+      Node parentNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + parentId);
       Node gNode = parentNode.addNode(child.getGroupName(), "exo:hierarchyGroup");
 
       Group group = new GroupImpl(child.getGroupName(), parentId, gNode.getUUID());
@@ -168,7 +167,11 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       log.debug("createGroup method");
     }
 
-    addChild(null, group, broadcast);
+    try {
+      addChild(null, group, broadcast);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not create group", e);
+    }
   }
 
   /**
@@ -202,7 +205,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    *           An exception is throwed if the method cannot access the database or more than one
    *           group is found.
    */
-  Group findGroupById(Session session, String groupId) throws Exception {
+  private Group findGroupById(Session session, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findGroupById started");
     }
@@ -251,32 +254,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       log.debug("findGroupByMembership started");
     }
 
+    List<Group> types = new ArrayList<Group>();
     try {
-      List<Group> types = new ArrayList<Group>();
-//      String mtUUID = (membershipType == null)
-//          ? null
-//          : ((Node) session.getItem(service.getStoragePath() + "/"
-//              + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + membershipType)).getUUID();
-//      String whereStatement = (mtUUID == null) ? "" : " where exo:membershipType='" + mtUUID + "'";
-//
-//      // find memberships
-//      String mStatement = "select * from exo:userMembership" + whereStatement;
-//      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
-//      QueryResult mRes = mQuery.execute();
-//      for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
-//        Node mNode = mNodes.nextNode();
-//        Node uNode = mNode.getParent();
-//
-//        // check user name
-//        if (uNode.getName().equals(userName)) {
-//          Node gNode = session.getNodeByUUID(readStringProperty(mNode,
-//                                                                MembershipHandlerImpl.EXO_GROUP));
-//          Group g = readObjectFromNode(gNode);
-//          types.add(g);
-//        }
-//      }
-
-      // //////////////
       Node user = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
       NodeIterator memberships = user.getNodes("exo:membership");
@@ -284,7 +263,9 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
         Node membership = memberships.nextNode();
 
         if (membershipType != null
-          && !membershipType.equals(membership.getProperty(MembershipHandlerImpl.EXO_MEMBERSHIP_TYPE).getNode().getName())) {
+            && !membershipType.equals(membership.getProperty(MembershipHandlerImpl.EXO_MEMBERSHIP_TYPE)
+                                                .getNode()
+                                                .getName())) {
           continue nextGroup; // membership doesn't match
         }
 
@@ -297,8 +278,10 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       }
 
       return types;
+    } catch (PathNotFoundException e) {
+      return types;
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find groups", e);
+      throw new OrganizationServiceException("Can not find groups by membership", e);
     }
   }
 
@@ -308,7 +291,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   public Collection findGroups(Group parent) throws Exception {
     Session session = service.getStorageSession();
     try {
-      return findGroups(session, parent);
+      return findGroups(session, parent, false);
     } finally {
       session.logout();
     }
@@ -328,19 +311,24 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * @throws Exception
    *           An exception is throwed is the method cannot access the database
    */
-  private Collection findGroups(Session session, Group parent) throws Exception {
+  private Collection findGroups(Session session, Group parent, boolean recursive) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findGroups started");
     }
 
     List<Group> types = new ArrayList<Group>();
     try {
-      String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS;
       String parentId = parent == null ? "" : parent.getId();
-      Node parentNode = (Node) session.getItem(gPath + parentId);
-
+      Node parentNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + parentId);
       for (NodeIterator gNodes = parentNode.getNodes(); gNodes.hasNext();) {
-        types.add(readObjectFromNode(gNodes.nextNode()));
+        Node gNode = gNodes.nextNode();
+        Group g = readObjectFromNode(gNode);
+        types.add(g);
+
+        if (recursive) {
+          types.addAll(findGroups(session, g, recursive));
+        }
       }
       return types;
 
@@ -359,7 +347,11 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       log.debug("findGroupsOfUser started");
     }
 
-    return findGroupByMembership(user, null);
+    try {
+      return findGroupByMembership(user, null);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find groups", e);
+    }
   }
 
   /**
@@ -389,16 +381,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     }
 
     try {
-      List<Group> types = new ArrayList<Group>();
-
-      String statement = "select * from exo:group";
-      Query query = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
-      QueryResult res = query.execute();
-      for (NodeIterator gNodes = res.getNodes(); gNodes.hasNext();) {
-        types.add(readObjectFromNode(gNodes.nextNode()));
-      }
-      return types;
-
+      return findGroups(session, null, true);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not get all groups ", e);
     }

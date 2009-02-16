@@ -118,6 +118,9 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
         binType = "VARBINARY(max)";
       } else if (dialectParam.equalsIgnoreCase(DBConstants.DB_DIALECT_SYBASE)) {
         binType = "VARBINARY(255)";
+      } else if (dialectParam.equalsIgnoreCase(DBConstants.DB_DIALECT_INGRES)) {
+        configTableName = configTableName.toUpperCase().toLowerCase(); // ingres needs it
+        binType = "LONG BYTE";
       }
 
     this.initSQL = "CREATE TABLE " + configTableName + " (" + "NAME VARCHAR(64) NOT NULL, "

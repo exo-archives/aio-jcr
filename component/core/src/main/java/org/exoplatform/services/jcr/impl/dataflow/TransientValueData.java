@@ -39,6 +39,10 @@ import java.util.Calendar;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -53,7 +57,7 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  * @author Gennady Azarenkov
  * @version $Id: TransientValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TransientValueData extends AbstractValueData implements Externalizable {
+public class TransientValueData extends AbstractValueData implements Externalizable, JCRExternalizable {
 
   private static final long serialVersionUID = -5280857006905550884L;
 
@@ -62,6 +66,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   protected InputStream     tmpStream;
 
   protected File            spoolFile;
+
+  protected final boolean   closeTmpStream;
 
   /**
    * User for read(...) method
@@ -97,6 +103,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     super(orderNumber);
     this.data = value;
     this.deleteSpoolFile = true;
+    this.closeTmpStream = false;
   }
 
   /**
@@ -109,6 +116,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     super(orderNumber);
     this.tmpStream = stream;
     this.deleteSpoolFile = true;
+    this.closeTmpStream = false;
   }
 
   public TransientValueData(int orderNumber,
@@ -123,6 +131,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     super(orderNumber);
     this.data = bytes;
     this.tmpStream = stream;
+    this.closeTmpStream = true;
     this.spoolFile = spoolFile;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
@@ -132,6 +141,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     if (spoolFile != null) {
       if (spoolFile instanceof SpoolFile)
         ((SpoolFile) spoolFile).acquire(this);
+
+      if (this.tmpStream != null) {
+        this.tmpStream.close();
+        this.tmpStream = null; // 05.02.2009 release stream if file exists
+      }
 
       this.spooled = true;
     }
@@ -408,7 +422,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @throws IOException
    */
   public String getString() throws IOException {
-    log.debug("getString");
+    if (log.isDebugEnabled())
+      log.debug("getString");
+
     return new String(getAsByteArray(), Constants.DEFAULT_ENCODING);
   }
 
@@ -436,6 +452,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.maxBufferSize = maxBufferSize;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected void finalize() throws Throwable {
     if (spoolChannel != null)
       spoolChannel.close();
@@ -528,7 +547,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       if (sf != null) {
         // spooled to file
-        sfout.close();
         this.spoolFile = sf;
         this.data = null;
       } else {
@@ -537,10 +555,24 @@ public class TransientValueData extends AbstractValueData implements Externaliza
         this.data = buffer;
       }
 
-      this.tmpStream = null;
       this.spooled = true;
     } catch (IOException e) {
       throw new IllegalStateException(e);
+    } finally {
+      try {
+        if (sfout != null)
+          sfout.close();
+      } catch (IOException e) {
+        log.error("Error of spool output close.", e);
+      }
+
+      if (this.closeTmpStream)
+        try {
+          this.tmpStream.close();
+        } catch (IOException e) {
+          log.error("Error of source input close.", e);
+        }
+      this.tmpStream = null;
     }
   }
 
@@ -578,6 +610,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public TransientValueData() {
     super(0);
     this.deleteSpoolFile = true;
+    this.closeTmpStream = true;
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
@@ -598,8 +631,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
     if (type == 1) {
       data = new byte[in.readInt()];
-      for (int i = 0; i < data.length; i++)
-        data[i] = in.readByte();
+      in.readFully(data);
     }
     orderNumber = in.readInt();
     maxBufferSize = in.readInt();
@@ -608,5 +640,29 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void setStream(InputStream in) {
     this.spooled = false;
     this.tmpStream = in;
+  }
+
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    int type = in.readInt();
+
+    if (type == 1) {
+      data = new byte[in.readInt()];
+      in.readFully(data);
+    }
+    orderNumber = in.readInt();
+    maxBufferSize = in.readInt();
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    if (this.isByteArray()) {
+      out.writeInt(1);
+      int f = data.length;
+      out.writeInt(f);
+      out.write(data);
+    } else {
+      out.writeInt(2);
+    }
+    out.writeInt(orderNumber);
+    out.writeInt(maxBufferSize);
   }
 }

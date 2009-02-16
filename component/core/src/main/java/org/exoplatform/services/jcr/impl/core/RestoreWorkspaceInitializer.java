@@ -186,7 +186,6 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
   }
 
   protected class BinaryValueWriter extends ValueWriter {
-    boolean isWrited = false;
     final Base64Decoder decoder = new Base64Decoder();
 
     @Override
@@ -196,7 +195,6 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
     @Override
     void write(String text) throws IOException {
-      isWrited = true;
       this.decoder.write(text.toCharArray(), 0, text.length());
     }
 
@@ -207,7 +205,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
     @Override
     String getText() throws IOException {
-      return (isWrited ? new String(this.decoder.getByteArray()) : new String());
+      return new String(this.decoder.getByteArray());
     }
 
     @Override

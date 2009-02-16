@@ -16,25 +16,30 @@
  */
 package org.exoplatform.services.jcr.webdav.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDav;
+import org.w3c.dom.Document;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 14, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com Aug 14, 2008
  */
 public class TestUtils {
 
   public static final String HOST              = "localhost";
 
-  public static final String SERVLET_PATH      = "/rest/private/jcr/repository";
+  public static final String SERVLET_PATH      = "/rest/jcr/repository";
 
-  public static final String WORKSPACE         = "/collaboration";
+  public static final String WORKSPACE         = "/production";
 
   public static final String INAVLID_WORKSPACE = "/invalid";
 
   public static final String REALM             = "eXo REST services";
-
-  // public static final String REALM = "exo-domain";
 
   public static final String ROOTID            = "root";
 
@@ -45,6 +50,10 @@ public class TestUtils {
     connection.addBasicAuthorization(REALM, ROOTID, ROOTPASS);
 
     return connection;
+  }
+
+  public static String getFullPath() {
+    return "http://" + HOST + ":" + WebDav.PORT_INT + SERVLET_PATH + WORKSPACE;
   }
 
   public static String getFullWorkSpacePath() {
@@ -61,6 +70,14 @@ public class TestUtils {
 
   public static String getFileName() {
     return "test file " + System.currentTimeMillis() + ".txt";
+  }
+
+  public static Document getXmlFromString(String string) throws Exception {
+
+    DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+    InputStream inputStream = new ByteArrayInputStream(string.getBytes());
+    return builderFactory.newDocumentBuilder().parse(inputStream);
+
   }
 
 }

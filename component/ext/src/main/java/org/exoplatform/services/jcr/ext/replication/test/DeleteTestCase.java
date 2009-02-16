@@ -20,7 +20,9 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -32,8 +34,13 @@ import org.exoplatform.services.jcr.RepositoryService;
 public class DeleteTestCase extends BaseReplicationTestCase {
 
   /**
-   * DeleteTestCase  constructor.
-   *
+   * The apache logger.
+   */
+  private static final Log log = ExoLogger.getLogger(DeleteTestCase.class);
+
+  /**
+   * DeleteTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -56,13 +63,12 @@ public class DeleteTestCase extends BaseReplicationTestCase {
 
   /**
    * delete.
-   *
+   * 
    * @param repoPath
    *          repository path
    * @param nodeName
    *          node name
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'} 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer delete(String repoPath, String nodeName) {
     StringBuffer sb = new StringBuffer();
@@ -87,13 +93,12 @@ public class DeleteTestCase extends BaseReplicationTestCase {
 
   /**
    * checkDelete.
-   *
+   * 
    * @param repoPath
    *          repository path
    * @param nodeName
    *          node name
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer checkDelete(String repoPath, String nodeName) {
     StringBuffer sb = new StringBuffer();

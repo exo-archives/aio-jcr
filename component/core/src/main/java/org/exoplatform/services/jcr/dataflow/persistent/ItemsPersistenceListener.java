@@ -26,9 +26,9 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
  */
 public interface ItemsPersistenceListener {
   /**
-   * called wnen data is permanently saved
+   * Will be called wnen data is permanently saved.
    * 
-   * @param itemStates
+   * @param itemStates ItemStateChangesLog
    */
   void onSaveItems(ItemStateChangesLog itemStates);
 }

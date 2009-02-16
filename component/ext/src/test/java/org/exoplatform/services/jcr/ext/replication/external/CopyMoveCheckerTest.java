@@ -50,8 +50,7 @@ public class CopyMoveCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + srcRepoPath + "/" + nodeNameArray[i] + "/" + destNodeNameArray[i] + "/"
-          + contentSize + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-          + ReplicationTestService.Constants.OperationType.WORKSPACE_COPY;
+          + contentSize + "/" + ReplicationTestService.Constants.OperationType.WORKSPACE_COPY;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember, 4000);
       String result = client.execute(url);
@@ -72,8 +71,7 @@ public class CopyMoveCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + srcRepoPath + "/" + nodeNameArray[i] + "/" + destNodeNameArray[i] + "/"
-            + contentSize + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-            + ReplicationTestService.Constants.OperationType.CHECK_COPY_MOVE_NODE;
+            + contentSize + "/" + ReplicationTestService.Constants.OperationType.CHECK_COPY_MOVE_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 4000);
         String result = client.execute(checkUrl);
@@ -107,8 +105,7 @@ public class CopyMoveCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + srcRepoPath + "/" + nodeNameArray[i] + "/" + destNodeNameArray[i] + "/"
-          + contentSize + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-          + ReplicationTestService.Constants.OperationType.SESSION_MOVE;
+          + contentSize + "/" + ReplicationTestService.Constants.OperationType.SESSION_MOVE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember, 4000);
       String result = client.execute(url);
@@ -129,8 +126,7 @@ public class CopyMoveCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + srcRepoPath + "/" + nodeNameArray[i] + "/" + destNodeNameArray[i] + "/"
-            + contentSize + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-            + ReplicationTestService.Constants.OperationType.CHECK_COPY_MOVE_NODE;
+            + contentSize + "/" + ReplicationTestService.Constants.OperationType.CHECK_COPY_MOVE_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 4000);
         String result = client.execute(checkUrl);

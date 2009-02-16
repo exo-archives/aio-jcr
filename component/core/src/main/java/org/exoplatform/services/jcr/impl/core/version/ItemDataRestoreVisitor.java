@@ -28,6 +28,7 @@ import javax.jcr.version.OnParentVersionAction;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
@@ -40,7 +41,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -54,8 +54,10 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS 14.12.2006
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataRestoreVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: ItemDataRestoreVisitor.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
@@ -73,17 +75,19 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
   protected NodeData                     restored;
 
-  protected final NodeTypeManagerImpl    ntManager;
+  // protected final NodeTypeDataManager ntManager;
 
   protected final SessionImpl            userSession;
 
   protected final SessionChangesLog      changes;
 
   /**
-   * Usecase of Workspace.restore(Version[], boolean), for not existing versionable nodes in the
-   * target workspace.
+   * Usecase of Workspace.restore(Version[], boolean), for not existing
+   * versionable nodes in the target workspace.
    */
   protected final SessionChangesLog      delegatedChanges;
+
+  private NodeTypeDataManager            nodeTypeDataManager;
 
   protected class NodeDataContext {
 
@@ -112,9 +116,9 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
   protected class RemoveVisitor extends ItemDataRemoveVisitor {
     RemoveVisitor() throws RepositoryException {
-      super(userSession.getTransientNodesManager(),
-            null,
-            userSession.getWorkspace().getNodeTypeManager(),
+      super(userSession.getTransientNodesManager(), null,
+      // userSession.getWorkspace().getNodeTypeManager(),
+            nodeTypeDataManager,
             userSession.getAccessManager(),
             userSession.getUserState());
     }
@@ -147,7 +151,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     this.history = history;
     this.parents.push(new NodeDataContext(context));
     this.removeExisting = removeExisting;
-    this.ntManager = userSession.getWorkspace().getNodeTypeManager();
+    this.nodeTypeDataManager = userSession.getWorkspace().getNodeTypesHolder();
     this.delegatedChanges = delegatedChanges;
   }
 
@@ -245,7 +249,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
                 RemoveVisitor() throws RepositoryException {
                   super(userSession.getTransientNodesManager(),
                         null,
-                        userSession.getWorkspace().getNodeTypeManager(),
+                        nodeTypeDataManager,
                         userSession.getAccessManager(),
                         userSession.getUserState());
                 }
@@ -342,9 +346,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     // create restored version of the node
     NodeData restoredData = new TransientNodeData(nodePath,
                                                   fidentifier,
-                                                  (existing != null
-                                                      ? existing.getPersistedVersion()
-                                                      : -1),
+                                                  (existing != null ? existing.getPersistedVersion()
+                                                                   : -1),
                                                   ptName,
                                                   mixins == null ? new InternalQName[0] : mixins,
                                                   0,
@@ -378,7 +381,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
       restored = currentNode();
 
-    } else if (ntManager.isNodeType(Constants.NT_VERSIONEDCHILD, frozen.getPrimaryTypeName())) {
+    } else if (nodeTypeDataManager.isNodeType(Constants.NT_VERSIONEDCHILD,
+                                              frozen.getPrimaryTypeName())) {
 
       QPath cvhpPropPath = QPath.makeChildPath(frozen.getQPath(), Constants.JCR_CHILDVERSIONHISTORY);
 
@@ -398,7 +402,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         if ((cHistory = (NodeData) dataManager.getItemData(vhIdentifier)) == null)
           throw new RepositoryException("Version history is not found with uuid " + vhIdentifier);
 
-        childHistory = new VersionHistoryDataHelper(cHistory, dataManager, ntManager);
+        childHistory = new VersionHistoryDataHelper(cHistory, dataManager, nodeTypeDataManager);
       } catch (IllegalStateException e) {
         throw new RepositoryException("jcr:childVersionHistory, error of data read "
             + userSession.getLocationFactory().createJCRPath(cvhpPropPath).getAsString(false), e);
@@ -460,10 +464,10 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       // On restore of VN, the C stored as its child will be ignored, and the
       // current C in the workspace will be left unchanged.
 
-      int action = ntManager.findNodeDefinition(qname,
-                                                currentNode().getPrimaryTypeName(),
-                                                currentNode().getMixinTypeNames())
-                            .getOnParentVersion();
+      int action = nodeTypeDataManager.findChildNodeDefinition(qname,
+                                                               currentNode().getPrimaryTypeName(),
+                                                               currentNode().getMixinTypeNames())
+                                      .getOnParentVersion();
 
       if (log.isDebugEnabled())
         log.debug("Stored node " + frozen.getQPath().getAsString() + ", "
@@ -478,9 +482,9 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         // jcr:uuid
         String jcrUuid = null;
         NodeData existing = null;
-        if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                                 frozen.getPrimaryTypeName(),
-                                 frozen.getMixinTypeNames())) {
+        if (nodeTypeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                           frozen.getPrimaryTypeName(),
+                                           frozen.getMixinTypeNames())) {
           // copy uuid from frozen state of mix:referenceable,
           // NOTE: mix:referenceable stored in frozen state with genereted ID
           // (JCR_XITEM PK) as UUID must be unique,
@@ -558,7 +562,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           // copy existed - i.e. left unchanged
           ItemDataCopyVisitor copyVisitor = new ItemDataCopyVisitor(currentNode(),
                                                                     frozen.getQPath().getName(),
-                                                                    ntManager,
+                                                                    // node,
+                                                                    nodeTypeDataManager,
                                                                     userSession.getTransientNodesManager(),
                                                                     true);
           existed.accept(copyVisitor);
@@ -581,7 +586,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
       InternalQName qname = property.getQPath().getName();
 
-      if (ntManager.isNodeType(Constants.NT_FROZENNODE, frozenParent.getPrimaryTypeName()))
+      if (nodeTypeDataManager.isNodeType(Constants.NT_FROZENNODE, frozenParent.getPrimaryTypeName()))
         if (qname.equals(Constants.JCR_FROZENPRIMARYTYPE)) {
           qname = Constants.JCR_PRIMARYTYPE;
         } else if (qname.equals(Constants.JCR_FROZENUUID)) {
@@ -594,10 +599,11 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           return;
         }
 
-      int action = ntManager.findPropertyDefinition(qname,
-                                                    currentNode().getPrimaryTypeName(),
-                                                    currentNode().getMixinTypeNames())
-                            .getOnParentVersion();
+      int action = nodeTypeDataManager.findPropertyDefinitions(qname,
+                                                               currentNode().getPrimaryTypeName(),
+                                                               currentNode().getMixinTypeNames())
+                                      .getAnyDefinition()
+                                      .getOnParentVersion();
 
       if (log.isDebugEnabled()) {
         log.debug("Visit property " + property.getQPath().getAsString() + " "
@@ -670,7 +676,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         ItemDataCopyIgnoredVisitor copyIgnoredVisitor = new ItemDataCopyIgnoredVisitor((NodeData) dataManager.getItemData(restored.getParentIdentifier()),
                                                                                        restored.getQPath()
                                                                                                .getName(),
-                                                                                       ntManager,
+                                                                                       nodeTypeDataManager,
                                                                                        userSession.getTransientNodesManager(),
                                                                                        changes);
 

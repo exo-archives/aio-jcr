@@ -22,8 +22,10 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupMessagesLog;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
@@ -34,9 +36,12 @@ import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
  * @version $Id: TestBackupScheduler.java 760 2008-02-07 15:08:07Z pnedonosko $
  */
 public class TestBackupScheduler extends AbstractBackupTestCase {
+  
+  private static final Log      log = ExoLogger.getLogger(TestBackupScheduler.class);
 
   class BackupWaiter implements BackupJobListener {
-
+    
+    
     private int             jobId;
 
     private int             jobState;

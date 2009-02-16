@@ -22,13 +22,13 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.NodeTypeRecognizer;
 import org.exoplatform.services.security.ConversationState;
@@ -43,13 +43,11 @@ public class NeutralImporter extends BaseXmlImporter {
 
   private ContentImporter contentImporter = null;
 
-  // private final NodeData parent;
-
   public NeutralImporter(NodeData parent,
                          QPath ancestorToSave,
                          int uuidBehavior,
                          ItemDataConsumer dataConsumer,
-                         NodeTypeManagerImpl ntManager,
+                         NodeTypeDataManager ntManager,
                          LocationFactory locationFactory,
                          ValueFactoryImpl valueFactory,
                          NamespaceRegistry namespaceRegistry,
@@ -73,9 +71,8 @@ public class NeutralImporter extends BaseXmlImporter {
           currentWorkspaceName);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
+  /**
+   * {@inheritDoc}
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
     if (contentImporter == null) {
@@ -84,10 +81,8 @@ public class NeutralImporter extends BaseXmlImporter {
     contentImporter.characters(ch, start, length);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   * java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void endElement(String uri, String localName, String qName) throws RepositoryException {
     if (contentImporter == null) {
@@ -96,6 +91,9 @@ public class NeutralImporter extends BaseXmlImporter {
     contentImporter.endElement(uri, localName, qName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public PlainChangesLog getChanges() {
     if (contentImporter != null)
@@ -103,10 +101,8 @@ public class NeutralImporter extends BaseXmlImporter {
     return super.getChanges();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java.lang.String,
-   * java.lang.String, java.lang.String, java.util.Map)
+  /**
+   * {@inheritDoc}
    */
   public void startElement(String namespaceURI,
                            String localName,
@@ -119,7 +115,7 @@ public class NeutralImporter extends BaseXmlImporter {
                                                    ancestorToSave,
                                                    uuidBehavior,
                                                    dataConsumer,
-                                                   ntManager,
+                                                   nodeTypeDataManager,
                                                    locationFactory,
                                                    valueFactory,
                                                    namespaceRegistry,
@@ -134,7 +130,7 @@ public class NeutralImporter extends BaseXmlImporter {
                                                  ancestorToSave,
                                                  uuidBehavior,
                                                  dataConsumer,
-                                                 ntManager,
+                                                 nodeTypeDataManager,
                                                  locationFactory,
                                                  valueFactory,
                                                  namespaceRegistry,

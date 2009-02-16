@@ -22,16 +22,21 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Date;
 
-import javax.jcr.Node;
-
-import org.exoplatform.services.jcr.access.SystemIdentity;
-import org.exoplatform.services.jcr.core.ExtendedNode;
-
 import javax.jcr.AccessDeniedException;
+import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -40,37 +45,25 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.ContextParam;
-import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.OutputTransformer;
-import org.exoplatform.services.rest.ResourceDispatcher;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.URIParam;
-import org.exoplatform.services.rest.QueryParam;
-import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
-import org.exoplatform.services.security.Authenticator;
-import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.Credential;
-import org.exoplatform.services.security.PasswordCredential;
-import org.exoplatform.services.security.UsernameCredential;
+import org.exoplatform.services.rest.ExtHttpHeaders;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 
 /**
  * @author Volodymyr Krasnikov volodymyr.krasnikov@exoplatform.com.ua
  * @version $Id: RESTArtifactLoaderService.java 11:37:47 andrew00x $
  */
-
-@URITemplate("/maven2/")
+@Path("/maven2/")
 public class RESTArtifactLoaderService implements ResourceContainer {
 
-  private static final Log                  LOG      = ExoLogger.getLogger("jcr.ext.RESTArtifactLoaderService");
+  private static final Log                  LOG      = ExoLogger.getLogger(RESTArtifactLoaderService.class);
 
   /**
    * XHTML namespace.
@@ -81,12 +74,6 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * Uses for represent JCR node in comfortable form.
    */
   private NodeRepresentationService         nodeRepresentationService;
-
-  /**
-   * Prepared JCR session. Can be null if username or password is not presents
-   * in configuration.
-   */
-  private Session                           session;
 
   /**
    * Root node for maven repository.
@@ -120,14 +107,12 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @param sessionProviderService the ThreadLocalSessionProviderService.
    * @param repositoryService the RepositoryService.
    * @param nodeRepresentationService the NodeRepresentationService.
-   * @param authenticator the Authenticator.
    * @throws Exception if any errors occur or not valid configuration.
    */
   public RESTArtifactLoaderService(InitParams initParams,
                                    ThreadLocalSessionProviderService sessionProviderService,
                                    RepositoryService repositoryService,
-                                   NodeRepresentationService nodeRepresentationService,
-                                   Authenticator authenticator) throws Exception {
+                                   NodeRepresentationService nodeRepresentationService) throws Exception {
 
     PropertiesParam props = initParams.getPropertiesParam("artifact.workspace");
 
@@ -147,20 +132,6 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     if (!mavenRoot.endsWith("/"))
       mavenRoot += "/";
 
-    String username = props.getProperty("username");
-    String password = props.getProperty("password");
-    // prepare session if user will come as anonymous.
-    if (username != null && password != null) {
-      String userId = authenticator.validateUser(new Credential[] {
-          new UsernameCredential(username), new PasswordCredential(password) });
-
-      SessionProvider sessionProvider = new SessionProvider(new ConversationState(authenticator.createIdentity(userId)));
-      this.session = sessionProvider.getSession(workspace,
-                                                this.repositoryService.getRepository(repository));
-    } else {
-      LOG.info("Default username and password for access to JCR storage were not specified.");
-    }
-
   }
 
   /**
@@ -171,41 +142,40 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @param base the base URL.
    * @return @see {@link Response}.
    */
-  @HTTPMethod("GET")
-  @URITemplate("/{path}/")
-  // Will be used for if transformer is not initialized by ResourceContainer.
-  // Response.Builder.errorMessage set StringOutputTransformer.
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response getResource(@URIParam("path") String mavenPath,
-                              final @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String base,
+  @GET
+  @Path("/{path:.*}/")
+  public Response getResource(@PathParam("path") String mavenPath,
+                              final @Context UriInfo uriInfo,
                               final @QueryParam("view") String view,
                               final @QueryParam("gadget") String gadget) {
 
     String resourcePath = mavenRoot + mavenPath; // JCR resource
-    String shaResourcePath = mavenPath.endsWith(".sha1") ? mavenRoot + mavenPath : mavenRoot + mavenPath + ".sha1";
+    String shaResourcePath = mavenPath.endsWith(".sha1") ? mavenRoot + mavenPath : mavenRoot
+        + mavenPath + ".sha1";
 
-      
-    mavenPath = base + getClass().getAnnotation(URITemplate.class).value() + mavenPath;
+    mavenPath = uriInfo.getBaseUriBuilder().path(getClass()).path(mavenPath).build().toString();
+    
     Session ses = null;
-    try {
 
-      ses = getSession(sessionProviderService.getSessionProvider(null));
-      if (ses == null) {
-        throw new RepositoryException("Access to JCR Repository denied. "
-            + "SessionProvider is null and prepared session is null.");
-      }
+    try {
+      // JCR resource
+      SessionProvider sp = sessionProviderService.getSessionProvider(null);
+      if (sp == null)
+        throw new RepositoryException("Access to JCR Repository denied. SessionProvider is null.");
+
+      ses = sp.getSession(workspace, repositoryService.getRepository(repository));
 
       ExtendedNode node = (ExtendedNode) ses.getRootNode().getNode(resourcePath);
-      
+
       if (isFile(node)) {
         if (view != null && view.equalsIgnoreCase("true")) {
           ExtendedNode shaNode = null;
-          try { 
+          try {
             shaNode = (ExtendedNode) ses.getRootNode().getNode(shaResourcePath);
-          } catch (RepositoryException e){ //no .sh1 file found
+          } catch (RepositoryException e) { // no .sh1 file found
           }
           return getArtifactInfo(node, mavenPath, gadget, shaNode);
-        }  else {
+        } else {
           return downloadArtifact(node);
         }
       } else {
@@ -214,24 +184,23 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
     } catch (PathNotFoundException e) {
       if (LOG.isDebugEnabled())
-        LOG.debug("File not found " + mavenPath);
-      LOG.info("File not found " + mavenPath);
-
-      return Response.Builder.notFound()
-                             .errorMessage(e.getMessage())
-                             .mediaType("text/plain")
-                             .build();
+        e.printStackTrace();
+      return Response.status(Response.Status.NOT_FOUND).build();
     } catch (AccessDeniedException e) {
+      if (LOG.isDebugEnabled())
+        e.printStackTrace();
       if (ses.getUserID().equals(SystemIdentity.ANONIM))
-        return Response.Builder.withStatus(401).header("WWW-Authenticate",
-                                                       "Basic realm=\"exo-domain\"").build();
-      return Response.Builder.forbidden().build();
+        return Response.status(Response.Status.UNAUTHORIZED)
+                       .header(ExtHttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"exo-domain\"")
+                       .build();
+      else
+        return Response.status(Response.Status.FORBIDDEN).build();
     } catch (Exception e) {
-      e.printStackTrace();
-      return Response.Builder.serverError()
-                             .errorMessage(e.getMessage())
-                             .mediaType("text/plain")
-                             .build();
+      LOG.error("Failed get maven artifact", e);
+      throw new WebApplicationException(e);
+    } finally {
+      if (ses != null)
+        ses.logout();
     }
 
   }
@@ -242,32 +211,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @param base the base URL.
    * @return @see {@link Response}.
    */
-  @HTTPMethod("GET")
-  // Will be used for if transformer is not initialized by ResourceContainer.
-  // Response.Builder.errorMessage set StringOutputTransformer.
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response getRootNodeList(final @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String base,
+  @GET
+  public Response getRootNodeList(final @Context UriInfo uriInfo,
                                   final @QueryParam("view") String view,
                                   final @QueryParam("gadget") String gadget) {
-    return getResource("", base, view, gadget);
-  }
-
-  /**
-   * Create JCR session if SessionProvider is not null, otherwise return default
-   * session.
-   * 
-   * @param sessionProvider the SessionProvider.
-   * @return JCR session.
-   * @throws Exception if any errors occurs.
-   */
-  private Session getSession(SessionProvider sessionProvider) throws Exception {
-    // anonymous, user not authenticated or ThreadLocalSessionProvider was not
-    // set
-    if (sessionProvider == null)
-      return this.session;
-
-    // user was authenticate or maybe has anonymous SessionProvider
-    return sessionProvider.getSession(workspace, repositoryService.getRepository(repository));
+    return getResource("", uriInfo, view, gadget);
   }
 
   /**
@@ -278,10 +226,12 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @throws RepositoryException in JCR errors occur.
    */
   private static boolean isFile(Node node) throws RepositoryException {
-    if (!node.isNodeType("nt:file"))
+    if (!node.isNodeType("nt:file")) {
       return false;
-    if (!node.getNode("jcr:content").isNodeType("nt:resource"))
+    }
+    if (!node.getNode("jcr:content").isNodeType("nt:resource")) {
       return false;
+    }
     return true;
   }
 
@@ -316,7 +266,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             xsw.writeStartElement("style");
             xsw.writeAttribute("type", "text/css");
             xsw.writeCharacters("a {text-decoration: none; color: #10409C; }"
-                + "a:hover {text-decoration: underline;}" + ".centered { text-align: center; }"
+                + "a:hover {text-decoration: underline;}"
+                + ".centered { text-align: center; }"
                 + ".underlined { border-bottom : 1px solid #cccccc;  font-weight: bold;  text-align: center; }\n");
             xsw.writeEndElement(); // style
             xsw.writeStartElement("title");
@@ -366,7 +317,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           String parent = mavenPath.substring(0, mavenPath.lastIndexOf('/'));
           xsw.writeStartElement("td");
           xsw.writeAttribute("class", "parenticon");
-          xsw.writeEndElement();//td
+          xsw.writeEndElement();// td
 
           xsw.writeStartElement("td");
           xsw.writeStartElement("a");
@@ -382,13 +333,14 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           while (iterator.hasNext()) {
             Node node = iterator.nextNode();
             xsw.writeStartElement("tr");
-            if (RESTArtifactLoaderService.isFile(node) ) {
+            if (RESTArtifactLoaderService.isFile(node)) {
               if (node.getName().endsWith("sha1"))
-                 continue;
-              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node, null);
+                continue;
+              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
+                                                                                                      null);
               xsw.writeStartElement("td");
               xsw.writeAttribute("class", "fileicon");
-              xsw.writeEndElement();//td
+              xsw.writeEndElement();// td
 
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
@@ -414,7 +366,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             } else {
               xsw.writeStartElement("td");
               xsw.writeAttribute("class", "foldericon");
-              xsw.writeEndElement();//td
+              xsw.writeEndElement();// td
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
               xsw.writeAttribute("href",
@@ -467,7 +419,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
     // application/xhtml+xml content type is recommended for XHTML, but IE6
     // does't support this.
-    return Response.Builder.ok().entity(pi, /* "application/xhtml+xml" */"text/html").build();
+    return Response.ok(pi, "text/html").build();
 
   }
 
@@ -481,28 +433,20 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private Response downloadArtifact(Node node) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
                                                                                             null);
-    
-    
     if (node.canAddMixin("exo:mavencounter")) {
       node.addMixin("exo:mavencounter");
       node.getSession().save();
     }
-    node.setProperty("exo:downloadcounter",  node.getProperty("exo:downloadcounter").getLong() + 1l);
+    node.setProperty("exo:downloadcounter", node.getProperty("exo:downloadcounter").getLong() + 1l);
     node.getSession().save();
-    
     long lastModified = nodeRepresentation.getLastModified();
     String contentType = nodeRepresentation.getMediaType();
     long contentLength = nodeRepresentation.getContentLenght();
     InputStream entity = nodeRepresentation.getInputStream();
-    Response response = Response.Builder.ok()
-                                        .contentLenght(contentLength)
-                                        .lastModified(new Date(lastModified))
-                                        .entity(entity, contentType)
-                                        .header("Content-Disposition",
-                                                "attachment; filename=" + node.getName())
-                                        .transformer(new PassthroughOutputTransformer())
-                                        .build();
-
+    Response response = Response.ok(entity, contentType)
+                                .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
+                                .lastModified(new Date(lastModified))
+                                .build();
     return response;
   }
 
@@ -513,14 +457,16 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @return @see {@link Response}.
    * @throws Exception if any errors occurs.
    */
-  private Response getArtifactInfo(Node node, final String mavenPath, final String gadget, Node shaNode) throws Exception {
+  private Response getArtifactInfo(Node node,
+                                   final String mavenPath,
+                                   final String gadget,
+                                   Node shaNode) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
                                                                                             null);
-    
+
     NodeRepresentation shNodeRepresentation = null;
     if (shaNode != null)
-    shNodeRepresentation = nodeRepresentationService.getNodeRepresentation(shaNode,
-                                                                                            null);
+      shNodeRepresentation = nodeRepresentationService.getNodeRepresentation(shaNode, null);
 
     final PipedOutputStream po = new PipedOutputStream();
     final PipedInputStream pi = new PipedInputStream(po);
@@ -531,11 +477,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     try {
 
       if (node.canAddMixin("exo:mavencounter")) {
-            node.addMixin("exo:mavencounter");
-            node.getSession().save();
+        node.addMixin("exo:mavencounter");
+        node.getSession().save();
       }
-     int count = (int)node.getProperty("exo:downloadcounter").getLong();   
-      
+      int count = (int) node.getProperty("exo:downloadcounter").getLong();
+
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
       XMLStreamWriter xsw = factory.createXMLStreamWriter(po, Constants.DEFAULT_ENCODING);
@@ -577,13 +523,14 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                                                 : mavenPath);
       xsw.writeCharacters("Link");
       xsw.writeEndElement(); // a
-      
-      if (shNodeRepresentation != null){
-      xsw.writeEmptyElement("br");
-      xsw.writeCharacters("Checksum:  " +getStreamAsString(shNodeRepresentation.getInputStream()));
-      xsw.writeEmptyElement("br");
+
+      if (shNodeRepresentation != null) {
+        xsw.writeEmptyElement("br");
+        xsw.writeCharacters("Checksum:  "
+            + getStreamAsString(shNodeRepresentation.getInputStream()));
+        xsw.writeEmptyElement("br");
       }
-      
+
       xsw.writeEmptyElement("br");
       xsw.writeCharacters("Downloads count :  " + count);
       xsw.writeEmptyElement("br");
@@ -592,8 +539,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       xsw.writeStartElement("a");
       xsw.writeAttribute("href",
                          (mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length() - 1)
-                                                             .substring(0, mavenPath.lastIndexOf("/"))
-                                                 : mavenPath.substring(0, mavenPath.lastIndexOf("/")))
+                                                             .substring(0,
+                                                                        mavenPath.lastIndexOf("/"))
+                                                 : mavenPath.substring(0,
+                                                                       mavenPath.lastIndexOf("/")))
                              + "?view=true&gadget=" + gadget);
       xsw.writeCharacters("Back to browsing");
       xsw.writeEndElement(); // a
@@ -617,15 +566,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
     }
 
-    return Response.Builder.ok().entity(pi, "text/html").build();
+    return Response.ok(pi, "text/html").build();
 
   }
-  
+
   protected String getStreamAsString(InputStream stream) throws IOException {
     byte[] buff = new byte[stream.available()];
     stream.read(buff);
     return new String(buff);
   }
-  
-
 }

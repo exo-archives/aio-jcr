@@ -28,138 +28,51 @@ import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.JCRPathMatcher;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
- * 13.09.2006
+ * Created by The eXo Platform SAS Author : Peter Nedonosko
+ * peter.nedonosko@exoplatform.com.ua 13.09.2006
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: ValueConstraintsMatcher.java 12171 2008-03-20 15:37:28Z ksm $
  */
 public class ValueConstraintsMatcher {
 
-  protected static Log          log               = ExoLogger.getLogger("jcr.ValueConstraintsMatcher");
+  protected static Log              log               = ExoLogger.getLogger("jcr.ValueConstraintsMatcher");
 
-  protected final static String DEFAULT_THRESHOLD = "";
+  protected final static String     DEFAULT_THRESHOLD = "";
 
-  public class ConstraintRange {
+  private final String[]            constraints;
 
-    private final String  value;
+  private final LocationFactory     locator;
 
-    private final boolean exclusive;
+  private final ItemDataConsumer    itemDataConsumer;
 
-    public ConstraintRange(String value) {
-      this.value = value;
-      this.exclusive = false;
-    }
+  private final NodeTypeDataManager nodeTypeDataManager;
 
-    public ConstraintRange(String value, boolean exclusive) {
-      this.value = value;
-      this.exclusive = exclusive;
-    }
 
-    protected boolean isExclusive() {
-      return exclusive;
-    }
-
-    protected String getThreshold() {
-      return value;
-    }
-  }
-
-  public class MinMaxConstraint {
-
-    private final ConstraintRange minValue;
-
-    private final ConstraintRange maxValue;
-
-    private final ConstraintRange singleValue;
-
-    public MinMaxConstraint(ConstraintRange minValue, ConstraintRange maxValue) {
-      this.minValue = minValue;
-      this.maxValue = maxValue;
-      this.singleValue = null;
-    }
-
-    protected ConstraintRange getMin() {
-      return minValue;
-    }
-
-    protected ConstraintRange getMax() {
-      return maxValue;
-    }
-
-    public ConstraintRange getSingleValue() {
-      return singleValue;
-    }
-  }
-
-  private final String[]    constraints;
-
-  private final SessionImpl session;
-
-  public ValueConstraintsMatcher(String[] constraints, SessionImpl session) {
+  public ValueConstraintsMatcher(String[] constraints,
+                                 LocationFactory locator,
+                                 ItemDataConsumer itemDataConsumer,
+                                 NodeTypeDataManager nodeTypeDataManager) {
     this.constraints = constraints;
-    this.session = session;
-  }
+    this.locator = locator;
+    this.itemDataConsumer = itemDataConsumer;
+    this.nodeTypeDataManager = nodeTypeDataManager;
 
-  public ValueConstraintsMatcher(String constraint, SessionImpl session) {
-    this.constraints = new String[] { constraint };
-    this.session = session;
-  }
-
-  protected MinMaxConstraint parseAsMinMax(String constraint) throws ConstraintViolationException {
-
-    // constraint as min,max range:
-    // value constraints in the form of inclusive or exclusive ranges:
-    // i.e., "[min, max]", "(min, max)", "(min, max]" or "[min, max)".
-    // Where "[" and "]" indicate "inclusive", while "(" and ")" indicate "exclusive".
-    // A missing min or max value indicates no bound in that direction
-
-    String[] parts = constraint.split(",");
-
-    if (parts.length != 2)
-      throw new ConstraintViolationException("Value constraint '" + constraint
-          + "' is invalid accrding the JSR-170 spec.");
-
-    boolean exclusive = false;
-
-    if (parts[0].startsWith("("))
-      exclusive = true;
-    else if (parts[0].startsWith("["))
-      exclusive = false;
-    else
-      throw new ConstraintViolationException("Value constraint '" + constraint
-          + "' min exclusion rule is unefined accrding the JSR-170 spec.");
-
-    ConstraintRange minValue = new ConstraintRange(parts[0].length() > 1
-        ? parts[0].substring(1)
-        : DEFAULT_THRESHOLD, exclusive);
-
-    if (parts[1].endsWith(")"))
-      exclusive = true;
-    else if (parts[1].endsWith("]"))
-      exclusive = false;
-    else
-      throw new ConstraintViolationException("Value constraint '" + constraint
-          + "' max exclusion rule is unefined accrding the JSR-170 spec.");
-
-    ConstraintRange maxValue = new ConstraintRange(parts[1].length() > 1
-        ? parts[1].substring(0, parts[1].length() - 1)
-        : DEFAULT_THRESHOLD, exclusive);
-
-    return new MinMaxConstraint(minValue, maxValue);
   }
 
   public boolean match(ValueData value, int type) throws ConstraintViolationException,
@@ -193,7 +106,6 @@ public class ValueConstraintsMatcher {
 
     } else if (type == PropertyType.NAME) {
 
-      LocationFactory locator = session.getLocationFactory();
       NameValue nameVal;
       try {
         nameVal = new NameValue(valueData, locator);
@@ -210,7 +122,6 @@ public class ValueConstraintsMatcher {
 
     } else if (type == PropertyType.PATH) {
 
-      LocationFactory locator = session.getLocationFactory();
       PathValue pathVal;
       try {
         pathVal = new PathValue(valueData, locator);
@@ -230,13 +141,16 @@ public class ValueConstraintsMatcher {
 
       try {
         ReferenceValue refVal = new ReferenceValue(valueData);
-        NodeImpl refNode = (NodeImpl) session.getNodeByUUID(refVal.getIdentifier().getString());
+        // NodeImpl refNode = (NodeImpl)
+        // session.getNodeByUUID(refVal.getIdentifier().getString());
+        NodeData refNode = (NodeData) itemDataConsumer.getItemData(refVal.getIdentifier()
+                                                                         .getString());
         for (int i = 0; invalid && i < constraints.length; i++) {
           String constrString = constraints[i];
-          InternalQName constrName = session.getLocationFactory()
-                                            .parseJCRName(constrString)
-                                            .getInternalName();
-          if (refNode.isNodeType(constrName)) {
+          InternalQName constrName = locator.parseJCRName(constrString).getInternalName();
+          if (nodeTypeDataManager.isNodeType(constrName,
+                                             refNode.getPrimaryTypeName(),
+                                             refNode.getMixinTypeNames())) {
             invalid = false;
           }
         }
@@ -244,7 +158,8 @@ public class ValueConstraintsMatcher {
         if (log.isDebugEnabled())
           log.debug("Reference constraint node is not found: " + e.getMessage());
         // But if it's a versionHisroy ref property for add mix:versionable...
-        // we haven't a versionHisroy created until save method will be called on this
+        // we haven't a versionHisroy created until save method will be called
+        // on this
         // session/item...
         // it's transient state here.
         invalid = false; // so, value is matched, we hope...
@@ -269,9 +184,9 @@ public class ValueConstraintsMatcher {
 
         MinMaxConstraint constraint = parseAsMinMax(constrString);
 
-        long min = constraint.getMin().getThreshold().length() > 0
-            ? new Long(constraint.getMin().getThreshold())
-            : Long.MIN_VALUE;
+        long min = constraint.getMin().getThreshold().length() > 0 ? new Long(constraint.getMin()
+                                                                                        .getThreshold())
+                                                                  : Long.MIN_VALUE;
         if (constraint.getMin().isExclusive()) {
           if (valueLength > min)
             minInvalid = false;
@@ -280,9 +195,9 @@ public class ValueConstraintsMatcher {
             minInvalid = false;
         }
 
-        long max = constraint.getMax().getThreshold().length() > 0
-            ? new Long(constraint.getMax().getThreshold())
-            : Long.MAX_VALUE;
+        long max = constraint.getMax().getThreshold().length() > 0 ? new Long(constraint.getMax()
+                                                                                        .getThreshold())
+                                                                  : Long.MAX_VALUE;
         if (constraint.getMax().isExclusive()) {
           if (valueLength < max)
             maxInvalid = false;
@@ -361,9 +276,9 @@ public class ValueConstraintsMatcher {
 
         MinMaxConstraint constraint = parseAsMinMax(constrString);
 
-        Number min = constraint.getMin().getThreshold().length() > 0
-            ? new Double(constraint.getMin().getThreshold())
-            : Double.MIN_VALUE;
+        Number min = constraint.getMin().getThreshold().length() > 0 ? new Double(constraint.getMin()
+                                                                                            .getThreshold())
+                                                                    : Double.MIN_VALUE;
         if (constraint.getMin().isExclusive()) {
           if (valueNumber.doubleValue() > min.doubleValue())
             minInvalid = false;
@@ -372,9 +287,9 @@ public class ValueConstraintsMatcher {
             minInvalid = false;
         }
 
-        Number max = constraint.getMax().getThreshold().length() > 0
-            ? new Double(constraint.getMax().getThreshold())
-            : Double.MAX_VALUE;
+        Number max = constraint.getMax().getThreshold().length() > 0 ? new Double(constraint.getMax()
+                                                                                            .getThreshold())
+                                                                    : Double.MAX_VALUE;
         if (constraint.getMax().isExclusive()) {
           if (valueNumber.doubleValue() < max.doubleValue())
             maxInvalid = false;
@@ -390,6 +305,63 @@ public class ValueConstraintsMatcher {
     }
 
     return !invalid;
+  }
+
+  JCRPath parsePath(String path, LocationFactory locFactory) throws RepositoryException {
+    try {
+      return locFactory.parseAbsPath(path);
+    } catch (RepositoryException e) {
+      try {
+        return locFactory.parseRelPath(path);
+      } catch (RepositoryException e1) {
+        throw e;
+      }
+    }
+  }
+
+  protected MinMaxConstraint parseAsMinMax(String constraint) throws ConstraintViolationException {
+
+    // constraint as min,max range:
+    // value constraints in the form of inclusive or exclusive ranges:
+    // i.e., "[min, max]", "(min, max)", "(min, max]" or "[min, max)".
+    // Where "[" and "]" indicate "inclusive", while "(" and ")" indicate
+    // "exclusive".
+    // A missing min or max value indicates no bound in that direction
+
+    String[] parts = constraint.split(",");
+
+    if (parts.length != 2)
+      throw new ConstraintViolationException("Value constraint '" + constraint
+          + "' is invalid accrding the JSR-170 spec.");
+
+    boolean exclusive = false;
+
+    if (parts[0].startsWith("("))
+      exclusive = true;
+    else if (parts[0].startsWith("["))
+      exclusive = false;
+    else
+      throw new ConstraintViolationException("Value constraint '" + constraint
+          + "' min exclusion rule is unefined accrding the JSR-170 spec.");
+
+    ConstraintRange minValue = new ConstraintRange(parts[0].length() > 1 ? parts[0].substring(1)
+                                                                        : DEFAULT_THRESHOLD,
+                                                   exclusive);
+
+    if (parts[1].endsWith(")"))
+      exclusive = true;
+    else if (parts[1].endsWith("]"))
+      exclusive = false;
+    else
+      throw new ConstraintViolationException("Value constraint '" + constraint
+          + "' max exclusion rule is unefined accrding the JSR-170 spec.");
+
+    ConstraintRange maxValue = new ConstraintRange(parts[1].length() > 1 ? parts[1].substring(0,
+                                                                                              parts[1].length() - 1)
+                                                                        : DEFAULT_THRESHOLD,
+                                                   exclusive);
+
+    return new MinMaxConstraint(minValue, maxValue);
   }
 
   /**
@@ -427,15 +399,55 @@ public class ValueConstraintsMatcher {
 
   }
 
-  JCRPath parsePath(String path, LocationFactory locFactory) throws RepositoryException {
-    try {
-      return locFactory.parseAbsPath(path);
-    } catch (RepositoryException e) {
-      try {
-        return locFactory.parseRelPath(path);
-      } catch (RepositoryException e1) {
-        throw e;
-      }
+  public class ConstraintRange {
+
+    private final String  value;
+
+    private final boolean exclusive;
+
+    public ConstraintRange(String value) {
+      this.value = value;
+      this.exclusive = false;
+    }
+
+    public ConstraintRange(String value, boolean exclusive) {
+      this.value = value;
+      this.exclusive = exclusive;
+    }
+
+    protected String getThreshold() {
+      return value;
+    }
+
+    protected boolean isExclusive() {
+      return exclusive;
+    }
+  }
+
+  public class MinMaxConstraint {
+
+    private final ConstraintRange minValue;
+
+    private final ConstraintRange maxValue;
+
+    private final ConstraintRange singleValue;
+
+    public MinMaxConstraint(ConstraintRange minValue, ConstraintRange maxValue) {
+      this.minValue = minValue;
+      this.maxValue = maxValue;
+      this.singleValue = null;
+    }
+
+    public ConstraintRange getSingleValue() {
+      return singleValue;
+    }
+
+    protected ConstraintRange getMax() {
+      return maxValue;
+    }
+
+    protected ConstraintRange getMin() {
+      return minValue;
     }
   }
 

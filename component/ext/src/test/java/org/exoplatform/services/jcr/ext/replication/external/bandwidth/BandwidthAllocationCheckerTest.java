@@ -54,7 +54,6 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + repoPath + "/" + nodeNameArray[i] + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.CREATE_BASE_NODE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -79,7 +78,6 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + repoPathArray[i] + "/" + nodeNameArray[i] + "/" + simpleOperationCount + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.ADD_EMPTY_NODE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -120,7 +118,6 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + repoPath + "/" + nodeNameArray[i] + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.CREATE_BASE_NODE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -145,7 +142,7 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + repoPathArray[i] + "/" + nodeNameArray[i] + "/" + stringSize + "/"
-          + simpleOperationCount + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
+          + simpleOperationCount + "/"
           + ReplicationTestService.Constants.OperationType.ADD_STRING_PROPETY_ONLY;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -186,7 +183,6 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + repoPath + "/" + nodeNameArray[i] + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.CREATE_BASE_NODE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -212,7 +208,7 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + repoPathArray[i] + "/" + nodeNameArray[i] + "/" + binarySize + "/"
-          + simpleOperationCount + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
+          + simpleOperationCount + "/"
           + ReplicationTestService.Constants.OperationType.ADD_BINARY_PROPERTY_ONLY;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);

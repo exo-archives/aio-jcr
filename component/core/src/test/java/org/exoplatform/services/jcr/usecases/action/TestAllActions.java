@@ -23,6 +23,7 @@ import org.apache.commons.chain.Context;
 import org.apache.commons.chain.impl.ContextBase;
 
 import org.exoplatform.services.command.action.Action;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -41,7 +42,9 @@ import org.exoplatform.services.jcr.usecases.action.info.UnLockActionInfo;
  */
 public class TestAllActions extends BaseUsecasesTest {
 
-  SessionActionCatalog catalog = null;
+  SessionActionCatalog        catalog = null;
+
+  private NodeTypeDataManager ntHolder;
 
   public void actionTest(ActionInfo action) {
 
@@ -240,7 +243,12 @@ public class TestAllActions extends BaseUsecasesTest {
     catalog.clear();
 
     // test by path
-    SessionEventMatcher matcher = new SessionEventMatcher(event, paths, isDeep, workspaces, null);
+    SessionEventMatcher matcher = new SessionEventMatcher(event,
+                                                          paths,
+                                                          isDeep,
+                                                          workspaces,
+                                                          null,
+                                                          ntHolder);
 
     catalog.addAction(matcher, action);
     return matcher;
@@ -259,6 +267,7 @@ public class TestAllActions extends BaseUsecasesTest {
   public void setUp() throws Exception {
     super.setUp();
     catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
+    ntHolder = session.getWorkspace().getNodeTypesHolder();
   }
 
   public void testActionCheckin() {

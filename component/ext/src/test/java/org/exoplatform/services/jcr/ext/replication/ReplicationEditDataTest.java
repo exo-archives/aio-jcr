@@ -20,6 +20,9 @@ import java.util.Calendar;
 
 import javax.jcr.Node;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
  * 25.07.2007 17:48:00
@@ -28,6 +31,9 @@ import javax.jcr.Node;
  */
 
 public class ReplicationEditDataTest extends BaseReplicationTest {
+  
+  private static final Log      log = ExoLogger.getLogger(ReplicationEditDataTest.class);
+  
   public void testAddNode() throws Exception {
 
     Node test = root.addNode("cms3").addNode("test");

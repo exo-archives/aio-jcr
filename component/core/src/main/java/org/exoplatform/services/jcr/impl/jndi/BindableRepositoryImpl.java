@@ -37,24 +37,25 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
- * Created by The eXo Platform SAS.<br/> Bindable implementation of Repository - ready to bind to
- * Naming Context
+ * Created by The eXo Platform SAS.<br/> Bindable implementation of Repository -
+ * ready to bind to Naming Context
  * 
  * @see BindableRepositoryFactory
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
- * @version $Id: BindableRepositoryImpl.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id: BindableRepositoryImpl.java 13891 2008-05-05 16:02:30Z
+ *          pnedonosko $
  */
 
 public class BindableRepositoryImpl implements Serializable, Referenceable, ManageableRepository {
 
   private transient ManageableRepository delegatee = null;
-  
-    /**
-   * @param rep
-   *          real repository impl
+
+  /**
+   * @param rep real repository impl
    */
   public BindableRepositoryImpl(ManageableRepository rep) {
     this.delegatee = rep;
@@ -116,7 +117,9 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession
+   * (java.lang.String)
    */
   public Session getSystemSession(String workspaceName) throws RepositoryException {
     return delegatee.getSystemSession(workspaceName);
@@ -124,7 +127,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
    */
   public String[] getWorkspaceNames() {
     return delegatee.getWorkspaceNames();
@@ -132,7 +136,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getNodeTypeManager()
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#getNodeTypeManager()
    */
   public ExtendedNodeTypeManager getNodeTypeManager() {
     return delegatee.getNodeTypeManager();
@@ -140,7 +145,9 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getNamespaceRegistry()
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#getNamespaceRegistry
+   * ()
    */
   public NamespaceRegistry getNamespaceRegistry() {
     return delegatee.getNamespaceRegistry();
@@ -149,7 +156,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
+   * org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized
+   * (java.lang.String)
    */
   public boolean isWorkspaceInitialized(String workspaceName) throws RepositoryException {
     return delegatee.isWorkspaceInitialized(workspaceName);
@@ -157,7 +165,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getConfiguration()
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#getConfiguration()
    */
   public RepositoryEntry getConfiguration() {
     return delegatee.getConfiguration();
@@ -207,7 +216,7 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   public WorkspaceContainerFacade getWorkspaceContainer(String workspaceName) {
     return delegatee.getWorkspaceContainer(workspaceName);
   }
-  
+
   public int getState() {
     return delegatee.getState();
   }
@@ -216,6 +225,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
     delegatee.setState(state);
   }
 
- 
-  
+  public NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
+    return delegatee.getNodeTypesHolder();
+  }
+
 }

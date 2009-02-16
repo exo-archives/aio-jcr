@@ -75,9 +75,10 @@ public class CollectionResource extends GenericResource {
 
   final String                       XLINK_LINK      = "http://www.w3.org/1999/xlink";
 
-  private final static Log           LOGGER          = ExoLogger.getLogger(CollectionResource.class);
+  private final static Log           LOG             = ExoLogger.getLogger(CollectionResource.class);
 
   protected final static Set<String> COLLECTION_SKIP = new HashSet<String>();
+  
   static {
     COLLECTION_SKIP.add("jcr:created");
     COLLECTION_SKIP.add("jcr:primaryType");
@@ -104,6 +105,10 @@ public class CollectionResource extends GenericResource {
     this.node = node;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Set<HierarchicalProperty> getProperties(boolean namesOnly) throws PathNotFoundException,
                                                                    AccessDeniedException,
                                                                    RepositoryException {
@@ -118,8 +123,8 @@ public class CollectionResource extends GenericResource {
         try {
           props.add((namesOnly) ? new HierarchicalProperty(name) : getProperty(name));
         } catch (Exception exc) {
-          // System.out.println("Unhandled exception. " + exc.getMessage());
-          // exc.printStackTrace();
+          if (LOG.isDebugEnabled())
+            LOG.error(exc.getMessage(), exc);
         }
       }
     }
@@ -127,6 +132,9 @@ public class CollectionResource extends GenericResource {
     return props;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
                                                      AccessDeniedException,
                                                      RepositoryException {
@@ -230,6 +238,9 @@ public class CollectionResource extends GenericResource {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isCollection() {
     return true;
   }
@@ -262,11 +273,10 @@ public class CollectionResource extends GenericResource {
 
   protected final URI childURI(String childName) {
     String childURI = identifier.toASCIIString() + "/" + TextUtil.escape(childName, '%', true);
-    // return URI.create(identifier.toASCIIString() + "/" + childName);
     return URI.create(childURI);
   }
 
-  // make a xml representation of the collection and serialize it to srteam
+  // make a xml representation of the collection and serialize it to stream
   public InputStream getContentAsStream(final String rootHref) throws IOException {
     final PipedOutputStream po = new PipedOutputStream();
     final PipedInputStream pi = new PipedInputStream(po);
@@ -306,15 +316,15 @@ public class CollectionResource extends GenericResource {
           writer.writeEndElement();
           writer.writeEndDocument();
         } catch (RepositoryException e) {
-          LOGGER.error("Error has occured : ", e);
+          LOG.error("Error has occured : ", e);
         } catch (XMLStreamException e) {
-          LOGGER.error("Error has occured while xml processing : ", e);
+          LOG.error("Error has occured while xml processing : ", e);
         } finally {
           try {
             po.flush();
             po.close();
           } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
           }
         }
       }

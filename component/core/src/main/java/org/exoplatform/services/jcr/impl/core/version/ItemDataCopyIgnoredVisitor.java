@@ -17,19 +17,19 @@
 package org.exoplatform.services.jcr.impl.core.version;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NodeDefinition;
-import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.OnParentVersionAction;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.DefaultItemDataCopyVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.log.ExoLogger;
@@ -37,8 +37,10 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS 14.12.2006
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataCopyIgnoredVisitor.java 12306 2008-03-24 10:25:55Z ksm $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: ItemDataCopyIgnoredVisitor.java 12306 2008-03-24 10:25:55Z ksm
+ *          $
  */
 public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
 
@@ -48,7 +50,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
 
   public ItemDataCopyIgnoredVisitor(NodeData context,
                                     InternalQName destNodeName,
-                                    NodeTypeManagerImpl nodeTypeManager,
+                                    NodeTypeDataManager nodeTypeManager,
                                     SessionDataManager dataManager,
                                     SessionChangesLog changes) {
     super(context, destNodeName, nodeTypeManager, dataManager, true);
@@ -67,9 +69,10 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
     if (curParent() == null) {
       NodeData existedParent = (NodeData) dataManager.getItemData(property.getParentIdentifier());
 
-      PropertyDefinition pdef = ntManager.findPropertyDefinition(property.getQPath().getName(),
-                                                                 existedParent.getPrimaryTypeName(),
-                                                                 existedParent.getMixinTypeNames());
+      PropertyDefinitionData pdef = ntManager.findPropertyDefinitions(property.getQPath().getName(),
+                                                                      existedParent.getPrimaryTypeName(),
+                                                                      existedParent.getMixinTypeNames())
+                                             .getAnyDefinition();
 
       if (pdef.getOnParentVersion() == OnParentVersionAction.IGNORE) {
         // parent is not exists as this copy context current parent
@@ -105,9 +108,9 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
     } else if (level > 0) {
       if (curParent() == null) {
         NodeData existedParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-        NodeDefinition ndef = ntManager.findNodeDefinition(node.getQPath().getName(),
-                                                           existedParent.getPrimaryTypeName(),
-                                                           existedParent.getMixinTypeNames());
+        NodeDefinitionData ndef = ntManager.findChildNodeDefinition(node.getQPath().getName(),
+                                                                    existedParent.getPrimaryTypeName(),
+                                                                    existedParent.getMixinTypeNames());
 
         // the node can be stored as IGNOREd in restore set, check an action
         if (ndef.getOnParentVersion() == OnParentVersionAction.IGNORE) {

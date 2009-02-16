@@ -2,22 +2,34 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.10.3-SNAPSHOT</version>
+    <version>1.11.1-SNAPSHOT</version>
   </parent>
   
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.component.core</artifactId>
   <packaging>jar</packaging>
-  <version>1.10.3-SNAPSHOT</version>
+  <version>1.11.1-SNAPSHOT</version>
   <name>eXo JCR Service core</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Service core component</description>
+  
+  <!-- repositories>
+  <repository>
+  <id>java.net</id>
+  <url>https://maven-repository.dev.java.net/nonav/repository</url>
+  <layout>legacy</layout>
+  </repository>
+  </repositories -->
   
   <pluginRepositories>
     <pluginRepository>
       <id>central</id>
       <url>http://repo1.maven.org/maven2</url>
     </pluginRepository>
+    <!-- pluginRepository>
+    <id>central</id>
+    <url>http://www.ibiblio.org/maven2</url>
+    </pluginRepository -->
   </pluginRepositories>
   
   <dependencies>
@@ -266,7 +278,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.0.8</version>
+      <version>5.0.5</version>
       <scope>compile</scope>
     </dependency>
     
@@ -340,8 +352,16 @@
     <scope>compile</scope>
     </dependency -->
     
-    <!-- H2 Database -->
+    <!-- Ingres Database (local repository) -->
     <!-- dependency>
+    <groupId>com.ingres.jdbc</groupId>
+    <artifactId>iijdbc</artifactId>
+    <version>9.2</version>
+    <scope>test</scope>
+    </dependency -->
+	
+	<!-- H2 Database -->
+	<!-- dependency>
     <groupId>com.h2database</groupId>
     <artifactId>h2</artifactId>
     <version>1.0.74</version>
@@ -453,13 +473,7 @@
               <includes>
                 <include>**/**/TestErrorMultithreading__.java</include>
                 <include>**/**/TestConcurrentItems__.java</include>
-                
-                <include>**/**/TestJDBCValueContentAddressStorageImpl__.java</include>
-                <include>**/**/TestCASableSimpleFileIOChannel__.java</include>
-                <include>**/**/TestCASableTreeFileIOChannel__.java</include>
 				<include>**/**/TestInvalidItemState__.java</include>
-				
-				<include>**/**/TestBulkDelete.java</include>
               </includes>
             </configuration>
           </execution>
@@ -489,9 +503,9 @@
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
                 <include>**/impl/**/Test*.java</include>
-                
               </includes>
               <excludes>
+                <exclude>**/TestRollbackBigFiles.java</exclude>
                 <exclude>**/TestErrorMultithreading.java</exclude>
                 <exclude>**/api/**/TestSameNameItems.java</exclude>
                 <exclude>**/api/**/TestVersionRestore.java</exclude>
@@ -503,7 +517,6 @@
                 <exclude>**/impl/**/TestSessionCleaner.java</exclude>
                 <exclude>**/impl/**/Base*.java</exclude>
                 <exclude>**/api/TestAll.java</exclude>
-                <!--exclude>**/usecases/**/TestDateBetween.java</exclude-->
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
                 <exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
                 <exclude>**/usecases/BaseUsecasesTest.java</exclude>

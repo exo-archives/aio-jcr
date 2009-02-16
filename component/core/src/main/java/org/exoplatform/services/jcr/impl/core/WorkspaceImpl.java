@@ -50,12 +50,13 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedWorkspace;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
@@ -86,7 +87,9 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   private final NamespaceRegistryImpl namespaceRegistry;
 
-  private final NodeTypeManagerImpl   nodeTypeManager;
+  // private final NodeTypeManager nodeTypeManager;
+
+  private final NodeTypeDataManager   nodeTypeManager;
 
   private final ObservationManager    observationManager;
 
@@ -104,7 +107,11 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     this.observationManager = observationManager;
 
     this.namespaceRegistry = (NamespaceRegistryImpl) container.getComponentInstanceOfType(NamespaceRegistry.class);
-    this.nodeTypeManager = ((NodeTypeManagerImpl) container.getComponentInstanceOfType(NodeTypeManager.class)).createWorkspaceNTManager(session);
+    // this.nodeTypeManager = ((NodeTypeManagerImpl)
+    // container.getComponentInstanceOfType(NodeTypeManagerImpl
+    // .class)).createWorkspaceNTManager(session);
+
+    this.nodeTypeManager = (NodeTypeDataManager) container.getComponentInstanceOfType(NodeTypeDataManager.class);
 
     QueryManagerFactory qf = (QueryManagerFactory) container.getComponentInstanceOfType(QueryManagerFactory.class);
     if (qf == null)
@@ -193,7 +200,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       throw new AccessDeniedException(e.getMessage());
     }
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
-                                     ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
+                                     ((NodeTypeImpl) srcNode.getPrimaryNodeType()).getQName());
 
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
                                           .getItem((NodeData) destParentNode.getData(),
@@ -211,7 +218,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     ItemDataCopyVisitor initializer = new ItemDataCopyVisitor((NodeData) destParentNode.getData(),
                                                               destNodePath.getName()
                                                                           .getInternalName(),
-                                                              getNodeTypeManager(),
+                                                              nodeTypeManager,
                                                               srcSession.getTransientNodesManager(),
                                                               false);
     srcNode.getData().accept(initializer);
@@ -223,7 +230,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   }
 
   /**
-   * @see javax.jcr.Workspace#getAccessibleWorkspaceNames
+   * {@inheritDoc}
    */
   public String[] getAccessibleWorkspaceNames() throws RepositoryException {
     RepositoryImpl rep = (RepositoryImpl) session.getRepository();
@@ -231,7 +238,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   }
 
   /**
-   * @see javax.jcr.Workspace#importXML
+   * {@inheritDoc}
    */
   public ContentHandler getImportContentHandler(String parentAbsPath, int uuidBehavior) throws PathNotFoundException,
                                                                                        ConstraintViolationException,
@@ -262,7 +269,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
                                                              .getTransactManager(),
                                                       session.getTransientNodesManager()
                                                              .getTransactManager(),
-                                                      getNodeTypeManager(),
+                                                      nodeTypeManager,
                                                       session.getLocationFactory(),
                                                       session.getValueFactory(),
                                                       getNamespaceRegistry(),
@@ -274,28 +281,31 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   }
 
   /**
-   * @see javax.jcr.Workspace#getName
+   * {@inheritDoc}
    */
   public String getName() {
     return name;
   }
 
   /**
-   * @see javax.jcr.Workspace#getNamespaceRegistry
+   * {@inheritDoc}
    */
   public NamespaceRegistry getNamespaceRegistry() throws RepositoryException {
     return namespaceRegistry;
   }
 
   /**
-   * @see javax.jcr.Workspace#getNodeTypeManager
+   * {@inheritDoc}
    */
-  public NodeTypeManagerImpl getNodeTypeManager() throws RepositoryException {
-    return nodeTypeManager;
+  public NodeTypeManager getNodeTypeManager() throws RepositoryException {
+    // incl Session mapping
+    return new NodeTypeManagerImpl(session.getLocationFactory(),
+                                   session.getValueFactory(),
+                                   nodeTypeManager);
   }
 
   /**
-   * @see javax.jcr.Workspace#getObservationManager
+   * {@inheritDoc}
    */
   public ObservationManager getObservationManager() throws UnsupportedRepositoryOperationException,
                                                    RepositoryException {
@@ -303,7 +313,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   }
 
   /**
-   * @see javax.jcr.Workspace#getQueryManager
+   * {@inheritDoc}
    */
   public QueryManager getQueryManager() throws RepositoryException {
     if (queryManager == null)
@@ -312,15 +322,14 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   }
 
   /**
-   * @see javax.jcr.Workspace#getSession
+   * {@inheritDoc}
    */
   public Session getSession() {
     return session;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Workspace#importXML(java.lang.String, java.io.InputStream, int)
+  /**
+   * {@inheritDoc}
    */
   public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
                                                                                PathNotFoundException,
@@ -335,11 +344,6 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedWorkspace#importXML(java.lang.String,
-   * java.io.InputStream, int, boolean)
-   */
   public void importXML(String parentAbsPath,
                         InputStream in,
                         int uuidBehavior,
@@ -355,10 +359,8 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     importXML(parentAbsPath, in, uuidBehavior, context);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedWorkspace#importXML(java.lang.String,
-   * java.io.InputStream, int, org.exoplatform.services.ext.action.InvocationContext)
+  /**
+   * {@inheritDoc}
    */
   public void importXML(String parentAbsPath,
                         InputStream in,
@@ -392,7 +394,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
                                                                                  .getTransactManager(),
                                                                           session.getTransientNodesManager()
                                                                                  .getTransactManager(),
-                                                                          getNodeTypeManager(),
+                                                                          nodeTypeManager,
                                                                           session.getLocationFactory(),
                                                                           session.getValueFactory(),
                                                                           getNamespaceRegistry(),
@@ -406,7 +408,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   }
 
   /**
-   * @see javax.jcr.Workspace#move
+   * {@inheritDoc}
    */
   public void move(String srcAbsPath, String destAbsPath) throws ConstraintViolationException,
                                                          VersionException,
@@ -443,7 +445,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       throw new AccessDeniedException(e.getMessage());
     }
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
-                                     ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
+                                     ((NodeTypeImpl) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
@@ -471,22 +473,13 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
                                                               destNodePath.getName()
                                                                           .getInternalName(),
-                                                              getNodeTypeManager(),
+                                                              nodeTypeManager,
                                                               session.getTransientNodesManager(),
                                                               true);
     srcNode.getData().accept(initializer);
 
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
-    //changes.addAll(initializer.getItemDeletedStates(true));
     changes.addAll(initializer.getAllStates());
-
-    // TODO remove it!
-    // Reindex same-name siblings on the parent after deletion
-//    changes.addAll(session.getTransientNodesManager()
-//                          .reindexSameNameSiblings(srcNode.nodeData(),
-//                                                   session.getTransientNodesManager()
-//                                                          .getTransactManager()));
-//    changes.addAll(initializer.getItemAddStates());
 
     session.getTransientNodesManager().getTransactManager().save(changes);
   }
@@ -549,7 +542,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     }
 
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
-                                     ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
+                                     ((NodeTypeImpl) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
@@ -575,7 +568,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     ItemDataCloneVisitor initializer = new ItemDataCloneVisitor((NodeData) destParentNode.getData(),
                                                                 destNodePath.getName()
                                                                             .getInternalName(),
-                                                                getNodeTypeManager(),
+                                                                nodeTypeManager,
                                                                 srcSession.getTransientNodesManager(),
                                                                 session.getTransientNodesManager(),
                                                                 removeExisting,
@@ -652,11 +645,12 @@ public class WorkspaceImpl implements ExtendedWorkspace {
         NodeData node = existedVersions.get(v);
 
         NodeData destParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-        NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version parent
+        NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version
+        // parent
         // it's a VH
         VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
                                                                               dataManager,
-                                                                              getNodeTypeManager());
+                                                                              nodeTypeManager);
 
         changesLog.addAll(v.restoreLog(destParent,
                                        node.getQPath().getName(),
@@ -691,7 +685,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
           NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier());
           VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
                                                                                 dataManager,
-                                                                                getNodeTypeManager());
+                                                                                nodeTypeManager);
 
           changesLog.addAll(v.restoreLog(destParent,
                                          node.getQPath().getName(),
@@ -722,6 +716,10 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   private RepositoryImpl repository() {
     return (RepositoryImpl) session.getRepository();
+  }
+
+  public NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
+    return nodeTypeManager;
   }
 
 }

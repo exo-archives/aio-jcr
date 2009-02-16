@@ -46,7 +46,6 @@ public class TwoMemberPriorityCheckerTest extends BaseTestCaseChecker {
             + minPriorityMember.getPort() + ReplicationTestService.Constants.BASE_URL + "/"
             + workingRepository + "/" + workingWorkspace + "/" + minPriorityMember.getLogin() + "/"
             + minPriorityMember.getPassword() + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.DISCONNECT_CLUSTER_NODE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(minPriorityMember);
@@ -70,8 +69,7 @@ public class TwoMemberPriorityCheckerTest extends BaseTestCaseChecker {
             + maxPriorityMember.getPort() + ReplicationTestService.Constants.BASE_URL + "/"
             + workingRepository + "/" + workingWorkspace + "/" + maxPriorityMember.getLogin() + "/"
             + maxPriorityMember.getPassword() + "/" + relPath + "/" + fileNameArray[i] + "/"
-            + fSize + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-            + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
+            + fSize + "/" + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
         String result = client.execute(url);
@@ -89,7 +87,6 @@ public class TwoMemberPriorityCheckerTest extends BaseTestCaseChecker {
             + minPriorityMember.getPort() + ReplicationTestService.Constants.BASE_URL + "/"
             + workingRepository + "/" + workingWorkspace + "/" + minPriorityMember.getLogin() + "/"
             + minPriorityMember.getPassword() + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.ALLOW_CONNECT;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(minPriorityMember);
@@ -115,7 +112,6 @@ public class TwoMemberPriorityCheckerTest extends BaseTestCaseChecker {
               + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
               + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
               + relPath + "/" + fileNameArray[i] + "/" + fSize + "/"
-              + ReplicationTestService.Constants.OPERATION_PREFIX
               + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
 
           BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member, 4000);

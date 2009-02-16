@@ -26,6 +26,7 @@ import java.sql.SQLException;
  * 26.03.2007
  * 
  * PgSQL convert all db object names to lower case, so respect it.
+ * Same as Ingres initializer.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

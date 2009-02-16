@@ -16,9 +16,6 @@
  */
 package org.exoplatform.services.jcr.aws.storage.sdb;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -29,11 +26,6 @@ import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import org.exoplatform.services.log.ExoLogger;
-
-import com.amazonaws.sdb.AmazonSimpleDBException;
-import com.amazonaws.sdb.model.Item;
-import com.amazonaws.sdb.model.QueryWithAttributesResponse;
-import com.amazonaws.sdb.model.QueryWithAttributesResult;
 
 /**
  * Created by The eXo Platform SAS.
@@ -48,7 +40,7 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
   /**
    * Container storage version of the implementation .
    */
-  public static final String                 CURRENT_STORAGE_VERSION = "1.0-b";
+  public static final String                 CURRENT_STORAGE_VERSION = "1.0-b2";
 
   /**
    * AWS access key parameter name.

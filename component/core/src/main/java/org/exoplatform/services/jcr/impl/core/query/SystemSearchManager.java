@@ -27,10 +27,10 @@ import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -38,7 +38,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: SystemSearchManager.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id: SystemSearchManager.java 13891 2008-05-05 16:02:30Z pnedonosko
+ *          $
  */
 public class SystemSearchManager extends SearchManager {
 
@@ -61,7 +62,7 @@ public class SystemSearchManager extends SearchManager {
 
   public SystemSearchManager(QueryHandlerEntry config,
                              NamespaceRegistryImpl nsReg,
-                             NodeTypeManagerImpl ntReg,
+                             NodeTypeDataManager ntReg,
                              WorkspacePersistentDataManager itemMgr,
                              DocumentReaderService service,
                              ConfigurationManager cfm) throws RepositoryException,
@@ -80,7 +81,7 @@ public class SystemSearchManager extends SearchManager {
 
   @Override
   public void start() {
-    
+
     // SystemSearchManager.start can be called twice
     // 1. From system WorkspaceContainer
     // 2. From RepositoryContainer
@@ -98,7 +99,7 @@ public class SystemSearchManager extends SearchManager {
   protected QueryHandlerContext createQueryHandlerContext(QueryHandler parentHandler) throws RepositoryConfigurationException {
     QueryHandlerContext context = new QueryHandlerContext(itemMgr,
                                                           Constants.SYSTEM_UUID,
-                                                          ntReg,
+                                                          nodeTypeDataManager,
                                                           nsReg,
                                                           parentHandler,
                                                           config.getIndexDir() + "_"

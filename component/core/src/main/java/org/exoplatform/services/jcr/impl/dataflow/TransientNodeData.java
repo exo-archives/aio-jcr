@@ -36,6 +36,10 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
+import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -46,7 +50,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TransientNodeData extends TransientItemData implements Comparable, MutableNodeData,
-    Externalizable {
+    Externalizable, JCRExternalizable {
 
   private static final long   serialVersionUID = -8675118546441306180L;
 
@@ -256,13 +260,17 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
     out.writeInt(orderNum);
 
-    out.writeInt(primaryTypeName.getAsString().getBytes().length);
-    out.write(primaryTypeName.getAsString().getBytes());
+    // primary type
+    byte[] ptbuf = primaryTypeName.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+    out.writeInt(ptbuf.length);
+    out.write(ptbuf);
 
+    // mixins
     out.writeInt(mixinTypeNames.length);
     for (int i = 0; i < mixinTypeNames.length; i++) {
-      out.writeInt(mixinTypeNames[i].getAsString().getBytes().length);
-      out.write(mixinTypeNames[i].getAsString().getBytes());
+      byte[] buf = mixinTypeNames[i].getAsString().getBytes(Constants.DEFAULT_ENCODING);
+      out.writeInt(buf.length);
+      out.write(buf);
     }
 
     acl.writeExternal(out);
@@ -273,17 +281,19 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
     orderNum = in.readInt();
 
+    // primary type
     byte[] buf;
-
     try {
       buf = new byte[in.readInt()];
       in.readFully(buf);
-      String sQName = new String(buf, Constants.DEFAULT_ENCODING);
-      primaryTypeName = InternalQName.parse(sQName);
+      primaryTypeName = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
     } catch (final IllegalNameException e) {
       throw new IOException(e.getMessage()) {
         private static final long serialVersionUID = 3489809179234435267L;
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Throwable getCause() {
           return e;
@@ -291,20 +301,21 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
       };
     }
 
+    // mixins
     int count = in.readInt();
-
     mixinTypeNames = new InternalQName[count];
-
     for (int i = 0; i < count; i++) {
       try {
         buf = new byte[in.readInt()];
         in.readFully(buf);
-        String sQName = new String(buf, Constants.DEFAULT_ENCODING);
-        mixinTypeNames[i] = InternalQName.parse(sQName);
+        mixinTypeNames[i] = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
       } catch (final IllegalNameException e) {
         throw new IOException(e.getMessage()) {
           private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
 
+          /**
+           * {@inheritDoc}
+           */
           @Override
           public Throwable getCause() {
             return e;
@@ -313,6 +324,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
       }
     }
 
+    // acl
     acl.readExternal(in);
   }
 
@@ -358,4 +370,78 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
   }
 
   // -----------------------------------------
+  
+  
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    super.readExternal(in);
+
+    orderNum = in.readInt();
+
+    // primary type
+    byte[] buf;
+    try {
+      buf = new byte[in.readInt()];
+      in.readFully(buf);
+      primaryTypeName = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
+    } catch (final IllegalNameException e) {
+      throw new IOException(e.getMessage()) {
+        private static final long serialVersionUID = 3489809179234435267L;
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Throwable getCause() {
+          return e;
+        }
+      };
+    }
+
+    // mixins
+    int count = in.readInt();
+    mixinTypeNames = new InternalQName[count];
+    for (int i = 0; i < count; i++) {
+      try {
+        buf = new byte[in.readInt()];
+        in.readFully(buf);
+        mixinTypeNames[i] = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
+      } catch (final IllegalNameException e) {
+        throw new IOException(e.getMessage()) {
+          private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
+
+          /**
+           * {@inheritDoc}
+           */
+          @Override
+          public Throwable getCause() {
+            return e;
+          }
+        };
+      }
+    }
+
+    // acl
+    acl.readExternal(in);
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    super.writeExternal(out);
+
+    out.writeInt(orderNum);
+
+    // primary type
+    byte[] ptbuf = primaryTypeName.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+    out.writeInt(ptbuf.length);
+    out.write(ptbuf);
+
+    // mixins
+    out.writeInt(mixinTypeNames.length);
+    for (int i = 0; i < mixinTypeNames.length; i++) {
+      byte[] buf = mixinTypeNames[i].getAsString().getBytes(Constants.DEFAULT_ENCODING);
+      out.writeInt(buf.length);
+      out.write(buf);
+    }
+
+    acl.writeExternal(out);
+  }
 }

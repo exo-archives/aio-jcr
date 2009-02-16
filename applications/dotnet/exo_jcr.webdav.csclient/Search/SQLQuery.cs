@@ -44,7 +44,7 @@ namespace exo_jcr.webdav.csclient.Search
 
         public void toXml(XmlTextWriter writer)
         {
-            writer.WriteStartElement(Constants.SQL_PREFIX, "sql",Constants.SQL_NAMESPACE);
+            writer.WriteStartElement(Constants.BASICSEARCH_PREFIX, "sql",Constants.BASICSEARCH_NAMESPACE);
             writer.WriteValue(query);
             writer.WriteEndElement();
         }

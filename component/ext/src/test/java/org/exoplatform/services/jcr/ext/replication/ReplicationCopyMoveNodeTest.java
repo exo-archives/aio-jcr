@@ -23,6 +23,9 @@ import java.util.Calendar;
 
 import javax.jcr.Node;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
  * 28.02.2007 10:59:36
@@ -31,6 +34,8 @@ import javax.jcr.Node;
  */
 
 public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
+  
+  private static final Log      log = ExoLogger.getLogger(ReplicationCopyMoveNodeTest.class);
 
   public void testSessionMove() throws Exception {
 

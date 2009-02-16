@@ -22,14 +22,16 @@ import java.util.Stack;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.nodetype.NodeDefinition;
-import javax.jcr.nodetype.PropertyDefinition;
+import javax.jcr.ValueFactory;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.OnParentVersionAction;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -41,7 +43,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -62,20 +63,26 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
 
   private final Stack<NodeData>     contextNodes;
 
-  private final NodeTypeManagerImpl ntManager;
+  private final NodeTypeDataManager ntManager;
 
   private final PlainChangesLog     changesLog;
 
   private final SessionDataManager  dataManager;
 
+  private final ValueFactory        valueFactory;
+
   public FrozenNodeInitializer(NodeData frozen,
                                SessionDataManager dataManager,
-                               NodeTypeManagerImpl ntManager,
-                               PlainChangesLog changesLog) throws RepositoryException {
+                               NodeTypeDataManager ntManager,
+                               PlainChangesLog changesLog,
+                               ValueFactory valueFactory
+
+  ) throws RepositoryException {
     super(dataManager);
     this.dataManager = dataManager;
     this.ntManager = ntManager;
     this.changesLog = changesLog;
+    this.valueFactory = valueFactory;
     this.contextNodes = new Stack<NodeData>();
     this.contextNodes.push(frozen);
   }
@@ -121,9 +128,10 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     } else {
       NodeData parent = (NodeData) dataManager.getItemData(property.getParentIdentifier());
 
-      PropertyDefinition pdef = ntManager.findPropertyDefinition(qname,
-                                                                 parent.getPrimaryTypeName(),
-                                                                 parent.getMixinTypeNames());
+      PropertyDefinitionData pdef = ntManager.findPropertyDefinitions(qname,
+                                                                      parent.getPrimaryTypeName(),
+                                                                      parent.getMixinTypeNames())
+                                             .getAnyDefinition();
 
       int action = pdef.getOnParentVersion();
 
@@ -141,15 +149,24 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
       } else if (action == OnParentVersionAction.INITIALIZE) {
         // 8.2.11.3 INITIALIZE
         // On checkin of N, a new P will be created and placed in version
-        // storage as a child of VN. The new P will be initialized just as it would
+        // storage as a child of VN. The new P will be initialized just as it
+        // would
         // be if created normally in a workspace
         if (pdef.isAutoCreated()) {
           if (pdef.getDefaultValues() != null && pdef.getDefaultValues().length > 0) {
             // to use default values
             values.clear();
-            for (Value defValue : pdef.getDefaultValues()) {
-              TransientValueData defData = ((BaseValue) defValue).getInternalData();
-              values.add(defData.createTransientCopy());
+            for (String defValue : pdef.getDefaultValues()) {
+              TransientValueData defData;
+              if (PropertyType.UNDEFINED == pdef.getRequiredType()) {
+                defData = ((BaseValue) valueFactory.createValue(defValue)).getInternalData();
+              } else {
+                defData = ((BaseValue) valueFactory.createValue(defValue, pdef.getRequiredType())).getInternalData();
+              }
+              // TransientValueData defData = ((BaseValue)
+              // defValue).getInternalData();
+              // values.add(defData.createTransientCopy());
+              values.add(defData);
             }
           } else if (ntManager.isNodeType(Constants.NT_HIERARCHYNODE,
                                           parent.getPrimaryTypeName(),
@@ -161,7 +178,8 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
                                                          .getStorageDataManager()
                                                          .getCurrentTime()));
           }
-        } // else... just as it would be if created normally in a workspace (sure with value data)
+        } // else... just as it would be if created normally in a workspace
+        // (sure with value data)
         frozenProperty = TransientPropertyData.createPropertyData(currentNode(),
                                                                   qname,
                                                                   property.getType(),
@@ -194,10 +212,13 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     InternalQName qname = node.getQPath().getName();
 
     NodeData parent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-    NodeDefinition pdef = ntManager.findNodeDefinition(qname,
-                                                       parent.getPrimaryTypeName(),
-                                                       parent.getMixinTypeNames());
-    int action = pdef.getOnParentVersion();
+    NodeDefinitionData ndef = ntManager.findChildNodeDefinition(qname,
+                                                                parent.getPrimaryTypeName(),
+                                                                parent.getMixinTypeNames());
+    if (ndef == null) {
+      throw new ConstraintViolationException("Definition not found for " + qname.getAsString());
+    }
+    int action = ndef.getOnParentVersion();
 
     if (log.isDebugEnabled())
       log.debug("Entering node " + node.getQPath().getAsString() + ", "
@@ -286,7 +307,8 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
       // On checkin of N, a new node C will be created and placed in version
       // storage as a child of VN. This new C will be initialized by some
       // procedure defined for that type of child node.
-      // [PN] 10.04.06 Creatimg simply an new node with same name and same node type
+      // [PN] 10.04.06 Creatimg simply an new node with same name and same node
+      // type
       frozenNode = TransientNodeData.createNodeData(currentNode(),
                                                     qname,
                                                     node.getPrimaryTypeName(),

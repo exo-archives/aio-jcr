@@ -25,7 +25,8 @@ import javax.jcr.observation.EventListenerIterator;
 
 import org.apache.commons.logging.Log;
 
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -36,9 +37,9 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
@@ -197,10 +198,12 @@ public class ActionLauncher implements ItemsPersistenceListener {
       }
     }
 
-    NodeTypeManagerImpl ntManager = userSession.getWorkspace().getNodeTypeManager();
-
+    NodeTypeDataManager ntManager = userSession.getWorkspace().getNodeTypesHolder();
+    LocationFactory locationFactory = userSession.getLocationFactory();
     for (int i = 0; i < criteria.getNodeTypeName().length; i++) {
-      ExtendedNodeType criteriaNT = (ExtendedNodeType) ntManager.getNodeType(criteria.getNodeTypeName()[i]);
+      InternalQName name = locationFactory.parseJCRName(criteria.getNodeTypeName()[i])
+                                          .getInternalName();
+      NodeTypeData criteriaNT = ntManager.findNodeType(name);
       InternalQName[] testQNames;
       if (criteriaNT.isMixin()) {
         testQNames = node.getMixinTypeNames();
@@ -208,7 +211,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
         testQNames = new InternalQName[1];
         testQNames[0] = node.getPrimaryTypeName();
       }
-      if (ntManager.isNodeType(criteriaNT.getQName(), testQNames))
+      if (ntManager.isNodeType(criteriaNT.getName(), testQNames))
         return true;
     }
     return false;

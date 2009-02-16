@@ -22,12 +22,12 @@ import java.util.List;
 /**
  * Created by The eXo Platform SAS.<br/> NodeType value object
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id: NodeTypeValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class NodeTypeValue {
-
+public final class NodeTypeValue {
   protected String                        name;
 
   protected boolean                       mixin;
@@ -53,8 +53,7 @@ public class NodeTypeValue {
   }
 
   /**
-   * @param declaredSupertypeNames
-   *          The declaredSupertypeNames to set.
+   * @param declaredSupertypeNames The declaredSupertypeNames to set.
    */
   public void setDeclaredSupertypeNames(List<String> declaredSupertypeNames) {
     this.declaredSupertypeNames = declaredSupertypeNames;
@@ -68,8 +67,7 @@ public class NodeTypeValue {
   }
 
   /**
-   * @param mixin
-   *          The mixin to set.
+   * @param mixin The mixin to set.
    */
   public void setMixin(boolean mixin) {
     this.mixin = mixin;
@@ -83,8 +81,7 @@ public class NodeTypeValue {
   }
 
   /**
-   * @param name
-   *          The name to set.
+   * @param name The name to set.
    */
   public void setName(String name) {
     this.name = name;
@@ -98,8 +95,7 @@ public class NodeTypeValue {
   }
 
   /**
-   * @param orderableChild
-   *          The orderableChild to set.
+   * @param orderableChild The orderableChild to set.
    */
   public void setOrderableChild(boolean orderableChild) {
     this.orderableChild = orderableChild;
@@ -113,8 +109,7 @@ public class NodeTypeValue {
   }
 
   /**
-   * @param primaryItemName
-   *          The primaryItemName to set.
+   * @param primaryItemName The primaryItemName to set.
    */
   public void setPrimaryItemName(String primaryItemName) {
     this.primaryItemName = primaryItemName;
@@ -128,8 +123,8 @@ public class NodeTypeValue {
   }
 
   /**
-   * @param declaredChildNodeDefinitionNames
-   *          The declaredChildNodeDefinitionNames to set.
+   * @param declaredChildNodeDefinitionNames The
+   *          declaredChildNodeDefinitionNames to set.
    */
   public void setDeclaredChildNodeDefinitionValues(List<NodeDefinitionValue> declaredChildNodeDefinitionValues) {
     this.declaredChildNodeDefinitionValues = declaredChildNodeDefinitionValues;
@@ -143,8 +138,8 @@ public class NodeTypeValue {
   }
 
   /**
-   * @param declaredPropertyDefinitionNames
-   *          The declaredPropertyDefinitionNames to set.
+   * @param declaredPropertyDefinitionNames The declaredPropertyDefinitionNames
+   *          to set.
    */
   public void setDeclaredPropertyDefinitionValues(List<PropertyDefinitionValue> declaredPropertyDefinitionValues) {
     this.declaredPropertyDefinitionValues = declaredPropertyDefinitionValues;
@@ -238,7 +233,8 @@ public class NodeTypeValue {
         if (p.getRequiredNodeTypeNames() != null) {
           fixStringsList(p.getRequiredNodeTypeNames());
           if (p.getRequiredNodeTypeNames().size() == 0) {
-            // Fixing field requiredNodeTypeNames according the specefication (6.7.14) for
+            // Fixing field requiredNodeTypeNames according the specefication
+            // (6.7.14) for
             // NodeDefinition
             List<String> defNotEmptyArray = new ArrayList<String>();
             defNotEmptyArray.add("nt:base");
