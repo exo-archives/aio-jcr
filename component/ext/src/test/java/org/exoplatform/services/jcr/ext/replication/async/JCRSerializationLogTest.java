@@ -32,9 +32,9 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.externalizable.JCRObjectInputImpl;
-import org.exoplatform.services.jcr.ext.replication.async.externalizable.JCRObjectOutputImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.JCRObjectOutputImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.JCRObjectInputImpl;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:

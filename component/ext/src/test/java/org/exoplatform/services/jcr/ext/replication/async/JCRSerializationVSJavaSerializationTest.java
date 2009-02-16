@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Random;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.externalizable.JCRObjectInputImpl;
-import org.exoplatform.services.jcr.ext.replication.async.externalizable.JCRObjectOutputImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.JCRObjectOutputImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.JCRObjectInputImpl;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
