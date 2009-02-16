@@ -34,6 +34,7 @@ import javax.jcr.nodetype.NodeType;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -46,7 +47,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak
@@ -267,7 +267,7 @@ public class DataReader {
       if (repository != null)
         log.info("--->>> perository");
 
-      session = repository.login(credentials, sWorkspace);
+      session = (SessionImpl) repository.login(credentials, sWorkspace);
       if (session != null)
         log.info("--->>> session");
 

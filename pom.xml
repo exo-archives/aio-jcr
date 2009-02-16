@@ -12,10 +12,12 @@
   <name>eXo JCR Config</name>
   <version>1.10.3-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.3-SNAPSHOT</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.3-SNAPSHOT</developerConnection>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</developerConnection>
   </scm>
+
   <modules>
     <module>component/core</module>
     <module>component/ext</module>
@@ -30,20 +32,27 @@
     <module>frameworks/web</module>
     <module>frameworks/ftpclient</module>
 
+    <module>connectors/ejb/webdav2_1</module>
+    <module>connectors/ejb/webdav3_0</module>
+    <module>connectors/rmiadapter</module>
+    <module>connectors/jca</module>
+
     <module>applications/config</module>
     <module>applications/java/web/samples/browser</module>
     <module>applications/java/web/samples/fckeditor</module>
     <module>applications/java/web/webdav</module>
     <module>applications/java/web/rest</module>
 
-    <module>connectors/jca</module>
-
     <module>applications/java/web/ear</module>
     <module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
 
-    <!-- module>applications/java/standalone/openofficeplugin</module -->
-    <!-- module>applications/jcr-console</module -->
+    <module>applications/java/standalone/openofficeplugin</module>
+    <module>applications/java/standalone/samples/repoload</module>
+    <module>applications/java/web/console</module>
+
+    <module>benchmark</module>
+
     <!-- module>site</module -->
   </modules>
   <dependencies>
@@ -86,6 +95,7 @@
         </includes>
       </resource>
     </resources>
+
     <testResources>
       <testResource>
         <directory>src/test/java</directory>
@@ -235,6 +245,7 @@
           </dependency>
         </dependencies>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
@@ -248,55 +259,68 @@
       </plugin>
     </plugins>
   </build>
+
   <reporting>
-     <plugins>
-       <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-checkstyle-plugin</artifactId>
-           <configuration>
-             <configLocation>${exo.projects.directory.config}/exo-checkstyle-checker.xml</configLocation>
-             <suppressionsLocation>exo-checkstyle-suppressions.xml</suppressionsLocation>
-           </configuration>
-         </plugin>
-     </plugins>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+        <configLocation>${exo.projects.directory.config}/exo-checkstyle-checker.xml</configLocation>
+          <suppressionsLocation>exo-checkstyle-suppressions.xml</suppressionsLocation>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.0-beta-8</version>
+        <configuration>
+          <arguments>-Dmaven.test.skip=true</arguments>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
+          <goals>install</goals>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+          <reportOutputDirectory>target/javadoc</reportOutputDirectory>
+          <maxmemory>512m</maxmemory>
+          <minmemory>256m</minmemory>
+        </configuration>
+      </plugin>
+    </plugins>
   </reporting>
 
   <repositories>
-    <repository>
+    <!--repository>
       <id>maven.org</id>
       <url>http://repo1.maven.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
     <repository>
       <id>ibiblio.org</id>
       <url>http://www.ibiblio.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
+    </repository>
+    <repository>
+      <id>exo-vietnam</id>
+      <url>http://vnserver.exoplatform.org/maven2</url>
     </repository>
     <repository>
       <id>objectweb.org</id>
       <url>http://maven.objectweb.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
     <repository>
       <id>objectweb.org-snapshot</id>
       <url>http://maven.objectweb.org/maven2-snapshot/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
+    </repository -->
     <repository>
       <id>java.net</id>
-      <url>https://maven-repository.dev.java.net/nonav/repository/</url>
+      <url>https://maven-repository.dev.java.net/nonav/repository</url>
       <layout>legacy</layout>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
   </repositories>
 

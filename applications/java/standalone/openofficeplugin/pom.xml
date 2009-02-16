@@ -133,7 +133,7 @@
 		<execution>
 	      <phase>compile</phase>
 	      <goals>
-			  <goal>assembly</goal>
+                <goal>assembly</goal>
 	      </goals>
 	    </execution>
 	  </executions>

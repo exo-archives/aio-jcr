@@ -2228,7 +2228,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       if (parentPath != null) {
         // get by parent and name
         qpath = QPath.makeChildPath(parentPath, QPathEntry.parse(getAttribute(atts, NAME)));
-        parentId = pid; // TODO pid = Constants.ROOT_PARENT_UUID
+        parentId = pid;
       } else {
         // get by id
         if (Constants.ROOT_PARENT_UUID.equals(pid)) {
