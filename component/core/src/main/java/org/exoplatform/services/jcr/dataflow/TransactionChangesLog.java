@@ -28,6 +28,10 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -36,7 +40,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @version $Id: TransactionChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class TransactionChangesLog implements CompositeChangesLog, Externalizable {
+public class TransactionChangesLog implements CompositeChangesLog, Externalizable, JCRExternalizable {
 
   private static final long       serialVersionUID = 4866736965040228027L;
 
@@ -238,4 +242,31 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
       changesLogs.add((PlainChangesLogImpl) in.readObject());
   }
   // ------------------ [ END ] ------------------
+
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    if (in.readInt() == 1) {
+      byte[] buf = new byte[in.readInt()];
+      in.readFully(buf);
+      systemId = new String(buf, Constants.DEFAULT_ENCODING);
+    }
+
+    int listSize = in.readInt();
+    for (int i = 0; i < listSize; i++)
+      changesLogs.add((PlainChangesLogImpl) in.readObject());
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    if (systemId != null) {
+      out.writeInt(1);
+      out.writeInt(systemId.getBytes().length);
+      out.write(systemId.getBytes());
+    } else {
+      out.writeInt(-1);
+    }
+
+    int listSize = changesLogs.size();
+    out.writeInt(listSize);
+    for (int i = 0; i < listSize; i++)
+      out.writeObject((JCRExternalizable)changesLogs.get(i));
+  }
 }

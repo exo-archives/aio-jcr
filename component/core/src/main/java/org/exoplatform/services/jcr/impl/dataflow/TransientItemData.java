@@ -28,6 +28,10 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.MutableItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -36,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: TransientItemData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public abstract class TransientItemData implements MutableItemData, Externalizable {
+public abstract class TransientItemData implements MutableItemData, Externalizable, JCRExternalizable {
   
   protected static final Log          LOG         = ExoLogger.getLogger("jcr.TransientItemData");
   
@@ -191,6 +195,59 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     }
 
     persistedVersion = in.readInt();
+  }
+  
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    byte[] buf;
+
+    try {
+      buf = new byte[in.readInt()];
+      in.readFully(buf);
+      String sQPath = new String(buf, Constants.DEFAULT_ENCODING);
+      qpath = QPath.parse(sQPath);
+    } catch (final IllegalPathException e) {
+      throw new IOException("Deserialization error. " + e) {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Throwable getCause() {
+          return e;
+        }
+      };
+    }
+
+    buf = new byte[in.readInt()];
+    in.readFully(buf);
+    identifier = new String(buf);
+
+    int isNull = in.readInt();
+    if (isNull == NOT_NULL_VALUE) {
+      buf = new byte[in.readInt()];
+      in.readFully(buf);
+      parentIdentifier = new String(buf);
+    }
+
+    persistedVersion = in.readInt();
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    byte[] buf = qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+    out.writeInt(buf.length);
+    out.write(buf);
+
+    out.writeInt(identifier.getBytes().length);
+    out.write(identifier.getBytes());
+
+    if (parentIdentifier != null ) {
+      out.writeInt(NOT_NULL_VALUE);
+      out.writeInt(parentIdentifier.getBytes().length);
+      out.write(parentIdentifier.getBytes());
+    } else 
+      out.writeInt(NULL_VALUE);
+
+    out.writeInt(persistedVersion);
   }
 
 }

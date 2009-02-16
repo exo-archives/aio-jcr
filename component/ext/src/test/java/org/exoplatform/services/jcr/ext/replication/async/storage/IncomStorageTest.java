@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
@@ -26,12 +25,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -40,12 +36,10 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.jgroups.stack.IpAddress;
 

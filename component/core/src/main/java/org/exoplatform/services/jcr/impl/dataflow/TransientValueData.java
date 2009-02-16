@@ -46,6 +46,10 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 
 /**
  * Created by The eXo Platform SAS.<br/>
@@ -53,7 +57,7 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  * @author Gennady Azarenkov
  * @version $Id: TransientValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TransientValueData extends AbstractValueData implements Externalizable {
+public class TransientValueData extends AbstractValueData implements Externalizable, JCRExternalizable {
 
   private static final long serialVersionUID = -5280857006905550884L;
 
@@ -636,5 +640,29 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void setStream(InputStream in) {
     this.spooled = false;
     this.tmpStream = in;
+  }
+
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    int type = in.readInt();
+
+    if (type == 1) {
+      data = new byte[in.readInt()];
+      in.readFully(data);
+    }
+    orderNumber = in.readInt();
+    maxBufferSize = in.readInt();
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    if (this.isByteArray()) {
+      out.writeInt(1);
+      int f = data.length;
+      out.writeInt(f);
+      out.write(data);
+    } else {
+      out.writeInt(2);
+    }
+    out.writeInt(orderNumber);
+    out.writeInt(maxBufferSize);
   }
 }

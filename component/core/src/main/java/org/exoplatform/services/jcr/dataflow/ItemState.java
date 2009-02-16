@@ -25,6 +25,10 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -33,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: ItemState.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class ItemState implements Externalizable {
+public class ItemState implements Externalizable, JCRExternalizable {
 
   private static final long   serialVersionUID  = 7967457831325761318L;
 
@@ -352,6 +356,20 @@ public class ItemState implements Externalizable {
     isPersisted = in.readBoolean();
     eventFire = in.readBoolean();
     data = (ItemData) in.readObject();
+  }
+
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    state = in.readInt();
+    isPersisted = in.readBoolean();
+    eventFire = in.readBoolean();
+    data = (ItemData) in.readObject();
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    out.writeInt(state);
+    out.writeBoolean(isPersisted);
+    out.writeBoolean(eventFire);
+    out.writeObject((JCRExternalizable) data);
   }
 
 }

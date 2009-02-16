@@ -44,9 +44,13 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.IdGenerator;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRExternalizable;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectInput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.JCRObjectOutput;
+import org.exoplatform.services.jcr.util.jcrexternalizable.UnknownClassIdException;
 
 public class TransientNodeData extends TransientItemData implements Comparable, MutableNodeData,
-    Externalizable {
+    Externalizable, JCRExternalizable {
 
   private static final long   serialVersionUID = -8675118546441306180L;
 
@@ -366,4 +370,78 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
   }
 
   // -----------------------------------------
+  
+  
+  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    super.readExternal(in);
+
+    orderNum = in.readInt();
+
+    // primary type
+    byte[] buf;
+    try {
+      buf = new byte[in.readInt()];
+      in.readFully(buf);
+      primaryTypeName = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
+    } catch (final IllegalNameException e) {
+      throw new IOException(e.getMessage()) {
+        private static final long serialVersionUID = 3489809179234435267L;
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Throwable getCause() {
+          return e;
+        }
+      };
+    }
+
+    // mixins
+    int count = in.readInt();
+    mixinTypeNames = new InternalQName[count];
+    for (int i = 0; i < count; i++) {
+      try {
+        buf = new byte[in.readInt()];
+        in.readFully(buf);
+        mixinTypeNames[i] = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
+      } catch (final IllegalNameException e) {
+        throw new IOException(e.getMessage()) {
+          private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
+
+          /**
+           * {@inheritDoc}
+           */
+          @Override
+          public Throwable getCause() {
+            return e;
+          }
+        };
+      }
+    }
+
+    // acl
+    acl.readExternal(in);
+  }
+
+  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    super.writeExternal(out);
+
+    out.writeInt(orderNum);
+
+    // primary type
+    byte[] ptbuf = primaryTypeName.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+    out.writeInt(ptbuf.length);
+    out.write(ptbuf);
+
+    // mixins
+    out.writeInt(mixinTypeNames.length);
+    for (int i = 0; i < mixinTypeNames.length; i++) {
+      byte[] buf = mixinTypeNames[i].getAsString().getBytes(Constants.DEFAULT_ENCODING);
+      out.writeInt(buf.length);
+      out.write(buf);
+    }
+
+    acl.writeExternal(out);
+  }
 }
