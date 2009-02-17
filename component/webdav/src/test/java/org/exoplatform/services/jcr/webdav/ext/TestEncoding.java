@@ -16,11 +16,8 @@
  */
 package org.exoplatform.services.jcr.webdav.ext;
 
-import javax.servlet.http.HttpServlet;
 import javax.ws.rs.core.HttpHeaders;
 
-import org.apache.bcel.generic.NEW;
-import org.apache.tools.ant.taskdefs.condition.Http;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.common.http.client.NVPair;
