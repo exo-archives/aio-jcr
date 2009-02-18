@@ -516,6 +516,8 @@
                 <exclude>**/impl/**/TestWorkspaceRestore.java</exclude>
                 <exclude>**/impl/**/TestSessionCleaner.java</exclude>
                 <exclude>**/impl/**/Base*.java</exclude>
+                <exclude>**/impl/**/TestJCRSerializationStream.java</exclude>
+                <exclude>**/impl/**/TestJCRSerializationVersionRestore.java</exclude>
                 <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
                 <exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
