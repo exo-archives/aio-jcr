@@ -27,6 +27,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -37,6 +38,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -97,7 +99,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  * @version $Id: $
  */
 
-@Path("/jcr")
+@Path("jcr")
 public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   /**
@@ -267,7 +269,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     repoPath = normalizePath(repoPath);
 
     try {
-      String serverURI = uriInfo.getBaseUri().toString() + "/jcr/" + repoName;
+      String serverURI = uriInfo.getBaseUriBuilder()
+                                .path(getClass())
+                                .path(repoName)
+                                .build()
+                                .toString();
 
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
 
@@ -414,8 +420,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
           }
         }
       }
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-          + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUriBuilder()
+                          .path(getClass())
+                          .path(repoName)
+                          .path(workspaceName(repoPath))
+                          .build()
+                          .toString();
       return new GetCommand().get(session, path(repoPath), version, uri, ranges);
 
     } catch (PathNotFoundException exc) {
@@ -441,8 +451,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-          + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUriBuilder()
+                          .path(getClass())
+                          .path(repoName)
+                          .path(workspaceName(repoPath))
+                          .build()
+                          .toString();
       return new HeadCommand().head(session, path(repoPath), uri);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
@@ -574,7 +588,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     repoPath = normalizePath(repoPath);
 
     try {
-      String serverURI = uriInfo.getBaseUri().toString() + "/jcr/" + repoName;
+      String serverURI = uriInfo.getBaseUriBuilder()
+                                .path(getClass())
+                                .path(repoName)
+                                .build()
+                                .toString();
 
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
 
@@ -599,8 +617,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         delete(repoName, destPath, lockTokenHeader, ifHeader);
       } else {
         Session session = session(repoName, workspaceName(repoPath), null);
-        String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-            + workspaceName(repoPath);
+        String uri = uriInfo.getBaseUriBuilder()
+                            .path(getClass())
+                            .path(repoName)
+                            .path(workspaceName(repoPath))
+                            .build()
+                            .toString();
         Response prpfind = new PropFindCommand().propfind(session,
                                                           destNodePath,
                                                           body,
@@ -639,7 +661,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("OPTIONS " + path);
     }
 
-    // List<ResourceDescriptor> descriptors = resourceBinder.getAllDescriptors();
+    // List<ResourceDescriptor> descriptors =
+    // resourceBinder.getAllDescriptors();
     // for (int i = 0; i < descriptors.size(); i++) {
     // ResourceDescriptor descriptor = descriptors.get(i);
     //
@@ -665,7 +688,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         + "<exo:xpath xmlns:exo=\"http://exoplatform.com/jcr\"/>";
 
     return Response.ok()
-                   .header(ExtHttpHeaders.ALLOW, /*allowCommands*/ALLOW)
+                   .header(ExtHttpHeaders.ALLOW, /* allowCommands */ALLOW)
                    .header(ExtHttpHeaders.DAV, "1, 2, ordered-collections")
                    .header(ExtHttpHeaders.DASL, DASL_VALUE)
                    .header(ExtHttpHeaders.MSAUTHORVIA, "DAV")
@@ -690,8 +713,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-          + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUriBuilder()
+                          .path(getClass())
+                          .path(repoName)
+                          .path(workspaceName(repoPath))
+                          .build()
+                          .toString();
       return new OrderPatchCommand().orderPatch(session, path(repoPath), body, uri);
     } catch (Exception exc) {
       log.error(exc.getMessage(), exc);
@@ -714,8 +741,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-          + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUriBuilder()
+                          .path(getClass())
+                          .path(repoName)
+                          .path(workspaceName(repoPath))
+                          .build()
+                          .toString();
       Depth depth = new Depth(depthHeader);
       return new PropFindCommand().propfind(session, path(repoPath), body, depth.getIntValue(), uri);
     } catch (NoSuchWorkspaceException exc) {
@@ -745,8 +776,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-          + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUriBuilder()
+                          .path(getClass())
+                          .path(repoName)
+                          .path(workspaceName(repoPath))
+                          .build()
+                          .toString();
       return new PropPatchCommand(nullResourceLocks).propPatch(session,
                                                                path(repoPath),
                                                                body,
@@ -827,8 +862,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       Depth depth = new Depth(depthHeader);
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-          + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUriBuilder()
+                          .path(getClass())
+                          .path(repoName)
+                          .path(workspaceName(repoPath))
+                          .build()
+                          .toString();
       return new ReportCommand().report(session, path(repoPath), body, depth, uri);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
@@ -854,8 +893,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
-          + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUriBuilder()
+                          .path(getClass())
+                          .path(repoName)
+                          .path(workspaceName(repoPath))
+                          .build()
+                          .toString();
       return new SearchCommand().search(session, body, uri);
 
     } catch (NoSuchWorkspaceException exc) {
@@ -956,7 +999,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   protected String path(String repoPath) {
-    String path = repoPath.substring(workspaceName(repoPath).length()/*, repoPath.length()*/);
+    String path = repoPath.substring(workspaceName(repoPath).length()/*
+                                                                      * ,
+                                                                      * repoPath
+                                                                      * .
+                                                                      * length()
+                                                                      */);
 
     if (!"".equals(path)) {
       return path;
@@ -970,11 +1018,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     if (lockTokenHeader != null) {
       lockTokenHeader = lockTokenHeader.substring(1, lockTokenHeader.length() - 1);
-      
-      if (lockTokenHeader.contains("opaquelocktoken")){
+
+      if (lockTokenHeader.contains("opaquelocktoken")) {
         lockTokenHeader = lockTokenHeader.split(":")[1];
       }
-      
+
       lockTokens.add(lockTokenHeader);
     }
 
