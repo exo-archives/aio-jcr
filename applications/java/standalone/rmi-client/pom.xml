@@ -13,9 +13,9 @@
 
   <dependencies>
 
-    <!-- JCR API -->
+    
     <dependency>
-      <groupId>jcr</groupId>
+      <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
       <version>1.0</version>
       <scope>compile</scope>
