@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.priority;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -186,5 +187,39 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    */
   public boolean isAllOnline() {
     return otherParticipants.size() == currentParticipants.size();
+  }
+  
+  /**
+   * hasDuplicatePriority.
+   *
+   * @return boolean
+   *           when duplicate the priority then return 'true' 
+   */
+  public final boolean hasDuplicatePriority() {
+    List<Integer> other = new ArrayList<Integer>(currentParticipants.values());
+    
+    if (other.contains(ownPriority))
+      return true;
+
+    for (int i = 0; i < other.size(); i++) {
+      int pri = other.get(i);
+      List<Integer> oth = new ArrayList<Integer>(other);
+      oth.remove(i);
+
+      if (oth.contains(pri))
+        return true;
+    }
+
+    return false;
+  }
+  
+  /**
+   * getOtherPriorities.
+   *
+   * @return List<Integer>
+   *           the list of priorities of other participants.
+   */
+  public final List<Integer> getOtherPriorities() {
+    return new ArrayList<Integer>(currentParticipants.values()); 
   }
 }

@@ -668,6 +668,12 @@ public class AsyncReplication implements Startable {
     return hasLocalSorageError;
   }
 
+  /**
+   * hasDuplicatePriority.
+   *
+   * @return boolean
+   *           when duplicate the priority then return 'true' 
+   */
   private boolean hasChangesSaveError(String repositoryName) throws RepositoryConfigurationException,
                                                             RepositoryException,
                                                             IOException {
