@@ -642,6 +642,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public List<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
 
     try {
+
       IBindingFactory factory = BindingDirectory.getFactory(NodeTypeValuesList.class);
       IUnmarshallingContext uctx = factory.createUnmarshallingContext();
       NodeTypeValuesList nodeTypeValuesList = (NodeTypeValuesList) uctx.unmarshalDocument(xml, null);
@@ -765,7 +766,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
           // + "' -- it's not necessary at this runtime";
           LOG.warn("Node type " + ntvalue.getName()
               + " is not register due to DISABLE control policy");
-          return null;
+          break;
         }
       }
 
