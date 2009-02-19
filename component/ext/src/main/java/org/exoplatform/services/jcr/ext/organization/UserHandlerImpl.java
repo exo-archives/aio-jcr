@@ -29,6 +29,8 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 import org.apache.commons.logging.Log;
+
+import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.log.ExoLogger;
@@ -295,7 +297,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * {@inheritDoc}
    */
-  public PageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
+  public LazyPageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
     Session session = service.getStorageSession();
     try {
       return findUsers(session, query);
@@ -315,7 +317,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * @throws Exception
    *           throw exception if the service cannot access the database
    */
-  private PageList findUsers(Session session, org.exoplatform.services.organization.Query query) throws Exception {
+  private LazyPageList findUsers(Session session, org.exoplatform.services.organization.Query query) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.findUsers method is started");
     }
@@ -349,7 +351,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
           }
         }
       }
-      return new ObjectPageList(types, 10);
+
+      return new LazyPageList(new UserListAccess(types), 10);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find users", e);
@@ -359,7 +362,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * {@inheritDoc}
    */
-  public PageList findUsersByGroup(String groupId) throws Exception {
+  public LazyPageList findUsersByGroup(String groupId) throws Exception {
     Session session = service.getStorageSession();
     try {
       return findUsersByGroup(session, groupId);
@@ -379,7 +382,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * @throws Exception
    *           If method can not get access to the database
    */
-  private PageList findUsersByGroup(Session session, String groupId) throws Exception {
+  private LazyPageList findUsersByGroup(Session session, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.findUsersByGroup method is started");
     }
@@ -397,10 +400,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
         users.add(readObjectFromNode(membs.nextNode().getParent()));
       }
-      return new ObjectPageList(users, 10);
+      return new LazyPageList(new UserListAccess(users), 10);
 
     } catch (PathNotFoundException e) {
-      return new ObjectPageList(users, 10);
+      return new LazyPageList(new UserListAccess(users), 10);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find users by group '" + groupId + "'", e);
     }
@@ -409,7 +412,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * {@inheritDoc}
    */
-  public PageList getUserPageList(int pageSize) throws Exception {
+  public LazyPageList getUserPageList(int pageSize) throws Exception {
     Session session = service.getStorageSession();
     try {
       return getUserPageList(session, pageSize);
@@ -430,7 +433,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * @throws Exception
    *           If method can not get access to the database
    */
-  private PageList getUserPageList(Session session, int pageSize) throws Exception {
+  private LazyPageList getUserPageList(Session session, int pageSize) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.getUserPageList method is started");
     }
@@ -441,7 +444,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
         types.add(readObjectFromNode(uNodes.nextNode()));
       }
-      return new ObjectPageList(types, pageSize);
+      return new LazyPageList(new UserListAccess(types), pageSize);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not get user page list", e);
