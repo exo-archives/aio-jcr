@@ -34,8 +34,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.RootContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.frameworks.jcr.web.WebConstants;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -71,7 +72,7 @@ public class JCRBrowserFilter implements Filter {
                                                        .getAttribute(WebConstants.EXO_CONTAINER);
     if (container == null) {
       String portalName = httpRequest.getSession().getServletContext().getServletContextName();
-      container = RootContainer.getInstance().getPortalContainer(portalName);
+      container = ExoContainerContext.getCurrentContainer();
     }
 
     SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
@@ -81,13 +82,13 @@ public class JCRBrowserFilter implements Filter {
     try {
 
       if (ConversationState.getCurrent() != null) {
-      
+
         if (jcrBrowser != null && jcrBrowser.getNode() != null) {
           // navigate through JCR Repository
-  
+
           String repositoryName = (String) httpRequest.getParameter("repositoryName");
           String workspaceName = (String) httpRequest.getParameter("workspaceName");
-  
+
           // check if browser related to repository/workspace given in attrs
           if (repositoryName != null
               && !jcrBrowser.getRepository().getConfiguration().getName().equals(repositoryName)) {
@@ -146,16 +147,16 @@ public class JCRBrowserFilter implements Filter {
               }
             }
           }
-  
+
           if (jcrBrowser.getRepository() != null) {
-  
+
             if (workspaceName != null
                 && !jcrBrowser.getSession().getWorkspace().getName().equals(workspaceName)) {
               jcrBrowser.setSession(sessionProviderService.getSessionProvider(null)
                                                           .getSession(workspaceName,
                                                                       jcrBrowser.getRepository()));
             }
-  
+
             // Navigation
             String path = (String) httpRequest.getParameter("goParent");
             if (path != null) {
@@ -166,33 +167,33 @@ public class JCRBrowserFilter implements Filter {
                 jcrBrowser.setNode((Node) jcrBrowser.getSession().getItem(path));
               // else seems nothing changed in JCR navigation
             }
-            
+
             // Synchronization
             String doSynchronize = (String) httpRequest.getParameter("synchronize");
             if (doSynchronize != null && doSynchronize.equals("run")) {
               jcrBrowser.runSynchronization();
             }
-            
+
           }
         } else {
           // start from root node
-  
+
           ManageableRepository repository = repositoryService.getDefaultRepository();
-  
+
           Session jcrSession = sessionProviderService.getSessionProvider(null)
                                                      .getSession(repository.getConfiguration()
                                                                            .getDefaultWorkspaceName(),
                                                                  repository);
-  
+
           if (jcrBrowser == null) {
             jcrBrowser = new JCRBrowser();
             jcrBrowser.setRepositoryService(repositoryService);
           }
-  
+
           jcrBrowser.setRepository(repository);
           jcrBrowser.setSession(jcrSession); // and set node to a workspace root node
         }
-        
+
       } // conversation state check end
 
     } catch (NoSuchWorkspaceException e) {
