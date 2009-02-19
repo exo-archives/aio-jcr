@@ -34,7 +34,11 @@ import javax.jcr.Session;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.picocontainer.Startable;
+import org.xml.sax.SAXException;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValueParam;
@@ -45,8 +49,6 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
-import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS . <br/> Centralized collector for JCR based entities (services,
@@ -205,18 +207,21 @@ public class RegistryService extends Registry implements Startable {
 
     try {
       Session session = session(sessionProvider, repositoryService.getCurrentRepository());
-      Node node = session.getRootNode().getNode(entryRelPath);
 
-      // delete existing entry...
-      node.remove();
+      synchronized (session) {
+        Node node = session.getRootNode().getNode(entryRelPath);
 
-      // create same entry,
-      // [PN] no check we need here, as we have deleted this node before
-      // checkGroup(sessionProvider, fullParentPath);
-      session.importXML(parentFullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
+        // delete existing entry...
+        node.remove();
 
-      // save recreated changes
-      session.save();
+        // create same entry,
+        // [PN] no check we need here, as we have deleted this node before
+        // checkGroup(sessionProvider, fullParentPath);
+        session.importXML(parentFullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
+
+        // save recreated changes
+        session.save();
+      }
     } catch (IOException ioe) {
       throw new RepositoryException("Item " + parentFullPath + "can't be created " + ioe);
     } catch (TransformerException te) {

@@ -19,14 +19,17 @@ package org.exoplatform.services.jcr.ext.registry;
 import java.io.ByteArrayInputStream;
 
 import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.w3c.dom.Document;
+
+import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.security.ConversationState;
-import org.w3c.dom.Document;
 
 public class RegistryTest extends BaseStandaloneTest {
 
@@ -204,18 +207,65 @@ public class RegistryTest extends BaseStandaloneTest {
     // Note : the value with "_x"
     assertEquals("the_xvalue", entry.getDocument().getDocumentElement().getAttribute("name2"));
   }
-  
+
   public void testCreateEntry() throws Exception {
     RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                +"<CategoryData xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" " 
-                +"xmlns:jcr=\"http://www.jcp.org/jcr/1.0\"/>";
-    String [] groups = new String [] {"aaa", "bbb", "aAaA", "bBbB", "AAA", "BBB", "aaaa"};
-    for(String g : groups) {
+        + "<CategoryData xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
+        + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\"/>";
+    String[] groups = new String[] { "aaa", "bbb", "aAaA", "bBbB", "AAA", "BBB", "aaaa" };
+    for (String g : groups) {
       String path = RegistryService.EXO_APPLICATIONS + "/ApplicationRegistry" + "/" + g;
       regService.createEntry(sessionProviderService.getSessionProvider(null),
                              path,
                              RegistryEntry.parse(xml.getBytes()));
+    }
+  }
+
+  /**
+   * Throws exception when recreates entry continuous
+   **/
+  public void testRecreateEntryContinuous() throws Exception {
+    RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
+    String groupPath = RegistryService.EXO_USERS + "/navigations";
+
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    DocumentBuilder db = dbf.newDocumentBuilder();
+    Document document = db.parse(new ByteArrayInputStream(NAV_XML.getBytes()));
+
+    // Creates entry
+    regService.createEntry(sessionProviderService.getSessionProvider(null),
+                           groupPath,
+                           new RegistryEntry(document));
+    // Re-creates entry continuous
+    for (int i = 0; i < 20; i++) {
+      new Thread(new Recreater(container, sessionProviderService.getSessionProvider(null), document)).start();
+    }
+  }
+
+  static public class Recreater implements Runnable {
+    StandaloneContainer container;
+
+    SessionProvider     sessionProvider;
+
+    Document            document;
+
+    public Recreater(StandaloneContainer container,
+                     SessionProvider sessionProvider,
+                     Document document) {
+      this.container = container;
+      this.sessionProvider = sessionProvider;
+      this.document = document;
+    }
+
+    public void run() {
+      RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
+      String groupPath = RegistryService.EXO_USERS + "/navigations";
+      try {
+        regService.recreateEntry(sessionProvider, groupPath, new RegistryEntry(document));
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
     }
   }
 }
