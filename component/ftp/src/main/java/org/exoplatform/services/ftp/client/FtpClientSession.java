@@ -51,7 +51,7 @@ public interface FtpClientSession {
 
   void setUserName(String userName);
 
-  void setPassword(String userPass);
+  void setPassword(String userPass) throws Exception ;
 
   FtpDataTransiver getDataTransiver();
 

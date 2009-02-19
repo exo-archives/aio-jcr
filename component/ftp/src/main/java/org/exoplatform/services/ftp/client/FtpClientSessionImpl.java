@@ -22,19 +22,27 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 
-import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.frameworks.jcr.JCRAppSessionFactory;
-import org.exoplatform.frameworks.jcr.SingleRepositorySessionFactory;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.ftp.FtpServer;
 import org.exoplatform.services.ftp.data.FtpDataTransiver;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.Authenticator;
+import org.exoplatform.services.security.ConversationRegistry;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Credential;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.services.security.PasswordCredential;
+import org.exoplatform.services.security.UsernameCredential;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
@@ -59,7 +67,7 @@ public class FtpClientSessionImpl implements FtpClientSession {
 
   // private PrintStream outPrintStream;
 
-  private JCRAppSessionFactory sessionFactory;
+  private SessionProvider      sessionFactory;
 
   private ArrayList<String>    path         = new ArrayList<String>();
 
@@ -76,6 +84,8 @@ public class FtpClientSessionImpl implements FtpClientSession {
   private String               prevParams   = "";
 
   private String               prevParamsEx = "";
+  
+  private String               userId;
 
   public FtpClientSessionImpl(FtpServer ftpServer, Socket clientSocket) throws Exception {
     this.ftpServer = ftpServer;
@@ -157,6 +167,8 @@ public class FtpClientSessionImpl implements FtpClientSession {
     if (sessionFactory != null) {
       sessionFactory.close();
     }
+    
+    this.unRegistrateIdentity();
   }
 
   public boolean isLogged() {
@@ -168,15 +180,17 @@ public class FtpClientSessionImpl implements FtpClientSession {
     logged = false;
   }
 
-  public void setPassword(String userPass) {
+  public void setPassword(String userPass) throws Exception {
     this.userPass = userPass;
 
     if (sessionFactory != null) {
       sessionFactory.close();
     }
 
-    Credentials credentials = new SimpleCredentials(userName, userPass.toCharArray());
-    sessionFactory = new SingleRepositorySessionFactory(ftpServer.getRepository(), credentials);
+    ConversationState state = getConversationState();
+    ConversationState.setCurrent(state);
+    this.sessionFactory = new SessionProvider(state);
+    
     logged = true;
   }
 
@@ -267,7 +281,7 @@ public class FtpClientSessionImpl implements FtpClientSession {
   }
 
   public Session getSession(String workspaceName) throws Exception {
-    Session curSession = sessionFactory.getSession(workspaceName);
+    Session curSession = sessionFactory.getSession(workspaceName, ftpServer.getRepository());
     curSession.refresh(false);
     return curSession;
   }
@@ -312,4 +326,34 @@ public class FtpClientSessionImpl implements FtpClientSession {
     }
   }
 
+  
+  private ConversationState getConversationState() throws Exception {
+    ExoContainer container = ExoContainerContext.getCurrentContainer();
+    Authenticator authenticator = (Authenticator) container.getComponentInstanceOfType(Authenticator.class);
+    
+    IdentityRegistry identityRegistry = (IdentityRegistry) container.getComponentInstanceOfType(IdentityRegistry.class);
+
+    if (authenticator == null)
+      throw new LoginException("No Authenticator component found, check your configuration");
+
+    Credential[] credentials = new Credential[]{ new UsernameCredential(this.userName), new PasswordCredential(this.userPass) };
+
+    this.userId = authenticator.validateUser(credentials);
+    Identity identity = authenticator.createIdentity(this.userId);
+    identityRegistry.register(identity);
+    
+    ConversationState state = new ConversationState(identity);
+    // keep subject as attribute in ConversationState
+    state.setAttribute(ConversationState.SUBJECT, identity.getSubject());
+    
+    return state;
+  }
+  
+  private void unRegistrateIdentity() {
+    ConversationState.setCurrent(null);
+    
+    ExoContainer container = ExoContainerContext.getCurrentContainer();
+    IdentityRegistry identityRegistry = (IdentityRegistry) container.getComponentInstanceOfType(IdentityRegistry.class);
+    identityRegistry.unregister(this.userId);
+  }
 }

@@ -33,7 +33,7 @@ public class CmdPass extends FtpCommandImpl {
     isNeedLogin = false;
   }
 
-  public void run(String[] params) throws IOException {
+  public void run(String[] params) throws Exception {
     if ((!FtpConst.Commands.CMD_USER.equals(clientSession().getPrevCommand()))
         || (null == clientSession().getPrevParams())) {
       reply(String.format(FtpConst.Replyes.REPLY_503_PASS));
