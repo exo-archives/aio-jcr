@@ -7,8 +7,9 @@ public class TestUpload extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
-	
-	public void testRunUpload() {
+	public void testRunUpload(){
+}	
+	public void _testRunUpload() {
 		// Usecase of:
 		// java -Duser.language=en -Duser.region=us \
 		//			-jar repoload-1.0.jar \
