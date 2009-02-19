@@ -29,6 +29,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.registry.RESTRegistryTest.DummyContainerResponseWriter;
+import org.exoplatform.services.jcr.ext.script.groovy.GroovyScript2RestLoader.ScriptMetadata;
 import org.exoplatform.services.rest.RequestHandler;
 import org.exoplatform.services.rest.impl.ContainerRequest;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -98,9 +99,9 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
   public void testRemoteAccessGetMetatData() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    headers.putSingle("Accept", MediaType.APPLICATION_FORM_URLENCODED);
+    headers.putSingle("Accept", MediaType.APPLICATION_JSON);
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI("/script/groovy/db1/ws/testRoot/script"),
+                                                 new URI("/script/groovy/db1/ws/testRoot/script/meta"),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
@@ -108,9 +109,9 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    MultivaluedMap<String, String> data = (MultivaluedMap<String, String>) cres.getEntity();
-    assertEquals("script/groovy", data.getFirst("jcr:mimeType"));
-    assertTrue(Boolean.valueOf(data.getFirst("exo:autoload")));
+    ScriptMetadata data = (ScriptMetadata) cres.getEntity();
+    assertEquals("script/groovy", data.getMediaType());
+    assertTrue(Boolean.valueOf(data.getLoad()));
   }
 
   public void testRemoteAccessAutoload() throws Exception {
@@ -179,7 +180,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Accept", "script/groovy");
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI("/script/groovy/db1/ws/testRoot/script"),
+                                                 new URI("/script/groovy/db1/ws/testRoot/script/src"),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
