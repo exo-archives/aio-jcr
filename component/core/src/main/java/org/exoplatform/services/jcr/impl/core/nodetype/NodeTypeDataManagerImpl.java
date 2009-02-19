@@ -1393,6 +1393,15 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       for (String uuid : nodes) {
         ItemData item = persister.getDataManager().getItemData(uuid);
         if (item != null && item.isNode()) {
+          if (!(item instanceof TransientNodeData))
+            item = new TransientNodeData(item.getQPath(),
+                                         item.getIdentifier(),
+                                         item.getPersistedVersion(),
+                                         ((NodeData) item).getPrimaryTypeName(),
+                                         ((NodeData) item).getMixinTypeNames(),
+                                         ((NodeData) item).getOrderNumber(),
+                                         ((NodeData) item).getParentIdentifier(),
+                                         ((NodeData) item).getACL());
           changesLog.add(new ItemState(item, ItemState.MIXIN_CHANGED, false, null));
         }
       }

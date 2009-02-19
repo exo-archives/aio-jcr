@@ -262,6 +262,7 @@ public class NodeTypeDataPersister {
         changesLog.add(ItemState.createAddedState(exoMixinTypes))
                   .add(ItemState.createAddedState(exoOwner))
                   .add(ItemState.createAddedState(exoPerms));
+
         changesLog.add(new ItemState(jcrNodetypes, ItemState.MIXIN_CHANGED, false, null));
       }
 

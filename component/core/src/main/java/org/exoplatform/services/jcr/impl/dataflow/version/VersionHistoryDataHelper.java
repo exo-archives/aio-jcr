@@ -245,6 +245,16 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     NodeData versionStorageData = (NodeData) dataManager.getItemData(rootItem,
                                                                      new QPathEntry(Constants.JCR_VERSIONSTORAGE,
                                                                                     1)); // Constants
+    // Make versionStorageData transient
+    if (!(versionStorageData instanceof TransientNodeData))
+      versionStorageData = new TransientNodeData(versionStorageData.getQPath(),
+                                                 versionStorageData.getIdentifier(),
+                                                 versionStorageData.getPersistedVersion(),
+                                                 versionStorageData.getPrimaryTypeName(),
+                                                 versionStorageData.getMixinTypeNames(),
+                                                 versionStorageData.getOrderNumber(),
+                                                 versionStorageData.getParentIdentifier(),
+                                                 versionStorageData.getACL());
     // .
     // JCR_VERSION_STORAGE_PATH
 

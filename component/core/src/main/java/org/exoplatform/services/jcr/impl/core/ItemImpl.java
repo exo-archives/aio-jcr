@@ -305,14 +305,18 @@ public abstract class ItemImpl implements Item {
                                node.getPrimaryTypeName(),
                                node.getMixinTypeNames())) {
 
-        PropertyData vhpd = (PropertyData) dataManager.getItemData(node,
-                                                                   new QPathEntry(Constants.JCR_VERSIONHISTORY,
-                                                                                  1));
-        try {
-          String vhID = new String(vhpd.getValues().get(0).getAsByteArray());
-          dataManager.removeVersionHistory(vhID, null, data.getQPath());
-        } catch (IOException e) {
-          throw new RepositoryException(e);
+        ItemData vhpd = dataManager.getItemData(node, new QPathEntry(Constants.JCR_VERSIONHISTORY,
+                                                                     1));
+        if (vhpd != null && !vhpd.isNode()) {
+          try {
+            String vhID = new String(((PropertyData) vhpd).getValues().get(0).getAsByteArray());
+            dataManager.removeVersionHistory(vhID, null, data.getQPath());
+          } catch (IOException e) {
+            throw new RepositoryException(e);
+          }
+        } else {
+          throw new RepositoryException("Version history not found for "
+              + node.getQPath().getAsString());
         }
       }
     }
@@ -570,11 +574,13 @@ public abstract class ItemImpl implements Item {
           if (!am.hasPermission(acl, PermissionType.READ, session.getUserState().getIdentity())) {
             throw new AccessDeniedException("Can not delete node " + refNode.getQPath() + " ("
                 + refNode.getIdentifier() + ")"
-                + ". It is currently the target of a REFERENCE property and " + refProp.getQPath().getAsString());
+                + ". It is currently the target of a REFERENCE property and "
+                + refProp.getQPath().getAsString());
           }
           throw new ReferentialIntegrityException("Can not delete node " + refNode.getQPath()
               + " (" + refNode.getIdentifier() + ")"
-              + ". It is currently the target of a REFERENCE property " + refProp.getQPath().getAsString());
+              + ". It is currently the target of a REFERENCE property "
+              + refProp.getQPath().getAsString());
         }
       }
     }

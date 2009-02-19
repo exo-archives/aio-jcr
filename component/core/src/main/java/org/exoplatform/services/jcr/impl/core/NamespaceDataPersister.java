@@ -228,8 +228,18 @@ public class NamespaceDataPersister {
       for (PropertyData propertyData : childs) {
         plainChangesLogImpl.add(ItemState.createDeletedState(copyPropertyData(propertyData), true));
       }
+      prefData = new TransientNodeData(prefData.getQPath(),
+                                       prefData.getIdentifier(),
+                                       prefData.getPersistedVersion(),
+                                       ((NodeData) prefData).getPrimaryTypeName(),
+                                       ((NodeData) prefData).getMixinTypeNames(),
+                                       ((NodeData) prefData).getOrderNumber(),
+                                       ((NodeData) prefData).getParentIdentifier(),
+                                       ((NodeData) prefData).getACL());
+      plainChangesLogImpl.add(ItemState.createDeletedState(prefData, true));
+
     }
-    plainChangesLogImpl.add(ItemState.createDeletedState(prefData, true));
+
     dataManager.save(new TransactionChangesLog(plainChangesLogImpl));
   }
 
