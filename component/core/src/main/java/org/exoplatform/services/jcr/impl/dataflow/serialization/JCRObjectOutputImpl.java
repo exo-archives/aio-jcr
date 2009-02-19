@@ -32,29 +32,60 @@ import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdExcepti
  */
 public class JCRObjectOutputImpl implements JCRObjectOutput {
 
+  /**
+   * The output stream.
+   */
   private final OutputStream out;
 
+  /**
+   * JCRObjectOutputImpl  constructor.
+   *
+   * @param out
+   *          the OutputStream.          
+   */
   public JCRObjectOutputImpl(OutputStream out) {
     this.out = new BufferedOutputStream(out, 1024*2);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void close() throws IOException {
     flush();
     out.close();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void flush() throws IOException {
     out.flush();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void write(byte[] b) throws IOException {
     out.write(b);
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void write(byte[] b, int off, int len) throws IOException {
+    out.write(b, off, len);    
+  }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeBoolean(boolean v) throws IOException {
     out.write(v ? 1 : 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeInt(int v) throws IOException {
     out.write((v >>> 24) & 0xFF);
     out.write((v >>> 16) & 0xFF);
@@ -62,6 +93,9 @@ public class JCRObjectOutputImpl implements JCRObjectOutput {
     out.write((v >>> 0) & 0xFF);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeLong(long v) throws IOException {
 
     byte[] writeBuffer = new byte[8];
@@ -76,6 +110,9 @@ public class JCRObjectOutputImpl implements JCRObjectOutput {
     out.write(writeBuffer, 0, 8);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeObject(JCRExternalizable obj) throws IOException, UnknownClassIdException {
     writeInt(JCRExternlizableFactory.getObjectId(obj));
     obj.writeExternal(this);

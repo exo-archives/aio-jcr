@@ -648,7 +648,34 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     if (type == 1) {
       data = new byte[in.readInt()];
       in.readFully(data);
+    } else if (type == 2) {
+      long length = in.readLong();
+    
+      SpoolFile sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
+      FileOutputStream sfout = new FileOutputStream(sf);
+      int bSize = 1024 * 200; 
+      try {
+        byte[] buff = new byte[bSize];
+
+        sf.acquire(this);
+
+        for (; length >= bSize; length -= bSize) {
+          in.readFully(buff);
+          sfout.write(buff);
+        }
+
+        if (length > 0) {
+          buff = new byte[(int) length];
+          in.readFully(buff);
+          sfout.write(buff);
+        }
+      } finally {
+        sfout.close();
+      }
+
+      this.spoolFile = sf;
     }
+    
     orderNumber = in.readInt();
     maxBufferSize = in.readInt();
   }
@@ -661,6 +688,20 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       out.write(data);
     } else {
       out.writeInt(2);
+      
+      // write file content
+      long length = this.spoolFile.length();
+      out.writeLong(length);
+      InputStream in = new FileInputStream(spoolFile);
+      try {
+        byte[] buf = new byte[1024*200];
+        int l = 0;
+        while ((l = in.read(buf)) != -1) {
+          out.write(buf, 0, l);
+        }
+      } finally {
+        in.close();
+      }
     }
     out.writeInt(orderNumber);
     out.writeInt(maxBufferSize);

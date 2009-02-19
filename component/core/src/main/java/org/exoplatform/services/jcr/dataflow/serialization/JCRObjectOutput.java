@@ -46,6 +46,15 @@ public interface JCRObjectOutput {
    * @exception IOException If an I/O error has occurred.
    */
   public void write(byte b[]) throws IOException;
+  
+  /**
+   * Writes a sub array of bytes.
+   * @param b the data to be written
+   * @param off the start offset in the data
+   * @param len the number of bytes that are written
+   * @exception IOException If an I/O error has occurred.
+   */
+  public void write(byte b[], int off, int len) throws IOException;
 
   /**
    * Flushes the stream. This will write any buffered
