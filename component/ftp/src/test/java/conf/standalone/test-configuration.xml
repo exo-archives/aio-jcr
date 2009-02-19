@@ -5,7 +5,7 @@
     <init-params>
       <value-param>
         <name>command-port</name>
-        <value>2121</value>
+        <value>2122</value>
       </value-param>
       <value-param>
         <name>data-min-port</name>

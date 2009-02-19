@@ -42,7 +42,7 @@ public abstract class BaseFtpTest extends BaseStandaloneTest {
 
   protected String         host     = "localhost";
 
-  protected int            port     = 2121;
+  protected int            port     = 2122;
 
   protected BufferedReader inputCommand;
 
