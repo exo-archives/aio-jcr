@@ -26,12 +26,13 @@ public class ExportChangesPacket extends ChangesPacket {
 
   public ExportChangesPacket(int type,
                              int priority,
+                             long totalPacketsCount,
                              byte[] crc,
                              long timeStamp,
                              int fileCount,
                              long offset,
                              byte[] buffer) {
-    super(type, priority, crc, timeStamp, fileCount, offset, buffer);
+    super(type, priority, totalPacketsCount, crc, timeStamp, fileCount, offset, buffer);
   }
 
   /**

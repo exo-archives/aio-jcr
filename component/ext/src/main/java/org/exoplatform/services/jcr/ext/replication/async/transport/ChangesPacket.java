@@ -29,9 +29,14 @@ import java.io.ObjectOutput;
 public class ChangesPacket extends AbstractPacket {
 
   /**
-   * Time stamp.
+   * Count of packets ChangesLog separated to.
    */
-  private long   timeStamp;
+  private long   totalPacketsCount;
+
+  /**
+   * Id.
+   */
+  private long   id;
 
   /**
    * CRC.
@@ -56,25 +61,26 @@ public class ChangesPacket extends AbstractPacket {
   /**
    * Constructor.
    * 
-   * @param type
-   *          see AsyncPacketTypes
+   * @param type see AsyncPacketTypes
    * @param priority
    * @param crc
-   * @param timeStamp
+   * @param id
    * @param fileCount
    * @param offset
    * @param buffer
    */
   public ChangesPacket(int type,
                        int priority,
+                       long totalPacketsCount,
                        byte[] checksum,
-                       long timeStamp,
+                       long id,
                        int fileCount,
                        long offset,
                        byte[] buffer) {
     super(type, priority);
+    this.totalPacketsCount = totalPacketsCount;
     this.crc = checksum;
-    this.timeStamp = timeStamp;
+    this.id = id;
     this.fileCount = fileCount;
     this.offset = offset;
     this.buffer = buffer;
@@ -82,10 +88,13 @@ public class ChangesPacket extends AbstractPacket {
 
   /**
    * ChangesPacket constructor.
-   * 
    */
   public ChangesPacket() {
     super();
+  }
+
+  public long getPacketsCount() {
+    return this.totalPacketsCount;
   }
 
   public byte[] getCRC() {
@@ -93,7 +102,7 @@ public class ChangesPacket extends AbstractPacket {
   }
 
   public long getTimeStamp() {
-    return timeStamp;
+    return this.id;
   }
 
   public long getFileCount() {
@@ -114,8 +123,7 @@ public class ChangesPacket extends AbstractPacket {
   public void writeExternal(ObjectOutput out) throws IOException {
     super.writeExternal(out);
 
-    out.writeInt(priority);
-
+    out.writeLong(totalPacketsCount);
     if (crc != null) {
       out.writeInt(NOT_NULL_VALUE);
       out.writeInt(crc.length);
@@ -123,7 +131,7 @@ public class ChangesPacket extends AbstractPacket {
     } else {
       out.writeInt(NULL_VALUE);
     }
-    out.writeLong(timeStamp);
+    out.writeLong(id);
 
     out.writeInt(fileCount);
     out.writeLong(offset);
@@ -142,14 +150,14 @@ public class ChangesPacket extends AbstractPacket {
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     super.readExternal(in);
 
-    priority = in.readInt();
+    totalPacketsCount = in.readLong();
     if (in.readInt() == NOT_NULL_VALUE) {
       crc = new byte[in.readInt()];
       in.readFully(crc);
     } else {
       crc = null;
     }
-    timeStamp = in.readLong();
+    id = in.readLong();
 
     fileCount = in.readInt();
     offset = in.readLong();

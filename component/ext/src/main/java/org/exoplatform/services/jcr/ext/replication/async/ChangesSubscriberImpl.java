@@ -78,7 +78,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   protected final HashMap<Integer, Counter>     counterMap;
 
-  // protected List<MemberAddress> mergeDoneList = new ArrayList<MemberAddress>();
+  // protected List<MemberAddress> mergeDoneList = new
+  // ArrayList<MemberAddress>();
 
   protected final CountDownLatch                mergeBarier;
 
@@ -87,7 +88,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected HashMap<Integer, MemberChangesFile> incomChanges = new HashMap<Integer, MemberChangesFile>();
+  protected HashMap<Integer, IncomeDataContext> incomChanges = new HashMap<Integer, IncomeDataContext>();
 
   protected MergeWorker                         mergeWorker  = null;
 
@@ -208,7 +209,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       workerLog.info("Start merge of " + membersChanges.size() + " members");
       mergeManager.setLocalMember(localMember);
       result = mergeManager.merge(membersChanges.iterator());
-      
+
       workerLog.info("Local merge done");
     }
   }
@@ -264,63 +265,44 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   public void onChanges(ChangesPacket packet, Member member) {
 
-    switch (packet.getType()) {
-    case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
-      try {
-        LOG.info("Receiving member " + member.getName() + " changes.");
+    try {
+      LOG.info("Receiving member " + member.getName() + " changes.");
 
-        if (isInitialized()) {
-          // Fire START on non-Coordinator
-          LOG.info("START. Initiated by " + member.getName());
+      if (isInitialized()) {
+        // Fire START on non-Coordinator
+        LOG.info("START. Initiated by " + member.getName());
 
-          // Start first member waiter
-          firstChangesWaiter = new FirstChangesWaiter();
-          firstChangesWaiter.start();
+        // Start first member waiter
+        firstChangesWaiter = new FirstChangesWaiter();
+        firstChangesWaiter.start();
 
-          doStart();
+        doStart();
 
-          for (LocalEventListener syncl : listeners)
-            syncl.onStart(initializer.getOtherMembers());
-        }
+        for (LocalEventListener syncl : listeners)
+          syncl.onStart(initializer.getOtherMembers());
+      }
 
-        if (isStarted()) {
+      if (isStarted()) {
 
+        // context for current member
+
+        // TODO make Uniq key from TransmitterPriority and packet id (timeStamp)
+        IncomeDataContext mcf = incomChanges.get(packet.getTransmitterPriority());
+        if (mcf == null) {
+          // create new context
           RandomChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
                                                                   packet.getTimeStamp(),
                                                                   member);
-          cf.writeData(packet.getBuffer(), packet.getOffset());
 
-          incomChanges.put(packet.getTransmitterPriority(), new MemberChangesFile(cf, member));
-        } else
-          LOG.error("First data packet received but the Subscriber is not started. Packet from "
-              + member.getName() + " skipped");
-      } catch (Throwable e) {
-        doCancel();
-        LOG.error("Error of First data packet processing. Packet from " + member.getName(), e);
-      }
-      break;
-    }
-    case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
-      if (isStarted()) {
-        try {
-          MemberChangesFile mcf = incomChanges.get(packet.getTransmitterPriority());
-          mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
-        } catch (Throwable e) {
-          doCancel();
-          LOG.error("Error of Mid data packet processing. Packet from " + member.getName(), e);
+          mcf = new IncomeDataContext(cf, member, packet.getPacketsCount());
+          incomChanges.put(packet.getTransmitterPriority(), mcf);
         }
-      } else
-        LOG.error("Mid data packet received but the Subscriber is not started. Packet from "
-            + member.getName() + " skipped");
-      break;
-    }
-    case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
-      if (isStarted()) {
-        LOG.info("Member " + member.getName() + " changes received.");
 
-        try {
-          MemberChangesFile mcf = incomChanges.get(packet.getTransmitterPriority());
-          mcf.getChangesFile().finishWrite();
+        mcf.writeData(packet.getBuffer(), packet.getOffset());
+
+        // check is all packets received
+        if (mcf.isFinished()) {
+          incomChanges.remove(packet.getTransmitterPriority());
           incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
 
           Counter counter;
@@ -339,17 +321,19 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
               mergeWorker.start();
             } else
               LOG.error("Error, merge process laready activated.");
-
-        } catch (Throwable e) {
-          doCancel();
-          LOG.error("Error of Last data packet processing. Packet from " + member.getName(), e);
         }
+
       } else
-        LOG.error("Last data packet received but the Subscriber is not started. Packet from "
-            + member + " skipped");
-      break;
+        LOG.error("Changes packet received but the Subscriber is not started. Packet from "
+            + member.getName() + " skipped");
+    } catch (Throwable e) {
+      doCancel();
+      LOG.error("Error of ChangesFile data packet processing. Packet from " + member.getName(), e);
     }
-    }
+
+    // switch (packet.getType()) {
+    // case AsyncPacketTypes.CHANGESLOG_PACKET: {
+
   }
 
   private boolean isAllTransfered() {
@@ -397,7 +381,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     else
       LOG.warn("First changes member is not initialized");
 
-    // 04.02.2009, potentially can wait a long time for the merge end (cancel) - run it in
+    // 04.02.2009, potentially can wait a long time for the merge end (cancel) -
+    // run it in
     // independent thread.
     new Thread("Merge canceler, " + new Date()) {
       /**
@@ -434,7 +419,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   /**
    * Cancel merge process if the ones exists.
-   * 
    */
   private void cancelMerge() {
     if (mergeWorker != null) {
@@ -451,7 +435,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
       if (LOG.isDebugEnabled())
         LOG.debug("On Merge member " + member + ", done=" + mergeBarier.getCount() + " members="
-          + confMembersCount);
+            + confMembersCount);
 
       mergeBarier.countDown();
     } else
@@ -524,14 +508,21 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       LOG.warn("Not started or already stopped");
   }
 
+  /*
   private class MemberChangesFile {
     private final RandomChangesFile changesFile;
 
     private final Member            member;
 
-    public MemberChangesFile(RandomChangesFile changesFile, Member member) {
+    private final long              totalPackets;
+
+    private long                    savedPackets;
+
+    public MemberChangesFile(RandomChangesFile changesFile, Member member, long totalPackets) {
       this.changesFile = changesFile;
       this.member = member;
+      this.totalPackets = totalPackets;
+      this.savedPackets = 0;
     }
 
     public RandomChangesFile getChangesFile() {
@@ -541,11 +532,22 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     public Member getMember() {
       return member;
     }
-  }
+
+    public void writeData(ChangesPacket packet) throws IOException {
+      changesFile.writeData(packet.getBuffer(), packet.getOffset());
+      savedPackets++;
+      if (savedPackets == totalPackets)
+        changesFile.finishWrite();
+    }
+
+    public boolean isFinished() {
+      return (savedPackets == totalPackets);
+    }
+
+  }*/
 
   /**
    * FirstChangesWaiter will be canceled when no changes from member.
-   * 
    */
   private class FirstChangesWaiter extends Thread {
 

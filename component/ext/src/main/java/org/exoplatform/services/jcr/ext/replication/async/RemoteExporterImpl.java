@@ -18,16 +18,14 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
@@ -64,12 +62,14 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Current changesFile owner.
    */
-  protected Member                 changesOwner = null;
+  //protected Member                 changesOwner = null;
 
   /**
    * Changes file.
    */
-  private RandomChangesFile        changesFile  = null;
+  //private RandomChangesFile        changesFile  = null;
+  
+  private IncomeDataContext        context; 
 
   private CountDownLatch           latch;
 
@@ -117,36 +117,19 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     
     // check checksums
     try {
-      DigestInputStream dis = new DigestInputStream(changesFile.getInputStream(),
-                                                    MessageDigest.getInstance("MD5"));
+      
+      ChangesFile changesFile = context.getChangesFile();     
+      changesFile.validate();
 
-      try {
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = dis.read(buf)) > 0) {
-        }
-
-        if (!MessageDigest.isEqual(dis.getMessageDigest().digest(),
-                                   changesFile.getChecksum())) {
-          // TODO checksum don't work. fix it
-          // throw new RemoteExportException("Remote export failed. Received data corrupted.");
-        }
-
-      } finally {
-        dis.close();
-      }
-
-      if (changesOwner == null)
+      if (context.getMember() == null)
         throw new RemoteExportException("Changes owner (member) is not set");
 
       // return Iterator based on ChangesFile
-      return new ItemStatesStorage<ItemState>(changesFile, changesOwner);
+      return new ItemStatesStorage<ItemState>(changesFile, context.getMember());
     } catch (IOException e) {
       throw new RemoteExportException(e);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RemoteExportException(e);
     } finally {
-      changesFile = null; // TODO
+       context = null;// TODO
     }
   }
 
@@ -162,41 +145,28 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
    */
   public void onRemoteExport(RemoteExportResponce event) {
     try {
-      switch (event.getType()) {
-      case RemoteExportResponce.FIRST:
-        initChangesFile(event.getCRC(), event.getTimeStamp());
-        changesOwner = event.getMember();
-        changesFile.writeData(event.getBuffer(), event.getOffset());
-        break;
-
-      case RemoteExportResponce.MIDDLE:
-        initChangesFile(event.getCRC(), event.getTimeStamp());
-        changesFile.writeData(event.getBuffer(), event.getOffset());
-        break;
-
-      case RemoteExportResponce.LAST:
-        changesFile.finishWrite();
+      // get associated changes file
+      if (context == null) {
+        RandomChangesFile changesFile;
+        try {
+          changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + event.getTimeStamp()),
+                                              event.getCRC(),
+                                              event.getTimeStamp(),
+                                              resHolder);
+        } catch (NoSuchAlgorithmException e) {
+          throw new IOException (e.getMessage());
+        }
         
-        //check received file
-        //MessageDigest digest;
-        //try {
-        //  digest = MessageDigest.getInstance("MD5");
-        //} catch (NoSuchAlgorithmException e) {
-        //  throw new IOException(e.getMessage());
-        //}
-        //DigestInputStream in = new DigestInputStream(changesFile.getInputStream(),digest);
+        context = new IncomeDataContext(changesFile, event.getMember(), event.getPacketsCount());
         
-        //byte[] buf  = new byte[1024];
-        //while(in.read(buf)!=-1);
-        
-        //String d = new String(digest.digest(),"UTF-8");
-        
-        changesFile.validate();
-        
-        latch.countDown();
-        
-        break;
       }
+      
+      context.writeData(event.getBuffer(), event.getOffset());
+      
+      if(context.isFinished()){
+        latch.countDown();
+      }
+
     } catch (IOException e) {
       LOG.error("Cannot save export changes", e);
       exception = new RemoteExportException(e);
@@ -216,7 +186,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     latch.countDown();
   }
 
-  private void initChangesFile(byte[] crc, long timeStamp) throws IOException {
+ /* private void initChangesFile(byte[] crc, long timeStamp) throws IOException {
     if (this.changesFile == null) {
       
       try {
@@ -229,7 +199,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       }
       
     }
-  }
+  }*/
 
   /**
    * {@inheritDoc}

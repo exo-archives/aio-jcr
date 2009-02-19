@@ -28,13 +28,13 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
  */
 public class RemoteExportResponce {
 
-  public static final int FIRST  = 0;
+  //public static final int FIRST  = 0;
 
-  public static final int MIDDLE = 1;
+  //public static final int MIDDLE = 1;
 
-  public static final int LAST   = 2;
+  //public static final int LAST   = 2;
 
-  private final int       type;
+  //private final int       type;
 
   private final byte[]    buffer;
 
@@ -46,18 +46,22 @@ public class RemoteExportResponce {
 
   private final Member    member;
 
+  private final long packetsCount;
+  
   RemoteExportResponce(Member member,
-                       int type,
+                       //int type,
+                       long packetsCount,
                        byte[] crc,
                        long timeStamp,
                        byte[] buffer,
                        long offset) {
     this.member = member;
-    this.type = type;
+   // this.type = type;
     this.crc = crc;
     this.timeStamp = timeStamp;
     this.buffer = buffer;
     this.offset = offset;
+    this.packetsCount = packetsCount;
   }
 
   /**
@@ -67,9 +71,9 @@ public class RemoteExportResponce {
     return member;
   }
 
-  public int getType() {
-    return type;
-  }
+  //public int getType() {
+  //  return type;
+  //}
 
   public byte[] getCRC() {
     return crc;
@@ -86,4 +90,9 @@ public class RemoteExportResponce {
   public long getOffset() {
     return offset;
   }
+  
+  public long getPacketsCount() {
+    return this.packetsCount;
+  }
+  
 }

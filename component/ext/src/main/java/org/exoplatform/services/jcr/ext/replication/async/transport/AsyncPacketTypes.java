@@ -36,19 +36,20 @@ public final class AsyncPacketTypes {
    * EXPORT_CHANGES_FIRST_PACKET. 
    *   the pocket type for first packet to export data
    */
-  public static final int EXPORT_CHANGES_FIRST_PACKET          = 1;
-
+  //public static final int EXPORT_CHANGES_FIRST_PACKET          = 1;
+  public static final int EXPORT_CHANGES_PACKET          = 1; 
+  
   /**
    * EXPORT_CHANGES_MIDDLE_PACKET. 
    *   the pocket type for middle packet to export data
    */
-  public static final int EXPORT_CHANGES_MIDDLE_PACKET         = 2;
+ // public static final int EXPORT_CHANGES_MIDDLE_PACKET         = 2;
 
   /**
    * EXPORT_CHANGES_LAST_PACKET. 
    *   the pocket type for last packet to export data
    */
-  public static final int EXPORT_CHANGES_LAST_PACKET           = 3;
+ // public static final int EXPORT_CHANGES_LAST_PACKET           = 3;
 
   /**
    * GET_CHANGESLOG_UP_TO_DATE. 
@@ -76,19 +77,20 @@ public final class AsyncPacketTypes {
    * BINARY_CHANGESLOG_FIRST_PACKET. 
    *   the pocket type for first packet to binary Changeslog
    */
-  public static final int BINARY_CHANGESLOG_FIRST_PACKET       = 9;
+  //public static final int BINARY_CHANGESLOG_FIRST_PACKET       = 9;
+  public static final int CHANGESLOG_PACKET          = 9;
 
   /**
    * BINARY_CHANGESLOG_MIDDLE_PACKET. 
    *   the pocket type for middle packet to binary Changeslog
    */
-  public static final int BINARY_CHANGESLOG_MIDDLE_PACKET      = 10;
+//  public static final int BINARY_CHANGESLOG_MIDDLE_PACKET      = 10;
 
   /**
    * BINARY_CHANGESLOG_LAST_PACKET. 
    *   the pocket type for last packet to binary Changeslog
    */
-  public static final int BINARY_CHANGESLOG_LAST_PACKET        = 11;
+//  public static final int BINARY_CHANGESLOG_LAST_PACKET        = 11;
 
   /**
    * GET_STATE_NODE.
