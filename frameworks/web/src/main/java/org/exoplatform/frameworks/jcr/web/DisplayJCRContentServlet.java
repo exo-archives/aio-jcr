@@ -26,8 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.chain.Command;
+
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.RootContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.frameworks.jcr.command.web.GenericWebAppContext;
 import org.exoplatform.services.command.impl.CommandService;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -53,7 +54,7 @@ public class DisplayJCRContentServlet extends HttpServlet {
     ExoContainer container = (ExoContainer) getServletContext().getAttribute(WebConstants.EXO_CONTAINER);
     if (container == null) {
       String portalName = getServletContext().getServletContextName();
-      container = RootContainer.getInstance().getPortalContainer(portalName);
+      container = ExoContainerContext.getCurrentContainer();
     }
 
     SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
