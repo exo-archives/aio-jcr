@@ -301,10 +301,13 @@ public class ReplicationService implements Startable {
             ownName = (rIndex == 0 ? "cluster_node_1" : "cluster_node_2");
             participantsClusterList = new ArrayList<String>();
 
-            if (rIndex == 0)
+            if (rIndex == 0) {
               participantsClusterList.add("cluster_node_2");
-            else
+              this.ownPriority = 50;
+            } else {
               participantsClusterList.add("cluster_node_1");
+              this.ownPriority = 100;
+            }
           }
 
           for (int wIndex = 0; wIndex < workspaces.length; wIndex++)

@@ -84,6 +84,8 @@ public class BaseReplicationTest extends BaseStandaloneTest {
 
     valueFactory = session.getValueFactory();
     valueFactory2 = session2.getValueFactory();
+    
+    Thread.sleep(10000);
   }
 
   protected void tearDown() throws Exception {
