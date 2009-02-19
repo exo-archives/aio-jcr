@@ -24,8 +24,9 @@ import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.RootContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.frameworks.jcr.web.WebConstants;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -59,7 +60,7 @@ public class JCRContentFCKeditor extends FCKeditor {
       String portalName = req.getSession().getServletContext().getServletContextName(); // req.
       // getContextPath
       // ();
-      container = RootContainer.getInstance().getPortalContainer(portalName);
+      container = ExoContainerContext.getCurrentContainer();
     }
 
     SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
