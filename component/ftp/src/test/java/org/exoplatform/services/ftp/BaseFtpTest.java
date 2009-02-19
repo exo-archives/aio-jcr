@@ -40,7 +40,7 @@ public abstract class BaseFtpTest extends BaseStandaloneTest {
 
   protected String         password = "exo";
 
-  protected String         host     = "domU-12-31-39-00-41-D2.compute-1.internal";
+  protected String         host     = "localhost";
 
   protected int            port     = 2121;
 
