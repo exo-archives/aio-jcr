@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -53,20 +54,18 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 06.01.2009
+ * Created by The eXo Platform SAS. <br/>Date: 06.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestAsyncTransmitter.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class AsyncTransmitterTest extends AbstractTrasportTest {
 
-  private static Log          log         = ExoLogger.getLogger("ext.AsyncTransmitterTest");
+  private static Log           log         = ExoLogger.getLogger("ext.AsyncTransmitterTest");
 
-  private static final String CH_NAME     = "AsyncRepCh_Test";
+  private static final String  CH_NAME     = "AsyncRepCh_Test";
 
-  private static final String bindAddress = "127.0.0.1";
+  private static final String  bindAddress = "127.0.0.1";
 
   private CountDownLatchThread latch;
 
@@ -88,8 +87,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     List<TransactionChangesLog> srcChangesLogList = pl.pushChanges();
 
     for (TransactionChangesLog tcl : srcChangesLogList) {
-      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
-                                                                     .getTimeInMillis());
+      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(),
+                                                               Calendar.getInstance()
+                                                                       .getTimeInMillis());
 
       ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
 
@@ -179,7 +179,8 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     NodeData exportNode = (NodeData) ((NodeImpl) (root.getNode("test_node_l1").getNode("test_node_l2"))).getData();
     NodeData parentNode = (NodeData) dm.getItemData(exportNode.getParentIdentifier());
 
-    TesterRandomChangesFile cf = new TesterRandomChangesFile(("123123123123".getBytes()), System.currentTimeMillis());
+    TesterRandomChangesFile cf = new TesterRandomChangesFile(("123123123123".getBytes()),
+                                                             System.currentTimeMillis());
     ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
 
     // extract ItemStates
@@ -219,8 +220,8 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     // compare data
     Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null).getChanges(); // TODO
-                                                                                              // member
-    Iterator<ItemState> destChanges = new ItemStatesStorage<ItemState>(exportChangesReceiver.exportChangesFile,
+    // member
+    Iterator<ItemState> destChanges = new ItemStatesStorage<ItemState>(exportChangesReceiver.getExportChangesFile(),
                                                                        null).getChanges();
     // compare ChangesLog
 
@@ -360,57 +361,54 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
   private class ChangesPacketReceiver implements AsyncPacketListener {
 
-    private LinkedHashMap<Long, ChangesFile> map = new LinkedHashMap<Long, ChangesFile>();
+    private LinkedHashMap<Long, IncomeDataContext> map = new LinkedHashMap<Long, IncomeDataContext>();
 
-    private long                             totalFiles;
+    private long                                   totalFiles;
 
     public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ChangesPacket) {
+
         ChangesPacket packet = (ChangesPacket) p;
 
-        /*
         try {
-          switch (packet.getType()) {
-          case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-            log.info("BINARY_CHANGESLOG_FIRST_PACKET");
+          IncomeDataContext cont = map.get(packet.getTimeStamp());
 
-            TesterRandomChangesFile cf;
-              
-                cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
-              
+          if (cont == null) {
+            TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(),
+                                                                     packet.getTimeStamp());
+            cont = new IncomeDataContext(cf, null, packet.getPacketsCount());
+            map.put(packet.getTimeStamp(), cont);
+          }
 
-            cf.writeData(packet.getBuffer(), packet.getOffset());
+          cont.writeData(packet.getBuffer(), packet.getOffset());
 
-            totalFiles = packet.getFileCount();
-
-            map.put(packet.getTimeStamp(), cf);
-            break;
-
-          case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-            log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
-
-            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
-            cf.writeData(packet.getBuffer(), packet.getOffset());
-            break;
-
-          case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-            log.info("BINARY_CHANGESLOG_LAST_PACKET");
-
-            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
-            cf.finishWrite();
-
-            latch.countDown();
-
-            break;
+          if (cont.isFinished()) {
 
           }
+
+          /*
+           * try { switch (packet.getType()) { case
+           * AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
+           * log.info("BINARY_CHANGESLOG_FIRST_PACKET"); TesterRandomChangesFile
+           * cf = new TesterRandomChangesFile(packet.getCRC(),
+           * packet.getTimeStamp()); cf.writeData(packet.getBuffer(),
+           * packet.getOffset()); totalFiles = packet.getFileCount(); break;
+           * case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
+           * log.info("BINARY_CHANGESLOG_MIDDLE_PACKET"); cf =
+           * (TesterRandomChangesFile)map.get(packet.getTimeStamp());
+           * cf.writeData(packet.getBuffer(), packet.getOffset()); break; case
+           * AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
+           * log.info("BINARY_CHANGESLOG_LAST_PACKET"); cf =
+           * (TesterRandomChangesFile)map.get(packet.getTimeStamp());
+           * cf.finishWrite(); break; }
+           */
         } catch (IOException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
-        }catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
-        }*/
+        }
       } else
         fail("Han been received not ChangesPacket.");
     }
@@ -419,7 +417,17 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     }
 
     protected List<ChangesFile> getChangesFiles() {
-      return new ArrayList<ChangesFile>(map.values());
+
+      List<ChangesFile> list = new ArrayList<ChangesFile>();
+
+      Iterator<IncomeDataContext> vals = map.values().iterator();
+
+      while (vals.hasNext()) {
+        list.add(vals.next().getChangesFile());
+      }
+
+      // do we need to clean map?
+      return list;
     }
   }
 
@@ -508,49 +516,44 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   }
 
   private class ExportChangesReceiver implements AsyncPacketListener {
-    private TesterRandomChangesFile exportChangesFile;
+    private IncomeDataContext exportChangesFile;
 
     public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ExportChangesPacket) {
         ExportChangesPacket packet = (ExportChangesPacket) p;
-
-      /*  try {
-          switch (packet.getType()) {
-          case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET:
-            log.info("EXPORT_CHANGES_FIRST_PACKET");
-
-            exportChangesFile = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
-
-            exportChangesFile.writeData(packet.getBuffer(), packet.getOffset());
-            break;
-
-          case AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET:
-            log.info("EXPORT_CHANGES_MIDDLE_PACKET");
-
-            exportChangesFile.writeData(packet.getBuffer(), packet.getOffset());
-            break;
-
-          case AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET:
-            log.info("EXPORT_CHANGES_LAST_PACKET");
-
-            exportChangesFile.finishWrite();
-
-            latch.countDown();
-            break;
-
+        try {
+          if (exportChangesFile == null) {
+            RandomChangesFile chf = new TesterRandomChangesFile(packet.getCRC(),
+                                                                packet.getTimeStamp());
+            exportChangesFile = new IncomeDataContext(chf, null, packet.getPacketsCount());
           }
+
+          exportChangesFile.writeData(packet.getBuffer(), packet.getOffset());
+
+          if (exportChangesFile.isFinished()) {
+            latch.countDown();
+          }
+
         } catch (IOException e) {
           log.error("Cannot save export changes " + e, e);
           fail("Cannot save export changes " + e);
-        }catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
-        }*/
+        }
       } else
         fail("Han been received not ExportChangesPacket.");
     }
 
     public void onError(MemberAddress sourceAddress) {
+    }
+
+    public ChangesFile getExportChangesFile() {
+      if (exportChangesFile != null) {
+        return exportChangesFile.getChangesFile();
+      } else {
+        return null;
+      }
     }
   }
 

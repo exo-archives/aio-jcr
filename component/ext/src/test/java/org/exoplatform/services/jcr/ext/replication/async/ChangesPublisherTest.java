@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -31,7 +32,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogsIte
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
@@ -156,15 +156,31 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
   private class ChangesPacketReceiver implements AsyncPacketListener {
 
-    private LinkedHashMap<Long, ChangesFile> map = new LinkedHashMap<Long, ChangesFile>();
+    private LinkedHashMap<Long, IncomeDataContext> map = new LinkedHashMap<Long, IncomeDataContext>();
 
     private long                             totalFiles;
 
     public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ChangesPacket) {
+        
         ChangesPacket packet = (ChangesPacket) p;
-/*
-        try {
+
+        try{
+        IncomeDataContext cont = map.get(packet.getTimeStamp());
+        
+        if(cont==null){
+          TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
+          cont = new IncomeDataContext(cf, null ,packet.getPacketsCount());
+          map.put(packet.getTimeStamp(), cont);         
+        }
+        
+        cont.writeData(packet.getBuffer(), packet.getOffset());
+    
+        if(cont.isFinished()){
+          
+        }
+        
+       /* try {
           switch (packet.getType()) {
           case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
             log.info("BINARY_CHANGESLOG_FIRST_PACKET");
@@ -175,7 +191,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
             totalFiles = packet.getFileCount();
 
-            map.put(packet.getTimeStamp(), cf);
+           
             break;
 
           case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
@@ -193,14 +209,14 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
             break;
 
-          }
+          }*/
         } catch (IOException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
         }catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
-        }*/
+        }
       } else
         fail("Han been received not ChangesPacket.");
     }
@@ -209,7 +225,17 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     }
 
     protected List<ChangesFile> getChangesFiles() {
-      return new ArrayList<ChangesFile>(map.values());
+      
+      List<ChangesFile> list = new ArrayList<ChangesFile>();
+      
+      Iterator<IncomeDataContext> vals = map.values().iterator();
+      
+      while(vals.hasNext()){
+        list.add(vals.next().getChangesFile());
+      }
+      
+      // do we need to clean map?
+      return list;
     }
   }
 }
