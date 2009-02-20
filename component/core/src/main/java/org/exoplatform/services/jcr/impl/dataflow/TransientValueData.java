@@ -83,6 +83,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   protected boolean         spooled          = false;
 
   private final boolean     deleteSpoolFile;
+  
+  /**
+   * will be used for optimization unserialization mechanism.
+   */
+  private String            parentPropertyDataId;
 
   static protected byte[] stringToBytes(final String value) {
     try {
@@ -643,6 +648,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+    orderNumber = in.readInt();
+    maxBufferSize = in.readInt();
+    
     int type = in.readInt();
 
     if (type == 1) {
@@ -650,7 +658,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       in.readFully(data);
     } else if (type == 2) {
       long length = in.readLong();
-    
+      
       SpoolFile sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
       FileOutputStream sfout = new FileOutputStream(sf);
       int bSize = 1024 * 200; 
@@ -675,12 +683,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       this.spoolFile = sf;
     }
-    
-    orderNumber = in.readInt();
-    maxBufferSize = in.readInt();
   }
 
   public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+    out.writeInt(orderNumber);
+    out.writeInt(maxBufferSize);
+    
     if (this.isByteArray()) {
       out.writeInt(1);
       int f = data.length;
@@ -703,7 +711,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
         in.close();
       }
     }
-    out.writeInt(orderNumber);
-    out.writeInt(maxBufferSize);
+  }
+  
+  void setParentPropertyDataId (String parentPropertyDataId) {
+    this.parentPropertyDataId = parentPropertyDataId;
   }
 }

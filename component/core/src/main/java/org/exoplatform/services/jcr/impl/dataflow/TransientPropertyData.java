@@ -253,8 +253,12 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     int listSize = in.readInt();
     if (listSize != NULL_VALUES) {
       values = new ArrayList<ValueData>();
-      for (int i = 0; i < listSize; i++)
-        values.add((ValueData) in.readObject());
+      for (int i = 0; i < listSize; i++) {
+        ValueData vd = (ValueData) in.readObject();
+        values.add(vd);
+        
+        ((TransientValueData) vd).setParentPropertyDataId(super.identifier); 
+      }
     }
   }
 
