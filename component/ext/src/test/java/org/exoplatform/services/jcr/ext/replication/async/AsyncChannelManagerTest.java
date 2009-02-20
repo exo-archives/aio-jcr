@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.jgroups.stack.IpAddress;
@@ -78,6 +79,8 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
     TestPacketListener listener = new TestPacketListener() {
 
       private boolean              isTested = false;
+      
+      private long count = 0;
 
       private List<AbstractPacket> list     = new ArrayList<AbstractPacket>();
 
@@ -94,7 +97,9 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
       public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
         assertNotNull(packet);
         list.add(packet);
-        if (packet.getType() == AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET) {
+        count++;
+        long total = ((ExportChangesPacket)packet).getPacketsCount();
+        if (total == count) {
           isTested = true;
         }
       }
@@ -125,12 +130,11 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
 
     List<AbstractPacket> list = listener.getResievedPacketList();
     assertEquals(39, list.size());
-    assertEquals(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET, list.get(0).getType());
-    for (int i = 1; i < list.size() - 1; i++) {
-      assertEquals(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET, list.get(i).getType());
+    
+    for (int i = 0; i < list.size(); i++) {
+      assertEquals(AsyncPacketTypes.EXPORT_CHANGES_PACKET, list.get(i).getType());
     }
-    assertEquals(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET, list.get(list.size() - 1).getType());
-
+    
     tchannel.disconnect();
 
     FileInputStream fin = new FileInputStream(file);

@@ -368,6 +368,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
       if (p instanceof ChangesPacket) {
         ChangesPacket packet = (ChangesPacket) p;
 
+        /*
         try {
           switch (packet.getType()) {
           case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
@@ -409,7 +410,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         }catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
-        }
+        }*/
       } else
         fail("Han been received not ChangesPacket.");
     }
@@ -513,7 +514,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
       if (p instanceof ExportChangesPacket) {
         ExportChangesPacket packet = (ExportChangesPacket) p;
 
-        try {
+      /*  try {
           switch (packet.getType()) {
           case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET:
             log.info("EXPORT_CHANGES_FIRST_PACKET");
@@ -544,7 +545,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         }catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
-        }
+        }*/
       } else
         fail("Han been received not ExportChangesPacket.");
     }
