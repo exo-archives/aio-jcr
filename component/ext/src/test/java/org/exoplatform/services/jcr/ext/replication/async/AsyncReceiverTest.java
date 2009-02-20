@@ -122,49 +122,28 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     channel1.connect();
     channel2.connect();
 
-    latch = new CountDownLatchThread(4);
+    latch = new CountDownLatchThread(2);
 
     // create binary data
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
     for (int i = 0; i < buf.length; i++)
       buf[i] = (byte) i;
 
-    ExportChangesPacket packetFirst = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_PACKET,
-                                                              3,
+    ExportChangesPacket packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_PACKET,
                                                               priority,
+                                                              1,
                                                               "idufifjxkhjfapudasdf".getBytes(),
                                                               System.currentTimeMillis(),
                                                               1,
                                                               16420,
                                                               buf);
 
-    ExportChangesPacket packetMiddle = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_PACKET,
-                                                               3,
-                                                               priority,
-                                                               "sjkhsklajoieasdfaf".getBytes(),
-                                                               System.currentTimeMillis(),
-                                                               1,
-                                                               32576,
-                                                               buf);
-
-    ExportChangesPacket packetLast = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_PACKET,
-                                                             3,
-                                                             priority,
-                                                             "alsjdfpask'dafa;lkajfkas".getBytes(),
-                                                             System.currentTimeMillis(),
-                                                             1,
-                                                             48768,
-                                                             new byte[0]);
-
     String errorMessage = "Cannot send export data. Internal error ossurs.";
     ErrorPacket packetError = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, errorMessage, priority);
 
     try {
-      channel1.sendPacket(packetFirst, memberList.get(0).getAddress());
-      channel1.sendPacket(packetMiddle, memberList.get(0).getAddress());
-      channel1.sendPacket(packetLast, memberList.get(0).getAddress());
+      channel1.sendPacket(packet, memberList.get(0).getAddress());
       channel1.sendPacket(packetError, memberList.get(0).getAddress());
-
       latch.await();
     } catch (IOException e) {
       // disconnect from channel
@@ -179,30 +158,13 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     channel1.disconnect();
     channel2.disconnect();
 
-    // compare first
-    //assertEquals(RemoteExportResponce.FIRST, exportReceiver.first.getType());
-    assertEquals(packetFirst.getOffset(), exportReceiver.list.get(0).getOffset());
-    assertEquals(packetFirst.getTimeStamp(), exportReceiver.list.get(0).getTimeStamp());
-    assertEquals(packetFirst.getBuffer().length, exportReceiver.list.get(0).getBuffer().length);
+    // compare packet
+    assertEquals(packet.getOffset(), exportReceiver.list.get(0).getOffset());
+    assertEquals(packet.getTimeStamp(), exportReceiver.list.get(0).getTimeStamp());
+    assertEquals(packet.getBuffer().length, exportReceiver.list.get(0).getBuffer().length);
 
-    for (int i = 0; i < packetFirst.getBuffer().length; i++)
-      assertEquals(packetFirst.getBuffer()[i], exportReceiver.list.get(0).getBuffer()[i]);
-
-    // compare middle
-    //assertEquals(RemoteExportResponce.MIDDLE, exportReceiver.middle.getType());
-    assertEquals(packetMiddle.getOffset(), exportReceiver.list.get(1).getOffset());
-    assertEquals(packetMiddle.getTimeStamp(), exportReceiver.list.get(1).getTimeStamp());
-    assertEquals(packetMiddle.getBuffer().length, exportReceiver.list.get(1).getBuffer().length);
-
-    for (int i = 0; i < packetMiddle.getBuffer().length; i++)
-      assertEquals(packetMiddle.getBuffer()[i], exportReceiver.list.get(1).getBuffer()[i]);
-
-    // compare last
-   // assertEquals(RemoteExportResponce.LAST, exportReceiver.last.getType());
-    assertEquals(packetLast.getOffset(), exportReceiver.list.get(2).getOffset());
-    assertEquals(packetLast.getTimeStamp(), exportReceiver.list.get(2).getTimeStamp());
-    assertEquals(packetLast.getBuffer().length, exportReceiver.list.get(2).getBuffer().length);
-    assertEquals(0, exportReceiver.list.get(2).getBuffer().length);
+    for (int i = 0; i < packet.getBuffer().length; i++)
+      assertEquals(packet.getBuffer()[i], exportReceiver.list.get(0).getBuffer()[i]);
 
     // compare error
     assertTrue(exportReceiver.remoteError.getErrorMessage().startsWith(errorMessage));
@@ -243,8 +205,8 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       buf[i] = (byte) i;
 
     ChangesPacket packetFirst = new ChangesPacket(AsyncPacketTypes.CHANGESLOG_PACKET,
-                                                  3,
                                                   priority,
+                                                  3,
                                                   "idufifjxkhjfapudasdf".getBytes(),
                                                   System.currentTimeMillis(),
                                                   3,
@@ -252,8 +214,8 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                   buf);
 
     ChangesPacket packetMiddle = new ChangesPacket(AsyncPacketTypes.CHANGESLOG_PACKET,
-                                                   3,
                                                    priority,
+                                                   3,
                                                    "sjkhsklajoieasdfaf".getBytes(),
                                                    System.currentTimeMillis(),
                                                    3,
@@ -261,8 +223,8 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                    buf);
 
     ChangesPacket packetLast = new ChangesPacket(AsyncPacketTypes.CHANGESLOG_PACKET,
-                                                 3,
                                                  priority,
+                                                 3,
                                                  "alsjdfpask'dafa;lkajfkas".getBytes(),
                                                  System.currentTimeMillis(),
                                                  3,
@@ -289,7 +251,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     channel2.disconnect();
 
     // compare first
-    //assertEquals(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET, changesReceiver.first.getType());
     assertEquals(packetFirst.getTransmitterPriority(),
                  changesReceiver.list.get(0).getTransmitterPriority());
     assertEquals(packetFirst.getOffset(), changesReceiver.list.get(0).getOffset());
@@ -301,7 +262,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       assertEquals(packetFirst.getBuffer()[i], changesReceiver.list.get(0).getBuffer()[i]);
 
     // compare middle
-    //assertEquals(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET, changesReceiver.middle.getType());
     assertEquals(packetMiddle.getTransmitterPriority(),
                  changesReceiver.list.get(1).getTransmitterPriority());
     assertEquals(packetMiddle.getOffset(), changesReceiver.list.get(1).getOffset());
@@ -313,7 +273,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       assertEquals(packetMiddle.getBuffer()[i], changesReceiver.list.get(1).getBuffer()[i]);
 
     // compare last
-    //assertEquals(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET, changesReceiver.last.getType());
     assertEquals(packetLast.getTransmitterPriority(), changesReceiver.list.get(2).getTransmitterPriority());
     assertEquals(packetLast.getOffset(), changesReceiver.list.get(2).getOffset());
     assertEquals(packetLast.getTimeStamp(), changesReceiver.list.get(2).getTimeStamp());
@@ -334,12 +293,6 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
   private class ExportReceiver implements RemoteExportClient {
     public List<RemoteExportResponce> list = new ArrayList<RemoteExportResponce>();
-//    private RemoteExportResponce first;
-
-    //private RemoteExportResponce middle;
-
-    //private RemoteExportResponce last;
-
     private RemoteExportError    remoteError;
 
     public void onRemoteError(RemoteExportError event) {
@@ -348,55 +301,17 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     }
 
     public void onRemoteExport(RemoteExportResponce event) {
-      
       list.add(event);
-      /*
-      switch (event.getType()) {
-      case RemoteExportResponce.FIRST:
-        this.first = event;
-        latch.countDown();
-        break;
-
-      case RemoteExportResponce.MIDDLE:
-        this.middle = event;
-        latch.countDown();
-        break;
-
-      case RemoteExportResponce.LAST:
-        this.last = event;
-        latch.countDown();
-        break;
-      }*/
+      latch.countDown();
     }
   }
 
   private class ChangesReceiver implements ChangesSubscriber {
     public List<ChangesPacket> list = new ArrayList<ChangesPacket>();
-  //  private ChangesPacket first;
-
-  //  private ChangesPacket middle;
-
-  //  private ChangesPacket last;
 
     public void onChanges(ChangesPacket packet, Member member) {
-      
       list.add(packet);
-      /*switch (packet.getType()) {
-      case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-        this.first = packet;
-        latch.countDown();
-        break;
-
-      case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-        this.middle = packet;
-        latch.countDown();
-        break;
-
-      case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-        this.last = packet;
-        latch.countDown();
-        break;
-      }*/
+      latch.countDown();
     }
   }
 

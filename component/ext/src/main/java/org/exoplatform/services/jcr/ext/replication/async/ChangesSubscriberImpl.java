@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -56,46 +57,46 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Logger.
    */
-  protected static final Log                    LOG          = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  protected static final Log                   LOG          = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
-  protected final MergeDataManager              mergeManager;
+  protected final MergeDataManager             mergeManager;
 
-  protected final WorkspaceSynchronizer         workspace;
+  protected final WorkspaceSynchronizer        workspace;
 
-  protected final IncomeStorage                 incomeStorrage;
+  protected final IncomeStorage                incomeStorrage;
 
-  protected final ChangesSaveErrorLog           errorLog;
+  protected final ChangesSaveErrorLog          errorLog;
 
-  protected final AsyncTransmitter              transmitter;
+  protected final AsyncTransmitter             transmitter;
 
-  protected final AsyncInitializer              initializer;
+  protected final AsyncInitializer             initializer;
 
-  protected final int                           memberWaitTimeout;
+  protected final int                          memberWaitTimeout;
 
-  protected final int                           confMembersCount;
+  protected final int                          confMembersCount;
 
-  protected final int                           localPriority;
+  protected final int                          localPriority;
 
-  protected final HashMap<Integer, Counter>     counterMap;
+  protected final HashMap<Integer, Counter>    counterMap;
 
   // protected List<MemberAddress> mergeDoneList = new
   // ArrayList<MemberAddress>();
 
-  protected final CountDownLatch                mergeBarier;
+  protected final CountDownLatch               mergeBarier;
 
-  private FirstChangesWaiter                    firstChangesWaiter;
+  private FirstChangesWaiter                   firstChangesWaiter;
 
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected HashMap<Integer, IncomeDataContext> incomChanges = new HashMap<Integer, IncomeDataContext>();
+  protected HashMap<String, IncomeDataContext> incomChanges = new HashMap<String, IncomeDataContext>();
 
-  protected MergeWorker                         mergeWorker  = null;
+  protected MergeWorker                        mergeWorker  = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<LocalEventListener>       listeners    = new LinkedHashSet<LocalEventListener>();
+  protected final Set<LocalEventListener>      listeners    = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
 
@@ -287,7 +288,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         // context for current member
 
         // TODO make Uniq key from TransmitterPriority and packet id (timeStamp)
-        IncomeDataContext mcf = incomChanges.get(packet.getTransmitterPriority());
+        IncomeDataContext mcf = incomChanges.get(getKey(packet));
         if (mcf == null) {
           // create new context
           RandomChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
@@ -295,14 +296,14 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                                                   member);
 
           mcf = new IncomeDataContext(cf, member, packet.getPacketsCount());
-          incomChanges.put(packet.getTransmitterPriority(), mcf);
+          incomChanges.put(getKey(packet), mcf);
         }
 
         mcf.writeData(packet.getBuffer(), packet.getOffset());
 
         // check is all packets received
         if (mcf.isFinished()) {
-          incomChanges.remove(packet.getTransmitterPriority());
+          incomChanges.remove(getKey(packet));
           incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
 
           Counter counter;
@@ -508,43 +509,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       LOG.warn("Not started or already stopped");
   }
 
-  /*
-  private class MemberChangesFile {
-    private final RandomChangesFile changesFile;
-
-    private final Member            member;
-
-    private final long              totalPackets;
-
-    private long                    savedPackets;
-
-    public MemberChangesFile(RandomChangesFile changesFile, Member member, long totalPackets) {
-      this.changesFile = changesFile;
-      this.member = member;
-      this.totalPackets = totalPackets;
-      this.savedPackets = 0;
-    }
-
-    public RandomChangesFile getChangesFile() {
-      return changesFile;
-    }
-
-    public Member getMember() {
-      return member;
-    }
-
-    public void writeData(ChangesPacket packet) throws IOException {
-      changesFile.writeData(packet.getBuffer(), packet.getOffset());
-      savedPackets++;
-      if (savedPackets == totalPackets)
-        changesFile.finishWrite();
-    }
-
-    public boolean isFinished() {
-      return (savedPackets == totalPackets);
-    }
-
-  }*/
+  private String getKey(ChangesPacket packet) throws UnsupportedEncodingException {
+    return packet.getTransmitterPriority() + ":" + new String(packet.getCRC(), "UTF-8") + ":"
+        + packet.getTimeStamp();
+  }
 
   /**
    * FirstChangesWaiter will be canceled when no changes from member.
@@ -577,4 +545,5 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       run = false;
     }
   }
+
 }

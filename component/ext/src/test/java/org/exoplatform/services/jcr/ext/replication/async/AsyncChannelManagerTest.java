@@ -129,7 +129,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
     assertEquals(true, listener.isTested());
 
     List<AbstractPacket> list = listener.getResievedPacketList();
-    assertEquals(39, list.size());
+    assertEquals(38, list.size());
     
     for (int i = 0; i < list.size(); i++) {
       assertEquals(AsyncPacketTypes.EXPORT_CHANGES_PACKET, list.get(i).getType());
@@ -191,7 +191,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
 
     String nodeId = "nodeId";
 
-    GetExportPacket packet = new GetExportPacket(nodeId, -1);
+    GetExportPacket packet = new GetExportPacket(nodeId, 100);
 
     tchannel.sendPacket(packet);
     Thread.sleep(1000);
