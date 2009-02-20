@@ -130,7 +130,9 @@ public class FtpClientCommandThread extends Thread {
           String encoding = clientSession.getFtpServer().getConfiguration().getClientSideEncoding();
           String readyCommand = new String(commandLine, encoding);
 
-          log.info("FTP_CMD:[" + readyCommand + "]");
+          if (log.isDebugEnabled()) {
+            log.debug("FTP_CMD:[" + readyCommand + "]");
+          }
 
           return readyCommand;
         } catch (Exception exc) {
