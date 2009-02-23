@@ -47,7 +47,6 @@ public class TestEncoding extends BaseWebDavTest {
   public static byte[]       UTF_CONTENT;
 
   // windows-1251 content
-
   public static final String WIN_FILE         = TestUtils.getFullWorkSpacePath() + "/winFile.txt";
 
   public static final String WIN_CONTENT_TYPE = "text/plain;charset=windows-1251";
@@ -78,7 +77,7 @@ public class TestEncoding extends BaseWebDavTest {
   }
 
   public void testNoContentTypeHeader() throws Exception {
-    
+
     System.out.println("\ttestNoContentTypeHeader:");
 
     HTTPResponse response = connection.Put(UTF_FILE, UTF_CONTENT);
@@ -86,21 +85,21 @@ public class TestEncoding extends BaseWebDavTest {
     response = connection.Get(UTF_FILE);
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(UTF_CONTENT, response.getData()));
-    System.out.println(new String(response.getData(), UTF_CHARSET));
+    System.out.println("Content in UTF-8 encoding:\t" + new String(response.getData(), UTF_CHARSET));
 
     response = connection.Put(WIN_FILE, WIN_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
     response = connection.Get(WIN_FILE);
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(WIN_CONTENT, response.getData()));
-    System.out.println(new String(response.getData(), WIN_CHARSET));
+    System.out.println("Content in Cp1251 encoding:\t" + new String(response.getData(), WIN_CHARSET));
 
     response = connection.Put(ISO_FILE, ISO_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
     response = connection.Get(ISO_FILE);
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(ISO_CONTENT, response.getData()));
-    System.out.println(new String(response.getData(), ISO_CHARSET));
+    System.out.println("Content in ISO-8859-5 encoding:\t" + new String(response.getData(), ISO_CHARSET));
 
     response = connection.Delete(UTF_FILE);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
@@ -116,7 +115,7 @@ public class TestEncoding extends BaseWebDavTest {
   public void testContentType() throws Exception {
 
     System.out.println("\n\ttestContentType:");
-    
+
     NVPair[] headers = new NVPair[] { new NVPair(HttpHeaders.CONTENT_TYPE, UTF_CONTENT_TYPE) };
     HTTPResponse response = connection.Put(UTF_FILE, UTF_CONTENT, headers);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
@@ -124,7 +123,7 @@ public class TestEncoding extends BaseWebDavTest {
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(UTF_CONTENT, response.getData()));
     assertEquals(UTF_CONTENT_TYPE, response.getHeader(HttpHeaders.CONTENT_TYPE));
-    System.out.println(new String(response.getData(), UTF_CHARSET));
+    System.out.println("Content in UTF-8 encoding:\t" + new String(response.getData(), UTF_CHARSET));
 
     headers = new NVPair[] { new NVPair(HttpHeaders.CONTENT_TYPE, WIN_CONTENT_TYPE) };
     response = connection.Put(WIN_FILE, WIN_CONTENT, headers);
@@ -133,7 +132,7 @@ public class TestEncoding extends BaseWebDavTest {
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(WIN_CONTENT, response.getData()));
     assertEquals(WIN_CONTENT_TYPE, response.getHeader(HttpHeaders.CONTENT_TYPE));
-    System.out.println(new String(response.getData(), WIN_CHARSET));
+    System.out.println("Content in Cp1251 encoding:\t" + new String(response.getData(), WIN_CHARSET));
 
     headers = new NVPair[] { new NVPair(HttpHeaders.CONTENT_TYPE, ISO_CONTENT_TYPE) };
     response = connection.Put(ISO_FILE, ISO_CONTENT, headers);
@@ -142,7 +141,7 @@ public class TestEncoding extends BaseWebDavTest {
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(ISO_CONTENT, response.getData()));
     assertEquals(ISO_CONTENT_TYPE, response.getHeader(HttpHeaders.CONTENT_TYPE));
-    System.out.println(new String(response.getData(), ISO_CHARSET));
+    System.out.println("Content in ISO-8859-5 encoding:\t" + new String(response.getData(), ISO_CHARSET));
 
     response = connection.Delete(UTF_FILE);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
@@ -166,21 +165,18 @@ public class TestEncoding extends BaseWebDavTest {
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(ISO_CONTENT, response.getData()));
     assertEquals(ISO_CONTENT_TYPE, response.getHeader(HttpHeaders.CONTENT_TYPE));
-    System.out.println(new String(response.getData(), ISO_CHARSET));
+    System.out.println("Content in Cp1251 encoding:\t" + new String(response.getData(), ISO_CHARSET));
 
     headers = new NVPair[] { new NVPair(HttpHeaders.CONTENT_TYPE, WIN_CONTENT_TYPE) };
-    response = connection.Put(WIN_FILE, WIN_CONTENT, headers);
+    response = connection.Put(ISO_FILE, WIN_CONTENT, headers);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-    response = connection.Get(WIN_FILE);
+    response = connection.Get(ISO_FILE);
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     assertTrue(Arrays.equals(WIN_CONTENT, response.getData()));
     assertEquals(WIN_CONTENT_TYPE, response.getHeader(HttpHeaders.CONTENT_TYPE));
-    System.out.println(new String(response.getData(), WIN_CHARSET));
+    System.out.println("Content in ISO-8859-5 encoding:\t" + new String(response.getData(), WIN_CHARSET));
 
     response = connection.Delete(ISO_FILE);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-    response = connection.Delete(WIN_FILE);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
 
   }
