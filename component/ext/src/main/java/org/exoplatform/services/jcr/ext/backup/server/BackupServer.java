@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
+import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -77,7 +78,17 @@ public class BackupServer implements ResourceContainer {
       /**
        * Restore operations.
        */
-      public static final String restore              = "restore";
+      public static final String RESTORE              = "restore";
+      
+      /**
+       * Stop backup operations.
+       */
+      public static final String STOP_BACKUP           = "stopBackup";
+      
+      /**
+       * The backup status operations.
+       */
+      public static final String GET_STATUS                = "getStatus";
       
       /**
        * OperationType constructor.
@@ -237,6 +248,82 @@ public class BackupServer implements ResourceContainer {
       validateWorkspaceName(repositoryName, workspaceName, userName, password);
       
       restore.restore();
+    } catch (Exception e) {
+      result = "fail + \n" + e.getMessage();
+      log.error("Can't start backup", e);
+    }
+
+    return Response.ok(result).build();
+  }
+  
+  /**
+   * stopBackup.
+   * 
+   * @param repositoryName the repository name
+   * @param workspaceName the workspace name
+   * @param userName the user name
+   * @param password the password
+   * @return Response return the response
+   */
+  @GET
+  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/stopBackup")
+  public Response stopBackup(@PathParam("repositoryName") String repositoryName,
+                              @PathParam("workspaceName") String workspaceName,
+                              @PathParam("userName") String userName,
+                              @PathParam("password") String password) {
+    String result = "OK +\n";
+
+    try {
+      validateRepositoryName(repositoryName);
+      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      
+      BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
+      
+      if (bch != null) {
+        backupManager.stopBackup(bch);
+      } else
+        throw new RuntimeException("Can not get activ backup for '"
+                                   +"/"+repositoryName 
+                                   + "/"+workspaceName+"'");
+      
+    } catch (Exception e) {
+      result = "fail + \n" + e.getMessage();
+      log.error("Can't start backup", e);
+    }
+
+    return Response.ok(result).build();
+  }
+  
+  /**
+   * getSatus.
+   * 
+   * @param repositoryName the repository name
+   * @param workspaceName the workspace name
+   * @param userName the user name
+   * @param password the password
+   * @return Response return the response
+   */
+  @GET
+  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/getStatus")
+  public Response getStatus(@PathParam("repositoryName") String repositoryName,
+                              @PathParam("workspaceName") String workspaceName,
+                              @PathParam("userName") String userName,
+                              @PathParam("password") String password) {
+    String result = "OK +\n";
+
+    try {
+      validateRepositoryName(repositoryName);
+      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      
+      BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
+      
+      if (bch != null) {
+        result +=(bch.getFullBackupState() != BackupJob.FINISHED ? "The full backup is working" :  "The full backup was finished.");
+      } else
+        throw new RuntimeException("Can not get activ backup for '"
+                                   +"/"+repositoryName 
+                                   + "/"+workspaceName+"'");
+      
     } catch (Exception e) {
       result = "fail + \n" + e.getMessage();
       log.error("Can't start backup", e);
