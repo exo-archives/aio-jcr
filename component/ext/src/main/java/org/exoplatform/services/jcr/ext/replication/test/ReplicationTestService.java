@@ -218,7 +218,7 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * The apache logger.
    */
-  private static Log        log = ExoLogger.getLogger(ReplicationTestService.class);
+  private static Log        log = ExoLogger.getLogger("ext.ReplicationTestService");
 
   /**
    * The repository service.
