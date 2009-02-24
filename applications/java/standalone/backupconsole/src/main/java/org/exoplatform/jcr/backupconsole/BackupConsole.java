@@ -43,9 +43,9 @@ public class BackupConsole {
     
   public static void main(String[] args) {
 
-    for (int i = 0; i < args.length; i++) {
-      System.out.println(args[i]);
-    }
+  //  for (int i = 0; i < args.length; i++) {
+  //    System.out.println(args[i]);
+  //  }
 
     int curArg = 0;
 
@@ -88,13 +88,14 @@ public class BackupConsole {
     }
     String command = args[curArg++];
 
-    if (curArg == args.length) {
-      System.out.println(incorrectParam + "There is no path to workspace parameter.");
-      return;
-    }
-    String pathToWS = args[curArg++];
+ 
 
     if (command.equalsIgnoreCase("start")) {
+      if (curArg == args.length) {
+        System.out.println(incorrectParam + "There is no path to workspace parameter.");
+        return;
+      }
+      String pathToWS = args[curArg++];
       if (curArg == args.length) {
         client.startBackUp(pathToWS);
       } else {
@@ -125,27 +126,56 @@ public class BackupConsole {
         
         if (curArg < args.length) {
           System.out.println(toManyParams);
+          return;
         }
         client.startIncrementalBackUp(pathToWS, inc, jn);
       }
     } else if (command.equalsIgnoreCase("stop")) {
+      if (curArg == args.length) {
+        System.out.println(incorrectParam + "There is no path to workspace parameter.");
+        return;
+      }
+      String pathToWS = args[curArg++];
       if (curArg < args.length) {
         System.out.println(toManyParams);
+        return;
       }
       client.stop(pathToWS);
     } else if (command.equalsIgnoreCase("status")) {
+      if (curArg == args.length) {
+        System.out.println(incorrectParam + "There is no path to workspace parameter.");
+        return;
+      }
+      String pathToWS = args[curArg++];
       if (curArg < args.length) {
         System.out.println(toManyParams);
+        return;
       }
       client.status(pathToWS);
     } else if (command.equalsIgnoreCase("restore")) {
+      if (curArg == args.length) {
+        System.out.println(incorrectParam + "There is no path to workspace parameter.");
+        return;
+      }
+      String pathToWS = args[curArg++];
 
+      if (curArg == args.length) {
+        System.out.println(incorrectParam + "There is no source-name parameter.");
+        return;
+      }
+      String srcname = args[curArg++];
+       
+      if (curArg == args.length) {
+        System.out.println(incorrectParam + "There is no path to backup file parameter.");
+        return;
+      }
       String pathToBackup = args[curArg++];
       
       if (curArg < args.length) {
         System.out.println(toManyParams);
+        return;
       }
-      client.restore(pathToWS, pathToBackup);
+      client.restore(pathToWS, srcname, pathToBackup);
     } else {
       System.out.println("Unknown command <" + command + ">");
     }

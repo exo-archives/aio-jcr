@@ -33,27 +33,28 @@ public class BackupClientImpl implements BackupClient{
     this.transport = transport;
   }
   
-  public void restore(String pathToWS, String pathToBackup) {
-    // TODO Auto-generated method stub
-    
-  }
-
   public void startBackUp(String pathToWS) {
-    // TODO Auto-generated method stub
-    
+    System.out.println("StartBackup "+ pathToWS);
+    // TODO Auto-generated method stub    
   }
 
   public void startIncrementalBackUp(String pathToWS, long incr, int jobnumber) {
+    System.out.println("StartIncrementalBackup "+ pathToWS + " " + incr + " " + jobnumber);
     // TODO Auto-generated method stub
-    
   }
 
   public void status(String pathToWS) {
+    System.out.println("Status "+ pathToWS);
     // TODO Auto-generated method stub
-    
   }
   
   public void stop(String pathToWS) {
+    System.out.println("Stop "+ pathToWS);
+    // TODO Auto-generated method stub
+  }
+
+  public void restore(String pathToWS, String resName, String pathToBackup) {
+    System.out.println("StartIncrementalBackup "+ pathToWS + " " + resName + " " + pathToBackup);
     // TODO Auto-generated method stub
     
   }

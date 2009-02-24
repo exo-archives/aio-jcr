@@ -33,7 +33,7 @@ public interface BackupClient {
   
   public void status(String pathToWS);
   
-  public void restore(String pathToWS, String pathToBackup);
+  public void restore(String pathToWS, String resName,  String pathToBackup);
   
   public void stop(String pathToWS);
 }
