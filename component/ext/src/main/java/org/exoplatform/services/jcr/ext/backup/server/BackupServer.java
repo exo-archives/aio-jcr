@@ -162,6 +162,7 @@ public class BackupServer implements ResourceContainer {
     try {
       validateRepositoryName(repositoryName);
       validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      validateOneInstants(repositoryName, workspaceName);
       
       BackupChain backupChain = backupManager.startBackup(config);
       
@@ -206,6 +207,7 @@ public class BackupServer implements ResourceContainer {
     try {
       validateRepositoryName(repositoryName);
       validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      validateOneInstants(repositoryName, workspaceName);
       
       BackupChain backupChain = backupManager.startBackup(config);
       
@@ -325,7 +327,7 @@ public class BackupServer implements ResourceContainer {
       if (bch != null) {
         result +=(bch.getFullBackupState() != BackupJob.FINISHED ? "The full backup is working" :  "The full backup was finished.");
       } else
-        throw new RuntimeException("Can not get activ backup for '"
+        throw new RuntimeException("Can not get active backup for '"
                                    +"/"+repositoryName 
                                    + "/"+workspaceName+"'");
       
@@ -364,5 +366,15 @@ public class BackupServer implements ResourceContainer {
     } catch (RepositoryConfigurationException e) {
       throw new RuntimeException("Can not get workspace '" + workspaceName +"'", e);
     }
+  }
+  
+  private void validateOneInstants(String repositoryName, String workspaceName) throws WorkspaceRestoreExeption {
+   
+    BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
+    
+    if (bch != null)
+      throw new WorkspaceRestoreExeption("The backup is already working on workspace '"
+                                         +"/"+repositoryName 
+                                         + "/"+workspaceName+"'");
   }
 }
