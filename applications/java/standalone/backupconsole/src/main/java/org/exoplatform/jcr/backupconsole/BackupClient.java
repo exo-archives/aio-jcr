@@ -16,6 +16,8 @@
  */
 package org.exoplatform.jcr.backupconsole;
 
+import java.io.IOException;
+
 
 /**
  * Created by The eXo Platform SAS.
@@ -27,13 +29,13 @@ package org.exoplatform.jcr.backupconsole;
  */
 public interface BackupClient {
 
-  public void startBackUp(String pathToWS);
+  public String startBackUp(String pathToWS) throws IOException, BackupExecuteException;
   
-  public void startIncrementalBackUp(String pathToWS, long incr, int jobnumber);
+  public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException, BackupExecuteException;
   
-  public void status(String pathToWS);
+  public String status(String pathToWS)throws IOException, BackupExecuteException;
   
-  public void restore(String pathToWS, String pathToBackup);
+  public String restore(String pathToWS, String pathToBackup) throws IOException, BackupExecuteException;
   
-  public void stop(String pathToWS);
+  public String stop(String pathToWS)throws IOException, BackupExecuteException;
 }

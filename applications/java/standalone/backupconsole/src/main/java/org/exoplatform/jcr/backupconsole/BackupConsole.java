@@ -16,6 +16,8 @@
  */
 package org.exoplatform.jcr.backupconsole;
 
+import java.io.IOException;
+
 /**
  * Created by The eXo Platform SAS. <br/>Date:
  * 
@@ -24,39 +26,41 @@ package org.exoplatform.jcr.backupconsole;
  */
 public class BackupConsole {
 
-  private static final String incorrectParam = "Incorrect parameter: ";
-  private static final String toManyParams = "Too may parameters.";
-  
-  private static final String HELP_INFO =
-    " Help info:"
-    + "[-ssl] <auth> <host> <cmd> \n"
-    + " <auth>:   login:pathword\n"
-    + " <host>:   <host ip>:<port>\n"
-    + " <cmd>:   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
-    + "          stop  <repo/ws>\n"
-    + "          status <repo/ws>\n"
-    + "          restore <repo/ws> <path>\n\n"
-    + " <repo/ws>   -   /<reponame>/<ws name>\n"
-    + " <path>      -   path to backup file\n"
-    + " <incr>       - iterations count\n"
-    + " <inr_jobnumber> - inremential job number\n";
-    
+  private static final String INCORRECT_PARAM     = "Incorrect parameter: ";
+
+  private static final String TO_MANY_PARAMS      = "Too may parameters.";
+
+  private static final String LOGIN_PASS_SPLITTER = ":";
+
+  private static final String HELP_INFO           = " Help info:"
+                                                      + "[-ssl] <auth> <host> <cmd> \n"
+                                                      + " <auth>:   login:pathword\n"
+                                                      + " <host>:   <host ip>:<port>\n"
+                                                      + " <cmd>:   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
+                                                      + "          stop  <repo/ws>\n"
+                                                      + "          status <repo/ws>\n"
+                                                      + "          restore <repo/ws> <path>\n\n"
+                                                      + " <repo/ws>   -   /<reponame>/<ws name>\n"
+                                                      + " <path>      -   path to backup file\n"
+                                                      + " <incr>       - iterations count\n"
+                                                      + " <inr_jobnumber> - inremential job number\n";
+
   public static void main(String[] args) {
 
-  //  for (int i = 0; i < args.length; i++) {
-  //    System.out.println(args[i]);
-  //  }
+    // for (int i = 0; i < args.length; i++) {
+    // System.out.println(args[i]);
+    // }
 
     int curArg = 0;
 
     if (curArg == args.length) {
-      System.out.println(incorrectParam + "There is no any parameters.");
+      System.out.println(INCORRECT_PARAM + "There is no any parameters.");
       return;
     }
 
     if (args[curArg].equalsIgnoreCase("help")) {
       System.out.println(HELP_INFO);
-        return;
+      return;
     }
 
     boolean isSSL = false;
@@ -66,112 +70,127 @@ public class BackupConsole {
     }
 
     if (curArg == args.length) {
-      System.out.println(incorrectParam + "There is no Host:port parameter.");
+      System.out.println(INCORRECT_PARAM + "There is no Host:port parameter.");
       return;
     }
     String host = args[curArg++];
     // TODO check host;
 
     if (curArg == args.length) {
-      System.out.println(incorrectParam + "There is no Login@Pathword parameter.");
+      System.out.println(INCORRECT_PARAM + "There is no Login:Pathword parameter.");
       return;
     }
     String login = args[curArg++];
     // TODO check login
+    String[] lp = login.split(LOGIN_PASS_SPLITTER);
+    if (lp.length != 2) {
+      System.out.println(INCORRECT_PARAM + "There is corrupted Login:Pathword parameter - " + login);
+      return;
+    }
 
-    ClientTransport transport = new ClientTransportImpl(host, login, isSSL);
-    BackupClient client = new BackupClientImpl(transport);
+    ClientTransport transport = new ClientTransportImpl(host, lp[0], lp[1], isSSL);
+    BackupClient client = new BackupClientImpl(transport, lp[0], lp[1]);
 
     if (curArg == args.length) {
-      System.out.println(incorrectParam + "There is no command parameter.");
+      System.out.println(INCORRECT_PARAM + "There is no command parameter.");
       return;
     }
     String command = args[curArg++];
 
- 
-
-    if (command.equalsIgnoreCase("start")) {
-      if (curArg == args.length) {
-        System.out.println(incorrectParam + "There is no path to workspace parameter.");
-        return;
-      }
-      String pathToWS = args[curArg++];
-      if (curArg == args.length) {
-        client.startBackUp(pathToWS);
-      } else {
-
-        String incr = args[curArg++];
-
-        long inc = 0;
-        try {
-           inc = Long.parseLong(incr);
-        } catch (NumberFormatException e) {
-          System.out.println(incorrectParam + " Increment is not didgit - " + e.getMessage());
+    try {
+      if (command.equalsIgnoreCase("start")) {
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
           return;
         }
+        String pathToWS = args[curArg++];
+        if (curArg == args.length) {
+
+          System.out.println(client.startBackUp(pathToWS));
+
+        } else {
+
+          String incr = args[curArg++];
+
+          long inc = 0;
+          try {
+            inc = Long.parseLong(incr);
+          } catch (NumberFormatException e) {
+            System.out.println(INCORRECT_PARAM + " Increment is not didgit - " + e.getMessage());
+            return;
+          }
+
+          if (curArg == args.length) {
+            System.out.println(INCORRECT_PARAM + "There is no job number parameter.");
+            return;
+          }
+          String jobNumber = args[curArg++];
+
+          int jn = 0;
+          try {
+            jn = Integer.parseInt(jobNumber);
+          } catch (NumberFormatException e) {
+            System.out.println(INCORRECT_PARAM + " Job number is not didgit - " + e.getMessage());
+            return;
+          }
+
+          if (curArg < args.length) {
+            System.out.println(TO_MANY_PARAMS);
+            return;
+          }
+          System.out.println(client.startIncrementalBackUp(pathToWS, inc, jn));
+        }
+      } else if (command.equalsIgnoreCase("stop")) {
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
+          return;
+        }
+        String pathToWS = args[curArg++];
+        if (curArg < args.length) {
+          System.out.println(TO_MANY_PARAMS);
+          return;
+        }
+        System.out.println(client.stop(pathToWS));
+      } else if (command.equalsIgnoreCase("status")) {
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
+          return;
+        }
+        String pathToWS = args[curArg++];
+        if (curArg < args.length) {
+          System.out.println(TO_MANY_PARAMS);
+          return;
+        }
+        System.out.println(client.status(pathToWS));
+      } else if (command.equalsIgnoreCase("restore")) {
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
+          return;
+        }
+        String pathToWS = args[curArg++];
 
         if (curArg == args.length) {
-          System.out.println(incorrectParam + "There is no job number parameter.");
+          System.out.println(INCORRECT_PARAM + "There is no path to backup file parameter.");
           return;
         }
-        String jobNumber = args[curArg++];
-        
-        int jn = 0;
-        try{
-          jn = Integer.parseInt(jobNumber);
-        }catch (NumberFormatException e) {
-          System.out.println(incorrectParam + " Job number is not didgit - " + e.getMessage());
-          return;
-        }
-        
-        if (curArg < args.length) {
-          System.out.println(toManyParams);
-          return;
-        }
-        client.startIncrementalBackUp(pathToWS, inc, jn);
-      }
-    } else if (command.equalsIgnoreCase("stop")) {
-      if (curArg == args.length) {
-        System.out.println(incorrectParam + "There is no path to workspace parameter.");
-        return;
-      }
-      String pathToWS = args[curArg++];
-      if (curArg < args.length) {
-        System.out.println(toManyParams);
-        return;
-      }
-      client.stop(pathToWS);
-    } else if (command.equalsIgnoreCase("status")) {
-      if (curArg == args.length) {
-        System.out.println(incorrectParam + "There is no path to workspace parameter.");
-        return;
-      }
-      String pathToWS = args[curArg++];
-      if (curArg < args.length) {
-        System.out.println(toManyParams);
-        return;
-      }
-      client.status(pathToWS);
-    } else if (command.equalsIgnoreCase("restore")) {
-      if (curArg == args.length) {
-        System.out.println(incorrectParam + "There is no path to workspace parameter.");
-        return;
-      }
-      String pathToWS = args[curArg++];
+        String pathToBackup = args[curArg++];
 
-      if (curArg == args.length) {
-        System.out.println(incorrectParam + "There is no path to backup file parameter.");
-        return;
+        if (curArg < args.length) {
+          System.out.println(TO_MANY_PARAMS);
+          return;
+        }
+        System.out.println(client.restore(pathToWS, pathToBackup));
+      } else {
+        System.out.println("Unknown command <" + command + ">");
       }
-      String pathToBackup = args[curArg++];
-      
-      if (curArg < args.length) {
-        System.out.println(toManyParams);
-        return;
-      }
-      client.restore(pathToWS, pathToBackup);
-    } else {
-      System.out.println("Unknown command <" + command + ">");
+
+    } catch (IOException e) {
+      System.out.println("ERROR: " + e.getMessage());
+      e.printStackTrace();
+    } catch (BackupExecuteException e) {
+      System.out.println("ERROR: " + e.getMessage());
+      e.printStackTrace();
     }
   }
+
 }

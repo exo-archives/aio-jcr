@@ -12,12 +12,26 @@
   <name>eXo backup console</name>
 
   <dependencies>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.11.1-SNAPSHOT</version>
+     <dependency>
+      <groupId>org.exoplatform.ws</groupId>
+      <artifactId>exo.ws.commons</artifactId>
+      <version>${org.exoplatform.ws.version}</version>
       <scope>compile</scope>
     </dependency>
+    
+     <dependency>
+      <groupId>org.apache.ws.commons</groupId>
+      <artifactId>ws-commons-util</artifactId>
+      <version>1.0.1</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>xml-apis</groupId>
+          <artifactId>xml-apis</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
   </dependencies>
 
   <build>
@@ -42,7 +56,7 @@
               <manifest>
                 <addClasspath>true</addClasspath>
                 <classpathPrefix>lib</classpathPrefix>
-                <mainClass>org.exoplatform.applications.repoload.RepositoryDataUploader</mainClass>
+                <mainClass>org.exoplatform.jcr.backupconsole.BackupConsole</mainClass>
               </manifest>
             </archive>
           </configuration>

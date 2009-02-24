@@ -16,47 +16,115 @@
  */
 package org.exoplatform.jcr.backupconsole;
 
+import java.io.IOException;
+
+import org.apache.ws.commons.util.Base64;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: BackupClientImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class BackupClientImpl implements BackupClient{
-  
-  private ClientTransport transport; 
-  
-  public BackupClientImpl(ClientTransport transport){
+public class BackupClientImpl implements BackupClient {
+  /**
+   * The base path to this service.
+   */
+  public static final String BASE_URL = "/rest/backup-server";
+
+  /**
+   * Definition the operation types.
+   */
+  public static final class OperationType {
+    /**
+     * Full backup only operation.
+     */
+    public static final String FULL_BACKUP_ONLY     = "fullOnly";
+
+    /**
+     * Full and incremental backup operations.
+     */
+    public static final String FULL_AND_INCREMENTAL = "fullAndIncremental";
+
+    /**
+     * Restore operations.
+     */
+    public static final String RESTORE              = "restore";
+
+    /**
+     * Stop backup operations.
+     */
+    public static final String STOP_BACKUP          = "stopBackup";
+
+    /**
+     * The backup status operations.
+     */
+    public static final String GET_STATUS           = "getStatus";
+
+    /**
+     * OperationType constructor.
+     */
+    private OperationType() {
+    }
+  }
+
+  private ClientTransport transport;
+
+  private final String    userName;
+
+  private final String    pass;
+
+  public BackupClientImpl(ClientTransport transport, String login, String pass) {
     this.transport = transport;
-  }
-  
-  public void startBackUp(String pathToWS) {
-    System.out.println("StartBackup "+ pathToWS);
-    // TODO Auto-generated method stub    
+    this.userName = login;
+    this.pass = pass;
   }
 
-  public void startIncrementalBackUp(String pathToWS, long incr, int jobnumber) {
-    System.out.println("StartIncrementalBackup "+ pathToWS + " " + incr + " " + jobnumber);
-    // TODO Auto-generated method stub
+  public String startBackUp(String pathToWS) throws IOException, BackupExecuteException {
+    // System.out.println("StartBackup " + pathToWS);
+    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
+        + OperationType.FULL_BACKUP_ONLY;
+    return transport.execute(sURL);
+
   }
 
-  public void status(String pathToWS) {
-    System.out.println("Status "+ pathToWS);
-    // TODO Auto-generated method stub
-  }
-  
-  public void stop(String pathToWS) {
-    System.out.println("Stop "+ pathToWS);
-    // TODO Auto-generated method stub
+  public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
+                                                                                 BackupExecuteException {
+    // System.out.println("StartIncrementalBackup " + pathToWS + " " + incr + "
+    // " + jobnumber);
+    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + incr + "/"
+        + jobnumber + "/" + OperationType.FULL_AND_INCREMENTAL;
+
+    return transport.execute(sURL);
   }
 
-  public void restore(String pathToWS, String pathToBackup) {
-    System.out.println("StartIncrementalBackup "+ pathToWS + " " + pathToBackup);
-    // TODO Auto-generated method stub
-    
+  public String status(String pathToWS) throws IOException, BackupExecuteException {
+    // System.out.println("Status " + pathToWS);
+    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
+        + OperationType.GET_STATUS;
+    return transport.execute(sURL);
+  }
+
+  public String stop(String pathToWS) throws IOException, BackupExecuteException {
+    // System.out.println("Stop " + pathToWS);
+    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
+        + OperationType.STOP_BACKUP;
+    return transport.execute(sURL);
+  }
+
+  public String restore(String pathToWS, String pathToBackup) throws IOException,
+                                                             BackupExecuteException {
+    // System.out.println("StartIncrementalBackup " + pathToWS + " " +
+    // pathToBackup);
+    String encodedPath = Base64.encode(pathToBackup.getBytes("UTF-8"),
+                                       0,
+                                       (int) pathToBackup.getBytes("UTF-8").length,
+                                       0,
+                                       "");
+    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + encodedPath + "/"
+        + OperationType.RESTORE;
+    return transport.execute(sURL);
+
   }
 
 }
