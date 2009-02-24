@@ -20,8 +20,8 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 15.12.2008
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncPacketTypes.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public final class AsyncPacketTypes {
@@ -30,110 +30,35 @@ public final class AsyncPacketTypes {
    * GET_EXPORT_CHAHGESLOG. 
    *   the pocket type for request export data
    */
-  public static final int GET_EXPORT_CHAHGESLOG                = 0;
+  public static final int GET_EXPORT_CHAHGESLOG  = 0;
 
   /**
-   * EXPORT_CHANGES_FIRST_PACKET. 
-   *   the pocket type for first packet to export data
+   * EXPORT_CHANGES_PACKET. 
+   *   the pocket type for export data
    */
-  //public static final int EXPORT_CHANGES_FIRST_PACKET          = 1;
-  public static final int EXPORT_CHANGES_PACKET          = 1; 
-  
-  /**
-   * EXPORT_CHANGES_MIDDLE_PACKET. 
-   *   the pocket type for middle packet to export data
-   */
- // public static final int EXPORT_CHANGES_MIDDLE_PACKET         = 2;
+  public static final int EXPORT_CHANGES_PACKET  = 1;
 
   /**
-   * EXPORT_CHANGES_LAST_PACKET. 
-   *   the pocket type for last packet to export data
+   * CHANGESLOG_PACKET. 
+   *   the pocket type for Changeslog
    */
- // public static final int EXPORT_CHANGES_LAST_PACKET           = 3;
+  public static final int CHANGESLOG_PACKET      = 2;
 
   /**
-   * GET_CHANGESLOG_UP_TO_DATE. 
-   *   the pocket type for initialize synchronization mechanism
-   */
-//  public static final int GET_CHANGESLOG_UP_TO_DATE            = 4;
-
-  /**
-   * NEED_TRANSFER_COUNTER. 
-   *   the pocket type for information of how much ChangesLogs will be transfered
-   */
-//  public static final int NEED_TRANSFER_COUNTER                = 5;
-
-  /**
-   * INIT_TRANSFER_CHANGES.
-   */
-//  public static final int INIT_TRANSFER_CHANGES                = 7;
-
-  /**
-   * DONE_TRANSFER_CHANGES.
-   */
-//  public static final int DONE_TRANSFER_CHANGES                = 8;
-
-  /**
-   * BINARY_CHANGESLOG_FIRST_PACKET. 
-   *   the pocket type for first packet to binary Changeslog
-   */
-  //public static final int BINARY_CHANGESLOG_FIRST_PACKET       = 9;
-  public static final int CHANGESLOG_PACKET          = 9;
-
-  /**
-   * BINARY_CHANGESLOG_MIDDLE_PACKET. 
-   *   the pocket type for middle packet to binary Changeslog
-   */
-//  public static final int BINARY_CHANGESLOG_MIDDLE_PACKET      = 10;
-
-  /**
-   * BINARY_CHANGESLOG_LAST_PACKET. 
-   *   the pocket type for last packet to binary Changeslog
-   */
-//  public static final int BINARY_CHANGESLOG_LAST_PACKET        = 11;
-
-  /**
-   * GET_STATE_NODE.
-   */
-//  public static final int GET_STATE_NODE                       = 12;
-
-  /**
-   * STATE_NODE.
-   */
-//  public static final int STATE_NODE                           = 13;
-  
-  /**
-   * BIG_PACKET_FIRST.
-   *   the pocket type for first packet to binary Changeslog
-   *   (using for recovery)
-   */
-  //public static final int BIG_PACKET_FIRST                     = 14;
-
-  /**
-   * BIG_PACKET_MIDDLE.
-   *   the pocket type for middle packet to binary Changeslog
-   *   (using for recovery)
-   */
-  //public static final int BIG_PACKET_MIDDLE                    = 15;
-
-  /**
-   * BIG_PACKET_LAST.
-   *   the pocket type for last packet to binary Changeslog
-   *   (using for recovery)
-   */
-  //public static final int BIG_PACKET_LAST                      = 16;
-  
-  /**
-   * SYNCHRONIZATION_CANCEL.
+   * SYNCHRONIZATION_CANCEL. 
    *   the pocket type to cancel synchronization
    */
-  public static final int SYNCHRONIZATION_CANCEL               = 17;
-  
+  public static final int SYNCHRONIZATION_CANCEL = 3;
+
   /**
-   * SYNCHRONIZATION_MERGE.
+   * SYNCHRONIZATION_MERGE. 
    *   the pocket type to done synchronization merge
    */
-  public static final int SYNCHRONIZATION_MERGE                 = 18;
-  
-  public static final int EXPORT_ERROR                         = 19;
+  public static final int SYNCHRONIZATION_MERGE  = 4;
+
+  /**
+   * EXPORT_ERROR.
+   *   the pocket type to error for export
+   */
+  public static final int EXPORT_ERROR           = 5;
 }

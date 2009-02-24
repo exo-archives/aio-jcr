@@ -40,7 +40,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesS
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;

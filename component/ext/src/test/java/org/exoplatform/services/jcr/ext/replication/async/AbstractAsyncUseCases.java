@@ -37,6 +37,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
 
+import sun.security.action.GetLongAction;
+
 /**
  * Created by The eXo Platform SAS.
  * 

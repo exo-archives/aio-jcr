@@ -16,9 +16,15 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -381,27 +387,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
           }
 
           cont.writeData(packet.getBuffer(), packet.getOffset());
+          
+          if (cont.isFinished())
+            latch.countDown();
 
-          if (cont.isFinished()) {
-
-          }
-
-          /*
-           * try { switch (packet.getType()) { case
-           * AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-           * log.info("BINARY_CHANGESLOG_FIRST_PACKET"); TesterRandomChangesFile
-           * cf = new TesterRandomChangesFile(packet.getCRC(),
-           * packet.getTimeStamp()); cf.writeData(packet.getBuffer(),
-           * packet.getOffset()); totalFiles = packet.getFileCount(); break;
-           * case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-           * log.info("BINARY_CHANGESLOG_MIDDLE_PACKET"); cf =
-           * (TesterRandomChangesFile)map.get(packet.getTimeStamp());
-           * cf.writeData(packet.getBuffer(), packet.getOffset()); break; case
-           * AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-           * log.info("BINARY_CHANGESLOG_LAST_PACKET"); cf =
-           * (TesterRandomChangesFile)map.get(packet.getTimeStamp());
-           * cf.finishWrite(); break; }
-           */
         } catch (IOException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
@@ -426,7 +415,6 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         list.add(vals.next().getChangesFile());
       }
 
-      // do we need to clean map?
       return list;
     }
   }
@@ -555,6 +543,71 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         return null;
       }
     }
+  }
+  
+  public void test30ChangesFile() throws Exception {
+    // create ChangesFile-s
+    List<ChangesFile> cfList = new ArrayList<ChangesFile>();
+
+    for (int i=1; i < 30; i++) {
+      File f = createBLOBTempFile(i * 300);
+      f.deleteOnExit();
+      
+      MessageDigest digest = MessageDigest.getInstance("MD5");
+
+      File ff = File.createTempFile("12_mc", "test");
+      ff.deleteOnExit();
+      
+      DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(ff), digest);
+
+      // write file content
+      long length = f.length();
+      InputStream in = new FileInputStream(f);
+      byte[] buf = new byte[200 * 1024];
+      int l = 0;
+      while ((l = in.read(buf)) != -1) 
+        dout.write(buf, 0, l);
+      in.close();
+
+      cfList.add(new TesterRandomChangesFile(f, digest.digest(), i));
+    }
+
+    // send ChangesFile-s
+    String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
+
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME, 2);
+    ChangesPacketReceiver packetReceiver = new ChangesPacketReceiver();
+    channel1.addPacketListener(packetReceiver);
+
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME, 2);
+    channel2.addStateListener(this);
+
+    AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
+
+    channel1.connect();
+    channel2.connect();
+
+    latch = new CountDownLatchThread(cfList.size());
+
+    List<MemberAddress> sa = new ArrayList<MemberAddress>();
+    for (Member m : memberList)
+      sa.add(m.getAddress());
+    
+    for (ChangesFile c : cfList)
+      log.info(c.getLength());
+
+    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), sa);
+    
+    // wait receive
+    latch.await();
+
+    // disconnect from channel
+    channel1.disconnect();
+    channel2.disconnect();
+
+    // compare data
+    for (int j = 0; j < cfList.size(); j++)
+     compareStream(cfList.get(j).getInputStream(), packetReceiver.getChangesFiles().get(j).getInputStream());
   }
 
 }

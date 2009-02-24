@@ -158,7 +158,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     InputStream in = clFile.getInputStream();
     long totalPacketCount = getPacketCount(clFile.getLength() , AbstractPacket.MAX_PACKET_SIZE);
-
+    
     try {
       byte[] buff = new byte[AbstractPacket.MAX_PACKET_SIZE];
       int len;
@@ -183,8 +183,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                  offset,
                                  buff);
 
-      for (MemberAddress dm : destinationAddresses)
-        channel.sendPacket(packet, dm);
+      channel.sendPacket(packet, destinationAddresses.toArray(new MemberAddress[destinationAddresses.size()]));
 
       offset += len;
       if (LOG.isDebugEnabled())
@@ -208,8 +207,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                    offset,
                                    buff);
 
-        for (MemberAddress dm : destinationAddresses)
-          channel.sendPacket(packet, dm);
+        channel.sendPacket(packet, destinationAddresses.toArray(new MemberAddress[destinationAddresses.size()]));
 
         offset += len;
         if (LOG.isDebugEnabled())
@@ -244,9 +242,6 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     long totalPacketCount = getPacketCount(clFile.getLength() , AbstractPacket.MAX_PACKET_SIZE);
 
-    List<MemberAddress> destinationAddresses = new ArrayList<MemberAddress>();
-    destinationAddresses.add(destinationAddress);
-
     InputStream in = clFile.getInputStream();
 
     try {
@@ -272,8 +267,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                        totalFiles,
                                        offset,
                                        buf);
-      for (MemberAddress dm : destinationAddresses)
-        channel.sendPacket(packet, dm);
+
+      channel.sendPacket(packet, destinationAddress);
 
       offset += len;
       if (LOG.isDebugEnabled())
@@ -297,8 +292,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                          offset,
                                          buf);
 
-        for (MemberAddress dm : destinationAddresses)
-          channel.sendPacket(packet, dm);
+        channel.sendPacket(packet, destinationAddress);
 
         offset += len;
         if (LOG.isDebugEnabled())

@@ -166,50 +166,15 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
         ChangesPacket packet = (ChangesPacket) p;
 
         try{
-        IncomeDataContext cont = map.get(packet.getTimeStamp());
-        
-        if(cont==null){
-          TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
-          cont = new IncomeDataContext(cf, null ,packet.getPacketsCount());
-          map.put(packet.getTimeStamp(), cont);         
-        }
-        
-        cont.writeData(packet.getBuffer(), packet.getOffset());
-    
-        if(cont.isFinished()){
+          IncomeDataContext cont = map.get(packet.getTimeStamp());
           
-        }
-        
-       /* try {
-          switch (packet.getType()) {
-          case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-            log.info("BINARY_CHANGESLOG_FIRST_PACKET");
-
+          if(cont==null){
             TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
-
-            cf.writeData(packet.getBuffer(), packet.getOffset());
-
-            totalFiles = packet.getFileCount();
-
-           
-            break;
-
-          case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-            log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
-
-            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
-            cf.writeData(packet.getBuffer(), packet.getOffset());
-            break;
-
-          case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-            log.info("BINARY_CHANGESLOG_LAST_PACKET");
-
-            cf = (TesterRandomChangesFile)map.get(packet.getTimeStamp());
-            cf.finishWrite();
-
-            break;
-
-          }*/
+            cont = new IncomeDataContext(cf, null ,packet.getPacketsCount());
+            map.put(packet.getTimeStamp(), cont);         
+          }
+          
+          cont.writeData(packet.getBuffer(), packet.getOffset());
         } catch (IOException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);

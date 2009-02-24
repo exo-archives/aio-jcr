@@ -117,36 +117,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
         remoteExportListener.onRemoteExport(eventFirst);
       }
         break;
-  /*    case AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET: {
-        ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
-
-        Member member = new Member(address, exportPacket.getTransmitterPriority());
-
-        RemoteExportResponce eventMiddle = new RemoteExportResponce(member,
-                                                                    RemoteExportResponce.MIDDLE,
-                                                                    exportPacket.getCRC(),
-                                                                    exportPacket.getTimeStamp(),
-                                                                    exportPacket.getBuffer(),
-                                                                    exportPacket.getOffset());
-
-        remoteExportListener.onRemoteExport(eventMiddle);
-      }
-        break;
-      case AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET: {
-        ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
-
-        Member member = new Member(address, exportPacket.getTransmitterPriority());
-
-        RemoteExportResponce eventLast = new RemoteExportResponce(member,
-                                                                  RemoteExportResponce.LAST,
-                                                                  exportPacket.getCRC(),
-                                                                  exportPacket.getTimeStamp(),
-                                                                  exportPacket.getBuffer(),
-                                                                  exportPacket.getOffset());
-
-        remoteExportListener.onRemoteExport(eventLast);
-      }
-        break;*/
+  
       case AsyncPacketTypes.EXPORT_ERROR: {
         ErrorPacket errorPacket = (ErrorPacket) packet;
 
@@ -159,14 +130,6 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       case AsyncPacketTypes.CHANGESLOG_PACKET:
         onChanges((ChangesPacket) packet, address);
         break;
-
-      //case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-      //  onChanges((ChangesPacket) packet, address);
-      //  break;
-
-      //case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-      //  onChanges((ChangesPacket) packet, address);
-      //  break;
 
       }
     } else
