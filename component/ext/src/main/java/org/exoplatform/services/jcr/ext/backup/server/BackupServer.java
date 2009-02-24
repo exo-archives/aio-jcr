@@ -157,7 +157,7 @@ public class BackupServer implements ResourceContainer {
     config.setWorkspace(workspaceName);
     config.setBackupDir(backupManager.getBackupDirectory());
 
-    String result = "OK +\n";
+    String result = "OK\n";
 
     try {
       validateRepositoryName(repositoryName);
@@ -167,7 +167,7 @@ public class BackupServer implements ResourceContainer {
       
       result += ("backup log : " + backupChain.getLogFilePath());
     } catch (Exception e) {
-      result = "fail + \n" + e.getMessage();
+      result = "FAIL\n" + e.getMessage();
       log.error("Can't start backup", e);
     }
 
@@ -201,7 +201,7 @@ public class BackupServer implements ResourceContainer {
     config.setIncrementalJobPeriod(incementalJobPeriod);
     config.setIncrementalJobNumber(incementalJobNumber);
 
-    String result = "OK +\n";
+    String result = "OK\n";
 
     try {
       validateRepositoryName(repositoryName);
@@ -211,7 +211,7 @@ public class BackupServer implements ResourceContainer {
       
       result += ("backup log : " + backupChain.getLogFilePath());
     } catch (Exception e) {
-      result = "fail + \n" + e.getMessage();
+      result = "FAIL\n" + e.getMessage();
       log.error("Can't start backup", e);
     }
 
@@ -235,6 +235,8 @@ public class BackupServer implements ResourceContainer {
                               @PathParam("password") String password,
                               @PathParam("path") String path) {
 
+    String result = "OK\n";
+    
     try {
       byte buf[] = Base64.decode(path);
       String ePath = new String(buf, "UTF-8");
@@ -247,15 +249,12 @@ public class BackupServer implements ResourceContainer {
                                                       password,
                                                       ePath);
   
-      String result = "OK +\n";
-
-    
       validateRepositoryName(repositoryName);
       validateWorkspaceName(repositoryName, workspaceName, userName, password);
       
       restore.restore();
     } catch (Exception e) {
-      result = "fail + \n" + e.getMessage();
+      result = "FAIL\n" + e.getMessage();
       log.error("Can't start backup", e);
     }
 
@@ -277,7 +276,7 @@ public class BackupServer implements ResourceContainer {
                               @PathParam("workspaceName") String workspaceName,
                               @PathParam("userName") String userName,
                               @PathParam("password") String password) {
-    String result = "OK +\n";
+    String result = "OK\n";
 
     try {
       validateRepositoryName(repositoryName);
@@ -293,7 +292,7 @@ public class BackupServer implements ResourceContainer {
                                    + "/"+workspaceName+"'");
       
     } catch (Exception e) {
-      result = "fail + \n" + e.getMessage();
+      result = "FAIL\n" + e.getMessage();
       log.error("Can't start backup", e);
     }
 
@@ -315,7 +314,7 @@ public class BackupServer implements ResourceContainer {
                               @PathParam("workspaceName") String workspaceName,
                               @PathParam("userName") String userName,
                               @PathParam("password") String password) {
-    String result = "OK +\n";
+    String result = "OK\n";
 
     try {
       validateRepositoryName(repositoryName);
@@ -331,7 +330,7 @@ public class BackupServer implements ResourceContainer {
                                    + "/"+workspaceName+"'");
       
     } catch (Exception e) {
-      result = "fail + \n" + e.getMessage();
+      result = "FAIL\n" + e.getMessage();
       log.error("Can't start backup", e);
     }
 
