@@ -23,17 +23,29 @@ package org.exoplatform.jcr.backupconsole;
  * <br/>Date: 
  *
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
- * @version $Id: BackupClient.java 111 2008-11-11 11:11:11Z serg $
+ * @version $Id: ClientTransportImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public interface BackupClient {
+public class ClientTransportImpl implements ClientTransport {
 
-  public void startBackUp(String pathToWS);
+  private final String host;
+  private final String loginPath;
+  private final boolean isSSL;
   
-  public void startIncrementalBackUp(String pathToWS, long incr, int jobnumber);
+  public ClientTransportImpl(String host, String loginPathword, boolean isSSL){
+    this.host = host;
+    this.loginPath = loginPathword;
+    this.isSSL = isSSL;
+  }
   
-  public void status(String pathToWS);
   
-  public void restore(String pathToWS, String pathToBackup);
-  
-  public void stop(String pathToWS);
+  public void reseive() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void send() {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

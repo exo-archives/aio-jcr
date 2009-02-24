@@ -23,10 +23,39 @@ package org.exoplatform.jcr.backupconsole;
  * <br/>Date: 
  *
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
- * @version $Id: BackupConsole.java 111 2008-11-11 11:11:11Z serg $
+ * @version $Id: BackupClientImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public interface BackupUserInterface {
+public class BackupClientImpl implements BackupClient{
+  
+  private ClientTransport transport; 
+  
+  public BackupClientImpl(ClientTransport transport){
+    this.transport = transport;
+  }
+  
+  public void restore(String pathToWS, String pathToBackup) {
+    // TODO Auto-generated method stub
+    
+  }
 
-  public String readMessage();
-  public void writeMessage(String str);
+  public void startBackUp(String pathToWS) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void startIncrementalBackUp(String pathToWS, long incr, int jobnumber) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void status(String pathToWS) {
+    // TODO Auto-generated method stub
+    
+  }
+  
+  public void stop(String pathToWS) {
+    // TODO Auto-generated method stub
+    
+  }
+
 }
