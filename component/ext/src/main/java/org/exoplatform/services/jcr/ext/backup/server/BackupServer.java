@@ -26,6 +26,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
+import org.apache.ws.commons.util.Base64;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -233,17 +234,22 @@ public class BackupServer implements ResourceContainer {
                               @PathParam("userName") String userName,
                               @PathParam("password") String password,
                               @PathParam("path") String path) {
-    WorkspaceRestore restore = new WorkspaceRestore(repositoryService,
-                                                    backupManager,
-                                                    repositoryName,
-                                                    workspaceName,
-                                                    userName,
-                                                    password,
-                                                    path);
-
-    String result = "OK +\n";
 
     try {
+      byte buf[] = Base64.decode(path);
+      String ePath = new String(buf, "UTF-8");
+      
+      WorkspaceRestore restore = new WorkspaceRestore(repositoryService,
+                                                      backupManager,
+                                                      repositoryName,
+                                                      workspaceName,
+                                                      userName,
+                                                      password,
+                                                      ePath);
+  
+      String result = "OK +\n";
+
+    
       validateRepositoryName(repositoryName);
       validateWorkspaceName(repositoryName, workspaceName, userName, password);
       
