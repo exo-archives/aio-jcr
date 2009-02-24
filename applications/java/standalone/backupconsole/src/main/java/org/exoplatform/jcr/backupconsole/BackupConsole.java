@@ -160,12 +160,6 @@ public class BackupConsole {
       String pathToWS = args[curArg++];
 
       if (curArg == args.length) {
-        System.out.println(incorrectParam + "There is no source-name parameter.");
-        return;
-      }
-      String srcname = args[curArg++];
-       
-      if (curArg == args.length) {
         System.out.println(incorrectParam + "There is no path to backup file parameter.");
         return;
       }
@@ -175,7 +169,7 @@ public class BackupConsole {
         System.out.println(toManyParams);
         return;
       }
-      client.restore(pathToWS, srcname, pathToBackup);
+      client.restore(pathToWS, pathToBackup);
     } else {
       System.out.println("Unknown command <" + command + ">");
     }

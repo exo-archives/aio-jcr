@@ -53,8 +53,8 @@ public class BackupClientImpl implements BackupClient{
     // TODO Auto-generated method stub
   }
 
-  public void restore(String pathToWS, String resName, String pathToBackup) {
-    System.out.println("StartIncrementalBackup "+ pathToWS + " " + resName + " " + pathToBackup);
+  public void restore(String pathToWS, String pathToBackup) {
+    System.out.println("StartIncrementalBackup "+ pathToWS + " " + pathToBackup);
     // TODO Auto-generated method stub
     
   }
