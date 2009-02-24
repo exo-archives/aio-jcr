@@ -236,7 +236,7 @@ public class BackupServer implements ResourceContainer {
                               @PathParam("password") String password,
                               @PathParam("path") String path) {
 
-    String result = "OK\n";
+    String res = "OK\n";
     
     try {
       byte buf[] = Base64.decode(path);
@@ -255,11 +255,11 @@ public class BackupServer implements ResourceContainer {
       
       restore.restore();
     } catch (Exception e) {
-      result = "FAIL\n" + e.getMessage();
+      res = "FAIL\n" + e.getMessage();
       log.error("Can't start backup", e);
     }
 
-    return Response.ok(result).build();
+    return Response.ok(res).build();
   }
   
   /**
