@@ -24,45 +24,128 @@ package org.exoplatform.jcr.backupconsole;
  */
 public class BackupConsole {
 
+  private static final String incorrectParam = "Incorrect parameter: ";
+  private static final String toManyParams = "Too may parameters.";
+  
+  private static final String HELP_INFO =
+    " Help info:"
+    + "[-ssl] <auth> <host> <cmd> \n"
+    + " <auth>:   login:pathword\n"
+    + " <host>:   <host ip>:<port>\n"
+    + " <cmd>:   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
+    + "          stop  <repo/ws>\n"
+    + "          status <repo/ws>\n"
+    + "          restore <repo/ws> <path>\n\n"
+    + " <repo/ws>   -   /<reponame>/<ws name>\n"
+    + " <path>      -   path to backup file\n"
+    + " <incr>       - iterations count\n"
+    + " <inr_jobnumber> - inremential job number\n";
+    
   public static void main(String[] args) {
 
     for (int i = 0; i < args.length; i++) {
       System.out.println(args[i]);
     }
 
-    if (args[0].equalsIgnoreCase("help")) {
-      // TODO print help
+    int curArg = 0;
+
+    if (curArg == args.length) {
+      System.out.println(incorrectParam + "There is no any parameters.");
       return;
     }
 
-    int curArg = 0;
+    if (args[curArg].equalsIgnoreCase("help")) {
+      System.out.println(HELP_INFO);
+        return;
+    }
+
     boolean isSSL = false;
     if (args[curArg].equalsIgnoreCase("-ssl")) {
       isSSL = true;
       curArg++;
     }
 
+    if (curArg == args.length) {
+      System.out.println(incorrectParam + "There is no Host:port parameter.");
+      return;
+    }
     String host = args[curArg++];
     // TODO check host;
+
+    if (curArg == args.length) {
+      System.out.println(incorrectParam + "There is no Login@Pathword parameter.");
+      return;
+    }
     String login = args[curArg++];
     // TODO check login
+
     ClientTransport transport = new ClientTransportImpl(host, login, isSSL);
     BackupClient client = new BackupClientImpl(transport);
 
+    if (curArg == args.length) {
+      System.out.println(incorrectParam + "There is no command parameter.");
+      return;
+    }
     String command = args[curArg++];
-    // all commands must have path to ws
-    String pathToWs = args[curArg++];
-    
+
+    if (curArg == args.length) {
+      System.out.println(incorrectParam + "There is no path to workspace parameter.");
+      return;
+    }
+    String pathToWS = args[curArg++];
+
     if (command.equalsIgnoreCase("start")) {
-      
-      
+      if (curArg == args.length) {
+        client.startBackUp(pathToWS);
+      } else {
 
+        String incr = args[curArg++];
+
+        long inc = 0;
+        try {
+           inc = Long.parseLong(incr);
+        } catch (NumberFormatException e) {
+          System.out.println(incorrectParam + " Increment is not didgit - " + e.getMessage());
+          return;
+        }
+
+        if (curArg == args.length) {
+          System.out.println(incorrectParam + "There is no job number parameter.");
+          return;
+        }
+        String jobNumber = args[curArg++];
+        
+        int jn = 0;
+        try{
+          jn = Integer.parseInt(jobNumber);
+        }catch (NumberFormatException e) {
+          System.out.println(incorrectParam + " Job number is not didgit - " + e.getMessage());
+          return;
+        }
+        
+        if (curArg < args.length) {
+          System.out.println(toManyParams);
+        }
+        client.startIncrementalBackUp(pathToWS, inc, jn);
+      }
     } else if (command.equalsIgnoreCase("stop")) {
-
+      if (curArg < args.length) {
+        System.out.println(toManyParams);
+      }
+      client.stop(pathToWS);
     } else if (command.equalsIgnoreCase("status")) {
-
+      if (curArg < args.length) {
+        System.out.println(toManyParams);
+      }
+      client.status(pathToWS);
     } else if (command.equalsIgnoreCase("restore")) {
 
+      String pathToBackup = args[curArg++];
+      
+      if (curArg < args.length) {
+        System.out.println(toManyParams);
+      }
+      client.restore(pathToWS, pathToBackup);
     } else {
       System.out.println("Unknown command <" + command + ">");
     }
