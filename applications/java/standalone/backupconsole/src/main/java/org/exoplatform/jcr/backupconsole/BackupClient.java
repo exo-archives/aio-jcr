@@ -18,24 +18,66 @@ package org.exoplatform.jcr.backupconsole;
 
 import java.io.IOException;
 
-
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: BackupClient.java 111 2008-11-11 11:11:11Z serg $
  */
 public interface BackupClient {
 
+  /**
+   * Start Backup.
+   * 
+   * @param pathToWS path to repository and workspace.
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException backup client internal exception.
+   */
   public String startBackUp(String pathToWS) throws IOException, BackupExecuteException;
-  
-  public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException, BackupExecuteException;
-  
-  public String status(String pathToWS)throws IOException, BackupExecuteException;
-  
-  public String restore(String pathToWS, String pathToBackup) throws IOException, BackupExecuteException;
-  
-  public String stop(String pathToWS)throws IOException, BackupExecuteException;
+
+  /**
+   * Start Incremental Backup.
+   * 
+   * @param pathToWS path to repository and workspace.
+   * @param incr incemental job period.
+   * @param jobnumber incremental job number.
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException backup client internal exception.
+   */
+  public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
+                                                                                 BackupExecuteException;
+
+  /**
+   * Get Status.
+   * 
+   * @param pathToWS path to repository and workspace.
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException
+   */
+  public String status(String pathToWS) throws IOException, BackupExecuteException;
+
+  /**
+   * Restore repository from backup file.
+   * 
+   * @param pathToWS path to repository and workspace.
+   * @param pathToBackup path to backup file on server side.
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException backup client internal exception.
+   */
+  public String restore(String pathToWS, String pathToBackup) throws IOException,
+                                                             BackupExecuteException;
+
+  /**
+   * Stop backup.
+   * 
+   * @param pathToWS path to repository and workspace.
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException backup client internal exception.
+   */
+  public String stop(String pathToWS) throws IOException, BackupExecuteException;
 }

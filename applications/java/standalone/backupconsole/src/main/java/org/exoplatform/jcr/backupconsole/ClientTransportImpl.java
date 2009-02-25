@@ -33,40 +33,66 @@ import org.exoplatform.common.http.client.ParseException;
  */
 public class ClientTransportImpl implements ClientTransport {
 
+  /**
+   * String form - hostIP:port.
+   */
   private final String  host;
 
+  /**
+   * Login.
+   */
   private final String  login;
 
+  /**
+   * Password.
+   */
   private final String  password;
 
+  /**
+   * Realm.
+   */
+  private final String  realm;
+
+  /**
+   * Flag is SSL.
+   */
   private final boolean isSSL;
 
-  public ClientTransportImpl(String host, String login, String pathword, boolean isSSL) {
+  /**
+   * Constructor.
+   * 
+   * @param realm
+   * @param login
+   * @param pathword
+   * @param host
+   * @param isSSL
+   */
+  public ClientTransportImpl(String realm, String login, String pathword, String host, boolean isSSL) {
     this.host = host;
     this.login = login;
     this.password = pathword;
+    this.realm = realm;
     this.isSSL = isSSL;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String execute(String sURL) throws IOException, BackupExecuteException {
     String result = "fail";
 
     try {
       // execute the GET
       String complURL = "http" + (isSSL ? "s" : "") + "://" + host + sURL;
-      
+
       System.out.println(complURL);
       URL url = new URL(complURL);
       HTTPConnection connection = new HTTPConnection(url);
       connection.removeModule(CookieModule.class);
 
-      connection.addBasicAuthorization("eXo REST services", login, password);
+      connection.addBasicAuthorization(realm, login, password);
 
       HTTPResponse resp = connection.Get(url.getFile());
-
-      // print the status and response
-      // if (resp.getStatusCode() != 200)
-      // System.out.println(resp.getStatusCode() + "\n" + resp.getText());
 
       result = resp.getText();
     } catch (ModuleException e) {

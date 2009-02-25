@@ -28,69 +28,86 @@ public class BackupConsole {
 
   private static final String INCORRECT_PARAM     = "Incorrect parameter: ";
 
-  private static final String TO_MANY_PARAMS      = "Too may parameters.";
+  private static final String TO_MANY_PARAMS      = "Too many parameters.";
 
   private static final String LOGIN_PASS_SPLITTER = ":";
 
-  private static final String HELP_INFO           = " Help info:"
-                                                      + "[-ssl] <auth> <host> <cmd> \n"
-                                                      + " <auth>:   login:pathword\n"
-                                                      + " <host>:   <host ip>:<port>\n"
-                                                      + " <cmd>:   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
-                                                      + "          stop  <repo/ws>\n"
-                                                      + "          status <repo/ws>\n"
-                                                      + "          restore <repo/ws> <path>\n\n"
-                                                      + " <repo/ws>   -   /<reponame>/<ws name>\n"
-                                                      + " <path>      -   path to backup file\n"
-                                                      + " <incr>       - iterations count\n"
-                                                      + " <inr_jobnumber> - inremential job number\n";
+  private static final String HELP_INFO           = "Help info:\n"
+                                                      + " [-ssl] <realm> <auth> <host> <cmd> \n"
+                                                      + " <realm>:   \"<>\"\n"
+                                                      + " <auth> :   login:pathword\n"
+                                                      + " <host> :   <host ip>:<port>\n"
+                                                      + " <cmd>  :   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
+                                                      + "            stop  <repo/ws>\n"
+                                                      + "            status <repo/ws>\n"
+                                                      + "            restore <repo/ws> <path>\n\n"
+                                                      + " <repo/ws>   - /<reponame>/<ws name>\n"
+                                                      + " <path>      - path to backup file\n"
+                                                      + " <incr>      - incemental job period\n"
+                                                      + " <incr_jobnumber> - inremential job number\n";
 
+  /**
+   * Main.
+   * 
+   * @param args - arguments used as parameters for execute backup server
+   *          commands.
+   */
   public static void main(String[] args) {
 
-    // for (int i = 0; i < args.length; i++) {
-    // System.out.println(args[i]);
-    // }
-
     int curArg = 0;
-
     if (curArg == args.length) {
       System.out.println(INCORRECT_PARAM + "There is no any parameters.");
       return;
     }
 
+    // help
     if (args[curArg].equalsIgnoreCase("help")) {
       System.out.println(HELP_INFO);
       return;
     }
 
+    // this parameter is always first so do not check is it exist
     boolean isSSL = false;
     if (args[curArg].equalsIgnoreCase("-ssl")) {
       isSSL = true;
       curArg++;
     }
 
+    // realm
     if (curArg == args.length) {
-      System.out.println(INCORRECT_PARAM + "There is no Host:port parameter.");
+      System.out.println(INCORRECT_PARAM + "There is no realm parameter.");
       return;
     }
-    String host = args[curArg++];
-    // TODO check host;
+    String realm = args[curArg++];
 
+    // login:password
     if (curArg == args.length) {
-      System.out.println(INCORRECT_PARAM + "There is no Login:Pathword parameter.");
+      System.out.println(INCORRECT_PARAM + "There is no Login:Password parameter.");
       return;
     }
     String login = args[curArg++];
-    // TODO check login
-    String[] lp = login.split(LOGIN_PASS_SPLITTER);
-    if (lp.length != 2) {
-      System.out.println(INCORRECT_PARAM + "There is corrupted Login:Pathword parameter - " + login);
+    if (!login.matches("[^:]+:[^:]+")) {
+      System.out.println(INCORRECT_PARAM + "There is incorrect Login:Password parameter - " + login);
       return;
     }
 
-    ClientTransport transport = new ClientTransportImpl(host, lp[0], lp[1], isSSL);
+    // host:port
+    if (curArg == args.length) {
+      System.out.println(INCORRECT_PARAM + "There is no Host:Port parameter.");
+      return;
+    }
+    String host = args[curArg++];
+    if (!host.matches("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:\\d{1,6}")) {
+      System.out.println(INCORRECT_PARAM + "There is incorrect Host:Port parameter - " + host);
+      return;
+    }
+
+    // initialize transport and backup client
+    String[] lp = login.split(LOGIN_PASS_SPLITTER);
+    ClientTransport transport = new ClientTransportImpl(realm, lp[0], lp[1], host, isSSL);
     BackupClient client = new BackupClientImpl(transport, lp[0], lp[1]);
 
+    // commands
     if (curArg == args.length) {
       System.out.println(INCORRECT_PARAM + "There is no command parameter.");
       return;
@@ -99,38 +116,35 @@ public class BackupConsole {
 
     try {
       if (command.equalsIgnoreCase("start")) {
-        if (curArg == args.length) {
-          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
+        String pathToWS = getRepoWS(args, curArg++);
+        if (pathToWS == null)
           return;
-        }
-        String pathToWS = args[curArg++];
+
         if (curArg == args.length) {
-
           System.out.println(client.startBackUp(pathToWS));
-
         } else {
-
+          // incremental job period
           String incr = args[curArg++];
-
           long inc = 0;
           try {
             inc = Long.parseLong(incr);
           } catch (NumberFormatException e) {
-            System.out.println(INCORRECT_PARAM + " Increment is not didgit - " + e.getMessage());
+            System.out.println(INCORRECT_PARAM + "Incemental job period is not didgit - "
+                + e.getMessage());
             return;
           }
 
+          // incremental job number
           if (curArg == args.length) {
             System.out.println(INCORRECT_PARAM + "There is no job number parameter.");
             return;
           }
           String jobNumber = args[curArg++];
-
           int jn = 0;
           try {
             jn = Integer.parseInt(jobNumber);
           } catch (NumberFormatException e) {
-            System.out.println(INCORRECT_PARAM + " Job number is not didgit - " + e.getMessage());
+            System.out.println(INCORRECT_PARAM + "Job number is not didgit - " + e.getMessage());
             return;
           }
 
@@ -141,34 +155,32 @@ public class BackupConsole {
           System.out.println(client.startIncrementalBackUp(pathToWS, inc, jn));
         }
       } else if (command.equalsIgnoreCase("stop")) {
-        if (curArg == args.length) {
-          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
+        String pathToWS = getRepoWS(args, curArg++);
+        if (pathToWS == null)
           return;
-        }
-        String pathToWS = args[curArg++];
+
         if (curArg < args.length) {
           System.out.println(TO_MANY_PARAMS);
           return;
         }
         System.out.println(client.stop(pathToWS));
       } else if (command.equalsIgnoreCase("status")) {
-        if (curArg == args.length) {
-          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
+        String pathToWS = getRepoWS(args, curArg++);
+        if (pathToWS == null)
           return;
-        }
-        String pathToWS = args[curArg++];
+
         if (curArg < args.length) {
           System.out.println(TO_MANY_PARAMS);
           return;
         }
         System.out.println(client.status(pathToWS));
       } else if (command.equalsIgnoreCase("restore")) {
-        if (curArg == args.length) {
-          System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
-          return;
-        }
-        String pathToWS = args[curArg++];
 
+        String pathToWS = getRepoWS(args, curArg++);
+        if (pathToWS == null)
+          return;
+
+        // path to backup file
         if (curArg == args.length) {
           System.out.println(INCORRECT_PARAM + "There is no path to backup file parameter.");
           return;
@@ -193,4 +205,29 @@ public class BackupConsole {
     }
   }
 
+  /**
+   * Get parameter from argument list, check it and return as valid path to
+   * repository and workspace.
+   * 
+   * @param args list of arguments.
+   * @param curArg argument index.
+   * @return String valid path.
+   */
+  private static String getRepoWS(String[] args, int curArg) {
+    if (curArg == args.length) {
+      System.out.println(INCORRECT_PARAM + "There is no path to workspace parameter.");
+      return null;
+    }
+    // make correct path
+    String repWS = args[curArg];
+    repWS = repWS.replaceAll("\\\\", "/");
+
+    if (!repWS.matches("[/][^/]+[/][^/]+")) {
+      System.out.println(INCORRECT_PARAM + "There is incorrect path to workspace parameter: "
+          + repWS);
+      return null;
+    } else {
+      return repWS;
+    }
+  }
 }

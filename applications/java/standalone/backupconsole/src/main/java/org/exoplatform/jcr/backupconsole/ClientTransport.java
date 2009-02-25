@@ -18,7 +18,6 @@ package org.exoplatform.jcr.backupconsole;
 
 import java.io.IOException;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -28,5 +27,14 @@ import java.io.IOException;
  * @version $Id: ClientTransport.java 111 2008-11-11 11:11:11Z serg $
  */
 public interface ClientTransport {
+  
+  /**
+   * Execute assigned sURL using current transport and return result as String.
+   * 
+   * @param sURL String form of URL to execute.
+   * @return String result.
+   * @throws IOException any transport exception.
+   * @throws BackupExecuteException other internal exception.
+   */
   public String execute(String sURL) throws IOException, BackupExecuteException;
 }

@@ -16,19 +16,24 @@
  */
 package org.exoplatform.jcr.backupconsole;
 
-
 /**
- * Created by The eXo Platform SAS.
+ * Internal backup client exception wrapper.
+ * <p>
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: TransportException.java 111 2008-11-11 11:11:11Z serg $
  */
+@SuppressWarnings("serial")
 public class BackupExecuteException extends Exception {
-  
-  public BackupExecuteException(String message, Throwable cause){
-      super( message, cause);
-  }
 
+  /**
+   * Constructor.
+   * 
+   * @param message exception message.
+   * @param cause exception cause.
+   */
+  public BackupExecuteException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

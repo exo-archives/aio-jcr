@@ -68,54 +68,78 @@ public class BackupClientImpl implements BackupClient {
     }
   }
 
+  /**
+   * Client transport.
+   */
   private ClientTransport transport;
 
+  /**
+   * User login.
+   */
   private final String    userName;
 
+  /**
+   * User password.
+   */
   private final String    pass;
 
+  /**
+   * Constructor.
+   * 
+   * @param transport ClientTransport implementation.
+   * @param login user login.
+   * @param pass user password.
+   */
   public BackupClientImpl(ClientTransport transport, String login, String pass) {
     this.transport = transport;
     this.userName = login;
     this.pass = pass;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String startBackUp(String pathToWS) throws IOException, BackupExecuteException {
-    // System.out.println("StartBackup " + pathToWS);
     String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
         + OperationType.FULL_BACKUP_ONLY;
     return transport.execute(sURL);
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
                                                                                  BackupExecuteException {
-    // System.out.println("StartIncrementalBackup " + pathToWS + " " + incr + "
-    // " + jobnumber);
-    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + incr + "/"
-        + jobnumber + "/" + OperationType.FULL_AND_INCREMENTAL;
+    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + incr + "/" + jobnumber
+        + "/" + OperationType.FULL_AND_INCREMENTAL;
 
     return transport.execute(sURL);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String status(String pathToWS) throws IOException, BackupExecuteException {
-    // System.out.println("Status " + pathToWS);
     String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
         + OperationType.GET_STATUS;
     return transport.execute(sURL);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String stop(String pathToWS) throws IOException, BackupExecuteException {
-    // System.out.println("Stop " + pathToWS);
     String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
         + OperationType.STOP_BACKUP;
     return transport.execute(sURL);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String restore(String pathToWS, String pathToBackup) throws IOException,
                                                              BackupExecuteException {
-    // System.out.println("StartIncrementalBackup " + pathToWS + " " +
-    // pathToBackup);
     String encodedPath = Base64.encode(pathToBackup.getBytes("UTF-8"),
                                        0,
                                        (int) pathToBackup.getBytes("UTF-8").length,
