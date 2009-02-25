@@ -16,14 +16,10 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.util.ArrayList;
-
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
