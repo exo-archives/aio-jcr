@@ -16,12 +16,10 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.util.ArrayList;
-
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
-import org.exoplatform.services.jcr.webdav.WebDavConst.DavProperty;
+import org.exoplatform.services.jcr.webdav.WebDavConst.Lock;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
@@ -70,7 +68,7 @@ public class TestLock extends BaseWebDavTest {
     assertEquals(HTTPStatus.OK, response.getStatusCode());
     
     String responseBody = response.getText();
-    assertTrue(responseBody.contains(DavProperty.OPAQUELOCKTOKEN));
+    assertTrue(responseBody.contains(Lock.OPAQUE_LOCK_TOKEN));
     
     response = connection.PropfindAllprop(testFolder);
     responseBody = response.getText();
