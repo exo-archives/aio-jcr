@@ -213,7 +213,7 @@ public class BackupServer implements ResourceContainer {
       result += ("backup log : " + backupChain.getLogFilePath());
     } catch (Exception e) {
       result = "FAIL\n" + e.getMessage();
-      log.error("Can't start backup", e);
+      log.error("Can not start backup", e);
     }
 
     return Response.ok(result).build();
@@ -287,14 +287,15 @@ public class BackupServer implements ResourceContainer {
       
       if (bch != null) {
         backupManager.stopBackup(bch);
+        result += "The backup was stoped for '" + "/"+repositoryName + "/"+workspaceName+"'";
       } else
-        throw new RuntimeException("Can not get activ backup for '"
+        throw new RuntimeException("No active backup for '"
                                    +"/"+repositoryName 
                                    + "/"+workspaceName+"'");
       
     } catch (Exception e) {
       result = "FAIL\n" + e.getMessage();
-      log.error("Can't start backup", e);
+      log.error("Can not stop backup", e);
     }
 
     return Response.ok(result).build();
@@ -323,16 +324,14 @@ public class BackupServer implements ResourceContainer {
       
       BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
       
-      if (bch != null) {
+      if (bch != null) 
         result +=(bch.getFullBackupState() != BackupJob.FINISHED ? "The full backup is working" :  "The full backup was finished.");
-      } else
-        throw new RuntimeException("Can not get active backup for '"
-                                   +"/"+repositoryName 
-                                   + "/"+workspaceName+"'");
+      else
+        result += "No active backup for '" + "/"+repositoryName + "/"+workspaceName+"'";
       
     } catch (Exception e) {
       result = "FAIL\n" + e.getMessage();
-      log.error("Can't start backup", e);
+      log.error("Can not get status of backup", e);
     }
 
     return Response.ok(result).build();
