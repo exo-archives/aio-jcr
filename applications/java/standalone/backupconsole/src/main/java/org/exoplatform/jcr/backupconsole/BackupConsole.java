@@ -34,7 +34,7 @@ public class BackupConsole {
 
   private static final String HELP_INFO           = "Help info:\n"
                                                       + " [-ssl] <realm> <auth> <host> <cmd> \n"
-                                                      + " <realm>:   \"<>\"\n"
+                                                      + " <realm>:   \"<realm name>\"  Warn: Case sensitive\n"
                                                       + " <auth> :   login:pathword\n"
                                                       + " <host> :   <host ip>:<port>\n"
                                                       + " <cmd>  :   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
