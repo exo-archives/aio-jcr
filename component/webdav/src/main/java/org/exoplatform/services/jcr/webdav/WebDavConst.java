@@ -206,7 +206,6 @@ public class WebDavConst {
      */
     public static final String SUPPORDEDMETHODSET = "supported-method-set";
     
-    public static final String OPAQUELOCKTOKEN = "opaquelocktoken:";
   }
 
   /**
