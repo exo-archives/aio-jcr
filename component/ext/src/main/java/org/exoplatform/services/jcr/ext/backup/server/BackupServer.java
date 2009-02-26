@@ -271,7 +271,7 @@ public class BackupServer implements ResourceContainer {
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/{path}/{workspace}/restore")
+  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/{path}/{workspaceEntry}/restore")
   public Response restore(@PathParam("repositoryName") String repositoryName,
                               @PathParam("workspaceName") String workspaceName,
                               @PathParam("userName") String userName,
