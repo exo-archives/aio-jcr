@@ -16,6 +16,7 @@
  */
 package org.exoplatform.jcr.backupconsole;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -148,16 +149,18 @@ public class BackupClientImpl implements BackupClient {
                                        0,
                                        "");
 
-    ByteBuffer buf = ByteBuffer.allocate(1024*1024*60);
-
+    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+    
     byte[] b = new byte[1024];
-    while (config.read(b) != -1) {
-      buf.put(b);
+    int len= 0; 
+    while ((len = config.read(b)) != -1) {
+      bout.write(b, 0, len);
     }
     config.close();
+    byte[] cb = bout.toByteArray();
+    bout.close();
     
-    String conf = Base64.encode(buf.array(), 0, buf.array().length, 0,"");
-    buf.clear();
+    String conf = Base64.encode(cb, 0, cb.length, 0,"");
     
     String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + encodedPath + "/"
         + OperationType.RESTORE;
