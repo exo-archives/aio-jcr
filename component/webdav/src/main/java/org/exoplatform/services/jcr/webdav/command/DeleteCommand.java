@@ -18,6 +18,7 @@
 package org.exoplatform.services.jcr.webdav.command;
 
 import javax.jcr.Item;
+import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -36,6 +37,12 @@ public class DeleteCommand {
   public Response delete(Session session, String path) {
     try {
       Item item = session.getItem(path);
+      if (item.isNode()) {
+        Node node = (Node) item;
+        if(node.isLocked()){
+          return Response.status(HTTPStatus.LOCKED).build();
+        }        
+      }
       item.remove();
       session.save();
       return Response.status(HTTPStatus.NO_CONTENT).build();
