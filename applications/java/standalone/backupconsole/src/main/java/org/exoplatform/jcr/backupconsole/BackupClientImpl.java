@@ -166,6 +166,8 @@ public class BackupClientImpl implements BackupClient {
     bout.close();
 
     String conf = Base64.encode(cb, 0, cb.length, 0, "");
+    
+    conf = conf.replace("+", "char_pluse");
 
     String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + encodedPath + "/"
         + conf + "/" + OperationType.RESTORE;
