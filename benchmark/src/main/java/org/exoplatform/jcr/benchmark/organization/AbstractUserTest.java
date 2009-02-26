@@ -57,10 +57,10 @@ public abstract class AbstractUserTest extends AbstractOrganizationTest {
     }
 
     users.clear();
-    users = uHandler.getUserPageList(10).getAll();
-    for (int i = users.size() - 1; i >= 0; i--) {
-      if (!users.get(i).getUserName().startsWith("UserName")) {
-        users.remove(i);
+    List<User> allUsers = uHandler.getUserPageList(10).getAll();
+    for (int i = 0; i < allUsers.size(); i++) {
+      if (allUsers.get(i).getUserName().startsWith("UserName")) {
+        users.add(allUsers.get(i));
       }
     }
   }
