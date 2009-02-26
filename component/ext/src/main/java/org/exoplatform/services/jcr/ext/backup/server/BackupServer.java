@@ -251,10 +251,12 @@ public class BackupServer implements ResourceContainer {
       
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
       repository.removeWorkspace(workspaceName);
+      
+      res += "The workspace '" + "/" + repositoryName + "/"+workspaceName+"' was droped.";
     } catch (Exception e) {
       res = "FAIL\n" + e.getMessage();
       log.error("Can not drop the workspace '"
-                +"/"+repositoryName
+                + "/"+repositoryName
                 + "/"+workspaceName+"'");
     }
 
@@ -286,7 +288,7 @@ public class BackupServer implements ResourceContainer {
       byte buf[] = Base64.decode(path);
       ePath = new String(buf, "UTF-8");
       
-      byte bufDest[] = Base64.decode(workspaceEntry);
+      byte bufDest[] = Base64.decode(workspaceEntry.replace("char_pluse", "+"));
       ByteArrayInputStream wEntryStream = new ByteArrayInputStream(bufDest);
       
       WorkspaceRestore restore = new WorkspaceRestore(repositoryService,
@@ -299,7 +301,6 @@ public class BackupServer implements ResourceContainer {
                                                       wEntryStream);
   
       validateRepositoryName(repositoryName);
-//      validateWorkspaceName(repositoryName, workspaceName, userName, password);
       
       restore.restore();
     } catch (Exception e) {
