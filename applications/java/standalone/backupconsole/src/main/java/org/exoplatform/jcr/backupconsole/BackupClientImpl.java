@@ -65,6 +65,11 @@ public class BackupClientImpl implements BackupClient {
     public static final String GET_STATUS           = "getStatus";
 
     /**
+     * The drop workspace operations.
+     */
+    public static final String DROP_WORKSPACE       = "dropWorkspace";
+
+    /**
      * OperationType constructor.
      */
     private OperationType() {
@@ -150,20 +155,20 @@ public class BackupClientImpl implements BackupClient {
                                        "");
 
     ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    
+
     byte[] b = new byte[1024];
-    int len= 0; 
+    int len = 0;
     while ((len = config.read(b)) != -1) {
       bout.write(b, 0, len);
     }
     config.close();
     byte[] cb = bout.toByteArray();
     bout.close();
-    
-    String conf = Base64.encode(cb, 0, cb.length, 0,"");
-    
+
+    String conf = Base64.encode(cb, 0, cb.length, 0, "");
+
     String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + encodedPath + "/"
-        + OperationType.RESTORE;
+        + conf + "/" + OperationType.RESTORE;
     return transport.execute(sURL);
   }
 
@@ -171,8 +176,9 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String drop(String pathToWS) throws IOException, BackupExecuteException {
-    // TODO Auto-generated method stub
-    return "Command is unimplemented.";
+    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
+        + OperationType.DROP_WORKSPACE;
+    return transport.execute(sURL);
   }
 
 }
