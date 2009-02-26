@@ -44,11 +44,6 @@ public class CheckOutCommand {
   public Response checkout(Session session, String path) {
     try {
       Node node = session.getRootNode().getNode(TextUtil.relativizePath(path));
-
-      if (node.isCheckedOut()) {
-        return Response.status(HTTPStatus.CONFLICT).build();
-      }
-
       node.checkout();
       return Response.ok().header(HttpHeaders.CACHE_CONTROL, "no-cache").build();
     } catch (UnsupportedRepositoryOperationException e) {
