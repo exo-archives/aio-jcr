@@ -16,7 +16,11 @@
  */
 package org.exoplatform.services.jcr.ext.backup.server;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -30,6 +34,7 @@ import org.exoplatform.services.jcr.config.ContainerEntry;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
@@ -39,6 +44,12 @@ import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.SessionRegistry;
+import org.hsqldb.lib.StringInputStream;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -74,6 +85,11 @@ public class WorkspaceRestore {
    * The path to backup log.
    */
   private final String            path;
+  
+  /**
+   * The input stream with WorkspaceEntry.
+   */
+  private final InputStream       wEntry;
 
   /**
    * The repository service.
@@ -88,9 +104,9 @@ public class WorkspaceRestore {
   /**
    * WorkspaceRestore constructor.
    * 
-   * @param repositoryService 
+   * @param repositoryService
    *          the RepositoryService
-   * @param backupManager 
+   * @param backupManager
    *          the BackupManager
    * @param repositoryName
    *          the destination repository
@@ -100,7 +116,7 @@ public class WorkspaceRestore {
    *          the user name
    * @param password
    *          the password
-   * @param path
+   * @param logPath
    *          path to backup log
    */
   public WorkspaceRestore(RepositoryService repositoryService,
@@ -109,58 +125,55 @@ public class WorkspaceRestore {
                           String workspaceName,
                           String userName,
                           String password,
-                          String path) {
+                          String logPath,
+                          InputStream wEntry) {
     this.repositoryService = repositoryService;
     this.backupManager = backupManager;
     this.repositoryName = repositoryName;
     this.workspaceName = workspaceName;
     this.userName = userName;
     this.password = password;
-    this.path = path;
+    this.path = logPath;
+    this.wEntry = wEntry;
   }
 
   public void restore() throws WorkspaceRestoreExeption {
     try {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
-      SessionImpl session = (SessionImpl) repository.login(new CredentialsImpl(userName,
-                                                                               password.toCharArray()),
-                                                           workspaceName);
 
-      RepositoryEntry reEntry = (RepositoryEntry) session.getContainer()
-                                                         .getComponentInstanceOfType(RepositoryEntry.class);
-      WorkspaceEntry wsEntry = (WorkspaceEntry) session.getContainer()
-                                                       .getComponentInstanceOfType(WorkspaceEntry.class);
+      RepositoryEntry reEntry = repository.getConfiguration();
+      // WorkspaceEntry wsEntry = (WorkspaceEntry)
+      // repository.getWorkspaceContainer(workspaceName).getComponent(WorkspaceEntry.class);
 
+      // remove workspase
+      // repository.removeWorkspace(workspaceName);
 
-      if (!repository.canRemoveWorkspace(workspaceName))
-        throw new WorkspaceRestoreExeption("The workspase '" + workspaceName+ "' can not be removed");
-      else {
-        // remove workspase
-        repository.removeWorkspace(workspaceName);
+      WorkspaceEntry wsEntry = getWorkspaceEntry(wEntry);
+      
+      wsEntry.getContainer();
 
-        repository.configWorkspace(wsEntry);
+      repository.configWorkspace(wsEntry);
 
-        File backLog = new File(path);
-        if (backLog.exists()) {
-          try {
-            BackupChainLog bchLog = new BackupChainLog(backLog);
-            backupManager.restore(bchLog, reEntry, wsEntry);
-          } catch (BackupOperationException e) {
-            throw new WorkspaceRestoreExeption("Can not be restored the workspace '"
-                + workspaceName + "' :" + e, e);
-          } catch (BackupConfigurationException e) {
-            throw new WorkspaceRestoreExeption("Can not be restored the workspace '"
-                + workspaceName + "' :" + e, e);
-          } catch (RepositoryException e) {
-            throw new WorkspaceRestoreExeption("Can not be restored the workspace '"
-                + workspaceName + "' :" + e, e);
-          } catch (RepositoryConfigurationException e) {
-            throw new WorkspaceRestoreExeption("Can not be restored the workspace '"
-                + workspaceName + "' :" + e, e);
-          }
-        } else
-          throw new WorkspaceRestoreExeption("Can not find the backup log file : " + path);
-      }
+      File backLog = new File(path);
+      if (backLog.exists()) {
+        try {
+          BackupChainLog bchLog = new BackupChainLog(backLog);
+          backupManager.restore(bchLog, reEntry, wsEntry);
+        } catch (BackupOperationException e) {
+          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+              + "' :" + e, e);
+        } catch (BackupConfigurationException e) {
+          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+              + "' :" + e, e);
+        } catch (RepositoryException e) {
+          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+              + "' :" + e, e);
+        } catch (RepositoryConfigurationException e) {
+          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+              + "' :" + e, e);
+        }
+      } else
+        throw new WorkspaceRestoreExeption("Can not find the backup log file : " + path);
 
     } catch (NoSuchWorkspaceException e) {
       throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
@@ -173,7 +186,24 @@ public class WorkspaceRestore {
           + "' :" + e, e);
     } catch (Throwable t) {
       throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-                                         + "' :" + t, t);
+          + "' :" + t, t);
     }
   }
+
+  private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream) throws FileNotFoundException, JiBXException, RepositoryConfigurationException  {
+    WorkspaceEntry wsEntry = null;
+
+    IBindingFactory factory = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
+    IUnmarshallingContext uctx = factory.createUnmarshallingContext();
+    RepositoryServiceConfiguration conf = (RepositoryServiceConfiguration) uctx.unmarshalDocument(wEntryStream,
+                                                                                                  null);
+
+    RepositoryEntry rEntry = conf.getRepositoryConfiguration(repositoryName);
+
+    for (WorkspaceEntry wEntry : rEntry.getWorkspaceEntries())
+      wsEntry = wEntry;
+
+    return wsEntry;
+  }
+
 }

@@ -16,9 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.backup.server;
 
+import java.io.ByteArrayInputStream;
+
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -88,7 +91,12 @@ public class BackupServer implements ResourceContainer {
       /**
        * The backup status operations.
        */
-      public static final String GET_STATUS                = "getStatus";
+      public static final String GET_STATUS            = "getStatus";
+      
+      /**
+       * The drop workspace operations.
+       */
+      public static final String DROP_WORKSPACE        = "dropWorkspace";
       
       /**
        * OperationType constructor.
@@ -229,18 +237,57 @@ public class BackupServer implements ResourceContainer {
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/{path:.*}/restore")
-  public Response restore(@PathParam("repositoryName") String repositoryName,
+  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/dropWorkspace")
+  public Response dropWorkspace(@PathParam("repositoryName") String repositoryName,
                               @PathParam("workspaceName") String workspaceName,
                               @PathParam("userName") String userName,
-                              @PathParam("password") String password,
-                              @PathParam("path") String path) {
+                              @PathParam("password") String password) {
 
     String res = "OK\n";
     
     try {
+      validateRepositoryName(repositoryName);
+      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      
+      RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
+      repository.removeWorkspace(workspaceName);
+    } catch (Exception e) {
+      res = "FAIL\n" + e.getMessage();
+      log.error("Can not drop the workspace '"
+                +"/"+repositoryName
+                + "/"+workspaceName+"'");
+    }
+
+    return Response.ok(res).build();
+  }
+  
+  /**
+   * restore.
+   * 
+   * @param repositoryName the repository name
+   * @param workspaceName the workspace name
+   * @param userName the user name
+   * @param password the password
+   * @return Response return the response
+   */
+  @GET
+  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/{path}/{workspace}/restore")
+  public Response restore(@PathParam("repositoryName") String repositoryName,
+                              @PathParam("workspaceName") String workspaceName,
+                              @PathParam("userName") String userName,
+                              @PathParam("password") String password,
+                              @PathParam("path") String path,
+                              @PathParam("workspaceEntry") String workspaceEntry) {
+
+    String res = "OK\n";
+    String ePath = "";
+    
+    try {
       byte buf[] = Base64.decode(path);
-      String ePath = new String(buf, "UTF-8");
+      ePath = new String(buf, "UTF-8");
+      
+      byte bufDest[] = Base64.decode(workspaceEntry);
+      ByteArrayInputStream wEntryStream = new ByteArrayInputStream(bufDest);
       
       WorkspaceRestore restore = new WorkspaceRestore(repositoryService,
                                                       backupManager,
@@ -248,15 +295,19 @@ public class BackupServer implements ResourceContainer {
                                                       workspaceName,
                                                       userName,
                                                       password,
-                                                      ePath);
+                                                      ePath,
+                                                      wEntryStream);
   
       validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+//      validateWorkspaceName(repositoryName, workspaceName, userName, password);
       
       restore.restore();
     } catch (Exception e) {
       res = "FAIL\n" + e.getMessage();
-      log.error("Can't start backup", e);
+      log.error("Can not restore the workspace '"
+                +"/"+repositoryName
+                + "/"+workspaceName+"' from "
+                + ePath, e);
     }
 
     return Response.ok(res).build();
@@ -354,7 +405,8 @@ public class BackupServer implements ResourceContainer {
                                       String password) throws RuntimeException {
     try {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
-      repository.login(new CredentialsImpl(userName, password.toCharArray()), workspaceName);
+      Session ses = repository.login(new CredentialsImpl(userName, password.toCharArray()), workspaceName);
+      ses.logout();
     } catch (LoginException e) {
       throw new RuntimeException("Can not loogin to workspace '" + workspaceName +"' for " + userName + ":" + password, e);
     } catch (NoSuchWorkspaceException e) {
