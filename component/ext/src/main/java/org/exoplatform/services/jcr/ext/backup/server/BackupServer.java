@@ -132,11 +132,9 @@ public class BackupServer implements ResourceContainer {
    * 
    * @param repoService the RepositoryService
    * @param backupManager the BackupManager
-   * @param params the configuration parameters
    */
   public BackupServer(RepositoryService repoService,
-                                BackupManager backupManager,
-                                InitParams params) {
+                                BackupManager backupManager) {
     this.repositoryService = repoService;
     this.backupManager = backupManager;
 

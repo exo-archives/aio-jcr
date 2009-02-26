@@ -142,16 +142,9 @@ public class WorkspaceRestore {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
 
       RepositoryEntry reEntry = repository.getConfiguration();
-      // WorkspaceEntry wsEntry = (WorkspaceEntry)
-      // repository.getWorkspaceContainer(workspaceName).getComponent(WorkspaceEntry.class);
-
-      // remove workspase
-      // repository.removeWorkspace(workspaceName);
 
       WorkspaceEntry wsEntry = getWorkspaceEntry(wEntry);
       
-      wsEntry.getContainer();
-
       repository.configWorkspace(wsEntry);
 
       File backLog = new File(path);
