@@ -17,6 +17,8 @@
 package org.exoplatform.jcr.backupconsole;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import org.apache.ws.commons.util.Base64;
 
@@ -138,17 +140,36 @@ public class BackupClientImpl implements BackupClient {
   /**
    * {@inheritDoc}
    */
-  public String restore(String pathToWS, String pathToBackup) throws IOException,
-                                                             BackupExecuteException {
+  public String restore(String pathToWS, String pathToBackup, InputStream config) throws IOException,
+                                                                                 BackupExecuteException {
     String encodedPath = Base64.encode(pathToBackup.getBytes("UTF-8"),
                                        0,
                                        (int) pathToBackup.getBytes("UTF-8").length,
                                        0,
                                        "");
+
+    ByteBuffer buf = ByteBuffer.allocate(1024*1024*60);
+
+    byte[] b = new byte[1024];
+    while (config.read(b) != -1) {
+      buf.put(b);
+    }
+    config.close();
+    
+    String conf = Base64.encode(buf.array(), 0, buf.array().length, 0,"");
+    buf.clear();
+    
     String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + encodedPath + "/"
         + OperationType.RESTORE;
     return transport.execute(sURL);
+  }
 
+  /**
+   * {@inheritDoc}
+   */
+  public String drop(String pathToWS) throws IOException, BackupExecuteException {
+    // TODO Auto-generated method stub
+    return "Command is unimplemented.";
   }
 
 }

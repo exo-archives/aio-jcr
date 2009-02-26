@@ -16,6 +16,8 @@
  */
 package org.exoplatform.jcr.backupconsole;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -40,7 +42,8 @@ public class BackupConsole {
                                                       + " <cmd>  :   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
                                                       + "            stop  <repo/ws>\n"
                                                       + "            status <repo/ws>\n"
-                                                      + "            restore <repo/ws> <path>\n\n"
+                                                      + "            restore <repo/ws> <path> <pathToConfigFile>\n"
+                                                      + "            drop <repo/ws> \n\n"
                                                       + " <repo/ws>   - /<reponame>/<ws name>\n"
                                                       + " <path>      - path to backup file\n"
                                                       + " <incr>      - incemental job period\n"
@@ -164,6 +167,16 @@ public class BackupConsole {
           return;
         }
         System.out.println(client.stop(pathToWS));
+      } else if (command.equalsIgnoreCase("drop")) {
+        String pathToWS = getRepoWS(args, curArg++);
+        if (pathToWS == null)
+          return;
+
+        if (curArg < args.length) {
+          System.out.println(TO_MANY_PARAMS);
+          return;
+        }
+        System.out.println(client.drop(pathToWS));
       } else if (command.equalsIgnoreCase("status")) {
         String pathToWS = getRepoWS(args, curArg++);
         if (pathToWS == null)
@@ -187,11 +200,23 @@ public class BackupConsole {
         }
         String pathToBackup = args[curArg++];
 
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no path to config file parameter.");
+          return;
+        }
+        String pathToConf = args[curArg++];
+
+        File conf = new File(pathToConf);
+        if (!conf.exists()) {
+          System.out.println(" File " + pathToConf + " do not exist. Check the path.");
+          return;
+        }
+
         if (curArg < args.length) {
           System.out.println(TO_MANY_PARAMS);
           return;
         }
-        System.out.println(client.restore(pathToWS, pathToBackup));
+        System.out.println(client.restore(pathToWS, pathToBackup, new FileInputStream(conf)));
       } else {
         System.out.println("Unknown command <" + command + ">");
       }

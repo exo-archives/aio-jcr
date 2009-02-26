@@ -17,6 +17,7 @@
 package org.exoplatform.jcr.backupconsole;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -64,11 +65,12 @@ public interface BackupClient {
    * 
    * @param pathToWS path to repository and workspace.
    * @param pathToBackup path to backup file on server side.
+   * @param config TODO
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  public String restore(String pathToWS, String pathToBackup) throws IOException,
+  public String restore(String pathToWS, String pathToBackup, InputStream config) throws IOException,
                                                              BackupExecuteException;
 
   /**
@@ -80,4 +82,15 @@ public interface BackupClient {
    * @throws BackupExecuteException backup client internal exception.
    */
   public String stop(String pathToWS) throws IOException, BackupExecuteException;
+  
+  /**
+   * Drop backup.
+   * 
+   * @param pathToWS path to repository and workspace.
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException backup client internal exception.
+   */
+  public String drop(String pathToWS) throws IOException, BackupExecuteException;
+
 }
