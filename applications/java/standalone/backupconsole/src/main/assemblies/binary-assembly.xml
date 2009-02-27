@@ -40,28 +40,38 @@
       <outputDirectory>lib</outputDirectory>
       <unpack>false</unpack>
       <scope>compile</scope>
-      <!-- excludes>
-        <exclude>javagroups:jgroups-all</exclude>
-        <exclude>bcel:bcel</exclude>
-        <exclude>mail:mail</exclude>
-        <exclude>jsf:jsf-api</exclude>
-        <exclude>javax.portlet:portlet-api</exclude>
-        <exclude>mail:activation</exclude>
-        <exclude>groovy:groovy-all-1.0-jsr</exclude>
-        <exclude>xpp3:xpp3</exclude>
-        <exclude>drools:drools-base</exclude>
-        <exclude>drools:drools-smf</exclude>
-        <exclude>javax.servlet:servlet-api</exclude>
-        <exclude>janino:janino</exclude>
-        <exclude>antlr:antlr</exclude>
-        <exclude>xstream:xstream</exclude>
+      <excludes>
         <exclude>junit:junit</exclude>
-        <exclude>drools:drools-smftest</exclude>
-        <exclude>exo-platform:exo-platform.test.framework</exclude>
+        <exclude>org.exoplatform.kernel:exo.kernel.container</exclude>
+        <exclude>org.exoplatform.kernel:exo.kernel.commons</exclude>
+        <exclude>commons-lang:commons-lang</exclude>
+        <exclude>xpp3:xpp3</exclude>
+        <exclude>org.exoplatform.tool:exo.tool.framework.junit</exclude>
+        <exclude>javax.portlet:portlet-api</exclude>
+        <exclude>javax.faces:jsf-api</exclude>
+        <exclude>javax.servlet:servlet-api</exclude>
+        <exclude>picocontainer:picocontainer</exclude>
         <exclude>jmock:jmock</exclude>
+        <exclude>xstream:xstream</exclude>
         <exclude>commons-beanutils:commons-beanutils</exclude>
-        <exclude>xerces:xercesImpl</exclude>
-        </excludes -->
+        <exclude>commons-collections:commons-collections</exclude>
+        <exclude>org.jibx:jibx-run</exclude>
+        <exclude>org.jibx:jibx-bind</exclude>
+        <exclude>bcel:bcel</exclude>
+        <exclude>org.jibx:jibx-extras</exclude>
+        <exclude>javax.activation:activation</exclude>
+        <exclude>jotm:jotm</exclude>
+        <exclude>jotm:jotm_jrmp_stubs</exclude>
+        <exclude>javax.transaction:jta</exclude>
+        <exclude>org.objectweb.carol:carol</exclude>
+        <exclude>howl:howl-logger</exclude>
+        <exclude>quartz:quartz</exclude>
+        <exclude>javax.mail:mail</exclude>
+        <exclude>javax.transaction:jta</exclude>
+        <exclude>com.sun.xml.stream:sjsxp</exclude>
+        <exclude>stax:stax-api</exclude>
+      </excludes>
+ 
     </dependencySet>
   </dependencySets>
 </assembly>

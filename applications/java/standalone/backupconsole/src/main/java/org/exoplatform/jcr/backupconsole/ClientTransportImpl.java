@@ -85,7 +85,6 @@ public class ClientTransportImpl implements ClientTransport {
       // execute the GET
       String complURL = "http" + (isSSL ? "s" : "") + "://" + host + sURL;
 
-      System.out.println(complURL);
       URL url = new URL(complURL);
       HTTPConnection connection = new HTTPConnection(url);
       connection.removeModule(CookieModule.class);
