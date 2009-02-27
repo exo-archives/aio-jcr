@@ -383,7 +383,7 @@ public class BackupServer implements ResourceContainer {
           if (job.getType() == BackupJob.INCREMENTAL)
              incrementalBackupStatus = "The incremental backup is working";
         
-        String fullBackupStatus = "The full backup " +(bch.getFullBackupState() == BackupJob.FINISHED ? "is " : "was " ) + getState(bch.getFullBackupState());
+        String fullBackupStatus = "The full backup " +(bch.getFullBackupState() == BackupJob.FINISHED ? "was " : "is " ) + getState(bch.getFullBackupState());
         
         result += fullBackupStatus + "\n" + incrementalBackupStatus;
       } else
