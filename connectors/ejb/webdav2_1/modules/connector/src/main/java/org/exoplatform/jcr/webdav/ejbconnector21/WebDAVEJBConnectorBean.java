@@ -37,6 +37,7 @@ import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -82,6 +83,19 @@ public class WebDAVEJBConnectorBean implements SessionBean {
 
     String userId = context.getCallerPrincipal().getName();
     Identity identity = identityRegistry.getIdentity(userId);
+    
+    if (identity == null) {
+      // Identity was not initialized yet. This happen when use remote
+      // servlet for access to bean, but never happen when use standalone client
+      // or servlet that works on the same machine.
+      // Trust ejb security so create identity for this user.
+      Authenticator authenticator = (Authenticator) container.getComponentInstanceOfType(Authenticator.class);
+      try {
+        identity = authenticator.createIdentity(userId);
+      } catch (Exception e) {
+        throw new EJBException("Can't create identity for user " + userId, e);
+      }
+    }
 
     try {
       ConversationState state = new ConversationState(identity);
@@ -98,11 +112,11 @@ public class WebDAVEJBConnectorBean implements SessionBean {
       
       return bean.create().service(request);
     } catch (NamingException e) {
-      throw new EJBException("RestEJBConnectorLocal not found in jndi!", e);
+      throw new EJBException("RestEJBConnectorLocal not found in jndi", e);
     } catch (CreateException e) {
-      throw new EJBException("Can't create RestEJBConnectorLocal!", e);
+      throw new EJBException("Can't create RestEJBConnectorLocal", e);
     } catch (Exception e) {
-      throw new EJBException(e);
+      throw new EJBException("Unexpected error ", e);
     } finally {
       try {
         sessionProviderService.removeSessionProvider(null);
