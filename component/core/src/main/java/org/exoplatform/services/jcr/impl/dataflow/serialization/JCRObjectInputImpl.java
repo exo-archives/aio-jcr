@@ -39,18 +39,30 @@ public class JCRObjectInputImpl implements JCRObjectInput {
     this.in = new BufferedInputStream(in, 1024*2);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void close() throws IOException {
     in.close();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean readBoolean() throws IOException {
     return (in.read() == 1 ? true : false);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void readFully(byte[] b) throws IOException {
     in.read(b);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int readInt() throws IOException {
     int ch1 = in.read();
     int ch2 = in.read();
@@ -61,6 +73,9 @@ public class JCRObjectInputImpl implements JCRObjectInput {
     return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public long readLong() throws IOException {
     byte[] readBuffer = new byte[8];
 
@@ -71,12 +86,41 @@ public class JCRObjectInputImpl implements JCRObjectInput {
         + ((readBuffer[6] & 255) << 8) + ((readBuffer[7] & 255) << 0));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public JCRExternalizable readObject() throws UnknownClassIdException, IOException {
     int type = readInt();
     JCRExternalizable objectInstants = JCRExternlizableFactory.getObjectInstanse(type);
     objectInstants.readExternal(this);
 
     return objectInstants;
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public long skip(long n) throws IOException {
 
+    long remaining = n;
+    int nr;
+    byte[] skipBuffer = new byte[1024*1024];
+
+    byte[] localSkipBuffer = skipBuffer;
+      
+    if (n <= 0) {
+        return 0;
+    }
+
+    while (remaining > 0) {
+        nr = in.read(localSkipBuffer, 0,
+            (int) Math.min(1024, remaining));
+        if (nr < 0) {
+      break;
+        }
+        remaining -= nr;
+    }
+    
+    return n - remaining;
   }
 }

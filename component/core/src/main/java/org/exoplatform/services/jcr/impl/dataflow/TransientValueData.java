@@ -57,37 +57,40 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  * @author Gennady Azarenkov
  * @version $Id: TransientValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TransientValueData extends AbstractValueData implements Externalizable, JCRExternalizable {
+public class TransientValueData extends AbstractValueData implements Externalizable,
+    JCRExternalizable {
 
-  private static final long serialVersionUID = -5280857006905550884L;
+  private static final long   serialVersionUID                 = -5280857006905550884L;
 
-  protected byte[]          data;
+  private static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "desJCRVDtemp";
 
-  protected InputStream     tmpStream;
+  protected byte[]            data;
 
-  protected File            spoolFile;
+  protected InputStream       tmpStream;
 
-  protected final boolean   closeTmpStream;
+  protected File              spoolFile;
+
+  protected final boolean     closeTmpStream;
 
   /**
    * User for read(...) method
    */
-  protected FileChannel     spoolChannel;
+  protected FileChannel       spoolChannel;
 
-  protected FileCleaner     fileCleaner;
+  protected FileCleaner       fileCleaner;
 
-  protected int             maxBufferSize;
+  protected int               maxBufferSize;
 
-  protected File            tempDirectory;
+  protected File              tempDirectory;
 
-  protected boolean         spooled          = false;
+  protected boolean           spooled                          = false;
 
-  private final boolean     deleteSpoolFile;
-  
+  private final boolean       deleteSpoolFile;
+
   /**
    * will be used for optimization unserialization mechanism.
    */
-  private String            parentPropertyDataId;
+  private String              parentPropertyDataId;
 
   static protected byte[] stringToBytes(final String value) {
     try {
@@ -112,8 +115,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * creates TransientValueData with incoming input stream. the stream will be lazily spooled to
-   * file or byte array depending on maxBufferSize
+   * creates TransientValueData with incoming input stream. the stream will be
+   * lazily spooled to file or byte array depending on maxBufferSize
    * 
    * @param orderNumber
    */
@@ -243,6 +246,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IOException {
@@ -258,6 +262,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
@@ -273,6 +278,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
@@ -288,7 +294,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /*
-   * returns true if this data is spooled to byte array, false otherwise (to file)
+   * returns true if this data is spooled to byte array, false otherwise (to
+   * file)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ValueData#isByteArray()
    */
   public boolean isByteArray() {
@@ -304,7 +312,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
 
-      // be more precise if this is a binary but so small, but can be increased in EditableValueData
+      // be more precise if this is a binary but so small, but can be increased
+      // in EditableValueData
       try {
         return new TransientValueData(orderNumber,
                                       newBytes,
@@ -356,16 +365,15 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * Read <code>length</code> bytes from the binary value at <code>position</code> to the
-   * <code>stream</code>.
+   * Read <code>length</code> bytes from the binary value at
+   * <code>position</code> to the <code>stream</code>.
    * 
-   * @param stream
-   *          - destenation OutputStream
-   * @param length
-   *          - data length to be read
-   * @param position
-   *          - position in value data from which the read will be performed
-   * @return - The number of bytes, possibly zero, that were actually transferred
+   * @param stream - destenation OutputStream
+   * @param length - data length to be read
+   * @param position - position in value data from which the read will be
+   *          performed
+   * @return - The number of bytes, possibly zero, that were actually
+   *         transferred
    * @throws IOException
    * @throws RepositoryException
    */
@@ -483,6 +491,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   /*
    * (non-Javadoc)
+   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object obj) {
@@ -582,8 +591,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * try to convert stream to byte array WARNING: Potential lack of memory due to call
-   * getAsByteArray() on stream data
+   * try to convert stream to byte array WARNING: Potential lack of memory due
+   * to call getAsByteArray() on stream data
    * 
    * @return byte array
    */
@@ -650,7 +659,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
     orderNumber = in.readInt();
     maxBufferSize = in.readInt();
-    
+
     int type = in.readInt();
 
     if (type == 1) {
@@ -658,29 +667,26 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       in.readFully(data);
     } else if (type == 2) {
       long length = in.readLong();
-      
-      SpoolFile sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
-      FileOutputStream sfout = new FileOutputStream(sf);
-      int bSize = 1024 * 200; 
-      try {
-        byte[] buff = new byte[bSize];
 
-        sf.acquire(this);
-
-        for (; length >= bSize; length -= bSize) {
-          in.readFully(buff);
-          sfout.write(buff);
+      SpoolFile sf;
+      if (parentPropertyDataId != null && !parentPropertyDataId.equals("")) {
+        tempDirectory = new File(DESERIALIAED_SPOOLFILES_TEMP_DIR);
+        tempDirectory.mkdirs();
+        String fileName = parentPropertyDataId + "_" + orderNumber;
+        sf = new SpoolFile(this.tempDirectory, fileName);
+        // check is spool file already exists
+        if (sf.exists()) {
+          // skip data in input stream
+          if( in.skip(length)!=length){
+            throw new IOException("Content isn't skipped correctly.");
+          }
+        } else {
+          writeToFile(in,sf,length);   
         }
-
-        if (length > 0) {
-          buff = new byte[(int) length];
-          in.readFully(buff);
-          sfout.write(buff);
-        }
-      } finally {
-        sfout.close();
+      }else{
+        sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
+        writeToFile(in,sf,length);
       }
-
       this.spoolFile = sf;
     }
   }
@@ -688,7 +694,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
     out.writeInt(orderNumber);
     out.writeInt(maxBufferSize);
-    
+
     if (this.isByteArray()) {
       out.writeInt(1);
       int f = data.length;
@@ -696,13 +702,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       out.write(data);
     } else {
       out.writeInt(2);
-      
       // write file content
       long length = this.spoolFile.length();
       out.writeLong(length);
       InputStream in = new FileInputStream(spoolFile);
       try {
-        byte[] buf = new byte[1024*200];
+        byte[] buf = new byte[1024 * 200];
         int l = 0;
         while ((l = in.read(buf)) != -1) {
           out.write(buf, 0, l);
@@ -712,8 +717,32 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       }
     }
   }
-  
-  void setParentPropertyDataId (String parentPropertyDataId) {
+
+  protected void setParentPropertyDataId(String parentPropertyDataId) {
     this.parentPropertyDataId = parentPropertyDataId;
+  }
+  
+  private void writeToFile(JCRObjectInput src, SpoolFile dest, long length) throws IOException{
+    // write data to file
+    FileOutputStream sfout = new FileOutputStream(dest);
+    int bSize = 1024 * 200;
+    try {
+      byte[] buff = new byte[bSize];
+
+      dest.acquire(this);
+
+      for (; length >= bSize; length -= bSize) {
+        src.readFully(buff);
+        sfout.write(buff);
+      }
+
+      if (length > 0) {
+        buff = new byte[(int) length];
+        src.readFully(buff);
+        sfout.write(buff);
+      }
+    } finally {
+      sfout.close();
+    }
   }
 }

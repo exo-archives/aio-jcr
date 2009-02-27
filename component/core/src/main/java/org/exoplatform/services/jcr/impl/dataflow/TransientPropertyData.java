@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.datamodel.MutablePropertyData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.JCRExternlizableFactory;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -254,10 +255,18 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     if (listSize != NULL_VALUES) {
       values = new ArrayList<ValueData>();
       for (int i = 0; i < listSize; i++) {
-        ValueData vd = (ValueData) in.readObject();
-        values.add(vd);
-        
-        ((TransientValueData) vd).setParentPropertyDataId(super.identifier); 
+        int type = in.readInt();
+        JCRExternalizable objectInstants = JCRExternlizableFactory.getObjectInstanse(type);
+        if(objectInstants instanceof TransientValueData){
+          TransientValueData vd = (TransientValueData) objectInstants;
+          vd.setParentPropertyDataId(super.identifier);
+          vd.readExternal(in);
+          values.add(vd);
+        }else{
+          // its non-TransientValueData object;
+          objectInstants.readExternal(in);
+          values.add((ValueData) objectInstants);
+        }
       }
     }
   }

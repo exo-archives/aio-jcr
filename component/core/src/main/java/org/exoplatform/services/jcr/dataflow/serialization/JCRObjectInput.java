@@ -165,4 +165,13 @@ public interface JCRObjectInput {
    */
   long readLong() throws IOException;
 
+  
+  /**
+   * Skip n bytes from stream.
+   * 
+   * @param      n   the number of bytes to be skipped.
+   * @return     the actual number of bytes skipped.
+   * @exception  IOException  if an I/O error occurs.
+   */
+  public long skip(long n) throws IOException;
 }
