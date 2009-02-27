@@ -143,7 +143,7 @@ public class WorkspaceRestore {
 
       RepositoryEntry reEntry = repository.getConfiguration();
 
-      WorkspaceEntry wsEntry = getWorkspaceEntry(wEntry);
+      WorkspaceEntry wsEntry = getWorkspaceEntry(wEntry, workspaceName);
       
       repository.configWorkspace(wsEntry);
 
@@ -183,7 +183,7 @@ public class WorkspaceRestore {
     }
   }
 
-  private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream) throws FileNotFoundException, JiBXException, RepositoryConfigurationException  {
+  private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream, String workspaceName) throws FileNotFoundException, JiBXException, RepositoryConfigurationException {
     WorkspaceEntry wsEntry = null;
 
     IBindingFactory factory = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
@@ -194,7 +194,11 @@ public class WorkspaceRestore {
     RepositoryEntry rEntry = conf.getRepositoryConfiguration(repositoryName);
 
     for (WorkspaceEntry wEntry : rEntry.getWorkspaceEntries())
-      wsEntry = wEntry;
+      if (wEntry.getName().equals(workspaceName))
+         wsEntry = wEntry;
+    
+    if (wsEntry == null)
+      throw new RuntimeException("Can not find the workspace '" + workspaceName + "' in configuration.");
 
     return wsEntry;
   }

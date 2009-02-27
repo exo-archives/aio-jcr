@@ -250,7 +250,7 @@ public class BackupServer implements ResourceContainer {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
       repository.removeWorkspace(workspaceName);
       
-      res += "The workspace '" + "/" + repositoryName + "/"+workspaceName+"' was droped.";
+      res += "The workspace '" + "/" + repositoryName + "/"+workspaceName+"' was dropped.";
     } catch (Exception e) {
       res = "FAIL\n" + e.getMessage();
       log.error("Can not drop the workspace '"
@@ -302,7 +302,7 @@ public class BackupServer implements ResourceContainer {
       
       restore.restore();
       
-      res += "The workspace '" + "/" + repositoryName  + "/" + workspaceName+"' was restored.";
+      res += ("The workspace '" + "/" + repositoryName  + "/" + workspaceName+"' was restored.");
     } catch (Exception e) {
       res = "FAIL\n" + e.getMessage();
       log.error("Can not restore the workspace '"
