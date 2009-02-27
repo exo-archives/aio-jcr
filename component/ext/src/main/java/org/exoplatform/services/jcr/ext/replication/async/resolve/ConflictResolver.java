@@ -18,13 +18,23 @@ package org.exoplatform.services.jcr.ext.replication.async.resolve;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -128,31 +138,18 @@ public class ConflictResolver {
    * @throws ClassNotFoundException
    * @throws IOException
    * @throws ClassCastException
+   * @throws RemoteExportException
    */
   public void restore(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
                                                                   IOException,
-                                                                  ClassNotFoundException {
+                                                                  ClassNotFoundException,
+                                                                  RemoteExportException {
     // TODO every method use changesStorage.getChanges(conflictedPathes.get(i));
 
     restoreAddedItems(iteration);
     restoreDeletedItems(iteration);
     // restoreMixinChanges(iteration);
     // restoreUpdatesItems(iteration);
-  }
-
-  /**
-   * getLastState.
-   * 
-   * @param changes
-   * @param identifier
-   * @return
-   */
-  private ItemState getLastState(List<ItemState> changes, String identifier) {
-    for (int i = changes.size() - 1; i >= 0; i--)
-      if (changes.get(i).getData().getIdentifier().equals(identifier))
-        return changes.get(i);
-
-    return null;
   }
 
   /**
@@ -173,7 +170,9 @@ public class ConflictResolver {
         ItemState item = changes.get(j);
         if ((item.getState() == ItemState.ADDED && !item.isInternallyCreated())
             || item.getState() == ItemState.RENAMED) {
-          if (getLastState(changes, item.getData().getIdentifier()).getState() == ItemState.DELETED)
+
+          ItemState lastState = getLastItemState(changes, item.getData().getIdentifier());
+          if (lastState.getState() == ItemState.DELETED)
             continue;
 
           iteration.add(new ItemState(item.getData(), ItemState.DELETED, true, item.getData()
@@ -190,21 +189,75 @@ public class ConflictResolver {
    * @throws ClassNotFoundException
    * @throws IOException
    * @throws ClassCastException
+   * @throws RemoteExportException
    */
   private void restoreDeletedItems(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
                                                                                IOException,
-                                                                               ClassNotFoundException {
+                                                                               ClassNotFoundException,
+                                                                               RemoteExportException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
       List<ItemState> changes = changesStorage.getChanges(conflictedPathes.get(i));
 
+      Map<QPath, ItemState> needToExport = new HashMap<QPath, ItemState>();
+      ItemData rootExportData = null;
+
       for (int j = 0; j < changes.size(); j++) {
         ItemState item = changes.get(j);
-        if (item.getState() == ItemState.DELETED && !item.isInternallyCreated()) {
+        if (item.getState() != ItemState.DELETED || item.isInternallyCreated())
+          continue;
 
+        ItemState nextItem = changesStorage.findNextState(item, item.getData().getIdentifier());
+        if (nextItem != null && nextItem.getState() == ItemState.UPDATED)
+          continue;
+
+        if (getPrevState(changes, j) == -1) {
+          if (nextItem != null && nextItem.getState() == ItemState.RENAMED) {
+            if (item.getData().isNode()) {
+              NodeData node = (NodeData) item.getData();
+              TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                                node.getIdentifier(),
+                                                                node.getPersistedVersion(),
+                                                                node.getPrimaryTypeName(),
+                                                                node.getMixinTypeNames(),
+                                                                node.getOrderNumber(),
+                                                                node.getParentIdentifier(),
+                                                                node.getACL());
+              iteration.add(new ItemState(newNode, ItemState.ADDED, true, node.getQPath()));
+            }
+
+            PropertyData prop = (PropertyData) item.getData();
+            TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                      prop.getIdentifier(),
+                                                                      prop.getPersistedVersion(),
+                                                                      prop.getType(),
+                                                                      prop.getParentIdentifier(),
+                                                                      prop.isMultiValued());
+            newProp.setValues(((PropertyData) nextItem.getData()).getValues());
+            iteration.add(new ItemState(newProp, ItemState.ADDED, true, prop.getQPath()));
+          } else {
+            needToExport.put(item.getData().getQPath(), item);
+            if (rootExportData == null
+                || rootExportData.getQPath().isDescendantOf(item.getData().getQPath()))
+              rootExportData = item.getData();
+          }
+        }
+      }
+
+      // export
+      if (rootExportData != null) {
+        ChangesStorage<ItemState> exportedItems = exporter.exportItem(rootExportData.isNode()
+            ? rootExportData.getIdentifier()
+            : rootExportData.getParentIdentifier());
+
+        Iterator<ItemState> itemStates = exportedItems.getChanges();
+        while (itemStates.hasNext()) {
+          ItemState item = itemStates.next();
+          if (needToExport.get(item.getData().getQPath()) != null) {
+            iteration.add(item);
+          }
         }
       }
     }
-
   }
 
   /**
@@ -224,6 +277,38 @@ public class ConflictResolver {
   private void restoreUpdatesItems(EditableChangesStorage<ItemState> iteration) {
     // TODO Auto-generated method stub
 
+  }
+
+  /**
+   * getLastState.
+   * 
+   * @param changes
+   * @param identifier
+   * @return
+   */
+  private ItemState getLastItemState(List<ItemState> changes, String identifier) {
+    for (int i = changes.size() - 1; i >= 0; i--)
+      if (changes.get(i).getData().getIdentifier().equals(identifier))
+        return changes.get(i);
+
+    return null;
+  }
+
+  /**
+   * getFirstState.
+   * 
+   * @param changes
+   * @param identifier
+   * @return
+   */
+  private int getPrevState(List<ItemState> changes, int index) {
+    String identifier = changes.get(index).getData().getIdentifier();
+
+    for (int i = index - 1; i >= 0; i--)
+      if (changes.get(i).getData().getIdentifier().equals(identifier))
+        return changes.get(i).getState();
+
+    return -1;
   }
 
 }
