@@ -106,7 +106,12 @@ public class MergeDataManager2 extends AbstractMergeManager {
 
         exporter.setRemoteMember(second.getMember().getAddress());
 
-        ConflictResolver conflictResolver = new ConflictResolver(isLocalPriority, local, exporter);
+        ConflictResolver conflictResolver = new ConflictResolver(isLocalPriority,
+                                                                 local,
+                                                                 income,
+                                                                 exporter,
+                                                                 dataManager,
+                                                                 ntManager);
 
         AddAnalyzer addAnalyzer = new AddAnalyzer(isLocalPriority);
         RenameAnalyzer renameAnalyzer = new RenameAnalyzer(isLocalPriority);
@@ -186,11 +191,7 @@ public class MergeDataManager2 extends AbstractMergeManager {
               }
             }
 
-            // resolve conflicts
-            conflictResolver.restore(iteration);
-
-            // apply income changes
-            iteration.addAll(income);
+            conflictResolver.resolve(iteration);
           }
 
           // add changes to resulted changes and prepare changes for next merge iteration

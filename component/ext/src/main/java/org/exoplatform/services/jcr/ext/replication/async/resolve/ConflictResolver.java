@@ -23,16 +23,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
@@ -44,13 +50,19 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  */
 public class ConflictResolver {
 
-  private final MemberChangesStorage<ItemState> changesStorage;
+  private final MemberChangesStorage<ItemState> local;
+
+  private final MemberChangesStorage<ItemState> income;
 
   private final List<QPath>                     conflictedPathes;
 
   private final RemoteExporter                  exporter;
 
-  private final boolean                         localPriority;
+  private final DataManager                     dataManager;
+
+  private final NodeTypeDataManager             ntManager;
+
+  private final boolean                         isLocalPriority;
 
   /**
    * ConflictResolver constructor.
@@ -58,13 +70,19 @@ public class ConflictResolver {
    * @param localPriority
    * @param changes
    */
-  public ConflictResolver(boolean localPriority,
-                          MemberChangesStorage<ItemState> changesStorage,
-                          RemoteExporter exporter) {
+  public ConflictResolver(boolean isLocalPriority,
+                          MemberChangesStorage<ItemState> local,
+                          MemberChangesStorage<ItemState> income,
+                          RemoteExporter exporter,
+                          DataManager dataManager,
+                          NodeTypeDataManager ntManager) {
     this.conflictedPathes = new ArrayList<QPath>();
-    this.localPriority = localPriority;
-    this.changesStorage = changesStorage;
+    this.local = local;
+    this.income = income;
     this.exporter = exporter;
+    this.isLocalPriority = isLocalPriority;
+    this.dataManager = dataManager;
+    this.ntManager = ntManager;
   }
 
   /**
@@ -80,6 +98,8 @@ public class ConflictResolver {
         conflictedPathes.remove(i);
       }
     }
+
+    conflictedPathes.add(path);
   }
 
   /**
@@ -139,17 +159,32 @@ public class ConflictResolver {
    * @throws IOException
    * @throws ClassCastException
    * @throws RemoteExportException
+   * @throws RepositoryException
    */
-  public void restore(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
+  public void resolve(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
                                                                   IOException,
                                                                   ClassNotFoundException,
-                                                                  RemoteExportException {
-    // TODO every method use changesStorage.getChanges(conflictedPathes.get(i));
+                                                                  RemoteExportException,
+                                                                  RepositoryException {
+    if (isLocalPriority) {
+      // apply income changes that not conflicted with local
+      Iterator<ItemState> itemStates = income.getChanges();
+      while (itemStates.hasNext()) {
+        ItemState item = itemStates.next();
+        if (!isPathConflicted(item.getData().getQPath()))
+          iteration.add(item);
+      }
+    } else {
+      // resolve conflicts
+      // TODO every method use changesStorage.getChanges(conflictedPathes.get(i));
+      restoreAddedItems(iteration);
+      restoreDeletedItems(iteration);
+      // restoreMixinChanges(iteration);
+      // restoreUpdatesItems(iteration);
 
-    restoreAddedItems(iteration);
-    restoreDeletedItems(iteration);
-    // restoreMixinChanges(iteration);
-    // restoreUpdatesItems(iteration);
+      // apply income changes
+      iteration.addAll(income);
+    }
   }
 
   /**
@@ -159,12 +194,14 @@ public class ConflictResolver {
    * @throws ClassNotFoundException
    * @throws IOException
    * @throws ClassCastException
+   * @throws RepositoryException
    */
   private void restoreAddedItems(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
                                                                              IOException,
-                                                                             ClassNotFoundException {
+                                                                             ClassNotFoundException,
+                                                                             RepositoryException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> changes = changesStorage.getChanges(conflictedPathes.get(i));
+      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
 
       for (int j = changes.size() - 1; j >= 0; j--) {
         ItemState item = changes.get(j);
@@ -174,6 +211,11 @@ public class ConflictResolver {
           ItemState lastState = getLastItemState(changes, item.getData().getIdentifier());
           if (lastState.getState() == ItemState.DELETED)
             continue;
+
+          if (item.isNode()) {
+            for (ItemState itemState : deleleLockProperties((NodeData) item.getData()))
+              iteration.add(itemState);
+          }
 
           iteration.add(new ItemState(item.getData(), ItemState.DELETED, true, item.getData()
                                                                                    .getQPath()));
@@ -196,7 +238,7 @@ public class ConflictResolver {
                                                                                ClassNotFoundException,
                                                                                RemoteExportException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> changes = changesStorage.getChanges(conflictedPathes.get(i));
+      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
 
       Map<QPath, ItemState> needToExport = new HashMap<QPath, ItemState>();
       ItemData rootExportData = null;
@@ -206,7 +248,7 @@ public class ConflictResolver {
         if (item.getState() != ItemState.DELETED || item.isInternallyCreated())
           continue;
 
-        ItemState nextItem = changesStorage.findNextState(item, item.getData().getIdentifier());
+        ItemState nextItem = local.findNextState(item, item.getData().getIdentifier());
         if (nextItem != null && nextItem.getState() == ItemState.UPDATED)
           continue;
 
@@ -309,6 +351,32 @@ public class ConflictResolver {
         return changes.get(i).getState();
 
     return -1;
+  }
+
+  /**
+   * generateDeleleLockProperties.
+   * 
+   * @param node
+   * @return
+   * @throws RepositoryException
+   */
+  protected List<ItemState> deleleLockProperties(NodeData node) throws RepositoryException {
+    List<ItemState> result = new ArrayList<ItemState>();
+
+    if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
+                             node.getPrimaryTypeName(),
+                             node.getMixinTypeNames())) {
+
+      ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+
+      item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+    }
+
+    return result;
   }
 
 }
