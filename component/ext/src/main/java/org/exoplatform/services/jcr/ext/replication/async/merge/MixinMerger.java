@@ -76,7 +76,7 @@ public class MixinMerger extends AbstractMerger {
                                                                            ClassNotFoundException,
                                                                            StorageRuntimeException {
 
-    boolean itemChangeProcessed = false; // TODO really need?
+    boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
     EditableChangesStorage<ItemState> resultState = new CompositeItemStatesStorage<ItemState>(new File(mergeTempDir),

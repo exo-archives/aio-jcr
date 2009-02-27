@@ -1,5 +1,8 @@
+/**
+ * 
+ */
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -17,21 +20,19 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
-import org.exoplatform.services.jcr.ext.replication.async.merge.DeleteMerger;
-import org.exoplatform.services.jcr.ext.replication.async.merge.MixinMerger;
-import org.exoplatform.services.jcr.ext.replication.async.merge.RenameMerger;
-import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
+import org.exoplatform.services.jcr.ext.replication.async.analyze.AddAnalyzer;
+import org.exoplatform.services.jcr.ext.replication.async.analyze.DeleteAnalyzer;
+import org.exoplatform.services.jcr.ext.replication.async.analyze.MixinAnalyzer;
+import org.exoplatform.services.jcr.ext.replication.async.analyze.RenameAnalyzer;
+import org.exoplatform.services.jcr.ext.replication.async.analyze.UpdateAnalyzer;
+import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.CompositeItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
@@ -42,34 +43,18 @@ import org.exoplatform.services.jcr.impl.Constants;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/> Merge manager per Workspace.
- * 
- * <br/>Date: 10.12.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
+ * @version $Id: MergerVVV.java 111 2008-11-11 11:11:11Z $
  */
-public class MergeDataManager extends AbstractMergeManager {
+public class MergeDataManager2 extends AbstractMergeManager {
 
-  MergeDataManager(RemoteExporter exporter,
-                   DataManager dataManager,
-                   NodeTypeDataManager ntManager,
-                   String storageDir) {
+  MergeDataManager2(RemoteExporter exporter,
+                    DataManager dataManager,
+                    NodeTypeDataManager ntManager,
+                    String storageDir) {
     super(exporter, dataManager, ntManager, storageDir);
   }
 
-  /**
-   * Start merge process.
-   * 
-   * @param membersChanges
-   *          List of members changes
-   * @throws RepositoryException
-   * @throws RemoteExportException
-   * @throws IOException
-   * @throws ClassNotFoundException
-   * @throws ClassCastException
-   * @throws MergeDataManagerException
-   */
   public ChangesStorage<ItemState> merge(Iterator<MemberChangesStorage<ItemState>> membersChanges) throws RepositoryException,
                                                                                                   RemoteExportException,
                                                                                                   IOException,
@@ -77,7 +62,6 @@ public class MergeDataManager extends AbstractMergeManager {
                                                                                                   ClassNotFoundException,
                                                                                                   MergeDataManagerException,
                                                                                                   StorageRuntimeException {
-
     try {
       MemberChangesStorage<ItemState> first = membersChanges.next();
 
@@ -101,11 +85,6 @@ public class MergeDataManager extends AbstractMergeManager {
       while (membersChanges.hasNext() && run) {
         MemberChangesStorage<ItemState> second = membersChanges.next();
 
-        List<QPath> skippedList = new ArrayList<QPath>();
-        List<QPath> restoredOrder = new ArrayList<QPath>();
-
-        // TODO if we merging two remote members, how localMember can be used for isLocalPriority
-        // value?
         boolean isLocalPriority = localMember.getPriority() >= second.getMember().getPriority();
         if (isLocalPriority) {
           income = first;
@@ -126,63 +105,30 @@ public class MergeDataManager extends AbstractMergeManager {
                                                                                                 resHolder);
 
         exporter.setRemoteMember(second.getMember().getAddress());
-        // TODO NT reregistration
-        AddMerger addMerger = new AddMerger(isLocalPriority,
-                                            exporter,
-                                            dataManager,
-                                            ntManager,
-                                            resHolder);
-        DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
-                                                     exporter,
-                                                     dataManager,
-                                                     ntManager,
-                                                     resHolder);
-        UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
-                                                     exporter,
-                                                     dataManager,
-                                                     ntManager,
-                                                     resHolder);
-        RenameMerger renameMerger = new RenameMerger(isLocalPriority,
-                                                     exporter,
-                                                     dataManager,
-                                                     ntManager,
-                                                     resHolder);
-        MixinMerger mixinMerger = new MixinMerger(isLocalPriority,
-                                                  exporter,
-                                                  dataManager,
-                                                  ntManager,
-                                                  resHolder);
+
+        ConflictResolver conflictResolver = new ConflictResolver(isLocalPriority, local);
+
+        AddAnalyzer addAnalyzer = new AddAnalyzer(isLocalPriority);
+        RenameAnalyzer renameAnalyzer = new RenameAnalyzer(isLocalPriority);
+        UpdateAnalyzer updateAnalyzer = new UpdateAnalyzer(isLocalPriority);
+        MixinAnalyzer mixinAnalyzer = new MixinAnalyzer(isLocalPriority);
+        DeleteAnalyzer deleteAnalyzer = new DeleteAnalyzer(isLocalPriority);
 
         if (run) {
           Iterator<ItemState> changes = income.getChanges();
           if (changes.hasNext()) {
-            outer: while (changes.hasNext() && run) {
+            while (changes.hasNext() && run) {
               ItemState incomeChange = changes.next();
 
               if (LOG.isDebugEnabled())
-                LOG.debug("\t\tMerging income item "
+                LOG.debug("\t\tAnalyzing income item "
                     + ItemState.nameFromValue(incomeChange.getState()) + " "
                     + incomeChange.getData().getQPath().getAsString());
 
-              // skip already processed itemstate
-              if (iteration.hasState(incomeChange)) {
-                if (LOG.isDebugEnabled())
-                  LOG.debug("\t\tSkip income item "
-                      + ItemState.nameFromValue(incomeChange.getState()) + " "
-                      + incomeChange.getData().getQPath().getAsString());
+              // skip unimportant changes
+              if (isLocalPriority
+                  && conflictResolver.isPathConflicted(incomeChange.getData().getQPath())) {
                 continue;
-              }
-
-              // skip subtree changes
-              for (int i = 0; i < skippedList.size(); i++) {
-                if (incomeChange.getData().getQPath().equals(skippedList.get(i))
-                    || incomeChange.getData().getQPath().isDescendantOf(skippedList.get(i))) {
-                  if (LOG.isDebugEnabled())
-                    LOG.debug("\t\tMerging income item "
-                        + ItemState.nameFromValue(incomeChange.getState()) + " "
-                        + incomeChange.getData().getQPath().getAsString());
-                  continue outer;
-                }
               }
 
               // skip lock properties
@@ -195,53 +141,23 @@ public class MergeDataManager extends AbstractMergeManager {
 
               switch (incomeChange.getState()) {
               case ItemState.ADDED:
-                iteration.addAll(addMerger.merge(incomeChange,
-                                                 income,
-                                                 local,
-                                                 storageDir,
-                                                 skippedList,
-                                                 restoredOrder));
+                addAnalyzer.analyze(incomeChange, local, income, conflictResolver);
                 break;
               case ItemState.DELETED:
-                // DELETE
-                if (incomeChange.isPersisted()) {
-                  iteration.addAll(deleteMerger.merge(incomeChange,
-                                                      income,
-                                                      local,
-                                                      storageDir,
-                                                      skippedList,
-                                                      restoredOrder));
+                if (incomeChange.isPersisted()) { // DELETE
+                  deleteAnalyzer.analyze(incomeChange, local, income, conflictResolver);
                 } else {
                   ItemState nextIncomeChange = income.findNextState(incomeChange,
                                                                     incomeChange.getData()
                                                                                 .getIdentifier());
 
-                  // RENAME
-                  if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
+                  if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) { // RENAME
+                    renameAnalyzer.analyze(incomeChange, local, income, conflictResolver);
 
-                    // skip processed itemstates
-                    if (iteration.hasState(nextIncomeChange.getData().getIdentifier(),
-                                           nextIncomeChange.getData().getQPath(),
-                                           ItemState.ADDED)) {
-                      continue;
-                    }
-
-                    iteration.addAll(renameMerger.merge(incomeChange,
-                                                        income,
-                                                        local,
-                                                        storageDir,
-                                                        skippedList,
-                                                        restoredOrder));
-
-                    // UPDATE node
                   } else if (nextIncomeChange != null
-                      && nextIncomeChange.getState() == ItemState.UPDATED) {
-                    iteration.addAll(udpateMerger.merge(incomeChange,
-                                                        income,
-                                                        local,
-                                                        storageDir,
-                                                        skippedList,
-                                                        restoredOrder));
+                      && nextIncomeChange.getState() == ItemState.UPDATED) { // UPDATE node
+                    updateAnalyzer.analyze(incomeChange, local, income, conflictResolver);
+
                   } else {
                     if (LOG.isDebugEnabled())
                       LOG.debug("Income changes log: " + income.dump());
@@ -260,26 +176,21 @@ public class MergeDataManager extends AbstractMergeManager {
                 }
                 break;
               case ItemState.UPDATED:
-                // UPDATE property
-                if (!incomeChange.getData().isNode()) {
-                  iteration.addAll(udpateMerger.merge(incomeChange,
-                                                      income,
-                                                      local,
-                                                      storageDir,
-                                                      skippedList,
-                                                      restoredOrder));
+                if (!incomeChange.getData().isNode()) { // UPDATE property
+                  updateAnalyzer.analyze(incomeChange, local, income, conflictResolver);
                 }
                 break;
               case ItemState.MIXIN_CHANGED:
-                iteration.addAll(mixinMerger.merge(incomeChange,
-                                                   income,
-                                                   local,
-                                                   storageDir,
-                                                   skippedList,
-                                                   restoredOrder));
+                mixinAnalyzer.analyze(incomeChange, local, income, conflictResolver);
                 break;
               }
             }
+
+            // resolve conflicts
+            conflictResolver.restore(iteration);
+
+            // apply income changes
+            iteration.addAll(income);
           }
 
           // add changes to resulted changes and prepare changes for next merge iteration
@@ -309,5 +220,4 @@ public class MergeDataManager extends AbstractMergeManager {
       run = true; // TODO true for tests?
     }
   }
-
 }

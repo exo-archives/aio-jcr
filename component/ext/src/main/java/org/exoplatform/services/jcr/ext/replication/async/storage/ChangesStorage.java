@@ -347,4 +347,7 @@ public interface ChangesStorage<T extends ItemState> {
                                                                            ClassCastException,
                                                                            ClassNotFoundException;
 
+  public List<QPath> getUniquePathesByUUID(String identifier) throws IOException,
+                                                             ClassCastException,
+                                                             ClassNotFoundException;
 }

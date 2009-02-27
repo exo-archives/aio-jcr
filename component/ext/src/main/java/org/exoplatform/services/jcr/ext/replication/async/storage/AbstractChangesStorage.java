@@ -18,9 +18,11 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -669,6 +671,23 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     }
 
     return null;
+  }
+
+  public List<QPath> getUniquePathesByUUID(String identifier) throws IOException,
+                                                             ClassCastException,
+                                                             ClassNotFoundException {
+    Set<QPath> index = new HashSet<QPath>();
+
+    Iterator<T> itemStates = getChanges();
+    while (itemStates.hasNext()) {
+      T item = itemStates.next();
+
+      if (item.getData().getIdentifier().equals(identifier)) {
+        index.add(item.getData().getQPath());
+      }
+    }
+
+    return new ArrayList<QPath>(index);
   }
 
 }
