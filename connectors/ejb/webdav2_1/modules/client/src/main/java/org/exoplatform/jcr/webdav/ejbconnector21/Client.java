@@ -73,7 +73,7 @@ public class Client {
 
   private WebDAVEJBConnector getBean() throws Exception {
     Hashtable<String, String> props = new Hashtable<String, String>();
-    props.put(javax.naming.Context.PROVIDER_URL, serverUrl);
+    props.put(javax.naming.Context.PROVIDER_URL, getServerUrl());
     props.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
               "org.objectweb.carol.jndi.spi.MultiOrbInitialContextFactory");
     InitialContext ctx = new InitialContext(props);
