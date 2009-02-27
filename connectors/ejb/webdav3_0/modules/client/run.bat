@@ -6,9 +6,9 @@
 @goto end
 
 :ok
-@set CLASSPATH=..\connector\target\exo.jcr.webdav.ejbconnector3_0.bean-trunk.jar
-@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.core.component.security.core-trunk.jar
-@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.commons-trunk.jar
+@set CLASSPATH=..\connector\target\exo.jcr.webdav.ejbconnector3_0.bean-1.10.1.1.jar
+@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.core.component.security.core-2.1.3.jar
+@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.commons-1.3.1.jar
 @set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\client.jar
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-component-smartclient-client-1.0.1.jar
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-component-smartclient-api-1.0.1.jar
@@ -21,7 +21,7 @@
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-asm-3.0.jar
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-util-1.0.1.jar
 
-java -Djava.security.manager=default -Djava.security.policy=%JONAS_ROOT%\conf\java.policy org.objectweb.jonas.client.ClientContainer target\exo.jcr.webdav.ejbconnector3_0.client-trunk.jar
+java -Djava.security.manager=default -Djava.security.policy=%JONAS_ROOT%\conf\java.policy org.objectweb.jonas.client.ClientContainer target\exo.jcr.webdav.ejbconnector3_0.client-1.10.1.1.jar
 
 @goto end
 
