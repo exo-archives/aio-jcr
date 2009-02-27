@@ -106,7 +106,7 @@ public class MergeDataManager2 extends AbstractMergeManager {
 
         exporter.setRemoteMember(second.getMember().getAddress());
 
-        ConflictResolver conflictResolver = new ConflictResolver(isLocalPriority, local);
+        ConflictResolver conflictResolver = new ConflictResolver(isLocalPriority, local, exporter);
 
         AddAnalyzer addAnalyzer = new AddAnalyzer(isLocalPriority);
         RenameAnalyzer renameAnalyzer = new RenameAnalyzer(isLocalPriority);

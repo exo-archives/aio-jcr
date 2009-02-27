@@ -282,6 +282,19 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * Return changes for a given path
    * 
+   * Merge2.
+   * 
+   * @param rootPath
+   * 
+   * @return Collection of ItemState
+   */
+  List<T> getChanges(QPath rootPath) throws IOException, ClassCastException, ClassNotFoundException;
+
+  /**
+   * TODO
+   * 
+   * Return changes for a given path
+   * 
    * @param rootPath
    * 
    * @return Collection of ItemState
@@ -325,10 +338,29 @@ public interface ChangesStorage<T extends ItemState> {
                                                 ClassCastException,
                                                 ClassNotFoundException;
 
+  /**
+   * isParentHasCheckIn.
+   * 
+   * @param toState
+   * @param childPath
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
   boolean isParentHasCheckIn(ItemState toState, QPath childPath) throws IOException,
                                                                 ClassCastException,
                                                                 ClassNotFoundException;
 
+  /**
+   * findNodeInVS.
+   * 
+   * @param uuid
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
   public QPath findNodeInVS(String uuid) throws IOException,
                                         ClassCastException,
                                         ClassNotFoundException;
@@ -347,6 +379,17 @@ public interface ChangesStorage<T extends ItemState> {
                                                                            ClassCastException,
                                                                            ClassNotFoundException;
 
+  /**
+   * getUniquePathesByUUID.
+   * 
+   * Merge2.
+   * 
+   * @param identifier
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
   public List<QPath> getUniquePathesByUUID(String identifier) throws IOException,
                                                              ClassCastException,
                                                              ClassNotFoundException;
