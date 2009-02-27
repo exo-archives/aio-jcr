@@ -301,6 +301,8 @@ public class BackupServer implements ResourceContainer {
       validateRepositoryName(repositoryName);
       
       restore.restore();
+      
+      res += "The workspace '" + "/" + repositoryName  + "/" + workspaceName+"' was restored.";
     } catch (Exception e) {
       res = "FAIL\n" + e.getMessage();
       log.error("Can not restore the workspace '"
@@ -374,9 +376,17 @@ public class BackupServer implements ResourceContainer {
       
       BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
       
-      if (bch != null) 
-        result +=(bch.getFullBackupState() != BackupJob.FINISHED ? "The full backup is working" :  "The full backup was finished.");
-      else
+      if (bch != null) {
+        String incrementalBackupStatus = "";
+        
+        for (BackupJob job : bch.getBackupJobs()) 
+          if (job.getType() == BackupJob.INCREMENTAL)
+             incrementalBackupStatus = "The incremental backup is working";
+        
+        String fullBackupStatus = "The full backup " +(bch.getFullBackupState() == BackupJob.FINISHED ? "is " : "was " ) + getState(bch.getFullBackupState());
+        
+        result += fullBackupStatus + "\n" + incrementalBackupStatus;
+      } else
         result += "No active backup for '" + "/"+repositoryName + "/"+workspaceName+"'";
       
     } catch (Exception e) {
@@ -426,4 +436,29 @@ public class BackupServer implements ResourceContainer {
                                          +"/"+repositoryName 
                                          + "/"+workspaceName+"'");
   }
+  
+  
+  private String getState(int state) {
+    String st = "";
+    switch (state) {
+    
+    case BackupJob.FINISHED:
+      st = "finished";
+      break;
+      
+    case BackupJob.WORKING:
+      st = "working";
+      break;
+      
+    case BackupJob.WAITING:
+      st = "waiting";
+      break;
+      
+    case BackupJob.STARTING:
+      st = "starting";
+      break;
+    }
+    
+    return st;
+  } 
 }

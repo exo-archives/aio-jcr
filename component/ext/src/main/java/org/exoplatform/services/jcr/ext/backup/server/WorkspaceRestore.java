@@ -198,36 +198,5 @@ public class WorkspaceRestore {
 
     return wsEntry;
   }
-  
-  
-  protected WorkspaceEntry makeWorkspaceEntry(WorkspaceEntry wEntryBase) throws RepositoryConfigurationException {
-    WorkspaceEntry ws1back = new WorkspaceEntry();
-    ws1back.setName(wEntryBase.getName());
-    ws1back.setUniqueName(wEntryBase.getUniqueName());
-
-    Repository repository1;
-
-    ws1back.setAccessManager(wEntryBase.getAccessManager());
-    ws1back.setAutoInitializedRootNt(wEntryBase.getAutoInitializedRootNt());
-    ws1back.setAutoInitPermissions(wEntryBase.getAutoInitPermissions());
-    ws1back.setCache(wEntryBase.getCache());
-    ws1back.setContainer(wEntryBase.getContainer());
-    ws1back.setLockManager(wEntryBase.getLockManager());
-
-    // Indexer
-    ws1back.setQueryHandler(wEntryBase.getQueryHandler());
-
-    ArrayList params = new ArrayList();
-    for (Iterator i = ws1back.getContainer().getParameters().iterator(); i.hasNext();) {
-      SimpleParameterEntry p = (SimpleParameterEntry) i.next();
-      SimpleParameterEntry newp = new SimpleParameterEntry(p.getName(), p.getValue());
-      params.add(newp);
-    }
-
-    ContainerEntry ce = new ContainerEntry(wEntryBase.getContainer().getType(),params);
-    ws1back.setContainer(ce);
-
-    return ws1back;
-  }
 
 }
