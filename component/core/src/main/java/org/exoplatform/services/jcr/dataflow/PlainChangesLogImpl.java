@@ -213,7 +213,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
     } 
   }
 
-  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws IOException {
     // write id
     out.writeInt(Storable.PLAIN_CHANGES_LOG_IMPL);
     

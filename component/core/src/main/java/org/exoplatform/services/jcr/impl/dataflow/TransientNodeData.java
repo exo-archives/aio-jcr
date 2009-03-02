@@ -429,7 +429,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
     acl.readObject(in);
   }
 
-  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws IOException {
     // write id
     out.writeInt(Storable.TRANSIENT_NODE_DATA);
     

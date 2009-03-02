@@ -271,7 +271,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     }
   }
 
-  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws IOException {
     //write id
     out.writeInt(Storable.TRANSACTION_CHANGES_LOG);
     

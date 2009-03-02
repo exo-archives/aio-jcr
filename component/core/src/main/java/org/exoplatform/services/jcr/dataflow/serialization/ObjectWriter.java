@@ -29,17 +29,6 @@ import java.io.IOException;
 public interface ObjectWriter {
 
   /**
-   * Write an object to the underlying storage or stream.  The
-   * class that implements this interface defines how the object is
-   * written.
-   *
-   * @param obj the object to be written
-   * @exception IOException Any of the usual Input/Output related exceptions.
-   */
- // public void writeObject(JCRExternalizable obj)
- //   throws IOException, UnknownClassIdException;
-
-  /**
    * Writes an array of bytes. This method will block until the bytes
    * are actually written.
    * @param b the data to be written

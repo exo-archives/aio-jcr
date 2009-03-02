@@ -89,17 +89,6 @@ public class ObjectReaderImpl implements ObjectReader {
   /**
    * {@inheritDoc}
    */
- /* public JCRExternalizable readObject() throws UnknownClassIdException, IOException {
-    int type = readInt();
-    JCRExternalizable objectInstants = JCRExternlizableFactory.getObjectInstanse(type);
-    objectInstants.readExternal(this);
-
-    return objectInstants;
-  }*/
-  
-  /**
-   * {@inheritDoc}
-   */
   public long skip(long n) throws IOException {
 
     long remaining = n;

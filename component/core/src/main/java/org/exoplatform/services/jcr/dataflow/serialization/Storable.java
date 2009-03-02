@@ -45,5 +45,5 @@ public interface Storable {
   
   public void readObject(ObjectReader in) throws UnknownClassIdException, IOException;
 
-  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException;
+  public void writeObject(ObjectWriter out) throws IOException;
 }

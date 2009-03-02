@@ -281,7 +281,7 @@ public class AccessControlList implements Externalizable, Storable {
     
   }
 
-  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws IOException {
     // write id
     out.writeInt(Storable.ACCESS_CONTROL_LIST);
     

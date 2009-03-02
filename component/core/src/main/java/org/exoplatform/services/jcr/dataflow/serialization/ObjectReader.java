@@ -30,25 +30,12 @@ import java.io.IOException;
 public interface ObjectReader {
 
   /**
-   * Read and return an object. The class that implements this interface defines where the object is
-   * "read" from.
-   * 
-   * @return the object read from the stream
-   * @exception java.lang.ClassNotFoundException
-   *              If the class of a serialized object cannot be found.
-   * @exception IOException
-   *              If any of the usual Input/Output related exceptions occur.
-   */
- // public JCRExternalizable readObject() throws UnknownClassIdException, IOException;
-
-  /**
    * Closes the input stream. Must be called to release any resources associated with the stream.
    * 
    * @exception IOException
    *              If an I/O error has occurred.
    */
   public void close() throws IOException;
-  
   
   /**
    * Reads some bytes from an input

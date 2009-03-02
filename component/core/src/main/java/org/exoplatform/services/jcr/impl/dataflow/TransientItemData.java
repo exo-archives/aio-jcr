@@ -232,7 +232,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     persistedVersion = in.readInt();
   }
 
-  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws IOException {
     byte[] buf = qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
     out.writeInt(buf.length);
     out.write(buf);

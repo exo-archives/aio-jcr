@@ -110,12 +110,4 @@ public class ObjectWriterImpl implements ObjectWriter {
     out.write(writeBuffer, 0, 8);
   }
 
-  /**
-   * {@inheritDoc}
-   */
- /* public void writeObject(JCRExternalizable obj) throws IOException, UnknownClassIdException {
-    writeInt(JCRExternlizableFactory.getObjectId(obj));
-    obj.writeExternal(this);
-  }*/
-
 }
