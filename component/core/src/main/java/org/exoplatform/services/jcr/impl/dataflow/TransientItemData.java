@@ -22,9 +22,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.Storable;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -40,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: TransientItemData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public abstract class TransientItemData implements MutableItemData, Externalizable, JCRExternalizable {
+public abstract class TransientItemData implements MutableItemData, Externalizable, Storable {
   
   protected static final Log          LOG         = ExoLogger.getLogger("jcr.TransientItemData");
   
@@ -197,7 +197,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     persistedVersion = in.readInt();
   }
   
-  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
     byte[] buf;
 
     try {
@@ -232,7 +232,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     persistedVersion = in.readInt();
   }
 
-  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
     byte[] buf = qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
     out.writeInt(buf.length);
     out.write(buf);

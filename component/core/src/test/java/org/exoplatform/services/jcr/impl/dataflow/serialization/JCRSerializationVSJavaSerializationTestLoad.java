@@ -66,11 +66,12 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
       it = list.iterator();
 
       File jcrfile = File.createTempFile("jcr", "test");
-      JCRObjectOutputImpl jcrout = new JCRObjectOutputImpl(new FileOutputStream(jcrfile));
+      ObjectWriterImpl jcrout = new ObjectWriterImpl(new FileOutputStream(jcrfile));
 
       long t1 = System.currentTimeMillis();
       while (it.hasNext()) {
-        jcrout.writeObject(it.next());
+        it.next().writeObject(jcrout);
+        //jcrout.writeObject(it.next());
       }
       t1 = System.currentTimeMillis() - t1;
 
@@ -78,12 +79,13 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
       jcrout.close();
 
       // deserialize
-      JCRObjectInputImpl jcrin = new JCRObjectInputImpl(new FileInputStream(jcrfile));
+      ObjectReaderImpl jcrin = new ObjectReaderImpl(new FileInputStream(jcrfile));
 
       long t3 = System.currentTimeMillis();
 
       for (int i = 0; i < nodes; i++) {
-        TransientValueData obj = (TransientValueData) jcrin.readObject();
+        TransientValueData obj = new TransientValueData();
+        obj.readObject(jcrin);
       }
       t3 = System.currentTimeMillis() - t3;
       jcrread += t3;

@@ -115,15 +115,15 @@ public class MultipleDeserializationTestLoad extends JcrImplSerializationBaseTes
     
         // Serialize with JCR
     File jcrfile = File.createTempFile("jcr", "test");
-    JCRObjectOutputImpl jcrout = new JCRObjectOutputImpl(new FileOutputStream(jcrfile));
-    TransactionChangesLog l = pl.pushChanges().get(0); 
-    jcrout.writeObject(l);
+    ObjectWriterImpl jcrout = new ObjectWriterImpl(new FileOutputStream(jcrfile));
+    TransactionChangesLog l = pl.pushChanges().get(0);
+    l.writeObject(jcrout);
     jcrout.close();
     
-    
-    JCRObjectInputImpl jcrin = new JCRObjectInputImpl(new FileInputStream(jcrfile));
+    ObjectReaderImpl jcrin = new ObjectReaderImpl(new FileInputStream(jcrfile));
     long jcrfread = System.currentTimeMillis();
-    TransactionChangesLog mlog = (TransactionChangesLog)jcrin.readObject();
+    TransactionChangesLog mlog = new TransactionChangesLog();
+    mlog.readObject(jcrin);
     jcrfread = System.currentTimeMillis() - jcrfread;
     jcrin.close();
     
@@ -131,9 +131,10 @@ public class MultipleDeserializationTestLoad extends JcrImplSerializationBaseTes
     
     for (int j = 0; j < iterations; j++) {
       // deserialize
-      jcrin = new JCRObjectInputImpl(new FileInputStream(jcrfile));
+      jcrin = new ObjectReaderImpl(new FileInputStream(jcrfile));
       long t3 = System.currentTimeMillis();
-      TransactionChangesLog log = (TransactionChangesLog)jcrin.readObject();
+      TransactionChangesLog log =  new TransactionChangesLog();
+      log.readObject(jcrin);
       t3 = System.currentTimeMillis() - t3;
       jcrread += t3;
       jcrin.close();

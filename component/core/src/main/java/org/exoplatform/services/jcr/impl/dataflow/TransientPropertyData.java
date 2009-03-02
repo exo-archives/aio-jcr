@@ -26,16 +26,15 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.dataflow.serialization.Storable;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.MutablePropertyData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.dataflow.serialization.JCRExternlizableFactory;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -46,7 +45,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 
 public class TransientPropertyData extends TransientItemData implements MutablePropertyData,
-    Externalizable, JCRExternalizable {
+    Externalizable, Storable {
 
   private static final long  serialVersionUID = -8224902483861330191L;
 
@@ -244,35 +243,33 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     }
   }
   
-  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
-    super.readExternal(in);
-
+  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
+    //read id
+    int key;
+    if ((key = in.readInt())!= Storable.TRANSIENT_PROPERTY_DATA){
+      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
+    }
+    
+    super.readObject(in);
     type = in.readInt();
-
     multiValued = in.readBoolean();
 
     int listSize = in.readInt();
     if (listSize != NULL_VALUES) {
       values = new ArrayList<ValueData>();
       for (int i = 0; i < listSize; i++) {
-        int type = in.readInt();
-        JCRExternalizable objectInstants = JCRExternlizableFactory.getObjectInstanse(type);
-        if(objectInstants instanceof TransientValueData){
-          TransientValueData vd = (TransientValueData) objectInstants;
-          vd.setParentPropertyDataId(super.identifier);
-          vd.readExternal(in);
+          TransientValueData vd = new TransientValueData(super.identifier, System.getProperty("java.io.tmpdir")+ "/" + TransientValueData.DESERIALIAED_SPOOLFILES_TEMP_DIR);
+          vd.readObject(in);
           values.add(vd);
-        }else{
-          // its non-TransientValueData object;
-          objectInstants.readExternal(in);
-          values.add((ValueData) objectInstants);
-        }
       }
     }
   }
 
-  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
-    super.writeExternal(out);
+  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+    // write id
+    out.writeInt(Storable.TRANSIENT_PROPERTY_DATA);
+    
+    super.writeObject(out);
 
     out.writeInt(type);
     out.writeBoolean(multiValued);
@@ -281,7 +278,8 @@ public class TransientPropertyData extends TransientItemData implements MutableP
       int listSize = values.size();
       out.writeInt(listSize);
       for (int i = 0; i < listSize; i++)
-        out.writeObject((JCRExternalizable) values.get(i));
+        ((TransientValueData)values.get(i)).writeObject(out);
+        
     } else {
       out.writeInt(NULL_VALUES);
     }

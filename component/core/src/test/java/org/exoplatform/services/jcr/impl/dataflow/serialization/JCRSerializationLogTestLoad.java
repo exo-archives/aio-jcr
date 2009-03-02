@@ -68,24 +68,25 @@ public class JCRSerializationLogTestLoad extends JcrImplSerializationBaseTest {
     long jcrread = 0;
 
     File jcrfile = File.createTempFile("jcr", "test");
-    JCRObjectOutputImpl jcrout = new JCRObjectOutputImpl(new FileOutputStream(jcrfile));
+    ObjectWriterImpl jcrout = new ObjectWriterImpl(new FileOutputStream(jcrfile));
 
     long t1 = System.currentTimeMillis();
     while (it.hasNext()) {
-      jcrout.writeObject(it.next());
+      it.next().writeObject(jcrout);
     }
     jcrwrite = System.currentTimeMillis() - t1;
     jcrout.close();
 
     // deserialize
-    JCRObjectInputImpl jcrin = new JCRObjectInputImpl(new FileInputStream(jcrfile));
+    ObjectReaderImpl jcrin = new ObjectReaderImpl(new FileInputStream(jcrfile));
 
     List<TransactionChangesLog> readed = new ArrayList<TransactionChangesLog>();
     long t3 = System.currentTimeMillis();
 
     for(int i=0; i<iter; i++){
-      TransactionChangesLog obj = (TransactionChangesLog) jcrin.readObject();
-      assertNotNull(obj);
+      TransactionChangesLog obj = new TransactionChangesLog();
+      obj.readObject(jcrin);
+      
       readed.add(obj); 
     }
     

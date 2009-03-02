@@ -22,13 +22,14 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
-
-import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.dataflow.serialization.Storable;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -37,7 +38,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: ItemState.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class ItemState implements Externalizable, JCRExternalizable {
+public class ItemState implements Externalizable, Storable {
 
   private static final long   serialVersionUID  = 7967457831325761318L;
 
@@ -358,18 +359,44 @@ public class ItemState implements Externalizable, JCRExternalizable {
     data = (ItemData) in.readObject();
   }
 
-  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
+    //read id
+    int key;
+    if ((key = in.readInt())!= Storable.ITEM_STATE){
+      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
+    }
+    
     state = in.readInt();
     isPersisted = in.readBoolean();
     eventFire = in.readBoolean();
-    data = (ItemData) in.readObject();
+    boolean isNodeData = in.readBoolean();
+    if(isNodeData){
+      TransientNodeData nd = new TransientNodeData();
+      nd.readObject(in);
+      data = nd;
+    }else{
+      TransientPropertyData pd = new TransientPropertyData();
+      pd.readObject(in);
+      data = pd;
+    }
   }
 
-  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+    // write id
+    out.writeInt(Storable.ITEM_STATE);
+    
     out.writeInt(state);
     out.writeBoolean(isPersisted);
     out.writeBoolean(eventFire);
-    out.writeObject((JCRExternalizable) data);
+    
+    // write flag isNodeData and ItemData
+    boolean isNodeData = (data instanceof TransientNodeData);
+    out.writeBoolean(isNodeData);
+    if(isNodeData){
+      ((TransientNodeData)data).writeObject(out);
+    }else{
+      ((TransientPropertyData)data).writeObject(out);
+    }
   }
 
 }

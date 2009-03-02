@@ -85,10 +85,10 @@ public class JcrImplSerializationBaseTest extends JcrImplBaseTest {
   protected File serializeLogs(List<TransactionChangesLog> logs) throws IOException,
                                                                 UnknownClassIdException {
     File jcrfile = File.createTempFile("jcr", "test");
-    JCRObjectOutputImpl jcrout = new JCRObjectOutputImpl(new FileOutputStream(jcrfile));
+    ObjectWriterImpl jcrout = new ObjectWriterImpl(new FileOutputStream(jcrfile));
 
     for (TransactionChangesLog tcl : logs)
-      jcrout.writeObject(tcl);
+      tcl.writeObject(jcrout);
 
     jcrout.close();
 
@@ -97,13 +97,14 @@ public class JcrImplSerializationBaseTest extends JcrImplBaseTest {
 
   protected List<TransactionChangesLog> deSerializeLogs(File jcrfile) throws IOException,
                                                                 UnknownClassIdException {
-    JCRObjectInputImpl jcrin = new JCRObjectInputImpl(new FileInputStream(jcrfile));
+    ObjectReaderImpl jcrin = new ObjectReaderImpl(new FileInputStream(jcrfile));
 
     List<TransactionChangesLog> readed = new ArrayList<TransactionChangesLog>();
 
     try {
     while (true) {
-      TransactionChangesLog obj = (TransactionChangesLog) jcrin.readObject();
+      TransactionChangesLog obj = new TransactionChangesLog();
+      obj.readObject(jcrin);
       readed.add(obj); 
     }
     } catch (EOFException e) {

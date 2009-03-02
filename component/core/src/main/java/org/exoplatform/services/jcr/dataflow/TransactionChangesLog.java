@@ -23,9 +23,9 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.dataflow.serialization.Storable;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -40,7 +40,8 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @version $Id: TransactionChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class TransactionChangesLog implements CompositeChangesLog, Externalizable, JCRExternalizable {
+public class TransactionChangesLog implements CompositeChangesLog, Externalizable,
+    Storable {
 
   private static final long       serialVersionUID = 4866736965040228027L;
 
@@ -66,6 +67,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.CompositeChangesLog#getLogIterator()
    */
   public ChangesLogIterator getLogIterator() {
@@ -74,10 +76,12 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getAllStates()
    */
   public List<ItemState> getAllStates() {
-    // TODO [PN] use a wrapping List/Iterator for all changes logs instead of putting all logs
+    // TODO [PN] use a wrapping List/Iterator for all changes logs instead of
+    // putting all logs
     // content into one list
     // will increase a performance of tx-related operations
     List<ItemState> states = new ArrayList<ItemState>();
@@ -91,6 +95,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getSize()
    */
   public int getSize() {
@@ -151,10 +156,9 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   /**
    * Find if the node ancestor was renamed in this changes log.
    * 
-   * @param item
-   *          - target node
-   * @return - the pair of states of item ancestor, ItemState[] {DELETED, RENAMED} or null if
-   *         renaming is not detected.
+   * @param item - target node
+   * @return - the pair of states of item ancestor, ItemState[] {DELETED,
+   *         RENAMED} or null if renaming is not detected.
    * @throws IllegalPathException
    */
   @Deprecated
@@ -174,7 +178,8 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
           if (rename.getState() == ItemState.RENAMED && rename.isPersisted()
               && rename.getData().getIdentifier().equals(delete.getData().getIdentifier())) {
 
-            // 2. search of most fresh state of rename for searched rename state (i.e. for ancestor
+            // 2. search of most fresh state of rename for searched rename state
+            // (i.e. for ancestor
             // state of the given node)
             for (int bi = allStates.size() - 1; bi >= i + 2; bi--) {
               state = allStates.get(bi);
@@ -188,7 +193,8 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
               }
             }
 
-            return new ItemState[] { delete, rename }; // 4. ok, there are no more fresh we have
+            return new ItemState[] { delete, rename }; // 4. ok, there are no
+                                                        // more fresh we have
             // found before p.2
           } // else, it's not a rename, search deeper
         } catch (IndexOutOfBoundsException e) {
@@ -241,9 +247,16 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     for (int i = 0; i < listSize; i++)
       changesLogs.add((PlainChangesLogImpl) in.readObject());
   }
+
   // ------------------ [ END ] ------------------
 
-  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
+    //read id
+    int key;
+    if ((key = in.readInt())!= Storable.TRANSACTION_CHANGES_LOG){
+      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
+    }
+    
     if (in.readInt() == 1) {
       byte[] buf = new byte[in.readInt()];
       in.readFully(buf);
@@ -251,11 +264,17 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     }
 
     int listSize = in.readInt();
-    for (int i = 0; i < listSize; i++)
-      changesLogs.add((PlainChangesLogImpl) in.readObject());
+    for (int i = 0; i < listSize; i++) {
+      PlainChangesLogImpl l = new PlainChangesLogImpl();
+      l.readObject(in);
+      changesLogs.add(l);
+    }
   }
 
-  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+    //write id
+    out.writeInt(Storable.TRANSACTION_CHANGES_LOG);
+    
     if (systemId != null) {
       out.writeInt(1);
       out.writeInt(systemId.getBytes().length);
@@ -267,6 +286,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     int listSize = changesLogs.size();
     out.writeInt(listSize);
     for (int i = 0; i < listSize; i++)
-      out.writeObject((JCRExternalizable)changesLogs.get(i));
+      ((Storable) changesLogs.get(i)).writeObject(out);
   }
 }

@@ -36,9 +36,9 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.Storable;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
@@ -50,7 +50,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TransientNodeData extends TransientItemData implements Comparable, MutableNodeData,
-    Externalizable, JCRExternalizable {
+    Externalizable, Storable {
 
   private static final long   serialVersionUID = -8675118546441306180L;
 
@@ -372,9 +372,14 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
   // -----------------------------------------
   
   
-  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
-    super.readExternal(in);
-
+  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
+    //read id
+    int key;
+    if ((key = in.readInt())!= Storable.TRANSIENT_NODE_DATA){
+      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
+    }
+    
+    super.readObject(in);
     orderNum = in.readInt();
 
     // primary type
@@ -421,12 +426,14 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
     }
 
     // acl
-    acl.readExternal(in);
+    acl.readObject(in);
   }
 
-  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
-    super.writeExternal(out);
-
+  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+    // write id
+    out.writeInt(Storable.TRANSIENT_NODE_DATA);
+    
+    super.writeObject(out);
     out.writeInt(orderNum);
 
     // primary type
@@ -442,6 +449,6 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
       out.write(buf);
     }
 
-    acl.writeExternal(out);
+    acl.writeObject(out);
   }
 }

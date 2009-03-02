@@ -28,9 +28,9 @@ import java.util.StringTokenizer;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRExternalizable;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectInput;
-import org.exoplatform.services.jcr.dataflow.serialization.JCRObjectOutput;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.dataflow.serialization.Storable;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: AccessControlList.java 14556 2008-05-21 15:22:15Z pnedonosko $
  */
 
-public class AccessControlList implements Externalizable, JCRExternalizable {
+public class AccessControlList implements Externalizable, Storable {
 
   private static final long              serialVersionUID = 5848327750178729120L;
 
@@ -246,7 +246,13 @@ public class AccessControlList implements Externalizable, JCRExternalizable {
     return accessList;
   }
 
-  public void readExternal(JCRObjectInput in) throws UnknownClassIdException, IOException {
+  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
+    // read id
+    int key;
+    if ((key = in.readInt())!= Storable.ACCESS_CONTROL_LIST){
+      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
+    }
+    
     // reading owner
     byte[] buf;
     int ownLength = in.readInt();
@@ -275,7 +281,10 @@ public class AccessControlList implements Externalizable, JCRExternalizable {
     
   }
 
-  public void writeExternal(JCRObjectOutput out) throws UnknownClassIdException, IOException {
+  public void writeObject(ObjectWriter out) throws UnknownClassIdException, IOException {
+    // write id
+    out.writeInt(Storable.ACCESS_CONTROL_LIST);
+    
     // Writing owner
     if (owner != null) {
       out.writeInt(owner.getBytes().length);
