@@ -50,6 +50,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SAS.<br/>
@@ -59,37 +60,37 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  */
 public class TransientValueData extends AbstractValueData implements Externalizable, Storable {
 
-  private static final long  serialVersionUID                 = -5280857006905550884L;
+  private static final long   serialVersionUID                 = -5280857006905550884L;
 
-  public static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "desJCRVDtemp";
+  private static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "_JCRVDtemp";
 
-  protected byte[]           data;
+  protected byte[]            data;
 
-  protected InputStream      tmpStream;
+  protected InputStream       tmpStream;
 
-  protected File             spoolFile;
+  protected File              spoolFile;
 
-  protected final boolean    closeTmpStream;
+  protected final boolean     closeTmpStream;
 
   /**
    * User for read(...) method
    */
-  protected FileChannel      spoolChannel;
+  protected FileChannel       spoolChannel;
 
-  protected FileCleaner      fileCleaner;
+  protected FileCleaner       fileCleaner;
 
-  protected int              maxBufferSize;
+  protected int               maxBufferSize;
 
-  protected File             tempDirectory;
+  protected File              tempDirectory;
 
-  protected boolean          spooled                          = false;
+  protected boolean           spooled                          = false;
 
-  private final boolean      deleteSpoolFile;
+  private final boolean       deleteSpoolFile;
 
   /**
    * will be used for optimization unserialization mechanism.
    */
-  private String             parentPropertyDataId;
+  //private String              parentPropertyDataId;
 
   static protected byte[] stringToBytes(final String value) {
     try {
@@ -626,15 +627,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.closeTmpStream = true;
   }
 
-  public TransientValueData(String propertyId, String tempDirectory) {
-    super(0);
-    this.deleteSpoolFile = true;
-    this.closeTmpStream = true;
-    this.parentPropertyDataId = propertyId;
-    this.tempDirectory = new File(tempDirectory);
-    this.tempDirectory.mkdirs();
-  }
-
   public void writeExternal(ObjectOutput out) throws IOException {
     if (this.isByteArray()) {
       out.writeInt(1);
@@ -666,6 +658,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
 
+    if (tempDirectory == null) {
+      this.tempDirectory = new File(System.getProperty("java.io.tmpdir") + "/"
+          + TransientValueData.DESERIALIAED_SPOOLFILES_TEMP_DIR);
+      this.tempDirectory.mkdirs();
+    }
+
     // read id
     int key;
     if ((key = in.readInt()) != Storable.TRANSIENT_VALUE_DATA) {
@@ -681,25 +679,27 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       data = new byte[in.readInt()];
       in.readFully(data);
     } else if (type == 2) {
+
+      // read property id
+
+      byte[] idb = new byte[in.readInt()];
+      in.readFully(idb);
+      String id = new String(idb, Constants.DEFAULT_ENCODING);
+
+      // read file
       long length = in.readLong();
 
-      SpoolFile sf;
-      if (parentPropertyDataId != null && !parentPropertyDataId.equals("")) {
-        String fileName = parentPropertyDataId + "_" + orderNumber;
-        sf = new SpoolFile(this.tempDirectory, fileName);
-        // check is spool file already exists
-        if (sf.exists()) {
-          // skip data in input stream
-          if (in.skip(length) != length) {
-            throw new IOException("Content isn't skipped correctly.");
-          }
-        } else {
-          writeToFile(in, sf, length);
+      SpoolFile sf = new SpoolFile(this.tempDirectory, id);
+
+      if (sf.exists()) {
+        // skip data in input stream
+        if (in.skip(length) != length) {
+          throw new IOException("Content isn't skipped correctly.");
         }
       } else {
-        sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
         writeToFile(in, sf, length);
       }
+
       this.spoolFile = sf;
     }
   }
@@ -718,6 +718,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       out.write(data);
     } else {
       out.writeInt(2);
+
+      // write property id
+      String id = IdGenerator.generate();
+      out.writeInt(id.getBytes().length);
+      out.write(id.getBytes(Constants.DEFAULT_ENCODING));
+
       // write file content
       long length = this.spoolFile.length();
       out.writeLong(length);

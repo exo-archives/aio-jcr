@@ -50,14 +50,21 @@ public class ObjectReaderImpl implements ObjectReader {
    * {@inheritDoc}
    */
   public boolean readBoolean() throws IOException {
-    return (in.read() == 1 ? true : false);
+    int v = in.read();
+    if (v < 0) {
+      throw new EOFException();
+    }
+    return (v != 0);
   }
 
   /**
    * {@inheritDoc}
    */
   public void readFully(byte[] b) throws IOException {
-    in.read(b);
+    int l = in.read(b);
+    if (l<b.length)
+     throw new EOFException();
+    
   }
 
   /**

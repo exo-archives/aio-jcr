@@ -258,7 +258,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     if (listSize != NULL_VALUES) {
       values = new ArrayList<ValueData>();
       for (int i = 0; i < listSize; i++) {
-          TransientValueData vd = new TransientValueData(super.identifier, System.getProperty("java.io.tmpdir")+ "/" + TransientValueData.DESERIALIAED_SPOOLFILES_TEMP_DIR);
+          TransientValueData vd = new TransientValueData();
           vd.readObject(in);
           values.add(vd);
       }
