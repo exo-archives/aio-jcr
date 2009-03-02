@@ -674,9 +674,9 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   /**
    * {@inheritDoc}
    */
-  public QPath findNodeInVS(String uuid) throws IOException,
-                                        ClassCastException,
-                                        ClassNotFoundException {
+  public QPath findVSChanges(String uuid) throws IOException,
+                                         ClassCastException,
+                                         ClassNotFoundException {
 
     Iterator<T> itemStates = getChanges();
     while (itemStates.hasNext()) {
@@ -694,6 +694,9 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<QPath> getUniquePathesByUUID(String identifier) throws IOException,
                                                              ClassCastException,
                                                              ClassNotFoundException {
@@ -709,6 +712,23 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     }
 
     return new ArrayList<QPath>(index);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public T findItemState(String identifier, QPath path, int state) throws IOException,
+                                                              ClassCastException,
+                                                              ClassNotFoundException {
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      T item = it.next();
+      if (ItemState.isSame(item, identifier, path, state)) {
+        return item;
+      }
+    }
+
+    return null;
   }
 
 }

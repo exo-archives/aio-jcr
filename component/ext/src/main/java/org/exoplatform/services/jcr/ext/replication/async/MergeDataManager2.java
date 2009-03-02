@@ -131,11 +131,11 @@ public class MergeDataManager2 extends AbstractMergeManager {
                     + incomeChange.getData().getQPath().getAsString());
 
               // skip unimportant changes
-              if (isLocalPriority
-                  && conflictResolver.isPathConflicted(incomeChange.getData().getQPath())) {
-                continue;
-              }
-
+              /*              if (isLocalPriority
+                                && conflictResolver.isPathConflicted(incomeChange.getData().getQPath())) {
+                              continue;
+                            }
+              */
               // skip lock properties
               if (!incomeChange.getData().isNode()) {
                 if (incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
@@ -192,6 +192,7 @@ public class MergeDataManager2 extends AbstractMergeManager {
             }
 
             conflictResolver.resolve(iteration);
+            conflictResolver.applyIncomeChanges(iteration);
           }
 
           // add changes to resulted changes and prepare changes for next merge iteration

@@ -358,7 +358,7 @@ public abstract class AbstractMerger implements ChangesMerger {
       skippedList.add(item.getData().getQPath());
 
       if (item.getData().isNode()) {
-        QPath skippedPath = storage.findNodeInVS(item.getData().getIdentifier());
+        QPath skippedPath = storage.findVSChanges(item.getData().getIdentifier());
 
         if (skippedPath != null)
           skippedList.add(skippedPath);

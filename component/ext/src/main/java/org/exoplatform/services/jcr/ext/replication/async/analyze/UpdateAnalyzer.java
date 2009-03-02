@@ -78,7 +78,8 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
         case ItemState.ADDED:
           for (ItemState st : incUpdateSeq) {
             if (localData.getQPath().isDescendantOf(st.getData().getQPath())) {
-              confilictResolver.add(localData.getQPath());
+              confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+              break;
             }
           }
           break;
@@ -102,12 +103,14 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                     || item.getData().getQPath().equals(locNodePath)
                     || locNodePath.isDescendantOf(item.getData().getQPath())
                     || nextLocNodePath.isDescendantOf(item.getData().getQPath())) {
-                  confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
+                  confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()),
+                                           incomeData.getIdentifier());
                 }
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(locNodePath)) {
-                confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
+                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()),
+                                         incomeData.getIdentifier());
               }
             }
 
@@ -122,7 +125,7 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                 if (locSt.getData().getQPath().isDescendantOf(incSt.getData().getQPath())
                     || locSt.getData().getQPath().equals(incSt.getData().getQPath())
                     || incSt.getData().getQPath().isDescendantOf(locSt.getData().getQPath())) {
-                  confilictResolver.add(locSt.getData().getQPath());
+                  confilictResolver.add(incSt.getData().getQPath(), incomeData.getIdentifier());
                 }
               }
             break;
@@ -139,19 +142,19 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
               if (item.getData().getQPath().isDescendantOf(localData.getQPath())
                   || item.getData().getQPath().equals(localData.getQPath())
                   || localData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(item.getData().getQPath(), incomeData.getIdentifier());
               }
             }
           } else {
             if (incomeData.isNode()) {
               for (ItemState item : incUpdateSeq) {
                 if (localData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  confilictResolver.add(localData.getQPath());
+                  confilictResolver.add(item.getData().getQPath(), incomeData.getIdentifier());
                 }
               }
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
               }
             }
           }
@@ -161,12 +164,12 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
           if (!localData.isNode()) {
             if (!incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
               }
             } else {
               for (ItemState item : incUpdateSeq) {
                 if (localData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  confilictResolver.add(localData.getQPath());
+                  confilictResolver.add(item.getData().getQPath(), incomeData.getIdentifier());
                 }
               }
             }
@@ -180,7 +183,7 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
           for (ItemState st : incUpdateSeq) {
             if (localData.getQPath().isDescendantOf(st.getData().getQPath())
                 || localData.getQPath().equals(st.getData().getQPath())) {
-              confilictResolver.add(localData.getQPath());
+              confilictResolver.add(localData.getQPath(), incomeData.getIdentifier());
             }
           }
           break;
@@ -240,7 +243,9 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(locNodePath)) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.addAll(local.getUniquePathesByUUID(localData.isNode()
+                    ? localData.getIdentifier()
+                    : localData.getParentIdentifier()));
               }
             }
             break;

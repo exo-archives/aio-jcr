@@ -204,6 +204,23 @@ public interface ChangesStorage<T extends ItemState> {
                                                                                      ClassCastException,
                                                                                      ClassNotFoundException;
 
+  /**
+   * findState.
+   * 
+   * merger2
+   * 
+   * @param identifier
+   * @param path
+   * @param state
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
+  public T findItemState(String identifier, QPath path, int state) throws IOException,
+                                                              ClassCastException,
+                                                              ClassNotFoundException;
+
   public T findPrevState(ItemState toState, String identifier) throws IOException,
                                                               ClassCastException,
                                                               ClassNotFoundException;
@@ -361,9 +378,9 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws ClassCastException
    * @throws ClassNotFoundException
    */
-  public QPath findNodeInVS(String uuid) throws IOException,
-                                        ClassCastException,
-                                        ClassNotFoundException;
+  public QPath findVSChanges(String uuid) throws IOException,
+                                         ClassCastException,
+                                         ClassNotFoundException;
 
   /**
    * getUniqueTreeChanges.

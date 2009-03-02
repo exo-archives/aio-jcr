@@ -71,12 +71,12 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
         case ItemState.ADDED:
           if (incomeData.isNode()) {
             if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
-              confilictResolver.add(localData.getQPath());
+              confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
             }
           } else {
             if (!localData.isNode()) {
               if (localData.getQPath().equals(incomeData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
               }
             }
           }
@@ -94,14 +94,16 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
                 if (item.getData().getQPath().isDescendantOf(incomeData.getQPath())
                     || incomeData.getQPath().equals(item.getData().getQPath())
                     || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  confilictResolver.add(item.getData().getQPath());
+                  confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                  break;
                 }
               }
             } else {
               List<ItemState> updateSeq = local.getUpdateSequence(localState);
               for (ItemState item : updateSeq) {
                 if (incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  confilictResolver.add(item.getData().getQPath());
+                  confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                  break;
                 }
               }
             }
@@ -129,11 +131,13 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
               if (incomeData.getQPath().isDescendantOf(locNodePath)
                   || incomeData.getQPath().equals(locNodePath)
                   || nextLocNodePath.isDescendantOf(incomeData.getQPath())) {
-                confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
+                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()),
+                                         incomeData.getIdentifier());
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
+                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()),
+                                         incomeData.getIdentifier());
               }
             }
             break;
@@ -143,17 +147,17 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           if (incomeData.isNode()) {
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                 || incomeData.getQPath().equals(localData.getQPath())) {
-              confilictResolver.add(localData.getQPath());
+              confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
             }
           } else {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
               }
             }
           }
@@ -163,11 +167,11 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           if (!localData.isNode()) {
             if (incomeData.isNode()) {
               if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(localData.getQPath(), incomeData.getIdentifier());
               }
             } else {
               if (localData.getQPath().equals(incomeData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(localData.getQPath(), incomeData.getIdentifier());
               }
             }
           }
@@ -180,7 +184,7 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           if (incomeData.isNode()) {
             if (localData.getQPath().equals(incomeData.getQPath())
                 || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
-              confilictResolver.add(localData.getQPath());
+              confilictResolver.add(localData.getQPath(), incomeData.getIdentifier());
             }
           } else {
             List<ItemState> mixinSeq = local.getMixinSequence(localState);
@@ -189,7 +193,7 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
               ItemState item = mixinSeq.get(i);
               if (!item.getData().isNode()) {
                 if (item.getData().getQPath().equals(incomeData.getQPath())) {
-                  confilictResolver.add(localData.getQPath());
+                  confilictResolver.add(localData.getQPath(), incomeData.getIdentifier());
                   break;
                 }
               }
@@ -265,17 +269,17 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.remove(localData.getQPath());
+                confilictResolver.add(localData.getQPath());
               }
             }
           } else {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                confilictResolver.remove(localData.getQPath());
+                confilictResolver.add(localData.getQPath());
               }
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.remove(localData.getQPath());
+                confilictResolver.add(localData.getQPath());
               }
             }
           }

@@ -56,6 +56,8 @@ public class ConflictResolver {
 
   private final List<QPath>                     conflictedPathes;
 
+  private final List<QPath>                     VSSkippedPathes;
+
   private final RemoteExporter                  exporter;
 
   private final DataManager                     dataManager;
@@ -76,6 +78,7 @@ public class ConflictResolver {
                           RemoteExporter exporter,
                           DataManager dataManager,
                           NodeTypeDataManager ntManager) {
+    this.VSSkippedPathes = new ArrayList<QPath>();
     this.conflictedPathes = new ArrayList<QPath>();
     this.local = local;
     this.income = income;
@@ -89,9 +92,38 @@ public class ConflictResolver {
    * add.
    * 
    * @param path
+   * @param identifier
+   * @throws ClassNotFoundException
+   * @throws IOException
+   * @throws ClassCastException
+   */
+  public void add(QPath path, String identifier) throws ClassCastException,
+                                                IOException,
+                                                ClassNotFoundException {
+
+    QPath skippedPath = income.findVSChanges(identifier);
+    if (skippedPath != null)
+      VSSkippedPathes.add(skippedPath);
+
+    for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
+      if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i)))
+        return;
+      else if (conflictedPathes.get(i).isDescendantOf(path)) {
+        conflictedPathes.remove(i);
+      }
+    }
+
+    conflictedPathes.add(path);
+  }
+
+  /**
+   * add.
+   * 
+   * @param path
    */
   public void add(QPath path) {
-    for (int i = conflictedPathes.size() - 1; i >= 0; i++) {
+
+    for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
       if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i)))
         return;
       else if (conflictedPathes.get(i).isDescendantOf(path)) {
@@ -106,17 +138,27 @@ public class ConflictResolver {
    * addAll.
    * 
    * @param pathes
+   * @param identifier
+   * @throws ClassNotFoundException
+   * @throws IOException
+   * @throws ClassCastException
    */
-  public void addAll(List<QPath> pathes) {
+  public void addAll(List<QPath> pathes, String identifier) throws ClassCastException,
+                                                           IOException,
+                                                           ClassNotFoundException {
+
+    QPath skippedPath = income.findVSChanges(identifier);
+    if (skippedPath != null)
+      VSSkippedPathes.add(skippedPath);
+
     outer: for (int j = 0; j < pathes.size(); j++) {
       QPath path = pathes.get(j);
 
-      for (int i = conflictedPathes.size() - 1; i >= 0; i++) {
+      for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
         if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i)))
-          break outer;
-        else if (conflictedPathes.get(i).isDescendantOf(path)) {
+          continue outer;
+        else if (conflictedPathes.get(i).isDescendantOf(path))
           conflictedPathes.remove(i);
-        }
       }
 
       conflictedPathes.add(path);
@@ -124,19 +166,23 @@ public class ConflictResolver {
   }
 
   /**
-   * isPathConflicted.
+   * addAll.
    * 
-   * @param path
-   * @return
+   * @param pathes
    */
-  public boolean isPathConflicted(QPath path) {
-    for (int i = 0; i < conflictedPathes.size(); i++) {
-      if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i))) {
-        return true;
-      }
-    }
+  public void addAll(List<QPath> pathes) {
+    outer: for (int j = 0; j < pathes.size(); j++) {
+      QPath path = pathes.get(j);
 
-    return false;
+      for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
+        if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i)))
+          continue outer;
+        else if (conflictedPathes.get(i).isDescendantOf(path))
+          conflictedPathes.remove(i);
+      }
+
+      conflictedPathes.add(path);
+    }
   }
 
   /**
@@ -145,7 +191,7 @@ public class ConflictResolver {
    * @param path
    */
   public void remove(QPath path) {
-    for (int i = conflictedPathes.size() - 1; i >= 0; i++) {
+    for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
       if (path.equals(conflictedPathes.get(i)))
         conflictedPathes.remove(i);
     }
@@ -166,24 +212,75 @@ public class ConflictResolver {
                                                                   ClassNotFoundException,
                                                                   RemoteExportException,
                                                                   RepositoryException {
-    if (isLocalPriority) {
-      // apply income changes that not conflicted with local
-      Iterator<ItemState> itemStates = income.getChanges();
-      while (itemStates.hasNext()) {
-        ItemState item = itemStates.next();
-        if (!isPathConflicted(item.getData().getQPath()))
-          iteration.add(item);
-      }
-    } else {
+    for (int i = 0; i < conflictedPathes.size(); i++) {
+      System.out.println(conflictedPathes.get(i).getAsString());
+    }
+    System.out.println('\n');
+
+    if (!isLocalPriority) {
       // resolve conflicts
       // TODO every method use changesStorage.getChanges(conflictedPathes.get(i));
       restoreAddedItems(iteration);
       restoreDeletedItems(iteration);
       // restoreMixinChanges(iteration);
-      // restoreUpdatesItems(iteration);
+      restoreUpdatesItems(iteration);
+    }
+  }
 
-      // apply income changes
-      iteration.addAll(income);
+  /**
+   * applyIncomeChanges.
+   * 
+   * @param iteration
+   * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   * @throws RepositoryException
+   */
+  public void applyIncomeChanges(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
+                                                                             IOException,
+                                                                             ClassNotFoundException,
+                                                                             RepositoryException {
+    if (isLocalPriority) {
+      // apply income changes that not conflicted with local
+      Iterator<ItemState> itemStates = income.getChanges();
+      while (itemStates.hasNext()) {
+        ItemState item = itemStates.next();
+
+        if (item.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+            || item.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+          continue;
+        }
+
+        if (isChangesConflicted(item.getData().getQPath()))
+          continue;
+
+        if (isVSChangesConflicted(item.getData().getQPath()))
+          continue;
+
+        if (item.getState() == ItemState.DELETED && item.isPersisted() && item.isNode()) {
+          for (ItemState itemState : deleleLockProperties((NodeData) item.getData()))
+            iteration.add(itemState);
+        }
+
+        iteration.add(item);
+      }
+    } else {
+      Iterator<ItemState> itemStates = income.getChanges();
+      while (itemStates.hasNext()) {
+        ItemState item = itemStates.next();
+
+        if (item.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+            || item.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+          continue;
+        }
+
+        if (item.getState() == ItemState.DELETED && item.isPersisted() && item.isNode()) {
+          for (ItemState itemState : deleleLockProperties((NodeData) item.getData()))
+            iteration.add(itemState);
+        }
+
+        iteration.add(item);
+      }
     }
   }
 
@@ -243,7 +340,7 @@ public class ConflictResolver {
       Map<QPath, ItemState> needToExport = new HashMap<QPath, ItemState>();
       ItemData rootExportData = null;
 
-      for (int j = 0; j < changes.size(); j++) {
+      for (int j = changes.size() - 1; j >= 0; j--) {
         ItemState item = changes.get(j);
         if (item.getState() != ItemState.DELETED || item.isInternallyCreated())
           continue;
@@ -252,21 +349,22 @@ public class ConflictResolver {
         if (nextItem != null && nextItem.getState() == ItemState.UPDATED)
           continue;
 
-        if (getPrevState(changes, j) == -1) {
-          if (nextItem != null && nextItem.getState() == ItemState.RENAMED) {
-            if (item.getData().isNode()) {
-              NodeData node = (NodeData) item.getData();
-              TransientNodeData newNode = new TransientNodeData(node.getQPath(),
-                                                                node.getIdentifier(),
-                                                                node.getPersistedVersion(),
-                                                                node.getPrimaryTypeName(),
-                                                                node.getMixinTypeNames(),
-                                                                node.getOrderNumber(),
-                                                                node.getParentIdentifier(),
-                                                                node.getACL());
-              iteration.add(new ItemState(newNode, ItemState.ADDED, true, node.getQPath()));
-            }
+        if (getPrevState(changes, j) != -1)
+          continue;
 
+        if (nextItem != null && nextItem.getState() == ItemState.RENAMED) {
+          if (item.getData().isNode()) {
+            NodeData node = (NodeData) item.getData();
+            TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                              node.getIdentifier(),
+                                                              node.getPersistedVersion(),
+                                                              node.getPrimaryTypeName(),
+                                                              node.getMixinTypeNames(),
+                                                              node.getOrderNumber(),
+                                                              node.getParentIdentifier(),
+                                                              node.getACL());
+            iteration.add(new ItemState(newNode, ItemState.ADDED, true, node.getQPath()));
+          } else {
             PropertyData prop = (PropertyData) item.getData();
             TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
                                                                       prop.getIdentifier(),
@@ -276,6 +374,29 @@ public class ConflictResolver {
                                                                       prop.isMultiValued());
             newProp.setValues(((PropertyData) nextItem.getData()).getValues());
             iteration.add(new ItemState(newProp, ItemState.ADDED, true, prop.getQPath()));
+          }
+        } else {
+          ItemState incomeChange = income.findItemState(item.getData().getIdentifier(),
+                                                        item.getData().getQPath(),
+                                                        ItemState.DELETED);
+          if (incomeChange != null) {
+            iteration.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
+                                                                                   .getQPath()));
+            ItemState nextIncomeState = income.findNextState(incomeChange,
+                                                             incomeChange.getData().getIdentifier());
+
+            if (nextIncomeState != null && nextIncomeState.getState() == ItemState.RENAMED) {
+              iteration.add(new ItemState(nextIncomeState.getData(),
+                                          ItemState.UPDATED,
+                                          true,
+                                          item.getData().getQPath()));
+            }
+          } else if (!item.getData().isNode()
+              && income.hasState(item.getData().getIdentifier(),
+                                 item.getData().getQPath(),
+                                 ItemState.UPDATED)) {
+            iteration.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
+                                                                                   .getQPath()));
           } else {
             needToExport.put(item.getData().getQPath(), item);
             if (rootExportData == null
@@ -303,22 +424,53 @@ public class ConflictResolver {
   }
 
   /**
-   * restoreMixinChanges.
-   * 
-   * @param iteration
-   */
-  private void restoreMixinChanges(EditableChangesStorage<ItemState> iteration) {
-    // TODO Auto-generated method stub
-  }
-
-  /**
    * restoreUpdatesItems.
    * 
    * @param iteration
+   * @throws ClassNotFoundException
+   * @throws IOException
+   * @throws ClassCastException
    */
-  private void restoreUpdatesItems(EditableChangesStorage<ItemState> iteration) {
-    // TODO Auto-generated method stub
+  private void restoreUpdatesItems(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
+                                                                               IOException,
+                                                                               ClassNotFoundException {
+    for (int i = 0; i < conflictedPathes.size(); i++) {
+      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
 
+      for (int j = changes.size() - 1; j >= 0; j--) {
+        ItemState item = changes.get(j);
+
+        if (item.getState() == ItemState.UPDATED && !item.getData().isNode()) {
+          ItemState lastState = getLastItemState(changes, item.getData().getIdentifier());
+          if (lastState.getState() == ItemState.DELETED)
+            continue;
+
+          if (getPrevState(changes, j) != -1)
+            continue;
+
+          ItemState incomeChange = income.findItemState(item.getData().getIdentifier(),
+                                                        item.getData().getQPath(),
+                                                        ItemState.UPDATED);
+          if (incomeChange != null)
+            continue;
+
+          incomeChange = income.findItemState(item.getData().getIdentifier(),
+                                              item.getData().getQPath(),
+                                              ItemState.DELETED);
+          if (incomeChange != null) {
+            ItemState nextIncomeState = income.findNextState(incomeChange,
+                                                             incomeChange.getData().getIdentifier());
+
+            if (nextIncomeState != null && nextIncomeState.getState() == ItemState.RENAMED) {
+              iteration.add(new ItemState(nextIncomeState.getData(),
+                                          ItemState.UPDATED,
+                                          true,
+                                          item.getData().getQPath()));
+            }
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -360,7 +512,7 @@ public class ConflictResolver {
    * @return
    * @throws RepositoryException
    */
-  protected List<ItemState> deleleLockProperties(NodeData node) throws RepositoryException {
+  private List<ItemState> deleleLockProperties(NodeData node) throws RepositoryException {
     List<ItemState> result = new ArrayList<ItemState>();
 
     if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
@@ -379,4 +531,35 @@ public class ConflictResolver {
     return result;
   }
 
+  /**
+   * isPathConflicted.
+   * 
+   * @param path
+   * @return
+   */
+  private boolean isChangesConflicted(QPath path) {
+    for (int i = 0; i < conflictedPathes.size(); i++) {
+      if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * isPathConflicted.
+   * 
+   * @param path
+   * @return
+   */
+  private boolean isVSChangesConflicted(QPath path) {
+    for (int i = 0; i < VSSkippedPathes.size(); i++) {
+      if (path.equals(VSSkippedPathes.get(i)) || path.isDescendantOf(VSSkippedPathes.get(i))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
