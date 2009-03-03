@@ -75,7 +75,6 @@ public class Client {
     props.put(javax.naming.Context.PROVIDER_URL, getServerUrl());
     props.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
               "org.ow2.easybeans.component.smartclient.spi.SmartContextFactory");
-    props.put("java.naming.factory.url.pkgs", "org.objectweb.carol.jndi.spi");
     InitialContext ctx = new InitialContext(props);
     return (JcrRestEJBConnectorRemote) ctx.lookup(BEAN_NAME);
   }

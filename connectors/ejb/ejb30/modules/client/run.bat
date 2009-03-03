@@ -21,7 +21,7 @@
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-asm-3.0.jar
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-util-1.0.1.jar
 
-java -Djava.security.manager=default -Djava.security.policy=%JONAS_ROOT%\conf\java.policy org.objectweb.jonas.client.ClientContainer target\exo.jcr.connectors.ejb30.client-1.10.1.1.jar
+java -Djava.security.manager=default -Djava.security.policy=%JONAS_ROOT%\conf\java.policy org.objectweb.jonas.client.ClientContainer target\exo.jcr.connectors.ejb30.client-1.10.1.1.jar %1 %2
 
 @goto end
 
