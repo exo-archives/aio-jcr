@@ -580,7 +580,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                                            ndef.getDefaultPrimaryType(),
                                                                            IdGenerator.generate());
         changes.add(ItemState.createAddedState(childNodeData));
-        makeAutoCreatedItems(childNodeData, childNodeData.getPrimaryTypeName(), dataManager, owner);
+        changes.addAll(makeAutoCreatedItems(childNodeData,
+                                            childNodeData.getPrimaryTypeName(),
+                                            dataManager,
+                                            owner).getAllStates());
 
       }
     }

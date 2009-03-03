@@ -241,7 +241,7 @@ public class PropertyDefinitionComparator extends
           // skip mixin and primary type
           if (isResidualMatch(propertyData.getQPath().getName(), allRecipientDefinition)) {
             if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
-              throw new RepositoryException("Can not change  requiredType to "
+              throw new ConstraintViolationException("Can not change  requiredType to "
                   + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
                   + " in " + recipientDefinitionData.getName().getAsString() + "  because "
                   + propertyData.getQPath().getAsString() + " have "
