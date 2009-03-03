@@ -26,4 +26,30 @@
       </childNodeDefinition> 
     </childNodeDefinitions> 
 </nodeType>
+<nodeType name="exo:mySubTypeJCR806" isMixin="false" hasOrderableChildNodes="false" primaryItemName=""> 
+    <supertypes> 
+      <supertype>nt:base</supertype> 
+    </supertypes> 
+    <childNodeDefinitions> 
+      <childNodeDefinition name="exo:myChildNode" defaultPrimaryType="exo:mySubTypeJCR805" autoCreated="true" mandatory="false" 
+        onParentVersion="COPY" protected="false" sameNameSiblings="false"> 
+        <requiredPrimaryTypes> 
+          <requiredPrimaryType>exo:mySubTypeJCR805</requiredPrimaryType> 
+        </requiredPrimaryTypes> 
+      </childNodeDefinition> 
+    </childNodeDefinitions> 
+</nodeType>
+<nodeType name="exo:myTypeJCR806" isMixin="false" hasOrderableChildNodes="false" primaryItemName=""> 
+    <supertypes> 
+      <supertype>exo:mySubTypeJCR806</supertype> 
+    </supertypes> 
+    <childNodeDefinitions> 
+      <childNodeDefinition name="exo:myChildNode" defaultPrimaryType="exo:mySubTypeJCR805" autoCreated="true" mandatory="false" 
+        onParentVersion="COPY" protected="false" sameNameSiblings="false"> 
+        <requiredPrimaryTypes> 
+          <requiredPrimaryType>exo:mySubTypeJCR805</requiredPrimaryType> 
+        </requiredPrimaryTypes> 
+      </childNodeDefinition> 
+    </childNodeDefinitions> 
+</nodeType>
 </nodeTypes>

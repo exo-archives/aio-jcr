@@ -548,6 +548,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                              dataManager,
                                              owner).getAllStates());
     changes.addAll(makeAutoCreatedNodes(parent,
+                                        nodeTypeName,
                                         getAllChildNodeDefinitions(nodeTypeName),
                                         dataManager,
                                         owner).getAllStates());
@@ -568,23 +569,36 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   public PlainChangesLog makeAutoCreatedNodes(NodeData parent,
+                                              InternalQName typeName,
                                               NodeDefinitionData[] nodeDefs,
                                               ItemDataConsumer dataManager,
                                               String owner) throws RepositoryException {
     PlainChangesLogImpl changes = new PlainChangesLogImpl();
-
+    Set<InternalQName> addedNodes = new HashSet<InternalQName>();
     for (NodeDefinitionData ndef : nodeDefs) {
       if (ndef.isAutoCreated()) {
-        TransientNodeData childNodeData = TransientNodeData.createNodeData(parent, ndef.getName(),
-        // TODO default NT may be null, or check it in NT manager
-                                                                           ndef.getDefaultPrimaryType(),
-                                                                           IdGenerator.generate());
-        changes.add(ItemState.createAddedState(childNodeData));
-        changes.addAll(makeAutoCreatedItems(childNodeData,
-                                            childNodeData.getPrimaryTypeName(),
-                                            dataManager,
-                                            owner).getAllStates());
+        ItemData pdata = dataManager.getItemData(parent, new QPathEntry(ndef.getName(), 0));
+        if ((pdata == null && !addedNodes.contains(ndef.getName()))
+            || (pdata != null && !pdata.isNode())) {
 
+          TransientNodeData childNodeData = TransientNodeData.createNodeData(parent,
+                                                                             ndef.getName(),
+                                                                             ndef.getDefaultPrimaryType(),
+                                                                             IdGenerator.generate());
+          changes.add(ItemState.createAddedState(childNodeData));
+          changes.addAll(makeAutoCreatedItems(childNodeData,
+                                              childNodeData.getPrimaryTypeName(),
+                                              dataManager,
+                                              owner).getAllStates());
+          addedNodes.add(ndef.getName());
+        } else {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Skipping existed node " + ndef.getName() + " in "
+                + parent.getQPath().getAsString()
+                + "   during the automatic creation of items for " + typeName.getAsString()
+                + " nodetype or mixin type");
+          }
+        }
       }
     }
     return changes;

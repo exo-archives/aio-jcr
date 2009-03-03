@@ -36,7 +36,9 @@ public class TestNtAutorcreating extends JcrImplBaseTest {
   /**
    * Class logger.
    */
-  private static final Log LOG = ExoLogger.getLogger(TestNtAutorcreating.class);
+  private static boolean   registred = false;
+
+  private static final Log LOG       = ExoLogger.getLogger(TestNtAutorcreating.class);
 
   public void testAutocreate() throws Exception {
     registerNodetypes();
@@ -47,13 +49,25 @@ public class TestNtAutorcreating extends JcrImplBaseTest {
     session.save();
   }
 
+  public void testAutocreateChildNodes() throws Exception {
+    registerNodetypes();
+    Node myParentNode = root.addNode("testNode");
+    Node myNode = myParentNode.addNode("myNodeName", "exo:myTypeJCR806");
+    assertEquals(1, myNode.getNodes().getSize());
+
+    Node myChildNode = myNode.getNode("exo:myChildNode");
+    session.save();
+    assertEquals(1, myNode.getNodes().getSize());
+  }
+
   private void registerNodetypes() throws Exception {
-
-    InputStream xml = this.getClass()
-                          .getResourceAsStream("/org/exoplatform/services/jcr/impl/core/nodetype/test-nodetypes.xml");
-    repositoryService.getCurrentRepository()
-                     .getNodeTypeManager()
-                     .registerNodeTypes(xml, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
-
+    if (!registred) {
+      InputStream xml = this.getClass()
+                            .getResourceAsStream("/org/exoplatform/services/jcr/impl/core/nodetype/test-nodetypes.xml");
+      repositoryService.getCurrentRepository()
+                       .getNodeTypeManager()
+                       .registerNodeTypes(xml, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+      registred = true;
+    }
   }
 }

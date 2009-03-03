@@ -291,6 +291,7 @@ public class NodeDefinitionComparator extends AbstractDefinitionComparator<NodeD
         if (!newNodeDefinitionData.getName().equals(Constants.JCR_ANY_NAME)
             && newNodeDefinitionData.isAutoCreated())
           changesLog.addAll(nodeTypeDataManager.makeAutoCreatedNodes(nodeData,
+                                                                     registeredNodeType.getName(),
                                                                      new NodeDefinitionData[] { newNodeDefinitionData },
                                                                      persister,
                                                                      nodeData.getACL().getOwner())
