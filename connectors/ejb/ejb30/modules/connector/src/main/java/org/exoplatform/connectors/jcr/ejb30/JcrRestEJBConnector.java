@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector30;
+package org.exoplatform.connectors.jcr.ejb30;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -52,15 +52,15 @@ import org.exoplatform.ws.rest.ejbconnector30.RestEJBConnectorLocal;
  * @version $Id: $
  */
 @Stateless
-// (mappedName="WebDAVEJBConnector")
+// (mappedName="JcrRestEJBConnector")
 @DeclareRoles({ "admin", "users" })
 @TransactionManagement(TransactionManagementType.BEAN)
-public class WebDAVEJBConnector implements WebDAVEJBConnectorRemote, WebDAVEJBConnectorLocal {
+public class JcrRestEJBConnector implements JcrRestEJBConnectorRemote, JcrRestEJBConnectorLocal {
 
   /**
    * Logger.
    */
-  private static final Log      LOG       = ExoLogger.getLogger(WebDAVEJBConnector.class.getName());
+  private static final Log      LOG       = ExoLogger.getLogger(JcrRestEJBConnector.class.getName());
 
   /**
    * JNDI name for REST-EJB connector bean.

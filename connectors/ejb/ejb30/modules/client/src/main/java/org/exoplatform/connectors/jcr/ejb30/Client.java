@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector30;
+package org.exoplatform.connectors.jcr.ejb30;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import javax.naming.InitialContext;
 import org.exoplatform.common.transport.SerialInputData;
 import org.exoplatform.common.transport.SerialRequest;
 import org.exoplatform.common.transport.SerialResponse;
-import org.exoplatform.jcr.webdav.ejbconnector30.WebDAVEJBConnectorRemote;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -38,12 +37,12 @@ import org.exoplatform.jcr.webdav.ejbconnector30.WebDAVEJBConnectorRemote;
 public class Client {
 
   // default rules for name easybeans container on Jonas
-  private static final String BEAN_NAME = "org.exoplatform.jcr.webdav.ejbconnector30.WebDAVEJBConnector" +
-      "_" + WebDAVEJBConnectorRemote.class.getName() + "@Remote";
+  private static final String BEAN_NAME = "org.exoplatform.connectors.jcr.ejb30.JcrRestEJBConnector" +
+      "_" + JcrRestEJBConnectorRemote.class.getName() + "@Remote";
 
   private static final String DEFAULT_JCR_PATH = "/jcr/repository/production/";
 
-  private static final String DEFAULT_AS_URL   = "rmi://127.0.0.1:2503";
+  private static final String DEFAULT_AS_URL   = "smart://127.0.0.1:2503";
 
   private static final String data             = "Hello world";
 
@@ -71,13 +70,14 @@ public class Client {
     this.jcrUrl = url.endsWith("/") ? url : url + "/";
   }
 
-  private WebDAVEJBConnectorRemote getBean() throws Exception {
+  private JcrRestEJBConnectorRemote getBean() throws Exception {
     Hashtable<String, String> props = new Hashtable<String, String>();
     props.put(javax.naming.Context.PROVIDER_URL, getServerUrl());
     props.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
               "org.ow2.easybeans.component.smartclient.spi.SmartContextFactory");
+    props.put("java.naming.factory.url.pkgs", "org.objectweb.carol.jndi.spi");
     InitialContext ctx = new InitialContext(props);
-    return (WebDAVEJBConnectorRemote) ctx.lookup(BEAN_NAME);
+    return (JcrRestEJBConnectorRemote) ctx.lookup(BEAN_NAME);
   }
 
   public String run() throws Exception {
@@ -86,7 +86,7 @@ public class Client {
     PrintWriter out = new PrintWriter(buf);
 
     out.println("Looking for " + BEAN_NAME + "...");
-    WebDAVEJBConnectorRemote bean = getBean();
+    JcrRestEJBConnectorRemote bean = getBean();
     SerialResponse response = null;
 
     // create directory 1
