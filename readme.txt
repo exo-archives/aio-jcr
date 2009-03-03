@@ -1,8 +1,14 @@
-JCR 1.10.1 release notes
-========================
+JCR 1.10.1.1 release notes
+==========================
 
-This is a improvement version of 1.10 JCR. 
-We have worked on concurrency and services improvements in this version.
+This is a customer patch of JCR 1.10.1. 
+Changes: 
+
+bugfix
+JCR-803  Error occurs when try access WebDAV EJB connector from remote servlet/jsp.
+
+Class WebDavEJBConnector renamed to JcrRestEJBConnector.
+
 
 Main things in the JCR  v.1.10.1:
 - JCR Organization Service refactoring
