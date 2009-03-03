@@ -6,8 +6,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>exo-jcr</groupId>
-  <artifactId>exo-jcr.applications.openofficeplugin</artifactId>
+  <artifactId>exo.jcr.applications.openofficeplugin</artifactId>
   <packaging>jar</packaging>
   <name>eXo JCR Open Office WebDav plugin</name>
   <url>http://www.exoplatform.org</url>
@@ -118,7 +117,6 @@
               <addClasspath>true</addClasspath>
             </manifest>
 		<manifestEntries>
-              <!-- Main-Class>org/exoplatform/gdemo/JFrameWindow</Main-Class -->
 		  <RegistrationClassName>org.exoplatform.applications.ooplugin.AddonHandler</RegistrationClassName>
               <Sealed>true</Sealed>
 		</manifestEntries>
@@ -130,25 +128,18 @@
       <artifactId>maven-assembly-plugin</artifactId>
         <version>2.1</version>
 	  <executions>
-		<execution>
-	      <phase>compile</phase>
-	      <goals>
-			  <goal>assembly</goal>
-	      </goals>
+	    <execution>
+               <phase>package</phase>
+               <goals>
+                 <goal>directory-inline</goal>
+               </goals>
 	    </execution>
 	  </executions>
 
         <configuration>
-		<archive>
-      		<manifest />
-	               <!-- mainClass>org/exoplatform/applications/exodavbrowser/eXoDavBrowser</mainClass -->
-		</archive>
-
-		<descriptor>zip-assembly.xml</descriptor>
-		
-		<finalName>exo-oo-addon</finalName>
-            
-		<outputDirectory>bin</outputDirectory>
+          <descriptor>zip-assembly.xml</descriptor>
+          <finalName>exo-oo-addon</finalName>
+	  <outputDirectory>bin</outputDirectory>
           <workDirectory>target/assembly/work</workDirectory>
         </configuration>
     </plugin>

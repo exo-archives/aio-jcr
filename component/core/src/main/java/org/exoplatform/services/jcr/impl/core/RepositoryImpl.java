@@ -336,7 +336,7 @@ public class RepositoryImpl implements ManageableRepository {
                                .isWorkspaceInitialized())
           workspaceNames.add(workspaceName);
       } catch (RuntimeException e) {
-        LOG.warn(e.getLocalizedMessage());
+        LOG.warn(e.toString());
       }
 
     }
