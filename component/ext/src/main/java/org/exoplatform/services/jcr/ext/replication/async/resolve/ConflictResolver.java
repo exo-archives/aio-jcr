@@ -89,30 +89,19 @@ public class ConflictResolver {
   }
 
   /**
-   * add.
+   * addSkippedVSChanges.
    * 
-   * @param path
    * @param identifier
-   * @throws ClassNotFoundException
-   * @throws IOException
    * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
    */
-  public void add(QPath path, String identifier) throws ClassCastException,
-                                                IOException,
-                                                ClassNotFoundException {
+  public void addSkippedVSChanges(String identifier) throws ClassCastException,
+                                                    IOException,
+                                                    ClassNotFoundException {
     QPath skippedPath = income.findVSChanges(identifier);
     if (skippedPath != null)
       VSSkippedPathes.add(skippedPath);
-
-    for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
-      if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i)))
-        return;
-      else if (conflictedPathes.get(i).isDescendantOf(path)) {
-        conflictedPathes.remove(i);
-      }
-    }
-
-    conflictedPathes.add(path);
   }
 
   /**
@@ -130,37 +119,6 @@ public class ConflictResolver {
     }
 
     conflictedPathes.add(path);
-  }
-
-  /**
-   * addAll.
-   * 
-   * @param pathes
-   * @param identifier
-   * @throws ClassNotFoundException
-   * @throws IOException
-   * @throws ClassCastException
-   */
-  public void addAll(List<QPath> pathes, String identifier) throws ClassCastException,
-                                                           IOException,
-                                                           ClassNotFoundException {
-
-    QPath skippedPath = income.findVSChanges(identifier);
-    if (skippedPath != null)
-      VSSkippedPathes.add(skippedPath);
-
-    outer: for (int j = 0; j < pathes.size(); j++) {
-      QPath path = pathes.get(j);
-
-      for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
-        if (path.equals(conflictedPathes.get(i)) || path.isDescendantOf(conflictedPathes.get(i)))
-          continue outer;
-        else if (conflictedPathes.get(i).isDescendantOf(path))
-          conflictedPathes.remove(i);
-      }
-
-      conflictedPathes.add(path);
-    }
   }
 
   /**
@@ -222,6 +180,7 @@ public class ConflictResolver {
       restoreDeletedItems(iteration);
       // restoreMixinChanges(iteration);
       restoreUpdatesItems(iteration);
+      restoreUpdatesSNSItems(iteration);
     }
   }
 
@@ -515,6 +474,87 @@ public class ConflictResolver {
                                           ItemState.UPDATED,
                                           true,
                                           item.getData().getQPath()));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * restoreUpdatesSNSItems.
+   * 
+   * @param iteration
+   * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
+  private void restoreUpdatesSNSItems(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
+                                                                                  IOException,
+                                                                                  ClassNotFoundException {
+    for (int i = 0; i < conflictedPathes.size(); i++) {
+      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
+
+      for (int j = changes.size() - 1; j >= 0; j--) {
+        ItemState curItem = changes.get(j);
+
+        if (curItem.getState() == ItemState.DELETED && !curItem.isPersisted()) {
+          ItemState nextItem = local.findNextState(curItem, curItem.getData().getIdentifier());
+
+          if (nextItem != null && nextItem.getState() == ItemState.UPDATED) {
+            List<ItemState> updateSeq = local.getUpdateSequence(curItem);
+            for (int k = 1; k <= updateSeq.size() - 1; k++) {
+              ItemState item = updateSeq.get(k);
+              NodeData node = (NodeData) item.getData();
+              if (k == 1) {
+                iteration.add(new ItemState(item.getData(),
+                                            ItemState.DELETED,
+                                            item.isEventFire(),
+                                            item.getData().getQPath(),
+                                            item.isInternallyCreated(),
+                                            false));
+              } else {
+                QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
+                                                 node.getQPath().getName(),
+                                                 node.getQPath().getIndex() - 1);
+
+                TransientNodeData newItem = new TransientNodeData(name,
+                                                                  node.getIdentifier(),
+                                                                  node.getPersistedVersion(),
+                                                                  node.getPrimaryTypeName(),
+                                                                  node.getMixinTypeNames(),
+                                                                  node.getOrderNumber(),
+                                                                  node.getParentIdentifier(),
+                                                                  node.getACL());
+                iteration.add(new ItemState(newItem,
+                                            ItemState.UPDATED,
+                                            item.isEventFire(),
+                                            name,
+                                            item.isInternallyCreated()));
+
+              }
+              if (k == updateSeq.size() - 1) {
+                item = updateSeq.get(1);
+                node = (NodeData) item.getData();
+
+                QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
+                                                 node.getQPath().getName(),
+                                                 updateSeq.size() - 1);
+
+                TransientNodeData newItem = new TransientNodeData(name,
+                                                                  node.getIdentifier(),
+                                                                  node.getPersistedVersion(),
+                                                                  node.getPrimaryTypeName(),
+                                                                  node.getMixinTypeNames(),
+                                                                  node.getOrderNumber(),
+                                                                  node.getParentIdentifier(),
+                                                                  node.getACL());
+                iteration.add(new ItemState(newItem,
+                                            ItemState.UPDATED,
+                                            item.isEventFire(),
+                                            name,
+                                            item.isInternallyCreated()));
+              }
             }
           }
         }

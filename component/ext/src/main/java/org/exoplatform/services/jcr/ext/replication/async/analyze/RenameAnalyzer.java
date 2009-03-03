@@ -95,13 +95,15 @@ public class RenameAnalyzer extends AbstractAnalyzer {
                 || nextIncNodePath.isDescendantOf(localData.getQPath())) {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()), incomeData.getIdentifier());
+                  : incomeData.getParentIdentifier()));
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
           } else {
             if (localData.getQPath().isDescendantOf(incNodePath)) {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()), incomeData.getIdentifier());
+                  : incomeData.getParentIdentifier()));
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
           }
           break;
@@ -119,7 +121,8 @@ public class RenameAnalyzer extends AbstractAnalyzer {
                   || nextIncNodePath.isDescendantOf(item.getData().getQPath())) {
                 confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                     ? incomeData.getIdentifier()
-                    : incomeData.getParentIdentifier()), incomeData.getIdentifier());
+                    : incomeData.getParentIdentifier()));
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
                 break;
               }
             }
@@ -143,7 +146,8 @@ public class RenameAnalyzer extends AbstractAnalyzer {
                 || nextLocalPath.isDescendantOf(incNodePath)) {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()), incomeData.getIdentifier());
+                  : incomeData.getParentIdentifier()));
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
             break;
           }
@@ -157,7 +161,8 @@ public class RenameAnalyzer extends AbstractAnalyzer {
                 || nextIncNodePath.isDescendantOf(localData.getQPath())) {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()), incomeData.getIdentifier());
+                  : incomeData.getParentIdentifier()));
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
           } else {
             if (incNodePath.isDescendantOf(localData.getQPath().makeParentPath())
@@ -167,7 +172,8 @@ public class RenameAnalyzer extends AbstractAnalyzer {
                 || nextIncNodePath.isDescendantOf(localData.getQPath().makeParentPath())) {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()), incomeData.getIdentifier());
+                  : incomeData.getParentIdentifier()));
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
           }
           break;
@@ -178,8 +184,8 @@ public class RenameAnalyzer extends AbstractAnalyzer {
                 || localData.getQPath().equals(incNodePath)) {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()), incomeData.getIdentifier());
-
+                  : incomeData.getParentIdentifier()));
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
           }
           break;
@@ -192,8 +198,8 @@ public class RenameAnalyzer extends AbstractAnalyzer {
               || localData.getQPath().isDescendantOf(incNodePath)) {
             confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                 ? incomeData.getIdentifier()
-                : incomeData.getParentIdentifier()), incomeData.getIdentifier());
-
+                : incomeData.getParentIdentifier()));
+            confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
           }
           break;
         }

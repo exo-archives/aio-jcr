@@ -85,7 +85,8 @@ public class MixinAnalyzer extends AbstractAnalyzer {
             for (ItemState item : updateSeq) {
               if (incomeData.getQPath().equals(item.getData().getQPath())
                   || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
                 break;
               }
             }
@@ -96,8 +97,8 @@ public class MixinAnalyzer extends AbstractAnalyzer {
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
             if (localData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()),
-                                         incomeData.getIdentifier());
+                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()));
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             }
             break;
@@ -106,7 +107,8 @@ public class MixinAnalyzer extends AbstractAnalyzer {
           // DELETE
           if (localData.isNode()) {
             if (incomeData.getQPath().equals(localData.getQPath())) {
-              confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+              confilictResolver.add(incomeData.getQPath());
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
           }
           break;
@@ -119,7 +121,8 @@ public class MixinAnalyzer extends AbstractAnalyzer {
 
         case ItemState.MIXIN_CHANGED:
           if (incomeData.getQPath().equals(localData.getQPath())) {
-            confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+            confilictResolver.add(incomeData.getQPath());
+            confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
           }
           break;
         }

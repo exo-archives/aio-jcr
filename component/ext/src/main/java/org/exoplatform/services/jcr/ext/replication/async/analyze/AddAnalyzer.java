@@ -72,21 +72,25 @@ public class AddAnalyzer extends AbstractAnalyzer {
           if (localData.isNode()) {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             } else {
               if ((incomeData.getQPath().equals(localData.getQPath()))) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             }
           } else {
             if (incomeData.isNode()) {
               if ((incomeData.getQPath().equals(localData.getQPath()))) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             }
           }
@@ -100,7 +104,8 @@ public class AddAnalyzer extends AbstractAnalyzer {
             List<ItemState> updateSeq = local.getUpdateSequence(localState);
             for (ItemState item : updateSeq) {
               if (incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
                 break;
               }
             }
@@ -128,7 +133,8 @@ public class AddAnalyzer extends AbstractAnalyzer {
                 || nextLocNodePath.equals(incomeData.getQPath())) {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()), incomeData.getIdentifier());
+                  : incomeData.getParentIdentifier()));
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               break;
             }
           }
@@ -138,11 +144,13 @@ public class AddAnalyzer extends AbstractAnalyzer {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             }
           }
