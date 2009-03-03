@@ -168,7 +168,6 @@ public class RenameAnalyzer extends AbstractAnalyzer {
               confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
                   ? incomeData.getIdentifier()
                   : incomeData.getParentIdentifier()), incomeData.getIdentifier());
-
             }
           }
           break;
@@ -240,47 +239,41 @@ public class RenameAnalyzer extends AbstractAnalyzer {
 
           // Rename sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
+            QPath localPath = localData.isNode()
+                ? localData.getQPath()
+                : localData.getQPath().makeParentPath();
 
-            QPath locNodePath = localData.isNode()
-                ? localState.getData().getQPath()
-                : localState.getData().getQPath().makeParentPath();
-
-            QPath nextLocNodePath = nextLocalState.getData().isNode()
+            QPath nextLocalPath = localData.isNode()
                 ? nextLocalState.getData().getQPath()
                 : nextLocalState.getData().getQPath().makeParentPath();
 
-            // rename same node
-            if (incNodePath.equals(locNodePath)) {
-              confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
-
-            } else if (nextIncNodePath.isDescendantOf(locNodePath)) {
-              confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
-
-              // move to same location
-            } else if (nextLocalState.getData().getQPath().isDescendantOf(nextIncNodePath)
-                || nextLocalState.getData().getQPath().equals(nextIncNodePath)) {
-              confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
+            if (localPath.isDescendantOf(incNodePath) || localPath.equals(incNodePath)
+                || nextIncNodePath.isDescendantOf(localPath)
+                || nextIncNodePath.equals(nextLocalPath)
+                || nextLocalPath.isDescendantOf(incNodePath)) {
+              confilictResolver.addAll(local.getUniquePathesByUUID(localData.isNode()
+                  ? localData.getIdentifier()
+                  : localData.getParentIdentifier()));
             }
             break;
           }
 
           // DELETE
           if (localData.isNode()) {
-            if (incNodePath.equals(localData.getQPath())) {
-              confilictResolver.add(localData.getQPath());
-            } else if (nextIncNodePath.isDescendantOf(localData.getQPath())) {
+            if (incNodePath.isDescendantOf(localData.getQPath())
+                || incNodePath.equals(localData.getQPath())
+                || localData.getQPath().equals(incNodePath)
+                || localData.getQPath().isDescendantOf(incNodePath)
+                || nextIncNodePath.isDescendantOf(localData.getQPath())) {
               confilictResolver.add(localData.getQPath());
             }
           } else {
-            List<ItemState> rename = income.getRenameSequence(incomeState);
-
-            for (int i = 0; i <= rename.size() - 1; i++) {
-              ItemState item = rename.get(i);
-              if (!item.isNode()) {
-                if (item.getData().getQPath().equals(localData.getQPath())) {
-                  confilictResolver.add(localData.getQPath());
-                }
-              }
+            if (incNodePath.isDescendantOf(localData.getQPath().makeParentPath())
+                || incNodePath.equals(localData.getQPath().makeParentPath())
+                || localData.getQPath().makeParentPath().equals(incNodePath)
+                || localData.getQPath().makeParentPath().isDescendantOf(incNodePath)
+                || nextIncNodePath.isDescendantOf(localData.getQPath().makeParentPath())) {
+              confilictResolver.add(localData.getQPath());
             }
           }
           break;
@@ -314,5 +307,4 @@ public class RenameAnalyzer extends AbstractAnalyzer {
       }
     }
   }
-
 }

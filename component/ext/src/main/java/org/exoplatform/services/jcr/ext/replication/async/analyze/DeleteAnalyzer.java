@@ -129,15 +129,14 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
                                         ItemState.RENAMED).getData().getQPath();
 
               if (incomeData.getQPath().isDescendantOf(locNodePath)
+                  || locNodePath.isDescendantOf(incomeData.getQPath())
                   || incomeData.getQPath().equals(locNodePath)
                   || nextLocNodePath.isDescendantOf(incomeData.getQPath())) {
-                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()),
-                                         incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()),
-                                         incomeData.getIdentifier());
+                confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
               }
             }
             break;
@@ -146,7 +145,8 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           // DELETE
           if (incomeData.isNode()) {
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                || incomeData.getQPath().equals(localData.getQPath())) {
+                || incomeData.getQPath().equals(localData.getQPath())
+                || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
               confilictResolver.add(incomeData.getQPath(), incomeData.getIdentifier());
             }
           } else {
@@ -268,7 +268,8 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           if (incomeData.isNode()) {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                  || incomeData.getQPath().equals(localData.getQPath())) {
+                  || incomeData.getQPath().equals(localData.getQPath())
+                  || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
                 confilictResolver.add(localData.getQPath());
               }
             }
