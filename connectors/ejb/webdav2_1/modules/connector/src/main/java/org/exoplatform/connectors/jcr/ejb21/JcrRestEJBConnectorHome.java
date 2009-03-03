@@ -15,17 +15,19 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector21;
+package org.exoplatform.connectors.jcr.ejb21;
+
+import java.rmi.RemoteException;
 
 import javax.ejb.CreateException;
-import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBHome;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public interface WebDAVEJBConnectorLocalHome extends EJBLocalHome {
+public interface JcrRestEJBConnectorHome extends EJBHome {
   
-  WebDAVEJBConnectorLocal create() throws CreateException;
+  JcrRestEJBConnector create() throws RemoteException, CreateException;
   
 }

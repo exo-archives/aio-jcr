@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector21;
+package org.exoplatform.connectors.jcr.ejb21;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,8 +30,6 @@ import javax.rmi.PortableRemoteObject;
 import org.exoplatform.common.transport.SerialInputData;
 import org.exoplatform.common.transport.SerialRequest;
 import org.exoplatform.common.transport.SerialResponse;
-import org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnector;
-import org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnectorHome;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -39,7 +37,7 @@ import org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnectorHome;
  */
 public class Client {
 
-  private static final String BEAN_NAME        = "WebDAVEJBConnector";
+  private static final String BEAN_NAME        = "JcrRestEJBConnector";
 
   private static final String DEFAULT_JCR_PATH = "/jcr/repository/production/";
 
@@ -71,17 +69,17 @@ public class Client {
     this.jcrUrl = url.endsWith("/") ? url : url + "/";
   }
 
-  private WebDAVEJBConnector getBean() throws Exception {
+  private JcrRestEJBConnector getBean() throws Exception {
     Hashtable<String, String> props = new Hashtable<String, String>();
     props.put(javax.naming.Context.PROVIDER_URL, getServerUrl());
     props.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY,
               "org.objectweb.carol.jndi.spi.MultiOrbInitialContextFactory");
     InitialContext ctx = new InitialContext(props);
     Object obj = ctx.lookup(BEAN_NAME);
-    WebDAVEJBConnectorHome webdavEJBConnectorHome = (WebDAVEJBConnectorHome) PortableRemoteObject.narrow(obj,
-                                                                                                         WebDAVEJBConnectorHome.class);
+    JcrRestEJBConnectorHome beanhome = (JcrRestEJBConnectorHome) PortableRemoteObject.narrow(obj,
+                                                                                             JcrRestEJBConnectorHome.class);
 
-    return webdavEJBConnectorHome.create();
+    return beanhome.create();
   }
 
   public String run() throws Exception {
@@ -90,7 +88,7 @@ public class Client {
     PrintWriter out = new PrintWriter(buf);
 
     out.println("Looking for " + BEAN_NAME + "...");
-    WebDAVEJBConnector bean = getBean();
+    JcrRestEJBConnector bean = getBean();
     SerialResponse response = null;
 
     // create directory 1

@@ -9,4 +9,4 @@ $JAVA_HOME/bin/java -Djava.security.manager=default  \
 -Djava.security.policy=$JONAS_ROOT/conf/java.policy \
 -cp $JONAS_ROOT/lib/apps/exo.core.component.security.core-2.1.3.jar:\
 $JONAS_ROOT/lib/apps/exo.ws.commons-1.3.1.jar:$JONAS_ROOT/lib/client.jar \
-org.objectweb.jonas.client.ClientContainer webdav-ejb-connector-2_1.ear
+org.objectweb.jonas.client.ClientContainer jcr-rest-ejb-connector-21.ear $1 $2

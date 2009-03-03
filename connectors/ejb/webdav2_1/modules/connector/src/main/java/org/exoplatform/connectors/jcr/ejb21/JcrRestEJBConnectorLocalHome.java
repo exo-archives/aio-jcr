@@ -15,24 +15,17 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector21;
+package org.exoplatform.connectors.jcr.ejb21;
+
+import javax.ejb.CreateException;
+import javax.ejb.EJBLocalHome;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class Main {
-
-  public static void main(String[] args) throws Exception {
-    Client c = new Client();
-    for (String s : args) {
-      if (s.startsWith("--server"))
-        c.setServerUrl(s.substring(s.indexOf('=') + 1));
-      if (s.startsWith("--jcr-path"))
-        c.setJcrUrl(s.substring(s.indexOf('=') + 1));
-    }
-      
-    System.out.println(c.run());
-  }
-
+public interface JcrRestEJBConnectorLocalHome extends EJBLocalHome {
+  
+  JcrRestEJBConnectorLocal create() throws CreateException;
+  
 }

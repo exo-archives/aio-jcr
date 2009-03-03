@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee" version="2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd">
-  <display-name>WebDAV EJB Connector</display-name>
+  <display-name>Jcr Rest EJB Connector</display-name>
   <enterprise-beans>
     <session>
-      <ejb-name>WebDAVEJBConnector</ejb-name>
-      <home>org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnectorHome</home>
-      <remote>org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnector</remote>
-      <local-home>org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnectorLocalHome</local-home>
-      <local>org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnectorLocal</local>
-      <ejb-class>org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnectorBean</ejb-class>
+      <ejb-name>JcrRestEJBConnector</ejb-name>
+      <home>org.exoplatform.connectors.jcr.ejb21.JcrRestEJBConnectorHome</home>
+      <remote>org.exoplatform.connectors.jcr.ejb21.JcrRestEJBConnector</remote>
+      <local-home>org.exoplatform.connectors.jcr.ejb21.JcrRestEJBConnectorLocalHome</local-home>
+      <local>org.exoplatform.connectors.jcr.ejb21.JcrRestEJBConnectorLocal</local>
+      <ejb-class>org.exoplatform.connectors.jcr.ejb21.JcrRestEJBConnectorBean</ejb-class>
       <session-type>Stateless</session-type>
       <transaction-type>Bean</transaction-type>
       <security-identity>
@@ -26,14 +26,14 @@
     <method-permission>
       <role-name>admin</role-name>
       <method>
-        <ejb-name>WebDAVEJBConnector</ejb-name>
+        <ejb-name>JcrRestEJBConnector</ejb-name>
         <method-name>*</method-name>
       </method>
     </method-permission>
     <method-permission>
       <role-name>users</role-name>
       <method>
-        <ejb-name>WebDAVEJBConnector</ejb-name>
+        <ejb-name>JcrRestEJBConnector</ejb-name>
         <method-name>*</method-name>
       </method>
     </method-permission>
