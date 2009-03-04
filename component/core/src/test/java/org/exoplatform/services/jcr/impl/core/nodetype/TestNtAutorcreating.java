@@ -62,6 +62,7 @@ public class TestNtAutorcreating extends JcrImplBaseTest {
   }
 
   public void test2() throws Exception {
+    registerNodetypes();
     Node myParentNode = root.addNode("testNode");
     Node myNode = myParentNode.addNode("myNodeName", "exo:myTypeJCR805");
     Node myChildNode = myNode.getNode("exo:myChildNode");
