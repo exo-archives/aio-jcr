@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PairChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -36,6 +37,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -165,17 +167,21 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
           nvstates.add(change);
       }
 
+      String pairId = IdGenerator.generate();
+      
       if (vstates.size() > 0) {
-        versionLog.addLog(new PlainChangesLogImpl(vstates,
-                                                  changes.getSessionId(),
-                                                  changes.getEventType()));
+        versionLog.addLog(new PairChangesLog(vstates,
+                                            changes.getSessionId(),
+                                            changes.getEventType(),
+                                            pairId));
         saveVersions = true;
       }
 
       if (nvstates.size() > 0) {
-        nonVersionLog.addLog(new PlainChangesLogImpl(nvstates,
-                                                     changes.getSessionId(),
-                                                     changes.getEventType()));
+        nonVersionLog.addLog(new PairChangesLog(nvstates,
+                                                changes.getSessionId(),
+                                                changes.getEventType(),
+                                                pairId));
         saveNonVersions = true;
       }
     }
