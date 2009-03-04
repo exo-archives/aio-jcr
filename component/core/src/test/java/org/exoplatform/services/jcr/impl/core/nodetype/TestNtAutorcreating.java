@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import java.io.InputStream;
 
 import javax.jcr.Node;
+import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
 
@@ -58,6 +59,18 @@ public class TestNtAutorcreating extends JcrImplBaseTest {
     Node myChildNode = myNode.getNode("exo:myChildNode");
     session.save();
     assertEquals(1, myNode.getNodes().getSize());
+  }
+
+  public void test2() throws Exception {
+    Node myParentNode = root.addNode("testNode");
+    Node myNode = myParentNode.addNode("myNodeName", "exo:myTypeJCR805");
+    Node myChildNode = myNode.getNode("exo:myChildNode");
+    try {
+      session.save();
+      fail();
+    } catch (ConstraintViolationException e) {
+      // e.printStackTrace();
+    }
   }
 
   private void registerNodetypes() throws Exception {

@@ -31,10 +31,10 @@
       <supertype>nt:base</supertype> 
     </supertypes> 
     <childNodeDefinitions> 
-      <childNodeDefinition name="exo:myChildNode" defaultPrimaryType="exo:mySubTypeJCR805" autoCreated="true" mandatory="false" 
+      <childNodeDefinition name="exo:myChildNode" defaultPrimaryType="nt:base" autoCreated="true" mandatory="false" 
         onParentVersion="COPY" protected="false" sameNameSiblings="false"> 
         <requiredPrimaryTypes> 
-          <requiredPrimaryType>exo:mySubTypeJCR805</requiredPrimaryType> 
+          <requiredPrimaryType>nt:base</requiredPrimaryType> 
         </requiredPrimaryTypes> 
       </childNodeDefinition> 
     </childNodeDefinitions> 
@@ -44,10 +44,10 @@
       <supertype>exo:mySubTypeJCR806</supertype> 
     </supertypes> 
     <childNodeDefinitions> 
-      <childNodeDefinition name="exo:myChildNode" defaultPrimaryType="exo:mySubTypeJCR805" autoCreated="true" mandatory="false" 
+      <childNodeDefinition name="exo:myChildNode" defaultPrimaryType="nt:base" autoCreated="true" mandatory="false" 
         onParentVersion="COPY" protected="false" sameNameSiblings="false"> 
         <requiredPrimaryTypes> 
-          <requiredPrimaryType>exo:mySubTypeJCR805</requiredPrimaryType> 
+          <requiredPrimaryType>nt:base</requiredPrimaryType> 
         </requiredPrimaryTypes> 
       </childNodeDefinition> 
     </childNodeDefinitions> 
