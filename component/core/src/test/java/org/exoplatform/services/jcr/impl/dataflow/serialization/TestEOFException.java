@@ -35,18 +35,19 @@ import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 public class TestEOFException extends JcrImplSerializationBaseTest {
 
   public void testReadFully() throws Exception {
-    final int bufsize = 45;
+    final byte[] buffer = createBLOBTempData(45);
 
     File test = File.createTempFile("testEOF", "");
     ObjectWriter ow = new ObjectWriterImpl(new FileOutputStream(test));
 
-    ow.write(createBLOBTempData(bufsize));
+    ow.write(buffer);
     ow.close();
 
     ObjectReader or = new ObjectReaderImpl(new FileInputStream(test));
 
-    byte[] buf = new byte[bufsize + 10];
+    byte[] buf = new byte[buffer.length];
     try {
+      or.readFully(buf);
       or.readFully(buf);
       fail();
     } catch (EOFException e) {

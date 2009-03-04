@@ -20,10 +20,9 @@ import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StreamCorruptedException;
 
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 13.02.2009
@@ -62,22 +61,21 @@ public class ObjectReaderImpl implements ObjectReader {
    */
   public void readFully(byte[] b) throws IOException {
     int l = in.read(b);
-    if (l<b.length)
+
+    if (l < 0)
      throw new EOFException();
-    
+    if (l < b.length && l > 0)
+      throw new StreamCorruptedException ("unexpected EOF in middle of data block");
   }
 
   /**
    * {@inheritDoc}
    */
   public int readInt() throws IOException {
-    int ch1 = in.read();
-    int ch2 = in.read();
-    int ch3 = in.read();
-    int ch4 = in.read();
-    if ((ch1 | ch2 | ch3 | ch4) < 0)
-      throw new EOFException();
-    return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
+    byte[] readBuffer = new byte[4];
+    readFully(readBuffer);
+    return ((readBuffer[0] & 255) << 24) + ((readBuffer[1] & 255) << 16) + 
+        ((readBuffer[2] & 255) << 8) + ((readBuffer[3] & 255));
   }
 
   /**
