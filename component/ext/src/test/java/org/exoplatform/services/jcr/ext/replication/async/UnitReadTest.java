@@ -20,12 +20,14 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -41,7 +43,7 @@ public class UnitReadTest extends BaseStandaloneTest {
 
     File f = new File("target/file");
 
-    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(f));
 
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
@@ -58,19 +60,20 @@ public class UnitReadTest extends BaseStandaloneTest {
     session.move(n1.getPath(), "/testNodeRenamed");
     root.save();
 
-    out.writeObject(pl.pushChanges().get(0));
-    out.writeObject(pl.pushChanges().get(1));
+    pl.pushChanges().get(0).writeObject(out);
+    pl.pushChanges().get(1).writeObject(out);
 
     out.flush();
     out.close();
 
-    ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+    ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
 
     // 
     do {
       try {
 
-        curLog = (TransactionChangesLog) in.readObject();
+        curLog = new TransactionChangesLog();
+        curLog.readObject(in);
         System.out.println(curLog.dump());
       } catch (EOFException e) {
         // ok

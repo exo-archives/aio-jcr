@@ -333,7 +333,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // corrupt file
     FileChannel ch = fileAccessor.getChannel();
-    ch.truncate(f.length() - 10);
+    ch.truncate(f.length() - 12);
     ch.close();
     fileAccessor.close();
 
@@ -341,7 +341,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
       storage.getLocalChanges().size();
       fail();
     } catch (StorageRuntimeException e) {
-      return;
+      //OK.
     }
 
     storage.onStop();

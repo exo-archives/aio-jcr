@@ -18,13 +18,14 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -53,7 +54,7 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
   /**
    * InputStream from current file.
    */
-  private ObjectInputStream       currentIn         = null;
+  private ObjectReader            currentIn         = null;
 
   /**
    * Current ChangesLog.
@@ -119,10 +120,12 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
       return null;
     } else {
       if (currentIn == null)
-        currentIn = new ObjectInputStream(list.get(curFileIndex++).getInputStream());
+        currentIn = new ObjectReaderImpl(list.get(curFileIndex++).getInputStream());
 
       try {
-        return (L) currentIn.readObject();
+        TransactionChangesLog tclog = new TransactionChangesLog();
+        tclog.readObject(currentIn);
+        return (L) tclog;
       } catch (EOFException e) {
         currentIn.close();
         currentIn = null;

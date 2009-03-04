@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
@@ -40,16 +39,15 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -111,7 +109,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   private MessageDigest                                      digest;
 
-  private ObjectOutputStream                                 currentOut                 = null;
+  private ObjectWriter                                       currentOut                 = null;
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -154,7 +152,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
      * @throws IOException
      *           if error occurs
      */
-    private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
+/*    private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
 
       final TransactionChangesLog result = new TransactionChangesLog();
@@ -225,16 +223,43 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
             : plog.getSessionId(), plog.getEventType()));
       }
       return result;
+    }*/
+    
+    /**
+     * Set sessionId if it null for PlainChangesLog.
+     * 
+     * @param log
+     *          local TransactionChangesLog
+     * @return TransactionChangesLog with ValueData replaced.
+     * @throws IOException
+     *           if error occurs
+     */
+    private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
+      final ChangesLogIterator chIt = log.getLogIterator();
+
+      final TransactionChangesLog result = new TransactionChangesLog();
+      result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
+      // PlainChangesLogImpl.writeExternal
+
+      while (chIt.hasNextLog()) {
+        PlainChangesLog plog = chIt.nextLog();
+       
+
+        // create new plain changes log
+        result.addLog(new PlainChangesLogImpl(plog.getAllStates(), plog.getSessionId() == null
+            ? EXTERNALIZATION_SESSION_ID
+            : plog.getSessionId(), plog.getEventType()));
+      }
+      return result;
     }
 
-    private void writeLog(ItemStateChangesLog itemStates) throws IOException {
+    private void writeLog(TransactionChangesLog itemStates) throws IOException, UnknownClassIdException {
 
       if (currentFile == null) {
         long id = getNextFileId();
         currentFile = new File(currentDir, Long.toString(id));
 
-        currentOut = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                                   digest));
+        currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile), digest));
       } else if (currentFile.length() > MAX_FILE_SIZE) {
         // close stream
         closeCurrentOutput();
@@ -247,11 +272,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
               + " already exist and will be rewrited.");
         }
 
-        currentOut = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(currentFile),
+        currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
                                                                    digest));
       }
 
-      currentOut.writeObject(itemStates);
+      itemStates.writeObject(currentOut);
       // keep stream opened
     }
   }

@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -29,11 +28,13 @@ import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -67,17 +68,17 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
                                                                      .getTimeInMillis());
 
       MessageDigest digest = MessageDigest.getInstance("MD5");
-      ObjectOutputStream oos = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(File.createTempFile("tmp", "tmp")),
+      ObjectWriter oos = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(File.createTempFile("tmp", "tmp")),
                                                                              digest));
-      oos.writeObject(tcl);
+      tcl.writeObject(oos);
       oos.flush();
       
       TesterRandomChangesFile cf2 = new TesterRandomChangesFile(digest.digest(), Calendar.getInstance()
                                                                .getTimeInMillis());
       
-      ObjectOutputStream oos2 = new ObjectOutputStream(cf2.getOutputStream());
+      ObjectWriter oos2 = new ObjectWriterImpl(cf2.getOutputStream());
 
-      oos2.writeObject(tcl);
+      tcl.writeObject(oos2);
       oos2.flush();
 
       cfList.add(cf2);

@@ -21,8 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -32,6 +30,10 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -69,7 +71,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * Output Stream opened on current ChangesFile or ByteArray.
    */
-  protected ObjectOutputStream     currentStream;
+  protected ObjectWriter           currentStream;
 
   /**
    * Current ChangesFile to store changes.
@@ -165,15 +167,15 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
 
   class ItemStateIterator<S extends ItemState> implements Iterator<S> {
 
-    private ObjectInputStream in = null;
+    private ObjectReader in = null;
 
     private S                 nextItem;
 
     public ItemStateIterator() throws IOException, ClassCastException, ClassNotFoundException {
       if (currentFile != null) {
-        in = new ObjectInputStream(currentFile.getInputStream());
+        in = new ObjectReaderImpl(currentFile.getInputStream());
       } else if (currentByteArray != null) {
-        in = new ObjectInputStream(new ByteArrayInputStream(currentByteArray.getBuf(),
+        in = new ObjectReaderImpl(new ByteArrayInputStream(currentByteArray.getBuf(),
                                                             0,
                                                             currentByteArray.size()));
       }
@@ -228,7 +230,9 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     private S readNext() throws IOException, ClassNotFoundException, ClassCastException {
       if (in != null) {
         try {
-          return (S) in.readObject();
+          ItemState item = new ItemState();
+          item.readObject(in);
+          return (S) item ;
         } catch (EOFException e) {
           in.close();
           in = null;
@@ -307,7 +311,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
    */
   public void add(T change) throws IOException {
     initOutputStream();
-    currentStream.writeObject(change);
+    change.writeObject(currentStream);
     currentStream.flush();
 
     // cache
@@ -342,7 +346,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       for (Iterator<T> chi = changes.getChanges(); chi.hasNext();) {
         T change = chi.next();
 
-        currentStream.writeObject(change);
+        change.writeObject(currentStream);
 
         // caching
         if (list != null) {
@@ -361,7 +365,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
 
   private void initOutputStream() throws IOException {
     if (currentStream == null) {
-      currentStream = new ObjectOutputStream(new ArrayOrFileOutputStream());
+      currentStream = new ObjectWriterImpl(new ArrayOrFileOutputStream());
     }
   }
 

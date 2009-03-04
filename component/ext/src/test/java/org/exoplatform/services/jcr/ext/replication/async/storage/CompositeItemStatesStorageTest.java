@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,12 +24,14 @@ import java.util.List;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.ext.replication.async.AbstractAsyncUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -81,9 +82,9 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
     for (TransactionChangesLog tcl : pl.pushChanges()) {
       RandomChangesFile cf = new TesterRandomChangesFile(new byte[]{}, 123l);
 
-      ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
+      ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
 
-      oos.writeObject(tcl);
+      tcl.writeObject(oos);
       oos.flush();
 
       cfList.add(cf);

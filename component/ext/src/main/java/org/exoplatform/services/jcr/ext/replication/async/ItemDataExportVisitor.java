@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -58,7 +58,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
   /**
    * Output where extracted ItemStates will be written.
    */
-  protected ObjectOutputStream  out;
+  protected ObjectWriter  out;
 
   /**
    * The stack. In the top it contains a parent node.
@@ -70,7 +70,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
    */
   protected NodeTypeDataManager ntManager;
 
-  public ItemDataExportVisitor(ObjectOutputStream out,
+  public ItemDataExportVisitor(ObjectWriter out,
                                NodeData parent,
                                NodeTypeDataManager nodeTypeManager,
                                ItemDataConsumer dataManager) {
@@ -103,11 +103,11 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     newProperty.setValues(res);
     
     try {
-      out.writeObject(new ItemState(newProperty,
-                                    ItemState.ADDED,
-                                    false,
-                                    curParent().getQPath(),
-                                    level != 0));
+      (new ItemState(newProperty,
+                     ItemState.ADDED,
+                     false, 
+                     curParent().getQPath(),
+                     level != 0)).writeObject(out);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
@@ -133,7 +133,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     // if level == 0 set internal created as false for validating on save
     
     try {
-      out.writeObject(new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0));
+      (new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0)).writeObject(out);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }

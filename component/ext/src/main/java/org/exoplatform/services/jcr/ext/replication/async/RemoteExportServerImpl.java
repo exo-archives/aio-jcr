@@ -22,7 +22,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,6 +34,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolde
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -157,7 +158,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
       parentNode = (NodeData) dataManager.getItemData(exportedNode.getParentIdentifier());
     }
 
-    ObjectOutputStream out = null;
+    ObjectWriter out = null;
     try {
       // TODO make it simplier
       File chLogFile = File.createTempFile(FILE_PREFIX, "-" + nodeId);
@@ -169,7 +170,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
       }
 
       DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(chLogFile), digest);
-      out = new ObjectOutputStream(dout);
+      out = new ObjectWriterImpl(dout);
 
       // extract ItemStates
       ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
@@ -177,6 +178,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
                                                                  ntManager,
                                                                  dataManager);
       exportedNode.accept(exporter);
+      
+      out.flush();
 
       byte[] crc = digest.digest();
       return new SimpleChangesFile(chLogFile, crc, System.currentTimeMillis(), resHolder);

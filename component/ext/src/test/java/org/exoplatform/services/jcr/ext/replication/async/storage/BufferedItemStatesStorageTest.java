@@ -19,18 +19,19 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.EOFException;
 import java.io.File;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -104,15 +105,25 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     InputStream in = files[0].getInputStream();
     assertNotNull(in);
     
-    ObjectInputStream oin = new ObjectInputStream(in);
+    ObjectReader oin = new ObjectReaderImpl(in);
     
     List<ItemState> res = new ArrayList<ItemState>();
-    res.add((ItemState)oin.readObject());
-    res.add((ItemState)oin.readObject());
-    res.add((ItemState)oin.readObject());
+    ItemState itemState = new ItemState();
+    itemState.readObject(oin);
+    res.add(itemState);
+    
+    itemState = new ItemState();
+    itemState.readObject(oin);
+    res.add(itemState);
+    
+    itemState = new ItemState();
+    itemState.readObject(oin);
+    res.add(itemState);
     
     try{
-      res.add((ItemState)oin.readObject());
+      itemState = new ItemState();
+      itemState.readObject(oin);
+      res.add(itemState);
       fail();
     }catch (EOFException e){
       //OK

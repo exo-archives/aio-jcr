@@ -20,8 +20,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +37,8 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.ext.replication.async.merge.BaseMergerTest;
@@ -52,6 +52,8 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.stack.IpAddress;
 
@@ -3963,7 +3965,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     NodeData d = (NodeData) ((NodeImpl) node).getData();
 
     File chLogFile = File.createTempFile("chLog", "");
-    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(chLogFile));
 
     ItemDataExportVisitor vis = new ItemDataExportVisitor(out,
                                                           d,
@@ -3986,11 +3988,13 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   protected List<ItemState> getItemStatesFromChLog(File f) throws Exception {
 
-    ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+    ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
     ItemState elem;
     List<ItemState> list = new ArrayList<ItemState>();
     try {
-      while ((elem = (ItemState) in.readObject()) != null) {
+      while (true) {
+        elem = new ItemState();
+        elem.readObject(in);
         list.add(elem);
       }
     } catch (EOFException e) {

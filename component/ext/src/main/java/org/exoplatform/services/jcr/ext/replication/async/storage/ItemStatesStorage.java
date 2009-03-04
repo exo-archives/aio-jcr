@@ -18,12 +18,13 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -43,7 +44,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
 
   class ItemStateIterator<S extends ItemState> implements Iterator<S> {
 
-    private ObjectInputStream in;
+    private ObjectReader in;
 
     private S                 nextItem;
 
@@ -53,7 +54,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
         throw new NullPointerException("ChangesFile not exists.");
       }
 
-      this.in = new ObjectInputStream(storage.getInputStream());
+      this.in = new ObjectReaderImpl(storage.getInputStream());
       this.nextItem = readNext();
     }
 
@@ -95,7 +96,9 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     protected S readNext() throws IOException, ClassNotFoundException, ClassCastException {
       if (in != null) {
         try {
-          return (S) in.readObject();
+          ItemState item = new ItemState();
+          item.readObject(in);
+          return (S) item;
         } catch (EOFException e) {
           // End of list
           in.close();

@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.ObjectOutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.jgroups.stack.IpAddress;
 
@@ -83,8 +84,8 @@ public class IncomStorageTest extends BaseStandaloneTest {
     MessageDigest digest = MessageDigest.getInstance("MD5");
     DigestOutputStream dout = new DigestOutputStream(bytes, digest);
 
-    ObjectOutputStream out = new ObjectOutputStream(dout);
-    out.writeObject(log);
+    ObjectWriter out = new ObjectWriterImpl(dout);
+    log.writeObject(out);
     out.close();
 
     RandomChangesFile cf = storage.createChangesFile(digest.digest(),
@@ -142,8 +143,8 @@ public class IncomStorageTest extends BaseStandaloneTest {
     MessageDigest digest = MessageDigest.getInstance("MD5");
     DigestOutputStream dout = new DigestOutputStream(bytes, digest);
 
-    ObjectOutputStream out = new ObjectOutputStream(dout);
-    out.writeObject(log1);
+    ObjectWriter out = new ObjectWriterImpl(dout);
+    log1.writeObject(out);
     out.close();
 
     RandomChangesFile cf = storage.createChangesFile(digest.digest(),
@@ -161,8 +162,8 @@ public class IncomStorageTest extends BaseStandaloneTest {
     bytes = new ByteArrayOutputStream();
     digest.reset();
     dout = new DigestOutputStream(bytes, digest);
-    out = new ObjectOutputStream(dout);
-    out.writeObject(log2);
+    out = new ObjectWriterImpl(dout);
+    log2.writeObject(out);
     out.close();
 
     cf = storage.createChangesFile(digest.digest(),
@@ -178,8 +179,8 @@ public class IncomStorageTest extends BaseStandaloneTest {
     bytes = new ByteArrayOutputStream();
     digest.reset();
     dout = new DigestOutputStream(bytes, digest);
-    out = new ObjectOutputStream(dout);
-    out.writeObject(log3);
+    out = new ObjectWriterImpl(dout);
+    log3.writeObject(out);
     out.close();
 
     cf = storage.createChangesFile(digest.digest(),

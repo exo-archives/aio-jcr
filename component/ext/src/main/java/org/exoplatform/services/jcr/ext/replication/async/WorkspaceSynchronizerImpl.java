@@ -165,7 +165,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
           states.add(state);
       } else {
         // replace ReplicableValueData to Transient
-        TransientPropertyData prop = (TransientPropertyData) state.getData();
+        /*TransientPropertyData prop = (TransientPropertyData) state.getData();
 
         List<ValueData> nVals = new ArrayList<ValueData>();
 
@@ -202,12 +202,12 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                            state.isEventFire(),
                                            state.getAncestorToSave(),
                                            state.isInternallyCreated(),
-                                           state.isPersisted());
+                                           state.isPersisted());*/
 
         if (isSystemDescendant(state.getData().getQPath()))
-          sysStates.add(newState);
+          sysStates.add(state);
         else
-          states.add(newState);
+          states.add(state);
       }
     }
 

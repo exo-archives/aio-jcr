@@ -18,12 +18,12 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Iterator;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStor
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleOutputChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -85,12 +86,12 @@ public class TesterRemoteExporter implements RemoteExporter {
                                                                    timestamp,
                                                                    new ResourcesHolder());
 
-      ObjectOutputStream out = new ObjectOutputStream(chfile.getOutputStream());
+      ObjectWriter out = new ObjectWriterImpl(chfile.getOutputStream());
 
       Iterator<ItemState> it = changes.getAllStates().iterator();
 
       while (it.hasNext()) {
-        out.writeObject(it.next());
+        it.next().writeObject(out);
       }
       out.close();
 

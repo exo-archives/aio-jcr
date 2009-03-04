@@ -21,8 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,6 +36,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
@@ -57,6 +57,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -97,9 +99,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
                                                                Calendar.getInstance()
                                                                        .getTimeInMillis());
 
-      ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
+      ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
 
-      oos.writeObject(tcl);
+      tcl.writeObject(oos);
       oos.flush();
 
       cfList.add(cf);
@@ -143,8 +145,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     // deserialize
     List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
-      ObjectInputStream ois = new ObjectInputStream(changesFile.getInputStream());
-      TransactionChangesLog tcLog = (TransactionChangesLog) ois.readObject();
+      ObjectReader ois = new ObjectReaderImpl(changesFile.getInputStream());
+      TransactionChangesLog tcLog = new TransactionChangesLog();
+      tcLog.readObject(ois);
       destChangesLogList.add(tcLog);
     }
 
@@ -187,7 +190,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     TesterRandomChangesFile cf = new TesterRandomChangesFile(("123123123123".getBytes()),
                                                              System.currentTimeMillis());
-    ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
+    ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
 
     // extract ItemStates
     ItemDataExportVisitor exporter = new ItemDataExportVisitor(oos,

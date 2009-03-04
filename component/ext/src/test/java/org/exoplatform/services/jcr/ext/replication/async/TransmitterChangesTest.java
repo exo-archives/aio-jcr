@@ -16,17 +16,18 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -71,9 +72,9 @@ public class TransmitterChangesTest extends AbstractTrasportTest {
       TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
                                                                      .getTimeInMillis());
 
-      ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
+      ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
 
-      oos.writeObject(tcl);
+      tcl.writeObject(oos);
       oos.flush();
 
       cfList.add(cf);

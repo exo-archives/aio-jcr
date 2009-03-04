@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -27,10 +26,12 @@ import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.stack.IpAddress;
 
@@ -155,8 +156,9 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
 
     Thread.sleep(5000);
 
-    ObjectInputStream in = new ObjectInputStream(transmitter.changes.getInputStream());
-    ItemState itemState = (ItemState) in.readObject();
+    ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
+    ItemState itemState = new ItemState();
+    itemState.readObject(in);
 
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()
                                                                                   .getIdentifier());
@@ -175,8 +177,9 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
 
     exportServer.onCancel();
 
-    ObjectInputStream in = new ObjectInputStream(transmitter.changes.getInputStream());
-    ItemState itemState = (ItemState) in.readObject();
+    ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
+    ItemState itemState = new ItemState();
+    itemState.readObject(in);
 
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()
                                                                                   .getIdentifier());

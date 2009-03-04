@@ -21,14 +21,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -41,6 +41,8 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Karpenko Sergiy 
@@ -57,7 +59,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     NodeData d = (NodeData) n.getData();
     
     File chLogFile = File.createTempFile("chLog", ""+(suf++));
-    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(chLogFile));
    
     ItemDataExportVisitor vis = new ItemDataExportVisitor(out, d,
                                                           ((SessionImpl) session).getWorkspace()
@@ -95,7 +97,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     NodeData d = (NodeData) n.getData();
     
     File chLogFile = File.createTempFile("chLog", ""+(suf++));
-    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(chLogFile));
     ItemDataExportVisitor vis = new ItemDataExportVisitor(out, d,
                                                           ((SessionImpl) session).getWorkspace()
                                                                                  .getNodeTypesHolder(),
@@ -144,7 +146,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     NodeData d = (NodeData) n.getData();
     
     File chLogFile = File.createTempFile("chLog", ""+(suf++));
-    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(chLogFile));
     
     ItemDataExportVisitor vis = new ItemDataExportVisitor(out, p,
                                                           ((SessionImpl) session).getWorkspace()
@@ -214,7 +216,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
 
     NodeData p = (NodeData) ((NodeImpl) root).getData();
     File chLogFile = File.createTempFile("chLog", ""+(suf++));
-    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(chLogFile));
     
     ItemDataExportVisitor vis = new ItemDataExportVisitor(out, p,
                                                           ((SessionImpl) session).getWorkspace()
@@ -279,11 +281,13 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
   
   protected List<ItemState> getItemStatesFromChLog(File f) throws Exception{
     
-    ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+    ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
     ItemState elem ;
     List<ItemState> list = new ArrayList<ItemState>();
     try{
-    while((elem = (ItemState)in.readObject())!=null){
+    while(true){
+      elem = new ItemState();
+      elem.readObject(in);
       list.add(elem);
     }
     }catch(EOFException e){
