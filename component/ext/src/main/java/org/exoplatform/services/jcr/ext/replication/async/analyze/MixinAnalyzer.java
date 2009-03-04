@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
@@ -42,8 +44,8 @@ public class MixinAnalyzer extends AbstractAnalyzer {
    * 
    * @param localPriority
    */
-  public MixinAnalyzer(boolean localPriority) {
-    super(localPriority);
+  public MixinAnalyzer(boolean localPriority, DataManager dataManager, NodeTypeDataManager ntManager) {
+    super(localPriority, dataManager, ntManager);
   }
 
   /**
@@ -97,7 +99,7 @@ public class MixinAnalyzer extends AbstractAnalyzer {
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
             if (localData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.getIdentifier()));
+                confilictResolver.add(incomeData.getQPath());
                 confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             }
@@ -106,7 +108,8 @@ public class MixinAnalyzer extends AbstractAnalyzer {
 
           // DELETE
           if (localData.isNode()) {
-            if (incomeData.getQPath().equals(localData.getQPath())) {
+            if (incomeData.getQPath().equals(localData.getQPath())
+                || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
               confilictResolver.add(incomeData.getQPath());
               confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
@@ -144,7 +147,7 @@ public class MixinAnalyzer extends AbstractAnalyzer {
             for (ItemState st : updateSeq) {
               if (incomeData.getQPath().isDescendantOf(st.getData().getQPath())
                   || incomeData.getQPath().equals(st.getData().getQPath())) {
-                confilictResolver.add(localData.getQPath());
+                confilictResolver.add(st.getData().getQPath());
               }
             }
 
@@ -153,7 +156,7 @@ public class MixinAnalyzer extends AbstractAnalyzer {
 
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            if (incomeData.isNode()) {
+            if (localData.isNode()) {
               if (localData.getQPath().equals(incomeData.getQPath())) {
                 confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
               }

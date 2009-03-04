@@ -21,7 +21,14 @@ package org.exoplatform.services.jcr.ext.replication.async.analyze;
 
 import java.io.IOException;
 
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
@@ -33,15 +40,23 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
  */
 public abstract class AbstractAnalyzer implements ChangesAnalyzer {
 
-  protected final boolean localPriority;
+  protected final boolean             localPriority;
+
+  protected final DataManager         dataManager;
+
+  protected final NodeTypeDataManager ntManager;
 
   /**
    * AbstractAnalyzer constructor.
    * 
    * @param localPriority
    */
-  public AbstractAnalyzer(boolean localPriority) {
+  public AbstractAnalyzer(boolean localPriority,
+                          DataManager dataManager,
+                          NodeTypeDataManager ntManager) {
     this.localPriority = localPriority;
+    this.dataManager = dataManager;
+    this.ntManager = ntManager;
   }
 
   /**
@@ -52,13 +67,28 @@ public abstract class AbstractAnalyzer implements ChangesAnalyzer {
                                ChangesStorage<ItemState> income,
                                ConflictResolver confilictResolver) throws IOException,
                                                                   ClassCastException,
-                                                                  ClassNotFoundException;
+                                                                  ClassNotFoundException,
+                                                                  RepositoryException;
 
   /**
    * {@inheritDoc}
    */
   public boolean isLocalPriority() {
     return localPriority;
+  }
+
+  /**
+   * isPropertyAllowed.
+   * 
+   * @param propertyName
+   * @param parent
+   * @return
+   */
+  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                     parent.getPrimaryTypeName(),
+                                                                     parent.getMixinTypeNames());
+    return pdef != null;
   }
 
 }

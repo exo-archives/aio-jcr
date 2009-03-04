@@ -25,6 +25,8 @@ import java.util.Map;
 
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -41,6 +43,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesS
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -65,6 +68,11 @@ public class ConflictResolver {
   private final NodeTypeDataManager             ntManager;
 
   private final boolean                         isLocalPriority;
+
+  /**
+   * Log.
+   */
+  private static final Log                      LOG = ExoLogger.getLogger("jcr.ConflictResolver");
 
   /**
    * ConflictResolver constructor.
@@ -168,17 +176,9 @@ public class ConflictResolver {
                                                                   ClassNotFoundException,
                                                                   RemoteExportException,
                                                                   RepositoryException {
-    for (int i = 0; i < conflictedPathes.size(); i++) {
-      System.out.println(conflictedPathes.get(i).getAsString());
-    }
-    System.out.println('\n');
-
     if (!isLocalPriority) {
-      // resolve conflicts
-      // TODO every method use changesStorage.getChanges(conflictedPathes.get(i));
       restoreAddedItems(iteration);
       restoreDeletedItems(iteration);
-      // restoreMixinChanges(iteration);
       restoreUpdatesItems(iteration);
       restoreUpdatesSNSItems(iteration);
     }
@@ -259,8 +259,7 @@ public class ConflictResolver {
 
       for (int j = changes.size() - 1; j >= 0; j--) {
         ItemState item = changes.get(j);
-        if ((item.getState() == ItemState.ADDED && !item.isInternallyCreated())
-            || item.getState() == ItemState.RENAMED) {
+        if (item.getState() == ItemState.ADDED || item.getState() == ItemState.RENAMED) {
 
           if (hasDeleteState(changes, j, item.getData().getIdentifier()))
             continue;
@@ -301,7 +300,7 @@ public class ConflictResolver {
 
       for (int j = changes.size() - 1; j >= 0; j--) {
         ItemState item = changes.get(j);
-        if (item.getState() != ItemState.DELETED || item.isInternallyCreated())
+        if (item.getState() != ItemState.DELETED)
           continue;
 
         ItemState nextItem = local.findNextState(item, item.getData().getIdentifier());
@@ -354,15 +353,18 @@ public class ConflictResolver {
                                                       item.getData().getQPath(),
                                                       ItemState.DELETED);
         if (incomeChange != null) {
-          restoredItems.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
-                                                                                     .getQPath()));
+          ItemState nextIncomeChange = income.findNextState(incomeChange,
+                                                            incomeChange.getData().getIdentifier());
+
+          if (nextIncomeChange == null || nextIncomeChange.getState() != ItemState.UPDATED) {
+            restoredItems.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
+                                                                                       .getQPath()));
+          }
 
           if (rootRestoredItem == null
               || rootRestoredItem.isDescendantOf(item.getData().getQPath()))
             rootRestoredItem = item.getData().getQPath();
 
-          ItemState nextIncomeChange = income.findNextState(incomeChange,
-                                                            incomeChange.getData().getIdentifier());
           if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
             if (incomeChange.getData().isNode()) {
               NodeData node = (NodeData) incomeChange.getData();
@@ -468,7 +470,6 @@ public class ConflictResolver {
           if (incomeChange != null) {
             ItemState nextIncomeState = income.findNextState(incomeChange,
                                                              incomeChange.getData().getIdentifier());
-
             if (nextIncomeState != null && nextIncomeState.getState() == ItemState.RENAMED) {
               iteration.add(new ItemState(nextIncomeState.getData(),
                                           ItemState.UPDATED,

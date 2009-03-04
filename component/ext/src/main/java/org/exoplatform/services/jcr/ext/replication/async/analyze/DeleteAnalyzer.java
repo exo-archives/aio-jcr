@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -38,8 +40,10 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class DeleteAnalyzer extends AbstractAnalyzer {
 
-  public DeleteAnalyzer(boolean localPriority) {
-    super(localPriority);
+  public DeleteAnalyzer(boolean localPriority,
+                        DataManager dataManager,
+                        NodeTypeDataManager ntManager) {
+    super(localPriority, dataManager, ntManager);
   }
 
   /**
@@ -89,26 +93,14 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            if (incomeData.isNode()) {
-
-              List<ItemState> updateSeq = local.getUpdateSequence(localState);
-              for (ItemState item : updateSeq) {
-                if (item.getData().getQPath().isDescendantOf(incomeData.getQPath())
-                    || incomeData.getQPath().equals(item.getData().getQPath())
-                    || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  confilictResolver.add(incomeData.getQPath());
-                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-                  break;
-                }
-              }
-            } else {
-              List<ItemState> updateSeq = local.getUpdateSequence(localState);
-              for (ItemState item : updateSeq) {
-                if (incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                  confilictResolver.add(incomeData.getQPath());
-                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-                  break;
-                }
+            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            for (ItemState item : updateSeq) {
+              if (item.getData().getQPath().isDescendantOf(incomeData.getQPath())
+                  || incomeData.getQPath().equals(item.getData().getQPath())
+                  || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                break;
               }
             }
             break;
@@ -140,9 +132,16 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
                 confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             } else {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+              if (localData.isNode()) {
+                if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+                  confilictResolver.add(incomeData.getQPath());
+                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                }
+              } else {
+                if (incomeData.getQPath().equals(localData.getQPath())) {
+                  confilictResolver.add(incomeData.getQPath());
+                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                }
               }
             }
             break;
@@ -223,6 +222,12 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
                 || localData.getQPath().equals(incomeData.getQPath())) {
               confilictResolver.add(localData.getQPath());
             }
+          } else {
+            if (!localData.isNode()) {
+              if (localData.getQPath().equals(incomeData.getQPath())) {
+                confilictResolver.add(localData.getQPath());
+              }
+            }
           }
           break;
 
@@ -232,10 +237,12 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
             List<ItemState> updateSeq = local.getUpdateSequence(localState);
-            for (ItemState st : updateSeq) {
-              if (incomeData.getQPath().isDescendantOf(st.getData().getQPath())
-                  || incomeData.getQPath().equals(st.getData().getQPath())) {
-                confilictResolver.add(st.getData().getQPath());
+
+            for (ItemState item : updateSeq) {
+              if (item.getData().getQPath().isDescendantOf(incomeData.getQPath())
+                  || incomeData.getQPath().equals(item.getData().getQPath())
+                  || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
+                confilictResolver.add(item.getData().getQPath());
               }
             }
             break;
@@ -259,6 +266,7 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
                                         ItemState.RENAMED).getData().getQPath();
 
               if (incomeData.getQPath().isDescendantOf(locNodePath)
+                  || locNodePath.isDescendantOf(incomeData.getQPath())
                   || incomeData.getQPath().equals(locNodePath)
                   || nextLocNodePath.isDescendantOf(incomeData.getQPath())) {
                 confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
@@ -266,11 +274,11 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             } else {
               if (localData.isNode()) {
                 if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                  confilictResolver.add(localData.getQPath());
+                  confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
                 }
               } else {
                 if (incomeData.getQPath().equals(localData.getQPath())) {
-                  confilictResolver.add(localData.getQPath());
+                  confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
                 }
               }
             }
@@ -288,7 +296,8 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             }
           } else {
             if (localData.isNode()) {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(localData.getQPath())) {
                 confilictResolver.add(localData.getQPath());
               }
             } else {
@@ -300,12 +309,41 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           break;
 
         case ItemState.UPDATED:
+          if (!localData.isNode()) {
+            if (incomeData.isNode()) {
+              if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+                confilictResolver.add(localData.getQPath());
+              }
+            } else {
+              if (localData.getQPath().equals(incomeData.getQPath())) {
+                confilictResolver.add(localData.getQPath());
+              }
+            }
+          }
           break;
 
         case ItemState.RENAMED:
           break;
 
         case ItemState.MIXIN_CHANGED:
+          if (incomeData.isNode()) {
+            if (localData.getQPath().equals(incomeData.getQPath())
+                || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+              confilictResolver.add(localData.getQPath());
+            }
+          } else {
+            List<ItemState> mixinSeq = local.getMixinSequence(localState);
+
+            for (int i = 0; i < mixinSeq.size(); i++) {
+              ItemState item = mixinSeq.get(i);
+              if (!item.getData().isNode()) {
+                if (item.getData().getQPath().equals(incomeData.getQPath())) {
+                  confilictResolver.add(localData.getQPath());
+                  break;
+                }
+              }
+            }
+          }
           break;
         }
       }

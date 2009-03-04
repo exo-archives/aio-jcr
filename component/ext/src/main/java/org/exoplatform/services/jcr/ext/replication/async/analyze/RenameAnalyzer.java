@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -43,8 +45,10 @@ public class RenameAnalyzer extends AbstractAnalyzer {
    * 
    * @param localPriority
    */
-  public RenameAnalyzer(boolean localPriority) {
-    super(localPriority);
+  public RenameAnalyzer(boolean localPriority,
+                        DataManager dataManager,
+                        NodeTypeDataManager ntManager) {
+    super(localPriority, dataManager, ntManager);
   }
 
   /**
@@ -131,7 +135,6 @@ public class RenameAnalyzer extends AbstractAnalyzer {
 
           // Rename sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-
             QPath localPath = localData.isNode()
                 ? localData.getQPath()
                 : localData.getQPath().makeParentPath();
@@ -229,12 +232,11 @@ public class RenameAnalyzer extends AbstractAnalyzer {
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-
             List<ItemState> updateSeq = local.getUpdateSequence(localState);
             for (ItemState st : updateSeq) {
-
-              if (incNodePath.isDescendantOf(st.getData().getQPath())
+              if (st.getData().getQPath().isDescendantOf(incNodePath)
                   || incNodePath.equals(st.getData().getQPath())
+                  || incNodePath.isDescendantOf(st.getData().getQPath())
                   || nextIncNodePath.isDescendantOf(st.getData().getQPath())) {
                 confilictResolver.add(st.getData().getQPath());
               }
@@ -286,15 +288,9 @@ public class RenameAnalyzer extends AbstractAnalyzer {
 
         case ItemState.UPDATED:
           if (!localData.isNode()) {
-            List<ItemState> rename = income.getRenameSequence(incomeState);
-            for (int i = 0; i < rename.size(); i++) {
-              ItemData itemData = rename.get(i).getData();
-              if (!itemData.isNode()) {
-                if (itemData.getQPath().equals(localData.getQPath())) {
-                  confilictResolver.add(localData.getQPath());
-                  break;
-                }
-              }
+            if (localData.getQPath().isDescendantOf(incNodePath)
+                || localData.getQPath().equals(incNodePath)) {
+              confilictResolver.add(localData.getQPath());
             }
           }
           break;
@@ -304,7 +300,8 @@ public class RenameAnalyzer extends AbstractAnalyzer {
 
         case ItemState.MIXIN_CHANGED:
           if (incomeData.isNode()) {
-            if (localData.getQPath().equals(incomeData.getQPath())) {
+            if (localData.getQPath().equals(incomeData.getQPath())
+                || localData.getQPath().isDescendantOf(incNodePath)) {
               confilictResolver.add(localData.getQPath());
             }
           }

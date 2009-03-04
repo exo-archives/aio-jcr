@@ -23,8 +23,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -42,8 +48,8 @@ public class AddAnalyzer extends AbstractAnalyzer {
    * AddAnalyzer constructor.
    * 
    */
-  public AddAnalyzer(boolean localPriority) {
-    super(localPriority);
+  public AddAnalyzer(boolean localPriority, DataManager dataManager, NodeTypeDataManager ntManager) {
+    super(localPriority, dataManager, ntManager);
   }
 
   public void analyze(ItemState incomeChange,
@@ -51,7 +57,8 @@ public class AddAnalyzer extends AbstractAnalyzer {
                       ChangesStorage<ItemState> income,
                       ConflictResolver confilictResolver) throws IOException,
                                                          ClassCastException,
-                                                         ClassNotFoundException {
+                                                         ClassNotFoundException,
+                                                         RepositoryException {
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
@@ -76,21 +83,43 @@ public class AddAnalyzer extends AbstractAnalyzer {
                 confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             } else {
+              // try to add property and node with same name
               if ((incomeData.getQPath().equals(localData.getQPath()))) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                InternalQName propertyName = !incomeData.isNode()
+                    ? incomeData.getQPath().getName()
+                    : localData.getQPath().getName();
+                String parentIdentifier = !incomeData.isNode()
+                    ? incomeData.getParentIdentifier()
+                    : localData.getParentIdentifier();
+
+                if (!isPropertyAllowed(propertyName,
+                                       (NodeData) dataManager.getItemData(parentIdentifier))) {
+                  confilictResolver.add(incomeData.getQPath());
+                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                }
               }
             }
           } else {
-            if (incomeData.isNode()) {
-              if ((incomeData.getQPath().equals(localData.getQPath()))) {
+            if (!incomeData.isNode()) {
+              if (incomeData.getQPath().equals(localData.getQPath())) {
                 confilictResolver.add(incomeData.getQPath());
                 confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             } else {
-              if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+              // try to add property and node with same name
+              if ((incomeData.getQPath().equals(localData.getQPath()))) {
+                InternalQName propertyName = !incomeData.isNode()
+                    ? incomeData.getQPath().getName()
+                    : localData.getQPath().getName();
+                String parentIdentifier = !incomeData.isNode()
+                    ? incomeData.getParentIdentifier()
+                    : localData.getParentIdentifier();
+
+                if (!isPropertyAllowed(propertyName,
+                                       (NodeData) dataManager.getItemData(parentIdentifier))) {
+                  confilictResolver.add(incomeData.getQPath());
+                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                }
               }
             }
           }
@@ -113,10 +142,6 @@ public class AddAnalyzer extends AbstractAnalyzer {
 
           // RENAME sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            QPath incNodePath = incomeData.isNode()
-                ? incomeData.getQPath()
-                : incomeData.getQPath().makeParentPath();
-
             QPath locNodePath = localData.isNode()
                 ? localData.getQPath()
                 : localData.getQPath().makeParentPath();
@@ -131,9 +156,7 @@ public class AddAnalyzer extends AbstractAnalyzer {
                 || incomeData.getQPath().equals(nextLocNodePath)
                 || nextLocNodePath.isDescendantOf(incomeData.getQPath())
                 || nextLocNodePath.equals(incomeData.getQPath())) {
-              confilictResolver.addAll(income.getUniquePathesByUUID(incomeData.isNode()
-                  ? incomeData.getIdentifier()
-                  : incomeData.getParentIdentifier()));
+              confilictResolver.add(incomeData.getQPath());
               confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               break;
             }
@@ -174,11 +197,41 @@ public class AddAnalyzer extends AbstractAnalyzer {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 confilictResolver.add(localData.getQPath());
               }
+            } else {
+              // try to add property and node with same name
+              if ((incomeData.getQPath().equals(localData.getQPath()))) {
+                InternalQName propertyName = !incomeData.isNode()
+                    ? incomeData.getQPath().getName()
+                    : localData.getQPath().getName();
+                String parentIdentifier = !incomeData.isNode()
+                    ? incomeData.getParentIdentifier()
+                    : localData.getParentIdentifier();
+
+                if (!isPropertyAllowed(propertyName,
+                                       (NodeData) dataManager.getItemData(parentIdentifier))) {
+                  confilictResolver.add(localData.getQPath());
+                }
+              }
             }
           } else {
             if (!incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 confilictResolver.add(localData.getQPath());
+              }
+            } else {
+              // try to add property and node with same name
+              if ((incomeData.getQPath().equals(localData.getQPath()))) {
+                InternalQName propertyName = !incomeData.isNode()
+                    ? incomeData.getQPath().getName()
+                    : localData.getQPath().getName();
+                String parentIdentifier = !incomeData.isNode()
+                    ? incomeData.getParentIdentifier()
+                    : localData.getParentIdentifier();
+
+                if (!isPropertyAllowed(propertyName,
+                                       (NodeData) dataManager.getItemData(parentIdentifier))) {
+                  confilictResolver.add(localData.getQPath());
+                }
               }
             }
           }
@@ -189,14 +242,12 @@ public class AddAnalyzer extends AbstractAnalyzer {
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-
             List<ItemState> updateSeq = local.getUpdateSequence(localState);
             for (ItemState st : updateSeq) {
               if (incomeData.getQPath().isDescendantOf(st.getData().getQPath())) {
                 confilictResolver.add(st.getData().getQPath());
               }
             }
-
             break;
           }
 
@@ -227,6 +278,11 @@ public class AddAnalyzer extends AbstractAnalyzer {
           // Simple DELETE
           if (localData.isNode()) {
             if (incomeData.isNode()) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(localData.getQPath())) {
+                confilictResolver.add(localData.getQPath());
+              }
+            } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 confilictResolver.add(localData.getQPath());
               }
