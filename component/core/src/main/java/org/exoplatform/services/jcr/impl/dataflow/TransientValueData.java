@@ -700,6 +700,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
         writeToFile(in, sf, length);
       }
 
+      sf.acquire(this);
       this.spoolFile = sf;
     }
   }
@@ -746,9 +747,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     int bSize = 1024 * 200;
     try {
       byte[] buff = new byte[bSize];
-
-      dest.acquire(this);
-
       for (; length >= bSize; length -= bSize) {
         src.readFully(buff);
         sfout.write(buff);
