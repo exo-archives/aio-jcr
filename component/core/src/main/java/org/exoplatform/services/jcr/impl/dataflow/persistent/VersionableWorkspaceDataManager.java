@@ -178,10 +178,15 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
       }
 
       if (nvstates.size() > 0) {
-        nonVersionLog.addLog(new PairChangesLog(nvstates,
-                                                changes.getSessionId(),
-                                                changes.getEventType(),
-                                                pairId));
+        if (vstates.size() > 0) 
+          nonVersionLog.addLog(new PairChangesLog(nvstates,
+                                                  changes.getSessionId(),
+                                                  changes.getEventType(),
+                                                  pairId));
+        else
+          nonVersionLog.addLog(new PlainChangesLogImpl(nvstates,
+                                                       changes.getSessionId(),
+                                                       changes.getEventType()));
         saveNonVersions = true;
       }
     }
