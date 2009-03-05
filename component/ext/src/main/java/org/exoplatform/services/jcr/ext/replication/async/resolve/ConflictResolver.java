@@ -150,18 +150,6 @@ public class ConflictResolver {
   }
 
   /**
-   * remove.
-   * 
-   * @param path
-   */
-  public void remove(QPath path) {
-    for (int i = conflictedPathes.size() - 1; i >= 0; i--) {
-      if (path.equals(conflictedPathes.get(i)))
-        conflictedPathes.remove(i);
-    }
-  }
-
-  /**
    * resolve.
    * 
    * @return
@@ -171,7 +159,7 @@ public class ConflictResolver {
    * @throws RemoteExportException
    * @throws RepositoryException
    */
-  public void resolve(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
+  public void restore(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
                                                                   IOException,
                                                                   ClassNotFoundException,
                                                                   RemoteExportException,
@@ -179,7 +167,6 @@ public class ConflictResolver {
     if (!isLocalPriority) {
       restoreAddedItems(iteration);
       restoreDeletedItems(iteration);
-      restoreUpdatesItems(iteration);
       restoreUpdatesSNSItems(iteration);
     }
   }
@@ -293,81 +280,27 @@ public class ConflictResolver {
       List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
 
       List<ItemState> restoredItems = new ArrayList<ItemState>();
-      QPath rootRestoredItem = null;
 
       Map<QPath, ItemState> needToExport = new HashMap<QPath, ItemState>();
-      ItemData rootExportData = null;
+      QPath rootExportPath = null;
+      String rootExportIdentifier = null;
 
       for (int j = changes.size() - 1; j >= 0; j--) {
         ItemState item = changes.get(j);
-        if (item.getState() != ItemState.DELETED)
-          continue;
 
-        ItemState nextItem = local.findNextState(item, item.getData().getIdentifier());
-        if (nextItem != null && nextItem.getState() == ItemState.UPDATED)
-          continue;
+        if (item.getState() == ItemState.DELETED) {
 
-        if (getPrevState(changes, j) != -1)
-          continue;
+          ItemState nextItem = local.findNextState(item, item.getData().getIdentifier());
+          if (nextItem != null && nextItem.getState() == ItemState.UPDATED)
+            continue;
 
-        // add to export
-        needToExport.put(item.getData().getQPath(), item);
-        if (rootExportData == null
-            || rootExportData.getQPath().isDescendantOf(item.getData().getQPath()))
-          rootExportData = item.getData();
+          if (getPrevState(changes, j) != -1)
+            continue;
 
-        // restore deleted node from rename
-        if (nextItem != null && nextItem.getState() == ItemState.RENAMED) {
-          if (item.getData().isNode()) {
-            NodeData node = (NodeData) item.getData();
-            TransientNodeData newNode = new TransientNodeData(node.getQPath(),
-                                                              node.getIdentifier(),
-                                                              node.getPersistedVersion(),
-                                                              node.getPrimaryTypeName(),
-                                                              node.getMixinTypeNames(),
-                                                              node.getOrderNumber(),
-                                                              node.getParentIdentifier(),
-                                                              node.getACL());
-            restoredItems.add(new ItemState(newNode, ItemState.ADDED, true, node.getQPath()));
-          } else {
-            PropertyData prop = (PropertyData) item.getData();
-            TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
-                                                                      prop.getIdentifier(),
-                                                                      prop.getPersistedVersion(),
-                                                                      prop.getType(),
-                                                                      prop.getParentIdentifier(),
-                                                                      prop.isMultiValued());
-            newProp.setValues(((PropertyData) nextItem.getData()).getValues());
-            restoredItems.add(new ItemState(newProp, ItemState.ADDED, true, prop.getQPath()));
-          }
-
-          if (rootRestoredItem == null
-              || rootRestoredItem.isDescendantOf(item.getData().getQPath()))
-            rootRestoredItem = item.getData().getQPath();
-
-          continue;
-        }
-
-        // restore deleted node
-        ItemState incomeChange = income.findItemState(item.getData().getIdentifier(),
-                                                      item.getData().getQPath(),
-                                                      ItemState.DELETED);
-        if (incomeChange != null) {
-          ItemState nextIncomeChange = income.findNextState(incomeChange,
-                                                            incomeChange.getData().getIdentifier());
-
-          if (nextIncomeChange == null || nextIncomeChange.getState() != ItemState.UPDATED) {
-            restoredItems.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
-                                                                                       .getQPath()));
-          }
-
-          if (rootRestoredItem == null
-              || rootRestoredItem.isDescendantOf(item.getData().getQPath()))
-            rootRestoredItem = item.getData().getQPath();
-
-          if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
-            if (incomeChange.getData().isNode()) {
-              NodeData node = (NodeData) incomeChange.getData();
+          // restore deleted node from rename
+          if (nextItem != null && nextItem.getState() == ItemState.RENAMED) {
+            if (item.getData().isNode()) {
+              NodeData node = (NodeData) item.getData();
               TransientNodeData newNode = new TransientNodeData(node.getQPath(),
                                                                 node.getIdentifier(),
                                                                 node.getPersistedVersion(),
@@ -376,81 +309,90 @@ public class ConflictResolver {
                                                                 node.getOrderNumber(),
                                                                 node.getParentIdentifier(),
                                                                 node.getACL());
-              restoredItems.add(new ItemState(newNode, ItemState.UPDATED, true, item.getData()
-                                                                                    .getQPath()));
+              restoredItems.add(new ItemState(newNode, ItemState.ADDED, true, node.getQPath()));
             } else {
-              PropertyData prop = (PropertyData) incomeChange.getData();
+              PropertyData prop = (PropertyData) item.getData();
               TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
                                                                         prop.getIdentifier(),
                                                                         prop.getPersistedVersion(),
                                                                         prop.getType(),
                                                                         prop.getParentIdentifier(),
                                                                         prop.isMultiValued());
-              newProp.setValues(((PropertyData) nextIncomeChange.getData()).getValues());
-              restoredItems.add(new ItemState(newProp, ItemState.UPDATED, true, item.getData()
-                                                                                    .getQPath()));
+              newProp.setValues(((PropertyData) nextItem.getData()).getValues());
+              restoredItems.add(new ItemState(newProp, ItemState.ADDED, true, prop.getQPath()));
+            }
+            continue;
+          }
+
+          // restore deleted node
+          ItemState incomeChange = income.findItemState(item.getData().getIdentifier(),
+                                                        item.getData().getQPath(),
+                                                        ItemState.DELETED);
+          if (incomeChange != null) {
+            ItemState nextIncomeChange = income.findNextState(incomeChange,
+                                                              incomeChange.getData()
+                                                                          .getIdentifier());
+
+            if (nextIncomeChange == null || nextIncomeChange.getState() != ItemState.UPDATED) {
+              restoredItems.add(new ItemState(item.getData(),
+                                              ItemState.ADDED,
+                                              true,
+                                              item.getData().getQPath()));
+
+              if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
+                if (incomeChange.getData().isNode()) {
+                  NodeData node = (NodeData) incomeChange.getData();
+                  TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                                    node.getIdentifier(),
+                                                                    node.getPersistedVersion(),
+                                                                    node.getPrimaryTypeName(),
+                                                                    node.getMixinTypeNames(),
+                                                                    node.getOrderNumber(),
+                                                                    node.getParentIdentifier(),
+                                                                    node.getACL());
+                  restoredItems.add(new ItemState(newNode, ItemState.UPDATED, true, item.getData()
+                                                                                        .getQPath()));
+                } else {
+                  PropertyData prop = (PropertyData) incomeChange.getData();
+                  TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                            prop.getIdentifier(),
+                                                                            prop.getPersistedVersion(),
+                                                                            prop.getType(),
+                                                                            prop.getParentIdentifier(),
+                                                                            prop.isMultiValued());
+                  newProp.setValues(((PropertyData) nextIncomeChange.getData()).getValues());
+                  restoredItems.add(new ItemState(newProp, ItemState.UPDATED, true, item.getData()
+                                                                                        .getQPath()));
+                }
+              }
+
+              continue;
             }
           }
 
-          continue;
-        }
-
-        // restore deleted node
-        if (!item.getData().isNode()
-            && income.hasState(item.getData().getIdentifier(),
-                               item.getData().getQPath(),
-                               ItemState.UPDATED)) {
-          restoredItems.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
-                                                                                     .getQPath()));
-
-          if (rootRestoredItem == null
-              || rootRestoredItem.isDescendantOf(item.getData().getQPath()))
-            rootRestoredItem = item.getData().getQPath();
-
-          continue;
-        }
-      }
-
-      // export
-      if (rootExportData != null) {
-        if (rootRestoredItem == null || !rootExportData.getQPath().equals(rootRestoredItem)) {
-          ChangesStorage<ItemState> exportedItems = exporter.exportItem(rootExportData.isNode()
-              ? rootExportData.getIdentifier()
-              : rootExportData.getParentIdentifier());
-
-          Iterator<ItemState> itemStates = exportedItems.getChanges();
-          while (itemStates.hasNext()) {
-            ItemState item = itemStates.next();
-            if (needToExport.get(item.getData().getQPath()) != null) {
-              iteration.add(item);
-            }
+          // restore deleted node
+          if (!item.getData().isNode()
+              && income.hasState(item.getData().getIdentifier(),
+                                 item.getData().getQPath(),
+                                 ItemState.UPDATED)) {
+            restoredItems.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
+                                                                                       .getQPath()));
+            continue;
           }
-        }
-      }
 
-      for (int k = 0; k < restoredItems.size(); k++)
-        iteration.add(restoredItems.get(k));
-    }
-  }
+          // add to export
+          needToExport.put(item.getData().getQPath(), item);
+          QPath nodePath = item.isNode() ? item.getData().getQPath() : item.getData()
+                                                                           .getQPath()
+                                                                           .makeParentPath();
+          if (rootExportPath == null || rootExportPath.isDescendantOf(nodePath)) {
+            rootExportPath = nodePath;
+            rootExportIdentifier = item.isNode()
+                ? item.getData().getIdentifier()
+                : item.getData().getParentIdentifier();
+          }
 
-  /**
-   * restoreUpdatesItems.
-   * 
-   * @param iteration
-   * @throws ClassNotFoundException
-   * @throws IOException
-   * @throws ClassCastException
-   */
-  private void restoreUpdatesItems(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
-                                                                               IOException,
-                                                                               ClassNotFoundException {
-    for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
-
-      for (int j = changes.size() - 1; j >= 0; j--) {
-        ItemState item = changes.get(j);
-
-        if (item.getState() == ItemState.UPDATED && !item.getData().isNode()) {
+        } else if (item.getState() == ItemState.UPDATED && !item.getData().isNode()) {
           ItemState lastState = getLastItemState(changes, item.getData().getIdentifier());
           if (lastState.getState() == ItemState.DELETED)
             continue;
@@ -471,14 +413,40 @@ public class ConflictResolver {
             ItemState nextIncomeState = income.findNextState(incomeChange,
                                                              incomeChange.getData().getIdentifier());
             if (nextIncomeState != null && nextIncomeState.getState() == ItemState.RENAMED) {
-              iteration.add(new ItemState(nextIncomeState.getData(),
-                                          ItemState.UPDATED,
-                                          true,
-                                          item.getData().getQPath()));
+              restoredItems.add(new ItemState(nextIncomeState.getData(),
+                                              ItemState.UPDATED,
+                                              true,
+                                              item.getData().getQPath()));
             }
+
+            continue;
+          }
+
+          // add to export
+          needToExport.put(item.getData().getQPath(), item);
+          QPath nodePath = item.getData().getQPath().makeParentPath();
+          if (rootExportPath == null || rootExportPath.isDescendantOf(nodePath)) {
+            rootExportPath = nodePath;
+            rootExportIdentifier = item.getData().getParentIdentifier();
           }
         }
       }
+
+      // export
+      if (rootExportIdentifier != null) {
+        ChangesStorage<ItemState> exportedItems = exporter.exportItem(rootExportIdentifier);
+
+        Iterator<ItemState> itemStates = exportedItems.getChanges();
+        while (itemStates.hasNext()) {
+          ItemState item = itemStates.next();
+          if (needToExport.get(item.getData().getQPath()) != null) {
+            iteration.add(item);
+          }
+        }
+      }
+
+      for (int k = 0; k < restoredItems.size(); k++)
+        iteration.add(restoredItems.get(k));
     }
   }
 
