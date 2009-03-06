@@ -139,7 +139,8 @@ public class RepositoryContainer extends ExoContainer {
    * @return WorkspaceContainer
    */
   public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
-    return (WorkspaceContainer) getComponentInstance(workspaceName);
+    Object comp = getComponentInstance(workspaceName);
+    return comp != null && comp instanceof WorkspaceContainer ? (WorkspaceContainer) comp : null;
   }
 
   /**
