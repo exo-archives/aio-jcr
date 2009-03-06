@@ -28,7 +28,10 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.jgroups.stack.IpAddress;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -55,7 +58,6 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -139,6 +141,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
   public void testSkipVH() throws Exception {
     Node node = root.addNode("item1");
+    // node.addMixin("mix:lockable");
     node.addMixin("mix:versionable");
     session.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
@@ -367,8 +370,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    saveResultedChanges(res4, "ws4");
     saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
 
     assertTrue(useCase4.checkEquals());
 
@@ -520,7 +523,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
-    log.info(res.dump());
 
     saveResultedChanges(res, "ws3");
     assertTrue(isWorkspacesEquals());
@@ -614,7 +616,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
-    log.info(res.dump());
 
     saveResultedChanges(res, "ws3");
     assertTrue(isWorkspacesEquals());
@@ -1554,8 +1555,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     res3 = mergerLow.merge(membersChanges.iterator());
     res4 = mergerHigh.merge(membersChanges.iterator());
-    // log.info(res3.dump());
-    // log.info(res4.dump());
 
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
@@ -2200,7 +2199,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(isWorkspacesEquals(session3, session4));
   }
 
   /**
@@ -2894,6 +2893,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     // high priority changes: move parent
     session4.move("/item1/item11", "/item2");
+
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     membersChanges.clear();
 

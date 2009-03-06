@@ -167,7 +167,7 @@ public class ConflictResolver {
     if (!isLocalPriority) {
       restoreAddedItems(iteration);
       restoreDeletedItems(iteration);
-      restoreUpdatesSNSItems(iteration);
+      restoreUpdatedSNSItems(iteration);
     }
   }
 
@@ -458,7 +458,7 @@ public class ConflictResolver {
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  private void restoreUpdatesSNSItems(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
+  private void restoreUpdatedSNSItems(EditableChangesStorage<ItemState> iteration) throws ClassCastException,
                                                                                   IOException,
                                                                                   ClassNotFoundException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
