@@ -16,17 +16,12 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
-import java.util.List;
-
 import javax.jcr.RepositoryException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-
-import org.objectweb.transaction.jta.ResourceManagerEvent;
 
 import org.apache.commons.logging.Log;
 
@@ -37,7 +32,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.transaction.TransactionException;
 import org.exoplatform.services.transaction.TransactionService;
-import org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl;
+import org.exoplatform.services.transaction.ExoResource;
 
 /**
  * Created by The eXo Platform SAS.
@@ -46,7 +41,7 @@ import org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl
  * @version $Id$
  */
 public class XASessionImpl extends SessionImpl implements XASession, XAResource,
-    ResourceManagerEvent {
+  ExoResource {
 
   /**
    * Session logger.
@@ -74,9 +69,9 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
   private int                                  txTimeout;
 
   /**
-   * JOTM Resource list.
+   * An arbitrary payload required by the ExoResource implementation.
    */
-  private List                                 jotmResourceList;
+  private Object                               payload;
 
   /**
    * XASessionImpl constructor.
@@ -121,8 +116,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
       if (LOG.isDebugEnabled())
         LOG.debug("Delist session: " + getSessionInfo() + ", " + this);
       tService.delistResource(this);
-      if (jotmResourceList != null)
-        jotmResourceList.remove(this);
     } catch (RollbackException e) {
       throw new XAException(e.getMessage());
     } catch (SystemException e) {
@@ -138,10 +131,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
       if (LOG.isDebugEnabled())
         LOG.debug("Enlist session: " + getSessionInfo() + ", " + this);
       tService.enlistResource(this);
-      if (tService instanceof TransactionServiceJotmImpl) {
-        jotmResourceList = ((TransactionServiceJotmImpl) tService).popThreadLocalRMEventList();
-        ((TransactionServiceJotmImpl) tService).pushThreadLocalRMEventList(jotmResourceList);
-      }
     } catch (RollbackException e) {
       throw new XAException(e.getMessage());
     } catch (SystemException e) {
@@ -272,22 +261,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
   }
 
   /**
-   * {@inheritDoc}
-   */
-  public void enlistConnection(Transaction transaction) throws javax.transaction.SystemException {
-    try {
-      if (LOG.isDebugEnabled())
-        LOG.debug("Enlist connection. Session: " + getSessionInfo() + ", " + this
-            + ", transaction: " + transaction);
-      enlistResource();
-    } catch (IllegalStateException e) {
-      throw new SystemException(e.getMessage());
-    } catch (XAException e) {
-      throw new SystemException(e.getMessage());
-    }
-  }
-
-  /**
    * Get XASession info string.
    * 
    * @return info string
@@ -296,4 +269,11 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     return getUserID() + "@" + workspaceName;
   }
 
+  public Object getPayload() {
+    return payload;
+  }
+
+  public void setPayload(Object payload) {
+    this.payload = payload;
+  }
 }

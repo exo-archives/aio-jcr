@@ -23,10 +23,12 @@ import java.util.List;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
+import javax.jcr.query.QueryManager;
 
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.jmx.MX4JComponentAdapterFactory;
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -46,7 +48,6 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
-import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManagerHolder;
@@ -60,14 +61,23 @@ import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
+import org.exoplatform.management.jmx.annotations.NamingContext;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko
- *          $
+ * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko $
  */
+@Managed
+@NameTemplate({
+  @Property(key="container", value="repository"),
+  @Property(key="name", value="{Name}")})
+@NamingContext(@Property(key="repository", value="{Name}"))
 public class RepositoryContainer extends ExoContainer {
 
   /**
@@ -75,10 +85,6 @@ public class RepositoryContainer extends ExoContainer {
    */
   private final RepositoryEntry         config;
 
-  /**
-   * MBean server for the container.
-   */
-  // private final MBeanServer mbeanServer;
   /**
    * System workspace DataManager.
    */
@@ -89,20 +95,22 @@ public class RepositoryContainer extends ExoContainer {
    */
   private final Log                     log               = ExoLogger.getLogger("jcr.RepositoryContainer");
 
-  // private final String mbeanContext;
-
   /**
    * RepositoryContainer constructor.
    * 
-   * @param parent container
-   * @param config Repository configuration
-   * @throws RepositoryException container initialization error
-   * @throws RepositoryConfigurationException configuration error
+   * @param parent
+   *          container
+   * @param config
+   *          Repository configuration
+   * @throws RepositoryException
+   *           container initialization error
+   * @throws RepositoryConfigurationException
+   *           configuration error
    */
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
       RepositoryConfigurationException {
 
-    super(parent);
+    super(new MX4JComponentAdapterFactory(), parent);
 
     // Defaults:
     if (config.getAccessControl() == null)
@@ -120,6 +128,8 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * @return Returns the name.
    */
+  @Managed
+  @ManagedDescription("The repository container name")
   public String getName() {
     return config.getName();
   }
@@ -135,18 +145,19 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Get workspace Container by name.
    * 
-   * @param workspaceName name
+   * @param workspaceName
+   *          name
    * @return WorkspaceContainer
    */
   public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
-    Object comp = getComponentInstance(workspaceName);
-    return comp != null && comp instanceof WorkspaceContainer ? (WorkspaceContainer) comp : null;
+    return (WorkspaceContainer) getComponentInstance("workspace_" + workspaceName);
   }
 
   /**
    * Get workspace configuration entry by name.
    * 
-   * @param wsName workspace name
+   * @param wsName
+   *          workspace name
    * @return WorkspaceEntry
    */
   public WorkspaceEntry getWorkspaceEntry(String wsName) {
@@ -160,9 +171,12 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Register workspace from configuration.
    * 
-   * @param wsConfig configuration
-   * @throws RepositoryException initialization error
-   * @throws RepositoryConfigurationException configuration error
+   * @param wsConfig
+   *          configuration
+   * @throws RepositoryException
+   *           initialization error
+   * @throws RepositoryConfigurationException
+   *           configuration error
    */
   public void registerWorkspace(final WorkspaceEntry wsConfig) throws RepositoryException,
                                                               RepositoryConfigurationException {
@@ -175,7 +189,7 @@ public class RepositoryContainer extends ExoContainer {
 
       WorkspaceContainer workspaceContainer = new WorkspaceContainer(this, wsConfig);
 
-      registerComponentInstance(wsConfig.getName(), workspaceContainer);
+      registerComponentInstance("workspace_" + wsConfig.getName(), workspaceContainer);
 
       wsConfig.setUniqueName(getName() + "_" + wsConfig.getName());
 
@@ -228,7 +242,7 @@ public class RepositoryContainer extends ExoContainer {
       // Query handler
       if (wsConfig.getQueryHandler() != null) {
         workspaceContainer.registerComponentImplementation(SearchManager.class);
-        workspaceContainer.registerComponentImplementation(QueryManagerImpl.class);
+        workspaceContainer.registerComponentImplementation(QueryManager.class);
         workspaceContainer.registerComponentImplementation(QueryManagerFactory.class);
         workspaceContainer.registerComponentInstance(wsConfig.getQueryHandler());
         if (isSystem) {
@@ -313,7 +327,7 @@ public class RepositoryContainer extends ExoContainer {
 
       load();
 
-      // TODO
+      // TODO 
       // doStart();
 
     } catch (RepositoryException e) {
@@ -342,6 +356,7 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Start workspaces. Start internal processes like search index etc.
+   * 
    * <p>
    * Runs on container start.
    * 
@@ -358,6 +373,7 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Initialize worspaces (root node and jcr:system for system workspace).
+   * 
    * <p>
    * Runs on container start.
    * 
@@ -469,6 +485,7 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Load namespaces and nodetypes from persistent repository.
+   * 
    * <p>
    * Runs on container start.
    * 
@@ -485,6 +502,7 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Workspaces order comparator.
+   * 
    */
   private static class WorkspaceOrderComparator implements Comparator<WorkspaceEntry> {
     private final String sysWs;

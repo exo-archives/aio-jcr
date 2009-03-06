@@ -49,6 +49,12 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.ManagementContext;
+import org.exoplatform.management.ManagementAware;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
 
 /**
  * Created by The eXo Platform SAS.
@@ -56,8 +62,10 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
-
-public class ReplicationService implements Startable {
+@Managed
+@ManagedDescription("JCR replication service")
+@NameTemplate(@Property(key="service",value="replication"))
+public class ReplicationService implements Startable, ManagementAware {
 
   /**
    * The apache logger.
@@ -234,6 +242,11 @@ public class ReplicationService implements Startable {
   private String              ownValue;
 
   /**
+   * The management context.
+   */
+  private ManagementContext   managementContext;
+
+  /**
    * ReplicationService constructor.
    * 
    * @param repoService
@@ -374,6 +387,9 @@ public class ReplicationService implements Startable {
 
               channelManager.init();
               channelManager.connect();
+
+              // Register for management
+              managementContext.register(recoveryManager);
 
               dataReceiver.start();
             } catch (Exception e) {
@@ -704,4 +720,7 @@ public class ReplicationService implements Startable {
 
   }
 
+  public void setContext(ManagementContext context) {
+    this.managementContext = context;
+  }
 }
