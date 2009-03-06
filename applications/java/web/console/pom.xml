@@ -46,10 +46,10 @@
       <version>2.1</version>
       <executions>
         <execution>
-          <phase>compile</phase>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
+          <phase>package</phase>
+          <goals>
+            <goal>directory-inline</goal>
+          </goals>
         </execution>
       </executions>
       <configuration>
