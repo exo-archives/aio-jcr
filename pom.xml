@@ -321,7 +321,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <org.exoplatform.kernel.version>2.1</org.exoplatform.kernel.version>
+        <org.exoplatform.kernel.version>2.1.1-SNAPSHOT</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>2.2.1-SNAPSHOT</org.exoplatform.core.version>
         <org.exoplatform.ws.version>2.0.1-SNAPSHOT</org.exoplatform.ws.version>
         <exo.tck.skip>true</exo.tck.skip>
