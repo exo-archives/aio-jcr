@@ -100,7 +100,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
   public void testRemoteAccessGetMetatData() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Accept", MediaType.APPLICATION_JSON);
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequest creq = new ContainerRequest("POST",
                                                  new URI("/script/groovy/db1/ws/testRoot/script/meta"),
                                                  new URI(""),
                                                  null,
@@ -116,7 +116,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
   public void testRemoteAccessAutoload() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequest creq = new ContainerRequest("POST",
                                                  new URI("/script/groovy/db1/ws/testRoot/script/autoload?state=false"),
                                                  new URI(""),
                                                  null,
@@ -126,7 +126,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
     assertEquals(204, cres.getStatus());
     assertFalse(script.getProperty("exo:autoload").getBoolean());
-    creq = new ContainerRequest("GET",
+    creq = new ContainerRequest("POST",
                                 new URI("/script/groovy/db1/ws/testRoot/script/autoload"),
                                 new URI(""),
                                 null,
@@ -140,7 +140,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
   public void testRemoteAccessLoad() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequest creq = new ContainerRequest("POST",
                                                  new URI("/script/groovy/db1/ws/testRoot/script/load?state=false"),
                                                  new URI(""),
                                                  null,
@@ -150,7 +150,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
     assertEquals(204, cres.getStatus());
     assertEquals(resourceNumber, binder.getRootResources().size());
-    creq = new ContainerRequest("GET",
+    creq = new ContainerRequest("POST",
                                 new URI("/script/groovy/db1/ws/testRoot/script/load"),
                                 new URI(""),
                                 null,
@@ -164,7 +164,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
   public void testRemoteAccessDelete() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequest creq = new ContainerRequest("POST",
                                                  new URI("/script/groovy/db1/ws/testRoot/script/delete"),
                                                  new URI(""),
                                                  null,
@@ -179,7 +179,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
   public void testRemoteAccessGetScript() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Accept", "script/groovy");
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequest creq = new ContainerRequest("POST",
                                                  new URI("/script/groovy/db1/ws/testRoot/script/src"),
                                                  new URI(""),
                                                  null,
