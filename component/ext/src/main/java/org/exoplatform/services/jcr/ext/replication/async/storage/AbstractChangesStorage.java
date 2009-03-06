@@ -686,7 +686,8 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
           & item.getData().getQPath().getName().equals(Constants.JCR_VERSIONABLEUUID)) {
 
         PropertyData prop = (PropertyData) item.getData();
-        if (uuid.equals(new String(prop.getValues().get(0).getAsByteArray())))
+        if (prop.getValues().size() > 0
+            && uuid.equals(new String(prop.getValues().get(0).getAsByteArray())))
           return item.getData().getQPath().makeParentPath();
       }
     }
@@ -718,8 +719,8 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
    * {@inheritDoc}
    */
   public T findItemState(String identifier, QPath path, int state) throws IOException,
-                                                              ClassCastException,
-                                                              ClassNotFoundException {
+                                                                  ClassCastException,
+                                                                  ClassNotFoundException {
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T item = it.next();
