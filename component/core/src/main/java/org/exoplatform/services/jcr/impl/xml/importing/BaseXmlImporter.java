@@ -503,7 +503,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     // update parentIdentifer
     for (ItemState state : changesLog.getAllStates()) {
       ItemData data = state.getData();
-      if (data.getParentIdentifier().equals(oldIdentifer)) {
+      if (data.getParentIdentifier() != null && data.getParentIdentifier().equals(oldIdentifer)) {
         ((ImportItemData) data).setParentIdentifer(identifier);
         if (reloadSNS)
           ((ImportItemData) data).setQPath(QPath.makeChildPath(newPath, data.getQPath().getName()));
