@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.core.HttpHeaders;
@@ -35,6 +36,7 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.services.jcr.impl.core.query.NodeIdIterator;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
@@ -91,7 +93,7 @@ public class GetCommand {
     try {
 
       Node node = (Node) session.getItem(path);
-
+      
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
 
@@ -114,6 +116,9 @@ public class GetCommand {
 
         HierarchicalProperty mimeTypeProperty = resource.getProperty(FileResource.GETCONTENTTYPE);
         String contentType = mimeTypeProperty.getValue();
+        
+        HierarchicalProperty lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
+        String lastModified = lastModifiedProperty.getValue();
 
         // content length is not present
         if (contentLength == 0) {
@@ -125,12 +130,15 @@ public class GetCommand {
 
         // no ranges request
         if (ranges.size() == 0) {
-          return Response.ok()
-                         .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
-                         .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
-                         .entity(istream)
-                         .type(contentType)
-                         .build();
+          Response respose = Response.ok()
+                                     .header(HttpHeaders.CONTENT_LENGTH,
+                                             Long.toString(contentLength))
+                                     .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
+                                     .header(ExtHttpHeaders.LAST_MODIFIED, lastModified)
+                                     .entity(istream)
+                                     .type(contentType)
+                                     .build();
+          return respose;
         }
 
         // one range
