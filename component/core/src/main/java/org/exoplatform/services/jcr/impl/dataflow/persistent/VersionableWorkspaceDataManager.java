@@ -41,13 +41,13 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * Responsible for: *redirecting repository operations if item is descendant of
- * /jcr:system/jcr:versionStorage *adding version history for newly added/assigned mix:versionable
+ * Created by The eXo Platform SAS. Responsible for: *redirecting repository
+ * operations if item is descendant of /jcr:system/jcr:versionStorage *adding
+ * version history for newly added/assigned mix:versionable
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: VersionableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id: VersionableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z
+ *          ksm $
  */
 
 public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWorkspaceDataManager {
@@ -70,9 +70,9 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services
-   * .jcr.datamodel.NodeData)
+   * 
+   * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services
+   *      .jcr.datamodel.NodeData)
    */
   @Override
   public List<NodeData> getChildNodesData(final NodeData nodeData) throws RepositoryException {
@@ -84,9 +84,9 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform
-   * .services.jcr.datamodel.NodeData)
+   * 
+   * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform
+   *      .services.jcr.datamodel.NodeData)
    */
   @Override
   public List<PropertyData> getChildPropertiesData(final NodeData nodeData) throws RepositoryException {
@@ -167,26 +167,31 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
           nvstates.add(change);
       }
 
-      String pairId = IdGenerator.generate();
-      
+      String pairId = null;
+      if (vstates.size() > 0 && nvstates.size() > 0) {
+        pairId = IdGenerator.generate();
+      }
+
       if (vstates.size() > 0) {
-        versionLog.addLog(new PairChangesLog(vstates,
-                                            changes.getSessionId(),
-                                            changes.getEventType(),
-                                            pairId));
+        versionLog.addLog((pairId != null) ? new PairChangesLog(vstates,
+                                                                changes.getSessionId(),
+                                                                changes.getEventType(),
+                                                                pairId)
+                                          : new PlainChangesLogImpl(vstates,
+                                                                    changes.getSessionId(),
+                                                                    changes.getEventType()));
         saveVersions = true;
       }
 
       if (nvstates.size() > 0) {
-        if (vstates.size() > 0) 
-          nonVersionLog.addLog(new PairChangesLog(nvstates,
-                                                  changes.getSessionId(),
-                                                  changes.getEventType(),
-                                                  pairId));
-        else
-          nonVersionLog.addLog(new PlainChangesLogImpl(nvstates,
-                                                       changes.getSessionId(),
-                                                       changes.getEventType()));
+        nonVersionLog.addLog((pairId != null) ? new PairChangesLog(nvstates,
+                                                                   changes.getSessionId(),
+                                                                   changes.getEventType(),
+                                                                   pairId)
+                                             : new PlainChangesLogImpl(nvstates,
+                                                                       changes.getSessionId(),
+                                                                       changes.getEventType()));
+
         saveNonVersions = true;
       }
     }
