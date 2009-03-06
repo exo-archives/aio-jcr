@@ -26,7 +26,10 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
+import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.metadata.MetaDataActionTest;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
@@ -45,9 +48,15 @@ public class TestConfigWorkspace extends BaseStandaloneTest {
   public void testRestore() throws Exception {
     WorkspaceEntry wsEntry = getWorkspaceEntry(getStreamConfig(), repository.getName(), "ws77");
 
-    repository.configWorkspace(wsEntry);
-    
+    ManageableRepository mr = repositoryService.getRepository("db3");
+
+    mr.configWorkspace(wsEntry);
+
     assertEquals(false, workspaceAlreadyExist(repository.getName(), "ws77"));
+
+    InputStream is = TestConfigWorkspace.class.getResourceAsStream("/backup/repository_backup-20090305_055624.xml");
+
+    mr.importWorkspace(wsEntry.getName(), is);
   }
 
   private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream,
