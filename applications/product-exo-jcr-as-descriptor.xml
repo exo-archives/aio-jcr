@@ -2,7 +2,6 @@
 	<id>binary</id>
 	<formats>
 		<format>dir</format>
-		<!--<format>jar</format>-->
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
@@ -17,6 +16,10 @@
 			<outputDirectory>/</outputDirectory>
 			<unpack>false</unpack>
 			<scope>runtime</scope>
+			<excludes>
+				<exclude>directory-naming:naming-core</exclude>
+				<exclude>javax.servlet:servlet-api</exclude>
+			</excludes>
 		</dependencySet>
 	</dependencySets>
 </assembly>

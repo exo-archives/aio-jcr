@@ -46,7 +46,7 @@
       <unpack>true</unpack>
       <scope>runtime</scope>
       <includes>
-        <include>jcr:jcr</include>
+        <include>javax.jcr:jcr</include>
         <include>org.exoplatform.jcr:exo.jcr.component.core</include>
         <include>org.exoplatform.jcr:exo.jcr.component.rmi</include>
       </includes>
