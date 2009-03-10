@@ -113,7 +113,7 @@ public class GroovyScript2RestUpdateListener implements EventListener {
                                                                                             .toString();
     if (groovyScript2RestLoader.isLoaded(unifiedNodePath))
       groovyScript2RestLoader.unloadScript(unifiedNodePath);
-    groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data").getStream());
+    groovyScript2RestLoader.loadScript(unifiedNodePath, node.getPath(), node.getProperty("jcr:data").getStream());
   }
 
   /**

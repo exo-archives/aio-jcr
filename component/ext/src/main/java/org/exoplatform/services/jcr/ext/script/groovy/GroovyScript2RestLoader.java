@@ -224,17 +224,18 @@ public class GroovyScript2RestLoader implements Startable {
    * @see GroovyScriptRestLoader#loadScript(URL).
    * @see GroovyScript2RestLoader#loadScript(String, InputStream)
    */
-  public void unloadScript(String key) {
+  public boolean unloadScript(String key) {
     if (scriptsURL2ClassMap.containsKey(key)) {
       if (binder.unbind(scriptsURL2ClassMap.get(key))) {
         scriptsURL2ClassMap.remove(key);
-        LOG.info("Remove groovy script, key " + key);
+        return true;
       } else {
         LOG.warn("Can't remove groovy script, key " + key);
       }
     } else {
       LOG.warn("Specified key '" + key + "' does not corresponds to any class name.");
     }
+    return false;
   }
 
   /**
@@ -266,19 +267,18 @@ public class GroovyScript2RestLoader implements Startable {
   }
 
   /**
-   * @param url the RUL for loading script.
-   * @throws InvalidResourceDescriptorException if loaded object is not valid
-   *           ResourceContainer.
+   * @param url the URL for loading script.
    * @throws IOException it script can't be loaded.
    */
-  public void loadScript(URL url) throws IOException {
+  public boolean loadScript(URL url) throws IOException {
     Object resource = groovyScriptInstantiator.instantiateScript(url);
     if (binder.bind(resource)) {
       // add mapping script URL to name of class.
       scriptsURL2ClassMap.put(url.toString(), resource.getClass());
-      LOG.info("Add new groovy scripts, URL: " + url);
+      return true;
     } else {
       LOG.warn("Groovy script was not binded, URL: " + url);
+      return false;
     }
 
   }
@@ -288,13 +288,11 @@ public class GroovyScript2RestLoader implements Startable {
    * 
    * @param key the key which must be corresponded to object class name.
    * @param stream the stream which represents groovy script.
-   * @throws InvalidResourceDescriptorException if loaded Object can't be added
-   *           in ResourceBinder.
    * @throws IOException if script can't be loaded or parsed.
    * @see ResourceBinder#bind(ResourceContainer)
    */
-  public void loadScript(String key, InputStream stream) throws IOException {
-    loadScript(key, null, stream);
+  public boolean loadScript(String key, InputStream stream) throws IOException {
+    return loadScript(key, null, stream);
   }
   
   /**
@@ -304,19 +302,18 @@ public class GroovyScript2RestLoader implements Startable {
    * @param name this name will be passed to compiler to get understandable if
    *          compilation failed
    * @param stream the stream which represents groovy script.
-   * @throws InvalidResourceDescriptorException if loaded Object can't be added
-   *           in ResourceBinder.
    * @throws IOException if script can't be loaded or parsed.
    * @see ResourceBinder#bind(ResourceContainer)
    */
-  public void loadScript(String key, String name, InputStream stream) throws IOException {
+  public boolean loadScript(String key, String name, InputStream stream) throws IOException {
     Object resource = groovyScriptInstantiator.instantiateScript(stream, name);
     if (binder.bind(resource)) {
       // add mapping script URL to name of class.
       scriptsURL2ClassMap.put(key, resource.getClass());
-      LOG.info("Add new groovy scripts, script key: " + key);
+      return true;
     } else {
       LOG.warn("Groovy script was not binded, key: " + key);
+      return false;
     }
   }
 
@@ -370,8 +367,9 @@ public class GroovyScript2RestLoader implements Startable {
           UnifiedNodeReference unifiedNodeReference = new UnifiedNodeReference(repositoryName,
                                                                                workspaceName,
                                                                                node.getPath());
-          loadScript(unifiedNodeReference.getURL().toString(), node.getProperty("jcr:data")
-                                                                   .getStream());
+          loadScript(unifiedNodeReference.getURL().toString(),
+                     node.getPath(),
+                     node.getProperty("jcr:data").getStream());
         }
 
         session.getWorkspace()
@@ -1068,11 +1066,22 @@ public class GroovyScript2RestLoader implements Startable {
       Node script = ((Node) ses.getItem("/" + path)).getNode("jcr:content");
       String unifiedNodePath = new UnifiedNodeReference(repository, workspace, script.getPath()).getURL()
                                                                                                 .toString();
-      if (isLoaded(unifiedNodePath))
-        unloadScript(unifiedNodePath);
+      if (state) {
+        if (isLoaded(unifiedNodePath))
+          unloadScript(unifiedNodePath);
+        if (!loadScript(unifiedNodePath, path, script.getProperty("jcr:data").getStream())) {
+          String message = "Can't bind script " + path
+              + ", it is not root resource or root resource with the same URI pattern already registered";
+          return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+        }
+      } else {
+        if (!unloadScript(unifiedNodePath)) {
+          String message = "Can't unbind script " + path
+              + ", not bound or has wrong mapping to the resource class ";
+          return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+        }
+      }
 
-      if (state)
-        loadScript(unifiedNodePath, path, script.getProperty("jcr:data").getStream());
       return Response.status(Response.Status.NO_CONTENT).build();
     } catch (PathNotFoundException e) {
       LOG.error("Path " + path + " does not exists", e);
