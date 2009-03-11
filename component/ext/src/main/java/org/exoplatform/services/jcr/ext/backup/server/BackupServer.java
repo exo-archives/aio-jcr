@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.backup.server;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
@@ -30,10 +31,9 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.ws.commons.util.Base64;
-import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
@@ -128,15 +128,22 @@ public class BackupServer implements ResourceContainer {
   private BackupManager     backupManager;
   
   /**
+   * Will be get session over base authenticate.
+   */
+  private ThreadLocalSessionProviderService sessionProviderService;
+  
+  /**
    * ReplicationTestService constructor.
    * 
    * @param repoService the RepositoryService
    * @param backupManager the BackupManager
    */
   public BackupServer(RepositoryService repoService,
-                                BackupManager backupManager) {
+                      BackupManager backupManager,
+                      ThreadLocalSessionProviderService sessionProviderService) {
     this.repositoryService = repoService;
     this.backupManager = backupManager;
+    this.sessionProviderService = sessionProviderService;
 
     log.info("ReplicationTestService inited");
   }
@@ -146,27 +153,23 @@ public class BackupServer implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/fullOnly")
+  @Path("/{repositoryName}/{workspaceName}/fullOnly")
   public Response startFullBackup(@PathParam("repositoryName") String repositoryName,
-                              @PathParam("workspaceName") String workspaceName,
-                              @PathParam("userName") String userName,
-                              @PathParam("password") String password) {
+                              @PathParam("workspaceName") String workspaceName) {
     BackupConfig config = new BackupConfig();
     config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);
     config.setRepository(repositoryName);
     config.setWorkspace(workspaceName);
     config.setBackupDir(backupManager.getBackupDirectory());
 
-    String result = "OK\n";
+    String result = "";
 
     try {
       validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      validateWorkspaceName(repositoryName, workspaceName);
       validateOneInstants(repositoryName, workspaceName);
       
       BackupChain backupChain = backupManager.startBackup(config);
@@ -185,18 +188,14 @@ public class BackupServer implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
    * @param incementalJobPeriod the period for incremental backup (seconds)
    * @param incementalJobNumber the number for incremental job
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/{incementalJobPeriod}/{incementalJobNumber}/fullAndIncremental")
+  @Path("/{repositoryName}/{workspaceName}/{incementalJobPeriod}/{incementalJobNumber}/fullAndIncremental")
   public Response startBackup(@PathParam("repositoryName") String repositoryName,
                               @PathParam("workspaceName") String workspaceName,
-                              @PathParam("userName") String userName,
-                              @PathParam("password") String password,
                               @PathParam("incementalJobPeriod") Long incementalJobPeriod,
                               @PathParam("incementalJobNumber") int incementalJobNumber) {
     BackupConfig config = new BackupConfig();
@@ -207,11 +206,11 @@ public class BackupServer implements ResourceContainer {
     config.setIncrementalJobPeriod(incementalJobPeriod);
     config.setIncrementalJobNumber(incementalJobNumber);
 
-    String result = "OK\n";
+    String result = "";
 
     try {
       validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      validateWorkspaceName(repositoryName, workspaceName);
       validateOneInstants(repositoryName, workspaceName);
       
       BackupChain backupChain = backupManager.startBackup(config);
@@ -230,22 +229,18 @@ public class BackupServer implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/dropWorkspace")
+  @Path("/{repositoryName}/{workspaceName}/dropWorkspace")
   public Response dropWorkspace(@PathParam("repositoryName") String repositoryName,
-                              @PathParam("workspaceName") String workspaceName,
-                              @PathParam("userName") String userName,
-                              @PathParam("password") String password) {
+                                @PathParam("workspaceName") String workspaceName) {
 
-    String res = "OK\n";
+    String res = "";
     
     try {
       validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      validateWorkspaceName(repositoryName, workspaceName);
       
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
       repository.removeWorkspace(workspaceName);
@@ -266,20 +261,16 @@ public class BackupServer implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/{path}/{workspaceEntry}/restore")
+  @Path("/{repositoryName}/{workspaceName}/{path}/{workspaceEntry}/restore")
   public Response restore(@PathParam("repositoryName") String repositoryName,
-                              @PathParam("workspaceName") String workspaceName,
-                              @PathParam("userName") String userName,
-                              @PathParam("password") String password,
-                              @PathParam("path") String path,
-                              @PathParam("workspaceEntry") String workspaceEntry) {
+                          @PathParam("workspaceName") String workspaceName,
+                          @PathParam("path") String path,
+                          @PathParam("workspaceEntry") String workspaceEntry) {
 
-    String res = "OK\n";
+    String res = "";
     String ePath = "";
     
     try {
@@ -293,12 +284,14 @@ public class BackupServer implements ResourceContainer {
                                                       backupManager,
                                                       repositoryName,
                                                       workspaceName,
-                                                      userName,
-                                                      password,
                                                       ePath,
                                                       wEntryStream);
   
       validateRepositoryName(repositoryName);
+      
+      //validate backup log file
+      if (!(new File(ePath).exists()))
+        throw new RuntimeException("The backup log file not exist : " + ePath);
       
       restore.restore();
       
@@ -319,21 +312,17 @@ public class BackupServer implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/stopBackup")
+  @Path("/{repositoryName}/{workspaceName}/stopBackup")
   public Response stopBackup(@PathParam("repositoryName") String repositoryName,
-                              @PathParam("workspaceName") String workspaceName,
-                              @PathParam("userName") String userName,
-                              @PathParam("password") String password) {
-    String result = "OK\n";
+                             @PathParam("workspaceName") String workspaceName) {
+    String result = "";
 
     try {
       validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      validateWorkspaceName(repositoryName, workspaceName);
       
       BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
       
@@ -358,21 +347,17 @@ public class BackupServer implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/{userName}/{password}/getStatus")
+  @Path("/{repositoryName}/{workspaceName}/getStatus")
   public Response getStatus(@PathParam("repositoryName") String repositoryName,
-                              @PathParam("workspaceName") String workspaceName,
-                              @PathParam("userName") String userName,
-                              @PathParam("password") String password) {
-    String result = "OK\n";
+                            @PathParam("workspaceName") String workspaceName) {
+    String result = "";
 
     try {
       validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName, userName, password);
+      validateWorkspaceName(repositoryName, workspaceName);
       
       BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
       
@@ -381,9 +366,10 @@ public class BackupServer implements ResourceContainer {
         
         for (BackupJob job : bch.getBackupJobs()) 
           if (job.getType() == BackupJob.INCREMENTAL)
-             incrementalBackupStatus = "The incremental backup is working";
+             incrementalBackupStatus = "The incremental backup for workspace '" + "/" + repositoryName + "/" + workspaceName + "' is working";
         
-        String fullBackupStatus = "The full backup " +(bch.getFullBackupState() == BackupJob.FINISHED ? "was " : "is " ) + getState(bch.getFullBackupState());
+        String fullBackupStatus = "The full backup for workspace '" + "/" + repositoryName + "/" + workspaceName + "' " 
+          +(bch.getFullBackupState() == BackupJob.FINISHED ? "was " : "is " ) + getState(bch.getFullBackupState());
         
         result += fullBackupStatus + "\n" + incrementalBackupStatus;
       } else
@@ -409,15 +395,12 @@ public class BackupServer implements ResourceContainer {
   }
   
   private void validateWorkspaceName(String repositoryName, 
-                                      String workspaceName, 
-                                      String userName, 
-                                      String password) throws RuntimeException {
+                                      String workspaceName) throws RuntimeException {
     try {
-      RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
-      Session ses = repository.login(new CredentialsImpl(userName, password.toCharArray()), workspaceName);
+      Session ses = sessionProviderService.getSessionProvider(null).getSession(workspaceName, repositoryService.getRepository(repositoryName));
       ses.logout();
     } catch (LoginException e) {
-      throw new RuntimeException("Can not loogin to workspace '" + workspaceName +"' for " + userName + ":" + password, e);
+      throw new RuntimeException("Can not loogin to workspace '" + workspaceName +"'" , e);
     } catch (NoSuchWorkspaceException e) {
       throw new RuntimeException("Can not get workspace '" + workspaceName +"'", e);
     } catch (RepositoryException e) {
