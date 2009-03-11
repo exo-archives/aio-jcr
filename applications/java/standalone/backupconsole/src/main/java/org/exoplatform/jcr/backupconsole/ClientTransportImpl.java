@@ -19,6 +19,8 @@ package org.exoplatform.jcr.backupconsole;
 import java.io.IOException;
 import java.net.URL;
 
+import org.exoplatform.common.http.client.AuthorizationHandler;
+import org.exoplatform.common.http.client.AuthorizationInfo;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
@@ -89,7 +91,8 @@ public class ClientTransportImpl implements ClientTransport {
       HTTPConnection connection = new HTTPConnection(url);
       connection.removeModule(CookieModule.class);
 
-      connection.addBasicAuthorization(realm, login, password);
+      
+      connection.addBasicAuthorization(getRealm(complURL), login, password);
 
       HTTPResponse resp = connection.Get(url.getFile());
 
@@ -101,6 +104,30 @@ public class ClientTransportImpl implements ClientTransport {
     }
 
     return result;
+  }
+  
+  private String getRealm(String sUrl) throws IOException, ModuleException {
+
+    AuthorizationHandler ah = AuthorizationInfo.getAuthHandler();
+    
+    try {
+      URL url = new URL(sUrl);
+      HTTPConnection connection = new HTTPConnection(url);
+      connection.removeModule(CookieModule.class);
+      AuthorizationInfo.setAuthHandler(null);
+
+      HTTPResponse resp = connection.Get(url.getFile());
+      
+      String authHeader = resp.getHeader("WWW-Authenticate");
+      
+      String realm = authHeader.split("=")[1];
+      realm = realm.substring(1, realm.length()-1);
+      
+      return realm;      
+
+    } finally {
+      AuthorizationInfo.setAuthHandler(ah);
+    }
   }
 
 }
