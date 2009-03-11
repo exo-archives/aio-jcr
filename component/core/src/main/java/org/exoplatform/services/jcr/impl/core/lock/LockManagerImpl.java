@@ -64,6 +64,10 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistent
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
 
 /**
  * Created by The eXo Platform SAS.
@@ -71,7 +75,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: LockManagerImpl.java 12096 2008-03-19 11:42:40Z gazarenkov $
  */
-
+@Managed
+@NameTemplate(@Property(key="service",value="lockmanager"))
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   /**
@@ -695,4 +700,15 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     // }
   }
 
+  @Managed
+  @ManagedDescription("The number of active locks")
+  public int getNumLocks() {
+    return locks.size();
+  }
+
+  @Managed
+  @ManagedDescription("Remove the expired locks")
+  public void cleanExpiredLocks() {
+    removeExpired();
+  }
 }

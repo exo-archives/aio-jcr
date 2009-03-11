@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl;
 
 import javax.jcr.RepositoryException;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 
 import org.apache.commons.logging.Log;
 
@@ -28,6 +29,11 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.core.SessionFactory;
 import org.exoplatform.services.jcr.impl.core.WorkspaceInitializer;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
+import org.exoplatform.management.jmx.annotations.NamingContext;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
 
 /**
  * Created by The eXo Platform SAS.
@@ -36,6 +42,11 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: WorkspaceContainer.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
+@Managed
+@NameTemplate({
+  @Property(key="container", value="workspace"),
+  @Property(key="name", value="{Name}")})
+@NamingContext(@Property(key="workspace", value="{Name}"))
 public class WorkspaceContainer extends ExoContainer {
 
   protected static Log              log = ExoLogger.getLogger("jcr.WorkspaceContainer");
@@ -43,9 +54,6 @@ public class WorkspaceContainer extends ExoContainer {
   private final String              name;
 
   private final RepositoryContainer repositoryContainer;
-
-  private final MBeanServer         mbeanServer;
-  private final String              mbeanContext;
 
   public WorkspaceContainer(RepositoryContainer parent, WorkspaceEntry config) throws RepositoryException,
       RepositoryConfigurationException {
@@ -55,23 +63,15 @@ public class WorkspaceContainer extends ExoContainer {
 
     repositoryContainer = parent;
     this.name = config.getName();
-
-    this.mbeanServer = createMBeanServer("jcrws" + name + "at"
-        + repositoryContainer.getName() + "mx");
-    this.mbeanContext = parent.getMBeanContext() + ",workspace=" + name;
   }
 
-  @Override
-  public MBeanServer getMBeanServer() {
-    return mbeanServer;
-  }
-
-  @Override
-  public String getMBeanContext() {
-    return mbeanContext;
-  }
-  
   // Components access methods -------
+
+  @Managed
+  @ManagedDescription("The workspace container name")
+  public String getName() {
+    return name;
+  }
 
   public SessionFactory getSessionFactory() {
     return (SessionFactory) getComponentInstanceOfType(SessionFactory.class);

@@ -24,7 +24,13 @@ import javax.jcr.RepositoryException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.jgroups.JChannel;
+import org.picocontainer.Startable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
@@ -43,10 +49,12 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.JChannel;
-import org.picocontainer.Startable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.ManagementContext;
+import org.exoplatform.management.ManagementAware;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
 
 /**
  * Created by The eXo Platform SAS.
@@ -54,8 +62,10 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
-
-public class ReplicationService implements Startable {
+@Managed
+@ManagedDescription("JCR replication service")
+@NameTemplate(@Property(key="service",value="replication"))
+public class ReplicationService implements Startable, ManagementAware {
 
   /**
    * The apache logger.
@@ -232,6 +242,11 @@ public class ReplicationService implements Startable {
   private String              ownValue;
 
   /**
+   * The management context.
+   */
+  private ManagementContext   managementContext;
+
+  /**
    * ReplicationService constructor.
    * 
    * @param repoService
@@ -301,13 +316,10 @@ public class ReplicationService implements Startable {
             ownName = (rIndex == 0 ? "cluster_node_1" : "cluster_node_2");
             participantsClusterList = new ArrayList<String>();
 
-            if (rIndex == 0) {
+            if (rIndex == 0)
               participantsClusterList.add("cluster_node_2");
-              this.ownPriority = 50;
-            } else {
+            else
               participantsClusterList.add("cluster_node_1");
-              this.ownPriority = 100;
-            }
           }
 
           for (int wIndex = 0; wIndex < workspaces.length; wIndex++)
@@ -375,6 +387,9 @@ public class ReplicationService implements Startable {
 
               channelManager.init();
               channelManager.connect();
+
+              // Register for management
+              managementContext.register(recoveryManager);
 
               dataReceiver.start();
             } catch (Exception e) {
@@ -705,4 +720,7 @@ public class ReplicationService implements Startable {
 
   }
 
+  public void setContext(ManagementContext context) {
+    this.managementContext = context;
+  }
 }

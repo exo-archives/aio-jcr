@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.management.annotations.ManagedBy;
 
 /**
  * Created by The eXo Platform SAS.
@@ -40,6 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 
+@ManagedBy(RecoveryManagerManaged.class)
 public class RecoveryManager {
 
   /**
@@ -464,6 +466,30 @@ public class RecoveryManager {
    */
   public List<String> getParticipantsClusterList() {
     return participantsClusterList;
+  }
+
+  public boolean isAllInited() {
+    return isAllInited;
+  }
+
+  public List<String> getInitedParticipantsClusterList() {
+    return initedParticipantsClusterList;
+  }
+
+  public String getOwnName() {
+    return ownName;
+  }
+
+  public String getWorkspaceName() {
+    return wsName;
+  }
+
+  public String getRepositoryName() {
+    return repoName;
+  }
+
+  public ChannelManager getChannelManager() {
+    return channelManager;
   }
 
   /**

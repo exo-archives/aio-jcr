@@ -26,11 +26,17 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: SessionRegistry.java 12049 2008-03-18 12:22:03Z gazarenkov $
  */
+@Managed
+@NameTemplate(@Property(key="service", value="SessionRegistry"))
 public final class SessionRegistry implements Startable {
   private final Map<String, SessionImpl> sessionsMap;
 
@@ -42,6 +48,29 @@ public final class SessionRegistry implements Startable {
   private SessionCleaner                 sessionCleaner;
 
   protected long                         timeOut;
+
+  @Managed
+  @ManagedDescription("How many sessions are currently active")
+  public int getSize() {
+    return sessionsMap.size();
+  }
+
+  @Managed
+  @ManagedDescription("The session time out")
+  public long getTimeOut() {
+    return timeOut;
+  }
+
+  @Managed
+  @ManagedDescription("Perform a cleanup of timed out sessions")
+  public void runCleanup() {
+    try {
+      sessionCleaner.callPeriodically();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
   public SessionRegistry(RepositoryEntry entry) {
     sessionsMap = new ConcurrentHashMap<String, SessionImpl>();

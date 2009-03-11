@@ -24,12 +24,15 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.QueryManager;
-import javax.management.MBeanServer;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.jmx.MX4JComponentAdapterFactory;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.NamingContext;
+import org.exoplatform.management.jmx.annotations.Property;
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -69,20 +72,18 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko
- *          $
+ * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko $
  */
+@Managed
+@NameTemplate( { @Property(key = "container", value = "repository"),
+    @Property(key = "name", value = "{Name}") })
+@NamingContext(@Property(key = "repository", value = "{Name}"))
 public class RepositoryContainer extends ExoContainer {
 
   /**
    * Repository config.
    */
   private final RepositoryEntry         config;
-
-  /**
-   * MBean server for the container.
-   */
-  private final MBeanServer             mbeanServer;
 
   /**
    * System workspace DataManager.
@@ -94,15 +95,17 @@ public class RepositoryContainer extends ExoContainer {
    */
   private final Log                     log               = ExoLogger.getLogger("jcr.RepositoryContainer");
 
-  private final String                  mbeanContext;
-
   /**
    * RepositoryContainer constructor.
    * 
-   * @param parent container
-   * @param config Repository configuration
-   * @throws RepositoryException container initialization error
-   * @throws RepositoryConfigurationException configuration error
+   * @param parent
+   *          container
+   * @param config
+   *          Repository configuration
+   * @throws RepositoryException
+   *           container initialization error
+   * @throws RepositoryConfigurationException
+   *           configuration error
    */
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
       RepositoryConfigurationException {
@@ -114,10 +117,6 @@ public class RepositoryContainer extends ExoContainer {
       config.setAccessControl(AccessControlPolicy.OPTIONAL);
 
     this.config = config;
-    this.mbeanServer = createMBeanServer("jcrrep" + getName() + "mx");
-    final String parentContext = parent.getMBeanContext();
-    this.mbeanContext = (parentContext == null ? "" : parentContext + ",") + "repository="
-        + getName();
 
     registerComponents();
   }
@@ -127,21 +126,10 @@ public class RepositoryContainer extends ExoContainer {
   }
 
   /**
-   * {@inheritDoc}
-   */
-  @Override
-  public MBeanServer getMBeanServer() {
-    return this.mbeanServer;
-  }
-
-  @Override
-  public String getMBeanContext() {
-    return mbeanContext;
-  }
-
-  /**
    * @return Returns the name.
    */
+  @Managed
+  @ManagedDescription("The repository container name")
   public String getName() {
     return config.getName();
   }
@@ -157,7 +145,8 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Get workspace Container by name.
    * 
-   * @param workspaceName name
+   * @param workspaceName
+   *          name
    * @return WorkspaceContainer
    */
   public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
@@ -168,7 +157,8 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Get workspace configuration entry by name.
    * 
-   * @param wsName workspace name
+   * @param wsName
+   *          workspace name
    * @return WorkspaceEntry
    */
   public WorkspaceEntry getWorkspaceEntry(String wsName) {
@@ -182,9 +172,12 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Register workspace from configuration.
    * 
-   * @param wsConfig configuration
-   * @throws RepositoryException initialization error
-   * @throws RepositoryConfigurationException configuration error
+   * @param wsConfig
+   *          configuration
+   * @throws RepositoryException
+   *           initialization error
+   * @throws RepositoryConfigurationException
+   *           configuration error
    */
   public void registerWorkspace(final WorkspaceEntry wsConfig) throws RepositoryException,
                                                               RepositoryConfigurationException {
@@ -411,12 +404,12 @@ public class RepositoryContainer extends ExoContainer {
     WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
     wsInitializer.initWorkspace();
 
+    // TODO cleanup
     // SearchManager searchManager = (SearchManager)
     // workspaceContainer.getComponentInstanceOfType(SearchManager.class);
     // NodeTypeManagerImpl typeManager = (NodeTypeManagerImpl)
     // workspaceContainer.getComponentInstanceOfType(NodeTypeManagerImpl.class);
     // typeManager.setQueryHandler(searchManager.getHandler());
-
   }
 
   // ////// initialize --------------
@@ -481,6 +474,7 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Load namespaces and nodetypes from persistent repository.
+   * 
    * <p>
    * Runs on container start.
    * 
@@ -488,6 +482,8 @@ public class RepositoryContainer extends ExoContainer {
    */
   private void load() throws RepositoryException {
     NamespaceRegistryImpl nsRegistry = (NamespaceRegistryImpl) getNamespaceRegistry();
+
+    // TODO cleanup
     // NodeTypeDataPersister ntManager = (NodeTypeDataPersister)
     // getComponentInstanceOfType(NodeTypeDataPersister.class);
     //
@@ -503,6 +499,7 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Workspaces order comparator.
+   * 
    */
   private static class WorkspaceOrderComparator implements Comparator<WorkspaceEntry> {
     private final String sysWs;
