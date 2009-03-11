@@ -111,11 +111,8 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
   }
 
   /**
-   * Register SystemLocalStorage as listener to dataManager and check arrived changeslogs.
-   * 
-   * @throws Exception
    */
-  public void testSystemLocalStorage2WS() throws Exception {
+  public void testStorage2WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
                                                                       new FileCleaner());
     systemDataManager.addItemPersistenceListener(systemStorage);
@@ -127,7 +124,7 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
 
     Node root3 = session3.getRootNode();
 
-    NodeImpl node = (NodeImpl) root3.addNode("test");
+    Node node = root3.addNode("test");
     node.addMixin("mix:versionable");
     session3.save();
 
@@ -147,9 +144,37 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
   }
 
   /**
-   * Register SystemLocalStorage as listener to dataManager and check arrived changeslogs.
-   * 
-   * @throws Exception
+   */
+  public void testStorage2WSWithoutVSChanges() throws Exception {
+    SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
+                                                                      new FileCleaner());
+    systemDataManager.addItemPersistenceListener(systemStorage);
+
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    new FileCleaner(),
+                                                    systemStorage);
+    dataManager.addItemPersistenceListener(storage);
+
+    Node root3 = session3.getRootNode();
+    root3.addNode("test");
+    session3.save();
+
+    dataManager.removeItemPersistenceListener(storage);
+    storage.onStart(null);
+
+    systemDataManager.removeItemPersistenceListener(systemStorage);
+    systemStorage.onStart(null);
+
+    assertFalse(systemStorage.getLocalChanges().getChanges().hasNext());
+    assertEquals(cLog.size(), 1);
+    for (int i = 0; i < 1; i++) {
+      for (int j = 0; j < cLog.get(i).getAllStates().size(); j++) {
+        assertTrue(storage.getLocalChanges().hasState(cLog.get(i).getAllStates().get(j)));
+      }
+    }
+  }
+
+  /**
    */
   public void testSystemLocalStorage1WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
