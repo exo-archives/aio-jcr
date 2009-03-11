@@ -696,7 +696,6 @@ public class GroovyScript2RestLoader implements Startable {
    * @param stream script for validation
    */
   @POST
-  @Consumes( { "script/groovy" })
   @Path("{repository}/{workspace}/{path:.*}/validate")
   public Response validateScript(@PathParam("repository") String repository,
                                  @PathParam("workspace") String workspace,
