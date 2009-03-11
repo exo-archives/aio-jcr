@@ -31,8 +31,8 @@
     <module>frameworks/web</module>
     <module>frameworks/ftpclient</module>
 
-    <module>connectors/ejb/webdav2_1</module>
-    <module>connectors/ejb/webdav3_0</module>
+    <module>connectors/ejb/ejb21</module>
+    <module>connectors/ejb/ejb30</module>
     <module>connectors/rmiadapter</module>
     <module>connectors/jca</module>
 
