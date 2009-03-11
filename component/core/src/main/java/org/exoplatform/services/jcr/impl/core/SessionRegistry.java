@@ -120,6 +120,27 @@ public final class SessionRegistry implements Startable {
       sessionCleaner.halt();
     sessionsMap.clear();
   }
+  
+  /**
+   * closeSessions will be closed the all sessions on specific workspace.
+   *
+   * @param workspaceName
+   *          the workspace name.
+   * @return int
+   *           how many sessions was closed.
+   */
+  public int closeSessions(String workspaceName) {
+    int closedSessions = 0;
+    
+    for (SessionImpl session : sessionsMap.values()) {
+      if (session.getWorkspace().getName().equals(workspaceName)) {
+        session.logout();
+        closedSessions++;
+      }
+    }
+    
+    return closedSessions;
+  }
 
   private class SessionCleaner extends WorkerThread {
 
