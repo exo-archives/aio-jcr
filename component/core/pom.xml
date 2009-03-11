@@ -499,11 +499,14 @@
                 </property>
               </systemProperties>
               <includes>
-                <include>**/api/**/Test*.java</include>
+                <!--include>**/api/**/Test*.java</include>
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
-                <include>**/impl/**/Test*.java</include>
-              </includes>
+                <include>**/impl/**/Test*.java</include-->
+                <include>**/JCRSerializationLogTestLoad.java</include>
+                
+                
+                </includes>
               <excludes>
                 <exclude>**/TestRollbackBigFiles.java</exclude>
                 <exclude>**/TestErrorMultithreading.java</exclude>
@@ -516,8 +519,8 @@
                 <exclude>**/impl/**/TestWorkspaceRestore.java</exclude>
                 <exclude>**/impl/**/TestSessionCleaner.java</exclude>
                 <exclude>**/impl/**/Base*.java</exclude>
-                <exclude>**/impl/**/TestJCRSerializationStream.java</exclude>
-                <exclude>**/impl/**/TestJCRSerializationVersionRestore.java</exclude>
+                <!-- exclude>**/impl/**/TestJCRSerializationStream.java</exclude>
+                <exclude>**/impl/**/TestJCRSerializationVersionRestore.java</exclude-->
                 <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
                 <exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
