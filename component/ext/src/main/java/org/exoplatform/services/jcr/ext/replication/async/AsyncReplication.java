@@ -21,6 +21,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -29,7 +30,10 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
+import org.picocontainer.Startable;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
@@ -41,16 +45,17 @@ import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChecksumNotFoundException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SystemLocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -602,30 +607,16 @@ public class AsyncReplication implements Startable {
       for (String repositoryName : repositoryNames) {
         ManageableRepository repository = repoService.getRepository(repositoryName);
 
-        for (String wsName : repository.getWorkspaceNames()) {
-          StorageKey skey = new StorageKey(repositoryName, wsName);
+        String wsNames[] = repository.getWorkspaceNames();
+        if (wsNames.length > 0) {
+          String systemWSName = repository.getConfiguration().getSystemWorkspaceName();
+          addStorageToWorkspace(repository, repositoryName, systemWSName, systemWSName);
 
-          // local storage
-          File localDirPerWorkspace = new File(localStorageDir + File.separator + repositoryName
-              + File.separator + wsName);
-          localDirPerWorkspace.mkdirs();
-
-          LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
-                                                               fileCleaner);
-          localStorages.put(skey, localStorage);
-
-          // add local storage as persistence listener
-          WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-          PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-          dm.addItemPersistenceListener(localStorage);
-
-          // income storage paths
-          File incomeDirPerWorkspace = new File(incomeStorageDir + File.separator + repositoryName
-              + File.separator + wsName);
-          incomeDirPerWorkspace.mkdirs();
-
-          incomeStoragePaths.put(new StorageKey(repositoryName, wsName),
-                                 incomeDirPerWorkspace.getAbsolutePath());
+          for (String wsName : wsNames) {
+            if (!wsName.equals(systemWSName)) { // systemWSName was processed before
+              addStorageToWorkspace(repository, repositoryName, wsName, systemWSName);
+            }
+          }
         }
       }
 
@@ -670,9 +661,8 @@ public class AsyncReplication implements Startable {
 
   /**
    * hasDuplicatePriority.
-   *
-   * @return boolean
-   *           when duplicate the priority then return 'true' 
+   * 
+   * @return boolean when duplicate the priority then return 'true'
    */
   private boolean hasChangesSaveError(String repositoryName) throws RepositoryConfigurationException,
                                                             RepositoryException,
@@ -711,5 +701,44 @@ public class AsyncReplication implements Startable {
     }
 
     return false;
+  }
+
+  private void addStorageToWorkspace(ManageableRepository repository,
+                                     String repositoryName,
+                                     String wsName,
+                                     String systemWSName) throws ChecksumNotFoundException,
+                                                         NoSuchAlgorithmException {
+    StorageKey skey = new StorageKey(repositoryName, wsName);
+
+    // local storage
+    File localDirPerWorkspace = new File(localStorageDir + File.separator + repositoryName
+        + File.separator + wsName);
+    localDirPerWorkspace.mkdirs();
+
+    LocalStorageImpl localStorage = null;
+    if (wsName.equals(systemWSName)) {
+      localStorage = new SystemLocalStorageImpl(localDirPerWorkspace.getAbsolutePath(), fileCleaner);
+    } else {
+      SystemLocalStorageImpl systemLocalStorage = (SystemLocalStorageImpl) localStorages.get(new StorageKey(repositoryName,
+                                                                                                            systemWSName));
+      localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
+                                          fileCleaner,
+                                          systemLocalStorage);
+    }
+    localStorages.put(skey, localStorage);
+
+    // add local storage as persistence listener
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+    PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+    dm.addItemPersistenceListener(localStorage);
+
+    // income storage paths
+    File incomeDirPerWorkspace = new File(incomeStorageDir + File.separator + repositoryName
+        + File.separator + wsName);
+    incomeDirPerWorkspace.mkdirs();
+
+    incomeStoragePaths.put(new StorageKey(repositoryName, wsName),
+                           incomeDirPerWorkspace.getAbsolutePath());
+
   }
 }

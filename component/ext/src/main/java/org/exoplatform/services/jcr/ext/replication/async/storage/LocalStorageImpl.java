@@ -33,9 +33,11 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PairChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -59,62 +61,64 @@ import org.exoplatform.services.log.ExoLogger;
 public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
     LocalEventListener, RemoteEventListener {
 
-  protected static final Log                                 LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  protected static final Log                                   LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
   /**
    * Stuff for TransactionChangesLog.writeExternal.
    */
-  private static final String                                EXTERNALIZATION_SYSTEM_ID  = "".intern();
+  private static final String                                  EXTERNALIZATION_SYSTEM_ID  = "".intern();
 
   /**
    * Stuff for PlainChangesLogImpl.writeExternal.
    */
-  private static final String                                EXTERNALIZATION_SESSION_ID = "".intern();
+  private static final String                                  EXTERNALIZATION_SESSION_ID = "".intern();
 
   /**
    * Error container file name.
    */
-  private static final String                                ERROR_FILENAME             = "errors";
+  private static final String                                  ERROR_FILENAME             = "errors";
 
   /**
    * The name of local storage sub-directory that contains changes logs.
    */
-  private static final String                                DIRECTORY_NAME             = "changes";
+  private static final String                                  DIRECTORY_NAME             = "changes";
 
-  private static final String                                DIGESTFILE_EXTENTION       = ".md5";
+  private static final String                                  DIGESTFILE_EXTENTION       = ".md5";
 
-  private static final long                                  ERROR_TIMEOUT              = 10000;
+  private static final long                                    ERROR_TIMEOUT              = 10000;
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long                                  MAX_FILE_SIZE              = 32 * 1024 * 1024;
+  private static final long                                    MAX_FILE_SIZE              = 32 * 1024 * 1024;
 
   /**
    * Path to Local Storage.
    */
-  private final String                                       storagePath;
+  private final String                                         storagePath;
 
-  private final FileCleaner                                  fileCleaner;
+  private final FileCleaner                                    fileCleaner;
 
-  private final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
+  protected final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
 
-  private ChangesSpooler                                     changesSpooler             = null;
+  protected ChangesSpooler                                     changesSpooler             = null;
 
-  private final ResourcesHolder                              resHolder                  = new ResourcesHolder();
+  private final ResourcesHolder                                resHolder                  = new ResourcesHolder();
 
-  private File                                               currentDir                 = null;
+  private File                                                 currentDir                 = null;
 
-  private File                                               currentFile                = null;
+  private File                                                 currentFile                = null;
 
-  private MessageDigest                                      digest;
+  private MessageDigest                                        digest;
 
-  private ObjectWriter                                       currentOut                 = null;
+  private ObjectWriter                                         currentOut                 = null;
+
+  private VersionLogHolder                                     versionLogHolder           = null;
 
   /**
    * This unique index used as name for ChangesFiles.
    */
-  private Long                                               index                      = new Long(0);
+  private Long                                                 index                      = new Long(0);
 
   class ChangesSpooler extends Thread {
 
@@ -152,79 +156,79 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
      * @throws IOException
      *           if error occurs
      */
-/*    private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
-      final ChangesLogIterator chIt = log.getLogIterator();
+    /*    private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
+          final ChangesLogIterator chIt = log.getLogIterator();
 
-      final TransactionChangesLog result = new TransactionChangesLog();
-      result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
-      // PlainChangesLogImpl.writeExternal
+          final TransactionChangesLog result = new TransactionChangesLog();
+          result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
+          // PlainChangesLogImpl.writeExternal
 
-      while (chIt.hasNextLog()) {
-        PlainChangesLog plog = chIt.nextLog();
+          while (chIt.hasNextLog()) {
+            PlainChangesLog plog = chIt.nextLog();
 
-        List<ItemState> destlist = new ArrayList<ItemState>();
+            List<ItemState> destlist = new ArrayList<ItemState>();
 
-        for (ItemState item : plog.getAllStates()) {
-          if (item.isNode()) {
-            // use nodes states as is
-            destlist.add(item);
-          } else {
-            TransientPropertyData prop = (TransientPropertyData) item.getData();
-
-            List<ValueData> srcVals = prop.getValues();
-            List<ValueData> nVals = new ArrayList<ValueData>();
-
-            for (ValueData vd : srcVals) {
-              if (vd.isByteArray()) {
-                nVals.add(vd);
+            for (ItemState item : plog.getAllStates()) {
+              if (item.isNode()) {
+                // use nodes states as is
+                destlist.add(item);
               } else {
-                // create new dataFile
-                if (vd instanceof TransientValueData) {
-                  File vdf = ((TransientValueData) vd).getSpoolFile();
-                  if (vdf instanceof SpoolFile) {
-                    nVals.add(new ReplicableValueData((SpoolFile) vdf,
-                                                      vd.getOrderNumber(),
-                                                      fileCleaner));
-                  } else {
-                    // TODO, check how it's possible with EditableValueData
-                    nVals.add(new ReplicableValueData(new SpoolFile(vdf.getCanonicalPath()),
-                                                      vd.getOrderNumber(),
-                                                      fileCleaner));
-                  }
+                TransientPropertyData prop = (TransientPropertyData) item.getData();
 
-                } else
-                  throw new StorageIOException("Non transient value data " + vd);
+                List<ValueData> srcVals = prop.getValues();
+                List<ValueData> nVals = new ArrayList<ValueData>();
+
+                for (ValueData vd : srcVals) {
+                  if (vd.isByteArray()) {
+                    nVals.add(vd);
+                  } else {
+                    // create new dataFile
+                    if (vd instanceof TransientValueData) {
+                      File vdf = ((TransientValueData) vd).getSpoolFile();
+                      if (vdf instanceof SpoolFile) {
+                        nVals.add(new ReplicableValueData((SpoolFile) vdf,
+                                                          vd.getOrderNumber(),
+                                                          fileCleaner));
+                      } else {
+                        // TODO, check how it's possible with EditableValueData
+                        nVals.add(new ReplicableValueData(new SpoolFile(vdf.getCanonicalPath()),
+                                                          vd.getOrderNumber(),
+                                                          fileCleaner));
+                      }
+
+                    } else
+                      throw new StorageIOException("Non transient value data " + vd);
+                  }
+                }
+
+                // rewrite values, TODO use setter
+                TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
+                                                                        prop.getIdentifier(),
+                                                                        prop.getPersistedVersion(),
+                                                                        prop.getType(),
+                                                                        prop.getParentIdentifier(),
+                                                                        prop.isMultiValued());
+
+                nProp.setValues(nVals);
+
+                // create new ItemState
+                ItemState nItem = new ItemState(nProp,
+                                                item.getState(),
+                                                item.isEventFire(),
+                                                item.getAncestorToSave(),
+                                                item.isInternallyCreated(),
+                                                item.isPersisted());
+                destlist.add(nItem);
               }
             }
-
-            // rewrite values, TODO use setter
-            TransientPropertyData nProp = new TransientPropertyData(prop.getQPath(),
-                                                                    prop.getIdentifier(),
-                                                                    prop.getPersistedVersion(),
-                                                                    prop.getType(),
-                                                                    prop.getParentIdentifier(),
-                                                                    prop.isMultiValued());
-
-            nProp.setValues(nVals);
-
-            // create new ItemState
-            ItemState nItem = new ItemState(nProp,
-                                            item.getState(),
-                                            item.isEventFire(),
-                                            item.getAncestorToSave(),
-                                            item.isInternallyCreated(),
-                                            item.isPersisted());
-            destlist.add(nItem);
+            // create new plain changes log
+            result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+                ? EXTERNALIZATION_SESSION_ID
+                : plog.getSessionId(), plog.getEventType()));
           }
-        }
-        // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-            ? EXTERNALIZATION_SESSION_ID
-            : plog.getSessionId(), plog.getEventType()));
-      }
-      return result;
-    }*/
-    
+          return result;
+        }*/
+
     /**
      * Set sessionId if it null for PlainChangesLog.
      * 
@@ -243,7 +247,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       while (chIt.hasNextLog()) {
         PlainChangesLog plog = chIt.nextLog();
-       
 
         // create new plain changes log
         result.addLog(new PlainChangesLogImpl(plog.getAllStates(), plog.getSessionId() == null
@@ -253,13 +256,15 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       return result;
     }
 
-    private void writeLog(TransactionChangesLog itemStates) throws IOException, UnknownClassIdException {
+    private void writeLog(TransactionChangesLog itemStates) throws IOException,
+                                                           UnknownClassIdException {
 
       if (currentFile == null) {
         long id = getNextFileId();
         currentFile = new File(currentDir, Long.toString(id));
 
-        currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile), digest));
+        currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
+                                                                 digest));
       } else if (currentFile.length() > MAX_FILE_SIZE) {
         // close stream
         closeCurrentOutput();
@@ -273,7 +278,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         }
 
         currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                                   digest));
+                                                                 digest));
       }
 
       itemStates.writeObject(currentOut);
@@ -281,6 +286,14 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     }
   }
 
+  /**
+   * LocalStorageImpl constructor.
+   * 
+   * @param storagePath
+   * @param fileCleaner
+   * @throws NoSuchAlgorithmException
+   * @throws ChecksumNotFoundException
+   */
   public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException,
       ChecksumNotFoundException {
     this.storagePath = storagePath;
@@ -318,6 +331,22 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     // synchronization is not started for default
     doStop();
+  }
+
+  /**
+   * LocalStorageImpl constructor.
+   * 
+   * @param storagePath
+   * @param fileCleaner
+   * @throws NoSuchAlgorithmException
+   * @throws ChecksumNotFoundException
+   */
+  public LocalStorageImpl(String storagePath,
+                          FileCleaner fileCleaner,
+                          VersionLogHolder versionLogHolder) throws NoSuchAlgorithmException,
+      ChecksumNotFoundException {
+    this(storagePath, fileCleaner);
+    this.versionLogHolder = versionLogHolder;
   }
 
   /**
@@ -371,7 +400,22 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
-      changesQueue.add((TransactionChangesLog) itemStates);
+      TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
+      ChangesLogIterator cLogs = tLog.getLogIterator();
+
+      while (cLogs.hasNextLog()) {
+        PlainChangesLog cLog = cLogs.nextLog();
+        if (cLog instanceof PairChangesLog) {
+          PairChangesLog pcLog = (PairChangesLog) cLog;
+
+          if (versionLogHolder != null)
+            changesQueue.add(new TransactionChangesLog(versionLogHolder.getPairLog(pcLog.getPairId())));
+          changesQueue.add(new TransactionChangesLog(cLog));
+        } else {
+          changesQueue.add(new TransactionChangesLog(cLog));
+        }
+      }
+
       if (changesSpooler == null) {
         // changesSpooler var can be nulled from ChangesSpooler.run()
         ChangesSpooler csp = changesSpooler = new ChangesSpooler();

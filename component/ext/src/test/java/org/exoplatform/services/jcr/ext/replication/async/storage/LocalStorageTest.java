@@ -55,25 +55,35 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
  */
 public class LocalStorageTest extends BaseStandaloneTest {
 
-  private static final String STORAGE_DIR = "target/testSolLocalStorage";
+  private static final String STORAGE_DIR        = "target/testSolLocalStorage";
+
+  private static final String SYSTEM_STORAGE_DIR = "target/testSysLocalStorage";
 
   File                        dir;
+
+  File                        sysDir;
 
   public void setUp() throws Exception {
     super.setUp();
     dir = new File(STORAGE_DIR);
     dir.mkdirs();
+
+    sysDir = new File(SYSTEM_STORAGE_DIR);
+    sysDir.mkdirs();
+
   }
 
   public void tearDown() throws Exception {
     deleteDir(dir);
+    deleteDir(sysDir);
     super.tearDown();
   }
 
   /**
    * Delete directory and all subfiles.
    * 
-   * @param file directory
+   * @param file
+   *          directory
    * @return true if all files successfuly deleted, and false if not.
    */
   private boolean deleteDir(File file) {
@@ -95,98 +105,77 @@ public class LocalStorageTest extends BaseStandaloneTest {
    * 
    * @throws Exception
    */
- /* public void testCreateRestoreStorage() throws Exception {
+  /* public void testCreateRestoreStorage() throws Exception {
 
-    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
-    NodeImpl n = (NodeImpl) root.addNode("testNode");
-    n.setProperty("prop1", "dfdasfsdf");
-    n.setProperty("secondProp", "ohohoh");
-    root.save();
+     NodeImpl n = (NodeImpl) root.addNode("testNode");
+     n.setProperty("prop1", "dfdasfsdf");
+     n.setProperty("secondProp", "ohohoh");
+     root.save();
 
-    List<TransactionChangesLog> chs = pl.pushChanges();
+     List<TransactionChangesLog> chs = pl.pushChanges();
 
-    TransactionChangesLog log = chs.get(0);
+     TransactionChangesLog log = chs.get(0);
 
-    // create storage
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
-    storage.onSaveItems(log);
+     // create storage
+     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+     storage.onSaveItems(log);
 
-    // delete storage object
-    storage = null;
+     // delete storage object
+     storage = null;
 
-    // create new storage object on old context
-    storage = new LocalStorageImpl(dir.getAbsolutePath());
-    storage.onStart(null);
+     // create new storage object on old context
+     storage = new LocalStorageImpl(dir.getAbsolutePath());
+     storage.onStart(null);
 
-    ChangesStorage<ItemState> ch = storage.getLocalChanges();
-    Iterator<ItemState> states = ch.getChanges();
-    Iterator<ItemState> expectedStates = log.getAllStates().iterator();
+     ChangesStorage<ItemState> ch = storage.getLocalChanges();
+     Iterator<ItemState> states = ch.getChanges();
+     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
 
-    // check results
-    checkIterator(expectedStates, states);
-    storage.onStop();
-  }*/
+     // check results
+     checkIterator(expectedStates, states);
+     storage.onStop();
+   }*/
 
   /**
-   * Register LocalStorage as listener to dataManager and check arrived
-   * changeslogs.
+   * Register SystemLocalStorage as listener to dataManager and check arrived changeslogs.
    * 
    * @throws Exception
    */
-  public void testRegisteredLocalStorage() throws Exception {
+  public void testRegisteredSystemLocalStorage() throws Exception {
+    PersistentDataManager systemDataManager = (PersistentDataManager) repository.getWorkspaceContainer("ws")
+                                                                                .getComponent(PersistentDataManager.class);
+    PersistentDataManager dataManager = (PersistentDataManager) repository.getWorkspaceContainer("ws3")
+                                                                          .getComponent(PersistentDataManager.class);
 
-    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
-                                                                                                                                              .getName())
-                                                                                                                .getComponent(PersistentDataManager.class);
+    SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
+                                                                      new FileCleaner());
+    systemDataManager.addItemPersistenceListener(systemStorage);
 
-    // File dir = new File(STORAGE_DIR+"ss");
-    // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    new FileCleaner(),
+                                                    systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
-    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
-    n1.setProperty("prop1", "dfdasfsdf");
-    n1.setProperty("secondProp", "ohohoh");
-    root.save();
+    SessionImpl session3 = (SessionImpl) repository.login(credentials, "ws3");
+    Node root3 = session3.getRootNode();
 
-    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
-    n2.setProperty("prop1", "dfdasfsdfSecond");
-    n2.setProperty("secondProp", "ohohohSecond");
-    root.save();
-
-    NodeImpl n3 = (NodeImpl) root.addNode("testNodeThird");
-    n3.setProperty("prop1", "dfdasfsdfThird");
-    n3.setProperty("secondProp", "ohohoh Third");
-    root.save();
-
-    assertEquals(0, storage.getErrors().length);
-
-    TransactionChangesLog log1 = createChangesLog((NodeData) n1.getData());
-
-    TransactionChangesLog log2 = createChangesLog((NodeData) n2.getData());
-
-    TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
+    NodeImpl node = (NodeImpl) root3.addNode("test");
+    node.addMixin("mix:versionable");
+    session3.save();
 
     dataManager.removeItemPersistenceListener(storage);
     storage.onStart(null);
 
-    // create storage
-    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    systemDataManager.removeItemPersistenceListener(systemStorage);
+    systemStorage.onStart(null);
 
-    try {
-      assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
-    } catch (StorageRuntimeException e) {
-      e.printStackTrace();
-    }
-
-    storage.onStop();
-
+    assertFalse(systemStorage.getLocalChanges().getChanges().hasNext());
   }
 
   /**
-   * Register LocalStorage as listener to dataManager and check arrived
-   * changeslogs.
+   * Register LocalStorage as listener to dataManager and check arrived changeslogs.
    * 
    * @throws Exception
    */
@@ -198,8 +187,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
-    //File dir = new File(STORAGE_DIR + "ss");
-    //dir.mkdirs();
+    // File dir = new File(STORAGE_DIR + "ss");
+    // dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
     dataManager.addItemPersistenceListener(storage);
 
@@ -341,7 +330,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
       storage.getLocalChanges().size();
       fail();
     } catch (StorageRuntimeException e) {
-      //OK.
+      // OK.
     }
 
     storage.onStop();
@@ -386,7 +375,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
     // File dir = new File(STORAGE_DIR+"errors");
     // dir.mkdirs();
     class TestLocalStorage extends LocalStorageImpl {
-      public TestLocalStorage(String path, int pr) throws NoSuchAlgorithmException, ChecksumNotFoundException {
+      public TestLocalStorage(String path, int pr) throws NoSuchAlgorithmException,
+          ChecksumNotFoundException {
         super(path, new FileCleaner());
       }
 
@@ -406,7 +396,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage = null;
 
-    storage = new LocalStorageImpl(dir.getAbsolutePath(),new FileCleaner());
+    storage = new LocalStorageImpl(dir.getAbsolutePath(), new FileCleaner());
 
     // check exception
     String[] errs = storage.getErrors();
