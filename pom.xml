@@ -25,7 +25,6 @@
     <module>component/aws</module>
     <module>component/rmi</module>
     <module>component/ftp</module>
-    <module>component/cifs</module>
     <module>component/webdav</module>
 
     <module>frameworks/command</module>
