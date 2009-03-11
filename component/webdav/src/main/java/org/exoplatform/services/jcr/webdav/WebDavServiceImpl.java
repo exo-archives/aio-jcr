@@ -97,7 +97,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  * @version $Id: $
  */
 
-@Path("jcr")
+@Path("/jcr")
 public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   /**
