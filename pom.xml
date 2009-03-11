@@ -144,7 +144,6 @@
           </includes>
           <excludes>
             <exclude>**/ftpclient/**/${exo.test.includes}.java</exclude>
-            <exclude>**/cifs/**/${exo.test.includes}.java</exclude>
           </excludes>
           <systemProperties>
             <property>

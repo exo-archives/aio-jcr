@@ -52,12 +52,6 @@
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.cifs</artifactId>
-      <version>1.11.1-SNAPSHOT</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.rmi</artifactId>
       <version>1.11.1-SNAPSHOT</version>
       <scope>runtime</scope>
