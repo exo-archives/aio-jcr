@@ -72,16 +72,6 @@ public class WorkspaceRestore {
   private final String            workspaceName;
 
   /**
-   * The user name.
-   */
-  private final String            userName;
-
-  /**
-   * The password.
-   */
-  private final String            password;
-
-  /**
    * The path to backup log.
    */
   private final String            path;
@@ -123,16 +113,12 @@ public class WorkspaceRestore {
                           BackupManager backupManager,
                           String repositoryName,
                           String workspaceName,
-                          String userName,
-                          String password,
                           String logPath,
                           InputStream wEntry) {
     this.repositoryService = repositoryService;
     this.backupManager = backupManager;
     this.repositoryName = repositoryName;
     this.workspaceName = workspaceName;
-    this.userName = userName;
-    this.password = password;
     this.path = logPath;
     this.wEntry = wEntry;
   }
