@@ -23,9 +23,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>
+ * Created by The eXo Platform SAS. <br/>
  * Date: 21 Nov 2008
  * 
  * @author <a href="dkatayev@gmail.com">Dmytro Katayev</a>
@@ -34,12 +32,14 @@ import java.security.NoSuchAlgorithmException;
 public class CRCGenerator {
 
   private static final String HEX = "0123456789abcdef";
-  
+
   /**
    * Generates checksum for the InputStream.
    * 
    * @param in stream to generate CheckSum
-   * @param algo algorithm name
+   * @param algo algorithm name according to the <a href=
+   *          "http://java.sun.com/j2se/1.4.2/docs/guide/security/CryptoSpec.html#AppA"
+   *          >Java Cryptography Architecture API Specification & Reference</a>
    * @return hexadecimal string checksun representation
    * @throws NoSuchAlgorithmException
    * @throws IOException
@@ -62,14 +62,14 @@ public class CRCGenerator {
 
   /**
    * Converts the array of bytes into a HEX string.
-   *
+   * 
    * @param bytes byte array
    * @return HEX string
    */
   private static String generateString(byte[] bytes) {
-    
+
     StringBuffer sb = new StringBuffer();
-    
+
     for (byte b : bytes) {
 
       int v = b & 0xFF;
@@ -78,6 +78,6 @@ public class CRCGenerator {
       sb.append((char) HEX.charAt(v & 0x0f));
     }
 
-    return sb.toString(); 
+    return sb.toString();
   }
 }
