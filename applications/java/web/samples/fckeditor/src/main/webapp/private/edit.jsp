@@ -39,7 +39,6 @@
                 } catch (final RepositoryException e) {
                     throw new IOException() {
 
-                        @Override
                         public Throwable getCause() {
                             return e;
                         }
@@ -47,7 +46,6 @@
                 } catch (final RepositoryConfigurationException e) {
                     throw new IOException() {
 
-                        @Override
                         public Throwable getCause() {
                             return e;
                         }
