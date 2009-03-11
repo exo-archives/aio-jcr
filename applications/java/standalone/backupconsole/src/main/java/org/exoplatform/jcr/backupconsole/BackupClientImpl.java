@@ -108,8 +108,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String startBackUp(String pathToWS) throws IOException, BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
-        + OperationType.FULL_BACKUP_ONLY;
+    String sURL = BASE_URL + pathToWS + "/" + OperationType.FULL_BACKUP_ONLY;
     return transport.execute(sURL);
 
   }
@@ -119,8 +118,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
                                                                                  BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + incr + "/" + jobnumber
-        + "/" + OperationType.FULL_AND_INCREMENTAL;
+    String sURL = BASE_URL + pathToWS + "/" + incr + "/" + jobnumber + "/" + OperationType.FULL_AND_INCREMENTAL;
 
     return transport.execute(sURL);
   }
@@ -129,8 +127,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String status(String pathToWS) throws IOException, BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
-        + OperationType.GET_STATUS;
+    String sURL = BASE_URL + pathToWS + "/" + OperationType.GET_STATUS;
     return transport.execute(sURL);
   }
 
@@ -138,8 +135,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String stop(String pathToWS) throws IOException, BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
-        + OperationType.STOP_BACKUP;
+    String sURL = BASE_URL + pathToWS + "/" + OperationType.STOP_BACKUP;
     return transport.execute(sURL);
   }
 
@@ -169,8 +165,7 @@ public class BackupClientImpl implements BackupClient {
     
     conf = conf.replace("+", "char_pluse");
 
-    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/" + encodedPath + "/"
-        + conf + "/" + OperationType.RESTORE;
+    String sURL = BASE_URL + pathToWS + "/" + encodedPath + "/" + conf + "/" + OperationType.RESTORE;
     return transport.execute(sURL);
   }
 
@@ -178,8 +173,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String drop(String pathToWS) throws IOException, BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/" + userName + "/" + pass + "/"
-        + OperationType.DROP_WORKSPACE;
+    String sURL = BASE_URL + pathToWS + "/" + OperationType.DROP_WORKSPACE;
     return transport.execute(sURL);
   }
 
