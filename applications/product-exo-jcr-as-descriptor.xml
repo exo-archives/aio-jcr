@@ -2,7 +2,6 @@
 	<id>binary</id>
 	<formats>
 		<format>dir</format>
-		<!--<format>jar</format>-->
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>

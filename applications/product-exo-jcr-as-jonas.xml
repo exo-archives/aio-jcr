@@ -89,7 +89,7 @@
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.applications.*-1.11.1-SNAPSHOT.war"
+										from="exo.jcr.applications.*-${project.version}.war"
 										to="*.war" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -105,7 +105,7 @@
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.connectors.*-1.11.1-SNAPSHOT.rar"
+										from="exo.jcr.connectors.*-${project.version}.rar"
 										to="*.rar" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -129,13 +129,6 @@
 							<fileset
 								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/hsqldb*.jar" />
-							</fileset>
-						</copy>
-						<copy
-							todir="${exo.projects.directory.working}/exo-jonas/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
 							</fileset>
 						</copy>
 					</tasks>

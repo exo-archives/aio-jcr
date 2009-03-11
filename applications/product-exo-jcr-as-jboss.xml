@@ -76,7 +76,7 @@
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.applications.*-1.11.1-SNAPSHOT.war"
+										from="exo.jcr.applications.*-${project.version}.war"
 										to="*.war" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -92,13 +92,6 @@
 						</copy>
 						<delete
 							file="${exo.projects.directory.working}/exo-jboss/server/default/lib/hsqldb.jar" />
-						<copy
-							todir="${exo.projects.directory.working}/exo-jboss/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
-							</fileset>
-						</copy>
 					</tasks>
 				</configuration>
 			</plugin>

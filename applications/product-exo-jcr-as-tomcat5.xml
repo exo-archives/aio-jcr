@@ -76,7 +76,7 @@
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.applications.*-1.11.1-SNAPSHOT.war"
+										from="exo.jcr.applications.*-${project.version}.war"
 										to="*.war" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -93,13 +93,6 @@
 						<delete
 							dir="${exo.projects.directory.working}/exo-tomcat/webapps/webdav/"
 							includeEmptyDirs="true" quiet="yes" />
-						<copy
-							todir="${exo.projects.directory.working}/exo-tomcat/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
-							</fileset>
-						</copy>
 					</tasks>
 				</configuration>
 			</plugin>

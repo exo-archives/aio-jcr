@@ -79,7 +79,7 @@
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="*-1.11.1-SNAPSHOT.ear" to="*.ear"
+										from="*-${project.version}.ear" to="*.ear"
 										casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -113,13 +113,6 @@
 							<fileset
 								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/hsqldb*.jar" />
-							</fileset>
-						</copy>
-						<copy
-							todir="${exo.projects.directory.working}/exo-jboss/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
 							</fileset>
 						</copy>
 					</tasks>

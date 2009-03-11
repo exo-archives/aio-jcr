@@ -26,7 +26,6 @@
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<!-- version>1.7.3.3</version -->
 			<version>1.8.0.7</version>
 			<scope>compile</scope>
 		</dependency>
@@ -79,7 +78,7 @@
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="*-1.11.1-SNAPSHOT.ear" to="*.ear"
+										from="*-${project.version}.ear" to="*.ear"
 										casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -119,13 +118,6 @@
 							<fileset
 								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/hsqldb*.jar" />
-							</fileset>
-						</copy>
-						<copy
-							todir="${exo.projects.directory.working}/exo-jonas/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
 							</fileset>
 						</copy>
 					</tasks>

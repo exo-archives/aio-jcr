@@ -85,7 +85,7 @@
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.applications.*-1.11.1-SNAPSHOT.war"
+										from="exo.jcr.applications.*-${project.version}.war"
 										to="*.war" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -97,13 +97,6 @@
 								dir="${basedir}/target/lib-binary.dir/"
 								casesensitive="yes">
 								<include name="**/*.war" />
-							</fileset>
-						</copy>
-						<copy
-							todir="${exo.projects.directory.working}/exo-tomcat/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
 							</fileset>
 						</copy>
 					</tasks>
