@@ -63,13 +63,6 @@
     </dependency>
 
     <dependency>
-		      <groupId>org.exoplatform.jcr</groupId>
-		      <artifactId>exo.jcr.component.cifs</artifactId>
-		      <version>1.10.3-SNAPSHOT</version>
-		      <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.command</artifactId>
       <version>1.10.3-SNAPSHOT</version>
