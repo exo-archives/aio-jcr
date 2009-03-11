@@ -96,7 +96,7 @@ public class S3ValueIOUtil {
     GetResponse resp = conn.get(bucket, s3fielName, null);
     int responseCode = resp.connection.getResponseCode();
     if (responseCode != HttpURLConnection.HTTP_OK) {
-      throw new IOException("Filed read data from S3 storage. HTTP status " + responseCode);
+      throw new IOException("Failed read data from S3 storage. HTTP status " + responseCode);
     }
     if (LOG.isDebugEnabled())
       LOG.debug("Read from S3: STATUS = " + responseCode);
@@ -243,7 +243,7 @@ public class S3ValueIOUtil {
     Response resp = conn.put(bucket, key, new S3Object(valueStream, null), null);
     int responseCode = resp.connection.getResponseCode();
     if (responseCode != HttpURLConnection.HTTP_OK) {
-      throw new IOException("Filed PUT data to S3 storage. HTTP status " + responseCode);
+      throw new IOException("Failed PUT data to S3 storage. HTTP status " + responseCode);
     }
 
     if (LOG.isDebugEnabled())

@@ -51,7 +51,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								excludes="**/*.war" />
 						</copy>
 						<copy
@@ -67,16 +67,16 @@
 								dir="${basedir}/product-patches/as/jboss/" includes="*.xml" />
 						</copy>
 						<move
-							todir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-binary.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/*.war" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="exo.jcr.applications.*-1.10.3-SNAPSHOT.war"
+										from="exo.jcr.applications.*-${project.version}.war"
 										to="*.war" casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -85,20 +85,13 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar"
 							verbose="true" flatten="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								casesensitive="yes">
 								<include name="**/*.war" />
 							</fileset>
 						</copy>
 						<delete
 							file="${exo.projects.directory.working}/exo-jboss/server/default/lib/hsqldb.jar" />
-						<copy
-							todir="${exo.projects.directory.working}/exo-jboss/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
-							</fileset>
-						</copy>
 					</tasks>
 				</configuration>
 			</plugin>

@@ -26,7 +26,6 @@
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<!-- version>1.7.3.3</version -->
 			<version>1.8.0.7</version>
 			<scope>compile</scope>
 		</dependency>
@@ -70,16 +69,16 @@
 						</copy>
 						<!--renaming ear-->
 						<move
-							todir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
+							todir="${basedir}/target/lib-binary.dir/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/*.ear" />
 							</fileset>
 							<mapper>
 								<chainedmapper>
 									<flattenmapper />
 									<globmapper
-										from="*-1.10.3-SNAPSHOT.ear" to="*.ear"
+										from="*-${project.version}.ear" to="*.ear"
 										casesensitive="no" />
 								</chainedmapper>
 							</mapper>
@@ -89,7 +88,7 @@
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/"
 							verbose="true" overwrite="true">
 							<fileset
-								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/"
+								dir="${basedir}/target/lib-binary.dir/"
 								includes="**/*.ear" />
 						</copy>
 						<!--copying exo-configuration.xml-->
@@ -111,15 +110,8 @@
 						<copy
 							todir="${exo.projects.directory.working}/exo-jboss/server/default/lib/">
 							<fileset
-								dir="${basedir}/target/lib-1.10.3-SNAPSHOT.dir/">
+								dir="${basedir}/target/lib-binary.dir/">
 								<include name="**/hsqldb*.jar" />
-							</fileset>
-						</copy>
-						<copy
-							todir="${exo.projects.directory.working}/exo-jboss/bin/">
-							<fileset
-								dir="${basedir}/product-patches/as/">
-								<include name="*.dll" />
 							</fileset>
 						</copy>
 					</tasks>
