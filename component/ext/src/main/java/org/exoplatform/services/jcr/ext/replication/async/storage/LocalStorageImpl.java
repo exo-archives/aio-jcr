@@ -403,16 +403,20 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
       ChangesLogIterator cLogs = tLog.getLogIterator();
 
-      while (cLogs.hasNextLog()) {
-        PlainChangesLog cLog = cLogs.nextLog();
-        if (cLog instanceof PairChangesLog) {
-          PairChangesLog pcLog = (PairChangesLog) cLog;
+      if (!cLogs.hasNextLog()) {
+        changesQueue.add(tLog);
+      } else {
+        while (cLogs.hasNextLog()) {
+          PlainChangesLog cLog = cLogs.nextLog();
+          if (cLog instanceof PairChangesLog) {
+            PairChangesLog pcLog = (PairChangesLog) cLog;
 
-          if (versionLogHolder != null)
-            changesQueue.add(new TransactionChangesLog(versionLogHolder.getPairLog(pcLog.getPairId())));
-          changesQueue.add(new TransactionChangesLog(cLog));
-        } else {
-          changesQueue.add(new TransactionChangesLog(cLog));
+            if (versionLogHolder != null)
+              changesQueue.add(new TransactionChangesLog(versionLogHolder.getPairLog(pcLog.getPairId())));
+            changesQueue.add(new TransactionChangesLog(cLog));
+          } else {
+            changesQueue.add(new TransactionChangesLog(cLog));
+          }
         }
       }
 

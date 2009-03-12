@@ -73,19 +73,23 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
       TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
       ChangesLogIterator cLogs = tLog.getLogIterator();
 
-      while (cLogs.hasNextLog()) {
-        PlainChangesLog cLog = cLogs.nextLog();
-        if (cLog instanceof PairChangesLog) {
-          PairChangesLog pcLog = (PairChangesLog) cLog;
+      if (!cLogs.hasNextLog()) {
+        changesQueue.add(tLog);
+      } else {
+        while (cLogs.hasNextLog()) {
+          PlainChangesLog cLog = cLogs.nextLog();
+          if (cLog instanceof PairChangesLog) {
+            PairChangesLog pcLog = (PairChangesLog) cLog;
 
-          if (pcLogs.get(pcLog.getPairId()) == null) {
-            pcLogs.put(pcLog.getPairId(), pcLog);
+            if (pcLogs.get(pcLog.getPairId()) == null) {
+              pcLogs.put(pcLog.getPairId(), pcLog);
+            } else {
+              changesQueue.add(new TransactionChangesLog(pcLog));
+              changesQueue.add(new TransactionChangesLog(getPairLog(pcLog.getPairId())));
+            }
           } else {
-            changesQueue.add(new TransactionChangesLog(pcLog));
-            changesQueue.add(new TransactionChangesLog(getPairLog(pcLog.getPairId())));
+            changesQueue.add(new TransactionChangesLog(cLog));
           }
-        } else {
-          changesQueue.add(new TransactionChangesLog(cLog));
         }
       }
 
