@@ -16,36 +16,28 @@
  */
 package org.exoplatform.services.jcr.ext.backup.server;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.Node;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.config.ContainerEntry;
-import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
-import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.backup.BackupChainLog;
 import org.exoplatform.services.jcr.ext.backup.BackupConfigurationException;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
-import org.hsqldb.lib.StringInputStream;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
@@ -75,7 +67,7 @@ public class WorkspaceRestore {
    * The path to backup log.
    */
   private final String            path;
-  
+
   /**
    * The input stream with WorkspaceEntry.
    */
@@ -130,29 +122,30 @@ public class WorkspaceRestore {
       RepositoryEntry reEntry = repository.getConfiguration();
 
       WorkspaceEntry wsEntry = getWorkspaceEntry(wEntry, workspaceName);
-      
+
       repository.configWorkspace(wsEntry);
 
-      File backLog = new File(path);
-      if (backLog.exists()) {
-        try {
-          BackupChainLog bchLog = new BackupChainLog(backLog);
-          backupManager.restore(bchLog, reEntry, wsEntry);
-        } catch (BackupOperationException e) {
-          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-              + "' :" + e, e);
-        } catch (BackupConfigurationException e) {
-          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-              + "' :" + e, e);
-        } catch (RepositoryException e) {
-          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-              + "' :" + e, e);
-        } catch (RepositoryConfigurationException e) {
-          throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-              + "' :" + e, e);
-        }
-      } else
-        throw new WorkspaceRestoreExeption("Can not find the backup log file : " + path);
+      try {
+        File backLog = new File(path);
+        BackupChainLog bchLog = new BackupChainLog(backLog);
+        backupManager.restore(bchLog, reEntry, wsEntry);
+      } catch (BackupOperationException e) {
+        removeWorkspace(repository, workspaceName);
+        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+            + "' :" + e, e);
+      } catch (BackupConfigurationException e) {
+        removeWorkspace(repository, workspaceName);
+        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+            + "' :" + e, e);
+      } catch (RepositoryException e) {
+        removeWorkspace(repository, workspaceName);
+        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+            + "' :" + e, e);
+      } catch (RepositoryConfigurationException e) {
+        removeWorkspace(repository, workspaceName);
+        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
+            + "' :" + e, e);
+      }
 
     } catch (NoSuchWorkspaceException e) {
       throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
@@ -169,7 +162,9 @@ public class WorkspaceRestore {
     }
   }
 
-  private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream, String workspaceName) throws FileNotFoundException, JiBXException, RepositoryConfigurationException {
+  private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream, String workspaceName) throws FileNotFoundException,
+                                                                                          JiBXException,
+                                                                                          RepositoryConfigurationException {
     WorkspaceEntry wsEntry = null;
 
     IBindingFactory factory = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
@@ -181,12 +176,24 @@ public class WorkspaceRestore {
 
     for (WorkspaceEntry wEntry : rEntry.getWorkspaceEntries())
       if (wEntry.getName().equals(workspaceName))
-         wsEntry = wEntry;
-    
+        wsEntry = wEntry;
+
     if (wsEntry == null)
-      throw new RuntimeException("Can not find the workspace '" + workspaceName + "' in configuration.");
+      throw new RuntimeException("Can not find the workspace '" + workspaceName
+          + "' in configuration.");
 
     return wsEntry;
+  }
+
+  private void removeWorkspace(ManageableRepository mr, String workspaceName) throws RepositoryException {
+
+    if (!mr.canRemoveWorkspace(workspaceName)) {
+      WorkspaceContainerFacade wc = mr.getWorkspaceContainer(workspaceName);
+      SessionRegistry sessionRegistry = (SessionRegistry) wc.getComponent(SessionRegistry.class);
+      sessionRegistry.closeSessions(workspaceName);
+    } 
+    
+    mr.removeWorkspace(workspaceName);
   }
 
 }

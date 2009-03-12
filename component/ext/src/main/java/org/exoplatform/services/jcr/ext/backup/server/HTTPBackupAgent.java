@@ -35,11 +35,14 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
+import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
@@ -246,7 +249,7 @@ public class HTTPBackupAgent implements ResourceContainer {
       
       if (forceCloseSession) {
         int closedSessions = forceCloseSession(repositoryName, workspaceName);
-        res += ("The " + closedSessions + " sessions was closed on workspace '" + "/" + repositoryName + "/"+workspaceName+"'");
+        res += ("The " + closedSessions + " sessions was closed on workspace '" + "/" + repositoryName + "/"+workspaceName+"'\n");
       }
       
       validateRepositoryName(repositoryName);
@@ -301,7 +304,7 @@ public class HTTPBackupAgent implements ResourceContainer {
       
       //validate backup log file
       if (!(new File(ePath).exists()))
-        throw new RuntimeException("The backup log file not exist : " + ePath);
+        throw new RuntimeException("The backup log file not exists : " + ePath);
       
       restore.restore();
       
@@ -383,7 +386,7 @@ public class HTTPBackupAgent implements ResourceContainer {
         
         result += fullBackupStatus + "\n" + incrementalBackupStatus;
       } else
-        result += "No active backup for '" + "/"+repositoryName + "/"+workspaceName+"'";
+        result += "No active backup for workspace '" + "/"+repositoryName + "/"+workspaceName+"'";
       
     } catch (Exception e) {
       result = "FAIL\n" + e.getMessage();
@@ -465,10 +468,17 @@ public class HTTPBackupAgent implements ResourceContainer {
    *          workspace name
    * @return int
    *           how many sessions was closed
+   * @throws RepositoryConfigurationException
+   *           will be generate RepositoryConfigurationException  
+   * @throws RepositoryException 
+   *           will be generate RepositoryException
    */
-  private int forceCloseSession(String repositoryName, String workspaceName) {
-    ExoContainer container = ExoContainerContext.getContainerByName(repositoryName);
-    SessionRegistry sessionRegistry = (SessionRegistry) container.getComponentInstanceOfType(SessionRegistry.class);
+  private int forceCloseSession(String repositoryName, String workspaceName) throws RepositoryException, RepositoryConfigurationException {
+    ManageableRepository mr = repositoryService.getRepository(repositoryName);
+    WorkspaceContainerFacade wc = mr.getWorkspaceContainer(workspaceName);
+    
+    
+    SessionRegistry sessionRegistry = (SessionRegistry) wc.getComponent(SessionRegistry.class);
     
     return sessionRegistry.closeSessions(workspaceName);    
   }
