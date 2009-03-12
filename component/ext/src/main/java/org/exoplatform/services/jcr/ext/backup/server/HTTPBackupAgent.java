@@ -31,6 +31,8 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.ws.commons.util.Base64;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
@@ -39,6 +41,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
+import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
@@ -51,9 +54,9 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  * @version $Id: BackupServer.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
-@Path("/backup-server/")
+@Path("/jcr-backup/")
 @Produces("text/plain")
-public class BackupServer implements ResourceContainer {
+public class HTTPBackupAgent implements ResourceContainer {
 
   /**
    * Definition the constants to ReplicationTestService.
@@ -62,7 +65,7 @@ public class BackupServer implements ResourceContainer {
     /**
      * The base path to this service.
      */
-    public static final String BASE_URL               = "/rest/backup-server";
+    public static final String BASE_URL               = "/rest/jcr-backup";
 
     /**
      * Definition the operation types.
@@ -138,14 +141,14 @@ public class BackupServer implements ResourceContainer {
    * @param repoService the RepositoryService
    * @param backupManager the BackupManager
    */
-  public BackupServer(RepositoryService repoService,
+  public HTTPBackupAgent(RepositoryService repoService,
                       BackupManager backupManager,
                       ThreadLocalSessionProviderService sessionProviderService) {
     this.repositoryService = repoService;
     this.backupManager = backupManager;
     this.sessionProviderService = sessionProviderService;
 
-    log.info("ReplicationTestService inited");
+    log.info("HTTPBackupAgent inited");
   }
   
   /**
@@ -232,13 +235,20 @@ public class BackupServer implements ResourceContainer {
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/dropWorkspace")
+  @Path("/{repositoryName}/{workspaceName}/{forceCloseSession}/dropWorkspace")
   public Response dropWorkspace(@PathParam("repositoryName") String repositoryName,
-                                @PathParam("workspaceName") String workspaceName) {
+                                @PathParam("workspaceName") String workspaceName,
+                                @PathParam("forceCloseSession") Boolean forceCloseSession) {
 
     String res = "";
     
     try {
+      
+      if (forceCloseSession) {
+        int closedSessions = forceCloseSession(repositoryName, workspaceName);
+        res += ("The " + closedSessions + " sessions was closed on workspace '" + "/" + repositoryName + "/"+workspaceName+"'");
+      }
+      
       validateRepositoryName(repositoryName);
       validateWorkspaceName(repositoryName, workspaceName);
       
@@ -443,5 +453,23 @@ public class BackupServer implements ResourceContainer {
     }
     
     return st;
-  } 
+  }
+  
+  /**
+   * forceCloseSession.
+   *   Close sessions on specific workspace.
+   *
+   * @param repositoryName
+   *          repository name
+   * @param workspaceName
+   *          workspace name
+   * @return int
+   *           how many sessions was closed
+   */
+  private int forceCloseSession(String repositoryName, String workspaceName) {
+    ExoContainer container = ExoContainerContext.getContainerByName(repositoryName);
+    SessionRegistry sessionRegistry = (SessionRegistry) container.getComponentInstanceOfType(SessionRegistry.class);
+    
+    return sessionRegistry.closeSessions(workspaceName);    
+  }
 }
