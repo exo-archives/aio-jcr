@@ -319,6 +319,11 @@ public class TestImport extends AbstractImportTest {
 
   }
 
+  /**
+   * Test import of the history of versuions.
+   * 
+   * @throws Exception
+   */
   public void testImportVersionHistory() throws Exception {
 
     Node testRootNode = root.addNode("testRoot");

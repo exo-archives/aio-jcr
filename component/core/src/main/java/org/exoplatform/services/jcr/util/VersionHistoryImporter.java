@@ -89,6 +89,12 @@ public class VersionHistoryImporter {
     this.dataKeeper = new ItemDataKeeperAdapter(userSession.getTransientNodesManager());
   }
 
+  /**
+   * Do import
+   * 
+   * @throws RepositoryException
+   * @throws IOException
+   */
   public void doImport() throws RepositoryException, IOException {
     String path = versionableNode.getVersionHistory().getParent().getPath();
 
@@ -139,6 +145,11 @@ public class VersionHistoryImporter {
     userSession.save();
   }
 
+  /**
+   * Remover helper
+   * 
+   * @author sj
+   */
   protected class RemoveVisitor extends ItemDataRemoveVisitor {
 
     RemoveVisitor() throws RepositoryException {
