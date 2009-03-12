@@ -172,8 +172,8 @@ public class BackupClientImpl implements BackupClient {
   /**
    * {@inheritDoc}
    */
-  public String drop(String pathToWS) throws IOException, BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/"+ "true" + "/" + OperationType.DROP_WORKSPACE;
+  public String drop(boolean forceClose, String pathToWS) throws IOException, BackupExecuteException {
+    String sURL = BASE_URL + pathToWS + "/"+ forceClose + "/" + OperationType.DROP_WORKSPACE;
     return transport.execute(sURL);
   }
 

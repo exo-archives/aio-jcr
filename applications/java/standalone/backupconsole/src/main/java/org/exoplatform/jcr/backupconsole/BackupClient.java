@@ -85,12 +85,13 @@ public interface BackupClient {
   
   /**
    * Drop backup.
-   * 
+   * @param forceClose TODO
    * @param pathToWS path to repository and workspace.
+   * 
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  public String drop(String pathToWS) throws IOException, BackupExecuteException;
+  public String drop(boolean forceClose, String pathToWS) throws IOException, BackupExecuteException;
 
 }

@@ -51,29 +51,21 @@ public class ClientTransportImpl implements ClientTransport {
   private final String  password;
 
   /**
-   * Realm.
-   */
-  private final String  realm;
-
-  /**
    * Flag is SSL.
    */
   private final boolean isSSL;
 
   /**
    * Constructor.
-   * 
-   * @param realm
    * @param login
    * @param pathword
    * @param host
    * @param isSSL
    */
-  public ClientTransportImpl(String realm, String login, String pathword, String host, boolean isSSL) {
+  public ClientTransportImpl(String login, String pathword, String host, boolean isSSL) {
     this.host = host;
     this.login = login;
     this.password = pathword;
-    this.realm = realm;
     this.isSSL = isSSL;
   }
 
@@ -91,7 +83,6 @@ public class ClientTransportImpl implements ClientTransport {
       HTTPConnection connection = new HTTPConnection(url);
       connection.removeModule(CookieModule.class);
 
-      
       connection.addBasicAuthorization(getRealm(complURL), login, password);
 
       HTTPResponse resp = connection.Get(url.getFile());

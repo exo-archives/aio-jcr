@@ -33,17 +33,18 @@ public class BackupConsole {
   private static final String TO_MANY_PARAMS      = "Too many parameters.";
 
   private static final String LOGIN_PASS_SPLITTER = ":";
+  
+  private static final String FORCE_CLOSE = "force-close-session";
 
   private static final String HELP_INFO           = "Help info:\n"
-                                                      + " [-ssl] <realm> <auth> <host> <cmd> \n"
-                                                      + " <realm>:   \"<realm name>\"  Warn: Case sensitive\n"
+                                                      + " [-ssl] <auth> <host> <cmd> \n"
                                                       + " <auth> :   login:pathword\n"
-                                                      + " <host> :   <host ip>:<port>\n"
+                                                      + " <host> :   <host ip>:<port>/<context>\n"
                                                       + " <cmd>  :   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
                                                       + "            stop  <repo/ws>\n"
                                                       + "            status <repo/ws>\n"
                                                       + "            restore <repo/ws> <path> <pathToConfigFile>\n"
-                                                      + "            drop <repo/ws> \n\n"
+                                                      + "            drop [force-close-session] <repo/ws>  \n\n"
                                                       + " <repo/ws>   - /<reponame>/<ws name>\n"
                                                       + " <path>      - path to backup file\n"
                                                       + " <incr>      - incemental job period\n"
@@ -76,13 +77,6 @@ public class BackupConsole {
       curArg++;
     }
 
-    // realm
-    if (curArg == args.length) {
-      System.out.println(INCORRECT_PARAM + "There is no realm parameter.");
-      return;
-    }
-    String realm = args[curArg++];
-
     // login:password
     if (curArg == args.length) {
       System.out.println(INCORRECT_PARAM + "There is no Login:Password parameter.");
@@ -100,14 +94,14 @@ public class BackupConsole {
       return;
     }
     String host = args[curArg++];
-    if (!host.matches("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:\\d{1,6}")) {
-      System.out.println(INCORRECT_PARAM + "There is incorrect Host:Port parameter - " + host);
-      return;
-    }
+    //if (!host.matches("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:\\d{1,6}")) {
+    //  System.out.println(INCORRECT_PARAM + "There is incorrect Host:Port parameter - " + host);
+   //   return;
+   // }
 
     // initialize transport and backup client
     String[] lp = login.split(LOGIN_PASS_SPLITTER);
-    ClientTransport transport = new ClientTransportImpl(realm, lp[0], lp[1], host, isSSL);
+    ClientTransport transport = new ClientTransportImpl(lp[0], lp[1], host, isSSL);
     BackupClient client = new BackupClientImpl(transport, lp[0], lp[1]);
 
     // commands
@@ -168,7 +162,21 @@ public class BackupConsole {
         }
         System.out.println(client.stop(pathToWS));
       } else if (command.equalsIgnoreCase("drop")) {
-        String pathToWS = getRepoWS(args, curArg++);
+        
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no path to workspace or force-session-close parameter.");
+        }
+        
+        String param = args[curArg++];
+        boolean isForce = true;
+        
+        if(!param.equalsIgnoreCase(FORCE_CLOSE)){
+          curArg--; 
+          isForce = false; 
+        }
+        
+        String pathToWS = getRepoWS(args, curArg);
+        
         if (pathToWS == null)
           return;
 
@@ -176,7 +184,7 @@ public class BackupConsole {
           System.out.println(TO_MANY_PARAMS);
           return;
         }
-        System.out.println(client.drop(pathToWS));
+        System.out.println(client.drop(isForce, pathToWS));
       } else if (command.equalsIgnoreCase("status")) {
         String pathToWS = getRepoWS(args, curArg++);
         if (pathToWS == null)
