@@ -27,18 +27,18 @@ import javax.xml.namespace.QName;
 
 public interface DeltaVConstants extends PropertyConstants {
 
-  public static final QName CHECKEDIN      = new QName("DAV:", "checked-in");
+  QName CHECKEDIN      = new QName("DAV:", "checked-in");
 
-  public static final QName CHECKEDOUT     = new QName("DAV:", "checked-out");
+  QName CHECKEDOUT     = new QName("DAV:", "checked-out");
 
-  public static final QName LABELNAMESET   = new QName("DAV:", "label-name-set");
+  QName LABELNAMESET   = new QName("DAV:", "label-name-set");
 
-  public static final QName PREDECESSORSET = new QName("DAV:", "predecessor-set");
+  QName PREDECESSORSET = new QName("DAV:", "predecessor-set");
 
-  public static final QName SUCCESSORSET   = new QName("DAV:", "successor-set");
+  QName SUCCESSORSET   = new QName("DAV:", "successor-set");
 
-  public static final QName VERSIONHISTORY = new QName("DAV:", "version-history");
+  QName VERSIONHISTORY = new QName("DAV:", "version-history");
 
-  public static final QName VERSIONNAME    = new QName("DAV:", "version-name");
+  QName VERSIONNAME    = new QName("DAV:", "version-name");
 
 }
