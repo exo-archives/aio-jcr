@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>exo.jcr.connectors.ejb21</artifactId>
-  <name>>EAR ejb-rest connector ejb2.1</name>
+  <name>EAR ejb-rest connector ejb2.1</name>
   <version>1.11.1-SNAPSHOT</version>
   <packaging>ear</packaging>
   <dependencies>
