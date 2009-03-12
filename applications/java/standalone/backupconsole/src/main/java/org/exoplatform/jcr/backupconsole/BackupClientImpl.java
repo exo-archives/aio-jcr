@@ -33,7 +33,7 @@ public class BackupClientImpl implements BackupClient {
   /**
    * The base path to this service.
    */
-  public static final String BASE_URL = "/rest/backup-server";
+  public static final String BASE_URL = "/rest/jcr-backup";
 
   /**
    * Definition the operation types.
