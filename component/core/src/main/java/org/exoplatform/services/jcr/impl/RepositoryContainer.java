@@ -150,7 +150,8 @@ public class RepositoryContainer extends ExoContainer {
    * @return WorkspaceContainer
    */
   public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
-    return (WorkspaceContainer) getComponentInstance("workspace_" + workspaceName);
+    Object comp = getComponentInstance(workspaceName);
+    return comp != null && comp instanceof WorkspaceContainer ? (WorkspaceContainer) comp : null;
   }
 
   /**
@@ -189,7 +190,7 @@ public class RepositoryContainer extends ExoContainer {
 
       WorkspaceContainer workspaceContainer = new WorkspaceContainer(this, wsConfig);
 
-      registerComponentInstance("workspace_" + wsConfig.getName(), workspaceContainer);
+      registerComponentInstance(wsConfig.getName(), workspaceContainer);
 
       wsConfig.setUniqueName(getName() + "_" + wsConfig.getName());
 
