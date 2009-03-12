@@ -175,7 +175,7 @@ public class BackupConsole {
           isForce = false; 
         }
         
-        String pathToWS = getRepoWS(args, curArg);
+        String pathToWS = getRepoWS(args, curArg++);
         
         if (pathToWS == null)
           return;
