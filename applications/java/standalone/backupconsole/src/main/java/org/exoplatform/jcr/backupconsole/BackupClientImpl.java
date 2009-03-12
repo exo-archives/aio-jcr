@@ -173,7 +173,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String drop(String pathToWS) throws IOException, BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/" + OperationType.DROP_WORKSPACE;
+    String sURL = BASE_URL + pathToWS + "/"+ "true" + "/" + OperationType.DROP_WORKSPACE;
     return transport.execute(sURL);
   }
 
