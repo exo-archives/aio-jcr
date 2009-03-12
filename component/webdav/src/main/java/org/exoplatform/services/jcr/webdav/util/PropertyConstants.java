@@ -27,56 +27,56 @@ import javax.xml.namespace.QName;
 
 public interface PropertyConstants {
 
-  public static final QName  CHILDCOUNT           = new QName("DAV:", "childcount");
+  QName  CHILDCOUNT           = new QName("DAV:", "childcount");
 
-  public static final QName  CREATIONDATE         = new QName("DAV:", "creationdate");
+  QName  CREATIONDATE         = new QName("DAV:", "creationdate");
 
-  public static final QName  DISPLAYNAME          = new QName("DAV:", "displayname");
+  QName  DISPLAYNAME          = new QName("DAV:", "displayname");
 
-  public static final QName  GETCONTENTLANGUAGE   = new QName("DAV:", "getcontentlanguage");
+  QName  GETCONTENTLANGUAGE   = new QName("DAV:", "getcontentlanguage");
 
-  public static final QName  GETCONTENTLENGTH     = new QName("DAV:", "getcontentlength");
+  QName  GETCONTENTLENGTH     = new QName("DAV:", "getcontentlength");
 
-  public static final QName  GETCONTENTTYPE       = new QName("DAV:", "getcontenttype");
+  QName  GETCONTENTTYPE       = new QName("DAV:", "getcontenttype");
 
-  public static final QName  GETLASTMODIFIED      = new QName("DAV:", "getlastmodified");
+  QName  GETLASTMODIFIED      = new QName("DAV:", "getlastmodified");
 
-  public static final QName  HASCHILDREN          = new QName("DAV:", "haschildren");
+  QName  HASCHILDREN          = new QName("DAV:", "haschildren");
 
-  public static final QName  ISCOLLECTION         = new QName("DAV:", "iscollection");
+  QName  ISCOLLECTION         = new QName("DAV:", "iscollection");
 
-  public static final QName  ISFOLDER             = new QName("DAV:", "isfolder");
+  QName  ISFOLDER             = new QName("DAV:", "isfolder");
 
-  public static final QName  ISROOT               = new QName("DAV:", "isroot");
+  QName  ISROOT               = new QName("DAV:", "isroot");
 
-  public static final QName  ISVERSIONED          = new QName("DAV:", "isversioned");
+  QName  ISVERSIONED          = new QName("DAV:", "isversioned");
 
-  public static final QName  PARENTNAME           = new QName("DAV:", "parentname");
+  QName  PARENTNAME           = new QName("DAV:", "parentname");
 
-  public static final QName  RESOURCETYPE         = new QName("DAV:", "resourcetype");
+  QName  RESOURCETYPE         = new QName("DAV:", "resourcetype");
 
-  public static final QName  SUPPORTEDLOCK        = new QName("DAV:", "supportedlock");
+  QName  SUPPORTEDLOCK        = new QName("DAV:", "supportedlock");
 
-  public static final QName  LOCKDISCOVERY        = new QName("DAV:", "lockdiscovery");
+  QName  LOCKDISCOVERY        = new QName("DAV:", "lockdiscovery");
 
-  public static final QName  SUPPORTEDMETHODSET   = new QName("DAV:", "supported-method-set");
+  QName  SUPPORTEDMETHODSET   = new QName("DAV:", "supported-method-set");
 
-  public static final QName  LOCKSCOPE            = new QName("DAV:", "lockscope");
+  QName  LOCKSCOPE            = new QName("DAV:", "lockscope");
 
-  public static final QName  LOCKTYPE             = new QName("DAV:", "locktype");
+  QName  LOCKTYPE             = new QName("DAV:", "locktype");
 
-  public static final QName  OWNER                = new QName("DAV:", "owner");
+  QName  OWNER                = new QName("DAV:", "owner");
 
-  public static final QName  EXCLUSIVE            = new QName("DAV:", "exclusive");
+  QName  EXCLUSIVE            = new QName("DAV:", "exclusive");
 
-  public static final QName  WRITE                = new QName("DAV:", "write");
+  QName  WRITE                = new QName("DAV:", "write");
 
-  public static final QName  ORDERING_TYPE        = new QName("DAV:", "ordering-type");
+  QName  ORDERING_TYPE        = new QName("DAV:", "ordering-type");
 
   // date and time patterns for DAV:creationdate and DAV:getlastmodified
 
-  public static final String CREATION_PATTERN     = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+  String CREATION_PATTERN     = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-  public static final String MODIFICATION_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
+  String MODIFICATION_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
 
 }
