@@ -5,14 +5,14 @@
     <version>1.11.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>exo.jcr.webdav.ejbconnector3_0.client</artifactId>
+  <artifactId>exo.jcr.connectors.ejb30.client</artifactId>
   <version>1.11.1-SNAPSHOT</version>
-  <name>Client ejb to webdav connector ejb3.0</name>
+  <name>Client jcr-ejb connector ejb3.0</name>
   
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.webdav.ejbconnector3_0.bean</artifactId>
+      <artifactId>exo.jcr.connectors.ejb30.bean</artifactId>
       <version>1.11.1-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -30,7 +30,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.exoplatform.jcr.webdav.ejbconnector30.Main</mainClass>
+              <mainClass>org.exoplatform.connectors.jcr.ejb30.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

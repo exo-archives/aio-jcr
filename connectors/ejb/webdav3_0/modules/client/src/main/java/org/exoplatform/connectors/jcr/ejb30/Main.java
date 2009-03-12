@@ -15,15 +15,24 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector30;
-
-import javax.ejb.Local;
+package org.exoplatform.connectors.jcr.ejb30;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-@Local
-public interface WebDAVEJBConnectorLocal extends WebDAVEJBConnectorRemote {
-  
+public class Main {
+
+  public static void main(String[] args) throws Exception {
+    Client c = new Client();
+    for (String s : args) {
+      if (s.startsWith("--server"))
+        c.setServerUrl(s.substring(s.indexOf('=') + 1));
+      if (s.startsWith("--jcr-path"))
+        c.setJcrUrl(s.substring(s.indexOf('=') + 1));
+    }
+      
+    System.out.println(c.run());
+  }
+
 }

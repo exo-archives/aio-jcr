@@ -6,8 +6,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
-  <artifactId>exo.jcr.webdav.ejbconnector3_0</artifactId>
-  <name>EAR ejb to webdav connector ejb3.0</name>
+  <artifactId>exo.jcr.connectors.ejb30</artifactId>
+  <name>EAR ejb-rest connector ejb3.0</name>
   <version>1.11.1-SNAPSHOT</version>
   <packaging>ear</packaging>
   <dependencies>
@@ -20,30 +20,21 @@
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.webdav.ejbconnector3_0.bean</artifactId>
+      <artifactId>exo.jcr.connectors.ejb30.bean</artifactId>
       <version>1.11.1-SNAPSHOT</version>
       <type>ejb</type>
       <scope>runtime</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.exoplatform.ws</groupId>
-      <artifactId>exo.ws.commons</artifactId>
-      <version>${org.exoplatform.ws.version}</version>
-      <type>jar</type>
-      <scope>runtime</scope>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.webdav.ejbconnector3_0.client</artifactId>
+      <artifactId>exo.jcr.connectors.ejb30.client</artifactId>
       <version>1.11.1-SNAPSHOT</version>
       <type>jar</type>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
   <build>
-    <finalName>webdav-ejb-connector-3_0</finalName>
+    <finalName>jcr-rest-ejb-connector-30</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
@@ -55,16 +46,9 @@
             </manifest>
           </archive>
           <modules>
-          <!-- 
-            <javaModule>
-              <groupId>org.exoplatform.ws</groupId>
-              <artifactId>exo.ws.commons</artifactId>
-              <bundleDir>.</bundleDir>
-            </javaModule>
-            -->
             <javaModule>
               <groupId>org.exoplatform.jcr</groupId>
-              <artifactId>exo.jcr.webdav.ejbconnector3_0.client</artifactId>
+              <artifactId>exo.jcr.connectors.ejb30.client</artifactId>
               <bundleDir>.</bundleDir>
               <includeInApplicationXml>true</includeInApplicationXml>
             </javaModule>
@@ -74,7 +58,7 @@
             </ejbModule>
             <ejbModule>
               <groupId>org.exoplatform.jcr</groupId>
-              <artifactId>exo.jcr.webdav.ejbconnector3_0.bean</artifactId>
+              <artifactId>exo.jcr.connectors.ejb30.bean</artifactId>
             </ejbModule>
           </modules>
         </configuration>

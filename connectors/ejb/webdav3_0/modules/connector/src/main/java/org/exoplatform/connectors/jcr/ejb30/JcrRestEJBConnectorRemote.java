@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector30;
+package org.exoplatform.connectors.jcr.ejb30;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -30,7 +30,7 @@ import org.exoplatform.services.rest.ext.transport.SerialResponse;
  * @version $Id: $
  */
 @Remote
-public interface WebDAVEJBConnectorRemote {
+public interface JcrRestEJBConnectorRemote {
 
   SerialResponse service(SerialRequest request) throws RemoteException, IOException;
   

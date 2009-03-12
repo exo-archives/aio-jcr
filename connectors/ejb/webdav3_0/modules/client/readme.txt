@@ -4,7 +4,7 @@ This example tried with easybeans-rar_for_jonas-openjpa-1.0.1.rar
 
 To run example:
 1. build client and ejb project.
-2. build ear (run it in folder webdav3_0, see parent folders)
+2. build ear (run it in folder ejb30, see parent folders)
     
     mvn clean install -f build-ear.xml
     

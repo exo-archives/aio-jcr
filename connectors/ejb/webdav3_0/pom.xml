@@ -6,8 +6,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
-  <artifactId>exo.jcr.webdav.ejbconnector3_0.config</artifactId>
-  <name>Config ejb to webdav connector ejb3.0</name>
+  <artifactId>exo.jcr.connectors.ejb30.config</artifactId>
+  <name>Config rest-ejb connector ejb3.0</name>
   <version>1.11.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   
