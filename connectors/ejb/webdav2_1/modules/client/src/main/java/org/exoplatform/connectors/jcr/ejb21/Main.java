@@ -15,22 +15,24 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector21;
-
-import java.io.IOException;
-
-import javax.ejb.EJBLocalObject;
-
-import org.exoplatform.services.rest.ext.transport.SerialRequest;
-import org.exoplatform.services.rest.ext.transport.SerialResponse;
-
+package org.exoplatform.connectors.jcr.ejb21;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public interface WebDAVEJBConnectorLocal extends EJBLocalObject {
-  
-  SerialResponse service (SerialRequest request) throws IOException;
+public class Main {
+
+  public static void main(String[] args) throws Exception {
+    Client c = new Client();
+    for (String s : args) {
+      if (s.startsWith("--server"))
+        c.setServerUrl(s.substring(s.indexOf('=') + 1));
+      if (s.startsWith("--jcr-path"))
+        c.setJcrUrl(s.substring(s.indexOf('=') + 1));
+    }
+      
+    System.out.println(c.run());
+  }
 
 }

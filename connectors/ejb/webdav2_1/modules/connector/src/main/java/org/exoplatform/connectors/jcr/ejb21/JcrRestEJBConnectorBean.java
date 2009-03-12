@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.webdav.ejbconnector21;
+package org.exoplatform.connectors.jcr.ejb21;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ext.transport.SerialRequest;
 import org.exoplatform.services.rest.ext.transport.SerialResponse;
+import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -46,7 +47,7 @@ import org.exoplatform.ws.rest.ejbconnector21.RestEJBConnectorLocalHome;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class WebDAVEJBConnectorBean implements SessionBean {
+public class JcrRestEJBConnectorBean implements SessionBean {
 
   /**
    * Session context.
@@ -61,7 +62,7 @@ public class WebDAVEJBConnectorBean implements SessionBean {
   /**
    * Logger.
    */
-  private static final Log  LOG              = ExoLogger.getLogger(WebDAVEJBConnectorBean.class.getName());
+  private static final Log  LOG              = ExoLogger.getLogger(JcrRestEJBConnectorBean.class.getName());
 
   /**
    * Portal container name.
@@ -92,6 +93,19 @@ public class WebDAVEJBConnectorBean implements SessionBean {
 
     String userId = context.getCallerPrincipal().getName();
     Identity identity = identityRegistry.getIdentity(userId);
+
+    if (identity == null) {
+      // Identity was not initialized yet. This happen when use remote
+      // servlet for access to bean, but never happen when use standalone client
+      // or servlet that works on the same machine.
+      // Trust ejb security so create identity for this user.
+      Authenticator authenticator = (Authenticator) container.getComponentInstanceOfType(Authenticator.class);
+      try {
+        identity = authenticator.createIdentity(userId);
+      } catch (Exception e) {
+        throw new EJBException("Can't create identity for user " + userId, e);
+      }
+    }
 
     try {
       ConversationState state = new ConversationState(identity);

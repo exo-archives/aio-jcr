@@ -6,8 +6,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
-  <artifactId>exo.jcr.webdav.ejbconnector2_1</artifactId>
-  <name>EAR ejb to webdav connector ejb2.1</name>
+  <artifactId>exo.jcr.connectors.ejb21</artifactId>
+  <name>>EAR ejb-rest connector ejb2.1</name>
   <version>1.11.1-SNAPSHOT</version>
   <packaging>ear</packaging>
   <dependencies>
@@ -20,30 +20,21 @@
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.webdav.ejbconnector2_1.bean</artifactId>
+      <artifactId>exo.jcr.connectors.ejb21.bean</artifactId>
       <version>1.11.1-SNAPSHOT</version>
       <type>ejb</type>
       <scope>runtime</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.exoplatform.ws</groupId>
-      <artifactId>exo.ws.commons</artifactId>
-      <version>${org.exoplatform.ws.version}</version>
-      <type>jar</type>
-      <scope>runtime</scope>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.webdav.ejbconnector2_1.client</artifactId>
+      <artifactId>exo.jcr.connectors.ejb21.client</artifactId>
       <version>1.11.1-SNAPSHOT</version>
       <type>jar</type>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
   <build>
-    <finalName>webdav-ejb-connector-2_1</finalName>
+    <finalName>jcr-rest-ejb-connector-21</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
@@ -64,7 +55,7 @@
             -->
             <javaModule>
               <groupId>org.exoplatform.jcr</groupId>
-              <artifactId>exo.jcr.webdav.ejbconnector2_1.client</artifactId>
+              <artifactId>exo.jcr.connectors.ejb21.client</artifactId>
               <bundleDir>.</bundleDir>
               <includeInApplicationXml>true</includeInApplicationXml>
             </javaModule>
@@ -74,7 +65,7 @@
             </ejbModule>
             <ejbModule>
               <groupId>org.exoplatform.jcr</groupId>
-              <artifactId>exo.jcr.webdav.ejbconnector2_1.bean</artifactId>
+              <artifactId>exo.jcr.connectors.ejb21.bean</artifactId>
             </ejbModule>
           </modules>
         </configuration>
