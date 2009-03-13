@@ -40,7 +40,7 @@ import com.sun.japex.TestCase;
  */
 public class MultiWriteTest extends JCRTestBase {
 
-  private final static int SIZE      = 5 * 1024 * 1024;
+  private final static int SIZE      = 10 * 1024;
 
   static int               threadnum = 0;
 
@@ -62,10 +62,15 @@ public class MultiWriteTest extends JCRTestBase {
     curnum = threadnum++;
     file = File.createTempFile("Thread", "_" + curnum);
 
+    //create values 
+    
+    
     OutputStream out = new FileOutputStream(file);
-    String s = String.valueOf(curnum);
+    
+    byte[] buf = createBuf(1024, String.valueOf(curnum));
+    
     for (int j = 0; j < SIZE; j++) {
-      out.write(s.getBytes());
+      out.write(buf);
     }
     out.close();
 
@@ -89,8 +94,9 @@ public class MultiWriteTest extends JCRTestBase {
       // create big file
       File f = File.createTempFile("Thread", "_first");
       out = new FileOutputStream(f);
+      buf = createBuf(1024, "a");
       for (int j = 0; j < SIZE; j++) {
-        out.write("a".getBytes());
+        out.write(buf);
       }
       out.close();
       System.out.println(f.getAbsolutePath() + "   added");
@@ -107,6 +113,7 @@ public class MultiWriteTest extends JCRTestBase {
       System.out.println("doRun " + curnum);
       prop.setValue(getStream());
       parent.save();
+      System.out.println(" save finished "+ curnum);
     } catch (Exception e) {
       System.out.println( "====================" + curnum + " thread : ");
       e.printStackTrace();
@@ -116,12 +123,27 @@ public class MultiWriteTest extends JCRTestBase {
 
   public void doFinish(final TestCase tc, JCRTestContext context) throws Exception {
 
+    Session ses = context.getSession();
+    ses.refresh(false);
     
-    InputStream in = parent.getProperty("prop").getStream();
+    InputStream in = ses.getRootNode().getNode("parentNode").getProperty("prop").getStream();
 
     byte[] buf = new byte[4];
     in.read(buf);
     in.close();
     System.out.println(curnum + " - " + new String(buf));
   }
+  
+  private byte[] createBuf(int size, String val){
+    byte[] s = val.getBytes();
+    byte[] buf = new byte[s.length*size];
+    
+    for(int i = 0 ; i< buf.length; ){
+      System.arraycopy(s, 0, buf, i, s.length);
+      i+=s.length;
+    }
+    
+    return buf;
+  }
+  
 }
