@@ -40,28 +40,6 @@
       <outputDirectory>lib</outputDirectory>
       <unpack>false</unpack>
       <scope>compile</scope>
-      <!-- excludes>
-        <exclude>javagroups:jgroups-all</exclude>
-        <exclude>bcel:bcel</exclude>
-        <exclude>mail:mail</exclude>
-        <exclude>jsf:jsf-api</exclude>
-        <exclude>javax.portlet:portlet-api</exclude>
-        <exclude>mail:activation</exclude>
-        <exclude>groovy:groovy-all-1.0-jsr</exclude>
-        <exclude>xpp3:xpp3</exclude>
-        <exclude>drools:drools-base</exclude>
-        <exclude>drools:drools-smf</exclude>
-        <exclude>javax.servlet:servlet-api</exclude>
-        <exclude>janino:janino</exclude>
-        <exclude>antlr:antlr</exclude>
-        <exclude>xstream:xstream</exclude>
-        <exclude>junit:junit</exclude>
-        <exclude>drools:drools-smftest</exclude>
-        <exclude>exo-platform:exo-platform.test.framework</exclude>
-        <exclude>jmock:jmock</exclude>
-        <exclude>commons-beanutils:commons-beanutils</exclude>
-        <exclude>xerces:xercesImpl</exclude>
-        </excludes -->
     </dependencySet>
   </dependencySets>
 </assembly>

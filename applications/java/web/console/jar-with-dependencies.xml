@@ -47,7 +47,7 @@
 				<exclude>exo-platform:exo-platform.services.remote.api</exclude>
 				<exclude>exo-platform:exo-platform.services.remote.impl</exclude>
 				<exclude>exo-platform:exo-platform.services.templates.api</exclude>
-				<exclude>javagroups:jgroups-all</exclude>
+				<exclude>jgroups:jgroups</exclude>
 				<exclude>html-parser:html-parser</exclude>
 				<exclude>jsf:jsf-api</exclude>
 				<exclude>jtidy:jtidy</exclude>
