@@ -104,7 +104,7 @@ public class RESTRegistryService implements ResourceContainer {
           while (entryIterator.hasNext()) {
             Node node = entryIterator.nextNode();
             Element xmlNode = entry.createElement(node.getName());
-            xlinkHref.putToElement(xmlNode, node.getPath().substring(EXO_REGISTRY.length() + 1));
+            xlinkHref.putToElement(xmlNode, node.getPath().substring(EXO_REGISTRY.length()));
             root.appendChild(xmlNode);
           }
         }

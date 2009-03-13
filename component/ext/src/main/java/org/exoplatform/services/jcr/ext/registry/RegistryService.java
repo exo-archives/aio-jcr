@@ -18,27 +18,34 @@ package org.exoplatform.services.jcr.ext.registry;
 
 import static javax.jcr.ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.picocontainer.Startable;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValueParam;
@@ -90,6 +97,10 @@ public class RegistryService extends Registry implements Startable {
   public final static String          EXO_GROUPS           = "exo:groups";
 
   protected final Map<String, String> regWorkspaces;
+  
+  private HashMap<String, String> appConfigurations = new HashMap<String, String>();
+  
+  private String entryLocation;
 
   protected final RepositoryService   repositoryService;
 
@@ -316,6 +327,30 @@ public class RegistryService extends Registry implements Startable {
         rootNode.addNode(EXO_APPLICATIONS, EXO_REGISTRYGROUP_NT);
         rootNode.addNode(EXO_USERS, EXO_REGISTRYGROUP_NT);
         rootNode.addNode(EXO_GROUPS, EXO_REGISTRYGROUP_NT);
+        
+        DocumentBuilder builder;
+        Set<String> appNames = appConfigurations.keySet();
+        final String fullPath = "/" + EXO_REGISTRY + "/" + entryLocation;
+        for (String appName : appNames) {
+          String xml = appConfigurations.get(appName);
+          try{
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
+            Document document = builder.parse(stream);
+            RegistryEntry entry = new RegistryEntry(document);
+            sysSession.importXML(fullPath,entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
+          }catch (ParserConfigurationException e) {
+            e.printStackTrace();
+          } catch (IOException e) {
+            e.printStackTrace();
+          } catch (SAXException e) {
+            e.printStackTrace();
+          } catch (TransformerException e) {
+            e.printStackTrace();
+          }     
+          
+        }     
+        
         sysSession.save();
       }
       sysSession.logout();
@@ -413,6 +448,17 @@ public class RegistryService extends Registry implements Startable {
         parent.save();
       }
       prefix = path;
+    }
+  }
+  
+  
+  public void addPlugin(ComponentPlugin plugin){
+    if(RegistryInitializationEntryPlugin.class.isAssignableFrom(plugin.getClass())) {
+      RegistryInitializationEntryPlugin registryPlugin = (RegistryInitializationEntryPlugin) plugin;
+      appConfigurations = registryPlugin.getAppConfiguration();
+      entryLocation = registryPlugin.getLocation();
+      if (entryLocation == null) 
+        entryLocation = EXO_APPLICATIONS;
     }
   }
 
