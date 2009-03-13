@@ -48,7 +48,8 @@ public class BackupConsole {
                                                       + " <repo/ws>   - /<reponame>/<ws name>\n"
                                                       + " <path>      - path to backup file\n"
                                                       + " <incr>      - incemental job period\n"
-                                                      + " <incr_jobnumber> - inremential job number\n";
+                                                      + " <incr_jobnumber> - inremential job number\n"
+                                                      + " force-close-session - do server need to close opened session.\n";
 
   /**
    * Main.
