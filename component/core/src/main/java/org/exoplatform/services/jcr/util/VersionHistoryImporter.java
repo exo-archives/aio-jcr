@@ -52,26 +52,56 @@ public class VersionHistoryImporter {
    */
   private static final Log            LOG = ExoLogger.getLogger(VersionHistoryImporter.class);
 
+  /**
+   * Versioned node.
+   */
   private final NodeImpl              versionableNode;
 
+  /**
+   * Version history data.
+   */
   private final InputStream           versionHistoryStream;
 
+  /**
+   * User session.
+   */
   private final SessionImpl           userSession;
 
+  /**
+   * Node-type data manager.
+   */
   private final NodeTypeDataManager   nodeTypeDataManager;
 
+  /**
+   * Data keeper.
+   */
   private final ItemDataKeeperAdapter dataKeeper;
 
+  /**
+   * jcr:baseVersion - uuid.
+   */
   private final String                baseVersionUuid;
 
+  /**
+   * predecessors uuids.
+   */
   private final String[]              predecessors;
 
+  /**
+   * Version history - uuid.
+   */
   private final String                versionHistory;
 
   /**
-   * @param versionableNode
-   * @param versionHistoryStream
-   * @throws RepositoryException
+   * VersionHistoryImporter constructor.
+   * 
+   * @param versionableNode - versionable node.
+   * @param versionHistoryStream - Version history data.
+   * @param baseVersionUuid - jcr:baseVersion - uuid.
+   * @param predecessors - predecessors uuids.
+   * @param versionHistory - Version history - uuid
+   * @throws RepositoryException -if an error occurs while getting
+   *           NodeTypesHolder.
    */
   public VersionHistoryImporter(NodeImpl versionableNode,
                                 InputStream versionHistoryStream,
@@ -90,10 +120,10 @@ public class VersionHistoryImporter {
   }
 
   /**
-   * Do import
+   * Do import.
    * 
-   * @throws RepositoryException
-   * @throws IOException
+   * @throws RepositoryException -if an error occurs while importing.
+   * @throws IOException -i f an error occurs while importing.
    */
   public void doImport() throws RepositoryException, IOException {
     String path = versionableNode.getVersionHistory().getParent().getPath();
@@ -146,12 +176,16 @@ public class VersionHistoryImporter {
   }
 
   /**
-   * Remover helper
+   * Remover helper.
    * 
    * @author sj
    */
   protected class RemoveVisitor extends ItemDataRemoveVisitor {
-
+    /**
+     * Default constructor.
+     * 
+     * @throws RepositoryException - exception.
+     */
     RemoveVisitor() throws RepositoryException {
       super(userSession.getTransientNodesManager(), null,
       // userSession.getWorkspace().getNodeTypeManager(),
@@ -160,6 +194,9 @@ public class VersionHistoryImporter {
             userSession.getUserState());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected void validateReferential(NodeData node) throws RepositoryException {
       // no REFERENCE validation here
     }
