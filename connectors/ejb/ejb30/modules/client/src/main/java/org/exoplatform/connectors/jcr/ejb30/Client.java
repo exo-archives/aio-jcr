@@ -39,39 +39,83 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 public class Client {
 
   // default rules for name easybeans container on Jonas
-  private static final String BEAN_NAME = "org.exoplatform.connectors.jcr.ejb30.JcrRestEJBConnector" +
-      "_" + JcrRestEJBConnectorRemote.class.getName() + "@Remote";
+  /**
+   * Bean name in JNDI.
+   */
+  private static final String BEAN_NAME = "org.exoplatform.connectors.jcr.ejb30.JcrRestEJBConnector"
+      + "_" + JcrRestEJBConnectorRemote.class.getName() + "@Remote";
 
+  /**
+   * Default JCR path.
+   */
   private static final String DEFAULT_JCR_PATH = "/jcr/repository/production/";
 
+  /**
+   * Default application server address.
+   */
   private static final String DEFAULT_AS_URL   = "smart://127.0.0.1:2503";
 
-  private static final String data             = "Hello world";
+  /**
+   * Test string.
+   */
+  private static final String DATA             = "Hello world";
 
+  /**
+   * Actual application server address.
+   */
   private String              serverUrl;
 
+  /**
+   * Actual JCR path.
+   */
   private String              jcrUrl;
 
+  /**
+   * Get application server address.
+   * 
+   * @return server address, it is not preset yet then default address
+   */
   public String getServerUrl() {
     if (serverUrl == null || serverUrl.length() == 0)
       serverUrl = DEFAULT_AS_URL;
     return serverUrl;
   }
 
+  /**
+   * Set application server address.
+   * 
+   * @param url application server address
+   */
   public void setServerUrl(String url) {
     this.serverUrl = url;
   }
 
+  /**
+   * Get JCR path.
+   * 
+   * @return JCR path, it is not preset yet then default path
+   */
   public String getJcrUrl() {
     if (jcrUrl == null || jcrUrl.length() == 0)
       jcrUrl = DEFAULT_JCR_PATH;
     return jcrUrl;
   }
 
+  /**
+   * Set JCR path.
+   * 
+   * @param url JCR path
+   */
   public void setJcrUrl(String url) {
     this.jcrUrl = url.endsWith("/") ? url : url + "/";
   }
 
+  /**
+   * Lookup bean.
+   * 
+   * @return enterprise bean instance
+   * @throws Exception if any error occurs
+   */
   private JcrRestEJBConnectorRemote getBean() throws Exception {
     Hashtable<String, String> props = new Hashtable<String, String>();
     props.put(javax.naming.Context.PROVIDER_URL, getServerUrl());
@@ -81,6 +125,12 @@ public class Client {
     return (JcrRestEJBConnectorRemote) ctx.lookup(BEAN_NAME);
   }
 
+  /**
+   * Run test.
+   * 
+   * @return result of test as string
+   * @throws Exception if any error occurs
+   */
   public String run() throws Exception {
 
     ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -103,7 +153,7 @@ public class Client {
     response = bean.service(new SerialRequest("PUT",
                                               new URI(testDir1 + "/test.txt"),
                                               null,
-                                              new SerialInputData(data.getBytes())));
+                                              new SerialInputData(DATA.getBytes())));
     out.println(response.getStatus());
     if (response.getData() != null)
       printStream(response.getData().getStream(), out);
@@ -173,6 +223,11 @@ public class Client {
     return buf.toString("UTF-8");
   }
 
+  /**
+   * @param in input stream
+   * @param out output writer
+   * @throws IOException it any i/o errors occurs
+   */
   private static void printStream(InputStream in, PrintWriter out) throws IOException {
     int rd = -1;
     while ((rd = in.read()) != -1)

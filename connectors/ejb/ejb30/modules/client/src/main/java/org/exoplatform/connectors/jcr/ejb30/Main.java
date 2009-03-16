@@ -23,6 +23,12 @@ package org.exoplatform.connectors.jcr.ejb30;
  */
 public class Main {
 
+  /**
+   * Run sample enterprise bean's client.
+   * 
+   * @param args input arguments
+   * @throws Exception if any errors occurs
+   */
   public static void main(String[] args) throws Exception {
     Client c = new Client();
     for (String s : args) {

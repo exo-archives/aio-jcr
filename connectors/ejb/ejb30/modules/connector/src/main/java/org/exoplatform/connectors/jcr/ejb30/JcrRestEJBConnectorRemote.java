@@ -31,7 +31,14 @@ import org.exoplatform.services.rest.ext.transport.SerialResponse;
  */
 @Remote
 public interface JcrRestEJBConnectorRemote {
-
+  /**
+   * @param request wrapper for REST request that gives possibility transfer
+   *          request via RMI
+   * @return wrapper around REST response that gives possibility transfer
+   *         request via RMI
+   * @throws RemoteException if remote exception occurs
+   * @throws IOException if any i/o errors occurs
+   */
   SerialResponse service(SerialRequest request) throws RemoteException, IOException;
-  
+
 }

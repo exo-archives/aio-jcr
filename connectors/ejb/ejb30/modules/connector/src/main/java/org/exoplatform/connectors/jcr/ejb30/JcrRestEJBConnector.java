@@ -18,7 +18,6 @@
 package org.exoplatform.connectors.jcr.ejb30;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
@@ -94,7 +93,7 @@ public class JcrRestEJBConnector implements JcrRestEJBConnectorRemote, JcrRestEJ
    * @throws IOException if any i/o errors occurs
    */
   @RolesAllowed({ "admin", "users" })
-  public final SerialResponse service(final SerialRequest request) throws RemoteException {
+  public final SerialResponse service(final SerialRequest request) throws IOException {
     InitialContext ctx = null;
     try {
       ctx = new InitialContext();
