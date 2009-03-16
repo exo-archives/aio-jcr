@@ -52,7 +52,6 @@ public class RegistryInitializationEntryPlugin extends BaseComponentPlugin {
       Iterator<ValueParam> iterator = initParams.getValueParamIterator();
       while (iterator.hasNext()) {
         ValueParam valueParam = (ValueParam) iterator.next();
-        System.out.println("RegistryInitializationEntryPlugin.RegistryInitializationEntryPlugin()" + valueParam.getValue());
         appConfiguration.put(valueParam.getName(), valueParam.getValue().trim());
       }
     }
