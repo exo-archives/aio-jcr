@@ -31,8 +31,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.ws.commons.util.Base64;
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -42,7 +40,6 @@ import org.exoplatform.services.jcr.ext.backup.BackupChain;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
-import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
@@ -143,6 +140,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    * 
    * @param repoService the RepositoryService
    * @param backupManager the BackupManager
+   * @param sessionProviderService the ThreadLocalSessionProviderService
    */
   public HTTPBackupAgent(RepositoryService repoService,
                       BackupManager backupManager,
@@ -235,6 +233,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
+   * @param forceCloseSession the Boolean
    * @return Response return the response
    */
   @GET
@@ -249,7 +248,7 @@ public class HTTPBackupAgent implements ResourceContainer {
       
       if (forceCloseSession) {
         int closedSessions = forceCloseSession(repositoryName, workspaceName);
-        res += ("The " + closedSessions + " sessions was closed on workspace '" + "/" + repositoryName + "/"+workspaceName+"'\n");
+        res += ("The " + closedSessions + " sessions was closed on workspace '" + "/" + repositoryName + "/" + workspaceName + "'\n");
       }
       
       validateRepositoryName(repositoryName);
@@ -258,12 +257,12 @@ public class HTTPBackupAgent implements ResourceContainer {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
       repository.removeWorkspace(workspaceName);
       
-      res += "The workspace '" + "/" + repositoryName + "/"+workspaceName+"' was dropped.";
+      res += "The workspace '/" + repositoryName + "/" + workspaceName + "' was dropped.";
     } catch (Exception e) {
       res = "FAIL\n" + e.getMessage();
       log.error("Can not drop the workspace '"
-                + "/"+repositoryName
-                + "/"+workspaceName+"'");
+                + "/" + repositoryName
+                + "/" + workspaceName + "'");
     }
 
     return Response.ok(res).build();
@@ -274,6 +273,8 @@ public class HTTPBackupAgent implements ResourceContainer {
    * 
    * @param repositoryName the repository name
    * @param workspaceName the workspace name
+   * @param path the  path to backup log on server
+   * @param workspaceEntry the workspace entry 
    * @return Response return the response
    */
   @GET
@@ -308,12 +309,12 @@ public class HTTPBackupAgent implements ResourceContainer {
       
       restore.restore();
       
-      res += ("The workspace '" + "/" + repositoryName  + "/" + workspaceName+"' was restored.");
+      res += ("The workspace '" + "/" + repositoryName  + "/" + workspaceName + "' was restored.");
     } catch (Exception e) {
       res = "FAIL\n" + e.getMessage();
       log.error("Can not restore the workspace '"
-                +"/"+repositoryName
-                + "/"+workspaceName+"' from "
+                + "/" + repositoryName
+                + "/" + workspaceName + "' from "
                 + ePath, e);
     }
 
@@ -341,11 +342,11 @@ public class HTTPBackupAgent implements ResourceContainer {
       
       if (bch != null) {
         backupManager.stopBackup(bch);
-        result += "The backup was stoped for '" + "/"+repositoryName + "/"+workspaceName+"'";
+        result += "The backup was stoped for '" + "/" + repositoryName + "/" + workspaceName + "'";
       } else
         throw new RuntimeException("No active backup for '"
-                                   +"/"+repositoryName 
-                                   + "/"+workspaceName+"'");
+                                   + "/" + repositoryName 
+                                   + "/" + workspaceName + "'");
       
     } catch (Exception e) {
       result = "FAIL\n" + e.getMessage();
@@ -382,11 +383,11 @@ public class HTTPBackupAgent implements ResourceContainer {
              incrementalBackupStatus = "The incremental backup for workspace '" + "/" + repositoryName + "/" + workspaceName + "' is working";
         
         String fullBackupStatus = "The full backup for workspace '" + "/" + repositoryName + "/" + workspaceName + "' " 
-          +(bch.getFullBackupState() == BackupJob.FINISHED ? "was " : "is " ) + getState(bch.getFullBackupState());
+          + (bch.getFullBackupState() == BackupJob.FINISHED ? "was " : "is ") + getState(bch.getFullBackupState());
         
         result += fullBackupStatus + "\n" + incrementalBackupStatus;
       } else
-        result += "No active backup for workspace '" + "/"+repositoryName + "/"+workspaceName+"'";
+        result += "No active backup for workspace '/" + repositoryName + "/" + workspaceName + "'";
       
     } catch (Exception e) {
       result = "FAIL\n" + e.getMessage();
@@ -397,43 +398,74 @@ public class HTTPBackupAgent implements ResourceContainer {
   }
   
   
-  private void validateRepositoryName(String repositoryName) throws RuntimeException {
+  /**
+   * validateRepositoryName.
+   *
+   * @param repositoryName
+   *          the repository name
+   */
+  private void validateRepositoryName(String repositoryName) {
     try {
       repositoryService.getRepository(repositoryName);
     } catch (RepositoryException e) {
-      throw new RuntimeException("Can not get repository '" + repositoryName +"'", e);
+      throw new RuntimeException("Can not get repository '" + repositoryName + "'", e);
     } catch (RepositoryConfigurationException e) {
-      throw new RuntimeException("Can not get repository '" + repositoryName +"'", e);
+      throw new RuntimeException("Can not get repository '" + repositoryName + "'", e);
     }
   }
   
+  /**
+   * validateWorkspaceName.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   */
   private void validateWorkspaceName(String repositoryName, 
-                                      String workspaceName) throws RuntimeException {
+                                      String workspaceName) {
     try {
       Session ses = sessionProviderService.getSessionProvider(null).getSession(workspaceName, repositoryService.getRepository(repositoryName));
       ses.logout();
     } catch (LoginException e) {
-      throw new RuntimeException("Can not loogin to workspace '" + workspaceName +"'" , e);
+      throw new RuntimeException("Can not loogin to workspace '" + workspaceName + "'" , e);
     } catch (NoSuchWorkspaceException e) {
-      throw new RuntimeException("Can not get workspace '" + workspaceName +"'", e);
+      throw new RuntimeException("Can not get workspace '" + workspaceName + "'", e);
     } catch (RepositoryException e) {
-      throw new RuntimeException("Can not get workspace '" + workspaceName +"'", e);
+      throw new RuntimeException("Can not get workspace '" + workspaceName + "'", e);
     } catch (RepositoryConfigurationException e) {
-      throw new RuntimeException("Can not get workspace '" + workspaceName +"'", e);
+      throw new RuntimeException("Can not get workspace '" + workspaceName + "'", e);
     }
   }
   
+  /**
+   * validateOneInstants.
+   *
+   *  @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @throws WorkspaceRestoreExeption
+   *           will be generated WorkspaceRestoreExeption
+   */
   private void validateOneInstants(String repositoryName, String workspaceName) throws WorkspaceRestoreExeption {
    
     BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
     
     if (bch != null)
       throw new WorkspaceRestoreExeption("The backup is already working on workspace '"
-                                         +"/"+repositoryName 
-                                         + "/"+workspaceName+"'");
+                                         + "/" + repositoryName 
+                                         + "/" + workspaceName + "'");
   }
   
   
+  /**
+   * getState.
+   *
+   * @param state
+   *         value of state
+   * @return String sate
+   */
   private String getState(int state) {
     String st = "";
     switch (state) {
@@ -452,6 +484,8 @@ public class HTTPBackupAgent implements ResourceContainer {
       
     case BackupJob.STARTING:
       st = "starting";
+      break;
+    default:
       break;
     }
     
