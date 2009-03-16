@@ -40,21 +40,44 @@ import com.sun.japex.TestCase;
  */
 public class MultiWriteTest extends JCRTestBase {
 
-  private final static int SIZE      = 10 * 1024;
+  /**
+   * Count of string blocks writed to file.
+   */
+  private static final int SIZE       = 10 * 1024;
 
-  static int               threadnum = 0;
+  /**
+   * Data block size.
+   */
+  private static final int BLOCK_SIZE = 1024;
 
+  /**
+   * Global variable, used to automatically numerate threads.
+   */
+  static int               threadnum  = 0;
+
+  /**
+   * Property owner node.
+   */
   private Node             parent;
 
+  /**
+   * Property to store.
+   */
+  private Property         prop;
+
+  /**
+   * File with content to store in node.
+   */
   private File             file;
 
+  /**
+   * Current thread number.
+   */
   int                      curnum;
 
-  public InputStream getStream() throws IOException {
+  private InputStream getStream() throws IOException {
     return new FileInputStream(file);
   }
-
-  private Property prop;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
@@ -62,13 +85,12 @@ public class MultiWriteTest extends JCRTestBase {
     curnum = threadnum++;
     file = File.createTempFile("Thread", "_" + curnum);
 
-    //create values 
-    
-    
+    // create values
+
     OutputStream out = new FileOutputStream(file);
-    
-    byte[] buf = createBuf(1024, String.valueOf(curnum));
-    
+
+    byte[] buf = createBuf(BLOCK_SIZE, String.valueOf(curnum));
+
     for (int j = 0; j < SIZE; j++) {
       out.write(buf);
     }
@@ -94,7 +116,7 @@ public class MultiWriteTest extends JCRTestBase {
       // create big file
       File f = File.createTempFile("Thread", "_first");
       out = new FileOutputStream(f);
-      buf = createBuf(1024, "a");
+      buf = createBuf(BLOCK_SIZE, "a");
       for (int j = 0; j < SIZE; j++) {
         out.write(buf);
       }
@@ -113,11 +135,11 @@ public class MultiWriteTest extends JCRTestBase {
       System.out.println("doRun " + curnum);
       prop.setValue(getStream());
       parent.save();
-      System.out.println(" save finished "+ curnum);
+      System.out.println(" save finished " + curnum);
     } catch (Exception e) {
-      System.out.println( "====================" + curnum + " thread : ");
+      System.out.println("====================" + curnum + " thread : ");
       e.printStackTrace();
-      //throw new Exception(e);
+      // throw new Exception(e);
     }
   }
 
@@ -125,7 +147,7 @@ public class MultiWriteTest extends JCRTestBase {
 
     Session ses = context.getSession();
     ses.refresh(false);
-    
+
     InputStream in = ses.getRootNode().getNode("parentNode").getProperty("prop").getStream();
 
     byte[] buf = new byte[4];
@@ -133,17 +155,17 @@ public class MultiWriteTest extends JCRTestBase {
     in.close();
     System.out.println(curnum + " - " + new String(buf));
   }
-  
-  private byte[] createBuf(int size, String val){
+
+  private byte[] createBuf(int size, String val) {
     byte[] s = val.getBytes();
-    byte[] buf = new byte[s.length*size];
-    
-    for(int i = 0 ; i< buf.length; ){
+    byte[] buf = new byte[s.length * size];
+
+    for (int i = 0; i < buf.length;) {
       System.arraycopy(s, 0, buf, i, s.length);
-      i+=s.length;
+      i += s.length;
     }
-    
+
     return buf;
   }
-  
+
 }
