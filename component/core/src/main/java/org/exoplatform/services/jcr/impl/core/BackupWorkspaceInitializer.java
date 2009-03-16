@@ -65,7 +65,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
  * 
  * @version $Id$
  */
-public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
+public class BackupWorkspaceInitializer extends SysViewWorkspaceInitializer {
   private final String restoreDir;
 
   private FileCleaner  fileCleaner;

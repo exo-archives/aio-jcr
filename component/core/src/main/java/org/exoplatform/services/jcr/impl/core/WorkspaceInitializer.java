@@ -51,17 +51,6 @@ public interface WorkspaceInitializer extends Startable {
   /**
    * Perform the workspace initialization process.
    * 
-   * @param rootNodeType
-   *          - root node type (used in pre 1.9 core)
-   * @return
-   * @throws RepositoryException
-   */
-  @Deprecated
-  NodeData initWorkspace(InternalQName rootNodeType) throws RepositoryException;
-
-  /**
-   * Perform the workspace initialization process.
-   * 
    * @return
    * @throws RepositoryException
    */

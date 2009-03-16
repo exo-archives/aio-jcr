@@ -78,8 +78,6 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
 
   private final NamespaceDataPersister nsPersister;
 
-  // private final ExtendedNodeTypeManager ntRegistry;
-
   private final NodeTypeDataPersister  ntPersister;
 
   private final String                 rootPermissions;
@@ -148,30 +146,6 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
     this.nsPersister = nsPersister;
     // this.ntRegistry = ntRegistry;
     this.ntPersister = ntPersister;
-  }
-
-  @Deprecated
-  public NodeData initWorkspace(InternalQName rootNodeType) throws RepositoryException {
-
-    log.warn("initWorkspace(InternalQName rootNodeType) is deprecated");
-
-    if (isWorkspaceInitialized()) {
-      return (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-    }
-
-    NodeData root = initRootNode(rootNodeType);
-
-    if (log.isDebugEnabled())
-      log.debug("Root node for " + workspaceName + " initialized. NodeType: " + rootNodeType
-          + " system workspace: " + systemWorkspaceName);
-
-    // Init system workspace
-    if (workspaceName.equals(systemWorkspaceName)) {
-      // initialize /jcr:system
-      NodeData sys = initJcrSystemNode(root);
-    }
-
-    return root;
   }
 
   public NodeData initWorkspace() throws RepositoryException {

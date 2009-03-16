@@ -77,7 +77,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 
-public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
+public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
 
   public static final String          RESTORE_PATH_PARAMETER = "restore-path";
 
@@ -333,7 +333,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
    * @throws PathNotFoundException
    * @throws RepositoryException
    */
-  public RestoreWorkspaceInitializer(WorkspaceEntry config,
+  public SysViewWorkspaceInitializer(WorkspaceEntry config,
                                      RepositoryEntry repConfig,
                                      CacheableWorkspaceDataManager dataManager,
                                      NamespaceRegistryImpl namespaceRegistry,
@@ -357,19 +357,12 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                                                     WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
 
     this.restorePath = config.getInitializer()
-                             .getParameterValue(RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER,
+                             .getParameterValue(SysViewWorkspaceInitializer.RESTORE_PATH_PARAMETER,
                                                 null);
     if (this.restorePath == null)
       throw new RepositoryConfigurationException("Workspace (" + workspaceName
           + ") RestoreIntializer should have mandatory parameter "
-          + RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER);
-  }
-
-  @Deprecated
-  public NodeData initWorkspace(InternalQName rootNodeType) throws RepositoryException {
-
-    log.warn("NOT IMPLEMENTED! initWorkspace(InternalQName rootNodeType) is deprecated");
-    return null;
+          + SysViewWorkspaceInitializer.RESTORE_PATH_PARAMETER);
   }
 
   public NodeData initWorkspace() throws RepositoryException {
