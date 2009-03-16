@@ -72,6 +72,13 @@
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+      <dependency>
+        <groupId>emma</groupId>
+        <artifactId>emma</artifactId>
+      </dependency>
+  </dependencies>
+
   <build>
     <!--sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
