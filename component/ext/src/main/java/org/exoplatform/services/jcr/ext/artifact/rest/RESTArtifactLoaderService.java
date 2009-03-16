@@ -20,11 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -52,6 +53,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -63,6 +65,9 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 @Path("/maven2/")
 public class RESTArtifactLoaderService implements ResourceContainer {
 
+  /**
+   * Logger.
+   */
   private static final Log                  LOG      = ExoLogger.getLogger(RESTArtifactLoaderService.class);
 
   /**
@@ -249,6 +254,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     final PipedInputStream pi = new PipedInputStream(po);
     new Thread() {
       @Override
+      @SuppressWarnings("unchecked")
       public void run() {
         try {
           XMLOutputFactory factory = XMLOutputFactory.newInstance();
@@ -329,9 +335,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           xsw.writeEmptyElement("td");
           xsw.writeEmptyElement("td");
 
-          NodeIterator iterator = node.getNodes();
-          while (iterator.hasNext()) {
-            Node node = iterator.nextNode();
+//          NodeIterator nodes = node.getNodes();
+          EntityCollection nodes = (EntityCollection) node.getNodes();
+          Collections.sort(nodes.getList(), NODE_COMPARATOR);
+          while (nodes.hasNext()) {
+            Node node = nodes.nextNode();
             xsw.writeStartElement("tr");
             if (RESTArtifactLoaderService.isFile(node)) {
               if (node.getName().endsWith("sha1"))
@@ -343,6 +351,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
               xsw.writeEndElement();// td
 
               xsw.writeStartElement("td");
+              xsw.writeAttribute("style", "font-style: italic;");
               xsw.writeStartElement("a");
               xsw.writeAttribute("href",
                                  (mavenPath.endsWith("/") ? mavenPath + node.getName() : mavenPath
@@ -570,9 +579,45 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
   }
 
+  /**
+   * @param stream stream
+   * @return string representation of stream
+   * @throws IOException if any i/o errors occurs
+   */
   protected String getStreamAsString(InputStream stream) throws IOException {
     byte[] buff = new byte[stream.available()];
     stream.read(buff);
     return new String(buff);
   }
+
+  /**
+   * Node type comparator.
+   * @see NodeComparator
+   */
+  private static final Comparator<Node> NODE_COMPARATOR = new NodeComparator();
+  
+  /**
+   * It is needs to display artifact in alphabetical order and display folders
+   * before files.
+   */
+  private static class NodeComparator implements Comparator<Node> {
+    
+    /**
+     * {@inheritDoc}
+     */
+    public int compare(Node o1, Node o2) {
+      try {
+        if (isFile(o1) && !isFile(o2))
+          return 1;
+        if (!isFile(o1) && isFile(o2))
+          return -1;
+        return o1.getName().compareTo(o2.getName());
+      } catch (RepositoryException e) {
+        LOG.error("", e);
+        return 0;
+      }
+    }
+
+  }
+  
 }
