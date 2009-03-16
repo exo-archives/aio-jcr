@@ -24,13 +24,19 @@ import javax.ejb.EJBLocalObject;
 import org.exoplatform.services.rest.ext.transport.SerialRequest;
 import org.exoplatform.services.rest.ext.transport.SerialResponse;
 
-
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public interface JcrRestEJBConnectorLocal extends EJBLocalObject {
-  
-  SerialResponse service (SerialRequest request) throws IOException;
+
+  /**
+   * @param request wrapper for REST request that gives possibility transfer
+   *          request via RMI
+   * @return wrapper around REST response that gives possibility transfer
+   *         request via RMI
+   * @throws IOException if any i/o errors occurs
+   */
+  SerialResponse service(SerialRequest request) throws IOException;
 
 }

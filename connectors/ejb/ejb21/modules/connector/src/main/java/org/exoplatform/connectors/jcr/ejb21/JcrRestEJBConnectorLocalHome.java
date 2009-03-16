@@ -26,6 +26,10 @@ import javax.ejb.EJBLocalHome;
  */
 public interface JcrRestEJBConnectorLocalHome extends EJBLocalHome {
   
+  /**
+   * @return bean instance
+   * @throws CreateException if bean creation failed
+   */
   JcrRestEJBConnectorLocal create() throws CreateException;
   
 }

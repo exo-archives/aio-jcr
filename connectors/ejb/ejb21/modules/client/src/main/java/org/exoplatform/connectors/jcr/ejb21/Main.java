@@ -23,6 +23,12 @@ package org.exoplatform.connectors.jcr.ejb21;
  */
 public class Main {
 
+  /**
+   * Run sample enterprise bean's client.
+   * 
+   * @param args input arguments
+   * @throws Exception if any errors occurs
+   */
   public static void main(String[] args) throws Exception {
     Client c = new Client();
     for (String s : args) {
@@ -31,7 +37,7 @@ public class Main {
       if (s.startsWith("--jcr-path"))
         c.setJcrUrl(s.substring(s.indexOf('=') + 1));
     }
-      
+
     System.out.println(c.run());
   }
 

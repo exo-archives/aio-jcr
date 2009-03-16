@@ -18,7 +18,6 @@
 package org.exoplatform.connectors.jcr.ejb21;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 import javax.ejb.EJBObject;
 
@@ -30,7 +29,14 @@ import org.exoplatform.services.rest.ext.transport.SerialResponse;
  * @version $Id: $
  */
 public interface JcrRestEJBConnector extends EJBObject {
-
-  SerialResponse service(SerialRequest request) throws RemoteException, IOException;
+  
+  /**
+   * @param request wrapper for REST request that gives possibility transfer
+   *          request via RMI
+   * @return wrapper around REST response that gives possibility transfer
+   *         request via RMI
+   * @throws IOException if any i/o errors occurs
+   */
+  SerialResponse service(SerialRequest request) throws IOException;
 
 }

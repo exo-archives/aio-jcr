@@ -141,24 +141,27 @@ public class JcrRestEJBConnectorBean implements SessionBean {
   /**
    * {@inheritDoc}
    */
-  public void ejbActivate() throws EJBException, RemoteException {
+  public void ejbActivate() throws RemoteException {
     // nothing to do here
   }
 
   /**
    * {@inheritDoc}
    */
-  public void ejbPassivate() throws EJBException, RemoteException {
+  public void ejbPassivate() throws RemoteException {
     // nothing to do here
   }
 
   /**
    * {@inheritDoc}
    */
-  public void ejbRemove() throws EJBException, RemoteException {
+  public void ejbRemove() throws RemoteException {
     // nothing to do here
   }
 
+  /**
+   * create ejb.
+   */
   public void ejbCreate() {
     // nothing to do here
   }
@@ -166,8 +169,8 @@ public class JcrRestEJBConnectorBean implements SessionBean {
   /**
    * {@inheritDoc}
    */
-  public void setSessionContext(SessionContext context) throws EJBException, RemoteException {
-    this.context = context;
+  public void setSessionContext(SessionContext ctx) throws RemoteException {
+    this.context = ctx;
   }
 
   /**

@@ -27,7 +27,12 @@ import javax.ejb.EJBHome;
  * @version $Id: $
  */
 public interface JcrRestEJBConnectorHome extends EJBHome {
-  
+
+  /**
+   * @return bean instance
+   * @throws RemoteException if remote exception occurs
+   * @throws CreateException if bean creation failed
+   */
   JcrRestEJBConnector create() throws RemoteException, CreateException;
-  
+
 }
