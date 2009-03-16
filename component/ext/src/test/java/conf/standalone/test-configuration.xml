@@ -312,6 +312,17 @@
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
     <component-plugins>
+       <component-plugin>
+        <name>store.changes</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.jcr.impl.StoreChangesPlugin</type>
+        <init-params>
+          <value-param>
+            <name>workspaces</name>
+            <value>ws</value>
+          </value-param>
+        </init-params>
+      </component-plugin>
       <component-plugin>
         <name>add.namespaces</name>
         <set-method>addPlugin</set-method>

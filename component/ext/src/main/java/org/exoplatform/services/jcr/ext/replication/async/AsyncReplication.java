@@ -52,6 +52,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageIm
 import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SystemLocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.impl.ChangesListener;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
@@ -731,6 +732,11 @@ public class AsyncReplication implements Startable {
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
     dm.addItemPersistenceListener(localStorage);
+
+    ChangesListener changesListener = (ChangesListener) wsc.getComponent(org.exoplatform.services.jcr.impl.ChangesListener.class);
+    for (int i = 0; i < changesListener.getChanges().size(); i++) {
+      localStorage.onSaveItems(changesListener.getChanges().get(i));
+    }
 
     // income storage paths
     File incomeDirPerWorkspace = new File(incomeStorageDir + File.separator + repositoryName
