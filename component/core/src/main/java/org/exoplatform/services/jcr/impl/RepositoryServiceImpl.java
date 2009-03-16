@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
 import org.picocontainer.Startable;
@@ -69,6 +68,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   private final List<ComponentPlugin>                addNamespacesPlugins;
 
+  private final List<ComponentPlugin>                storeChangesPlugins;
+
   private final ExoContainerContext                  containerContext;
 
   private ExoContainer                               parentContainer;
@@ -82,6 +83,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     this.config = configuration;
     addNodeTypePlugins = new ArrayList<ComponentPlugin>();
     addNamespacesPlugins = new ArrayList<ComponentPlugin>();
+    storeChangesPlugins = new ArrayList<ComponentPlugin>();
     containerContext = context;
     currentRepositoryName.set(config.getDefaultRepositoryName());
   }
@@ -91,6 +93,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       addNodeTypePlugins.add(plugin);
     else if (plugin instanceof AddNamespacesPlugin)
       addNamespacesPlugins.add(plugin);
+    else if (plugin instanceof StoreChangesPlugin) {
+      storeChangesPlugins.add(plugin);
+    }
   }
 
   public boolean canRemoveRepository(String name) throws RepositoryException {
@@ -140,9 +145,16 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
     addNamespaces(rEntry.getName());
     registerNodeTypes(rEntry.getName());
-    
+
     // turn on Repository ONLINE
     ManageableRepository mr = (ManageableRepository) repositoryContainer.getComponentInstanceOfType(ManageableRepository.class);
+
+    // register listeners
+    for (int j = 0; j < storeChangesPlugins.size(); j++) {
+      StoreChangesPlugin plugin = (StoreChangesPlugin) storeChangesPlugins.get(j);
+      plugin.addListeners(mr);
+    }
+
     mr.setState(ManageableRepository.ONLINE);
   }
 
@@ -237,6 +249,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     repositoryContainers.clear();
     addNamespacesPlugins.clear();
     addNodeTypePlugins.clear();
+    storeChangesPlugins.clear();
   }
 
   private void addNamespaces() throws RepositoryException {
