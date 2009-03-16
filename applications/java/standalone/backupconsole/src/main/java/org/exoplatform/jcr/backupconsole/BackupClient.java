@@ -35,7 +35,7 @@ public interface BackupClient {
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  public String startBackUp(String pathToWS) throws IOException, BackupExecuteException;
+  String startBackUp(String pathToWS) throws IOException, BackupExecuteException;
 
   /**
    * Start Incremental Backup.
@@ -47,7 +47,7 @@ public interface BackupClient {
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
+  String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
                                                                                  BackupExecuteException;
 
   /**
@@ -56,22 +56,22 @@ public interface BackupClient {
    * @param pathToWS path to repository and workspace.
    * @return String result.
    * @throws IOException transport exception.
-   * @throws BackupExecuteException
+   * @throws BackupExecuteException backup client internal exception.
    */
-  public String status(String pathToWS) throws IOException, BackupExecuteException;
+  String status(String pathToWS) throws IOException, BackupExecuteException;
 
   /**
    * Restore repository from backup file.
    * 
    * @param pathToWS path to repository and workspace.
    * @param pathToBackup path to backup file on server side.
-   * @param config TODO
+   * @param config InputStream contains workspace configuration.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  public String restore(String pathToWS, String pathToBackup, InputStream config) throws IOException,
-                                                             BackupExecuteException;
+  String restore(String pathToWS, String pathToBackup, InputStream config) throws IOException,
+                                                                                 BackupExecuteException;
 
   /**
    * Stop backup.
@@ -81,17 +81,18 @@ public interface BackupClient {
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  public String stop(String pathToWS) throws IOException, BackupExecuteException;
-  
+  String stop(String pathToWS) throws IOException, BackupExecuteException;
+
   /**
    * Drop backup.
-   * @param forceClose TODO
-   * @param pathToWS path to repository and workspace.
    * 
+   * @param forceClose force sessions close on droped workspace.
+   * @param pathToWS path to repository and workspace.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  public String drop(boolean forceClose, String pathToWS) throws IOException, BackupExecuteException;
+  String drop(boolean forceClose, String pathToWS) throws IOException,
+                                                         BackupExecuteException;
 
 }

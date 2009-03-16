@@ -36,5 +36,5 @@ public interface ClientTransport {
    * @throws IOException any transport exception.
    * @throws BackupExecuteException other internal exception.
    */
-  public String execute(String sURL) throws IOException, BackupExecuteException;
+  String execute(String sURL) throws IOException, BackupExecuteException;
 }

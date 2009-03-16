@@ -57,15 +57,16 @@ public class ClientTransportImpl implements ClientTransport {
 
   /**
    * Constructor.
-   * @param login
-   * @param pathword
-   * @param host
-   * @param isSSL
+   * 
+   * @param login Login string.
+   * @param password Password string.
+   * @param host host string.
+   * @param isSSL isSSL flag.
    */
-  public ClientTransportImpl(String login, String pathword, String host, boolean isSSL) {
+  public ClientTransportImpl(String login, String password, String host, boolean isSSL) {
     this.host = host;
     this.login = login;
-    this.password = pathword;
+    this.password = password;
     this.isSSL = isSSL;
   }
 
@@ -96,11 +97,19 @@ public class ClientTransportImpl implements ClientTransport {
 
     return result;
   }
-  
+
+  /**
+   * Get realm by URL.
+   * 
+   * @param sUrl URL string.
+   * @return realm name string.
+   * @throws IOException transport exception.
+   * @throws ModuleException ModuleException.
+   */
   private String getRealm(String sUrl) throws IOException, ModuleException {
 
     AuthorizationHandler ah = AuthorizationInfo.getAuthHandler();
-    
+
     try {
       URL url = new URL(sUrl);
       HTTPConnection connection = new HTTPConnection(url);
@@ -108,13 +117,13 @@ public class ClientTransportImpl implements ClientTransport {
       AuthorizationInfo.setAuthHandler(null);
 
       HTTPResponse resp = connection.Get(url.getFile());
-      
+
       String authHeader = resp.getHeader("WWW-Authenticate");
-      
+
       String realm = authHeader.split("=")[1];
-      realm = realm.substring(1, realm.length()-1);
-      
-      return realm;      
+      realm = realm.substring(1, realm.length() - 1);
+
+      return realm;
 
     } finally {
       AuthorizationInfo.setAuthHandler(ah);

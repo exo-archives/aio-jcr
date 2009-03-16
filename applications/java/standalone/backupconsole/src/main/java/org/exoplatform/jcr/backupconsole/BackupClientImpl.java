@@ -19,7 +19,6 @@ package org.exoplatform.jcr.backupconsole;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 import org.apache.ws.commons.util.Base64;
 
@@ -33,7 +32,12 @@ public class BackupClientImpl implements BackupClient {
   /**
    * The base path to this service.
    */
-  public static final String BASE_URL = "/rest/jcr-backup";
+  public static final String BASE_URL   = "/rest/jcr-backup";
+
+  /**
+   * Block size.
+   */
+  private static final int   BLOCK_SIZE = 1024;
 
   /**
    * Definition the operation types.
@@ -118,7 +122,8 @@ public class BackupClientImpl implements BackupClient {
    */
   public String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
                                                                                  BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/" + incr + "/" + jobnumber + "/" + OperationType.FULL_AND_INCREMENTAL;
+    String sURL = BASE_URL + pathToWS + "/" + incr + "/" + jobnumber + "/"
+        + OperationType.FULL_AND_INCREMENTAL;
 
     return transport.execute(sURL);
   }
@@ -152,7 +157,7 @@ public class BackupClientImpl implements BackupClient {
 
     ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
-    byte[] b = new byte[1024];
+    byte[] b = new byte[BLOCK_SIZE];
     int len = 0;
     while ((len = config.read(b)) != -1) {
       bout.write(b, 0, len);
@@ -162,18 +167,20 @@ public class BackupClientImpl implements BackupClient {
     bout.close();
 
     String conf = Base64.encode(cb, 0, cb.length, 0, "");
-    
+
     conf = conf.replace("+", "char_pluse");
 
-    String sURL = BASE_URL + pathToWS + "/" + encodedPath + "/" + conf + "/" + OperationType.RESTORE;
+    String sURL = BASE_URL + pathToWS + "/" + encodedPath + "/" + conf + "/"
+        + OperationType.RESTORE;
     return transport.execute(sURL);
   }
 
   /**
    * {@inheritDoc}
    */
-  public String drop(boolean forceClose, String pathToWS) throws IOException, BackupExecuteException {
-    String sURL = BASE_URL + pathToWS + "/"+ forceClose + "/" + OperationType.DROP_WORKSPACE;
+  public String drop(boolean forceClose, String pathToWS) throws IOException,
+                                                         BackupExecuteException {
+    String sURL = BASE_URL + pathToWS + "/" + forceClose + "/" + OperationType.DROP_WORKSPACE;
     return transport.execute(sURL);
   }
 

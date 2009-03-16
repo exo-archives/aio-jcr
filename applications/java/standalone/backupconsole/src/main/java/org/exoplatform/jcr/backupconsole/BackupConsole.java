@@ -28,14 +28,29 @@ import java.io.IOException;
  */
 public class BackupConsole {
 
+  /**
+   * Incorrect parameter string.
+   */
   private static final String INCORRECT_PARAM     = "Incorrect parameter: ";
 
-  private static final String TO_MANY_PARAMS      = "Too many parameters.";
+  /**
+   * Too many parameters string.
+   */
+  private static final String TOO_MANY_PARAMS     = "Too many parameters.";
 
+  /**
+   * Login password string.
+   */
   private static final String LOGIN_PASS_SPLITTER = ":";
-  
-  private static final String FORCE_CLOSE = "force-close-session";
 
+  /**
+   * Force close session parameter string.
+   */
+  private static final String FORCE_CLOSE         = "force-close-session";
+
+  /**
+   * Help string.
+   */
   private static final String HELP_INFO           = "Help info:\n"
                                                       + " [-ssl] <auth> <host> <cmd> \n"
                                                       + " <auth> :   login:pathword\n"
@@ -95,10 +110,12 @@ public class BackupConsole {
       return;
     }
     String host = args[curArg++];
-    //if (!host.matches("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:\\d{1,6}")) {
-    //  System.out.println(INCORRECT_PARAM + "There is incorrect Host:Port parameter - " + host);
-   //   return;
-   // }
+    // TODO
+    // if (!host.matches("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:\\d{1,6}")) {
+    // System.out.println(INCORRECT_PARAM + "There is incorrect Host:Port
+    // parameter - " + host);
+    // return;
+    // }
 
     // initialize transport and backup client
     String[] lp = login.split(LOGIN_PASS_SPLITTER);
@@ -147,7 +164,7 @@ public class BackupConsole {
           }
 
           if (curArg < args.length) {
-            System.out.println(TO_MANY_PARAMS);
+            System.out.println(TOO_MANY_PARAMS);
             return;
           }
           System.out.println(client.startIncrementalBackUp(pathToWS, inc, jn));
@@ -158,31 +175,32 @@ public class BackupConsole {
           return;
 
         if (curArg < args.length) {
-          System.out.println(TO_MANY_PARAMS);
+          System.out.println(TOO_MANY_PARAMS);
           return;
         }
         System.out.println(client.stop(pathToWS));
       } else if (command.equalsIgnoreCase("drop")) {
-        
+
         if (curArg == args.length) {
-          System.out.println(INCORRECT_PARAM + "There is no path to workspace or force-session-close parameter.");
+          System.out.println(INCORRECT_PARAM
+              + "There is no path to workspace or force-session-close parameter.");
         }
-        
+
         String param = args[curArg++];
         boolean isForce = true;
-        
-        if(!param.equalsIgnoreCase(FORCE_CLOSE)){
-          curArg--; 
-          isForce = false; 
+
+        if (!param.equalsIgnoreCase(FORCE_CLOSE)) {
+          curArg--;
+          isForce = false;
         }
-        
+
         String pathToWS = getRepoWS(args, curArg++);
-        
+
         if (pathToWS == null)
           return;
 
         if (curArg < args.length) {
-          System.out.println(TO_MANY_PARAMS);
+          System.out.println(TOO_MANY_PARAMS);
           return;
         }
         System.out.println(client.drop(isForce, pathToWS));
@@ -192,7 +210,7 @@ public class BackupConsole {
           return;
 
         if (curArg < args.length) {
-          System.out.println(TO_MANY_PARAMS);
+          System.out.println(TOO_MANY_PARAMS);
           return;
         }
         System.out.println(client.status(pathToWS));
@@ -222,7 +240,7 @@ public class BackupConsole {
         }
 
         if (curArg < args.length) {
-          System.out.println(TO_MANY_PARAMS);
+          System.out.println(TOO_MANY_PARAMS);
           return;
         }
         System.out.println(client.restore(pathToWS, pathToBackup, new FileInputStream(conf)));
