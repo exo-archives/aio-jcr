@@ -658,8 +658,8 @@ public class GroovyScript2RestLoader implements Startable {
    * @return Response with status 'created'
    */
   @POST
-  @Consumes( { "script/groovy" })
-  @Path("{repository}/{workspace}/{path:.*}/add")
+  @Consumes({ "script/groovy" })
+  @Path("add/{repository}/{workspace}/{path:.*}")
   public Response addScript(InputStream stream,
                             @Context UriInfo uriInfo,
                             @PathParam("repository") String repository,
@@ -693,47 +693,29 @@ public class GroovyScript2RestLoader implements Startable {
   }
 
   /**
+   * @param name script name
    * @param stream script for validation
    */
   @POST
-//  @Path("{repository}/{workspace}/{path:.*}/validate")
-  @Consumes( { "script/groovy" })
-//  @Path("{repository}/{workspace}/{name:.*}/validate")
-  @Path("{name:.*}/validate")
-  public Response validateScript(/*@PathParam("repository") String repository,
-                                 @PathParam("workspace") String workspace,*/
-                                 /*@PathParam("path") String path*/
-                                 @PathParam("name") String name,
+  @Consumes({ "script/groovy" })
+  @Path("validate{name:.*}")
+  public Response validateScript(@PathParam("name") String name,
                                  InputStream script) {
     
     try {
-      groovyScriptInstantiator.instantiateScript(script, name);
+      if (name != null && name.startsWith("/"))
+        name = name.substring(1);
+      if (name == null || name.length() == 0)  
+        groovyScriptInstantiator.instantiateScript(script);
+      else 
+        groovyScriptInstantiator.instantiateScript(script, name);
       return Response.status(Response.Status.OK).build();
     } catch (Exception e) {
       LOG.error("Unexpected error occurs ", e);
       return Response.status(Response.Status.BAD_REQUEST).entity("Unexpected error. "
           + e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
-    
-//    Session ses = null;
-//    try {
-//      ses = sessionProviderService.getSessionProvider(null)
-//                                  .getSession(workspace,
-//                                              repositoryService.getRepository(repository));
-//      Node script = ((Node) ses.getItem("/" + path)).getNode("jcr:content");
-//      groovyScriptInstantiator.instantiateScript(script.getProperty("jcr:data").getStream(), path);
-//      return Response.status(Response.Status.OK).build();
-//    } catch (PathNotFoundException e) {
-//      LOG.error("Path " + path + " does not exists", e);
-//      return Response.status(Response.Status.NOT_FOUND).build();
-//    } catch (Exception e) {
-//      LOG.error("Unexpected error occurs ", e);
-//      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unexpected error. "
-//          + e.getMessage()).type(MediaType.TEXT_PLAIN).build();
-//    } finally {
-//      if (ses != null)
-//        ses.logout();
-//    }
+
   }
 
   /**
@@ -749,8 +731,8 @@ public class GroovyScript2RestLoader implements Startable {
    * @return Response with status 'created'
    */
   @POST
-  @Consumes( { "script/groovy" })
-  @Path("{repository}/{workspace}/{path:.*}/update")
+  @Consumes({ "script/groovy" })
+  @Path("update/{repository}/{workspace}/{path:.*}")
   public Response updateScript(InputStream stream,
                                @Context UriInfo uriInfo,
                                @PathParam("repository") String repository,
@@ -799,8 +781,8 @@ public class GroovyScript2RestLoader implements Startable {
    * @return Response with status 'created'
    */
   @POST
-  @Consumes( { "multipart/*" })
-  @Path("{repository}/{workspace}/{path:.*}/add")
+  @Consumes({ "multipart/*" })
+  @Path("add/{repository}/{workspace}/{path:.*}")
   public Response addScript(Iterator<FileItem> items,
                             @Context UriInfo uriInfo,
                             @PathParam("repository") String repository,
@@ -860,8 +842,8 @@ public class GroovyScript2RestLoader implements Startable {
    * @return Response with status 'created'
    */
   @POST
-  @Consumes( { "multipart/*" })
-  @Path("{repository}/{workspace}/{path:.*}/update")
+  @Consumes({ "multipart/*" })
+  @Path("update/{repository}/{workspace}/{path:.*}")
   public Response updateScripts(Iterator<FileItem> items,
                                 @Context UriInfo uriInfo,
                                 @PathParam("repository") String repository,
@@ -905,8 +887,8 @@ public class GroovyScript2RestLoader implements Startable {
    * @return groovy script as stream
    */
   @POST
-  @Produces( { "script/groovy" })
-  @Path("{repository}/{workspace}/{path:.*}/src")
+  @Produces({ "script/groovy" })
+  @Path("src/{repository}/{workspace}/{path:.*}")
   public Response getScript(@PathParam("repository") String repository,
                             @PathParam("workspace") String workspace,
                             @PathParam("path") String path) {
@@ -944,7 +926,7 @@ public class GroovyScript2RestLoader implements Startable {
    */
   @POST
   @Produces( { MediaType.APPLICATION_JSON })
-  @Path("{repository}/{workspace}/{path:.*}/meta")
+  @Path("meta/{repository}/{workspace}/{path:.*}")
   public Response getScriptMetadata(@PathParam("repository") String repository,
                                     @PathParam("workspace") String workspace,
                                     @PathParam("path") String path) {
@@ -988,7 +970,7 @@ public class GroovyScript2RestLoader implements Startable {
    * @param path JCR path to node that contains script
    */
   @POST
-  @Path("{repository}/{workspace}/{path:.*}/delete")
+  @Path("delete/{repository}/{workspace}/{path:.*}")
   public Response deleteScript(@PathParam("repository") String repository,
                                @PathParam("workspace") String workspace,
                                @PathParam("path") String path) {
@@ -1027,7 +1009,7 @@ public class GroovyScript2RestLoader implements Startable {
    *          .../scripts/groovy/test1.groovy/load?state=true
    */
   @POST
-  @Path("{repository}/{workspace}/{path:.*}/autoload")
+  @Path("autoload/{repository}/{workspace}/{path:.*}")
   public Response autoload(@PathParam("repository") String repository,
                            @PathParam("workspace") String workspace,
                            @PathParam("path") String path,
@@ -1067,7 +1049,7 @@ public class GroovyScript2RestLoader implements Startable {
    * @param path the path to JCR node that contains groovy script to be deployed
    */
   @POST
-  @Path("{repository}/{workspace}/{path:.*}/load")
+  @Path("load/{repository}/{workspace}/{path:.*}")
   public Response load(@PathParam("repository") String repository,
                        @PathParam("workspace") String workspace,
                        @PathParam("path") String path,
@@ -1124,7 +1106,7 @@ public class GroovyScript2RestLoader implements Startable {
    */
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  @Path("{repository}/{workspace}/list")
+  @Path("list/{repository}/{workspace}")
   public Response list(@PathParam("repository") String repository,
                          @PathParam("workspace") String workspace,
                          @QueryParam("name") String name) {
