@@ -30,10 +30,7 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
@@ -52,11 +49,13 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SystemLocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.WorkspaceNullListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -66,52 +65,54 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class AsyncReplication implements Startable {
 
-  private static final Log                                    LOG                 = ExoLogger.getLogger("ext.AsyncReplication");
+  private static final Log                                         LOG                 = ExoLogger.getLogger("ext.AsyncReplication");
 
   /**
    * The template for ip-address in configuration.
    */
-  private static final String                                 IP_ADRESS_TEMPLATE  = "[$]bind-ip-address";
+  private static final String                                      IP_ADRESS_TEMPLATE  = "[$]bind-ip-address";
 
   /**
    * Service file cleaner period.
    */
-  public final int                                            FILE_CLEANER_PERIOD = 150000;
+  public final int                                                 FILE_CLEANER_PERIOD = 150000;
 
-  protected final RepositoryService                           repoService;
+  protected final RepositoryService                                repoService;
 
-  protected final LinkedHashMap<StorageKey, String>           incomeStoragePaths;
+  protected final LinkedHashMap<StorageKey, String>                incomeStoragePaths;
 
-  protected final LinkedHashMap<StorageKey, LocalStorageImpl> localStorages;
+  protected final LinkedHashMap<StorageKey, LocalStorageImpl>      localStorages;
 
-  protected final int                                         priority;
+  protected final int                                              priority;
 
-  protected final List<Integer>                               otherParticipantsPriority;
+  protected final List<Integer>                                    otherParticipantsPriority;
 
-  protected Set<AsyncWorker>                                  currentWorkers;
+  protected Set<AsyncWorker>                                       currentWorkers;
 
-  protected final String                                      bindIPAddress;
+  protected final String                                           bindIPAddress;
 
-  protected final String                                      channelConfig;
+  protected final String                                           channelConfig;
 
-  protected final String                                      channelName;
+  protected final String                                           channelName;
 
-  protected final int                                         waitAllMembersTimeout;
+  protected final int                                              waitAllMembersTimeout;
 
-  protected final String                                      mergeTempDir;
+  protected final String                                           mergeTempDir;
 
-  protected final String                                      storageDir;
+  protected final String                                           storageDir;
 
-  protected final String                                      localStorageDir;
+  protected final String                                           localStorageDir;
 
-  protected final String                                      incomeStorageDir;
+  protected final String                                           incomeStorageDir;
 
-  protected final String[]                                    repositoryNames;
+  protected final String[]                                         repositoryNames;
 
   /**
    * Internal FileCleaner used by local storage.
    */
-  protected final FileCleaner                                 fileCleaner;
+  protected final FileCleaner                                      fileCleaner;
+
+  protected final LinkedHashMap<StorageKey, WorkspaceNullListener> nullWorkspaces;
 
   class AsyncWorker implements ConnectionListener {
 
@@ -221,9 +222,12 @@ public class AsyncReplication implements Startable {
       this.channel.addPacketListener(this.receiver);
       this.channel.addPacketListener(this.initializer);
       this.channel.addStateListener(this.initializer);
-      this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
+      this.channel.addConnectionListener(this); // listen for connection state,
+      // see on Disconnect()
 
-      this.receiver.setChangesSubscriber(this.subscriber); // TODO not a good way, use constructor
+      this.receiver.setChangesSubscriber(this.subscriber); // TODO not a good
+      // way, use
+      // constructor
 
       this.initializer.addRemoteListener(this.localStorage);
       this.initializer.addRemoteListener(this.incomeStorage);
@@ -306,7 +310,6 @@ public class AsyncReplication implements Startable {
 
   /**
    * Will be used as key for mapLocalStorages.
-   * 
    */
   protected class StorageKey {
     private final String repositoryName;
@@ -418,11 +421,12 @@ public class AsyncReplication implements Startable {
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
 
     this.fileCleaner = new FileCleaner(FILE_CLEANER_PERIOD, false);
+
+    this.nullWorkspaces = new LinkedHashMap<StorageKey, WorkspaceNullListener>();
   }
 
   /**
    * AsyncReplication constructor for TESTS!.
-   * 
    */
   AsyncReplication(RepositoryService repoService,
                    List<String> repositoryNames,
@@ -481,6 +485,7 @@ public class AsyncReplication implements Startable {
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
 
     this.fileCleaner = new FileCleaner(FILE_CLEANER_PERIOD, false);
+    this.nullWorkspaces = new LinkedHashMap<StorageKey, WorkspaceNullListener>();
   }
 
   /**
@@ -493,7 +498,8 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process. Process will use the service configuration.
+   * Initialize synchronization process. Process will use the service
+   * configuration.
    * 
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
@@ -519,11 +525,10 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process on specific repository. Process will use the service
-   * configuration.
+   * Initialize synchronization process on specific repository. Process will use
+   * the service configuration.
    * 
-   * @param repoName
-   *          String repository name
+   * @param repoName String repository name
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -552,11 +557,10 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process on specific repository. Process will use the service
-   * configuration.
+   * Initialize synchronization process on specific repository. Process will use
+   * the service configuration.
    * 
-   * @param repoName
-   *          String repository name
+   * @param repoName String repository name
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -614,8 +618,19 @@ public class AsyncReplication implements Startable {
           addStorageToWorkspace(repository, repositoryName, systemWSName, systemWSName);
 
           for (String wsName : wsNames) {
-            if (!wsName.equals(systemWSName)) { // systemWSName was processed before
-              addStorageToWorkspace(repository, repositoryName, wsName, systemWSName);
+            if (isReplicableWorkspace(wsName)) {
+              if (!wsName.equals(systemWSName)) { // systemWSName was processed
+                // before
+                addStorageToWorkspace(repository, repositoryName, wsName, systemWSName);
+              }
+            } else {
+              if (wsName.equals(systemWSName)) {
+                LOG.warn("System workspace "
+                    + wsName
+                    + " configured as non-replicable. It's added to replication process for default.");
+              } else {
+                addWorkspaceNullListener(repository, repositoryName, wsName, systemWSName);
+              }
             }
           }
         }
@@ -637,6 +652,28 @@ public class AsyncReplication implements Startable {
    */
   public void stop() {
     // TODO stop after the JCR Repo stopped
+
+    // Possible implementation
+    /*
+     * try { for (String repositoryName : repositoryNames) {
+     * ManageableRepository repository =
+     * repoService.getRepository(repositoryName); String wsNames[] =
+     * repository.getWorkspaceNames(); for (String wsName : wsNames) {
+     * WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+     * PersistentDataManager dm = (PersistentDataManager)
+     * wsc.getComponent(PersistentDataManager.class); StorageKey key = new
+     * StorageKey(repositoryName, wsName); // Look in LocalStorages
+     * LocalStorageImpl ls = localStorages.remove(key); if (ls != null) { //
+     * force stop if (!ls.isStopped()) { ls.onStop(); } // remove listener
+     * dm.removeItemPersistenceListener(ls); } // Look in IncomeStorages String
+     * path = incomeStoragePaths.remove(key); //delete income storage // Look in
+     * null workspace listeners WorkspaceNullListener wl =
+     * this.nullWorkspaces.remove(key); if (wl != null) { // remove listener
+     * dm.removeItemPersistenceListener(wl); } } } } catch (RepositoryException
+     * e) { LOG.error("Asynchronous replication stop fails" + e, e); } catch
+     * (RepositoryConfigurationException e) { LOG.error("Asynchronous
+     * replication stop fails" + e, e); }
+     */
   }
 
   private boolean hasLocalSorageError(String repositoryName) throws RepositoryConfigurationException,
@@ -719,6 +756,10 @@ public class AsyncReplication implements Startable {
     LocalStorageImpl localStorage = null;
     if (wsName.equals(systemWSName)) {
       localStorage = new SystemLocalStorageImpl(localDirPerWorkspace.getAbsolutePath(), fileCleaner);
+      if (!isReplicableWorkspace(wsName)) {
+        LOG.warn("System workspace " + wsName
+            + " configured as non-replicable. It's added to replication process.");
+      }
     } else {
       SystemLocalStorageImpl systemLocalStorage = (SystemLocalStorageImpl) localStorages.get(new StorageKey(repositoryName,
                                                                                                             systemWSName));
@@ -750,4 +791,50 @@ public class AsyncReplication implements Startable {
                            incomeDirPerWorkspace.getAbsolutePath());
 
   }
+
+  /**
+   * Returns <code>true</code> if workspace is replicable, <code>false</code>
+   * if not.
+   * 
+   * @param wsName - String workspace name.
+   * @return boolean.
+   */
+  private boolean isReplicableWorkspace(String wsName) {
+    // TODO check configuration and return answer;
+    return true;
+  }
+
+  /**
+   * Create and register WorkspaceNullListener.
+   * 
+   * @param repository - ManageableRepository.
+   * @param repositoryName - repository name.
+   * @param wsName - workspace name.
+   * @param systemWSName - syetme workspace name.
+   */
+  private void addWorkspaceNullListener(ManageableRepository repository,
+                                        String repositoryName,
+                                        String wsName,
+                                        String systemWSName) {
+
+    SystemLocalStorageImpl systemLocalStorage = (SystemLocalStorageImpl) localStorages.get(new StorageKey(repositoryName,
+                                                                                                          systemWSName));
+    WorkspaceNullListener listener = new WorkspaceNullListener(systemLocalStorage);
+
+    nullWorkspaces.put(new StorageKey(repositoryName, wsName), listener);
+
+    // add persistence listener
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+    PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+    dm.addItemPersistenceListener(listener);
+
+    // apply previously saved changes
+    StartChangesListener changesListener = (StartChangesListener) wsc.getComponent(org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener.class);
+    if (changesListener != null) {
+      for (int i = 0; i < changesListener.getChanges().size(); i++) {
+        listener.onSaveItems(changesListener.getChanges().get(i));
+      }
+    }
+  }
+
 }

@@ -65,6 +65,7 @@ public class WorkspaceNullListener implements ItemsPersistenceListener {
         PlainChangesLog cLog = cLogs.nextLog();
         if (cLog instanceof PairChangesLog) {
           if (versionLogHolder != null) {
+            // Just get pair ChangesLog and do nothing
             versionLogHolder.getPairLog(((PairChangesLog) cLog).getPairId());
           } else {
             LOG.warn("Got PairChangesLog but there is no any versionHolder.");
