@@ -44,6 +44,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChecksumNotFoundException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
@@ -52,7 +53,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageIm
 import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SystemLocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.impl.ChangesListener;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
@@ -734,10 +734,10 @@ public class AsyncReplication implements Startable {
     dm.addItemPersistenceListener(localStorage);
 
     // apply previously saved changes
-    ChangesListener changesListener = (ChangesListener) wsc.getComponent(org.exoplatform.services.jcr.impl.ChangesListener.class);
-    if (changesListener != null) {
-      for (int i = 0; i < changesListener.getChanges().size(); i++) {
-        localStorage.onSaveItems(changesListener.getChanges().get(i));
+    StartChangesListener startChangesListener = (StartChangesListener) wsc.getComponent(org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener.class);
+    if (startChangesListener != null) {
+      for (int i = 0; i < startChangesListener.getChanges().size(); i++) {
+        localStorage.onSaveItems(startChangesListener.getChanges().get(i));
       }
     }
 
