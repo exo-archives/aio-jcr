@@ -257,7 +257,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
                                                  new InputHeadersMap(headers));
     ContainerResponse cres = new ContainerResponse(new DummyContainerResponseWriter());
     handler.handleRequest(creq, cres);
-    assertEquals(500, cres.getStatus());
+    assertEquals(400, cres.getStatus());
     System.out.println(cres.getEntity());
     
 //    cres.setResponse(null); //reset response

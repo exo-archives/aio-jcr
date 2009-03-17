@@ -711,7 +711,7 @@ public class GroovyScript2RestLoader implements Startable {
       return Response.status(Response.Status.OK).build();
     } catch (Exception e) {
       LOG.error("Unexpected error occurs ", e);
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unexpected error. "
+      return Response.status(Response.Status.BAD_REQUEST).entity("Unexpected error. "
           + e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
     
