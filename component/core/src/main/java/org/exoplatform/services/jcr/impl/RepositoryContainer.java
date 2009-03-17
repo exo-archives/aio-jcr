@@ -322,16 +322,13 @@ public class RepositoryContainer extends ExoContainer {
   public void start() {
 
     try {
-
-      // TODO http://jira.exoplatform.org/browse/JCR-350
       init();
-
       load();
     } catch (RepositoryException e) {
-      e.printStackTrace();
+      log.error("Repository error", e);
       throw new RuntimeException(e);
     } catch (RepositoryConfigurationException e) {
-      e.printStackTrace();
+      log.error("Configuration error", e);
       throw new RuntimeException(e);
     }
 

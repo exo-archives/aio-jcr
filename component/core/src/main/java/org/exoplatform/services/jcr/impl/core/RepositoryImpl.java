@@ -381,25 +381,6 @@ public class RepositoryImpl implements ManageableRepository {
     }
   }
 
-  @Deprecated
-  private void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException {
-
-    if (isWorkspaceInitialized(workspaceName)) {
-      LOG.warn("Workspace '" + workspaceName
-          + "' is presumably initialized. Initialization canceled");
-      return;
-    }
-
-    InternalQName rootNodeTypeName = repositoryContainer.getLocationFactory()
-                                                        .parseJCRName(rootNodeType)
-                                                        .getInternalName();
-    repositoryContainer.getWorkspaceContainer(workspaceName)
-                       .getWorkspaceInitializer()
-                       .initWorkspace(rootNodeTypeName);
-
-    LOG.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
-  }
-
   /**
    * Internal Remove Workspace.
    * 

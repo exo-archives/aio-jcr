@@ -503,7 +503,7 @@
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
                 <include>**/impl/**/Test*.java</include>
-              </includes>
+              </includes>	
               <excludes>
                 <exclude>**/TestRollbackBigFiles.java</exclude>
                 <exclude>**/TestErrorMultithreading.java</exclude>
