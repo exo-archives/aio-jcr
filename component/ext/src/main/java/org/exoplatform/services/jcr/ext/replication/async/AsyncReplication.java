@@ -733,9 +733,12 @@ public class AsyncReplication implements Startable {
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
     dm.addItemPersistenceListener(localStorage);
 
+    // apply previously saved changes
     ChangesListener changesListener = (ChangesListener) wsc.getComponent(org.exoplatform.services.jcr.impl.ChangesListener.class);
-    for (int i = 0; i < changesListener.getChanges().size(); i++) {
-      localStorage.onSaveItems(changesListener.getChanges().get(i));
+    if (changesListener != null) {
+      for (int i = 0; i < changesListener.getChanges().size(); i++) {
+        localStorage.onSaveItems(changesListener.getChanges().get(i));
+      }
     }
 
     // income storage paths
