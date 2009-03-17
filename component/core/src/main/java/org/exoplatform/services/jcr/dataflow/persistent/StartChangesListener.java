@@ -14,12 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.impl;
+package org.exoplatform.services.jcr.dataflow.persistent;
 
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
  * Created by The eXo Platform SAS.
@@ -27,7 +26,7 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: ChangesListenerData.java 111 2008-11-11 11:11:11Z $
  */
-public class ChangesListener implements ItemsPersistenceListener {
+public class StartChangesListener implements ItemsPersistenceListener {
 
   private final String                    workspaceName;
 
@@ -38,7 +37,7 @@ public class ChangesListener implements ItemsPersistenceListener {
    * 
    * @param workspaceName
    */
-  ChangesListener(String workspaceName, List<ItemStateChangesLog> changes) {
+  public StartChangesListener(String workspaceName, List<ItemStateChangesLog> changes) {
     this.workspaceName = workspaceName;
     this.changes = changes;
   }
@@ -52,6 +51,11 @@ public class ChangesListener implements ItemsPersistenceListener {
     return workspaceName;
   }
 
+  /**
+   * getChanges.
+   * 
+   * @return
+   */
   public List<ItemStateChangesLog> getChanges() {
     return changes;
   }

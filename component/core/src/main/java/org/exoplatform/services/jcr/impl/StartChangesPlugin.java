@@ -28,6 +28,8 @@ import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 
 /**
@@ -36,11 +38,11 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: StoreChangesPlugin.java 111 2008-11-11 11:11:11Z $
  */
-public class StoreChangesPlugin extends BaseComponentPlugin {
+public class StartChangesPlugin extends BaseComponentPlugin {
 
   private List<String>                           workspaces;
 
-  private List<ChangesListener>                  changesListeners;
+  private List<StartChangesListener>             startChangesListeners;
 
   private Map<String, List<ItemStateChangesLog>> changes;
 
@@ -49,10 +51,10 @@ public class StoreChangesPlugin extends BaseComponentPlugin {
    * 
    * @param params
    */
-  public StoreChangesPlugin(InitParams params) {
+  public StartChangesPlugin(InitParams params) {
     changes = new HashMap<String, List<ItemStateChangesLog>>();
     workspaces = new ArrayList<String>();
-    changesListeners = new ArrayList<ChangesListener>();
+    startChangesListeners = new ArrayList<StartChangesListener>();
 
     ValueParam param = params.getValueParam("workspaces");
     if (param != null) {
@@ -84,8 +86,8 @@ public class StoreChangesPlugin extends BaseComponentPlugin {
     for (int i = 0; i < workspaces.size(); i++) {
       String wsName = workspaces.get(i);
 
-      ChangesListener changesListener = new ChangesListener(wsName, changes.get(wsName));
-      changesListeners.add(changesListener);
+      StartChangesListener changesListener = new StartChangesListener(wsName, changes.get(wsName));
+      startChangesListeners.add(changesListener);
 
       WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
       wsc.addComponent(changesListener);
@@ -101,11 +103,11 @@ public class StoreChangesPlugin extends BaseComponentPlugin {
    * @param repository
    */
   public void removeListeners(ManageableRepository repository) {
-    for (int i = 0; i < changesListeners.size(); i++) {
-      ChangesListener changesListener = changesListeners.get(i);
+    for (int i = 0; i < startChangesListeners.size(); i++) {
+      StartChangesListener changesListener = startChangesListeners.get(i);
 
       WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(changesListener.getWorkspaceName());
-      CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+      PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
       dm.removeItemPersistenceListener(changesListener);
     }
   }

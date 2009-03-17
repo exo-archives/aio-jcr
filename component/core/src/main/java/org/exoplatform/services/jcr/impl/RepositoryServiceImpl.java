@@ -68,7 +68,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   private final List<ComponentPlugin>                addNamespacesPlugins;
 
-  private final List<ComponentPlugin>                storeChangesPlugins;
+  private final List<ComponentPlugin>                startChangesPlugins;
 
   private final ExoContainerContext                  containerContext;
 
@@ -83,7 +83,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     this.config = configuration;
     addNodeTypePlugins = new ArrayList<ComponentPlugin>();
     addNamespacesPlugins = new ArrayList<ComponentPlugin>();
-    storeChangesPlugins = new ArrayList<ComponentPlugin>();
+    startChangesPlugins = new ArrayList<ComponentPlugin>();
     containerContext = context;
     currentRepositoryName.set(config.getDefaultRepositoryName());
   }
@@ -93,8 +93,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       addNodeTypePlugins.add(plugin);
     else if (plugin instanceof AddNamespacesPlugin)
       addNamespacesPlugins.add(plugin);
-    else if (plugin instanceof StoreChangesPlugin) {
-      storeChangesPlugins.add(plugin);
+    else if (plugin instanceof StartChangesPlugin) {
+      startChangesPlugins.add(plugin);
     }
   }
 
@@ -150,8 +150,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     ManageableRepository mr = (ManageableRepository) repositoryContainer.getComponentInstanceOfType(ManageableRepository.class);
 
     // register listeners
-    for (int j = 0; j < storeChangesPlugins.size(); j++) {
-      StoreChangesPlugin plugin = (StoreChangesPlugin) storeChangesPlugins.get(j);
+    for (int j = 0; j < startChangesPlugins.size(); j++) {
+      StartChangesPlugin plugin = (StartChangesPlugin) startChangesPlugins.get(j);
       plugin.addListeners(mr);
     }
 
@@ -249,7 +249,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     repositoryContainers.clear();
     addNamespacesPlugins.clear();
     addNodeTypePlugins.clear();
-    storeChangesPlugins.clear();
+    startChangesPlugins.clear();
   }
 
   private void addNamespaces() throws RepositoryException {
