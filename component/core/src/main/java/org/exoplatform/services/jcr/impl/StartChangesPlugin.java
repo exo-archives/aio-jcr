@@ -30,7 +30,6 @@ import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 
 /**
  * Created by The eXo Platform SAS.
@@ -82,17 +81,17 @@ public class StartChangesPlugin extends BaseComponentPlugin {
    * 
    * @param repository
    */
-  public void addListeners(ManageableRepository repository) {
+  public void addListeners(RepositoryContainer repositoryContainer) {
     for (int i = 0; i < workspaces.size(); i++) {
       String wsName = workspaces.get(i);
 
       StartChangesListener changesListener = new StartChangesListener(wsName, changes.get(wsName));
       startChangesListeners.add(changesListener);
 
-      WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-      wsc.addComponent(changesListener);
+      WorkspaceContainer wc = repositoryContainer.getWorkspaceContainer(wsName);
+      wc.registerComponentInstance(changesListener);
 
-      CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+      PersistentDataManager dm = (PersistentDataManager) wc.getComponentInstanceOfType(PersistentDataManager.class);
       dm.addItemPersistenceListener(changesListener);
     }
   }

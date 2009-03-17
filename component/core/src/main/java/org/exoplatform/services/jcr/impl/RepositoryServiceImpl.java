@@ -138,6 +138,13 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     // Storing and starting the repository container under
     // key=repository_name
     repositoryContainers.put(rEntry.getName(), repositoryContainer);
+
+    // register listeners
+    for (int j = 0; j < startChangesPlugins.size(); j++) {
+      StartChangesPlugin plugin = (StartChangesPlugin) startChangesPlugins.get(j);
+      plugin.addListeners(repositoryContainer);
+    }
+
     repositoryContainer.start();
 
     if (!config.getRepositoryConfigurations().contains(rEntry)) {
@@ -148,13 +155,6 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
     // turn on Repository ONLINE
     ManageableRepository mr = (ManageableRepository) repositoryContainer.getComponentInstanceOfType(ManageableRepository.class);
-
-    // register listeners
-    for (int j = 0; j < startChangesPlugins.size(); j++) {
-      StartChangesPlugin plugin = (StartChangesPlugin) startChangesPlugins.get(j);
-      plugin.addListeners(mr);
-    }
-
     mr.setState(ManageableRepository.ONLINE);
   }
 
