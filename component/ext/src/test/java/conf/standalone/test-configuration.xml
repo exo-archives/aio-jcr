@@ -313,9 +313,9 @@
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
     <component-plugins>
        <component-plugin>
-        <name>store.changes</name>
+        <name>start.changes</name>
         <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.jcr.impl.StoreChangesPlugin</type>
+        <type>org.exoplatform.services.jcr.impl.StartChangesPlugin</type>
         <init-params>
           <value-param>
             <name>workspaces</name>
