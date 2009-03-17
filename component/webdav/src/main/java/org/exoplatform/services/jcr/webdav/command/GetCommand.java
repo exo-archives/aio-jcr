@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.core.HttpHeaders;
@@ -34,9 +33,6 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.services.jcr.impl.core.query.NodeIdIterator;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
@@ -52,8 +48,6 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.ext.provider.XSLTStreamingOutput;
-import org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl;
-import org.exoplatform.services.xml.transform.trax.TRAXTemplatesService;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -83,7 +77,7 @@ public class GetCommand {
                       String baseURI,
                       List<Range> ranges) {
 
-    if (null == version) {
+    if (version == null) {
       if (path.indexOf("?version=") > 0) {
         version = path.substring(path.indexOf("?version=") + "?version=".length());
         path = path.substring(0, path.indexOf("?version="));
@@ -93,7 +87,7 @@ public class GetCommand {
     try {
 
       Node node = (Node) session.getItem(path);
-      
+
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
 
@@ -117,9 +111,15 @@ public class GetCommand {
         HierarchicalProperty mimeTypeProperty = resource.getProperty(FileResource.GETCONTENTTYPE);
         String contentType = mimeTypeProperty.getValue();
         
-        HierarchicalProperty lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
-        String lastModified = lastModifiedProperty.getValue();
+        String lastModified = "";
 
+        try {
+          HierarchicalProperty lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
+          lastModified = lastModifiedProperty.getValue();
+        } catch (Exception e) {
+
+        }
+        
         // content length is not present
         if (contentLength == 0) {
           return Response.ok()
@@ -130,15 +130,14 @@ public class GetCommand {
 
         // no ranges request
         if (ranges.size() == 0) {
-          Response respose = Response.ok()
-                                     .header(HttpHeaders.CONTENT_LENGTH,
-                                             Long.toString(contentLength))
-                                     .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
-                                     .header(ExtHttpHeaders.LAST_MODIFIED, lastModified)
-                                     .entity(istream)
-                                     .type(contentType)
-                                     .build();
-          return respose;
+          return Response.ok()
+                         .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
+                         .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
+                         .header(ExtHttpHeaders.LAST_MODIFIED, lastModified)
+                         .entity(istream)
+                         .type(contentType)
+                         .build();
+
         }
 
         // one range
