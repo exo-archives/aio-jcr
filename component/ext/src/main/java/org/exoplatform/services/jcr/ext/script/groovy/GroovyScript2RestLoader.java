@@ -696,29 +696,44 @@ public class GroovyScript2RestLoader implements Startable {
    * @param stream script for validation
    */
   @POST
-  @Path("{repository}/{workspace}/{path:.*}/validate")
-  public Response validateScript(@PathParam("repository") String repository,
-                                 @PathParam("workspace") String workspace,
-                                 @PathParam("path") String path) {
-    Session ses = null;
+//  @Path("{repository}/{workspace}/{path:.*}/validate")
+  @Consumes( { "script/groovy" })
+//  @Path("{repository}/{workspace}/{name:.*}/validate")
+  @Path("{name:.*}/validate")
+  public Response validateScript(/*@PathParam("repository") String repository,
+                                 @PathParam("workspace") String workspace,*/
+                                 /*@PathParam("path") String path*/
+                                 @PathParam("name") String name,
+                                 InputStream script) {
+    
     try {
-      ses = sessionProviderService.getSessionProvider(null)
-                                  .getSession(workspace,
-                                              repositoryService.getRepository(repository));
-      Node script = ((Node) ses.getItem("/" + path)).getNode("jcr:content");
-      groovyScriptInstantiator.instantiateScript(script.getProperty("jcr:data").getStream(), path);
+      groovyScriptInstantiator.instantiateScript(script, name);
       return Response.status(Response.Status.OK).build();
-    } catch (PathNotFoundException e) {
-      LOG.error("Path " + path + " does not exists", e);
-      return Response.status(Response.Status.NOT_FOUND).build();
     } catch (Exception e) {
       LOG.error("Unexpected error occurs ", e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unexpected error. "
           + e.getMessage()).type(MediaType.TEXT_PLAIN).build();
-    } finally {
-      if (ses != null)
-        ses.logout();
     }
+    
+//    Session ses = null;
+//    try {
+//      ses = sessionProviderService.getSessionProvider(null)
+//                                  .getSession(workspace,
+//                                              repositoryService.getRepository(repository));
+//      Node script = ((Node) ses.getItem("/" + path)).getNode("jcr:content");
+//      groovyScriptInstantiator.instantiateScript(script.getProperty("jcr:data").getStream(), path);
+//      return Response.status(Response.Status.OK).build();
+//    } catch (PathNotFoundException e) {
+//      LOG.error("Path " + path + " does not exists", e);
+//      return Response.status(Response.Status.NOT_FOUND).build();
+//    } catch (Exception e) {
+//      LOG.error("Unexpected error occurs ", e);
+//      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unexpected error. "
+//          + e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+//    } finally {
+//      if (ses != null)
+//        ses.logout();
+//    }
   }
 
   /**

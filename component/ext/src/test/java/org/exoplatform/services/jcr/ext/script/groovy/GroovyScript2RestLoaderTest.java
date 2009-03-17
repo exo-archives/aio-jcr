@@ -245,5 +245,30 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     assertEquals(200, cres.getStatus());
     assertEquals("Hello from groovy to >>>>> test", cres.getEntity());
   }
+  
+  public void testValidate() throws Exception {
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "script/groovy");
+    String script = "public class Test { def a = 0\ndef =\n}\n";
+    ContainerRequest creq = new ContainerRequest("POST",
+                                                 new URI("/script/groovy/%5Bno-name%5D/validate"),
+                                                 new URI(""),
+                                                 new ByteArrayInputStream(script.getBytes()),
+                                                 new InputHeadersMap(headers));
+    ContainerResponse cres = new ContainerResponse(new DummyContainerResponseWriter());
+    handler.handleRequest(creq, cres);
+    assertEquals(500, cres.getStatus());
+    System.out.println(cres.getEntity());
+    
+//    cres.setResponse(null); //reset response
+    script = "public class Test { def a = 0\ndef b = 1\n }\n";
+    creq = new ContainerRequest("POST",
+                                                 new URI("/script/groovy/%5Bno-name%5D/validate"),
+                                                 new URI(""),
+                                                 new ByteArrayInputStream(script.getBytes()),
+                                                 new InputHeadersMap(headers));
+    handler.handleRequest(creq, cres);
+    assertEquals(200, cres.getStatus());
+  }
 
 }
