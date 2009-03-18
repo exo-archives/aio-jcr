@@ -318,8 +318,12 @@
         <type>org.exoplatform.services.jcr.impl.StartChangesPlugin</type>
         <init-params>
           <value-param>
+            <name>repository-name</name>
+            <value>db1</value>
+          </value-param>
+          <value-param>
             <name>workspaces</name>
-            <value>ws</value>
+            <value>ws3,ws4</value>
           </value-param>
         </init-params>
       </component-plugin>

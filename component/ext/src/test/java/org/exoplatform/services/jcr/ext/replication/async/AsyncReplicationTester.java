@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -27,10 +29,12 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
@@ -88,8 +92,7 @@ public class AsyncReplicationTester extends AsyncReplication {
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
 
-    AsyncWorker synchWorker = new AsyncWorker(dm,
-                                              dm, // TODO system DM
+    AsyncWorker synchWorker = new AsyncWorker(dm, dm, // TODO system DM
                                               ntm,
                                               dc,
                                               (LocalStorageImpl) localStorage,
@@ -121,5 +124,40 @@ public class AsyncReplicationTester extends AsyncReplication {
         dm.removeItemPersistenceListener(localStorages.get(skey));
       }
     }
+  }
+
+  public boolean hasAddedRootNode() throws RepositoryException,
+                                   RepositoryConfigurationException,
+                                   ClassCastException,
+                                   IOException,
+                                   ClassNotFoundException {
+    for (String repositoryName : repositoryNames) {
+      ManageableRepository repository = repoService.getRepository(repositoryName);
+
+      for (String wsName : repository.getWorkspaceNames()) {
+        StorageKey skey = new StorageKey(repositoryName, wsName);
+
+        WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+        PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+        dm.removeItemPersistenceListener(localStorages.get(skey));
+
+        LocalStorageImpl sls = localStorages.get(skey);
+        sls.onStart(null);
+
+        Iterator<ItemState> items = sls.getLocalChanges().getChanges();
+        if (items.hasNext()) {
+          ItemState item = items.next();
+          if (item.getState() != ItemState.ADDED
+              || !item.getData().getIdentifier().equals(Constants.ROOT_UUID)
+              || !item.getData().getQPath().equals(Constants.ROOT_PATH)) {
+            return false;
+          }
+        }
+
+        continue;
+      }
+    }
+
+    return true;
   }
 }

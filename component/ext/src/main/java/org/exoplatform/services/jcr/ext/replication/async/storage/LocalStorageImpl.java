@@ -399,6 +399,33 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
+    synchronized (this) {
+      saveItems(itemStates);
+    }
+  }
+
+  /**
+   * Save list changeslogs.
+   * 
+   * @param listItemStates
+   *          The list of changeslogs.
+   */
+  public void saveListItems(List<ItemStateChangesLog> listItemStates) {
+    synchronized (this) {
+      int curSize = listItemStates.size();
+      for (int i = 0; i < curSize; i++) {
+        saveItems(listItemStates.get(i));
+      }
+    }
+  }
+
+  /**
+   * Save one changeslog to storage.
+   * 
+   * @param itemStates
+   *          The changeslog to save.
+   */
+  private void saveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
       ChangesLogIterator cLogs = tLog.getLogIterator();

@@ -30,7 +30,10 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
+import org.picocontainer.Startable;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
@@ -55,7 +58,6 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -498,8 +500,7 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process. Process will use the service
-   * configuration.
+   * Initialize synchronization process. Process will use the service configuration.
    * 
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
@@ -525,10 +526,11 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process on specific repository. Process will use
-   * the service configuration.
+   * Initialize synchronization process on specific repository. Process will use the service
+   * configuration.
    * 
-   * @param repoName String repository name
+   * @param repoName
+   *          String repository name
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -557,10 +559,11 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process on specific repository. Process will use
-   * the service configuration.
+   * Initialize synchronization process on specific repository. Process will use the service
+   * configuration.
    * 
-   * @param repoName String repository name
+   * @param repoName
+   *          String repository name
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -771,15 +774,14 @@ public class AsyncReplication implements Startable {
 
     // add local storage as persistence listener
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+    StartChangesListener startChangesListener = (StartChangesListener) wsc.getComponent(org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener.class);
+
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
     dm.addItemPersistenceListener(localStorage);
 
     // apply previously saved changes
-    StartChangesListener startChangesListener = (StartChangesListener) wsc.getComponent(org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener.class);
     if (startChangesListener != null) {
-      for (int i = 0; i < startChangesListener.getChanges().size(); i++) {
-        localStorage.onSaveItems(startChangesListener.getChanges().get(i));
-      }
+      localStorage.saveListItems(startChangesListener.getChanges());
     }
 
     // income storage paths
@@ -793,10 +795,10 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Returns <code>true</code> if workspace is replicable, <code>false</code>
-   * if not.
+   * Returns <code>true</code> if workspace is replicable, <code>false</code> if not.
    * 
-   * @param wsName - String workspace name.
+   * @param wsName
+   *          - String workspace name.
    * @return boolean.
    */
   private boolean isReplicableWorkspace(String wsName) {
@@ -807,10 +809,14 @@ public class AsyncReplication implements Startable {
   /**
    * Create and register WorkspaceNullListener.
    * 
-   * @param repository - ManageableRepository.
-   * @param repositoryName - repository name.
-   * @param wsName - workspace name.
-   * @param systemWSName - syetme workspace name.
+   * @param repository
+   *          - ManageableRepository.
+   * @param repositoryName
+   *          - repository name.
+   * @param wsName
+   *          - workspace name.
+   * @param systemWSName
+   *          - syetme workspace name.
    */
   private void addWorkspaceNullListener(ManageableRepository repository,
                                         String repositoryName,

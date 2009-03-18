@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -40,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class AsyncReplicationTest extends AbstractTrasportTest {
 
-  private static Log          log         = ExoLogger.getLogger("ext.AsyncReplicationTest");
+  private static Log            log         = ExoLogger.getLogger("ext.AsyncReplicationTest");
 
   protected static final String CH_NAME     = "AsyncRepCh_AsyncReplicationTest";
 
@@ -57,12 +60,79 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
   private class AsyncReplicationUseCase {
     private final BaseTwoMembersMergeUseCase useCase;
 
-    private AsyncReplicationTester asyncReplication1;
+    private AsyncReplicationTester           asyncReplication1;
 
-    private AsyncReplicationTester asyncReplication2;
+    private AsyncReplicationTester           asyncReplication2;
 
     public AsyncReplicationUseCase(BaseTwoMembersMergeUseCase useCase) {
       this.useCase = useCase;
+    }
+
+    public boolean hasAddeddRootNode() throws ClassCastException,
+                                      RepositoryException,
+                                      RepositoryConfigurationException,
+                                      IOException,
+                                      ClassNotFoundException {
+      return asyncReplication1.hasAddedRootNode() && asyncReplication2.hasAddedRootNode();
+    }
+
+    public void initDataWithoutSync() throws Exception {
+      List<String> repositoryNames1 = new ArrayList<String>();
+      repositoryNames1.add(repositoryLowPriority.getName());
+      List<String> repositoryNames2 = new ArrayList<String>();
+      repositoryNames2.add(repositoryHigePriority.getName());
+
+      int priorityLow = 50;
+      int priorityHigh = 100;
+      int waitAllMemberTimeout = 15; // 15 seconds.
+
+      File storage1 = new File("target/temp/storage/" + System.currentTimeMillis());
+      storage1.mkdirs();
+      File storage2 = new File("target/temp/storage/" + (System.currentTimeMillis() + 89));
+      storage2.mkdirs();
+
+      List<Integer> otherParticipantsPriority1 = new ArrayList<Integer>();
+      otherParticipantsPriority1.add(priorityHigh);
+      List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
+      otherParticipantsPriority2.add(priorityLow);
+
+      asyncReplication1 = new AsyncReplicationTester(repositoryService,
+                                                     repositoryNames1,
+                                                     priorityLow,
+                                                     bindAddress,
+                                                     CH_CONFIG,
+                                                     CH_NAME + useCase.getClass().getName(),
+                                                     waitAllMemberTimeout,
+                                                     storage1.getAbsolutePath(),
+                                                     otherParticipantsPriority1);
+
+      asyncReplication2 = new AsyncReplicationTester(repositoryService,
+                                                     repositoryNames2,
+                                                     priorityHigh,
+                                                     bindAddress,
+                                                     CH_CONFIG,
+                                                     CH_NAME + useCase.getClass().getName(),
+                                                     waitAllMemberTimeout,
+                                                     storage2.getAbsolutePath(),
+                                                     otherParticipantsPriority2);
+
+      asyncReplication1.start();
+      asyncReplication2.start();
+
+      useCase.initDataLowPriority();
+      useCase.initDataHighPriority();
+    }
+
+    public void sync() throws Exception {
+      asyncReplication1.synchronize(repositoryLowPriority.getName(),
+                                    sessionLowPriority.getWorkspace().getName(),
+                                    "cName_suffix");
+      asyncReplication2.synchronize(repositoryHigePriority.getName(),
+                                    sessionHigePriority.getWorkspace().getName(),
+                                    "cName_suffix");
+
+      while (asyncReplication1.isActive() || asyncReplication2.isActive())
+        Thread.sleep(5000);
     }
 
     public void initData() throws Exception {
@@ -112,15 +182,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
       useCase.initDataHighPriority();
 
       // Synchronize
-      asyncReplication1.synchronize(repositoryLowPriority.getName(),
-                                    sessionLowPriority.getWorkspace().getName(),
-                                    "cName_suffix");
-      asyncReplication2.synchronize(repositoryHigePriority.getName(),
-                                    sessionHigePriority.getWorkspace().getName(),
-                                    "cName_suffix");
-
-      while (asyncReplication1.isActive() || asyncReplication2.isActive())
-        Thread.sleep(5000);
+      sync();
     }
 
     public void useCase() throws Exception {
@@ -193,14 +255,22 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     super.tearDown();
   }
 
+  public void testStartListener() throws Exception {
+    UseCase1 useCase = new UseCase1(sessionLowPriority, sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initDataWithoutSync();
+
+    assertTrue(asyncUseCase.hasAddeddRootNode());
+  }
+
   public void testUseCase1() throws Exception {
     UseCase1 useCase = new UseCase1(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
 
     asyncUseCase.initData();
-
-    assertTrue(asyncUseCase.checkEquals());
 
     asyncUseCase.useCase();
 
@@ -462,7 +532,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase6() throws Exception {
     ComplexUseCase6 useCase = new ComplexUseCase6(sessionLowPriority, sessionHigePriority);
 
@@ -476,7 +546,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase9() throws Exception {
     ComplexUseCase9 useCase = new ComplexUseCase9(sessionLowPriority, sessionHigePriority);
 
@@ -490,7 +560,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase10() throws Exception {
     ComplexUseCase10 useCase = new ComplexUseCase10(sessionLowPriority, sessionHigePriority);
 
@@ -504,7 +574,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase11() throws Exception {
     ComplexUseCase11 useCase = new ComplexUseCase11(sessionLowPriority, sessionHigePriority);
 
@@ -518,7 +588,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase12() throws Exception {
     ComplexUseCase12 useCase = new ComplexUseCase12(sessionLowPriority, sessionHigePriority);
 
@@ -532,7 +602,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase13() throws Exception {
     ComplexUseCase13 useCase = new ComplexUseCase13(sessionLowPriority, sessionHigePriority);
 
@@ -546,7 +616,7 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
-  
+
   public void testComplexUseCase14() throws Exception {
     ComplexUseCase14 useCase = new ComplexUseCase14(sessionLowPriority, sessionHigePriority);
 

@@ -21,6 +21,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
@@ -64,11 +65,32 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
 
   /**
    * {@inheritDoc}
-   * 
-   * @throws NoSuchAlgorithmException
-   * @throws ChecksumNotFoundException
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
+    synchronized (this) {
+      saveItems(itemStates);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void saveListItems(List<ItemStateChangesLog> listItemStates) {
+    synchronized (this) {
+      int curSize = listItemStates.size();
+      for (int i = 0; i < curSize; i++) {
+        saveItems(listItemStates.get(i));
+      }
+    }
+  }
+
+  /**
+   * Save one changeslog to storage.
+   * 
+   * @param itemStates
+   *          The changeslog to save.
+   */
+  private void saveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
       ChangesLogIterator cLogs = tLog.getLogIterator();
@@ -98,7 +120,6 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
         ChangesSpooler csp = changesSpooler = new ChangesSpooler();
         csp.start();
       }
-
     }
   }
 }
