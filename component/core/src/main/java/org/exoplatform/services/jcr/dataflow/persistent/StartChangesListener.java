@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.dataflow.persistent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
@@ -28,10 +29,6 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
  */
 public class StartChangesListener implements ItemsPersistenceListener {
 
-  private final String                    workspaceName;
-
-  private final String                    repositoryName;
-
   private final List<ItemStateChangesLog> changes;
 
   /**
@@ -39,31 +36,14 @@ public class StartChangesListener implements ItemsPersistenceListener {
    * 
    * @param workspaceName
    */
-  public StartChangesListener(String repositoryName,
-                              String workspaceName,
-                              List<ItemStateChangesLog> changes) {
-    this.workspaceName = workspaceName;
-    this.repositoryName = repositoryName;
-    this.changes = changes;
+  public StartChangesListener() {
+    this.changes = new ArrayList<ItemStateChangesLog>();
   }
 
   /**
-   * getWorkspaceName.
+   * Return all changes from the start.
    * 
-   * @return
-   */
-  public String getWorkspaceName() {
-    return workspaceName;
-  }
-
-  public String getRepositoryname() {
-    return repositoryName;
-  }
-
-  /**
-   * getChanges.
-   * 
-   * @return
+   * @return List of changes.
    */
   public List<ItemStateChangesLog> getChanges() {
     return changes;

@@ -19,8 +19,10 @@ package org.exoplatform.services.jcr.impl;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
 import javax.jcr.NamespaceException;
@@ -31,6 +33,7 @@ import org.picocontainer.Startable;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.container.BaseContainerLifecyclePlugin;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -43,6 +46,8 @@ import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
@@ -68,7 +73,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   private final List<ComponentPlugin>                addNamespacesPlugins;
 
-  private final List<ComponentPlugin>                startChangesPlugins;
+  private final ManagerStartChanges                  managerStartChanges;
 
   private final ExoContainerContext                  containerContext;
 
@@ -83,9 +88,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     this.config = configuration;
     addNodeTypePlugins = new ArrayList<ComponentPlugin>();
     addNamespacesPlugins = new ArrayList<ComponentPlugin>();
-    startChangesPlugins = new ArrayList<ComponentPlugin>();
     containerContext = context;
     currentRepositoryName.set(config.getDefaultRepositoryName());
+    managerStartChanges = new ManagerStartChanges();
   }
 
   public void addPlugin(ComponentPlugin plugin) {
@@ -94,7 +99,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     else if (plugin instanceof AddNamespacesPlugin)
       addNamespacesPlugins.add(plugin);
     else if (plugin instanceof StartChangesPlugin) {
-      startChangesPlugins.add(plugin);
+      managerStartChanges.addPlugin((StartChangesPlugin) plugin);
     }
   }
 
@@ -138,13 +143,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     // Storing and starting the repository container under
     // key=repository_name
     repositoryContainers.put(rEntry.getName(), repositoryContainer);
-
-    // register listeners from start
-    for (int j = 0; j < startChangesPlugins.size(); j++) {
-      StartChangesPlugin plugin = (StartChangesPlugin) startChangesPlugins.get(j);
-      plugin.addListeners(repositoryContainer);
-    }
-
+    managerStartChanges.registerListeners(repositoryContainer);
     repositoryContainer.start();
 
     if (!config.getRepositoryConfigurations().contains(rEntry)) {
@@ -224,7 +223,6 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   public void start() {
     try {
-
       ExoContainer container = null;
       if (containerContext == null)
         container = PortalContainer.getInstance();
@@ -233,14 +231,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
       init(container);
 
-      // stop listeners from start
-      for (int j = 0; j < startChangesPlugins.size(); j++) {
-        StartChangesPlugin plugin = (StartChangesPlugin) startChangesPlugins.get(j);
-
-        for (RepositoryContainer repositoryContainer : repositoryContainers.values()) {
-          plugin.removeListeners(repositoryContainer);
-        }
-      }
+      managerStartChanges.unregisterListeners();
+      container.addContainerLifecylePlugin(new StartChangesContainerLifecyclePlugin());
 
     } catch (RepositoryException e) {
       log.error("Error start repository service", e);
@@ -259,7 +251,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     repositoryContainers.clear();
     addNamespacesPlugins.clear();
     addNodeTypePlugins.clear();
-    startChangesPlugins.clear();
+    managerStartChanges.cleanup();
   }
 
   private void addNamespaces() throws RepositoryException {
@@ -356,4 +348,180 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
   }
 
+  /**
+   * Manager start changes plugins.
+   */
+  public class ManagerStartChanges {
+
+    private Map<StorageKey, StartChangesListener> startChangesListeners;
+
+    ManagerStartChanges() {
+      startChangesListeners = new HashMap<StorageKey, StartChangesListener>();
+    }
+
+    /**
+     * Add new StartChangesPlugin to manager.
+     * 
+     * @param plugin
+     *          The StartChangesPlugin
+     */
+    public void addPlugin(StartChangesPlugin plugin) {
+      String repositoryName = plugin.getRepositoryName();
+      String workspaces = plugin.getWorkspaces();
+
+      StringTokenizer listTokenizer = new StringTokenizer(workspaces, ",");
+      while (listTokenizer.hasMoreTokens()) {
+        String wsName = listTokenizer.nextToken();
+        startChangesListeners.put(new StorageKey(repositoryName, wsName),
+                                  new StartChangesListener());
+      }
+    }
+
+    /**
+     * Register listeners.
+     * 
+     * @param repositoryContainer
+     */
+    public void registerListeners(RepositoryContainer repositoryContainer) {
+      Iterator<StorageKey> storageKeys = startChangesListeners.keySet().iterator();
+      while (storageKeys.hasNext()) {
+        StorageKey sk = storageKeys.next();
+        if (sk.getRepositoryName().equals(repositoryContainer.getName())) {
+          StartChangesListener startChangesListener = startChangesListeners.get(sk);
+
+          WorkspaceContainer wc = repositoryContainer.getWorkspaceContainer(sk.getWorkspaceName());
+          wc.registerComponentInstance(startChangesListener);
+
+          PersistentDataManager dm = (PersistentDataManager) wc.getComponentInstanceOfType(PersistentDataManager.class);
+          dm.addItemPersistenceListener(startChangesListener);
+        }
+      }
+    }
+
+    /**
+     * Unregister all listeners.
+     * 
+     */
+    public void unregisterListeners() {
+      for (RepositoryContainer repositoryContainer : repositoryContainers.values()) {
+        Iterator<StorageKey> storageKeys = startChangesListeners.keySet().iterator();
+        while (storageKeys.hasNext()) {
+          StorageKey sk = storageKeys.next();
+          if (sk.getRepositoryName().equals(repositoryContainer.getName())) {
+            StartChangesListener startChangesListener = startChangesListeners.get(sk);
+
+            WorkspaceContainer wc = repositoryContainer.getWorkspaceContainer(sk.getWorkspaceName());
+            if (wc != null) {
+              PersistentDataManager dm = (PersistentDataManager) wc.getComponentInstanceOfType(PersistentDataManager.class);
+              dm.removeItemPersistenceListener(startChangesListener);
+            }
+          }
+        }
+      }
+    }
+
+    /**
+     * Cleanup changes.
+     * 
+     */
+    public void cleanup() {
+      for (StartChangesListener startChangesListener : startChangesListeners.values()) {
+        startChangesListener.getChanges().clear();
+      }
+
+      for (RepositoryContainer repositoryContainer : repositoryContainers.values()) {
+        Iterator<StorageKey> storageKeys = startChangesListeners.keySet().iterator();
+        while (storageKeys.hasNext()) {
+          StorageKey sk = storageKeys.next();
+          if (sk.getRepositoryName().equals(repositoryContainer.getName())) {
+            StartChangesListener startChangesListener = startChangesListeners.get(sk);
+
+            WorkspaceContainer wc = repositoryContainer.getWorkspaceContainer(sk.getWorkspaceName());
+            if (wc != null) {
+              wc.unregisterComponentByInstance(startChangesListener);
+            }
+          }
+        }
+      }
+
+      startChangesListeners.clear();
+    }
+
+    /**
+     * Will be used as key for mapLocalStorages.
+     * 
+     */
+    private class StorageKey {
+      private final String repositoryName;
+
+      private final String workspaceName;
+
+      /**
+       * StorageKey constructor.
+       * 
+       * @param repositoryName
+       *          The repository name
+       * @param workspaceName
+       *          The workspace name
+       */
+      public StorageKey(String repositoryName, String workspaceName) {
+        this.repositoryName = repositoryName;
+        this.workspaceName = workspaceName;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public boolean equals(Object o) {
+        StorageKey k = (StorageKey) o;
+
+        return repositoryName.equals(k.repositoryName) && workspaceName.equals(k.workspaceName);
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public int hashCode() {
+        return repositoryName.hashCode() ^ workspaceName.hashCode();
+      }
+
+      /**
+       * Return repository name.
+       * 
+       * @return The repository name
+       */
+      public String getRepositoryName() {
+        return repositoryName;
+      }
+
+      /**
+       * Return workspace name.
+       * 
+       * @return The workspace name
+       */
+      public String getWorkspaceName() {
+        return workspaceName;
+      }
+    }
+  }
+
+  /**
+   * StartChangesContainerLifecyclePlugin.
+   */
+  class StartChangesContainerLifecyclePlugin extends BaseContainerLifecyclePlugin {
+
+    /**
+     * {@inheritDoc}
+     */
+    public void startContainer(ExoContainer container) throws Exception {
+      managerStartChanges.cleanup();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void stopContainer(ExoContainer container) throws Exception {
+      managerStartChanges.cleanup();
+    }
+  }
 }

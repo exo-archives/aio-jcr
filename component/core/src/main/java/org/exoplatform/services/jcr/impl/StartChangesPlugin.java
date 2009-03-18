@@ -16,18 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener;
 
 /**
  * Created by The eXo Platform SAS.
@@ -37,13 +28,9 @@ import org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener;
  */
 public class StartChangesPlugin extends BaseComponentPlugin {
 
-  private List<StartChangesListener>                 startChangesListeners;
+  private String repositoryName;
 
-  private Map<StorageKey, List<ItemStateChangesLog>> changes;
-
-  private String                                     repositoryName;
-
-  private String                                     workspaces;
+  private String workspaces;
 
   /**
    * StoreChangesPlugin constructor.
@@ -51,110 +38,39 @@ public class StartChangesPlugin extends BaseComponentPlugin {
    * @param params
    */
   public StartChangesPlugin(InitParams params) {
-    changes = new HashMap<StorageKey, List<ItemStateChangesLog>>();
-    startChangesListeners = new ArrayList<StartChangesListener>();
-
-    // TODO
     if (params != null) {
       ValueParam valueParam = params.getValueParam("repository-name");
-      repositoryName = valueParam == null ? null : valueParam.getValue();
-
-      if (repositoryName == null) {
+      if (valueParam == null) {
         throw new RuntimeException("Repository name not specified.");
       }
 
+      repositoryName = valueParam.getValue();
+
       valueParam = params.getValueParam("workspaces");
-      workspaces = valueParam == null ? null : valueParam.getValue();
-
-      if (repositoryName == null) {
-        throw new RuntimeException("Workspaces names not specified.");
+      if (valueParam == null) {
+        throw new RuntimeException("Repository name not specified.");
       }
+
+      workspaces = valueParam.getValue();
     }
   }
 
   /**
-   * addListeners.
+   * Return repository name.
    * 
-   * @param repository
+   * @return The repository name
    */
-  public void addListeners(RepositoryContainer repositoryContainer) {
-    String curRepositoryName = repositoryContainer.getName();
-
-    if (repositoryName.equals(curRepositoryName)) {
-      StringTokenizer listTokenizer = new StringTokenizer(workspaces, ",");
-
-      while (listTokenizer.hasMoreTokens()) {
-        String wsName = listTokenizer.nextToken();
-
-        StorageKey sk = new StorageKey(curRepositoryName, wsName);
-        changes.put(sk, new ArrayList<ItemStateChangesLog>());
-
-        StartChangesListener changesListener = new StartChangesListener(curRepositoryName,
-                                                                        wsName,
-                                                                        changes.get(sk));
-        startChangesListeners.add(changesListener);
-
-        WorkspaceContainer wc = repositoryContainer.getWorkspaceContainer(wsName);
-        wc.registerComponentInstance(changesListener);
-
-        PersistentDataManager dm = (PersistentDataManager) wc.getComponentInstanceOfType(PersistentDataManager.class);
-        dm.addItemPersistenceListener(changesListener);
-      }
-    }
+  public String getRepositoryName() {
+    return repositoryName;
   }
 
   /**
-   * removeListener.
+   * Return workspaces.
    * 
-   * @param repository
+   * @return The workspaces
    */
-  public void removeListeners(RepositoryContainer repositoryContainer) {
-    for (int i = 0; i < startChangesListeners.size(); i++) {
-      StartChangesListener changesListener = startChangesListeners.get(i);
-      if (changesListener.getRepositoryname().equals(repositoryContainer.getName())) {
-        WorkspaceContainer wc = repositoryContainer.getWorkspaceContainer(changesListener.getWorkspaceName());
-        PersistentDataManager dm = (PersistentDataManager) wc.getComponentInstanceOfType(PersistentDataManager.class);
-        dm.removeItemPersistenceListener(changesListener);
-      }
-    }
+  public String getWorkspaces() {
+    return workspaces;
   }
 
-  /**
-   * Will be used as key for mapLocalStorages.
-   * 
-   */
-  protected class StorageKey {
-    private final String repositoryName;
-
-    private final String workspaceName;
-
-    /**
-     * StorageKey constructor.
-     * 
-     * @param repositoryName
-     *          The repository name
-     * @param workspaceName
-     *          The workspace name
-     */
-    public StorageKey(String repositoryName, String workspaceName) {
-      this.repositoryName = repositoryName;
-      this.workspaceName = workspaceName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean equals(Object o) {
-      StorageKey k = (StorageKey) o;
-
-      return repositoryName.equals(k.repositoryName) && workspaceName.equals(k.workspaceName);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int hashCode() {
-      return repositoryName.hashCode() ^ workspaceName.hashCode();
-    }
-  }
 }
