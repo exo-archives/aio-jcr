@@ -24,8 +24,9 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.w3c.dom.Node;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
@@ -36,7 +37,7 @@ public class ResourceTypeProp extends CommonProp {
   public ResourceTypeProp() {
     this.propertyName = WebDavConstants.WebDavProp.RESOURCETYPE;
   }
-  
+
   public boolean init(Node node) {
     if (status != HTTPStatus.OK) {
       return false;
@@ -46,12 +47,12 @@ public class ResourceTypeProp extends CommonProp {
     if (collectionNode == null) {
       isCollection = false;
     }
-    
+
     return true;
-  }  
-  
+  }
+
   public boolean isCollection() {
     return isCollection;
   }
-  
+
 }

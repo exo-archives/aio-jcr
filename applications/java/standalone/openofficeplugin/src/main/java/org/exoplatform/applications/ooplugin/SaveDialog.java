@@ -36,8 +36,7 @@ import org.exoplatform.applications.ooplugin.utils.WebDavUtils;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.common.http.client.NVPair; 
-
+import org.exoplatform.common.http.client.NVPair;
 import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.ActionEvent;
@@ -60,14 +59,15 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class SaveDialog extends BrowseDialog {
 
-  private static final Log       log              = ExoLogger.getLogger("jcr.ooplugin.SaveDialog");
+  private static final Log       LOG              = ExoLogger.getLogger(SaveDialog.class);
 
   public static final String     DIALOG_NAME      = "_SaveDialog";
 
@@ -134,7 +134,7 @@ public class SaveDialog extends BrowseDialog {
       try {
         doSaveFile();
       } catch (Exception exc) {
-        log.info("Unhandled exception: " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception: " + exc.getMessage(), exc);
       }
     }
 
@@ -170,7 +170,7 @@ public class SaveDialog extends BrowseDialog {
 
         setEditFileName(displayNameProperty.getDisplayName());
       } catch (Exception exc) {
-        log.info("Can't open remote file... " + exc.getMessage(), exc);
+        LOG.info("Can't open remote file... " + exc.getMessage(), exc);
       }
     }
 
@@ -338,7 +338,7 @@ public class SaveDialog extends BrowseDialog {
       xStorable.storeAsURL(path, loadProps);
     } catch (com.sun.star.io.IOException e) {
       showMessageBox("Can't save file locally!!!!!!!!");
-      log.info("Exception" + e.getMessage(), e);
+      LOG.info("Exception" + e.getMessage(), e);
     }
   }
 
@@ -415,7 +415,7 @@ public class SaveDialog extends BrowseDialog {
 
       return true;
     } catch (Exception exc) {
-      log.info("Unhandled ecxeption. " + exc.getMessage(), exc);
+      LOG.info("Unhandled ecxeption. " + exc.getMessage(), exc);
     }
 
     return false;
@@ -465,7 +465,7 @@ public class SaveDialog extends BrowseDialog {
         doPropFind();
 
       } catch (Exception exc) {
-        log.info("Unhandled exception. " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception. " + exc.getMessage(), exc);
       }
     }
   }
@@ -493,10 +493,10 @@ public class SaveDialog extends BrowseDialog {
   protected boolean doSave(String localPath, String remotePath) {
     try {
       File inFile = new File(localPath);
-      
+
       remotePath = remotePath.replace("//", "/");
-      
-      if(remotePath.contains("?version")){
+
+      if (remotePath.contains("?version")) {
         remotePath = remotePath.substring(0, remotePath.lastIndexOf("?"));
       }
 
@@ -521,7 +521,7 @@ public class SaveDialog extends BrowseDialog {
 
       showMessageBox("Can't store file. Error code: " + status);
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception. " + exc.getMessage(), exc);
       showMessageBox("Can't store file. Error: " + exc.getMessage());
     }
     return false;

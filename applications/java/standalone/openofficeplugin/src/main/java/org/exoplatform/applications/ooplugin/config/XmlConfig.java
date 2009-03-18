@@ -27,26 +27,27 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class XmlConfig {
-  
+
   protected Document getDocumentFromResource(String resourceName) throws Exception {
     InputStream inputStream = getClass().getResourceAsStream(resourceName);
     return getDocumentFromInputStream(inputStream);
   }
-  
-  protected Document getDocumentFromInputStream(InputStream in) throws Exception {    
+
+  protected Document getDocumentFromInputStream(InputStream in) throws Exception {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    factory.setNamespaceAware(true);        
+    factory.setNamespaceAware(true);
     DocumentBuilder builder = factory.newDocumentBuilder();
     Document document = builder.parse(in);
     return document;
   }
-  
+
   protected Node getChildNode(Node node, String childName) {
     NodeList nodes = node.getChildNodes();
     for (int i = 0; i < nodes.getLength(); i++) {
@@ -56,6 +57,6 @@ public class XmlConfig {
       }
     }
     return null;
-  }  
+  }
 
 }

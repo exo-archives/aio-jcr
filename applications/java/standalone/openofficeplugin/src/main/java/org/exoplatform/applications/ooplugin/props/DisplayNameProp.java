@@ -23,19 +23,20 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.w3c.dom.Node;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class DisplayNameProp extends CommonProp {
-  
+
   protected String displayName = "";
 
   public DisplayNameProp() {
     this.propertyName = WebDavConstants.WebDavProp.DISPLAYNAME;
   }
-  
+
   public boolean init(Node node) {
     if (status != HTTPStatus.OK) {
       return false;
@@ -43,13 +44,13 @@ public class DisplayNameProp extends CommonProp {
     displayName = node.getTextContent();
     return true;
   }
-  
+
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
-  
+
   public String getDisplayName() {
     return displayName;
   }
-  
+
 }

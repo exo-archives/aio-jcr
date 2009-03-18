@@ -23,20 +23,20 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.applications.ooplugin.XmlUtil;
 import org.exoplatform.services.log.ExoLogger;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class Multistatus implements DocumentApi {
 
-  private static Log               log       = ExoLogger.getLogger(Multistatus.class);
+  private static Log               LOG       = ExoLogger.getLogger(Multistatus.class);
 
   protected ArrayList<ResponseDoc> responses = new ArrayList<ResponseDoc>();
 
@@ -60,7 +60,7 @@ public class Multistatus implements DocumentApi {
 
       return true;
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage());
+      LOG.info("Unhandled exception. " + exc.getMessage());
       exc.printStackTrace();
     }
 

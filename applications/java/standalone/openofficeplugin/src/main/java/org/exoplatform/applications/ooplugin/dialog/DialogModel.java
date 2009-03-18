@@ -20,23 +20,24 @@ package org.exoplatform.applications.ooplugin.dialog;
 import java.util.ArrayList;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class DialogModel {
 
-  private String dialogName = "";
-  
+  private String                       dialogName = "";
+
   private ArrayList<ComponentProperty> properties = new ArrayList<ComponentProperty>();
-  
-  private ArrayList<Component> components = new ArrayList<Component>();
+
+  private ArrayList<Component>         components = new ArrayList<Component>();
 
   public DialogModel(String dialogName) {
     this.dialogName = dialogName;
   }
-  
+
   public String getDialogName() {
     return dialogName;
   }
@@ -44,9 +45,9 @@ public class DialogModel {
   public ArrayList<ComponentProperty> getProperties() {
     return properties;
   }
-  
+
   public ArrayList<Component> getComponents() {
-    return components; 
+    return components;
   }
-  
+
 }

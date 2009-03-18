@@ -22,50 +22,61 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 
+import javax.ws.rs.WebApplicationException;
+
 import org.apache.commons.logging.Log;
-
-//___________________________________________________________________________
-//___________________________________________________________________________
-
 import org.exoplatform.applications.ooplugin.client.WebDavContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class WebDavConfig {
-  
-  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.AddonHandler");
-  
-  public static final String WHOST = "Host";
-  public static final String WPORT = "Port";
-  public static final String WSERVLET = "Servlet";
+
+  private static final Log   LOG         = ExoLogger.getLogger(WebDavConfig.class);
+
+  public static final String WHOST       = "Host";
+
+  public static final String WPORT       = "Port";
+
+  public static final String WSERVLET    = "Servlet";
+
   public static final String WREPOSITORY = "Repository";
-  public static final String WWORKSPACE = "WorkSpace";
-  public static final String WUSER = "User";
-  public static final String WPASS = "Pass";
-  
-  private String host = "localhost";
-  private int port = 8080;
-  private String servlet = "/rest/jcr/";
-  private String repository = "repository";
-  private String workSpace = "production";
-  private String user_id = "root";
-  private String user_pass = "exo";
-  
-  private String configFileName;
-  
+
+  public static final String WWORKSPACE  = "WorkSpace";
+
+  public static final String WUSER       = "User";
+
+  public static final String WPASS       = "Pass";
+
+  private String             host        = "localhost";
+
+  private int                port        = 8080;
+
+  private String             servlet     = "/rest/jcr/";
+
+  private String             repository  = "repository";
+
+  private String             workSpace   = "production";
+
+  private String             user_id     = "root";
+
+  private String             user_pass   = "exo";
+
+  private String             configFileName;
+
   public WebDavConfig() {
     configFileName = LocalFileSystem.getDocumentsPath() + File.separatorChar + "exoplugin.config";
     loadConfig();
   }
-  
-  public WebDavContext getContext() {    
+
+  public WebDavContext getContext() {
     String path = servlet + "/" + repository + "/" + workSpace;
-    
+
     while (true) {
       String replaced = path.replace("//", "/");
       if (replaced.equals(path)) {
@@ -77,93 +88,91 @@ public class WebDavConfig {
     while (path.endsWith("/")) {
       path = path.substring(0, path.length() - 1);
     }
-    
+
     return new WebDavContext(host, port, path, user_id, user_pass);
   }
-  
+
   public String getServerPrefix() {
-    return "http://" + host + ":" + port + servlet + repository + "/" + workSpace; 
+    return "http://" + host + ":" + port + servlet + repository + "/" + workSpace;
   }
-  
+
   public String getHost() {
     return host;
   }
-  
+
   public void setHost(String host) {
     this.host = host;
   }
-  
-  
+
   public int getPort() {
     return port;
   }
-  
+
   public void setPort(int port) {
     this.port = port;
   }
 
-  
   public String getServlet() {
     return servlet;
   }
-  
+
   public void setServlet(String servlet) {
     this.servlet = servlet;
   }
-  
+
   public void setRepository(String repository) {
     this.repository = repository;
   }
-  
+
   public String getRepository() {
-    
+
     String localRepository = repository;
-    
+
     while (localRepository.startsWith("/")) {
       localRepository = localRepository.substring(1);
     }
-    
+
     while (localRepository.endsWith("/")) {
       localRepository = localRepository.substring(0, localRepository.length() - 1);
-    }    
-    
+    }
+
     return localRepository;
   }
-  
+
   public String getWorkSpace() {
     String localWorkspace = workSpace;
-    
+
     while (localWorkspace.startsWith("/")) {
       localWorkspace = localWorkspace.substring(1);
     }
-    
+
     while (localWorkspace.endsWith("/")) {
       localWorkspace = localWorkspace.substring(0, localWorkspace.length() - 1);
     }
-    
-    return localWorkspace; 
+
+    return localWorkspace;
   }
-  
+
   public void setWorkSpace(String workSpace) {
     this.workSpace = workSpace;
   }
-  
+
   public String getUserId() {
     return user_id;
   }
-  
+
   public void setUserId(String user_id) {
     this.user_id = user_id;
   }
-  
+
   public String getUserPass() {
     return user_pass;
   }
-  
+
   public void setUserPass(String user_pass) {
     this.user_pass = user_pass;
   }
-  
+
   public void saveConfig() throws Exception {
     String outParams = WHOST + "=" + host + "\r\n";
     outParams += WPORT + "=" + port + "\r\n";
@@ -172,48 +181,48 @@ public class WebDavConfig {
     outParams += WWORKSPACE + "=" + workSpace + "\r\n";
     outParams += WUSER + "=" + user_id + "\r\n";
     outParams += WPASS + "=" + user_pass + "\r\n";
-    
+
     File outConfigFile = new File(configFileName);
     outConfigFile.createNewFile();
-    
+
     FileOutputStream outStream = new FileOutputStream(outConfigFile);
     outStream.write(outParams.getBytes());
     outStream.close();
   }
-  
-  public void loadConfig() {    
-    try {      
+
+  public void loadConfig() {
+    try {
       File configFile = new File(configFileName);
-      
+
       if (!configFile.exists()) {
-        log.info("Config file not exist!!!!!! USE DEFAULT !!!");
+        LOG.info("Config file not exist!!!!!! USE DEFAULT !!!");
         return;
       }
-      
+
       FileInputStream inStream = new FileInputStream(configFile);
-      
-      byte []data = new byte[inStream.available()];
+
+      byte[] data = new byte[inStream.available()];
       inStream.read(data);
       String confParams = new String(data);
-      String []params = confParams.split("\r\n");
-      
+      String[] params = confParams.split("\r\n");
+
       HashMap<String, String> hParams = new HashMap<String, String>();
       for (int i = 0; i < params.length; i++) {
-        String []curParams = params[i].split("=");
+        String[] curParams = params[i].split("=");
         hParams.put(curParams[0], curParams[1]);
       }
-      
+
       host = hParams.get(WHOST);
       port = new Integer(hParams.get(WPORT));
       servlet = hParams.get(WSERVLET);
       repository = hParams.get(WREPOSITORY);
       workSpace = hParams.get(WWORKSPACE);
       user_id = hParams.get(WUSER);
-      user_pass = hParams.get(WPASS);      
+      user_pass = hParams.get(WPASS);
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception. " + exc.getMessage(), exc);
     }
-    
+
   }
-  
+
 }

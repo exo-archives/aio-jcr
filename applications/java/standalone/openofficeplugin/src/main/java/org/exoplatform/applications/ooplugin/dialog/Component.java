@@ -20,39 +20,43 @@ package org.exoplatform.applications.ooplugin.dialog;
 import java.util.ArrayList;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class Component {
-  
-  public static final int XTYPE_XBUTTON = 1;
-  public static final int XTYPE_XCOMBOBOX = 2;
-  public static final int XTYPE_XLISTBOX = 3;
-  
-  private String className = "";
-  private String handler = "";
-  
-  private ArrayList<ComponentProperty> properties = new ArrayList<ComponentProperty>();
+
+  public static final int              XTYPE_XBUTTON   = 1;
+
+  public static final int              XTYPE_XCOMBOBOX = 2;
+
+  public static final int              XTYPE_XLISTBOX  = 3;
+
+  private String                       className       = "";
+
+  private String                       handler         = "";
+
+  private ArrayList<ComponentProperty> properties      = new ArrayList<ComponentProperty>();
 
   public Component(String className, String handler) {
     this.className = className;
     this.handler = handler;
   }
-  
+
   public String getClassName() {
     return className;
   }
-  
+
   public String getHandler() {
     return handler;
   }
-  
+
   public ArrayList<ComponentProperty> getProperties() {
     return properties;
   }
-  
+
   public String getPropertyValue(String propertyName) {
     for (int i = 0; i < properties.size(); i++) {
       ComponentProperty property = properties.get(i);
@@ -60,7 +64,7 @@ public class Component {
         return property.getValue();
       }
     }
-    return "";    
+    return "";
   }
-  
+
 }

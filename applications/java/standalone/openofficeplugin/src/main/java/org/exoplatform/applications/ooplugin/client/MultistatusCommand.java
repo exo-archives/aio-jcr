@@ -26,51 +26,52 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public abstract class MultistatusCommand extends DavCommand {
-  
-  private static final Log LOG = ExoLogger.getLogger("jcr.ooplugin.MultistatusCommand");
-  
-  protected PropertyList propList = new PropertyList();
-  
-  protected String xmlName = WebDavConstants.StreamDocs.PROPFIND;
-  
-  protected DocumentApi multistatusDocument = null;
-  
+
+  private static final Log LOG                 = ExoLogger.getLogger(MultistatusCommand.class);
+
+  protected PropertyList   propList            = new PropertyList();
+
+  protected String         xmlName             = WebDavConstants.StreamDocs.PROPFIND;
+
+  protected DocumentApi    multistatusDocument = null;
+
   public MultistatusCommand(WebDavContext context) throws Exception {
     super(context);
   }
-    
+
   public void requireAllProperties() {
     propList.clearProperies();
   }
-  
+
   public void setRequiredProperty(String name, String nameSpace) {
     propList.setProperty(name, nameSpace);
   }
-  
+
   public void setRequiredProperty(String name) {
     propList.setProperty(name, "DAV:");
   }
-  
+
   public void isPropNamesRequired(boolean isPropNames) {
     propList.isPropNamesRequired(isPropNames);
   }
-  
+
   public Element toXml(Document xmlDocument) {
-    Element propFindEl = xmlDocument.createElementNS(WebDavConstants.Dav.NAMESPACE, 
-        WebDavConstants.Dav.PREFIX + xmlName);
+    Element propFindEl = xmlDocument.createElementNS(WebDavConstants.Dav.NAMESPACE,
+                                                     WebDavConstants.Dav.PREFIX + xmlName);
     xmlDocument.appendChild(propFindEl);
-    
-    propFindEl.appendChild(propList.toXml(xmlDocument));    
-    
+
+    propFindEl.appendChild(propList.toXml(xmlDocument));
+
     return propFindEl;
   }
-  
+
   public void finalExecute() {
     try {
       if (client.getReplyCode() != HTTPStatus.MULTISTATUS) {
@@ -78,14 +79,13 @@ public abstract class MultistatusCommand extends DavCommand {
       }
     } catch (Exception exc) {
       LOG.info("Unhandled exception. " + exc.getMessage(), exc);
-    }    
-    
+    }
+
     multistatusDocument = DocumentManager.getResponseDocument(client.getResponseStream());
   }
-  
+
   public Multistatus getMultistatus() {
-    return (Multistatus)multistatusDocument;
+    return (Multistatus) multistatusDocument;
   }
-  
-  
+
 }

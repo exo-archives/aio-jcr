@@ -21,21 +21,22 @@ import com.sun.star.awt.XToolkit;
 import com.sun.star.frame.XFrame;
 import com.sun.star.uno.XComponentContext;
 
-import org.exoplatform.applications.ooplugin.WebDavConfig;
-
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class AboutDialog extends PlugInDialog {
-  
+
   private static final String NAME = "_AboutDialog";
-  
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
+
+  public AboutDialog(WebDavConfig config,
+                     XComponentContext xComponentContext,
+                     XFrame xFrame,
+                     XToolkit xToolkit) {
     super(config, xComponentContext, xFrame, xToolkit);
     dialogName = NAME;
-  }  
-  
+  }
+
 }

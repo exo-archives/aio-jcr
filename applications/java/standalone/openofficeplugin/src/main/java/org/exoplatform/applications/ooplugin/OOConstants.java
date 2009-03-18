@@ -17,31 +17,34 @@
 package org.exoplatform.applications.ooplugin;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 28, 2008  
+ * Created by The eXo Platform SAS.
+ * @author <a href="mailto:work.visor.ck@gmail.com">Dmytro Katayev</a>
  */
 public class OOConstants {
-  
-  public static class MimeTypes{
-    
-    
+
+  public static class MimeTypes {
+
     // OpenDocument Text
-    public static final String ODT = "application/vnd.oasis.opendocument.text";    
-    // OpenDocument Presentation 
+    public static final String ODT = "application/vnd.oasis.opendocument.text";
+
+    // OpenDocument Presentation
     public static final String ODP = "application/vnd.oasis.opendocument.presentation";
+
     // OpenDocument Spreadsheet
-    public static final String ODS = "application/vnd.oasis.opendocument.spreadsheet";   
-    //Microsoft Rich Text Format
+    public static final String ODS = "application/vnd.oasis.opendocument.spreadsheet";
+
+    // Microsoft Rich Text Format
     public static final String RTF = "application/vnd.oasis.opendocument.spreadsheet";
+
     // MS word document
     public static final String DOC = "application/msword";
+
     // MS PowerPoint
     public static final String PPT = "application/vnd.ms-powerpoint ";
+
     // Spreadsheet
-    public static final String XLS = "application/msexcel";            
- 
-  } 
+    public static final String XLS = "application/msexcel";
+
+  }
 
 }

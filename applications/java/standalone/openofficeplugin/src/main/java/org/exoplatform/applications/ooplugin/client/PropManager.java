@@ -23,15 +23,15 @@ import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Node;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class PropManager {
 
-  private static Log          log                 = ExoLogger.getLogger(PropManager.class);
-
+  private static Log          LOG                 = ExoLogger.getLogger(PropManager.class);
 
   protected static String[][] availableProperties = {
       { WebDavConstants.WebDavProp.DISPLAYNAME,
@@ -72,7 +72,7 @@ public class PropManager {
       curProp.init(propertyNode);
       return curProp;
     } catch (Exception exc) {
-      log.info("Unhandled exception. ", exc);
+      LOG.info("Unhandled exception. ", exc);
     }
     return null;
   }

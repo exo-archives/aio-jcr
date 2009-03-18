@@ -22,8 +22,9 @@ import com.sun.star.awt.XItemListener;
 import com.sun.star.lang.EventObject;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
@@ -34,5 +35,5 @@ public class ItemListener implements XItemListener {
 
   public void disposing(EventObject arg0) {
   }
-  
+
 }

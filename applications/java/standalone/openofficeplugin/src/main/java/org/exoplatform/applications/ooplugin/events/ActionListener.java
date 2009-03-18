@@ -22,17 +22,18 @@ import com.sun.star.awt.XActionListener;
 import com.sun.star.lang.EventObject;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public abstract class ActionListener implements XActionListener {
-  
+
   public void actionPerformed(ActionEvent arg0) {
   }
 
   public void disposing(EventObject arg0) {
   }
-  
+
 }

@@ -23,8 +23,9 @@ import java.util.Iterator;
 import org.w3c.dom.Element;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
@@ -35,29 +36,29 @@ public class NameSpaceRegistry {
   public void clearNameSpaces() {
     nameSpaces.clear();
   }
-  
+
   public boolean registerNameSpace(String prefixedName, String nameSpace) {
     if (prefixedName.indexOf(":") > 0) {
       String prefix = prefixedName.split(":")[0];
-      
+
       String presentNameSpace = nameSpaces.get(nameSpace);
-      if (presentNameSpace == null) {        
+      if (presentNameSpace == null) {
         nameSpaces.put(prefix, nameSpace);
-      }      
-      
+      }
+
       return true;
-    }    
-    
+    }
+
     return false;
   }
-  
+
   public void fillNameSpaces(Element element) {
     Iterator<String> nsIter = nameSpaces.keySet().iterator();
     while (nsIter.hasNext()) {
       String prefix = nsIter.next();
       String nameSpace = nameSpaces.get(prefix);
       element.setAttribute("xmlns:" + prefix, nameSpace);
-    }    
-  }  
-  
+    }
+  }
+
 }

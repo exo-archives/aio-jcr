@@ -30,58 +30,58 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class DocumentManager {
-  
-  private static Log log = ExoLogger.getLogger(DocumentManager.class);
-  
 
-  protected static String [][]availableDocuments = {
-    { WebDavConstants.StreamDocs.MULTISTATUS, "org.exoplatform.applications.ooplugin.client.Multistatus" },
-  };
+  private static Log          LOG                = ExoLogger.getLogger(DocumentManager.class);
+
+  protected static String[][] availableDocuments = { { WebDavConstants.StreamDocs.MULTISTATUS,
+      "org.exoplatform.applications.ooplugin.client.Multistatus" }, };
 
   public static DocumentApi getResponseDocument(InputStream inStream) {
     if (inStream == null) {
       return null;
     }
-    
+
     Document document = null;
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
       DocumentBuilder builder = factory.newDocumentBuilder();
       document = builder.parse(inStream);
-      
+
       NodeList nodeList = document.getChildNodes();
       for (int i = 0; i < nodeList.getLength(); i++) {
         Node curDocumentNode = nodeList.item(i);
-        
+
         String localName = curDocumentNode.getLocalName();
         String nameSpace = curDocumentNode.getNamespaceURI();
-        
+
         if (localName != null && WebDavConstants.Dav.NAMESPACE.equals(nameSpace)) {
 
           for (int docI = 0; docI < availableDocuments.length; docI++) {
             if (localName.equals(availableDocuments[docI][0])) {
-              DocumentApi responseDoc = (DocumentApi)Class.forName(availableDocuments[docI][1]).newInstance();
+              DocumentApi responseDoc = (DocumentApi) Class.forName(availableDocuments[docI][1])
+                                                           .newInstance();
               responseDoc.initFromDocument(document);
               return responseDoc;
             }
           }
-          
+
         }
       }
-      
+
     } catch (Exception exc) {
-      log.info("Unhandled exception. ", exc);
+      LOG.info("Unhandled exception. ", exc);
       exc.printStackTrace();
     }
-    
+
     return null;
   }
-  
+
 }

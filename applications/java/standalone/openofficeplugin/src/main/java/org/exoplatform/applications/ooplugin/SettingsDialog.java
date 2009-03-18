@@ -35,42 +35,54 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class SettingsDialog extends PlugInDialog {
-  
-  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.PlugInDialog");
-  
-  public static final String NAME = "_SettingsDialog";
-  
-  public static final String BTN_SAVE = "btnSave";
-  public static final String BTN_TEST = "btnTest";
-  
-  public static final String EDT_SERVERNAME = "edtServerName";
-  public static final String EDT_PORT = "edtPort";
-  public static final String EDT_SERVLET = "edtServlet";
-  public static final String EDT_REPOSITORY = "edtRepository";
-  public static final String EDT_WORKSPACE = "edtWorkSpace";
-  public static final String EDT_USER = "edtUserName";
-  public static final String EDT_PASS = "edtPassword";
-  
-  private Thread launchThread;
-  private Thread enableTestButtonThread;
 
-  public SettingsDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
+  private static final Log   LOG            = ExoLogger.getLogger(SettingsDialog.class);
+
+  public static final String NAME           = "_SettingsDialog";
+
+  public static final String BTN_SAVE       = "btnSave";
+
+  public static final String BTN_TEST       = "btnTest";
+
+  public static final String EDT_SERVERNAME = "edtServerName";
+
+  public static final String EDT_PORT       = "edtPort";
+
+  public static final String EDT_SERVLET    = "edtServlet";
+
+  public static final String EDT_REPOSITORY = "edtRepository";
+
+  public static final String EDT_WORKSPACE  = "edtWorkSpace";
+
+  public static final String EDT_USER       = "edtUserName";
+
+  public static final String EDT_PASS       = "edtPassword";
+
+  private Thread             launchThread;
+
+  private Thread             enableTestButtonThread;
+
+  public SettingsDialog(WebDavConfig config,
+                        XComponentContext xComponentContext,
+                        XFrame xFrame,
+                        XToolkit xToolkit) {
     super(config, xComponentContext, xFrame, xToolkit);
     dialogName = NAME;
-    
+
     addHandler(BTN_SAVE, Component.XTYPE_XBUTTON, new SaveClick());
     addHandler(BTN_TEST, Component.XTYPE_XBUTTON, new TestClick());
-    
+
     launchThread = new LaunchThread();
     launchThread.start();
   }
-  
+
   private class LaunchThread extends Thread {
     public void run() {
       try {
@@ -78,10 +90,10 @@ public class SettingsDialog extends PlugInDialog {
           Thread.sleep(100);
         }
         Thread.sleep(100);
-        
+
         enableTestButtonThread = new EnableTestButtonThread();
         enableTestButtonThread.start();
-        
+
         setTextBoxValue(EDT_SERVERNAME, config.getHost());
         setTextBoxValue(EDT_PORT, "" + config.getPort());
         setTextBoxValue(EDT_SERVLET, config.getServlet());
@@ -89,9 +101,9 @@ public class SettingsDialog extends PlugInDialog {
         setTextBoxValue(EDT_WORKSPACE, config.getWorkSpace());
         setTextBoxValue(EDT_USER, config.getUserId());
         setTextBoxValue(EDT_PASS, config.getUserPass());
-                
+
       } catch (Exception exc) {
-        log.info("Unhandled exception: " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception: " + exc.getMessage(), exc);
       }
     }
   }
@@ -100,73 +112,73 @@ public class SettingsDialog extends PlugInDialog {
     if ("".equals(getTextBoxValue(EDT_SERVERNAME))) {
       return false;
     }
-    
+
     if ("".equals(getTextBoxValue(EDT_PORT))) {
       return false;
     }
-    
+
     if ("".equals(getTextBoxValue(EDT_SERVLET))) {
       return false;
     }
-    
+
     if ("".equals(getTextBoxValue(EDT_REPOSITORY))) {
       return false;
     }
-    
+
     if ("".equals(getTextBoxValue(EDT_WORKSPACE))) {
       return false;
     }
-    
+
     if ("".equals(getTextBoxValue(EDT_USER))) {
       return false;
     }
-    
+
     if ("".equals(getTextBoxValue(EDT_PASS))) {
       return false;
     }
-    
+
     return true;
   }
-  
+
   private class EnableTestButtonThread extends Thread {
     public void run() {
       try {
-        while (true) {            
+        while (true) {
           Thread.sleep(100);
-          
+
           if (isEntheredAll()) {
-            ((XWindow)UnoRuntime.queryInterface(
-                XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(true);                
-            ((XWindow)UnoRuntime.queryInterface(
-                XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(true);                
+            ((XWindow) UnoRuntime.queryInterface(XWindow.class,
+                                                 xControlContainer.getControl(BTN_TEST))).setEnable(true);
+            ((XWindow) UnoRuntime.queryInterface(XWindow.class,
+                                                 xControlContainer.getControl(BTN_SAVE))).setEnable(true);
           } else {
-            ((XWindow)UnoRuntime.queryInterface(
-                XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(false);
-            ((XWindow)UnoRuntime.queryInterface(
-                XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(false);
-          }          
+            ((XWindow) UnoRuntime.queryInterface(XWindow.class,
+                                                 xControlContainer.getControl(BTN_TEST))).setEnable(false);
+            ((XWindow) UnoRuntime.queryInterface(XWindow.class,
+                                                 xControlContainer.getControl(BTN_SAVE))).setEnable(false);
+          }
         }
       } catch (Exception exc) {
       }
     }
   }
-  
+
   protected void setTextBoxValue(String componentName, String textValue) {
-    XTextComponent xComboText = (XTextComponent)UnoRuntime.queryInterface(
-        XTextComponent.class, xControlContainer.getControl(componentName));
-    xComboText.setText(textValue);          
+    XTextComponent xComboText = (XTextComponent) UnoRuntime.queryInterface(XTextComponent.class,
+                                                                           xControlContainer.getControl(componentName));
+    xComboText.setText(textValue);
   }
-  
+
   protected String getTextBoxValue(String componentName) {
-    XTextComponent xComboText = (XTextComponent)UnoRuntime.queryInterface(
-        XTextComponent.class, xControlContainer.getControl(componentName));
-    return xComboText.getText();      
+    XTextComponent xComboText = (XTextComponent) UnoRuntime.queryInterface(XTextComponent.class,
+                                                                           xControlContainer.getControl(componentName));
+    return xComboText.getText();
   }
-  
+
   private class TestClick extends ActionListener {
     public void actionPerformed(ActionEvent arg0) {
-      
-      try {        
+
+      try {
         String host = getTextBoxValue(EDT_SERVERNAME);
         int port = new Integer(getTextBoxValue(EDT_PORT));
         String path = getTextBoxValue(EDT_SERVLET);
@@ -174,9 +186,9 @@ public class SettingsDialog extends PlugInDialog {
         String workSpace = getTextBoxValue(EDT_WORKSPACE);
         String userId = getTextBoxValue(EDT_USER);
         String userPass = getTextBoxValue(EDT_PASS);
-        
+
         WebDavConfig testConfig = config;
-        
+
         testConfig.setHost(host);
         testConfig.setPort(port);
         testConfig.setServlet(path);
@@ -184,32 +196,32 @@ public class SettingsDialog extends PlugInDialog {
         testConfig.setWorkSpace(workSpace);
         testConfig.setUserId(userId);
         testConfig.setUserPass(userPass);
-        
+
         HTTPConnection connection = WebDavUtils.getAuthConnection(testConfig);
-       
+
         String filePath = WebDavUtils.getFullPath(testConfig);
         HTTPResponse response = connection.Head(filePath);
-        
-        log.info("Testing connection....");
-        
+
+        LOG.info("Testing connection....");
+
         int status = response.getStatusCode();
 
         if (status == HTTPStatus.OK) {
           showMessageBox("Connection successful!");
           return;
         }
-        
+
       } catch (Exception exc) {
-        log.info("Unhandled exception: " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception: " + exc.getMessage(), exc);
       }
 
-      showMessageBox(" Can not connect to repository!");      
-      
+      showMessageBox(" Can not connect to repository!");
+
     }
   }
-  
+
   private class SaveClick extends ActionListener {
-    
+
     public void actionPerformed(ActionEvent arg0) {
       try {
         String host = getTextBoxValue(EDT_SERVERNAME);
@@ -219,7 +231,7 @@ public class SettingsDialog extends PlugInDialog {
         String workSpace = getTextBoxValue(EDT_WORKSPACE);
         String userId = getTextBoxValue(EDT_USER);
         String userPass = getTextBoxValue(EDT_PASS);
-        
+
         config.setHost(host);
         config.setPort(port);
         config.setServlet(path);
@@ -227,16 +239,16 @@ public class SettingsDialog extends PlugInDialog {
         config.setWorkSpace(workSpace);
         config.setUserId(userId);
         config.setUserPass(userPass);
-        
-        config.saveConfig();        
+
+        config.saveConfig();
       } catch (Exception exc) {
-        log.info("Unhandled exception. " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception. " + exc.getMessage(), exc);
         showMessageBox("Parameters incorrect!!!");
       }
-      
-      xDialog.endExecute();      
+
+      xDialog.endExecute();
     }
 
-  }  
-  
+  }
+
 }

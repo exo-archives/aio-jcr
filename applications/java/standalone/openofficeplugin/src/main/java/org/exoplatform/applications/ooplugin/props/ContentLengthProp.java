@@ -23,8 +23,9 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.w3c.dom.Node;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
@@ -35,19 +36,19 @@ public class ContentLengthProp extends CommonProp {
   public ContentLengthProp() {
     this.propertyName = WebDavConstants.WebDavProp.GETCONTENTLENGTH;
   }
-  
+
   public boolean init(Node node) {
     if (status != HTTPStatus.OK) {
       return false;
     }
-    
+
     String contLen = node.getTextContent();
     contentLength = new Integer(contLen);
     return true;
-  }    
-  
+  }
+
   public long getContentLength() {
     return contentLength;
   }
-  
+
 }

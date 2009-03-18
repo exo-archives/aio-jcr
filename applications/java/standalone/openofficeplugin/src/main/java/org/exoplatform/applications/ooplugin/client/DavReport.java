@@ -20,15 +20,15 @@ package org.exoplatform.applications.ooplugin.client;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 
-
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class DavReport extends MultistatusCommand {
-  
+
   private int depth = 0;
 
   public DavReport(WebDavContext context) throws Exception {
@@ -36,15 +36,15 @@ public class DavReport extends MultistatusCommand {
     commandName = WebDavConstants.DavCommand.REPORT;
     xmlName = WebDavConstants.StreamDocs.VERSION_TREE;
   }
-  
+
   public void setDepth(int depth) {
     this.depth = depth;
   }
-  
+
   @Override
   public int execute() throws Exception {
-    client.setRequestHeader(ExtHttpHeaders.DEPTH, "" + depth);    
+    client.setRequestHeader(ExtHttpHeaders.DEPTH, "" + depth);
     return super.execute();
-  }  
-  
+  }
+
 }

@@ -37,34 +37,35 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.LSOutput;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public abstract class DavCommand {
 
-  public static final String AUTH_BASIC = "Basic";
+  public static final String AUTH_BASIC        = "Basic";
 
-  protected String commandName;
+  protected String           commandName;
 
-  protected WebDavContext context = null;
+  protected WebDavContext    context           = null;
 
-  protected String resourcePath;
-  
-  private long rangeStart = -1;
-  
-  private long rangeEnd = -1;
+  protected String           resourcePath;
 
-  protected HttpClient client;
-  
-  protected byte []requestDataBytes = null;
-  
-  protected InputStream inStream = null;
-  
-  protected byte []responseDataBytes = null;
+  private long               rangeStart        = -1;
 
-  private boolean enableXml = true;
+  private long               rangeEnd          = -1;
+
+  protected HttpClient       client;
+
+  protected byte[]           requestDataBytes  = null;
+
+  protected InputStream      inStream          = null;
+
+  protected byte[]           responseDataBytes = null;
+
+  private boolean            enableXml         = true;
 
   public DavCommand(WebDavContext context) throws Exception {
     this.context = context;
@@ -84,13 +85,13 @@ public abstract class DavCommand {
     this.rangeEnd = rangeEnd;
   }
 
-  public void setRequestDataBuffer(byte []requestDataBytes) {
+  public void setRequestDataBuffer(byte[] requestDataBytes) {
     this.requestDataBytes = requestDataBytes;
   }
-  
+
   public void setRequestInputStream(InputStream inStream, long streamLength) throws Exception {
     this.inStream = inStream;
-    client.setRequestHeader(ExtHttpHeaders.CONTENTLENGTH, "" + streamLength);    
+    client.setRequestHeader(ExtHttpHeaders.CONTENTLENGTH, "" + streamLength);
   }
 
   public void setXmlEnabled(boolean enableXml) {
@@ -109,16 +110,16 @@ public abstract class DavCommand {
     return client.getResponseHeadersNames();
   }
 
-  public byte []getResponseDataBuffer() {
+  public byte[] getResponseDataBuffer() {
     return client.getResponseBytes();
   }
 
   private static Document getDomDocument() throws Exception {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder builder = factory.newDocumentBuilder();    
+    DocumentBuilder builder = factory.newDocumentBuilder();
     return builder.newDocument();
-  }  
-  
+  }
+
   public int execute() throws Exception {
     if (enableXml) {
       Document xmlDocument = getDomDocument();
@@ -133,24 +134,24 @@ public abstract class DavCommand {
     } else {
       if (requestDataBytes != null) {
         client.setRequestBody(requestDataBytes);
-      }      
+      }
     }
-    
+
     client.setHttpCommand(commandName);
 
     String path = context.getServletPath();
     if (resourcePath != null) {
       path += resourcePath;
     }
-    
+
     client.setRequestPath(path);
-    
+
     if (context.getUserId() != null) {
       String userId = context.getUserId();
       String userPass = context.getUserPass();
-      
-      byte []encoded = Base64.encodeBase64(new String(userId + ":" + userPass).getBytes());
-      String encodedAuth = new String(encoded);      
+
+      byte[] encoded = Base64.encodeBase64(new String(userId + ":" + userPass).getBytes());
+      String encodedAuth = new String(encoded);
       client.setRequestHeader(ExtHttpHeaders.AUTHORIZATION, AUTH_BASIC + " " + encodedAuth);
     }
 
@@ -169,7 +170,7 @@ public abstract class DavCommand {
   }
 
   public void finalExecute() {
-  }  
+  }
 
   public Element toXml(Document xmlDocument) {
     return null;
@@ -178,53 +179,63 @@ public abstract class DavCommand {
   private void serializeElement(Element element) throws Exception {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     Transformer transformer = transformerFactory.newTransformer();
-    
+
     DOMSource source = new DOMSource(element.getOwnerDocument());
-    
+
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     StreamResult resultStream = new StreamResult(outStream);
-    
-    transformer.transform(source, resultStream);    
-    requestDataBytes = outStream.toByteArray();    
-  }  
-  
+
+    transformer.transform(source, resultStream);
+    requestDataBytes = outStream.toByteArray();
+  }
+
   static class Output implements LSOutput {
 
     OutputStream bs;
-    Writer cs;
-    String sId;
-    String enc;
+
+    Writer       cs;
+
+    String       sId;
+
+    String       enc;
 
     public Output() {
-        bs = null;
-        cs = null;
-        sId = null;
-        enc = "UTF-8";
+      bs = null;
+      cs = null;
+      sId = null;
+      enc = "UTF-8";
     }
 
     public OutputStream getByteStream() {
-        return bs;
+      return bs;
     }
+
     public void setByteStream(OutputStream byteStream) {
-        bs = byteStream;
+      bs = byteStream;
     }
+
     public Writer getCharacterStream() {
-        return cs;
+      return cs;
     }
+
     public void setCharacterStream(Writer characterStream) {
-        cs = characterStream;
+      cs = characterStream;
     }
+
     public String getSystemId() {
-        return sId;
+      return sId;
     }
+
     public void setSystemId(String systemId) {
-        sId = systemId;
+      sId = systemId;
     }
+
     public String getEncoding() {
-        return enc;
+      return enc;
     }
+
     public void setEncoding(String encoding) {
-        enc = encoding;
+      enc = encoding;
     }
   }
 

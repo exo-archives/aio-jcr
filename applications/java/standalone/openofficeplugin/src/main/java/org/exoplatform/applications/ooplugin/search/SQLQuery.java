@@ -22,31 +22,32 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class SQLQuery implements DavQuery {
-  
+
   private String query = "";
-  
+
   public SQLQuery() {
   }
-  
+
   public SQLQuery(String query) {
-    this.query = query;   
+    this.query = query;
   }
-  
+
   public void setQuery(String query) {
     this.query = query;
   }
-  
+
   public Element toXml(Document xmlDocument) {
     Element sqlElement = xmlDocument.createElementNS(WebDavConstants.Dav.NAMESPACE,
-        WebDavConstants.Dav.PREFIX + "sql");
+                                                     WebDavConstants.Dav.PREFIX + "sql");
     sqlElement.setTextContent(query);
     return sqlElement;
   }
-  
+
 }

@@ -20,8 +20,9 @@ package org.exoplatform.applications.ooplugin;
 import java.io.File;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
@@ -33,39 +34,45 @@ public class Resources {
   }
 
   public static void getextensionPath() {
-      if(extensionPath == null) {
-          String classPath = System.getProperty("java.class.path");
-          String tab[] = classPath.split(";");
-          String arr$[] = tab;
-          int len$ = arr$.length;
-          int i$ = 0;
-          do {
-              if(i$ >= len$) {
-                  break;
-              }
-              String s = arr$[i$];
-              int pos;
-              if((pos = s.indexOf("exo-oo-addon")) != -1 && s.indexOf(".zip") > pos) {
-                  s = s.substring(0, pos + 20);
-                  File path = new File(s);
-                  extensionPath = path.getPath();
-                  break;
-              }
-              i$++;
-          } while(true);
-      }
+    if (extensionPath == null) {
+      String classPath = System.getProperty("java.class.path");
+      String tab[] = classPath.split(";");
+      String arr$[] = tab;
+      int len$ = arr$.length;
+      int i$ = 0;
+      do {
+        if (i$ >= len$) {
+          break;
+        }
+        String s = arr$[i$];
+        int pos;
+        if ((pos = s.indexOf("exo-oo-addon")) != -1 && s.indexOf(".zip") > pos) {
+          s = s.substring(0, pos + 20);
+          File path = new File(s);
+          extensionPath = path.getPath();
+          break;
+        }
+        i$++;
+      } while (true);
+    }
   }
 
   public static String getImage(String name) {
-      getextensionPath();
-      return (new StringBuilder()).append(extensionPath).append(File.separator)
-        .append("images").append(File.separator).append(name).toString();
+    getextensionPath();
+    return (new StringBuilder()).append(extensionPath)
+                                .append(File.separator)
+                                .append("images")
+                                .append(File.separator)
+                                .append(name)
+                                .toString();
   }
 
   public static String getFile(String name) {
-      getextensionPath();
-      return (new StringBuilder()).append(extensionPath).append(File.separator)
-        .append(name).toString();
+    getextensionPath();
+    return (new StringBuilder()).append(extensionPath)
+                                .append(File.separator)
+                                .append(name)
+                                .toString();
   }
 
 }

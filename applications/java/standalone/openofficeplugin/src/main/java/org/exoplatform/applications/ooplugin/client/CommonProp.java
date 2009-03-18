@@ -17,32 +17,34 @@
 
 package org.exoplatform.applications.ooplugin.client;
 
-
 import org.exoplatform.common.http.HTTPStatus;
 import org.w3c.dom.Node;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 
 public class CommonProp implements PropApi {
 
-  protected String propertyName = "";
+  protected String propertyName  = "";
+
   protected String propertyValue = "";
-  protected int status = HTTPStatus.NOT_FOUND;
-  
+
+  protected int    status        = HTTPStatus.NOT_FOUND;
+
   public CommonProp() {
   }
-  
+
   public CommonProp(String propertyName) {
     this.propertyName = propertyName;
   }
-  
+
   public void setStatus(String httpStatus) {
-    String []statusPart = httpStatus.split(" ");
-    status = new Integer(statusPart[1]);    
+    String[] statusPart = httpStatus.split(" ");
+    status = new Integer(statusPart[1]);
   }
 
   public void setStatus(int status) {
@@ -56,11 +58,11 @@ public class CommonProp implements PropApi {
   public String getName() {
     return propertyName;
   }
-  
+
   public String getValue() {
     return propertyValue;
   }
-  
+
   public boolean init(Node node) {
     if (status == HTTPStatus.OK) {
       propertyValue = node.getTextContent();
@@ -68,5 +70,5 @@ public class CommonProp implements PropApi {
     }
     return false;
   }
-  
+
 }

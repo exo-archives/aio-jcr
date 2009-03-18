@@ -27,41 +27,40 @@ import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 18, 2008  
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:work.visor.ck@gmail.com">Dmytro Katayev</a>
  */
 public class WebDavUtils {
-  
-  public static HTTPConnection getAuthConnection(WebDavConfig config){
-    
+
+  public static HTTPConnection getAuthConnection(WebDavConfig config) {
+
     CookieModule.setCookiePolicyHandler(null);
-    
+
     HTTPConnection connection = new HTTPConnection(config.getHost(), config.getPort());
-    connection.addBasicAuthorization(WebDav.REALM, config.getUserId(), config.getUserPass());    
-    
+    connection.addBasicAuthorization(WebDav.REALM, config.getUserId(), config.getUserPass());
+
     return connection;
   }
-  
-  public static String getFullPath(WebDavConfig config){
-    
+
+  public static String getFullPath(WebDavConfig config) {
+
     String host = config.getHost();
     int port = config.getPort();
     String path = config.getServlet();
     String repository = config.getRepository();
     String workspace = config.getWorkSpace();
-    
-    String fullPath = "http://" + host + ":" + port + path + repository + "/" +workspace;
-    
-    return fullPath; 
+
+    String fullPath = "http://" + host + ":" + port + path + repository + "/" + workspace;
+
+    return fullPath;
   }
 
   public static byte[] getBytes(File inFile) throws Exception {
-   
+
     FileInputStream fis = new FileInputStream(inFile);
     FileChannel fc = fis.getChannel();
-    byte[] data = new byte[(int)fc.size()]; 
+    byte[] data = new byte[(int) fc.size()];
     ByteBuffer bb = ByteBuffer.wrap(data);
     fc.read(bb);
     return data;

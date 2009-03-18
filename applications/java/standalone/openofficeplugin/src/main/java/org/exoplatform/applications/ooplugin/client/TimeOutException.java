@@ -19,7 +19,8 @@ package org.exoplatform.applications.ooplugin.client;
 
 /**
  * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id: $
  */
 

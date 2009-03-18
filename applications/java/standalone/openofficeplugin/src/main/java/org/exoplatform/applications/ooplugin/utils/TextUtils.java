@@ -29,13 +29,14 @@ import org.exoplatform.applications.ooplugin.OOConstants.MimeTypes;
 import org.w3c.dom.Document;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev
- * work.visor.ck@gmail.com Aug 19, 2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:work.visor.ck@gmail.com">Dmytro Katayev</a>
  */
 public class TextUtils {
-  
+
   public static final char[] hexTable = "0123456789abcdef".toCharArray();
-  
+
   public static BitSet       URISave;
 
   public static BitSet       URISaveEx;
@@ -62,7 +63,7 @@ public class TextUtils {
     URISave.set('(');
     URISave.set(')');
     URISave.set(':');
-    
+
     URISave.set('?');
     URISave.set('=');
 
@@ -77,7 +78,7 @@ public class TextUtils {
     return builderFactory.newDocumentBuilder().parse(inputStream);
 
   }
-  
+
   public static String Escape(String string, char escape, boolean isPath) {
     try {
       BitSet validChars = isPath ? URISaveEx : URISave;
@@ -158,7 +159,7 @@ public class TextUtils {
     }
     return sb.toString();
   }
-  
+
   public static String DecodePath(String path) throws Exception {
 
     if (path.startsWith("/")) {
@@ -174,15 +175,15 @@ public class TextUtils {
     }
     return sb.toString();
   }
-  
+
   public static String FilterFileName(String filename) {
-    
-    while(filename.startsWith(" ")){
+
+    while (filename.startsWith(" ")) {
       filename = filename.substring(1);
     }
-    
+
     filename = filename.substring(0, filename.indexOf("."));
-    
+
     return filename;
   }
 
