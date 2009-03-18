@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionLogHolder {
 
-  private final Map<String, PairChangesLog> pcLogs = new HashMap<String, PairChangesLog>();
+  protected final Map<String, PairChangesLog> pcLogs = new HashMap<String, PairChangesLog>();
 
   /**
    * SystemLocalStorageImpl constructor.
