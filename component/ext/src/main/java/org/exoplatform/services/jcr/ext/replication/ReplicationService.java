@@ -389,7 +389,8 @@ public class ReplicationService implements Startable, ManagementAware {
               channelManager.connect();
 
               // Register for management
-              managementContext.register(recoveryManager);
+              if (managementContext != null)
+                managementContext.register(recoveryManager);
 
               dataReceiver.start();
             } catch (Exception e) {
