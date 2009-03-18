@@ -425,7 +425,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * @param itemStates
    *          The changeslog to save.
    */
-  private void saveItems(ItemStateChangesLog itemStates) {
+  protected void saveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
       ChangesLogIterator cLogs = tLog.getLogIterator();
@@ -436,11 +436,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         while (cLogs.hasNextLog()) {
           PlainChangesLog cLog = cLogs.nextLog();
           if (cLog instanceof PairChangesLog) {
-            PairChangesLog pcLog = (PairChangesLog) cLog;
-
-            if (versionLogHolder != null)
-              changesQueue.add(new TransactionChangesLog(versionLogHolder.getPairLog(pcLog.getPairId())));
-            changesQueue.add(new TransactionChangesLog(cLog));
+            processedPairChangesLog((PairChangesLog) cLog);
           } else {
             changesQueue.add(new TransactionChangesLog(cLog));
           }
@@ -453,6 +449,19 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         csp.start();
       }
     }
+  }
+
+  /**
+   * Process PairChangesLog according to implementation.
+   * 
+   * @param pcLog
+   *          The PairChangesLog for process
+   */
+  protected void processedPairChangesLog(PairChangesLog pcLog) {
+    if (versionLogHolder != null) {
+      changesQueue.add(new TransactionChangesLog(versionLogHolder.getPairLog(pcLog.getPairId())));
+    }
+    changesQueue.add(new TransactionChangesLog(pcLog));
   }
 
   /**

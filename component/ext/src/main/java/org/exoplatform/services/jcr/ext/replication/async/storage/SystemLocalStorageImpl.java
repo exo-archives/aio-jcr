@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2009 eXo Platform SAS.
  *
@@ -21,13 +18,9 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PairChangesLog;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
@@ -66,60 +59,13 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
   /**
    * {@inheritDoc}
    */
-  public void onSaveItems(ItemStateChangesLog itemStates) {
-    synchronized (this) {
-      saveItems(itemStates);
+  protected void processedPairChangesLog(PairChangesLog pcLog) {
+    if (pcLogs.get(pcLog.getPairId()) == null) {
+      pcLogs.put(pcLog.getPairId(), pcLog);
+    } else {
+      changesQueue.add(new TransactionChangesLog(pcLog));
+      changesQueue.add(new TransactionChangesLog(getPairLog(pcLog.getPairId())));
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void saveListItems(List<ItemStateChangesLog> listItemStates) {
-    synchronized (this) {
-      int curSize = listItemStates.size();
-      for (int i = 0; i < curSize; i++) {
-        saveItems(listItemStates.get(i));
-      }
-    }
-  }
-
-  /**
-   * Save one changeslog to storage.
-   * 
-   * @param itemStates
-   *          The changeslog to save.
-   */
-  private void saveItems(ItemStateChangesLog itemStates) {
-    if (!(itemStates instanceof SynchronizerChangesLog)) {
-      TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
-      ChangesLogIterator cLogs = tLog.getLogIterator();
-
-      if (!cLogs.hasNextLog()) {
-        changesQueue.add(tLog);
-      } else {
-        while (cLogs.hasNextLog()) {
-          PlainChangesLog cLog = cLogs.nextLog();
-          if (cLog instanceof PairChangesLog) {
-            PairChangesLog pcLog = (PairChangesLog) cLog;
-
-            if (pcLogs.get(pcLog.getPairId()) == null) {
-              pcLogs.put(pcLog.getPairId(), pcLog);
-            } else {
-              changesQueue.add(new TransactionChangesLog(pcLog));
-              changesQueue.add(new TransactionChangesLog(getPairLog(pcLog.getPairId())));
-            }
-          } else {
-            changesQueue.add(new TransactionChangesLog(cLog));
-          }
-        }
-      }
-
-      if (changesSpooler == null) {
-        // changesSpooler var can be nulled from ChangesSpooler.run()
-        ChangesSpooler csp = changesSpooler = new ChangesSpooler();
-        csp.start();
-      }
-    }
-  }
 }
