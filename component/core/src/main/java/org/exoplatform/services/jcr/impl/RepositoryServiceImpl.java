@@ -139,7 +139,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     // key=repository_name
     repositoryContainers.put(rEntry.getName(), repositoryContainer);
 
-    // register listeners
+    // register listeners from start
     for (int j = 0; j < startChangesPlugins.size(); j++) {
       StartChangesPlugin plugin = (StartChangesPlugin) startChangesPlugins.get(j);
       plugin.addListeners(repositoryContainer);
@@ -232,6 +232,16 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
         container = containerContext.getContainer();
 
       init(container);
+
+      // stop listeners from start
+      for (int j = 0; j < startChangesPlugins.size(); j++) {
+        StartChangesPlugin plugin = (StartChangesPlugin) startChangesPlugins.get(j);
+
+        for (RepositoryContainer repositoryContainer : repositoryContainers.values()) {
+          plugin.removeListeners(repositoryContainer);
+        }
+      }
+
     } catch (RepositoryException e) {
       log.error("Error start repository service", e);
     } catch (RepositoryConfigurationException e) {

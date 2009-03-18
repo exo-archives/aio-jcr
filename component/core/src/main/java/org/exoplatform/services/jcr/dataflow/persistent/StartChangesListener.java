@@ -30,6 +30,8 @@ public class StartChangesListener implements ItemsPersistenceListener {
 
   private final String                    workspaceName;
 
+  private final String                    repositoryName;
+
   private final List<ItemStateChangesLog> changes;
 
   /**
@@ -37,8 +39,11 @@ public class StartChangesListener implements ItemsPersistenceListener {
    * 
    * @param workspaceName
    */
-  public StartChangesListener(String workspaceName, List<ItemStateChangesLog> changes) {
+  public StartChangesListener(String repositoryName,
+                              String workspaceName,
+                              List<ItemStateChangesLog> changes) {
     this.workspaceName = workspaceName;
+    this.repositoryName = repositoryName;
     this.changes = changes;
   }
 
@@ -49,6 +54,10 @@ public class StartChangesListener implements ItemsPersistenceListener {
    */
   public String getWorkspaceName() {
     return workspaceName;
+  }
+
+  public String getRepositoryname() {
+    return repositoryName;
   }
 
   /**
