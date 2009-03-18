@@ -233,8 +233,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         // remove with subnodes
         final CacheValue v = eldest.getValue();
         if (v != null) {
-          // removeEldest(v.getItem());
-
           final ItemData item = v.getItem();
           if (item.isNode()) {
             // removing childs of the node

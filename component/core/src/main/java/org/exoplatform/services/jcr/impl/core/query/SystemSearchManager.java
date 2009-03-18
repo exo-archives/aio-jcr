@@ -81,11 +81,6 @@ public class SystemSearchManager extends SearchManager {
 
   @Override
   public void start() {
-
-    // SystemSearchManager.start can be called twice
-    // 1. From system WorkspaceContainer
-    // 2. From RepositoryContainer
-    // to avoid double initialization
     indexingRoot = Constants.JCR_SYSTEM_PATH;
     excludedPaths.remove(Constants.JCR_SYSTEM_PATH);
     isStarted = true;
@@ -93,6 +88,8 @@ public class SystemSearchManager extends SearchManager {
     for (ItemStateChangesLog bufferedChangesLog : changesLogBuffer) {
       super.onSaveItems(bufferedChangesLog);
     }
+    changesLogBuffer.clear();
+    changesLogBuffer = null;
   }
 
   @Override
