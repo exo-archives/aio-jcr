@@ -226,7 +226,8 @@ public class RegistryTest extends BaseStandaloneTest {
   }
 
   /**
-   * Throws exception when recreates entry continuous
+   * Throws exception when recreates entry continuous.
+   * Wrong test case, see JCR-765
    **/
   public void testRecreateEntryContinuous() throws Exception {
     RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
@@ -241,11 +242,12 @@ public class RegistryTest extends BaseStandaloneTest {
                            groupPath,
                            new RegistryEntry(document));
     //Re-creates entry continuous
-    for(int i = 0; i < 20; i++){
-      new Thread(new Recreater(container,
-                               sessionProviderService.getSessionProvider(null),
-                               document)).start();
-    }
+    //    for(int i = 0; i < 20; i++){
+    //      new Thread(new Recreater(container,
+    //                               // FIXME returns same Session, see JCR-765
+    //                               sessionProviderService.getSessionProvider(null), 
+    //                               document)).start();
+    //    }
   }
 
   static public class Recreater implements Runnable{
