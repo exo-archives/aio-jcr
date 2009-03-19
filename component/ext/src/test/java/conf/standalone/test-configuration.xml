@@ -313,6 +313,25 @@
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
     <component-plugins>
       <component-plugin>
+        <name>register.listener</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.jcr.impl.RegisterListenerPlugin</type>
+        <init-params>
+          <value-param>
+            <name>repository-name</name>
+            <value>db1</value>
+          </value-param>
+          <value-param>
+            <name>workspaces</name>
+            <value>ws,ws3,ws4</value>
+          </value-param>
+          <value-param>
+            <name>listener-class-name</name>
+            <value>org.exoplatform.services.jcr.ext.replication.async.AsyncStartChangesListener</value>
+          </value-param>
+        </init-params>
+      </component-plugin>
+      <component-plugin>
         <name>add.namespaces</name>
         <set-method>addPlugin</set-method>
         <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>

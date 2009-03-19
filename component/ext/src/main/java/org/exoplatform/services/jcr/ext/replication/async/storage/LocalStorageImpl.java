@@ -115,6 +115,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   private VersionLogHolder                                     versionLogHolder           = null;
 
+  private boolean                                              incorrectPreviouslySavedData;
+
   /**
    * This unique index used as name for ChangesFiles.
    */
@@ -296,6 +298,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException,
       ChecksumNotFoundException {
+    this.incorrectPreviouslySavedData = false;
     this.storagePath = storagePath;
     this.fileCleaner = fileCleaner;
     this.digest = MessageDigest.getInstance("MD5");
@@ -324,8 +327,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       // read digest
       File dFile = new File(currentDir, curFile.getName() + DIGESTFILE_EXTENTION);
       if (!dFile.exists() || dFile.length() == 0) {
-        throw new ChecksumNotFoundException(curFile.getName()
-            + " does not have digest file. File may be uncomplete!");
+        LOG.warn(curFile.getName() + " does not have digest file. File may be uncomplete!");
+        this.incorrectPreviouslySavedData = true;
       }
     }
 
@@ -400,7 +403,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
     synchronized (this) {
-      saveItems(itemStates);
+      if (!incorrectPreviouslySavedData) {
+        saveItems(itemStates);
+      }
     }
   }
 
@@ -416,6 +421,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       for (int i = 0; i < curSize; i++) {
         saveItems(listItemStates.get(i));
       }
+
+      flushChanges();
     }
   }
 
@@ -591,6 +598,17 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       onSaveItems(new TransactionChangesLog());
     }
 
+    flushChanges();
+
+    doStart();
+  }
+
+  /**
+   * 
+   * FlushChanges.
+   * 
+   */
+  private void flushChanges() {
     ChangesSpooler csp = changesSpooler;
     if (csp != null) {
       if (LOG.isDebugEnabled())
@@ -619,8 +637,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     }
 
     currentFile = null;
-
-    doStart();
   }
 
   /**

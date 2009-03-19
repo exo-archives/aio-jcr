@@ -39,7 +39,6 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChecksumNotFoundException;
@@ -613,14 +612,15 @@ public class AsyncReplication implements Startable {
 
     // add local storage as persistence listener
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-    StartChangesListener startChangesListener = (StartChangesListener) wsc.getComponent(org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener.class);
+    AsyncStartChangesListener asyncStartChangesListener = (AsyncStartChangesListener) wsc.getComponent(AsyncStartChangesListener.class);
 
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
     dm.addItemPersistenceListener(localStorage);
 
     // apply previously saved changes
-    if (startChangesListener != null) {
-      localStorage.saveListItems(startChangesListener.getChanges());
+    if (asyncStartChangesListener != null) {
+      localStorage.saveListItems(asyncStartChangesListener.getChanges());
+      asyncStartChangesListener.clear();
     }
 
     // income storage paths
@@ -677,11 +677,13 @@ public class AsyncReplication implements Startable {
     dm.addItemPersistenceListener(listener);
 
     // apply previously saved changes
-    StartChangesListener changesListener = (StartChangesListener) wsc.getComponent(org.exoplatform.services.jcr.dataflow.persistent.StartChangesListener.class);
-    if (changesListener != null) {
-      for (int i = 0; i < changesListener.getChanges().size(); i++) {
-        listener.onSaveItems(changesListener.getChanges().get(i));
+    AsyncStartChangesListener asyncStartChangesListener = (AsyncStartChangesListener) wsc.getComponent(AsyncStartChangesListener.class);
+    if (asyncStartChangesListener != null) {
+      for (int i = 0; i < asyncStartChangesListener.getChanges().size(); i++) {
+        listener.onSaveItems(asyncStartChangesListener.getChanges().get(i));
       }
+
+      asyncStartChangesListener.clear();
     }
   }
 
