@@ -376,19 +376,14 @@
   
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationService</type>
-    <component-plugins>
-      <component-plugin>
-        <name>noderepresentation</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactoryLoaderPlugin</type>
-        <init-params>
-          <properties-param>
-            <name>node-representation-factories</name>
-            <property name="nt:file" value="org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory"/>
-          </properties-param>
-        </init-params>
-      </component-plugin>
-    </component-plugins>
+  </component>
+  
+  <component>
+    <type>org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory</type>
+  </component>
+                                                                                                                                                                               
+  <component>
+    <type>org.exoplatform.services.jcr.ext.resource.representation.NtResourceNodeRepresentationFactory</type>
   </component>
   
   <component>
