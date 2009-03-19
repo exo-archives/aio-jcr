@@ -12,10 +12,12 @@
   <name>eXo JCR Config</name>
   <version>1.10.3-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <properties>
      <exo.product.name>exo-jcr</exo.product.name>
      <exo.product.specification>1.10</exo.product.specification>
   </properties>
+
   <scm>
     <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.10.3</connection>
     <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.10.3</developerConnection>
@@ -205,8 +207,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.10.3/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.3/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -215,15 +217,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/trunk/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.10.3/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.3/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.10.3/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.10.3/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
@@ -335,9 +337,9 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <org.exoplatform.kernel.version>2.0.7-SNAPSHOT</org.exoplatform.kernel.version>
-        <org.exoplatform.core.version>2.1.5-SNAPSHOT</org.exoplatform.core.version>
-        <org.exoplatform.ws.version>1.3.3-SNAPSHOT</org.exoplatform.ws.version>
+        <org.exoplatform.kernel.version>2.0.7</org.exoplatform.kernel.version>
+        <org.exoplatform.core.version>2.1.5</org.exoplatform.core.version>
+        <org.exoplatform.ws.version>1.3.3</org.exoplatform.ws.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>
