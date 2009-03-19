@@ -23,6 +23,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
@@ -31,6 +32,7 @@ import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
@@ -53,29 +55,23 @@ public class AsyncReplicationTester extends AsyncReplication {
     super(repoService, params);
   }
 
-  public AsyncReplicationTester(RepositoryService repoService,
-                                List<String> repositoryNames,
-                                int priority,
-                                String bindIPAddress,
-                                String channelConfig,
-                                String channelName,
-                                int waitAllMembersTimeout,
-                                String storagePath,
-                                List<Integer> otherParticipantsPriority) throws RepositoryException,
+  public AsyncReplicationTester(RepositoryService repoService, List<AsyncWorkspaceConfig> configs) throws RepositoryException,
       RepositoryConfigurationException {
-    super(repoService,
-          repositoryNames,
-          priority,
-          bindIPAddress,
-          channelConfig,
-          channelName,
-          waitAllMembersTimeout,
-          storagePath,
-          otherParticipantsPriority);
+    super(repoService, configs);
   }
 
   protected void synchronize(String repoName, String workspaceName, String channelNameSuffix) throws RepositoryException,
                                                                                              RepositoryConfigurationException {
+    AsyncWorkspaceConfig awConfig = null;
+
+    for (AsyncWorkspaceConfig config : asyncWorkspaceConfigs)
+      if (repoName.endsWith(config.getRepositoryName())
+          && workspaceName.equals(config.getWorkspaceName()))
+        awConfig = config;
+
+    if (awConfig == null)
+      throw new RuntimeException("The asynchronus replication was not configured for workspace "
+          + repoName + "@" + workspaceName);
 
     ManageableRepository repository = repoService.getRepository(repoName);
 
@@ -97,8 +93,7 @@ public class AsyncReplicationTester extends AsyncReplication {
                                               dc,
                                               (LocalStorageImpl) localStorage,
                                               (IncomeStorageImpl) incomeStorage,
-                                              repoName,
-                                              workspaceName,
+                                              awConfig,
                                               channelNameSuffix,
                                               wconf,
                                               wfcleaner);
@@ -110,54 +105,57 @@ public class AsyncReplicationTester extends AsyncReplication {
 
   protected void removeAllStorageListener() throws RepositoryException,
                                            RepositoryConfigurationException {
-    for (String repositoryName : repositoryNames) {
-      ManageableRepository repository = repoService.getRepository(repositoryName);
+    for (AsyncWorkspaceConfig config : asyncWorkspaceConfigs) {
+      ManageableRepository repository = repoService.getRepository(config.getRepositoryName());
 
-      for (String wsName : repository.getWorkspaceNames()) {
-        StorageKey skey = new StorageKey(repositoryName, wsName);
+      StorageKey skey = new StorageKey(config.getRepositoryName(), config.getWorkspaceName());
 
-        WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-        PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+      WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(config.getWorkspaceName());
+      PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
-        LocalStorageImpl sls = localStorages.get(skey);
-        System.out.println("Remove ItemPersistenceListener : " + sls);
-        dm.removeItemPersistenceListener(localStorages.get(skey));
-      }
+      LocalStorageImpl sls = localStorages.get(skey);
+      System.out.println("Remove ItemPersistenceListener : " + sls);
+      dm.removeItemPersistenceListener(localStorages.get(skey));
     }
   }
 
-  public boolean hasAddedRootNode() throws RepositoryException,
-                                   RepositoryConfigurationException,
-                                   ClassCastException,
-                                   IOException,
-                                   ClassNotFoundException {
-    for (String repositoryName : repositoryNames) {
-      ManageableRepository repository = repoService.getRepository(repositoryName);
+  protected static InitParams getInitParams(String repositoryName,
+                                            String workspaceName,
+                                            int priority,
+                                            List<Integer> otherParticipantsPriority,
+                                            String bindAddress,
+                                            String channelConfig,
+                                            String channelName,
+                                            String storageDir,
+                                            int waitAllMemberTimeout) {
 
-      for (String wsName : repository.getWorkspaceNames()) {
-        StorageKey skey = new StorageKey(repositoryName, wsName);
+    InitParams params = new InitParams();
 
-        WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-        PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-        dm.removeItemPersistenceListener(localStorages.get(skey));
+    PropertiesParam pps = new PropertiesParam();
 
-        LocalStorageImpl sls = localStorages.get(skey);
-        sls.onStart(null);
+    pps.setName("async-workspca-config");
 
-        Iterator<ItemState> items = sls.getLocalChanges().getChanges();
-        if (items.hasNext()) {
-          ItemState item = items.next();
-          if (item.getState() != ItemState.ADDED
-              || !item.getData().getIdentifier().equals(Constants.ROOT_UUID)
-              || !item.getData().getQPath().equals(Constants.ROOT_PATH)) {
-            return false;
-          }
-        }
+    pps.setProperty("repository-name", repositoryName);
+    pps.setProperty("workspace-name", workspaceName);
+    pps.setProperty("priority", String.valueOf(priority));
 
-        continue;
-      }
-    }
+    String others = "";
+    for (int i = 0; i < otherParticipantsPriority.size(); i++)
+      if (i == 0)
+        others += String.valueOf(otherParticipantsPriority.get(i));
+      else
+        others += ("," + String.valueOf(otherParticipantsPriority.get(i)));
 
-    return true;
+    pps.setProperty("other-participants-priority", others);
+
+    pps.setProperty("bind-ip-address", bindAddress);
+    pps.setProperty("channel-config", channelConfig);
+    pps.setProperty("channel-name", channelName);
+    pps.setProperty("storage-dir", storageDir);
+    pps.setProperty("wait-all-members", String.valueOf(waitAllMemberTimeout));
+
+    params.addParam(pps);
+
+    return params;
   }
 }

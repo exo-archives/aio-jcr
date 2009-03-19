@@ -25,8 +25,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogsIterator;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
@@ -72,16 +74,19 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
     otherParticipantsPriority.add(priority2);
+    
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0), 
+                                                              session.getWorkspace().getName(), 
+                                                              priority1, 
+                                                              otherParticipantsPriority, 
+                                                              bindAddress, 
+                                                              CH_CONFIG, 
+                                                              CH_NAME, 
+                                                              storage.getAbsolutePath(), 
+                                                              waitAllMemberTimeout);
 
-    AsyncReplication asyncReplication = new AsyncReplication(repositoryService,
-                                                             repositoryNames,
-                                                             priority1,
-                                                             bindAddress,
-                                                             CH_CONFIG,
-                                                             CH_NAME,
-                                                             waitAllMemberTimeout,
-                                                             storage.getAbsolutePath(),
-                                                             otherParticipantsPriority);
+    AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService, new InitParams());
+    asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));    
 
     asyncReplication.start();
 
@@ -98,15 +103,14 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     List<TransactionChangesLog> srcChangesLogList = pl.pushChanges();
 
     // Synchronize on workspace 'ws'.
-    asyncReplication.synchronize(repository.getName(), session.getWorkspace().getName());
+    asyncReplication.synchronize(repository.getName(), session.getWorkspace().getName(), "");
 
     Thread.sleep(10000);
 
     // Create reciver
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_"
-        + repository.getName() + "_" + session.getWorkspace().getName(), 2);
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_", 2);
 
     ChangesPacketReceiver packetReceiver = new ChangesPacketReceiver();
 

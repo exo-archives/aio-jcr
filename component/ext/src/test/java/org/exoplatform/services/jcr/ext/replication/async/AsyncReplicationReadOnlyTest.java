@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -56,15 +58,20 @@ public class AsyncReplicationReadOnlyTest extends AbstractTrasportTest {
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
     otherParticipantsPriority.add(priority2);
 
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0), 
+                                                             session.getWorkspace().getName(), 
+                                                             priority1, 
+                                                             otherParticipantsPriority, 
+                                                             bindAddress, 
+                                                             CH_CONFIG, 
+                                                             CH_NAME, 
+                                                             storage1.getAbsolutePath(), 
+                                                             waitAllMemberTimeout);
+    
     AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService,
-                                                                          repositoryNames,
-                                                                          priority1,
-                                                                          bindAddress,
-                                                                          CH_CONFIG,
-                                                                          CH_NAME,
-                                                                          waitAllMemberTimeout,
-                                                                          storage1.getAbsolutePath(),
-                                                                          otherParticipantsPriority);
+                                                                         new InitParams());
+    asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));
+    
 
     asyncReplication.start();
     

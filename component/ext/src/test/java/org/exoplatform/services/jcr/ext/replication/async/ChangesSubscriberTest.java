@@ -26,9 +26,11 @@ import java.util.List;
 
 import javax.jcr.Node;
 
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
@@ -85,6 +87,8 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     }
 
     // Initialization AsyncReplication (ChangesSubscriber).
+    CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
+    SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
 
     List<String> repositoryNames = new ArrayList<String>();
     repositoryNames.add(repository.getName());
@@ -98,32 +102,32 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
     otherParticipantsPriority.add(priority2);
+    
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0), 
+                                                             sessionWS1.getWorkspace().getName(), 
+                                                             priority1, 
+                                                             otherParticipantsPriority, 
+                                                             bindAddress, 
+                                                             CH_CONFIG, 
+                                                             CH_NAME, 
+                                                             storage.getAbsolutePath(), 
+                                                             waitAllMemberTimeout);
 
-    AsyncReplication asyncReplication = new AsyncReplication(repositoryService,
-                                                             repositoryNames,
-                                                             priority1,
-                                                             bindAddress,
-                                                             CH_CONFIG,
-                                                             CH_NAME,
-                                                             waitAllMemberTimeout,
-                                                             storage.getAbsolutePath(),
-                                                             otherParticipantsPriority);
+    AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService,
+                                                                         new InitParams());
+    asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));
 
     asyncReplication.start();
 
-    CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
-    SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
-
     // Synchronize on workspace 'ws1'.
-    asyncReplication.synchronize(repository.getName(), sessionWS1.getWorkspace().getName());
+    asyncReplication.synchronize(repository.getName(), sessionWS1.getWorkspace().getName(), "");
 
     Thread.sleep(10000);
 
     // send changes
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_"
-        + repository.getName() + "_" + sessionWS1.getWorkspace().getName(), 2);
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_", 2);
     channel.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority2);

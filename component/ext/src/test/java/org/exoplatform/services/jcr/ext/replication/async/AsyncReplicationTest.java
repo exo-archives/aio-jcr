@@ -26,9 +26,9 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
@@ -68,14 +68,6 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
       this.useCase = useCase;
     }
 
-    public boolean hasAddeddRootNode() throws ClassCastException,
-                                      RepositoryException,
-                                      RepositoryConfigurationException,
-                                      IOException,
-                                      ClassNotFoundException {
-      return asyncReplication1.hasAddedRootNode() && asyncReplication2.hasAddedRootNode();
-    }
-
     public void initDataWithoutSync() throws Exception {
       List<String> repositoryNames1 = new ArrayList<String>();
       repositoryNames1.add(repositoryLowPriority.getName());
@@ -96,25 +88,34 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
       List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
       otherParticipantsPriority2.add(priorityLow);
 
+      InitParams params1 = AsyncReplicationTester.getInitParams(repositoryNames1.get(0), 
+                                                                sessionLowPriority.getWorkspace().getName(), 
+                                                                priorityLow, 
+                                                                otherParticipantsPriority1, 
+                                                                bindAddress, 
+                                                                CH_CONFIG, 
+                                                                CH_NAME + useCase.getClass().getName(), 
+                                                                storage1.getAbsolutePath(), 
+                                                                waitAllMemberTimeout);
+      
       asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                     repositoryNames1,
-                                                     priorityLow,
-                                                     bindAddress,
-                                                     CH_CONFIG,
-                                                     CH_NAME + useCase.getClass().getName(),
-                                                     waitAllMemberTimeout,
-                                                     storage1.getAbsolutePath(),
-                                                     otherParticipantsPriority1);
+                                                     new InitParams());
+      asyncReplication1.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params1));
+      
+      
+      InitParams params2 = AsyncReplicationTester.getInitParams(repositoryNames2.get(0), 
+                                                                sessionHigePriority.getWorkspace().getName(), 
+                                                                priorityHigh, 
+                                                                otherParticipantsPriority2, 
+                                                                bindAddress, 
+                                                                CH_CONFIG, 
+                                                                CH_NAME + useCase.getClass().getName(), 
+                                                                storage2.getAbsolutePath(), 
+                                                                waitAllMemberTimeout);
 
       asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                     repositoryNames2,
-                                                     priorityHigh,
-                                                     bindAddress,
-                                                     CH_CONFIG,
-                                                     CH_NAME + useCase.getClass().getName(),
-                                                     waitAllMemberTimeout,
-                                                     storage2.getAbsolutePath(),
-                                                     otherParticipantsPriority2);
+                                                     new InitParams());
+      asyncReplication2.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params2));
 
       asyncReplication1.start();
       asyncReplication2.start();
@@ -155,25 +156,34 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
       List<Integer> otherParticipantsPriority2 = new ArrayList<Integer>();
       otherParticipantsPriority2.add(priorityLow);
 
+      InitParams params1 = AsyncReplicationTester.getInitParams(repositoryNames1.get(0), 
+                                                                sessionLowPriority.getWorkspace().getName(), 
+                                                                priorityLow, 
+                                                                otherParticipantsPriority1, 
+                                                                bindAddress, 
+                                                                CH_CONFIG, 
+                                                                CH_NAME + useCase.getClass().getName(), 
+                                                                storage1.getAbsolutePath(), 
+                                                                waitAllMemberTimeout);
+      
       asyncReplication1 = new AsyncReplicationTester(repositoryService,
-                                                     repositoryNames1,
-                                                     priorityLow,
-                                                     bindAddress,
-                                                     CH_CONFIG,
-                                                     CH_NAME + useCase.getClass().getName(),
-                                                     waitAllMemberTimeout,
-                                                     storage1.getAbsolutePath(),
-                                                     otherParticipantsPriority1);
+                                                     new InitParams());
+      asyncReplication1.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params1));
+      
+      
+      InitParams params2 = AsyncReplicationTester.getInitParams(repositoryNames2.get(0), 
+                                                                sessionHigePriority.getWorkspace().getName(), 
+                                                                priorityHigh, 
+                                                                otherParticipantsPriority2, 
+                                                                bindAddress, 
+                                                                CH_CONFIG, 
+                                                                CH_NAME + useCase.getClass().getName(), 
+                                                                storage2.getAbsolutePath(), 
+                                                                waitAllMemberTimeout);
 
       asyncReplication2 = new AsyncReplicationTester(repositoryService,
-                                                     repositoryNames2,
-                                                     priorityHigh,
-                                                     bindAddress,
-                                                     CH_CONFIG,
-                                                     CH_NAME + useCase.getClass().getName(),
-                                                     waitAllMemberTimeout,
-                                                     storage2.getAbsolutePath(),
-                                                     otherParticipantsPriority2);
+                                                     new InitParams());
+      asyncReplication2.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params2));
 
       asyncReplication1.start();
       asyncReplication2.start();
@@ -253,16 +263,6 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
       }
 
     super.tearDown();
-  }
-
-  public void testStartListener() throws Exception {
-    UseCase1 useCase = new UseCase1(sessionLowPriority, sessionHigePriority);
-
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
-
-    asyncUseCase.initDataWithoutSync();
-
-    assertTrue(asyncUseCase.hasAddeddRootNode());
   }
 
   public void testUseCase1() throws Exception {

@@ -312,21 +312,6 @@
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
     <component-plugins>
-       <component-plugin>
-        <name>start.changes</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.jcr.impl.StartChangesPlugin</type>
-        <init-params>
-          <value-param>
-            <name>repository-name</name>
-            <value>db1</value>
-          </value-param>
-          <value-param>
-            <name>workspaces</name>
-            <value>ws3,ws4</value>
-          </value-param>
-        </init-params>
-      </component-plugin>
       <component-plugin>
         <name>add.namespaces</name>
         <set-method>addPlugin</set-method>
@@ -407,22 +392,51 @@
   
   <component>
     <type>org.exoplatform.services.jcr.ext.replication.async.AsyncReplication</type>
-    <init-params>
-      <values-param>
-        <name>repositories</name>
-        <value>db1</value>
-      </values-param>
-      <properties-param>
-        <name>replication-properties</name>
-        <property name="priority" value="80"/>
-        <property name="other-participants-priority" value="100,50" />
-        <property name="bind-ip-address" value="127.0.0.1"/>
-        <property name="channel-config" value="TCP(start_port=7700;oob_thread_pool.queue_max_size=100;thread_naming_pattern=cl;use_concurrent_stack=true;oob_thread_pool.rejection_policy=Run;discard_incompatible_packets=true;thread_pool.max_threads=40;oob_thread_pool.enabled=false;oob_thread_pool.max_threads=20;loopback=false;oob_thread_pool.keep_alive_time=5000;thread_pool.queue_enabled=false;oob_thread_pool.queue_enabled=false;max_bundle_size=64000;thread_pool.queue_max_size=100;thread_pool.enabled=false;enable_diagnostics=true;max_bundle_timeout=30;oob_thread_pool.min_threads=8;use_incoming_packet_handler=true;thread_pool.rejection_policy=Run;bind_addr=$bind-ip-address;thread_pool.min_threads=8;thread_pool.keep_alive_time=5000;enable_bundling=true):MPING(timeout=2000;num_initial_members=8;mcast_port=34526;mcast_addr=224.0.0.1):FD(timeout=2000;max_tries=5;shun=true):FD_SOCK:VERIFY_SUSPECT(timeout=1500):pbcast.NAKACK(max_xmit_size=60000;print_stability_history_on_failed_xmit=true;use_mcast_xmit=false;gc_lag=0;discard_delivered_msgs=true;retransmit_timeout=300,600,1200,2400,4800):pbcast.STABLE(stability_delay=1000;desired_avg_gossip=50000;max_bytes=8000000):pbcast.GMS(print_local_addr=true;join_timeout=3000;view_bundling=true;join_retry_timeout=2000;shun=true;merge_leader=true;reject_join_from_existing_member=true)"/>
-        <property name="channel-name" value="AsyncRepCh"/>
-        <property name="storage-dir" value="target/asyncreplication"/>
-        <property name="wait-all-members" value="15"/>
-      </properties-param>
-    </init-params>
+    <component-plugins>
+      
+      <component-plugin>
+        <name>async-workspca-config</name>
+        <set-method>addAsyncWorkspaceConfig</set-method>
+        <type>org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig</type>
+        <description>async replication config per workspace</description>
+        <init-params>
+          <properties-param>
+            <name>async-workspca-config</name>
+            <property name="repository-name" value="db1"/>
+            <property name="workspace-name" value="ws"/>
+            <property name="priority" value="80"/>
+            <property name="other-participants-priority" value="100,50" />
+            <property name="bind-ip-address" value="127.0.0.1"/>
+            <property name="channel-config" value="TCP(start_port=7700;oob_thread_pool.queue_max_size=100;thread_naming_pattern=cl;use_concurrent_stack=true;oob_thread_pool.rejection_policy=Run;discard_incompatible_packets=true;thread_pool.max_threads=40;oob_thread_pool.enabled=true;oob_thread_pool.max_threads=20;loopback=false;oob_thread_pool.keep_alive_time=5000;thread_pool.queue_enabled=false;oob_thread_pool.queue_enabled=false;max_bundle_size=64000;thread_pool.queue_max_size=100;thread_pool.enabled=true;enable_diagnostics=true;max_bundle_timeout=30;oob_thread_pool.min_threads=8;use_incoming_packet_handler=true;thread_pool.rejection_policy=Run;bind_addr=$bind-ip-address;thread_pool.min_threads=8;thread_pool.keep_alive_time=5000;enable_bundling=true):MPING(timeout=2000;num_initial_members=8;mcast_port=35526;mcast_addr=224.0.0.1):FD(timeout=2000;max_tries=5;shun=true):FD_SOCK:VERIFY_SUSPECT(timeout=1500):pbcast.NAKACK(max_xmit_size=60000;print_stability_history_on_failed_xmit=true;use_mcast_xmit=false;gc_lag=0;discard_delivered_msgs=true;retransmit_timeout=300,600,1200,2400,4800):pbcast.STABLE(stability_delay=1000;desired_avg_gossip=50000;max_bytes=8000000):pbcast.GMS(print_local_addr=true;join_timeout=3000;view_bundling=true;join_retry_timeout=2000;shun=true;merge_leader=true;reject_join_from_existing_member=true)"/>
+            <property name="channel-name" value="AsyncRepCh"/>
+            <property name="storage-dir" value="target/asyncreplication/db1/ws"/>
+            <property name="wait-all-members" value="15"/>
+          </properties-param>
+        </init-params>
+      </component-plugin>
+      
+      <component-plugin>
+        <name>async-workspca-config</name>
+        <set-method>addAsyncWorkspaceConfig</set-method>
+        <type>org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig</type>
+        <description>async replication config per workspace</description>
+        <init-params>
+          <properties-param>
+            <name>async-workspca-config</name>
+            <property name="repository-name" value="db1"/>
+            <property name="workspace-name" value="ws1"/>
+            <property name="priority" value="80"/>
+            <property name="other-participants-priority" value="100,50" />
+            <property name="bind-ip-address" value="127.0.0.1"/>
+            <property name="channel-config" value="TCP(start_port=7700;oob_thread_pool.queue_max_size=100;thread_naming_pattern=cl;use_concurrent_stack=true;oob_thread_pool.rejection_policy=Run;discard_incompatible_packets=true;thread_pool.max_threads=40;oob_thread_pool.enabled=true;oob_thread_pool.max_threads=20;loopback=false;oob_thread_pool.keep_alive_time=5000;thread_pool.queue_enabled=false;oob_thread_pool.queue_enabled=false;max_bundle_size=64000;thread_pool.queue_max_size=100;thread_pool.enabled=true;enable_diagnostics=true;max_bundle_timeout=30;oob_thread_pool.min_threads=8;use_incoming_packet_handler=true;thread_pool.rejection_policy=Run;bind_addr=$bind-ip-address;thread_pool.min_threads=8;thread_pool.keep_alive_time=5000;enable_bundling=true):MPING(timeout=2000;num_initial_members=8;mcast_port=35526;mcast_addr=224.0.0.1):FD(timeout=2000;max_tries=5;shun=true):FD_SOCK:VERIFY_SUSPECT(timeout=1500):pbcast.NAKACK(max_xmit_size=60000;print_stability_history_on_failed_xmit=true;use_mcast_xmit=false;gc_lag=0;discard_delivered_msgs=true;retransmit_timeout=300,600,1200,2400,4800):pbcast.STABLE(stability_delay=1000;desired_avg_gossip=50000;max_bytes=8000000):pbcast.GMS(print_local_addr=true;join_timeout=3000;view_bundling=true;join_retry_timeout=2000;shun=true;merge_leader=true;reject_join_from_existing_member=true)"/>
+            <property name="channel-name" value="AsyncRepCh"/>
+            <property name="storage-dir" value="target/asyncreplication/db1/ws1"/>
+            <property name="wait-all-members" value="15"/>
+          </properties-param>
+        </init-params>
+      </component-plugin>
+    
+    </component-plugins>
   </component>
   
   <component>                                                                                                                    
