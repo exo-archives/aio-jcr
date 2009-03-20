@@ -364,6 +364,50 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
           + ") RestoreIntializer should have mandatory parameter "
           + SysViewWorkspaceInitializer.RESTORE_PATH_PARAMETER);
   }
+  
+  /**
+   * Initializer constructor.
+   * 
+   * @param config
+   * @param repConfig
+   * @param dataManager
+   * @param namespaceRegistry
+   * @param locationFactory
+   * @param nodeTypeManager
+   *          TODO remove it
+   * @param valueFactory
+   *          TODO remove it
+   * @param accessManager
+   *          TODO remove it
+   * @throws RepositoryConfigurationException
+   * @throws PathNotFoundException
+   * @throws RepositoryException
+   */
+  public SysViewWorkspaceInitializer(WorkspaceEntry config,
+                                     RepositoryEntry repConfig,
+                                     CacheableWorkspaceDataManager dataManager,
+                                     NamespaceRegistryImpl namespaceRegistry,
+                                     LocationFactory locationFactory,
+                                     NodeTypeManagerImpl nodeTypeManager,
+                                     ValueFactoryImpl valueFactory,
+                                     AccessManager accessManager,
+                                     String restorePath) throws RepositoryConfigurationException,
+      PathNotFoundException,
+      RepositoryException {
+
+    this.workspaceName = config.getName();
+
+    this.dataManager = dataManager;
+
+    this.namespaceRegistry = namespaceRegistry;
+    this.locationFactory = locationFactory;
+
+    this.fileCleaner = new FileCleaner(false); // cleaner should be started!
+    this.maxBufferSize = config.getContainer()
+                               .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                    WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+    this.restorePath = restorePath; 
+  }
 
   public NodeData initWorkspace() throws RepositoryException {
 
