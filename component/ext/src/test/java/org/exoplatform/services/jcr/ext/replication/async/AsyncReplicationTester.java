@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -158,4 +157,18 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     return params;
   }
+
+  public boolean hasAddedRootNodeWS3() throws Exception {
+    LocalStorageImpl sls = localStorages.get(new StorageKey("db1", "ws3"));
+
+    WorkspaceContainerFacade wsc = repoService.getRepository("db1").getWorkspaceContainer("ws3");
+    PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+    dm.removeItemPersistenceListener(sls);
+    sls.onStart(null);
+
+    Iterator<ItemState> changes = sls.getLocalChanges().getChanges();
+    ItemState item = changes.next();
+    return ItemState.isSame(item, Constants.ROOT_UUID, Constants.ROOT_PATH, ItemState.ADDED);
+  }
+
 }

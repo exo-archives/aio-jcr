@@ -421,8 +421,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       for (int i = 0; i < curSize; i++) {
         saveItems(listItemStates.get(i));
       }
-
-      flushChanges();
     }
   }
 
