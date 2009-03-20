@@ -238,9 +238,10 @@ public class RegistryTest extends BaseStandaloneTest {
                            groupPath,
                            new RegistryEntry(document));
     // Re-creates entry continuous
-    for (int i = 0; i < 20; i++) {
-      new Thread(new Recreater(container, sessionProviderService.getSessionProvider(null), document)).start();
-    }
+    // FIXME Wrong test, Session should be dedicated to the Thread, see JCR-765
+    //    for (int i = 0; i < 20; i++) {
+    //      new Thread(new Recreater(container, sessionProviderService.getSessionProvider(null), document)).start();
+    //    }
   }
 
   static public class Recreater implements Runnable {

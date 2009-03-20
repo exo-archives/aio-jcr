@@ -219,20 +219,21 @@ public class RegistryService extends Registry implements Startable {
     try {
       Session session = session(sessionProvider, repositoryService.getCurrentRepository());
 
-      synchronized (session) {
-        Node node = session.getRootNode().getNode(entryRelPath);
+      // Don't care about concurrency, Session should be dedicated to the Thread, see JCR-765
+      //synchronized (session) {
+      Node node = session.getRootNode().getNode(entryRelPath);
 
-        // delete existing entry...
-        node.remove();
+      // delete existing entry...
+      node.remove();
 
-        // create same entry,
-        // [PN] no check we need here, as we have deleted this node before
-        // checkGroup(sessionProvider, fullParentPath);
-        session.importXML(parentFullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
+      // create same entry,
+      // [PN] no check we need here, as we have deleted this node before
+      // checkGroup(sessionProvider, fullParentPath);
+      session.importXML(parentFullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
 
-        // save recreated changes
-        session.save();
-      }
+      // save recreated changes
+      session.save();
+      //}
     } catch (IOException ioe) {
       throw new RepositoryException("Item " + parentFullPath + "can't be created " + ioe);
     } catch (TransformerException te) {
