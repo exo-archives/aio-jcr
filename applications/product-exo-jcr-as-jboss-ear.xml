@@ -2,13 +2,13 @@
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>exo.jcr.applications.config</artifactId>
-		<version>1.10.3-SNAPSHOT</version>
+		<version>1.10.3</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.product.jcr</artifactId>
 	<packaging>jar</packaging>
-	<version>1.10.3-SNAPSHOT</version>
+	<version>1.10.3</version>
 	<name>eXo JCR Product</name>
 	<url>http://www.exoplatform.org</url>
 	<description>eXo JCR Product</description>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.ear</artifactId>
-			<version>1.10.3-SNAPSHOT</version>
+			<version>1.10.3</version>
 			<type>ear</type>
 			<scope>runtime</scope>
 		</dependency>

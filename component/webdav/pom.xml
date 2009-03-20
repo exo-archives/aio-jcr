@@ -9,8 +9,7 @@
 	<artifactId>exo.jcr.component.webdav
 	</artifactId>
 	<packaging>jar</packaging>
-	<version>1.10.3
-	</version>
+	<version>1.10.3</version>
 	<name>eXo JCR Webdav Service</name>
 	<url>http://www.exoplatform.org</url>
 	<description>eXo JCR Webdav Service</description>
@@ -18,30 +17,26 @@
 		<dependency>
 			<groupId>org.exoplatform.ws</groupId>
 			<artifactId>exo.ws.rest.core</artifactId>
-			<version>${org.exoplatform.ws.version}
-			</version>
+			<version>${org.exoplatform.ws.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.exoplatform.ws</groupId>
 			<artifactId>exo.ws.commons</artifactId>
-			<version>${org.exoplatform.ws.version}
-			</version>
+			<version>${org.exoplatform.ws.version}</version>
 			<scope>compile</scope>
 		</dependency>		
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.ext</artifactId>
-			<version>1.10.3
-			</version>
+			<version>1.10.3</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.core
         </artifactId>
-			<version>1.10.3
-			</version>
+			<version>1.10.3</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -56,20 +51,6 @@
 			<version>1.2.8</version>
 			<scope>compile</scope>
 		</dependency>
-		<!--
-			<dependency> <groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-dependency-plugin </artifactId>
-			<version>2.0</version> <scope>test</scope> </dependency> <dependency>
-			<groupId>org.codehaus.cargo</groupId>
-			<artifactId>cargo-core-api-container </artifactId>
-			<version>0.9-SNAPSHOT</version> <scope>test</scope> </dependency>
-			<dependency> <groupId>org.codehaus.cargo</groupId>
-			<artifactId>cargo-core-api-generic </artifactId>
-			<version>0.9-SNAPSHOT</version> <scope>test</scope> </dependency>
-			<dependency> <groupId>org.codehaus.cargo</groupId>
-			<artifactId>cargo-core-container-tomcat </artifactId>
-			<version>0.9-SNAPSHOT</version> <scope>test</scope> </dependency>
-		-->
 	</dependencies>
 	<build>
 		<plugins>
