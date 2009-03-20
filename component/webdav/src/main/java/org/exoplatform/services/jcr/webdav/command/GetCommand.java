@@ -110,16 +110,10 @@ public class GetCommand {
 
         HierarchicalProperty mimeTypeProperty = resource.getProperty(FileResource.GETCONTENTTYPE);
         String contentType = mimeTypeProperty.getValue();
-        
-        String lastModified = "";
 
-        try {
-          HierarchicalProperty lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
-          lastModified = lastModifiedProperty.getValue();
-        } catch (Exception e) {
+        FileResource fileResource = new FileResource(uri, node, nsContext);
+        HierarchicalProperty lastModifiedProperty = fileResource.getProperty(FileResource.GETLASTMODIFIED);
 
-        }
-        
         // content length is not present
         if (contentLength == 0) {
           return Response.ok()
@@ -133,7 +127,7 @@ public class GetCommand {
           return Response.ok()
                          .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
                          .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
-                         .header(ExtHttpHeaders.LAST_MODIFIED, lastModified)
+                         .header(ExtHttpHeaders.LAST_MODIFIED, lastModifiedProperty.getValue())
                          .entity(istream)
                          .type(contentType)
                          .build();
