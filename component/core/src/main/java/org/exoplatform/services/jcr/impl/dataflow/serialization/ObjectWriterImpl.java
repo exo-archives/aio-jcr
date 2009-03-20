@@ -20,9 +20,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 13.02.2009
@@ -44,7 +43,7 @@ public class ObjectWriterImpl implements ObjectWriter {
    *          the OutputStream.          
    */
   public ObjectWriterImpl(OutputStream out) {
-    this.out = new BufferedOutputStream(out, 1024*2);
+    this.out = new BufferedOutputStream(out, 2*1024);
   }
 
   /**
@@ -108,6 +107,15 @@ public class ObjectWriterImpl implements ObjectWriter {
     writeBuffer[6] = (byte) (v >>> 8);
     writeBuffer[7] = (byte) (v >>> 0);
     out.write(writeBuffer, 0, 8);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void writeString(String str) throws IOException {
+    byte[] bytes = str.getBytes(Constants.DEFAULT_ENCODING);
+    writeInt(bytes.length);
+    write(bytes);
   }
 
 }

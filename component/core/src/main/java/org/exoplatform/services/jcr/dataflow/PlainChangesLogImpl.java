@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.dataflow.serialization.Storable;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -197,12 +198,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
     }
     eventType = in.readInt();
 
-    String DEFAULT_ENCODING = "UTF-8";
-    byte[] buf;
-
-    buf = new byte[in.readInt()];
-    in.readFully(buf);
-    sessionId = new String(buf, DEFAULT_ENCODING);
+    sessionId = in.readString();
 
     items = new ArrayList<ItemState>();
     int listSize = in.readInt();
@@ -218,9 +214,8 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
     out.writeInt(Storable.PLAIN_CHANGES_LOG_IMPL);
     
     out.writeInt(eventType);
-    out.writeInt(sessionId.getBytes().length);
-    out.write(sessionId.getBytes());
-
+    out.writeString(sessionId);
+    
     int listSize = items.size();
     out.writeInt(listSize);
     for (int i = 0; i < listSize; i++)

@@ -64,6 +64,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   private static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "_JCRVDtemp";
 
+  private static final int    BYTE_ARRAY_DATA                  = 1;
+
+  private static final int    STREAM_DATA                      = 2;
+
   protected byte[]            data;
 
   protected InputStream       tmpStream;
@@ -90,8 +94,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   /**
    * will be used for optimization unserialization mechanism.
    */
-  //private String              parentPropertyDataId;
-
+  // private String parentPropertyDataId;
   static protected byte[] stringToBytes(final String value) {
     try {
       return value.getBytes(Constants.DEFAULT_ENCODING);
@@ -656,6 +659,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.tmpStream = in;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
 
     if (tempDirectory == null) {
@@ -675,16 +681,13 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
     int type = in.readInt();
 
-    if (type == 1) {
+    if (type == BYTE_ARRAY_DATA) {
       data = new byte[in.readInt()];
       in.readFully(data);
-    } else if (type == 2) {
+    } else if (type == STREAM_DATA) {
 
-      // read property id
-
-      byte[] idb = new byte[in.readInt()];
-      in.readFully(idb);
-      String id = new String(idb, Constants.DEFAULT_ENCODING);
+      // read property id - used for reread data optimization
+      String id = in.readString();
 
       // read file
       long length = in.readLong();
@@ -697,6 +700,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
           throw new IOException("Content isn't skipped correctly.");
         }
       } else {
+        // TODO optimize it - use channels or streams
         writeToFile(in, sf, length);
       }
 
@@ -705,6 +709,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeObject(ObjectWriter out) throws IOException {
     // write id
     out.writeInt(Storable.TRANSIENT_VALUE_DATA);
@@ -713,24 +720,24 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     out.writeInt(maxBufferSize);
 
     if (this.isByteArray()) {
-      out.writeInt(1);
+      out.writeInt(BYTE_ARRAY_DATA);
       int f = data.length;
       out.writeInt(f);
       out.write(data);
     } else {
-      out.writeInt(2);
+      out.writeInt(STREAM_DATA);
 
-      // write property id
+      // write property id - used for reread data optimization
       String id = IdGenerator.generate();
-      out.writeInt(id.getBytes().length);
-      out.write(id.getBytes(Constants.DEFAULT_ENCODING));
+      out.writeString(id);
 
       // write file content
+      // TODO optimize it, use channels
       long length = this.spoolFile.length();
       out.writeLong(length);
       InputStream in = new FileInputStream(spoolFile);
       try {
-        byte[] buf = new byte[1024 * 200];
+        byte[] buf = new byte[200*1024];
         int l = 0;
         while ((l = in.read(buf)) != -1) {
           out.write(buf, 0, l);
@@ -744,7 +751,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   private void writeToFile(ObjectReader src, SpoolFile dest, long length) throws IOException {
     // write data to file
     FileOutputStream sfout = new FileOutputStream(dest);
-    int bSize = 1024 * 200;
+    int bSize = 200*1024;
     try {
       byte[] buff = new byte[bSize];
       for (; length >= bSize; length -= bSize) {

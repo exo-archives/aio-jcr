@@ -258,9 +258,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     }
     
     if (in.readInt() == 1) {
-      byte[] buf = new byte[in.readInt()];
-      in.readFully(buf);
-      systemId = new String(buf, Constants.DEFAULT_ENCODING);
+      systemId = in.readString();
     }
 
     int listSize = in.readInt();
@@ -277,10 +275,9 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     
     if (systemId != null) {
       out.writeInt(1);
-      out.writeInt(systemId.getBytes().length);
-      out.write(systemId.getBytes());
+      out.writeString(systemId);
     } else {
-      out.writeInt(-1);
+      out.writeInt(0);
     }
 
     int listSize = changesLogs.size();

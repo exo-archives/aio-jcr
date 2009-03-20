@@ -254,12 +254,9 @@ public class AccessControlList implements Externalizable, Storable {
     }
     
     // reading owner
-    byte[] buf;
     int ownLength = in.readInt();
-    if (ownLength != 0) {
-      buf = new byte[ownLength];
-      in.readFully(buf);
-      this.owner = new String(buf, "UTF-8");
+    if (ownLength == 1) {
+      this.owner = in.readString();
     } else {
       this.owner = null;
     }
@@ -268,13 +265,9 @@ public class AccessControlList implements Externalizable, Storable {
     int listSize = in.readInt();
     for (int i = 0; i < listSize; i++) {
       // reading access control entrys identity
-      buf = new byte[in.readInt()];
-      in.readFully(buf);
-      String ident = new String(buf, "UTF-8");
+      String ident = in.readString();
       // reading permission
-      buf = new byte[in.readInt()];
-      in.readFully(buf);
-      String perm = new String(buf, "UTF-8");
+      String perm = in.readString();
 
       accessList.add(new AccessControlEntry(ident, perm));
     }
@@ -287,8 +280,8 @@ public class AccessControlList implements Externalizable, Storable {
     
     // Writing owner
     if (owner != null) {
-      out.writeInt(owner.getBytes().length);
-      out.write(owner.getBytes());
+      out.writeInt(1);
+      out.writeString(owner);
     } else {
       out.writeInt(0);
     }
@@ -298,11 +291,9 @@ public class AccessControlList implements Externalizable, Storable {
 
     for (AccessControlEntry entry : accessList) {
       // writing access control entrys identity
-      out.writeInt(entry.getIdentity().getBytes().length);
-      out.write(entry.getIdentity().getBytes());
+      out.writeString(entry.getIdentity());
       // writing permission
-      out.writeInt(entry.getPermission().getBytes().length);
-      out.write(entry.getPermission().getBytes());
+      out.writeString(entry.getPermission());
     }
   }
 }

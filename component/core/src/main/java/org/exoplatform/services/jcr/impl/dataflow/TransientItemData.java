@@ -41,30 +41,26 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: TransientItemData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public abstract class TransientItemData implements MutableItemData, Externalizable, Storable {
-  
-  protected static final Log          LOG         = ExoLogger.getLogger("jcr.TransientItemData");
-  
-  private int NULL_VALUE = -1;
-  
-  private int NOT_NULL_VALUE = 1;
 
-  protected QPath  qpath;
+  protected static final Log LOG            = ExoLogger.getLogger("jcr.TransientItemData");
 
-  protected String identifier;
+  private int                NULL_VALUE     = -1;
 
-  protected String parentIdentifier;
+  private int                NOT_NULL_VALUE = 1;
 
-  protected int    persistedVersion;
+  protected QPath            qpath;
+
+  protected String           identifier;
+
+  protected String           parentIdentifier;
+
+  protected int              persistedVersion;
 
   /**
-   * @param path
-   *          QPath
-   * @param identifier
-   *          id
-   * @param version
-   *          persisted version
-   * @param parentIdentifier
-   *          parentId
+   * @param path QPath
+   * @param identifier id
+   * @param version persisted version
+   * @param parentIdentifier parentId
    */
   TransientItemData(QPath path, String identifier, int version, String parentIdentifier) {
     this.parentIdentifier = parentIdentifier != null ? parentIdentifier : null;
@@ -75,6 +71,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
    */
   public QPath getQPath() {
@@ -83,6 +80,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getIdentifier()
    */
   public String getIdentifier() {
@@ -91,6 +89,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getPersistedVersion()
    */
   public int getPersistedVersion() {
@@ -99,6 +98,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentUUID()
    */
   public String getParentIdentifier() {
@@ -107,6 +107,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.MutableItemData#increasePersistedVersion()
    */
   public void increasePersistedVersion() {
@@ -115,6 +116,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
+   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
@@ -152,11 +154,11 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     out.writeInt(identifier.getBytes().length);
     out.write(identifier.getBytes());
 
-    if (parentIdentifier != null ) {
+    if (parentIdentifier != null) {
       out.writeInt(NOT_NULL_VALUE);
       out.writeInt(parentIdentifier.getBytes().length);
       out.write(parentIdentifier.getBytes());
-    } else 
+    } else
       out.writeInt(NULL_VALUE);
 
     out.writeInt(persistedVersion);
@@ -196,14 +198,11 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
     persistedVersion = in.readInt();
   }
-  
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    byte[] buf;
 
+  @SuppressWarnings("serial")
+  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
     try {
-      buf = new byte[in.readInt()];
-      in.readFully(buf);
-      String sQPath = new String(buf, Constants.DEFAULT_ENCODING);
+      String sQPath = in.readString();
       qpath = QPath.parse(sQPath);
     } catch (final IllegalPathException e) {
       throw new IOException("Deserialization error. " + e) {
@@ -218,33 +217,24 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       };
     }
 
-    buf = new byte[in.readInt()];
-    in.readFully(buf);
-    identifier = new String(buf);
+    identifier = in.readString();
 
     int isNull = in.readInt();
     if (isNull == NOT_NULL_VALUE) {
-      buf = new byte[in.readInt()];
-      in.readFully(buf);
-      parentIdentifier = new String(buf);
+      parentIdentifier = in.readString();
     }
 
     persistedVersion = in.readInt();
   }
 
   public void writeObject(ObjectWriter out) throws IOException {
-    byte[] buf = qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
-    out.writeInt(buf.length);
-    out.write(buf);
+    out.writeString(qpath.getAsString());
+    out.writeString(identifier);
 
-    out.writeInt(identifier.getBytes().length);
-    out.write(identifier.getBytes());
-
-    if (parentIdentifier != null ) {
+    if (parentIdentifier != null) {
       out.writeInt(NOT_NULL_VALUE);
-      out.writeInt(parentIdentifier.getBytes().length);
-      out.write(parentIdentifier.getBytes());
-    } else 
+      out.writeString(parentIdentifier);
+    } else
       out.writeInt(NULL_VALUE);
 
     out.writeInt(persistedVersion);

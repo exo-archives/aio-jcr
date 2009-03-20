@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.StreamCorruptedException;
 
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 13.02.2009
@@ -35,7 +36,7 @@ public class ObjectReaderImpl implements ObjectReader {
   private final InputStream in;
 
   public ObjectReaderImpl(InputStream in) {
-    this.in = new BufferedInputStream(in, 1024*2);
+    this.in = new BufferedInputStream(in, 2*1024);
   }
 
   /**
@@ -43,6 +44,7 @@ public class ObjectReaderImpl implements ObjectReader {
    */
   public void close() throws IOException {
     in.close();
+   
   }
 
   /**
@@ -65,7 +67,7 @@ public class ObjectReaderImpl implements ObjectReader {
     if (l < 0)
      throw new EOFException();
     if (l < b.length && l > 0)
-      throw new StreamCorruptedException ("unexpected EOF in middle of data block");
+      throw new StreamCorruptedException ("Unexpected EOF in middle of data block.");
   }
 
   /**
@@ -116,5 +118,16 @@ public class ObjectReaderImpl implements ObjectReader {
     }
     
     return n - remaining;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String readString() throws IOException {
+    
+    int length = readInt();
+    byte[] buf = new byte[length];
+    readFully(buf);
+    return new String(buf, Constants.DEFAULT_ENCODING);
   }
 }

@@ -359,6 +359,9 @@ public class ItemState implements Externalizable, Storable {
     data = (ItemData) in.readObject();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
     //read id
     int key;
@@ -381,6 +384,9 @@ public class ItemState implements Externalizable, Storable {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeObject(ObjectWriter out) throws IOException {
     // write id
     out.writeInt(Storable.ITEM_STATE);

@@ -35,7 +35,7 @@ public interface ObjectReader {
    * @exception IOException
    *              If an I/O error has occurred.
    */
-  public void close() throws IOException;
+  void close() throws IOException;
   
   /**
    * Reads some bytes from an input
@@ -151,6 +151,15 @@ public interface ObjectReader {
    * @exception  IOException   if an I/O error occurs.
    */
   long readLong() throws IOException;
+  
+  
+  /**
+   * Reads String. Constants.DEFAULT_ENCODING used.
+   * 
+   * @return String
+   * @throws IOException if an I/O error occurs.
+   */
+  String readString() throws IOException;
 
   
   /**
@@ -160,5 +169,5 @@ public interface ObjectReader {
    * @return     the actual number of bytes skipped.
    * @exception  IOException  if an I/O error occurs.
    */
-  public long skip(long n) throws IOException;
+  long skip(long n) throws IOException;
 }

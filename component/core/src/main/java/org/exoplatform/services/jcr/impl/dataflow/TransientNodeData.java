@@ -385,9 +385,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
     // primary type
     byte[] buf;
     try {
-      buf = new byte[in.readInt()];
-      in.readFully(buf);
-      primaryTypeName = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
+      primaryTypeName = InternalQName.parse(in.readString());
     } catch (final IllegalNameException e) {
       throw new IOException(e.getMessage()) {
         private static final long serialVersionUID = 3489809179234435267L;
@@ -407,9 +405,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
     mixinTypeNames = new InternalQName[count];
     for (int i = 0; i < count; i++) {
       try {
-        buf = new byte[in.readInt()];
-        in.readFully(buf);
-        mixinTypeNames[i] = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
+        mixinTypeNames[i] = InternalQName.parse(in.readString());
       } catch (final IllegalNameException e) {
         throw new IOException(e.getMessage()) {
           private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
@@ -437,16 +433,12 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
     out.writeInt(orderNum);
 
     // primary type
-    byte[] ptbuf = primaryTypeName.getAsString().getBytes(Constants.DEFAULT_ENCODING);
-    out.writeInt(ptbuf.length);
-    out.write(ptbuf);
+    out.writeString(primaryTypeName.getAsString());
 
     // mixins
     out.writeInt(mixinTypeNames.length);
     for (int i = 0; i < mixinTypeNames.length; i++) {
-      byte[] buf = mixinTypeNames[i].getAsString().getBytes(Constants.DEFAULT_ENCODING);
-      out.writeInt(buf.length);
-      out.write(buf);
+      out.writeString(mixinTypeNames[i].getAsString());
     }
 
     acl.writeObject(out);

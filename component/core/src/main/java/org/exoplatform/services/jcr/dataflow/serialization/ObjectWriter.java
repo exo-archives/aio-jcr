@@ -34,7 +34,14 @@ public interface ObjectWriter {
    * @param b the data to be written
    * @exception IOException If an I/O error has occurred.
    */
-  public void write(byte b[]) throws IOException;
+  void write(byte b[]) throws IOException;
+  
+  /**
+   * Writes a string. String transformed to bytes using Constants.DEFAULT_ENCODING.
+   * @param str -  String.
+   * @throws IOException If an I/O error has occurred.
+   */
+  void writeString(String str) throws IOException;
   
   /**
    * Writes a sub array of bytes.
@@ -43,14 +50,14 @@ public interface ObjectWriter {
    * @param len the number of bytes that are written
    * @exception IOException If an I/O error has occurred.
    */
-  public void write(byte b[], int off, int len) throws IOException;
+  void write(byte b[], int off, int len) throws IOException;
 
   /**
    * Flushes the stream. This will write any buffered
    * output bytes.
    * @exception IOException If an I/O error has occurred.
    */
-  public void flush() throws IOException;
+  void flush() throws IOException;
 
   /**
    * Closes the stream. This method must be called
@@ -58,7 +65,7 @@ public interface ObjectWriter {
    * stream.
    * @exception IOException If an I/O error has occurred.
    */
-  public void close() throws IOException;
+  void close() throws IOException;
   
   /**
    * Writes a <code>boolean</code> value to this output stream.
