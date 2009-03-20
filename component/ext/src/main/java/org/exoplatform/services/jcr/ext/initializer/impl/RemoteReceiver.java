@@ -67,8 +67,9 @@ public class RemoteReceiver implements AsyncPacketListener {
    * @param tempDir
    *          the temporary folder
    */
-  public RemoteReceiver(File tempDir) {
+  public RemoteReceiver(File tempDir,CountDownLatch latch) {
     this.tempDir = tempDir;
+    this.latch = latch;
   }
 
   /**
@@ -95,7 +96,7 @@ public class RemoteReceiver implements AsyncPacketListener {
                 + System.currentTimeMillis());
             subDir.mkdirs();
 
-            File wdFile = File.createTempFile("wdFile", "-" + System.currentTimeMillis(), subDir);
+            File wdFile = File.createTempFile("wdFile", ".0", subDir);
 
             changesFile = new RandomChangesFile(wdFile, wdPacket.getCRC(), 1, new ResourcesHolder());
           } catch (NoSuchAlgorithmException e) {
@@ -123,8 +124,8 @@ public class RemoteReceiver implements AsyncPacketListener {
     }
       break;
 
-    case AsyncPacketTypes.EXPORT_ERROR: {
-      ErrorPacket ePacket = (ErrorPacket) packet;
+    case InitializationErrorPacket.INITIALIZATION_ERROR_PACKET: {
+      InitializationErrorPacket ePacket = (InitializationErrorPacket) packet;
       exception = new RemoteWorkspaceInitializationException(ePacket.getErrorMessage());
       latch.countDown();
     }
@@ -133,4 +134,16 @@ public class RemoteReceiver implements AsyncPacketListener {
 
   }
 
+  public IncomeDataContext getContext() {
+    return context;
+  }
+
+  public RemoteWorkspaceInitializationException getException() {
+    return exception;
+  }
+
+  public void setException(RemoteWorkspaceInitializationException exception) {
+    this.exception = exception;
+  }
+  
 }

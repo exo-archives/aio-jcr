@@ -20,13 +20,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
-import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 

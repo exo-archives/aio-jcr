@@ -16,16 +16,22 @@
  */
 package org.exoplatform.services.jcr.ext.initializer;
 
+import java.io.File;
+
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.impl.core.BackupWorkspaceInitializer;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
+import org.exoplatform.services.jcr.impl.core.SysViewWorkspaceInitializer;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
@@ -34,20 +40,20 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 16.03.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteWorkspaceInitialization.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class RemoteWorkspaceInitializer extends BackupWorkspaceInitializer {
+public class RemoteWorkspaceInitializer extends SysViewWorkspaceInitializer {
 
   public RemoteWorkspaceInitializer(WorkspaceEntry config,
-                                       RepositoryEntry repConfig,
-                                       CacheableWorkspaceDataManager dataManager,
-                                       NamespaceRegistryImpl namespaceRegistry,
-                                       LocationFactory locationFactory,
-                                       NodeTypeManagerImpl nodeTypeManager,
-                                       ValueFactoryImpl valueFactory,
-                                       AccessManager accessManager) throws RepositoryConfigurationException,
+                                    RepositoryEntry repConfig,
+                                    CacheableWorkspaceDataManager dataManager,
+                                    NamespaceRegistryImpl namespaceRegistry,
+                                    LocationFactory locationFactory,
+                                    NodeTypeManagerImpl nodeTypeManager,
+                                    ValueFactoryImpl valueFactory,
+                                    AccessManager accessManager) throws RepositoryConfigurationException,
       PathNotFoundException,
       RepositoryException {
     super(config,
@@ -57,10 +63,22 @@ public class RemoteWorkspaceInitializer extends BackupWorkspaceInitializer {
           locationFactory,
           nodeTypeManager,
           valueFactory,
-          accessManager);
+          accessManager,
+          null);
+
+    if (!isWorkspaceInitialized()) {
+      ExoContainer container = ExoContainerContext.getCurrentContainer();
+      RemoteWorkspaceInitializationService workspaceInitializationService = (RemoteWorkspaceInitializationService) container.getComponentInstanceOfType(RemoteWorkspaceInitializationService.class);
+
+      File f;
+      try {
+        f = workspaceInitializationService.getWorkspaceData(repConfig.getName(), config.getName());
+      } catch (RemoteWorkspaceInitializationException e) {
+        throw new RepositoryException("Can not get remote workspace data :" + e.getMessage(), e);
+      }
+
+      this.restorePath = f.getAbsolutePath();
+    }
   }
-  
-  
-  
 
 }

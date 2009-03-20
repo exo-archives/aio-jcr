@@ -68,4 +68,14 @@ public interface RemoteTransport {
    *           will be generated the RemoteWorkspaceInitializerException
    */
   public File getWorkspaceData(String repositoryName, String workspaceName) throws RemoteWorkspaceInitializationException;
+  
+  /**
+   * sendError.
+   *
+   * @param message
+   *          the error message
+   * @throws RemoteWorkspaceInitializationException
+   *           will be generated the RemoteWorkspaceInitializerException 
+   */
+  public void sendError(String message) throws RemoteWorkspaceInitializationException;
 }

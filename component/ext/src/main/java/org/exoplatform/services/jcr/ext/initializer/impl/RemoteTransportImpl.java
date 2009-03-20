@@ -17,6 +17,13 @@
 package org.exoplatform.services.jcr.ext.initializer.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CountDownLatch;
 
 import org.exoplatform.services.jcr.ext.initializer.RemoteTransport;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
@@ -43,31 +50,55 @@ public class RemoteTransportImpl implements RemoteTransport {
 
   private final String              sourceUrl;
 
+  private CountDownLatch            latch;
+
   /**
    * RemoteTransportImpl constructor.
    * 
    */
   public RemoteTransportImpl(AsyncChannelManager channelManager, File tempDir, String sourceUrl) {
+    this.latch = new CountDownLatch(1);
     this.channelManager = channelManager;
     this.tempDir = tempDir;
     this.sourceUrl = sourceUrl;
     this.remoteTransmitter = new RemoteTransmitter(this.channelManager);
-    this.remoteReceiver = new RemoteReceiver(this.tempDir);
+    this.remoteReceiver = new RemoteReceiver(this.tempDir, latch);
+    this.channelManager.addPacketListener(remoteReceiver);
   }
 
   /**
    * {@inheritDoc}
    */
   public void close() throws RemoteWorkspaceInitializationException {
-    // TODO Auto-generated method stub
-
+    channelManager.disconnect();
   }
 
   /**
    * {@inheritDoc}
    */
   public File getWorkspaceData(String repositoryName, String workspaceName) throws RemoteWorkspaceInitializationException {
-    return null;
+    RemoteHttpClient client = new RemoteHttpClient(sourceUrl);
+    String result = client.execute(repositoryName, workspaceName);
+
+    if (result.startsWith("FAIL"))
+      throw new RemoteWorkspaceInitializationException("Can not getting the remote workspace data : "
+          + result);
+
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      throw new RemoteWorkspaceInitializationException("The interapted : " + e.getMessage(), e);
+    }
+
+    if (remoteReceiver.getException() != null)
+      throw new RemoteWorkspaceInitializationException("Can not getting the remote workspace data : "
+                                                           + remoteReceiver.getException()
+                                                                           .getMessage(),
+                                                       remoteReceiver.getException());
+
+    String filePath = remoteReceiver.getContext().getChangesFile().toString();
+
+    return new File(filePath);
   }
 
   /**
@@ -77,7 +108,7 @@ public class RemoteTransportImpl implements RemoteTransport {
     try {
       channelManager.connect();
     } catch (ReplicationException e) {
-      throw new RemoteWorkspaceInitializationException("Can not  initialize the transport :"
+      throw new RemoteWorkspaceInitializationException("Can not  initialize the transport : "
           + e.getMessage(), e);
     }
   }
@@ -86,8 +117,74 @@ public class RemoteTransportImpl implements RemoteTransport {
    * {@inheritDoc}
    */
   public void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException {
-    channelManager.getOtherMembers();
 
+    if (!workspaceData.exists())
+      throw new RemoteWorkspaceInitializationException("The file with workspace data not exists.");
+
+    byte[] crc;
+    try {
+      crc = getCheckSum(workspaceData);
+      
+      try {
+        remoteTransmitter.sendChangesLogFile(channelManager.getOtherMembers().get(0),
+                                             workspaceData,
+                                             crc);
+      } catch (IOException e) {
+        throw new RemoteWorkspaceInitializationException("Can not send the workspace data file : "
+            + e.getMessage(), e);
+      }
+    } catch (NoSuchAlgorithmException e) {
+      throw new RemoteWorkspaceInitializationException("Can not calculate the checksum for workspace data file : "
+                                                           + e.getMessage(),
+                                                       e);
+    } catch (IOException e) {
+      throw new RemoteWorkspaceInitializationException("Can not calculate the checksum for workspace data file : "
+                                                           + e.getMessage(),
+                                                       e);
+    }
+
+  }
+
+  public void sendError(String message) throws RemoteWorkspaceInitializationException {
+    try {
+      InitializationErrorPacket packet = new InitializationErrorPacket(InitializationErrorPacket.INITIALIZATION_ERROR_PACKET,
+                                                                       message);
+      channelManager.sendPacket(packet, channelManager.getOtherMembers().get(0));
+    } catch (IOException e) {
+      throw new RemoteWorkspaceInitializationException("Cannot send export data " + e.getMessage(),
+                                                       e);
+    }
+  }
+
+  /**
+   * getCheckSum.
+   * 
+   * @param f
+   *          the File
+   * @return byte[] the checksum
+   * @throws NoSuchAlgorithmException
+   * @throws IOException
+   */
+  private byte[] getCheckSum(File f) throws NoSuchAlgorithmException, IOException {
+    MessageDigest digest = MessageDigest.getInstance("MD5");
+    InputStream in = new FileInputStream(f);
+
+    long length = f.length();
+    int bSize = 20 * 1024;
+
+    byte[] buff = new byte[bSize];
+    for (; length >= bSize; length -= bSize) {
+      in.read(buff);
+      digest.update(buff);
+    }
+
+    if (length > 0) {
+      buff = new byte[(int) length];
+      in.read(buff);
+      digest.update(buff);
+    }
+
+    return digest.digest();
   }
 
 }
