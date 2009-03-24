@@ -138,9 +138,9 @@
         <version>2.1</version>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
-              <goal>assembly</goal>
+              <goal>directory-inline</goal>
             </goals>
           </execution>
         </executions>
