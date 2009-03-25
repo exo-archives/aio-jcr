@@ -35,30 +35,77 @@ import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
  */
 public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
+  /**
+   * The constants for 1 second in milliseconds.
+   */
+  private static final int      ONE_SECOND = 1000;
+  
+  /**
+   * The local priority value.
+   */
   protected final int           priority;
 
+  /**
+   * The list of priority value for other participants.
+   */
   protected final List<Integer> otherParticipantsPriority;
 
+  /**
+   * Bind to local IP address.
+   */
   protected final String        bindIPAddress;
 
+  /**
+   * The channel configuration.
+   */
   protected final String        channelConfig;
 
+  /**
+   * The channel name.
+   */
   protected final String        channelName;
 
+  /**
+   * The definition wait timeout for all members .
+   */
   protected final int           waitAllMembersTimeout;
 
+  /**
+   * Folder for merge.
+   */
   protected final String        mergeTempDir;
 
+  /**
+   * Folder for storages.
+   */
   protected final String        storageDir;
 
+  /**
+   *  Folder for local storage.
+   */
   protected final String        localStorageDir;
 
+  /**
+   * Folder for income storage.
+   */
   protected final String        incomeStorageDir;
 
+  /**
+   * The repository name.
+   */
   protected final String        repositoryName;
 
+  /**
+   * The workspace name.
+   */
   protected final String        workspaceName;
 
+  /**
+   * AsyncWorkspaceConfig  constructor.
+   *
+   * @param params
+   *          the InitParams from configuration.
+   */
   public AsyncWorkspaceConfig(InitParams params) {
     PropertiesParam pps = params.getPropertiesParam("async-workspca-config");
 
@@ -92,7 +139,7 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
     if (pps.getProperty("wait-all-members") == null)
       throw new RuntimeException("wait-all-members timeout not specified");
-    waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
+    waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * ONE_SECOND;
 
     this.storageDir = pps.getProperty("storage-dir");
     if (storageDir == null)
@@ -102,13 +149,11 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
     if (sOtherParticipantsPriority == null)
       throw new RuntimeException("other-participants-priority not specified");
 
-    String saOtherParticipantsPriority[] = sOtherParticipantsPriority.split(",");
-
     // Ready to begin...
 
     this.otherParticipantsPriority = new ArrayList<Integer>();
 
-    for (String sPriority : saOtherParticipantsPriority)
+    for (String sPriority : sOtherParticipantsPriority.split(","))
       otherParticipantsPriority.add(Integer.valueOf(sPriority));
 
     if (hasDuplicatePriority(this.otherParticipantsPriority, this.priority))
@@ -131,6 +176,16 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   }
   
+  /**
+   * Will be checked the priority value duplication.
+   *
+   * @param other
+   *          list of priority value for other participants.
+   * @param ownPriority
+   *          own priority
+   * @return boolean
+   *           will be returned 'true' when priority value was duplicated.  
+   */
   private boolean hasDuplicatePriority(List<Integer> other, int ownPriority) {
     if (other.contains(ownPriority))
       return true;
@@ -147,50 +202,122 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
     return false;
   }
 
+  /**
+   * getPriority.
+   *
+   * @return int
+   *           local priority
+   */
   public int getPriority() {
     return priority;
   }
 
+  /**
+   * getOtherParticipantsPriority.
+   *
+   * @return List
+   *           list of priority value for other participants.
+   */
   public List<Integer> getOtherParticipantsPriority() {
     return otherParticipantsPriority;
   }
 
+  /**
+   * getBindIPAddress.
+   *
+   * @return String
+   *           local IP address
+   */
   public String getBindIPAddress() {
     return bindIPAddress;
   }
 
+  /**
+   * getChannelConfig.
+   *
+   * @return String
+   *           channel config
+   */
   public String getChannelConfig() {
     return channelConfig;
   }
 
+  /**
+   * getChannelName.
+   *
+   * @return String
+   *           channel name
+   */
   public String getChannelName() {
     return channelName;
   }
 
+  /**
+   * getWaitAllMembersTimeout.
+   *
+   * @return int
+   *            the wait member timeout
+   */
   public int getWaitAllMembersTimeout() {
     return waitAllMembersTimeout;
   }
 
+  /**
+   * getMergeTempDir.
+   *
+   * @return String
+   *           the merge folder
+   */
   public String getMergeTempDir() {
     return mergeTempDir;
   }
 
+  /**
+   * getStorageDir.
+   *
+   * @return String
+   *           the storage folder
+   */
   public String getStorageDir() {
     return storageDir;
   }
 
+  /**
+   * getLocalStorageDir.
+   *
+   * @return String
+   *           the local storage folder 
+   */
   public String getLocalStorageDir() {
     return localStorageDir;
   }
 
+  /**
+   * getIncomeStorageDir.
+   *
+   * @return String
+   *           the income storage folder
+   */
   public String getIncomeStorageDir() {
     return incomeStorageDir;
   }
 
+  /**
+   * getRepositoryName.
+   *
+   * @return String
+   *           the repository name
+   */
   public String getRepositoryName() {
     return repositoryName;
   }
 
+  /**
+   * getWorkspaceName.
+   *
+   * @return String
+   *           the workspace name
+   */
   public String getWorkspaceName() {
     return workspaceName;
   }
