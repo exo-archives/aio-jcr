@@ -27,39 +27,38 @@
               <xsl:attribute name="href">
                 <xsl:value-of select="substring(./@xlink:href, 1, string-length(./@xlink:href) - string-length(./@sv:name))" />
               </xsl:attribute>
-              <img src="/icons/ntfolder.gif" alt="" />
+              <img src="/ecm/skin/icons/16x16/NodeTypes/DefaultSkin/nt-folder.gif" alt="" />
               <xsl:text> ..</xsl:text>
             </a>
             <br />
           </xsl:if>
+          <!-- nodes -->
           <xsl:apply-templates select="sv:node">
             <xsl:sort order="ascending" select="./@sv:name" />
           </xsl:apply-templates>
+          <!-- properties -->
+          <!--
           <xsl:apply-templates select="sv:property">
-            <xsl:sort order="ascending" select="./@sv:name" />
+            <xsl:sort order="ascending" select="./@sv:name"/>
           </xsl:apply-templates>
+          -->
         </div>
       </body>
     </html>
   </xsl:template>
+
   <xsl:template match="sv:node">
     <a>
       <xsl:attribute name="href">
-        <xsl:value-of select="./@xlink:href" />
-      </xsl:attribute>
-      <img src="/icons/ntfolder.gif" alt="" />
+		    <xsl:value-of select="./@xlink:href" />
+		  </xsl:attribute>
+      <img src="/ecm/skin/icons/16x16/NodeTypes/DefaultSkin/nt-folder.gif" alt="" />
       <xsl:text> </xsl:text>
       <xsl:value-of select="./@sv:name" />
-      <xsl:text> </xsl:text>
     </a>
     <br />
   </xsl:template>
-
-  <xsl:template match="sv:property">
-    <img src="/ecm/skin/icons/16x16/NodeTypes/DefaultSkin/nt-file.gif" alt="" />
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="./@sv:name" />
-    <br />
-  </xsl:template>
-
+  <!--
+    <xsl:template match="sv:property"> <img src="/ecm/skin/icons/16x16/NodeTypes/DefaultSkin/nt-file.gif" alt=""/> <xsl:text> </xsl:text> <xsl:value-of select="./@sv:name"/><br/> </xsl:template>
+  -->
 </xsl:stylesheet>
