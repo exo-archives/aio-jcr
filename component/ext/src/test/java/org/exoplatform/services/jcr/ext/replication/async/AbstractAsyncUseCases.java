@@ -30,14 +30,13 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
-
-import sun.security.action.GetLongAction;
 
 /**
  * Created by The eXo Platform SAS.
@@ -96,6 +95,34 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     public abstract void useCaseHighPriority() throws Exception;
   }
 
+  protected abstract class BaseTwoMembersMergeVersionSupportUseCase {
+    public BaseTwoMembersMergeVersionSupportUseCase(SessionImpl sessionLowPriority,
+                                                    SessionImpl sessionHighPriority) {
+      this.sessionLowPriority = sessionLowPriority;
+      this.sessionHighPriority = sessionHighPriority;
+    }
+
+    protected final SessionImpl sessionLowPriority;
+
+    protected final SessionImpl sessionHighPriority;
+
+    public boolean checkEquals() throws Exception {
+      return isNodesEquals(sessionHighPriority.getRootNode(), sessionLowPriority.getRootNode());
+    }
+
+    public abstract void initDataLowPriority() throws Exception;
+
+    public abstract void initDataHighPriority() throws Exception;
+
+    public abstract void prepareDataLowPriority() throws Exception;
+
+    public abstract void prepareDataHighPriority() throws Exception;
+
+    public abstract void useCaseLowPriority() throws Exception;
+
+    public abstract void useCaseHighPriority() throws Exception;
+  }
+
   protected abstract class BaseThreeMembersMergeUseCase extends BaseTwoMembersMergeUseCase {
     protected final SessionImpl sessionMiddlePriority;
 
@@ -114,6 +141,411 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     public abstract void initDataMiddlePriority() throws Exception;
 
     public abstract void useCaseMiddlePriority() throws Exception;
+  }
+
+  public class ComplexUseCaseVersionSuport11 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport11(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueH");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "valueL");
+      sessionLowPriority.save();
+      node.checkin();
+      node.checkout();
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport12 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport12(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "valueH");
+      sessionHighPriority.save();
+      node.checkin();
+      node.checkout();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueL");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport21 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport21(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "value1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item1");
+      node.checkin();
+      node.checkout();
+      node.setProperty("prop", "valueH");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.checkin();
+      node.checkout();
+      node.setProperty("prop", "valueL");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item1");
+      node.restore("1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport22 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport22(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "value1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item1");
+      node.checkin();
+      node.checkout();
+      node.setProperty("prop", "valueH");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.checkin();
+      node.checkout();
+      node.setProperty("prop", "valueL");
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.restore("1", false);
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport31 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport31(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "value1");
+      sessionHighPriority.save();
+
+      node.checkin();
+      node.checkout();
+      node.setProperty("prop", "value2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item1");
+      node.restore("1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").setProperty("prop", "valueL");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport32 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport32(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "value1");
+      sessionHighPriority.save();
+
+      node.checkin();
+      node.checkout();
+      node.setProperty("prop", "value2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("prop", "valueL");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.restore("1", false);
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport41 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport41(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "value1");
+      sessionHighPriority.save();
+      node.checkin();
+      node.checkout();
+      sessionHighPriority.save();
+      node.setProperty("prop", "value2");
+      sessionHighPriority.save();
+      node.restore("1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.setProperty("prop", "value1");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport42 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport42(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("prop", "value1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "value1");
+      sessionLowPriority.save();
+      node.checkin();
+      node.checkout();
+      sessionLowPriority.save();
+      node.setProperty("prop", "value2");
+      sessionLowPriority.save();
+      node.restore("1", false);
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseVersionSuport51 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseVersionSuport51(SessionImpl sessionLowPriority,
+                                         SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addMixin("mix:versionable");
+      node.setProperty("prop", "value1");
+      sessionHighPriority.save();
+
+      node.checkin();
+      node.checkout();
+      node.setProperty("prop", "value2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+      sessionHighPriority.move("/item1", "/item2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").remove();
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item2");
+      node.restore("1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+    }
   }
 
   /**
@@ -1652,7 +2084,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseMiddlePriority() throws Exception {
-      NodeIterator ni_l1 = sessionMiddlePriority.getRootNode().getNode("node_middle_priority").getNodes();
+      NodeIterator ni_l1 = sessionMiddlePriority.getRootNode()
+                                                .getNode("node_middle_priority")
+                                                .getNodes();
 
       while (ni_l1.hasNext()) {
         NodeIterator ni_l2 = ni_l1.nextNode().getNodes();
@@ -1674,7 +2108,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseHighPriority() throws Exception {
-      NodeIterator ni_l1 = sessionHighPriority.getRootNode().getNode("node_high_priority").getNodes();
+      NodeIterator ni_l1 = sessionHighPriority.getRootNode()
+                                              .getNode("node_high_priority")
+                                              .getNodes();
 
       while (ni_l1.hasNext()) {
         NodeIterator ni_l2 = ni_l1.nextNode().getNodes();
