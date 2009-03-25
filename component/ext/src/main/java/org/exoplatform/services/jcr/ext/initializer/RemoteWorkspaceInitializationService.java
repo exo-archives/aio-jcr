@@ -261,7 +261,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
 
       // start backup
       BackupConfig config = new BackupConfig();
-      config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);
+      config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
       config.setRepository(repositoryName);
       config.setWorkspace(workspaceName);
       config.setBackupDir(backupManager.getBackupDirectory());

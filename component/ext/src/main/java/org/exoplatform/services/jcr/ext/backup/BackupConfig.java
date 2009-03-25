@@ -27,7 +27,7 @@ import java.io.File;
 
 public class BackupConfig {
 
-  private int    buckupType;
+  private int    backupType;
 
   private String repository;
 
@@ -79,11 +79,11 @@ public class BackupConfig {
     this.backupDir = backupDir;
   }
 
-  public int getBuckupType() {
-    return buckupType;
+  public int getBackupType() {
+    return backupType;
   }
 
-  public void setBuckupType(int buckupType) {
-    this.buckupType = buckupType;
+  public void setBackupType(int backupType) {
+    this.backupType = backupType;
   }
 }

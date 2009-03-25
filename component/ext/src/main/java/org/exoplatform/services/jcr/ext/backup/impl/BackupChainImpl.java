@@ -86,7 +86,7 @@ public class BackupChainImpl implements BackupChain {
     }
     fullBackup.init(repository, config.getWorkspace(), config, timeStamp);
 
-    if (config.getBuckupType() == BackupManager.FULL_AND_INCREMENTAL) {
+    if (config.getBackupType() == BackupManager.FULL_AND_INCREMENTAL) {
       try {
         this.incrementalBackup = (AbstractIncrementalBackupJob) Class.forName(incrementalBackupType)
                                                                      .newInstance();

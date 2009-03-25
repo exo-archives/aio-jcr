@@ -341,7 +341,7 @@ public class ReplicationTestService implements ResourceContainer {
                               @PathParam("password") String password,
                               @PathParam("incementalPeriod") Long incementalPeriod) {
     BackupConfig config = new BackupConfig();
-    config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
+    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
     config.setRepository(repositoryName);
     config.setWorkspace(workspaceName);
     config.setBackupDir(backupManager.getBackupDirectory());

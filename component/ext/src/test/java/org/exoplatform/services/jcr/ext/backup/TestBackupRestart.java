@@ -60,7 +60,7 @@ public class TestBackupRestart extends AbstractBackupTestCase {
     BackupConfig config = new BackupConfig();
     config.setRepository(repository.getName());
     config.setWorkspace("ws1");
-    config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
+    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
     config.setIncrementalJobPeriod(2 * 60); // incrementalPeriod = 2 min
     config.setBackupDir(backDir);
 

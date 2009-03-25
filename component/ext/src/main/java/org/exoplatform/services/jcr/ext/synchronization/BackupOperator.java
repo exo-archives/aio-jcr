@@ -102,7 +102,7 @@ public class BackupOperator {
     BackupConfig config = new BackupConfig();
     config.setRepository(repository);
     config.setWorkspace(workspace);
-    config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);
+    config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
 
     config.setBackupDir(backDir);
 

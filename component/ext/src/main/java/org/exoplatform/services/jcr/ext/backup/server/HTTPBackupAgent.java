@@ -164,7 +164,7 @@ public class HTTPBackupAgent implements ResourceContainer {
   public Response startFullBackup(@PathParam("repositoryName") String repositoryName,
                               @PathParam("workspaceName") String workspaceName) {
     BackupConfig config = new BackupConfig();
-    config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);
+    config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
     config.setRepository(repositoryName);
     config.setWorkspace(workspaceName);
     config.setBackupDir(backupManager.getBackupDirectory());
@@ -203,7 +203,7 @@ public class HTTPBackupAgent implements ResourceContainer {
                               @PathParam("incementalJobPeriod") Long incementalJobPeriod,
                               @PathParam("incementalJobNumber") int incementalJobNumber) {
     BackupConfig config = new BackupConfig();
-    config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
+    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
     config.setRepository(repositoryName);
     config.setWorkspace(workspaceName);
     config.setBackupDir(backupManager.getBackupDirectory());

@@ -339,7 +339,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
                                                                              RepositoryConfigurationException {
 
     if (config.getIncrementalJobPeriod() == 0
-        && config.getBuckupType() == BackupManager.FULL_AND_INCREMENTAL)
+        && config.getBackupType() == BackupManager.FULL_AND_INCREMENTAL)
       config.setIncrementalJobPeriod(defaultIncrementalJobPeriod);
 
     BackupChain bchain = new BackupChainImpl(config,
