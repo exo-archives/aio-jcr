@@ -52,7 +52,7 @@ public interface RemoteTransport {
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
-  public void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException;
+  public void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
   
   
   /**
@@ -62,12 +62,14 @@ public interface RemoteTransport {
    *          the repository name
    * @param workspaceName
    *          the workspace name
+   * @param id
+   *          the channel id 
    * @return File 
    *          with workspace data 
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
-  public File getWorkspaceData(String repositoryName, String workspaceName) throws RemoteWorkspaceInitializationException;
+  public File getWorkspaceData(String repositoryName, String workspaceName, String id) throws RemoteWorkspaceInitializationException;
   
   /**
    * sendError.
@@ -77,5 +79,5 @@ public interface RemoteTransport {
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException 
    */
-  public void sendError(String message) throws RemoteWorkspaceInitializationException;
+  public void sendError(String message) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
 }

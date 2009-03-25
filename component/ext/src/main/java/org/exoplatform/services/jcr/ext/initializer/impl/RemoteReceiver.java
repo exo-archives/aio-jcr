@@ -31,6 +31,8 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolde
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
@@ -43,23 +45,37 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteReceiver.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class RemoteReceiver implements AsyncPacketListener {
-  
+public class RemoteReceiver implements AsyncPacketListener, AsyncStateListener {
+
   /**
    * The apache logger.
    */
-  private static Log              log = ExoLogger.getLogger("ext.RemoteReceiver");
-  
+  private static Log                             log           = ExoLogger.getLogger("ext.RemoteReceiver");
+
   /**
    * The temporary folder.
    */
   private final File                             tempDir;
 
+  /**
+   * Input data context.
+   */
   private IncomeDataContext                      context;
 
+  /**
+   * The latch.
+   */
   private CountDownLatch                         latch;
 
-  private RemoteWorkspaceInitializationException exception = null;
+  /**
+   * The saved exception.
+   */
+  private RemoteWorkspaceInitializationException exception     = null;
+
+  /**
+   * The members count.
+   */
+  private int                                    membrerInited = 0;
 
   /**
    * RemoteReceiver constructor.
@@ -67,7 +83,7 @@ public class RemoteReceiver implements AsyncPacketListener {
    * @param tempDir
    *          the temporary folder
    */
-  public RemoteReceiver(File tempDir,CountDownLatch latch) {
+  public RemoteReceiver(File tempDir, CountDownLatch latch) {
     this.tempDir = tempDir;
     this.latch = latch;
   }
@@ -134,16 +150,34 @@ public class RemoteReceiver implements AsyncPacketListener {
 
   }
 
+  /**
+   * getContext.
+   * 
+   * @return IncomeDataContext the input data contex
+   */
   public IncomeDataContext getContext() {
     return context;
   }
 
+  /**
+   * getException.
+   * 
+   * @return RemoteWorkspaceInitializationException the saved exception
+   */
   public RemoteWorkspaceInitializationException getException() {
     return exception;
   }
 
-  public void setException(RemoteWorkspaceInitializationException exception) {
-    this.exception = exception;
+  /**
+   * {@inheritDoc}
+   */
+  public void onStateChanged(AsyncStateEvent event) {
+    if (membrerInited == 2 && event.getMembers().size() == 1
+        && (context == null || !context.isFinished())) {
+      exception = new RemoteWorkspaceInitializationException("The remote member was disconected");
+      latch.countDown();
+    } else
+      membrerInited = event.getMembers().size();
   }
-  
+
 }

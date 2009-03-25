@@ -48,9 +48,7 @@ public class RemoteTransmitter {
 
   }
 
-  protected void sendChangesLogFile(MemberAddress destinationAddress,
-                                    File file, 
-                                    byte[] checkSum) throws IOException {
+  protected void sendChangesLogFile(MemberAddress destinationAddress, File file, byte[] checkSum) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + file.length());
 
@@ -73,10 +71,10 @@ public class RemoteTransmitter {
       }
 
       packet = new WorkspaceDataPacket(WorkspaceDataPacket.WORKSPACE_DATA_PACKET,
-                                 totalPacketCount,
-                                 checkSum,
-                                 offset,
-                                 buff);
+                                       totalPacketCount,
+                                       checkSum,
+                                       offset,
+                                       buff);
 
       channelManager.sendPacket(packet, destinationAddress);
 
@@ -92,10 +90,10 @@ public class RemoteTransmitter {
         }
 
         packet = new WorkspaceDataPacket(WorkspaceDataPacket.WORKSPACE_DATA_PACKET,
-                                             totalPacketCount,
-                                             checkSum,
-                                             offset,
-                                             buff);
+                                         totalPacketCount,
+                                         checkSum,
+                                         offset,
+                                         buff);
 
         channelManager.sendPacket(packet, destinationAddress);
 
@@ -110,10 +108,11 @@ public class RemoteTransmitter {
       }
     }
   }
-  
+
   private long getPacketCount(long contentLength, long packetSize) {
     long count = contentLength / packetSize;
     count += ((count * packetSize - contentLength) != 0) ? 1 : 0;
     return count;
   }
+
 }

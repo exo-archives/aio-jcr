@@ -18,16 +18,17 @@ package org.exoplatform.services.jcr.ext.initializer.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CountDownLatch;
 
+import org.exoplatform.services.jcr.ext.initializer.NoMemberToSendException;
 import org.exoplatform.services.jcr.ext.initializer.RemoteTransport;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.InvalidChecksumException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 
 /**
@@ -40,21 +41,49 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
  */
 public class RemoteTransportImpl implements RemoteTransport {
 
+  /**
+   * The channel manager.
+   */
   private final AsyncChannelManager channelManager;
 
+  /**
+   * The data transmitter.
+   */
   private final RemoteTransmitter   remoteTransmitter;
 
+  /**
+   * The data receiver.
+   */
   private final RemoteReceiver      remoteReceiver;
 
+  /**
+   * The temporary folder.
+   */
   private final File                tempDir;
 
+  /**
+   * Data source url.
+   */
   private final String              sourceUrl;
 
+  /**
+   * The synchronization latch.
+   */
   private CountDownLatch            latch;
-
+  
   /**
    * RemoteTransportImpl constructor.
    * 
+   */
+  /**
+   * RemoteTransportImpl  constructor.
+   *
+   * @param channelManager
+   *          the channel manager.
+   * @param tempDir
+   *          the temporary folder.
+   * @param sourceUrl
+   *          data source url.
    */
   public RemoteTransportImpl(AsyncChannelManager channelManager, File tempDir, String sourceUrl) {
     this.latch = new CountDownLatch(1);
@@ -64,6 +93,7 @@ public class RemoteTransportImpl implements RemoteTransport {
     this.remoteTransmitter = new RemoteTransmitter(this.channelManager);
     this.remoteReceiver = new RemoteReceiver(this.tempDir, latch);
     this.channelManager.addPacketListener(remoteReceiver);
+    this.channelManager.addStateListener(remoteReceiver);
   }
 
   /**
@@ -76,9 +106,9 @@ public class RemoteTransportImpl implements RemoteTransport {
   /**
    * {@inheritDoc}
    */
-  public File getWorkspaceData(String repositoryName, String workspaceName) throws RemoteWorkspaceInitializationException {
+  public File getWorkspaceData(String repositoryName, String workspaceName, String id) throws RemoteWorkspaceInitializationException {
     RemoteHttpClient client = new RemoteHttpClient(sourceUrl);
-    String result = client.execute(repositoryName, workspaceName);
+    String result = client.execute(repositoryName, workspaceName, id);
 
     if (result.startsWith("FAIL"))
       throw new RemoteWorkspaceInitializationException("Can not getting the remote workspace data : "
@@ -96,6 +126,13 @@ public class RemoteTransportImpl implements RemoteTransport {
                                                                            .getMessage(),
                                                        remoteReceiver.getException());
 
+    try {
+      remoteReceiver.getContext().getChangesFile().validate();
+    } catch (InvalidChecksumException e) {
+      new RemoteWorkspaceInitializationException("Can not getting the remote workspace data : "
+                                                 + e.getMessage(), e);
+    }
+    
     String filePath = remoteReceiver.getContext().getChangesFile().toString();
 
     return new File(filePath);
@@ -116,7 +153,7 @@ public class RemoteTransportImpl implements RemoteTransport {
   /**
    * {@inheritDoc}
    */
-  public void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException {
+  public void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException, NoMemberToSendException {
 
     if (!workspaceData.exists())
       throw new RemoteWorkspaceInitializationException("The file with workspace data not exists.");
@@ -125,7 +162,13 @@ public class RemoteTransportImpl implements RemoteTransport {
     try {
       crc = getCheckSum(workspaceData);
       
+      
+        
+      
       try {
+        if (channelManager.getOtherMembers().size() == 0)
+          throw new NoMemberToSendException("No member to sent, member list : " + channelManager.getOtherMembers().size() );
+          
         remoteTransmitter.sendChangesLogFile(channelManager.getOtherMembers().get(0),
                                              workspaceData,
                                              crc);
@@ -145,7 +188,10 @@ public class RemoteTransportImpl implements RemoteTransport {
 
   }
 
-  public void sendError(String message) throws RemoteWorkspaceInitializationException {
+  /**
+   * {@inheritDoc}
+   */
+  public void sendError(String message) throws RemoteWorkspaceInitializationException, NoMemberToSendException {
     try {
       InitializationErrorPacket packet = new InitializationErrorPacket(InitializationErrorPacket.INITIALIZATION_ERROR_PACKET,
                                                                        message);
@@ -161,9 +207,12 @@ public class RemoteTransportImpl implements RemoteTransport {
    * 
    * @param f
    *          the File
-   * @return byte[] the checksum
+   * @return byte[] 
+   *           the checksum
    * @throws NoSuchAlgorithmException
+   *           will be generated the NoSuchAlgorithmException 
    * @throws IOException
+   *           will be generated the IOException
    */
   private byte[] getCheckSum(File f) throws NoSuchAlgorithmException, IOException {
     MessageDigest digest = MessageDigest.getInstance("MD5");

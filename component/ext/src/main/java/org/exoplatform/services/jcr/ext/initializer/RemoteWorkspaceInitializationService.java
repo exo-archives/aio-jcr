@@ -41,6 +41,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.ext.initializer.impl.RemoteTransportImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
@@ -162,9 +163,9 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
     if (pps == null)
       throw new RuntimeException("remote-initializer-properties not specified");
 
-    if (pps.getProperty("data-source-url") == null)
-      throw new RuntimeException("data-source-url not specified");
-    dataSourceUrl = pps.getProperty("data-source-url");
+    if (pps.getProperty("remote-source-url") == null)
+      throw new RuntimeException("remote-source-url not specified");
+    dataSourceUrl = pps.getProperty("remote-source-url");
 
     if (pps.getProperty("bind-ip-address") == null)
       throw new RuntimeException("bind-ip-address not specified");
@@ -202,10 +203,12 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
    */
   public File getWorkspaceData(String repository, String workspace) throws RemoteWorkspaceInitializationException {
 
+    String id = IdGenerator.generate();
+    
     AsyncChannelManager channelManager = new AsyncChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
                                                                                           bindIpAddress),
                                                                  channelName + "_" + repository
-                                                                     + "_" + workspace,
+                                                                     + "_" + workspace + "_" + id,
                                                                  2);
 
     RemoteTransport remoteTransport = new RemoteTransportImpl(channelManager,
@@ -215,7 +218,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
     try {
       remoteTransport.init();
 
-      return remoteTransport.getWorkspaceData(repository, workspace);
+      return remoteTransport.getWorkspaceData(repository, workspace, id);
     } catch (Throwable t) {
       throw new RemoteWorkspaceInitializationException("Can't get workspace data", t);
     } finally {
@@ -233,16 +236,17 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
    * @return Response return the response
    */
   @GET
-  @Path("/{repositoryName}/{workspaceName}/getWorkspaceData")
+  @Path("/{repositoryName}/{workspaceName}/{id}/getWorkspaceData")
   public Response startFullBackup(@PathParam("repositoryName") String repositoryName, 
-                                  @PathParam("workspaceName") String workspaceName) {
+                                  @PathParam("workspaceName") String workspaceName,
+                                  @PathParam("id") String id) {
     String result = "OK";
 
     // init transport
     AsyncChannelManager channelManager = new AsyncChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
                                                                                           bindIpAddress),
                                                                  channelName + "_" + repositoryName
-                                                                     + "_" + workspaceName,
+                                                                     + "_" + workspaceName + "_" + id,
                                                                  2);
     RemoteTransport remoteTransport = new RemoteTransportImpl(channelManager,
                                                               tempDir,
@@ -337,38 +341,42 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
      */
     public void run() {
       try {
-        // wait till full backup will be stopped
-        while (backupChain.getFullBackupState() != BackupJob.FINISHED) {
-          Thread.yield();
-          Thread.sleep(50);
-        }
-       
-       // get path to file with full backup 
-       String path = backupChain.getBackupJobs().get(0).getStorageURL().getPath();
-       
-       // stop backup
-       backupManager.stopBackup(backupChain);
-        
-       // send data 
-       transport.sendWorkspaceData(new File(path));
-      } catch (RemoteWorkspaceInitializationException e) {
         try {
-          transport.sendError("Can not send the workspace data : " + e.getMessage());
-        } catch (RemoteWorkspaceInitializationException e1) {
-          log.error("Can not send error message : " + e.getMessage(), e);
+          // wait till full backup will be stopped
+          while (backupChain.getFullBackupState() != BackupJob.FINISHED) {
+            Thread.yield();
+            Thread.sleep(50);
+          }
+         
+         // get path to file with full backup 
+         String path = backupChain.getBackupJobs().get(0).getStorageURL().getPath();
+         
+         // stop backup
+         backupManager.stopBackup(backupChain);
+          
+         // send data 
+         transport.sendWorkspaceData(new File(path));
+        } catch (RemoteWorkspaceInitializationException e) {
+          try {
+            transport.sendError("Can not send the workspace data : " + e.getMessage());
+          } catch (RemoteWorkspaceInitializationException e1) {
+            log.error("Can not send error message : " + e.getMessage(), e);
+          }
+        } catch (BackupOperationException e) {
+          try {
+            transport.sendError("Can not send the workspace data : " + e.getMessage());
+          } catch (RemoteWorkspaceInitializationException e1) {
+            log.error("Can not send error message : " + e.getMessage(), e);
+          }
+        } catch (InterruptedException e) {
+          try {
+            transport.sendError("Can not send the workspace data : " + e.getMessage());
+          } catch (RemoteWorkspaceInitializationException e1) {
+            log.error("Can not send error message : " + e.getMessage(), e);
+          }
         }
-      } catch (BackupOperationException e) {
-        try {
-          transport.sendError("Can not send the workspace data : " + e.getMessage());
-        } catch (RemoteWorkspaceInitializationException e1) {
-          log.error("Can not send error message : " + e.getMessage(), e);
-        }
-      } catch (InterruptedException e) {
-        try {
-          transport.sendError("Can not send the workspace data : " + e.getMessage());
-        } catch (RemoteWorkspaceInitializationException e1) {
-          log.error("Can not send error message : " + e.getMessage(), e);
-        }
+      } catch (NoMemberToSendException e) {
+        log.error("Can not send the data  : " + e.getMessage(), e);
       } finally {
         try {
           transport.close();

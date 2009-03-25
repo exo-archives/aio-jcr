@@ -27,8 +27,6 @@ import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.SysViewWorkspaceInitializer;

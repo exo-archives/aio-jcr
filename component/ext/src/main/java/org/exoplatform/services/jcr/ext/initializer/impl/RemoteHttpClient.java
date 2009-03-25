@@ -44,11 +44,31 @@ public class RemoteHttpClient {
    */
   private final String dataSourceUrl;
 
+  /**
+   * RemoteHttpClient  constructor.
+   *
+   * @param dataSourceUrl
+   *          the data source url
+   */
   public RemoteHttpClient(String dataSourceUrl) {
     this.dataSourceUrl = dataSourceUrl;
   }
 
-  public String execute(String repositoryName, String workspaceName) throws RemoteWorkspaceInitializationException {
+  /**
+   * execute.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param id
+   *          the channel id 
+   * @return String 
+   *          the response 
+   * @throws RemoteWorkspaceInitializationException
+   *           will be generated the RemoteWorkspaceInitializerException
+   */
+  public String execute(String repositoryName, String workspaceName, String id) throws RemoteWorkspaceInitializationException {
     String result = "FAIL";
 
     try {
@@ -58,6 +78,7 @@ public class RemoteHttpClient {
       String complURL = dataSourceUrl 
           + RemoteWorkspaceInitializationService.Constants.BASE_URL + "/" + repositoryName + "/"
           + workspaceName + "/"
+          + id + "/"
           + RemoteWorkspaceInitializationService.Constants.OperationType.GET_WORKSPACE;
 
       URL url = new URL(complURL);
