@@ -23,14 +23,18 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
@@ -545,6 +549,413 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseLowPriority() throws Exception {
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport11 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport11(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionDB4WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "value");
+      sessionDB4WS.save();
+
+      sessionLowPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("prop", "valueH");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").update("ws");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport12 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport12(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionDB5WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "value");
+      sessionDB5WS.save();
+
+      sessionHighPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").update("ws");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").setProperty("prop", "valueL");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport21 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport21(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueH");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionDB4WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueL");
+      sessionDB4WS.save();
+
+      sessionLowPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport22 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport22(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionDB5WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueH");
+      sessionDB5WS.save();
+
+      sessionHighPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueL");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport31 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport31(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionDB4WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueL");
+      sessionDB4WS.save();
+
+      sessionLowPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.move("/item1", "/item2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").update("ws");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport32 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport32(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionDB5WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "value1");
+      sessionDB5WS.save();
+
+      sessionHighPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").update("ws");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport41 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport41(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node node = sessionDB4WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueL");
+      sessionDB4WS.save();
+
+      sessionLowPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").update("ws");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseCloneSupport42 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseCloneSupport42(SessionImpl sessionLowPriority,
+                                        SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionDB5WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "valueL");
+      sessionDB5WS.save();
+
+      sessionHighPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").update("ws");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").remove();
+      sessionLowPriority.save();
     }
   }
 

@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 
@@ -43,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncReplicationTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
+public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
 
   private static Log            log         = ExoLogger.getLogger("ext.AsyncReplicationTest");
 
@@ -308,7 +307,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
     super.tearDown();
   }
 
-  public void _testComplexUseCaseVersionSuport11() throws Exception {
+  public void testComplexUseCaseVersionSuport11() throws Exception {
     ComplexUseCaseVersionSuport11 useCase = new ComplexUseCaseVersionSuport11(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -333,7 +332,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("valueH"));
   }
 
-  public void _testComplexUseCaseVersionSuport12() throws Exception {
+  public void testComplexUseCaseVersionSuport12() throws Exception {
     ComplexUseCaseVersionSuport12 useCase = new ComplexUseCaseVersionSuport12(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -358,7 +357,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("valueH"));
   }
 
-  public void _testComplexUseCaseVersionSuport21() throws Exception {
+  public void testComplexUseCaseVersionSuport21() throws Exception {
     ComplexUseCaseVersionSuport21 useCase = new ComplexUseCaseVersionSuport21(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -384,7 +383,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void _testComplexUseCaseVersionSuport22() throws Exception {
+  public void testComplexUseCaseVersionSuport22() throws Exception {
     ComplexUseCaseVersionSuport22 useCase = new ComplexUseCaseVersionSuport22(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -410,7 +409,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void _testComplexUseCaseVersionSuport31() throws Exception {
+  public void testComplexUseCaseVersionSuport31() throws Exception {
     ComplexUseCaseVersionSuport31 useCase = new ComplexUseCaseVersionSuport31(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -433,7 +432,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void _testComplexUseCaseVersionSuport32() throws Exception {
+  public void testComplexUseCaseVersionSuport32() throws Exception {
     ComplexUseCaseVersionSuport32 useCase = new ComplexUseCaseVersionSuport32(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -445,10 +444,10 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
     asyncUseCase.useCase();
 
     NodeImpl node = (NodeImpl) systemSessionHighPriority.getItem("/jcr:system/jcr:versionStorage");
-    assertNotNull(node.getInternalIdentifier().equals(Constants.VERSIONSTORAGE_UUID));
+    assertTrue(node.getInternalIdentifier().equals(Constants.VERSIONSTORAGE_UUID));
 
     node = (NodeImpl) systemSessionLowPriority.getItem("/jcr:system/jcr:versionStorage");
-    assertNotNull(node.getInternalIdentifier().equals(Constants.VERSIONSTORAGE_UUID));
+    assertTrue(node.getInternalIdentifier().equals(Constants.VERSIONSTORAGE_UUID));
 
     assertTrue(asyncUseCase.checkEquals());
     assertTrue(sessionHigePriority.getRootNode()
@@ -463,7 +462,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("valueL"));
   }
 
-  public void _testComplexUseCaseVersionSuport41() throws Exception {
+  public void testComplexUseCaseVersionSuport41() throws Exception {
     ComplexUseCaseVersionSuport41 useCase = new ComplexUseCaseVersionSuport41(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -486,7 +485,7 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void _testComplexUseCaseVersionSuport42() throws Exception {
+  public void testComplexUseCaseVersionSuport42() throws Exception {
     ComplexUseCaseVersionSuport42 useCase = new ComplexUseCaseVersionSuport42(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -535,10 +534,184 @@ public class AsyncReplicationVersionsSupportTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  private void printRootNode(SessionImpl ses) throws RepositoryException {
-    log.info("Workspace :" + ses.getWorkspace().getName());
-    NodeIterator ni = ses.getRootNode().getNodes();
-    while (ni.hasNext())
-      log.info(ni.nextNode().getPath());
+  public void testComplexUseCaseCloneSupport11() throws Exception {
+    ComplexUseCaseCloneSupport11 useCase = new ComplexUseCaseCloneSupport11(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    assertTrue(sessionHigePriority.getRootNode()
+                                  .getNode("item1")
+                                  .getProperty("prop")
+                                  .getString()
+                                  .equals("valueH"));
+    assertTrue(sessionLowPriority.getRootNode()
+                                 .getNode("item1")
+                                 .getProperty("prop")
+                                 .getString()
+                                 .equals("valueH"));
   }
+
+  public void testComplexUseCaseCloneSupport12() throws Exception {
+    ComplexUseCaseCloneSupport12 useCase = new ComplexUseCaseCloneSupport12(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    assertTrue(sessionHigePriority.getRootNode()
+                                  .getNode("item1")
+                                  .getProperty("prop")
+                                  .getString()
+                                  .equals("value"));
+    assertTrue(sessionLowPriority.getRootNode()
+                                 .getNode("item1")
+                                 .getProperty("prop")
+                                 .getString()
+                                 .equals("value"));
+  }
+
+  public void testComplexUseCaseCloneSupport21() throws Exception {
+    ComplexUseCaseCloneSupport21 useCase = new ComplexUseCaseCloneSupport21(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    assertTrue(sessionHigePriority.getRootNode()
+                                  .getNode("item1")
+                                  .getProperty("prop")
+                                  .getString()
+                                  .equals("valueH"));
+    assertTrue(sessionLowPriority.getRootNode()
+                                 .getNode("item1")
+                                 .getProperty("prop")
+                                 .getString()
+                                 .equals("valueH"));
+  }
+
+  public void testComplexUseCaseCloneSupport22() throws Exception {
+    ComplexUseCaseCloneSupport22 useCase = new ComplexUseCaseCloneSupport22(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    assertTrue(sessionHigePriority.getRootNode()
+                                  .getNode("item1")
+                                  .getProperty("prop")
+                                  .getString()
+                                  .equals("valueH"));
+    assertTrue(sessionLowPriority.getRootNode()
+                                 .getNode("item1")
+                                 .getProperty("prop")
+                                 .getString()
+                                 .equals("valueH"));
+  }
+
+  public void testComplexUseCaseCloneSupport31() throws Exception {
+    ComplexUseCaseCloneSupport31 useCase = new ComplexUseCaseCloneSupport31(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    assertNotNull(sessionHigePriority.getRootNode().getNode("item2"));
+    assertNotNull(sessionLowPriority.getRootNode().getNode("item2"));
+    try {
+      sessionHigePriority.getRootNode().getNode("item1");
+      fail("Exception should be throw");
+    } catch (Exception e) {
+    }
+    try {
+      sessionLowPriority.getRootNode().getNode("item1");
+      fail("Exception should be throw");
+    } catch (Exception e) {
+    }
+  }
+
+  public void testComplexUseCaseCloneSupport32() throws Exception {
+    ComplexUseCaseCloneSupport32 useCase = new ComplexUseCaseCloneSupport32(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    assertNotNull(sessionHigePriority.getRootNode().getNode("item1"));
+    assertNotNull(sessionLowPriority.getRootNode().getNode("item1"));
+    try {
+      sessionHigePriority.getRootNode().getNode("item2");
+      fail("Exception should be throw");
+    } catch (Exception e) {
+    }
+    try {
+      sessionLowPriority.getRootNode().getNode("item2");
+      fail("Exception should be throw");
+    } catch (Exception e) {
+    }
+  }
+
+  public void testComplexUseCaseCloneSupport41() throws Exception {
+    ComplexUseCaseCloneSupport41 useCase = new ComplexUseCaseCloneSupport41(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    try {
+      sessionHigePriority.getRootNode().getNode("item1");
+      fail("Exception should be throw");
+    } catch (Exception e) {
+    }
+    try {
+      sessionLowPriority.getRootNode().getNode("item1");
+      fail("Exception should be throw");
+    } catch (Exception e) {
+    }
+  }
+
+  public void testComplexUseCaseCloneSupport42() throws Exception {
+    ComplexUseCaseCloneSupport42 useCase = new ComplexUseCaseCloneSupport42(sessionLowPriority,
+                                                                            sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+    assertNotNull(sessionHigePriority.getRootNode().getNode("item1"));
+    assertNotNull(sessionLowPriority.getRootNode().getNode("item1"));
+  }
+
 }
