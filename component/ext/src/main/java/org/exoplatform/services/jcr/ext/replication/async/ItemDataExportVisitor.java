@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -43,13 +44,12 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
 
 /**
- * 
  * This visitor takes node and extracts its ItemStates in next order:
- *  <p> - nodes ItemState;  
- *  <p> - nodes version history ItemStates(if exists);
- *  <p> - node properties ItemStares;
- *  <p> - node sub-nodes ItemStates. <p>
- *  
+ * <p> - nodes ItemState;
+ * <p> - nodes version history ItemStates(if exists);
+ * <p> - node properties ItemStares;
+ * <p> - node sub-nodes ItemStates.
+ * <p>
  * Created by The eXo Platform SAS Author : Karpenko Sergiy
  * karpenko.sergiy@gmail.com
  */
@@ -58,7 +58,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
   /**
    * Output where extracted ItemStates will be written.
    */
-  protected ObjectWriter  out;
+  protected ObjectWriter        out;
 
   /**
    * The stack. In the top it contains a parent node.
@@ -92,22 +92,18 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
                                                                   property.isMultiValued());
 
     List<ValueData> list = property.getValues();
-    
+
     Iterator<ValueData> it = list.iterator();
-    
+
     List<ValueData> res = new ArrayList<ValueData>();
-    while(it.hasNext()){
-      TransientValueData value = ((AbstractValueData)it.next()).createTransientCopy();
+    while (it.hasNext()) {
+      TransientValueData value = ((AbstractValueData) it.next()).createTransientCopy();
       res.add(value);
     }
     newProperty.setValues(res);
-    
+
     try {
-      (new ItemState(newProperty,
-                     ItemState.ADDED,
-                     false, 
-                     curParent().getQPath(),
-                     level != 0)).writeObject(out);
+      (new ItemState(newProperty, ItemState.ADDED, false, curParent().getQPath(), level != 0)).writeObject(out);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
@@ -131,7 +127,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
     // ancestorToSave is a parent node
     // if level == 0 set internal created as false for validating on save
-    
+
     try {
       (new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0)).writeObject(out);
     } catch (IOException e) {
@@ -156,12 +152,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
       NodeData verStorage = (NodeData) dataManager.getItemData(Constants.VERSIONSTORAGE_UUID);
 
-      QPathEntry nam;
-      try {
-        nam = QPathEntry.parse("[]" + ref + ":1");
-      } catch (IllegalNameException e) {
-        throw new RepositoryException(e);
-      }
+      QPathEntry nam = new QPathEntry("",ref, 1);
 
       NodeData verHistory = (NodeData) dataManager.getItemData(verStorage, nam);
 
