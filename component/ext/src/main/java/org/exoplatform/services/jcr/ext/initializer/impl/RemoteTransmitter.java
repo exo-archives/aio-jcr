@@ -27,6 +27,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
+
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -39,15 +41,36 @@ public class RemoteTransmitter {
   /**
    * The apache logger.
    */
-  private static Log                log = ExoLogger.getLogger("ext.RemoteWorkspaceInitializerService");
+  private static Log                log = ExoLogger.getLogger("ext.RemoteTransmitter");
 
+  /**
+   * The AsyncChannelManager will be send data.
+   */
   private final AsyncChannelManager channelManager;
 
+  /**
+   * RemoteTransmitter  constructor.
+   *
+   * @param channelManager
+   *          the AsyncChannelManager.
+   */
   public RemoteTransmitter(AsyncChannelManager channelManager) {
     this.channelManager = channelManager;
 
   }
 
+  /**
+   * sendChangesLogFile.
+   *
+   * @param destinationAddress
+   *          MemberAddress, the destination address
+   * @param file
+   *          File, the data file
+   * @param checkSum
+   *          byte[], the checksum for data file
+   * @throws IOException
+   *           will be generated IOException
+   */
   protected void sendChangesLogFile(MemberAddress destinationAddress, File file, byte[] checkSum) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + file.length());
@@ -109,6 +132,16 @@ public class RemoteTransmitter {
     }
   }
 
+  /**
+   * getPacketCount.
+   *
+   * @param contentLength
+   *          long, content length
+   * @param packetSize
+   *          long, the packet size
+   * @return long
+   *           how many packets needs for content
+   */
   private long getPacketCount(long contentLength, long packetSize) {
     long count = contentLength / packetSize;
     count += ((count * packetSize - contentLength) != 0) ? 1 : 0;

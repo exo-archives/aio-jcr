@@ -24,16 +24,13 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
 import org.exoplatform.services.jcr.ext.replication.async.IncomeDataContext;
-import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -82,6 +79,8 @@ public class RemoteReceiver implements AsyncPacketListener, AsyncStateListener {
    * 
    * @param tempDir
    *          the temporary folder
+   * @param latch
+   *          the synchronization latch
    */
   public RemoteReceiver(File tempDir, CountDownLatch latch) {
     this.tempDir = tempDir;
@@ -92,8 +91,7 @@ public class RemoteReceiver implements AsyncPacketListener, AsyncStateListener {
    * {@inheritDoc}
    */
   public void onError(MemberAddress sourceAddress) {
-    // TODO Auto-generated method stub
-
+    // do not use.
   }
 
   /**
@@ -101,7 +99,7 @@ public class RemoteReceiver implements AsyncPacketListener, AsyncStateListener {
    */
   public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
     switch (packet.getType()) {
-    case WorkspaceDataPacket.WORKSPACE_DATA_PACKET: {
+    case WorkspaceDataPacket.WORKSPACE_DATA_PACKET:
       try {
         WorkspaceDataPacket wdPacket = (WorkspaceDataPacket) packet;
         // get associated changes file
@@ -137,14 +135,15 @@ public class RemoteReceiver implements AsyncPacketListener, AsyncStateListener {
                                                                e);
         latch.countDown();
       }
-    }
       break;
 
-    case InitializationErrorPacket.INITIALIZATION_ERROR_PACKET: {
+    case InitializationErrorPacket.INITIALIZATION_ERROR_PACKET:
       InitializationErrorPacket ePacket = (InitializationErrorPacket) packet;
       exception = new RemoteWorkspaceInitializationException(ePacket.getErrorMessage());
       latch.countDown();
-    }
+      break;
+      
+    default:
       break;
     }
 

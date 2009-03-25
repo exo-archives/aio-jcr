@@ -34,7 +34,7 @@ public interface RemoteTransport {
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
-  public void init() throws RemoteWorkspaceInitializationException;
+  void init() throws RemoteWorkspaceInitializationException;
   
   /**
    * Will be closed the transport.
@@ -42,7 +42,7 @@ public interface RemoteTransport {
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
-  public void close() throws RemoteWorkspaceInitializationException;
+  void close() throws RemoteWorkspaceInitializationException;
   
   /**
    * sendWorkspaceData.
@@ -51,8 +51,10 @@ public interface RemoteTransport {
    *          the File with workspace data
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
+   * @throws NoMemberToSendException
+   *           will be generated the NoMemberToSendException
    */
-  public void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
+  void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
   
   
   /**
@@ -69,7 +71,7 @@ public interface RemoteTransport {
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
-  public File getWorkspaceData(String repositoryName, String workspaceName, String id) throws RemoteWorkspaceInitializationException;
+  File getWorkspaceData(String repositoryName, String workspaceName, String id) throws RemoteWorkspaceInitializationException;
   
   /**
    * sendError.
@@ -78,6 +80,8 @@ public interface RemoteTransport {
    *          the error message
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException 
+   * @throws NoMemberToSendException
+   *           will be generated the NoMemberToSendException
    */
-  public void sendError(String message) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
+  void sendError(String message) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
 }

@@ -40,6 +40,12 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
  * @version $Id: RemoteTransportImpl.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RemoteTransportImpl implements RemoteTransport {
+  
+  /**
+   * BUFFER_SIZE.
+   *   The constant for buffer size.
+   */
+  private static final int BUFFER_SIZE = 20 * 1024;
 
   /**
    * The channel manager.
@@ -167,7 +173,7 @@ public class RemoteTransportImpl implements RemoteTransport {
       
       try {
         if (channelManager.getOtherMembers().size() == 0)
-          throw new NoMemberToSendException("No member to sent, member list : " + channelManager.getOtherMembers().size() );
+          throw new NoMemberToSendException("No member to sent, member list : " + channelManager.getOtherMembers().size());
           
         remoteTransmitter.sendChangesLogFile(channelManager.getOtherMembers().get(0),
                                              workspaceData,
@@ -219,10 +225,9 @@ public class RemoteTransportImpl implements RemoteTransport {
     InputStream in = new FileInputStream(f);
 
     long length = f.length();
-    int bSize = 20 * 1024;
 
-    byte[] buff = new byte[bSize];
-    for (; length >= bSize; length -= bSize) {
+    byte[] buff = new byte[BUFFER_SIZE];
+    for (; length >= BUFFER_SIZE; length -= BUFFER_SIZE) {
       in.read(buff);
       digest.update(buff);
     }

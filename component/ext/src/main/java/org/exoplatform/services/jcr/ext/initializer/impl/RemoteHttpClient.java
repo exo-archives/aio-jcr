@@ -38,6 +38,12 @@ import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializatio
  * @version $Id: RemoteHTTPClient.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RemoteHttpClient {
+  
+  /**
+   * HTTP_OK.
+   *   The http response 200.
+   */
+  private static final int HTTP_OK = 200;
 
   /**
    * Url to remote data source.
@@ -103,7 +109,7 @@ public class RemoteHttpClient {
       
       AuthorizationInfo.removeAuthorization(url.getHost(), url.getPort(), "Basic", realmName);
       
-      if (resp.getStatusCode() != 200 )
+      if (resp.getStatusCode() != HTTP_OK)
         throw new RemoteWorkspaceInitializationException("Fail remote initializetion : " + result);
         
     } catch (ModuleException e) {

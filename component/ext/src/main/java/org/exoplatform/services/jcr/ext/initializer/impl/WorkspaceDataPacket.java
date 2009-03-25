@@ -64,8 +64,13 @@ public class WorkspaceDataPacket extends AbstractPacket {
    * @param type
    *          see AsyncPacketTypes
    * @param totalPacketsCount
+   *          the total pocket in file
+   * @param checksum
+   *          the checksum of file 
    * @param offset
+   *          the offset
    * @param buffer
+   *          the binary data
    */
   public WorkspaceDataPacket(int type, 
                              long totalPacketsCount, 
@@ -86,18 +91,42 @@ public class WorkspaceDataPacket extends AbstractPacket {
     super();
   }
   
+  /**
+   * getCRC.
+   *
+   * @return byte[]
+   *           return the checksum
+   */
   public byte[] getCRC() {
     return this.crc;
   }
 
+  /**
+   * getPacketsCount.
+   *
+   * @return long
+   *           return total packet count
+   */
   public long getPacketsCount() {
     return this.totalPacketsCount;
   }
 
+  /**
+   * getOffset.
+   *
+   * @return long
+   *           the offset
+   */
   public long getOffset() {
     return this.offset;
   }
 
+  /**
+   * getBuffer.
+   *
+   * @return byte[]
+   *           the binary data
+   */
   public byte[] getBuffer() {
     return this.buffer;
   }

@@ -98,7 +98,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
   /**
    * The apache logger.
    */
-  private static Log                              log = ExoLogger.getLogger("ext.RemoteWorkspaceInitializerService");
+  private static Log                              log = ExoLogger.getLogger("ext.RemoteWorkspaceInitializationService");
 
   /**
    * The repository service.
@@ -149,6 +149,8 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
    *          the BackupManager
    * @param sessionProviderService
    *          the ThreadLocalSessionProviderService
+   * @param params
+   *          the InitParams from configuration
    */
   public RemoteWorkspaceInitializationService(RepositoryService repoService,
                                               BackupManager backupManager,
@@ -193,9 +195,9 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
   /**
    * getWorkspaceData.
    * 
-   * @param repositoryName
+   * @param repository
    *          the repository name
-   * @param workspaceName
+   * @param workspace
    *          the workspace name
    * @return File with workspace data
    * @throws RemoteWorkspaceInitializationException
@@ -233,6 +235,8 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
    *          the repository name
    * @param workspaceName
    *          the workspace name
+   * @param id
+   *         the unique identifier for channel 
    * @return Response return the response
    */
   @GET
@@ -326,11 +330,36 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
     }
   }
 
+  /**
+   * The WorkspaceDataPublisher will be published the workspace data.
+   *
+   */
   class WorkspaceDataPublisher extends Thread {
+    
+    /**
+     * BACKUP_WAIT_INTERVAL.
+     *   the constants for backup wait interval. 
+     */
+    private static final int BACKUP_WAIT_INTERVAL = 50;
+    
+    /**
+     * The BackupChain for current backup.
+     */
     private BackupChain     backupChain;
 
+    /**
+     * The RemoteTransport will be send workspace data .
+     */
     private RemoteTransport transport;
 
+    /**
+     * WorkspaceDataPublisher  constructor.
+     *
+     * @param chain
+     *          the BackupChain for current backup
+     * @param transport
+     *          the RemoteTransport
+     */
     public WorkspaceDataPublisher(BackupChain chain, RemoteTransport transport) {
       this.backupChain = chain;
       this.transport = transport;
@@ -345,7 +374,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
           // wait till full backup will be stopped
           while (backupChain.getFullBackupState() != BackupJob.FINISHED) {
             Thread.yield();
-            Thread.sleep(50);
+            Thread.sleep(BACKUP_WAIT_INTERVAL);
           }
          
          // get path to file with full backup 

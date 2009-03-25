@@ -34,6 +34,14 @@ public class InitializationErrorPacket extends ErrorPacket {
    */
   public static final int INITIALIZATION_ERROR_PACKET      = 101;
   
+  /**
+   * InitializationErrorPacket  constructor.
+   *
+   * @param type
+   *         int, the packet type
+   * @param message
+   *          String, the error message
+   */
   public InitializationErrorPacket(int type, String message) {
     super(type, message, -1);
   }
