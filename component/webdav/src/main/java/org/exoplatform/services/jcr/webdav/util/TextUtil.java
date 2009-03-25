@@ -129,5 +129,9 @@ public class TextUtil {
     String[] curNames = path.split("/");
     return curNames[curNames.length - 1];
   }
+  
+  public static boolean isMediaFile(String mimeType){
+    return mimeType.contains("image");
+  }
 
 }

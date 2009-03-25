@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.Range;
+import org.exoplatform.services.jcr.webdav.WebDavConst.CacheConstants;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
@@ -123,11 +124,14 @@ public class GetCommand {
         }
 
         // no ranges request
+
         if (ranges.size() == 0) {
+
           return Response.ok()
                          .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
                          .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
                          .header(ExtHttpHeaders.LAST_MODIFIED, lastModifiedProperty.getValue())
+                         .header(ExtHttpHeaders.CACHE_CONTROL, generateCacheControl(contentType))
                          .entity(istream)
                          .type(contentType)
                          .build();
@@ -230,6 +234,15 @@ public class GetCommand {
       return true;
     }
     return false;
+  }
+
+  private String generateCacheControl(String contentType) {
+    if (contentType.contains("image")) {
+      return CacheConstants.IMAGE_CACHE;
+    } else if (contentType.contains("audio")) {
+      return CacheConstants.AUDIO_CACHE;
+    }
+    return CacheConstants.NO_CACHE;
   }
 
 }

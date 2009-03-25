@@ -36,64 +36,64 @@ public class WebDavConst {
   /**
    * HTTP-protocol version.
    */
-  public static final String HTTPVER = "HTTP/1.1";
+  public static final String HTTPVER                = "HTTP/1.1";
 
   /**
    * Some boundary const.
    */
-  public static final String BOUNDARY = "1234567890";
+  public static final String BOUNDARY               = "1234567890";
 
   /**
    * WebDav "MS-Author-Via" header value.
    */
-  public static final String DAV_MSAUTHORVIA = "DAV";
+  public static final String DAV_MSAUTHORVIA        = "DAV";
 
   /**
    * WebDav "DAV" namespace value.
    */
-  public static final String DAV_NAMESPACE = "DAV:";
+  public static final String DAV_NAMESPACE          = "DAV:";
 
   /**
    * WebDav "eXo" namespace value.
    */
-  public static final String EXO_NAMESPACE = "http://exoplatform.com/jcr";
+  public static final String EXO_NAMESPACE          = "http://exoplatform.com/jcr";
 
   /**
    * WebDav "DAV" prefix.
    */
-  public static final String DAV_PREFIX = "D:";
+  public static final String DAV_PREFIX             = "D:";
 
   /**
    * WebDav server version.
    */
-  public static final String DAV_SERVER = "eXo-Webdav Server /1.0";
+  public static final String DAV_SERVER             = "eXo-Webdav Server /1.0";
 
   /**
    * WebDav default header value.
    */
-  public static final String DAV_HEADER = "1, 2, ordered-collections";
+  public static final String DAV_HEADER             = "1, 2, ordered-collections";
 
   /**
    * DAV Searching And Locating request value.
    */
-  public static final String DASL_VALUE = "<DAV:basicsearch>"
-      + "<exo:sql xmlns:exo=\"http://exoplatform.com/jcr\"/>"
-      + "<exo:xpath xmlns:exo=\"http://exoplatform.com/jcr\"/>";
+  public static final String DASL_VALUE             = "<DAV:basicsearch>"
+                                                        + "<exo:sql xmlns:exo=\"http://exoplatform.com/jcr\"/>"
+                                                        + "<exo:xpath xmlns:exo=\"http://exoplatform.com/jcr\"/>";
 
   /**
    * WebDav version identifier.
    */
-  public static final String DAV_VERSIONIDENTIFIER = "VERSIONID";
+  public static final String DAV_VERSIONIDENTIFIER  = "VERSIONID";
 
   /**
    * WebDav version prefix.
    */
-  public static final String DAV_VERSIONPREFIX = "?" + DAV_VERSIONIDENTIFIER + "=";
+  public static final String DAV_VERSIONPREFIX      = "?" + DAV_VERSIONIDENTIFIER + "=";
 
   /**
    * WebDav default mime-type.
    */
-  public static final String DAV_DEFAULT_MIME_TYPE = "text/plain";
+  public static final String DAV_DEFAULT_MIME_TYPE  = "text/plain";
 
   /**
    * Webdav document properties.
@@ -107,7 +107,7 @@ public class WebDavConst {
      * href='http://tools.ietf.org/html/draft-ietf-webdav-acl-06'>WebDAV Access
      * Control Protocol</a> for more information.
      */
-    public static final String ACLPRINCIPALPROPS = "acl-principal-props";
+    public static final String ACLPRINCIPALPROPS   = "acl-principal-props";
 
     /**
      * Webdav document "acl-principal-prop-set" property. See <a
@@ -121,54 +121,54 @@ public class WebDavConst {
      * href='http://www.ietf.org/rfc/rfc3253.txt'>Versioning Extensions to
      * WebDAV</a> for more information.
      */
-    public static final String EXPANDPROPERTY = "";
+    public static final String EXPANDPROPERTY      = "";
 
     /**
      * Webdav document "lockinfo" property.
      */
-    public static final String LOCKINFO = "lockinfo";
-    
+    public static final String LOCKINFO            = "lockinfo";
+
     /**
      * Webdav document "property behavior" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String PROPERTYBEHAVIOR = "";
+    public static final String PROPERTYBEHAVIOR    = "";
 
     /**
      * Webdav document "propertyupdate" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String PROPERTYUPDATE = "propertyupdate";
+    public static final String PROPERTYUPDATE      = "propertyupdate";
 
     /**
      * Webdav document "propfind" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String PROPFIND = "propfind";
+    public static final String PROPFIND            = "propfind";
 
     /**
      * Webdav document "version-tree" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String VERSIONTREE = "version-tree";
+    public static final String VERSIONTREE         = "version-tree";
 
     /**
      * Webdav document "orderpatch" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String ORDERPATCH = "orderpatch";
+    public static final String ORDERPATCH          = "orderpatch";
 
     /**
      * Webdav document "searchrequest" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String SEARCHREQUEST = "searchrequest";
+    public static final String SEARCHREQUEST       = "searchrequest";
   }
 
   /**
@@ -183,21 +183,21 @@ public class WebDavConst {
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String DEPTH = "depth";
+    public static final String DEPTH              = "depth";
 
     /**
      * Webdav "multistatus" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String MULTISTATUS = "multistatus";
+    public static final String MULTISTATUS        = "multistatus";
 
     /**
      * Webdav "propfind" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
      * Distributed Authoring </a> for more information.
      */
-    public static final String PROPFIND = "propfind";
+    public static final String PROPFIND           = "propfind";
 
     /**
      * Webdav "supported-method-set" property. See <a
@@ -205,7 +205,7 @@ public class WebDavConst {
      * Distributed Authoring </a> for more information.
      */
     public static final String SUPPORDEDMETHODSET = "supported-method-set";
-    
+
   }
 
   /**
@@ -223,7 +223,31 @@ public class WebDavConst {
     /**
      * Webdav "resource" resource type.
      */
-    public static final String RESOURCE = "resource";
+    public static final String RESOURCE   = "resource";
+
+  }
+
+  /**
+   * Webdav Cache constants.
+   * 
+   * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
+   */
+  public class CacheConstants {
+
+    /**
+     * Default Cache-Control header value.
+     */
+    public static final String NO_CACHE    = "no-cache";
+
+    /**
+     * Cache-Control value for images.
+     */
+    public static final String IMAGE_CACHE = "max-age=3600, must-revalidate";
+
+    /**
+     * Cache-Control value for audio-files.
+     */
+    public static final String AUDIO_CACHE = "max-age=118000, must-revalidate";
 
   }
 
@@ -237,18 +261,18 @@ public class WebDavConst {
     /**
      * Webdav "shared" lock type.
      */
-    public static final String SCOPE_SHARED = "shared";
+    public static final String SCOPE_SHARED      = "shared";
 
     /**
      * Webdav "exclusive" lock type.
      */
-    public static final String SCOPE_EXCLUSIVE = "exclusive";
+    public static final String SCOPE_EXCLUSIVE   = "exclusive";
 
     /**
      * Webdav "write" lock type.
      */
-    public static final String TYPE_WRITE = "write";
-    
+    public static final String TYPE_WRITE        = "write";
+
     public static final String OPAQUE_LOCK_TOKEN = "opaquelocktoken";
   }
 
@@ -263,56 +287,56 @@ public class WebDavConst {
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String JCR_CONTENT = "jcr:content";
+    public static final String JCR_CONTENT      = "jcr:content";
 
     /**
      * JCR "jcr:data" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String JCR_DATA = "jcr:data";
+    public static final String JCR_DATA         = "jcr:data";
 
     /**
      * JCR "jcr:frozenNode" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String JCR_FROZENNODE = "jcr:frozenNode";
+    public static final String JCR_FROZENNODE   = "jcr:frozenNode";
 
     /**
      * JCR "jcr:lockOwner" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String JCR_LOCKOWNER = "jcr:lockOwner";
+    public static final String JCR_LOCKOWNER    = "jcr:lockOwner";
 
     /**
      * JCR "nt:version" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String NT_VERSION = "nt:version";
+    public static final String NT_VERSION       = "nt:version";
 
     /**
      * JCR "jcr:created" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String JCR_CREATED = "jcr:created";
+    public static final String JCR_CREATED      = "jcr:created";
 
     /**
      * JCR "nt:file" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String NT_FILE = "nt:file";
+    public static final String NT_FILE          = "nt:file";
 
     /**
      * JCR "jcr:rootVersion" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String JCR_ROOTVERSION = "jcr:rootVersion";
+    public static final String JCR_ROOTVERSION  = "jcr:rootVersion";
 
     /**
      * JCR "jcr:lastModified" NodeType. See <a
@@ -326,35 +350,35 @@ public class WebDavConst {
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String JCR_MIMETYPE = "jcr:mimeType";
+    public static final String JCR_MIMETYPE     = "jcr:mimeType";
 
     /**
      * JCR "nt:resource" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String NT_RESOURCE = "nt:resource";
+    public static final String NT_RESOURCE      = "nt:resource";
 
     /**
      * JCR "mix:lockable" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String MIX_LOCKABLE = "mix:lockable";
+    public static final String MIX_LOCKABLE     = "mix:lockable";
 
     /**
      * JCR "mix:versionable" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String MIX_VERSIONABLE = "mix:versionable";
+    public static final String MIX_VERSIONABLE  = "mix:versionable";
 
     /**
      * JCR "nt:folder" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
-    public static final String NT_FOLDER = "nt:folder";
+    public static final String NT_FOLDER        = "nt:folder";
   }
 
   /**
@@ -367,7 +391,7 @@ public class WebDavConst {
     /**
      * Creation date pattern.
      */
-    public static final String CREATION = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static final String CREATION     = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     /**
      * Last modification date psttern.
@@ -375,14 +399,14 @@ public class WebDavConst {
     public static final String MODIFICATION = "EEE, dd MMM yyyy HH:mm:ss z";
   }
 
-  
   /**
    * Contains HTTP/1.1 status description.
    */
   private static Hashtable<Integer, String> statusDescriptions = new Hashtable<Integer, String>();
-  
+
   /**
    * Registers Status code and it's description.
+   * 
    * @param status Status code
    * @param descr Description
    */
@@ -433,9 +457,10 @@ public class WebDavConst {
     registerDescr(HTTPStatus.GATEWAY_TIMEOUT, "Gateway Timeout");
     registerDescr(HTTPStatus.HTTP_VERSION_NOT_SUPPORTED, "HTTP Version Not Supported");
   }
-  
+
   /**
    * Returns status description by it's code.
+   * 
    * @param status Status code
    * @return Status Description
    */
