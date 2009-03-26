@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -1579,5 +1580,25 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
       // e.printStackTrace();
       // ok
     }
+  }
+
+  /**
+   * Test http://jira.exoplatform.org/browse/JCR-859
+   * 
+   * @throws Exception
+   */
+  public void testJCR859() throws Exception {
+
+    InputStream xml = this.getClass()
+                          .getResourceAsStream("/org/exoplatform/services/jcr/impl/core/nodetype/test-jcr589.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node tr = root.addNode("testRoot");
+    Node l1 = tr.addNode("t", "myNodeTypes");
+    l1.addNode("l2", "myNodeType");
+    l1.addNode("l3", "myNodeTypes");
+    session.save();
   }
 }
