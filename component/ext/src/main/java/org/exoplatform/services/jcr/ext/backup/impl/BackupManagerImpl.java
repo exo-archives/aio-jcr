@@ -70,6 +70,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistent
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
 import org.w3c.dom.Document;
@@ -346,7 +347,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
                                              logsDirectory,
                                              repoService.getRepository(config.getRepository()),
                                              fullBackupType,
-                                             incrementalBackupType);
+                                             incrementalBackupType,
+                                             IdGenerator.generate());
 
     bchain.addListener(messagesListener);
     bchain.addListener(jobListener);

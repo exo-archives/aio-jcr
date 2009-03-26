@@ -57,6 +57,8 @@ public class BackupChainImpl implements BackupChain {
   private AbstractIncrementalBackupJob incrementalBackup;
 
   private final BackupChainLog         chainLog;
+  
+  private final String                 backupId;
 
   private int                          state;
 
@@ -72,12 +74,14 @@ public class BackupChainImpl implements BackupChain {
                          File logDirectory,
                          ManageableRepository repository,
                          String fullBackupType,
-                         String incrementalBackupType) throws BackupOperationException,
+                         String incrementalBackupType,
+                         String backupId) throws BackupOperationException,
       BackupConfigurationException {
     this.config = config;
     this.jobs = new ArrayList<BackupJob>();
-    this.chainLog = new BackupChainLog(logDirectory, config, fullBackupType, incrementalBackupType);
+    this.chainLog = new BackupChainLog(logDirectory, config, fullBackupType, incrementalBackupType, backupId);
     this.timeStamp = Calendar.getInstance();
+    this.backupId = backupId;
 
     try {
       this.fullBackup = (AbstractFullBackupJob) Class.forName(fullBackupType).newInstance();
@@ -265,5 +269,9 @@ public class BackupChainImpl implements BackupChain {
 
   public boolean isFinished() {
     return ((state & BackupChain.FINISHED) == BackupChain.FINISHED ? true : false);
+  }
+
+  public String getBackupId() {
+    return backupId;
   }
 }

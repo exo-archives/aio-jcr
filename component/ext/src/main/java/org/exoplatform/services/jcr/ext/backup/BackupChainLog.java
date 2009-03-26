@@ -69,9 +69,11 @@ public class BackupChainLog {
   public BackupChainLog(File logDir,
                         BackupConfig config,
                         String fullBackupType,
-                        String incrementalBackupType) throws BackupOperationException {
+                        String incrementalBackupType,
+                        String backupId) throws BackupOperationException {
     try {
-      this.log = File.createTempFile(PREFIX, SUFFIX, logDir);
+      this.log = new File(logDir.getCanonicalPath() + File.separator + (PREFIX + backupId + SUFFIX));
+      this.log.createNewFile();
       this.config = config;
       this.jobEntries = new ArrayList<JobEntryInfo>();
 

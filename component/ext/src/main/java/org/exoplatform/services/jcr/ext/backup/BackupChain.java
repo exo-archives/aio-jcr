@@ -62,5 +62,7 @@ public interface BackupChain {
    * @param listener
    */
   void removeListener(BackupJobListener listener);
+  
+  String getBackupId();
 
 }
