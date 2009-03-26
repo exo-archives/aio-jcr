@@ -139,7 +139,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     assertTrue(checkIn);
   }
 
-  public void testSkipVH() throws Exception {
+  public void testSkipVH1() throws Exception {
     Node node = root.addNode("item1");
     // node.addMixin("mix:lockable");
     node.addMixin("mix:versionable");
@@ -148,6 +148,22 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     node.checkin();
     session.save();
+
+    root4.addNode("item1");
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    assertEquals(res4.size(), 0);
+  }
+
+  public void testSkipVH2() throws Exception {
+    Node node = root.addNode("item1");
+    node.addMixin("mix:versionable");
+    node.remove();
+    session.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
 
     root4.addNode("item1");
     session4.save();

@@ -28,6 +28,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PropertyIterator;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
@@ -956,6 +957,333 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     public void useCaseLowPriority() throws Exception {
       sessionLowPriority.getRootNode().getNode("item1").remove();
       sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseReferenceSupport1 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseReferenceSupport1(SessionImpl sessionLowPriority,
+                                           SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node1 = sessionHighPriority.getRootNode().addNode("item1");
+      node1.addMixin("mix:referenceable");
+      Node node2 = sessionHighPriority.getRootNode().addNode("item2");
+      node2.addMixin("mix:referenceable");
+      node2.setProperty("propR", node1.getUUID(), PropertyType.REFERENCE);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.move("/item1", "/item3");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.move("/item1", "/item4");
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseReferenceSupport2 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseReferenceSupport2(SessionImpl sessionLowPriority,
+                                           SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node1 = sessionHighPriority.getRootNode().addNode("item1");
+      node1.addMixin("mix:referenceable");
+      Node node2 = sessionHighPriority.getRootNode().addNode("item2");
+      node2.addMixin("mix:referenceable");
+      node2.setProperty("propR", node1.getUUID(), PropertyType.REFERENCE);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item2").remove();
+      sessionHighPriority.getRootNode().getNode("item1").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item2").remove();
+      sessionLowPriority.getRootNode().getNode("item1").remove();
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseReferenceSupport3 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseReferenceSupport3(SessionImpl sessionLowPriority,
+                                           SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node1 = sessionHighPriority.getRootNode().addNode("item1");
+      node1.addMixin("mix:referenceable");
+      Node node2 = sessionHighPriority.getRootNode().addNode("item2");
+      node2.addMixin("mix:referenceable");
+      node2.setProperty("propR", node1.getUUID(), PropertyType.REFERENCE);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node3 = sessionHighPriority.getRootNode().addNode("item3");
+      node3.addMixin("mix:referenceable");
+      sessionHighPriority.getRootNode().getNode("item2").setProperty("propR",
+                                                                     node3.getUUID(),
+                                                                     PropertyType.REFERENCE);
+      sessionHighPriority.save();
+      sessionHighPriority.getRootNode().getNode("item1").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item2").remove();
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseReferenceSupport4 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseReferenceSupport4(SessionImpl sessionLowPriority,
+                                           SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node1 = sessionHighPriority.getRootNode().addNode("item1");
+      node1.addMixin("mix:referenceable");
+      Node node2 = sessionHighPriority.getRootNode().addNode("item2");
+      node2.addMixin("mix:referenceable");
+      node2.setProperty("propR", node1.getUUID(), PropertyType.REFERENCE);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node4 = sessionHighPriority.getRootNode().addNode("item4");
+      node4.addMixin("mix:referenceable");
+      sessionHighPriority.getRootNode().getNode("item2").setProperty("propR",
+                                                                     node4.getUUID(),
+                                                                     PropertyType.REFERENCE);
+      sessionHighPriority.save();
+      sessionHighPriority.getRootNode().getNode("item1").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node3 = sessionLowPriority.getRootNode().addNode("item3");
+      node3.addMixin("mix:referenceable");
+      sessionLowPriority.getRootNode().getNode("item2").setProperty("propR",
+                                                                    node3.getUUID(),
+                                                                    PropertyType.REFERENCE);
+      sessionLowPriority.save();
+      sessionLowPriority.getRootNode().getNode("item1").remove();
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseReferenceSupport51 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseReferenceSupport51(SessionImpl sessionLowPriority,
+                                            SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node1 = sessionHighPriority.getRootNode().addNode("item1");
+      node1.addMixin("mix:referenceable");
+      Node node2 = sessionHighPriority.getRootNode().addNode("item2");
+      node2.addMixin("mix:referenceable");
+      node2.setProperty("propR", node1.getUUID(), PropertyType.REFERENCE);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item2").getProperty("propR").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node3 = sessionLowPriority.getRootNode().addNode("item3");
+      node3.addMixin("mix:referenceable");
+      sessionLowPriority.getRootNode().getNode("item2").setProperty("propR",
+                                                                    node3.getUUID(),
+                                                                    PropertyType.REFERENCE);
+      sessionLowPriority.save();
+      sessionLowPriority.getRootNode().getNode("item1").remove();
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseReferenceSupport52 extends BaseTwoMembersMergeVersionSupportUseCase {
+    public ComplexUseCaseReferenceSupport52(SessionImpl sessionLowPriority,
+                                            SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node1 = sessionHighPriority.getRootNode().addNode("item1");
+      node1.addMixin("mix:referenceable");
+      Node node2 = sessionHighPriority.getRootNode().addNode("item2");
+      node2.addMixin("mix:referenceable");
+      node2.setProperty("propR", node1.getUUID(), PropertyType.REFERENCE);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node3 = sessionHighPriority.getRootNode().addNode("item3");
+      node3.addMixin("mix:referenceable");
+      sessionHighPriority.getRootNode().getNode("item2").setProperty("propR",
+                                                                     node3.getUUID(),
+                                                                     PropertyType.REFERENCE);
+      sessionHighPriority.save();
+      sessionHighPriority.getRootNode().getNode("item1").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item2").getProperty("propR").remove();
+      sessionLowPriority.save();
+    }
+  }
+
+  public class ComplexUseCaseMergeSupport1 extends BaseTwoMembersMergeVersionSupportUseCase {
+    private SessionImpl sessionDB4WS;
+
+    private SessionImpl sessionDB5WS;
+
+    public ComplexUseCaseMergeSupport1(SessionImpl sessionLowPriority,
+                                       SessionImpl sessionHighPriority) throws LoginException,
+        NoSuchWorkspaceException,
+        RepositoryException,
+        RepositoryConfigurationException {
+      super(sessionLowPriority, sessionHighPriority);
+      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionDB5WS.getRootNode().addNode("item1");
+      node.setProperty("prop", "value");
+      node.addMixin("mix:versionable");
+      sessionDB5WS.save();
+      node.checkin();
+      node.checkout();
+
+      sessionHighPriority.getWorkspace().clone("ws", "/item1", "item2", false);
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void prepareDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
     }
   }
 

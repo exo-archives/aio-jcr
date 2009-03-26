@@ -307,7 +307,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
     super.tearDown();
   }
 
-  public void testComplexUseCaseVersionSuport11() throws Exception {
+  public void _testComplexUseCaseVersionSuport11() throws Exception {
     ComplexUseCaseVersionSuport11 useCase = new ComplexUseCaseVersionSuport11(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -332,7 +332,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("valueH"));
   }
 
-  public void testComplexUseCaseVersionSuport12() throws Exception {
+  public void _testComplexUseCaseVersionSuport12() throws Exception {
     ComplexUseCaseVersionSuport12 useCase = new ComplexUseCaseVersionSuport12(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -357,7 +357,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("valueH"));
   }
 
-  public void testComplexUseCaseVersionSuport21() throws Exception {
+  public void _testComplexUseCaseVersionSuport21() throws Exception {
     ComplexUseCaseVersionSuport21 useCase = new ComplexUseCaseVersionSuport21(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -383,7 +383,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void testComplexUseCaseVersionSuport22() throws Exception {
+  public void _testComplexUseCaseVersionSuport22() throws Exception {
     ComplexUseCaseVersionSuport22 useCase = new ComplexUseCaseVersionSuport22(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -409,7 +409,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void testComplexUseCaseVersionSuport31() throws Exception {
+  public void _testComplexUseCaseVersionSuport31() throws Exception {
     ComplexUseCaseVersionSuport31 useCase = new ComplexUseCaseVersionSuport31(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -432,7 +432,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void testComplexUseCaseVersionSuport32() throws Exception {
+  public void _testComplexUseCaseVersionSuport32() throws Exception {
     ComplexUseCaseVersionSuport32 useCase = new ComplexUseCaseVersionSuport32(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -462,7 +462,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("valueL"));
   }
 
-  public void testComplexUseCaseVersionSuport41() throws Exception {
+  public void _testComplexUseCaseVersionSuport41() throws Exception {
     ComplexUseCaseVersionSuport41 useCase = new ComplexUseCaseVersionSuport41(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -485,7 +485,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void testComplexUseCaseVersionSuport42() throws Exception {
+  public void _testComplexUseCaseVersionSuport42() throws Exception {
     ComplexUseCaseVersionSuport42 useCase = new ComplexUseCaseVersionSuport42(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -508,7 +508,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void testComplexUseCaseVersionSuport51() throws Exception {
+  public void _testComplexUseCaseVersionSuport51() throws Exception {
     ComplexUseCaseVersionSuport51 useCase = new ComplexUseCaseVersionSuport51(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -534,7 +534,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void testComplexUseCaseCloneSupport11() throws Exception {
+  public void _testComplexUseCaseCloneSupport11() throws Exception {
     ComplexUseCaseCloneSupport11 useCase = new ComplexUseCaseCloneSupport11(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -557,7 +557,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("valueH"));
   }
 
-  public void testComplexUseCaseCloneSupport12() throws Exception {
+  public void _testComplexUseCaseCloneSupport12() throws Exception {
     ComplexUseCaseCloneSupport12 useCase = new ComplexUseCaseCloneSupport12(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -580,7 +580,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value"));
   }
 
-  public void testComplexUseCaseCloneSupport21() throws Exception {
+  public void _testComplexUseCaseCloneSupport21() throws Exception {
     ComplexUseCaseCloneSupport21 useCase = new ComplexUseCaseCloneSupport21(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -603,7 +603,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("valueH"));
   }
 
-  public void testComplexUseCaseCloneSupport22() throws Exception {
+  public void _testComplexUseCaseCloneSupport22() throws Exception {
     ComplexUseCaseCloneSupport22 useCase = new ComplexUseCaseCloneSupport22(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -626,7 +626,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("valueH"));
   }
 
-  public void testComplexUseCaseCloneSupport31() throws Exception {
+  public void _testComplexUseCaseCloneSupport31() throws Exception {
     ComplexUseCaseCloneSupport31 useCase = new ComplexUseCaseCloneSupport31(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -651,7 +651,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
     }
   }
 
-  public void testComplexUseCaseCloneSupport32() throws Exception {
+  public void _testComplexUseCaseCloneSupport32() throws Exception {
     ComplexUseCaseCloneSupport32 useCase = new ComplexUseCaseCloneSupport32(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -676,7 +676,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
     }
   }
 
-  public void testComplexUseCaseCloneSupport41() throws Exception {
+  public void _testComplexUseCaseCloneSupport41() throws Exception {
     ComplexUseCaseCloneSupport41 useCase = new ComplexUseCaseCloneSupport41(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -699,7 +699,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
     }
   }
 
-  public void testComplexUseCaseCloneSupport42() throws Exception {
+  public void _testComplexUseCaseCloneSupport42() throws Exception {
     ComplexUseCaseCloneSupport42 useCase = new ComplexUseCaseCloneSupport42(sessionLowPriority,
                                                                             sessionHigePriority);
 
@@ -714,4 +714,94 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
     assertNotNull(sessionLowPriority.getRootNode().getNode("item1"));
   }
 
+  public void _testComplexUseCaseReferenceSupport1() throws Exception {
+    ComplexUseCaseReferenceSupport1 useCase = new ComplexUseCaseReferenceSupport1(sessionLowPriority,
+                                                                                  sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+  }
+
+  public void _testComplexUseCaseReferenceSupport2() throws Exception {
+    ComplexUseCaseReferenceSupport2 useCase = new ComplexUseCaseReferenceSupport2(sessionLowPriority,
+                                                                                  sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+  }
+
+  public void _testComplexUseCaseReferenceSupport3() throws Exception {
+    ComplexUseCaseReferenceSupport3 useCase = new ComplexUseCaseReferenceSupport3(sessionLowPriority,
+                                                                                  sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+  }
+
+  public void _testComplexUseCaseReferenceSupport4() throws Exception {
+    ComplexUseCaseReferenceSupport4 useCase = new ComplexUseCaseReferenceSupport4(sessionLowPriority,
+                                                                                  sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+  }
+
+  public void _testComplexUseCaseReferenceSupport51() throws Exception {
+    ComplexUseCaseReferenceSupport51 useCase = new ComplexUseCaseReferenceSupport51(sessionLowPriority,
+                                                                                    sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+  }
+
+  public void _testComplexUseCaseReferenceSupport52() throws Exception {
+    ComplexUseCaseReferenceSupport52 useCase = new ComplexUseCaseReferenceSupport52(sessionLowPriority,
+                                                                                    sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+  }
+
+  public void testComplexUseCaseMergeSupport1() throws Exception {
+    ComplexUseCaseMergeSupport1 useCase = new ComplexUseCaseMergeSupport1(sessionLowPriority,
+                                                                          sessionHigePriority);
+
+    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    asyncUseCase.initData();
+    assertTrue(asyncUseCase.checkEquals());
+
+    asyncUseCase.useCase();
+    assertTrue(asyncUseCase.checkEquals());
+  }
 }
