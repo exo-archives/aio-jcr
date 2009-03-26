@@ -22,9 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.ws.frameworks.json.value.impl.ArrayValue;
+import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.ChannelException;
 import org.jgroups.ChannelListener;
@@ -248,7 +251,10 @@ public class ChannelManager implements RequestHandler {
     byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    dispatcher.castMessage(null, msg, GroupRequest.GET_NONE, 0);
+    
+    Vector<Address> addr = new Vector<Address>(channel.getView().getMembers());
+    addr.remove(channel.getLocalAddress());
+    dispatcher.castMessage(addr, msg, GroupRequest.GET_NONE, 0);
   }
 
   /**
