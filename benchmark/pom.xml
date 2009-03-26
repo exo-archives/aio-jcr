@@ -144,6 +144,46 @@
           <finalName>exo.jcr.benchmark</finalName>
         </configuration>
       </plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.3</version>
+				<configuration>
+					<tasks>
+ <!-- read file -->  
+ <loadfile property="file.text" srcFile="${my.file}" >  
+   <filterchain>  
+     <striplinebreaks />  
+   </filterchain>  
+ </loadfile>
+
+						<!--renaming ear-->
+						<!-- move
+							todir="${basedir}/target/lib-binary.dir/">
+							<fileset
+								dir="${basedir}/target/lib-binary.dir/">
+								<include name="**/*.ear" />
+							</fileset>
+							<mapper>
+								<chainedmapper>
+									<flattenmapper />
+									<globmapper
+										from="*-${project.version}.ear" to="*.ear"
+										casesensitive="no" />
+								</chainedmapper>
+							</mapper>
+						</move -->
+						<!--copying the ear-->
+						<!-- copy
+							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/target/lib-binary.dir/"
+								includes="**/*.ear" />
+						</copy -->
+					</tasks>
+				</configuration>
+			</plugin>
     </plugins>
   </build>
 </project>
