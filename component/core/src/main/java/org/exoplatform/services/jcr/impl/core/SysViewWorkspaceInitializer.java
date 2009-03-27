@@ -41,6 +41,7 @@ import javax.xml.stream.events.StartElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.ws.commons.util.Base64;
+
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -50,6 +51,7 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -364,7 +366,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
           + ") RestoreIntializer should have mandatory parameter "
           + SysViewWorkspaceInitializer.RESTORE_PATH_PARAMETER);
   }
-  
+
   /**
    * Initializer constructor.
    * 
@@ -406,7 +408,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
     this.maxBufferSize = config.getContainer()
                                .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
                                                     WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
-    this.restorePath = restorePath; 
+    this.restorePath = restorePath;
   }
 
   public NodeData initWorkspace() throws RepositoryException {
@@ -420,7 +422,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
 
       PlainChangesLog changes = read();
 
-      dataManager.save(changes);
+      dataManager.save(new TransactionChangesLog(changes));
 
       final NodeData root = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
 
