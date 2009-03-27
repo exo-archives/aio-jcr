@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
@@ -66,6 +67,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
 
   protected final DataManager         dataManager;
 
+  protected final DataManager         systemDataManager;
+
   protected final NodeTypeDataManager ntManager;
 
   protected final Set<ExportWorker>   workers     = new LinkedHashSet<ExportWorker>();
@@ -91,7 +94,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
     public void run() {
       try {
         LOG.info("Remote EXPORT request from member " + member + ", node " + nodeId);
-        
+
         ChangesFile chl = getExportChanges(nodeId);
         transmitter.sendExport(chl, member);
 
@@ -113,7 +116,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
         } catch (IOException ioe) {
           LOG.error("IO error on send error message " + e, e);
         }
-      } catch(Throwable e){
+      } catch (Throwable e) {
         LOG.error("Exception on remote export request " + e, e);
         try {
           transmitter.sendError("error " + e, member);
@@ -121,7 +124,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
           LOG.error("IO error on send error message " + e, e);
         }
       }
-      
+
       finally {
         workers.remove(this);
       }
@@ -130,9 +133,11 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
 
   public RemoteExportServerImpl(AsyncTransmitter transmitter,
                                 DataManager dataManager,
+                                DataManager systemDataManager,
                                 NodeTypeDataManager ntManager) {
     this.transmitter = transmitter;
     this.dataManager = dataManager;
+    this.systemDataManager = systemDataManager;
     this.ntManager = ntManager;
   }
 
@@ -176,9 +181,10 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
       ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
                                                                  parentNode,
                                                                  ntManager,
-                                                                 dataManager);
+                                                                 dataManager,
+                                                                 systemDataManager);
       exportedNode.accept(exporter);
-      
+
       out.flush();
 
       byte[] crc = digest.digest();
@@ -216,7 +222,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   public void onCancel() {
     if (LOG.isDebugEnabled())
       LOG.debug("On CANCEL");
-    
+
     for (ExportWorker worker : workers) {
       try {
         worker.join();
@@ -246,7 +252,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
 
     if (LOG.isDebugEnabled())
       LOG.debug("On STOP");
-      
+
     try {
       this.resHolder.close();
     } catch (IOException e) {

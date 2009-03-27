@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageI
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
@@ -80,6 +81,9 @@ public class AsyncReplicationTester extends AsyncReplication {
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
     WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
 
+    WorkspaceContainerFacade sysWsc = repository.getWorkspaceContainer(((RepositoryImpl) repository).getSystemWorkspaceName());
+    PersistentDataManager sysDm = (PersistentDataManager) sysWsc.getComponent(PersistentDataManager.class);
+
     StorageKey skey = new StorageKey(repoName, workspaceName);
     LocalStorage localStorage = localStorages.get(skey);
     IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey));
@@ -87,7 +91,8 @@ public class AsyncReplicationTester extends AsyncReplication {
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
 
-    AsyncWorker synchWorker = new AsyncWorker(dm, dm, // TODO system DM
+    AsyncWorker synchWorker = new AsyncWorker(dm,
+                                              sysDm,
                                               ntm,
                                               dc,
                                               (LocalStorageImpl) localStorage,

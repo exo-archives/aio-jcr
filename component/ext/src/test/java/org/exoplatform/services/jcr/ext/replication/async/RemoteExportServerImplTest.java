@@ -21,7 +21,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.jgroups.stack.IpAddress;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -33,7 +36,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -102,7 +104,7 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
 
     public void sendChanges(ChangesFile changes, List<MemberAddress> subscribers, int totalFiles) throws IOException {
       // TODO Auto-generated method stub
-      
+
     }
 
   }
@@ -122,7 +124,7 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
 
     transmitter = new AsyncTransmitterTester();
 
-    exportServer = new RemoteExportServerImpl(transmitter, dm, ntm);
+    exportServer = new RemoteExportServerImpl(transmitter, dm, dm, ntm);
 
     testRoot = (NodeImpl) session.getRootNode().addNode("RemoteExportServerImplTest");
     session.save();

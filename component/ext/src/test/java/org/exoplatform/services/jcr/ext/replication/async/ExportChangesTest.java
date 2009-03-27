@@ -19,6 +19,8 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jgroups.stack.IpAddress;
+
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -30,7 +32,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
-import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -107,7 +108,7 @@ public class ExportChangesTest extends BaseStandaloneTest {
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     DataManager dm = (DataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
 
-    RemoteExportServer exportServer = new RemoteExportServerImpl(transmitter, dm, ntm);
+    RemoteExportServer exportServer = new RemoteExportServerImpl(transmitter, dm, dm, ntm);
 
     AsyncReceiver receiver = new AsyncReceiverImpl(channel, exportServer, otherPartisipantsPriority);
 

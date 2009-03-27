@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 
+import javax.jcr.InvalidItemStateException;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
@@ -36,11 +37,17 @@ import javax.jcr.ValueFactory;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -51,11 +58,37 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AbstractMergeUseCases.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
+public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implements
+    ItemsPersistenceListener {
 
-  private static final Log  log       = ExoLogger.getLogger("ext.AbstractMergeUseCases");
+  private static final Log      log       = ExoLogger.getLogger("ext.AbstractMergeUseCases");
 
-  protected ResourcesHolder resHolder = new ResourcesHolder();
+  protected ResourcesHolder     resHolder = new ResourcesHolder();
+
+  private SessionImpl           sessionDB4WS;
+
+  private SessionImpl           sessionDB5WS;
+
+  private TransactionChangesLog cLog;
+
+  public void setUp() throws Exception {
+    super.setUp();
+
+    sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
+    sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+
+    WorkspaceContainerFacade wsc = repositoryService.getRepository("db4")
+                                                    .getWorkspaceContainer(sessionDB4WS.getWorkspace()
+                                                                                       .getName());
+    CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.addItemPersistenceListener(this);
+
+    wsc = repositoryService.getRepository("db5").getWorkspaceContainer(sessionDB5WS.getWorkspace()
+                                                                                   .getName());
+    dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.addItemPersistenceListener(this);
+
+  }
 
   protected class TesterRandomChangesFile
                                          extends
@@ -404,7 +437,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseHighPriority() throws Exception {
-      sessionHighPriority.getRootNode().getNode("item1").setProperty("prop", "valueL");
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("prop", "valueH");
       sessionHighPriority.save();
     }
 
@@ -554,10 +587,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport11 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
-
     public ComplexUseCaseCloneSupport11(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
         NoSuchWorkspaceException,
@@ -565,8 +594,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -605,9 +632,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport12 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
 
     public ComplexUseCaseCloneSupport12(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
@@ -616,8 +640,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -657,9 +679,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport21 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
 
     public ComplexUseCaseCloneSupport21(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
@@ -668,8 +687,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -707,9 +724,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport22 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
 
     public ComplexUseCaseCloneSupport22(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
@@ -718,8 +732,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -757,9 +769,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport31 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
 
     public ComplexUseCaseCloneSupport31(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
@@ -768,8 +777,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -808,9 +815,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport32 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
 
     public ComplexUseCaseCloneSupport32(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
@@ -819,8 +823,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -859,10 +861,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport41 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
-
     public ComplexUseCaseCloneSupport41(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
         NoSuchWorkspaceException,
@@ -870,8 +868,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -910,10 +906,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseCloneSupport42 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
-
     public ComplexUseCaseCloneSupport42(SessionImpl sessionLowPriority,
                                         SessionImpl sessionHighPriority) throws LoginException,
         NoSuchWorkspaceException,
@@ -921,8 +913,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryConfigurationException {
 
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -1239,9 +1229,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   public class ComplexUseCaseMergeSupport1 extends BaseTwoMembersMergeVersionSupportUseCase {
-    private SessionImpl sessionDB4WS;
-
-    private SessionImpl sessionDB5WS;
 
     public ComplexUseCaseMergeSupport1(SessionImpl sessionLowPriority,
                                        SessionImpl sessionHighPriority) throws LoginException,
@@ -1249,8 +1236,6 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
         RepositoryException,
         RepositoryConfigurationException {
       super(sessionLowPriority, sessionHighPriority);
-      sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
-      sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
     }
 
     @Override
@@ -1259,10 +1244,16 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
       node.setProperty("prop", "value");
       node.addMixin("mix:versionable");
       sessionDB5WS.save();
+
+      saveChanges(cLog, "db4", "ws");
+
       node.checkin();
       node.checkout();
+      sessionDB5WS.save();
 
-      sessionHighPriority.getWorkspace().clone("ws", "/item1", "item2", false);
+      saveChanges(cLog, "db4", "ws");
+
+      sessionHighPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
       sessionHighPriority.save();
     }
 
@@ -1280,10 +1271,26 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseHighPriority() throws Exception {
+      Node node = sessionDB5WS.getRootNode().getNode("item1");
+      node.checkin();
+      node.checkout();
+      sessionDB5WS.save();
+
+      node = sessionHighPriority.getRootNode().getNode("item1");
+      node.checkin();
+      node.checkout();
+      sessionHighPriority.save();
+
+      node.merge("ws", true);
+
+      sessionHighPriority.save();
     }
 
     @Override
     public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.remove();
+      sessionLowPriority.save();
     }
   }
 
@@ -3086,6 +3093,21 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
   }
 
   /**
+   * Save resulted changes into workspace
+   * 
+   * @param res
+   * @throws RepositoryException
+   * @throws UnsupportedOperationException
+   * @throws InvalidItemStateException
+   */
+  protected void saveChanges(TransactionChangesLog log, String repoName, String workspaceName) throws Exception {
+    WorkspaceContainerFacade wsc = repositoryService.getRepository(repoName)
+                                                    .getWorkspaceContainer(workspaceName);
+    DataManager dm = (DataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.save(log);
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -3095,4 +3117,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest {
     super.tearDown();
   }
 
+  public void onSaveItems(ItemStateChangesLog itemStates) {
+    cLog = (TransactionChangesLog) itemStates;
+  }
 }

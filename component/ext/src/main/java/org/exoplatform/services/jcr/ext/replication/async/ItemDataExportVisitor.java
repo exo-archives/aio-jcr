@@ -29,8 +29,6 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.datamodel.IllegalNameException;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -45,13 +43,16 @@ import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
 
 /**
  * This visitor takes node and extracts its ItemStates in next order:
- * <p> - nodes ItemState;
- * <p> - nodes version history ItemStates(if exists);
- * <p> - node properties ItemStares;
- * <p> - node sub-nodes ItemStates.
  * <p>
- * Created by The eXo Platform SAS Author : Karpenko Sergiy
- * karpenko.sergiy@gmail.com
+ * - nodes ItemState;
+ * <p>
+ * - nodes version history ItemStates(if exists);
+ * <p>
+ * - node properties ItemStares;
+ * <p>
+ * - node sub-nodes ItemStates.
+ * <p>
+ * Created by The eXo Platform SAS Author : Karpenko Sergiy karpenko.sergiy@gmail.com
  */
 public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
@@ -66,6 +67,11 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
   protected Stack<NodeData>     parents;
 
   /**
+   * System data manager.
+   */
+  protected ItemDataConsumer    systemDataManager;
+
+  /**
    * The NodeTypeManager.
    */
   protected NodeTypeDataManager ntManager;
@@ -73,13 +79,15 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
   public ItemDataExportVisitor(ObjectWriter out,
                                NodeData parent,
                                NodeTypeDataManager nodeTypeManager,
-                               ItemDataConsumer dataManager) {
+                               ItemDataConsumer dataManager,
+                               ItemDataConsumer systemDataManager) {
     super(dataManager);
 
     this.out = out;
     this.ntManager = nodeTypeManager;
     this.parents = new Stack<NodeData>();
     this.parents.add(parent);
+    this.systemDataManager = systemDataManager;
   }
 
   @Override
@@ -150,14 +158,18 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
         throw new RepositoryException(e);
       }
 
-      NodeData verStorage = (NodeData) dataManager.getItemData(Constants.VERSIONSTORAGE_UUID);
+      NodeData verStorage = (NodeData) systemDataManager.getItemData(Constants.VERSIONSTORAGE_UUID);
 
-      QPathEntry nam = new QPathEntry("",ref, 1);
+      QPathEntry nam = new QPathEntry("", ref, 1);
 
-      NodeData verHistory = (NodeData) dataManager.getItemData(verStorage, nam);
+      NodeData verHistory = (NodeData) systemDataManager.getItemData(verStorage, nam);
 
       // extract full version history
-      ItemDataExportVisitor vis = new ItemDataExportVisitor(out, verStorage, ntManager, dataManager);
+      ItemDataExportVisitor vis = new ItemDataExportVisitor(out,
+                                                            verStorage,
+                                                            ntManager,
+                                                            dataManager,
+                                                            systemDataManager);
 
       verHistory.accept(vis);
     }

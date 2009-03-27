@@ -33,6 +33,7 @@ import java.util.List;
 import javax.jcr.Node;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -197,6 +198,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
                                                                parentNode,
                                                                ((SessionImpl) session).getWorkspace()
                                                                                       .getNodeTypesHolder(),
+                                                               dm,
                                                                dm);
 
     exportNode.accept(exporter);
@@ -390,7 +392,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
           }
 
           cont.writeData(packet.getBuffer(), packet.getOffset());
-          
+
           if (cont.isFinished())
             latch.countDown();
 
@@ -547,20 +549,20 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
       }
     }
   }
-  
+
   public void test30ChangesFile() throws Exception {
     // create ChangesFile-s
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
-    for (int i=1; i < 30; i++) {
+    for (int i = 1; i < 30; i++) {
       File f = createBLOBTempFile(i * 300);
       f.deleteOnExit();
-      
+
       MessageDigest digest = MessageDigest.getInstance("MD5");
 
       File ff = File.createTempFile("12_mc", "test");
       ff.deleteOnExit();
-      
+
       DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(ff), digest);
 
       // write file content
@@ -568,7 +570,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
       InputStream in = new FileInputStream(f);
       byte[] buf = new byte[200 * 1024];
       int l = 0;
-      while ((l = in.read(buf)) != -1) 
+      while ((l = in.read(buf)) != -1)
         dout.write(buf, 0, l);
       in.close();
 
@@ -595,12 +597,12 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     List<MemberAddress> sa = new ArrayList<MemberAddress>();
     for (Member m : memberList)
       sa.add(m.getAddress());
-    
+
     for (ChangesFile c : cfList)
       log.info(c.getLength());
 
     transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), sa);
-    
+
     // wait receive
     latch.await();
 
@@ -610,7 +612,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     // compare data
     for (int j = 0; j < cfList.size(); j++)
-     compareStream(cfList.get(j).getInputStream(), packetReceiver.getChangesFiles().get(j).getInputStream());
+      compareStream(cfList.get(j).getInputStream(), packetReceiver.getChangesFiles()
+                                                                  .get(j)
+                                                                  .getInputStream());
   }
 
 }

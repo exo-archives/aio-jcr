@@ -3988,6 +3988,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
                                                           d,
                                                           (session4).getWorkspace()
                                                                     .getNodeTypesHolder(),
+                                                          (session4).getTransientNodesManager(),
                                                           (session4).getTransientNodesManager());
 
     d.accept(vis);

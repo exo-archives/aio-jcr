@@ -28,8 +28,6 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
@@ -432,7 +430,7 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
                                  .equals("value1"));
   }
 
-  public void _testComplexUseCaseVersionSuport32() throws Exception {
+  public void testComplexUseCaseVersionSuport32() throws Exception {
     ComplexUseCaseVersionSuport32 useCase = new ComplexUseCaseVersionSuport32(sessionLowPriority,
                                                                               sessionHigePriority);
 
@@ -443,23 +441,17 @@ public class AsyncReplicationAdvanceTest extends AbstractTrasportTest {
 
     asyncUseCase.useCase();
 
-    NodeImpl node = (NodeImpl) systemSessionHighPriority.getItem("/jcr:system/jcr:versionStorage");
-    assertTrue(node.getInternalIdentifier().equals(Constants.VERSIONSTORAGE_UUID));
-
-    node = (NodeImpl) systemSessionLowPriority.getItem("/jcr:system/jcr:versionStorage");
-    assertTrue(node.getInternalIdentifier().equals(Constants.VERSIONSTORAGE_UUID));
-
     assertTrue(asyncUseCase.checkEquals());
     assertTrue(sessionHigePriority.getRootNode()
                                   .getNode("item1")
                                   .getProperty("prop")
                                   .getString()
-                                  .equals("valueL"));
+                                  .equals("valueH"));
     assertTrue(sessionLowPriority.getRootNode()
                                  .getNode("item1")
                                  .getProperty("prop")
                                  .getString()
-                                 .equals("valueL"));
+                                 .equals("valueh"));
   }
 
   public void _testComplexUseCaseVersionSuport41() throws Exception {

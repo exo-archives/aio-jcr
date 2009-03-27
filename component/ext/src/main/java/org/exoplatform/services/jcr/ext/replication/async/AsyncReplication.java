@@ -30,7 +30,10 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
+import org.picocontainer.Startable;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -53,7 +56,6 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -139,9 +141,8 @@ public class AsyncReplication implements Startable {
                 WorkspaceEntry workspaceConfig,
                 WorkspaceFileCleanerHolder workspaceCleanerHolder) {
 
-      this.channel = new AsyncChannelManager(config.getChannelConfig(),
-                                             config.getChannelName() + "_" + chanelNameSufix,
-                                             config.getOtherParticipantsPriority().size() + 1);
+      this.channel = new AsyncChannelManager(config.getChannelConfig(), config.getChannelName()
+          + "_" + chanelNameSufix, config.getOtherParticipantsPriority().size() + 1);
 
       this.dataManager = dataManager;
 
@@ -163,19 +164,27 @@ public class AsyncReplication implements Startable {
                                                         workspaceConfig,
                                                         workspaceCleanerHolder);
 
-      this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
+      this.exportServer = new RemoteExportServerImpl(this.transmitter,
+                                                     dataManager,
+                                                     systemDataManager,
+                                                     ntManager);
 
-      this.changesSaveErrorLog = new ChangesSaveErrorLog(config.getStorageDir(), 
-                                                         config.getRepositoryName(), 
+      this.changesSaveErrorLog = new ChangesSaveErrorLog(config.getStorageDir(),
+                                                         config.getRepositoryName(),
                                                          config.getWorkspaceName());
 
       this.receiver = new AsyncReceiverImpl(this.channel,
                                             this.exportServer,
                                             config.getOtherParticipantsPriority());
 
-      this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver, config.getMergeTempDir());
+      this.exporter = new RemoteExporterImpl(this.transmitter,
+                                             this.receiver,
+                                             config.getMergeTempDir());
 
-      this.mergeManager = new MergeDataManager(this.exporter, dataManager, ntManager, config.getMergeTempDir());
+      this.mergeManager = new MergeDataManager(this.exporter,
+                                               dataManager,
+                                               ntManager,
+                                               config.getMergeTempDir());
 
       this.initializer = new AsyncInitializer(this.channel,
                                               config.getPriority(),
@@ -332,8 +341,7 @@ public class AsyncReplication implements Startable {
   /**
    * AsyncReplication constructor for TESTS!.
    */
-  AsyncReplication(RepositoryService repoService,
-                   List<AsyncWorkspaceConfig> configs) throws RepositoryException,
+  AsyncReplication(RepositoryService repoService, List<AsyncWorkspaceConfig> configs) throws RepositoryException,
       RepositoryConfigurationException {
 
     this.repoService = repoService;
@@ -391,9 +399,9 @@ public class AsyncReplication implements Startable {
    * @throws RepositoryException
    */
   protected void synchronize(AsyncWorkspaceConfig config) throws RepositoryException,
-                                                                 RepositoryConfigurationException,
-                                                                 IOException {
-    
+                                                         RepositoryConfigurationException,
+                                                         IOException {
+
     // check errors on LocalSorage.
     // TODO will be skip only one workspace or one repository.
     // Now will be skip one workspace.
@@ -407,7 +415,7 @@ public class AsyncReplication implements Startable {
       LOG.error("[ERROR] Synchronization not started. Loacal storage have errors.");
       return;
     }
-    
+
     ManageableRepository repository = repoService.getRepository(config.getRepositoryName());
 
     WorkspaceContainerFacade syswsc = repository.getWorkspaceContainer(repository.getConfiguration()
@@ -435,7 +443,8 @@ public class AsyncReplication implements Startable {
                                               localStorage,
                                               incomeStorage,
                                               config,
-                                              config.getRepositoryName() + "_" + config.getWorkspaceName(),
+                                              config.getRepositoryName() + "_"
+                                                  + config.getWorkspaceName(),
                                               wconf,
                                               wfcleaner);
     synchWorker.run();
@@ -464,8 +473,8 @@ public class AsyncReplication implements Startable {
                                 config.getIncomeStorageDir());
         }
       }
-      
-      // 2 - create local storage for no system  workspace   
+
+      // 2 - create local storage for no system workspace
       for (AsyncWorkspaceConfig config : asyncWorkspaceConfigs) {
         ManageableRepository repository = repoService.getRepository(config.getRepositoryName());
 
@@ -636,8 +645,8 @@ public class AsyncReplication implements Startable {
   /**
    * Returns <code>true</code> if workspace is replicable, <code>false</code> if not.
    * 
-   * @param wsName -
-   *          String workspace name.
+   * @param wsName
+   *          - String workspace name.
    * @return boolean.
    */
   private boolean isReplicableWorkspace(String repoName, String wsName) {
@@ -651,14 +660,14 @@ public class AsyncReplication implements Startable {
   /**
    * Create and register WorkspaceNullListener.
    * 
-   * @param repository -
-   *          ManageableRepository.
-   * @param repositoryName -
-   *          repository name.
-   * @param wsName -
-   *          workspace name.
-   * @param systemWSName -
-   *          syetme workspace name.
+   * @param repository
+   *          - ManageableRepository.
+   * @param repositoryName
+   *          - repository name.
+   * @param wsName
+   *          - workspace name.
+   * @param systemWSName
+   *          - syetme workspace name.
    */
   private void addWorkspaceNullListener(ManageableRepository repository,
                                         String repositoryName,
