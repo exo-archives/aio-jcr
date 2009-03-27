@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2003-2009 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.impl.dataflow.serialization;
+
+import java.io.IOException;
+
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+
+/**
+ * Created by The eXo Platform SAS. <br/>Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
+ * @version $Id: TransientNodeDataWriter.java 111 2008-11-11 11:11:11Z serg $
+ */
+public class TransientNodeDataWriter {
+
+  /**
+   * Write to stream all necessary object data.
+   * 
+   * @param out SerializationOutputStream.
+   * @throws IOException If an I/O error has occurred.
+   */
+  public void write(ObjectWriter out, TransientNodeData nodeData) throws IOException {
+    // write id
+    out.writeInt(SerializationConstants.TRANSIENT_NODE_DATA);
+
+    // TransientItemData
+    out.writeString(nodeData.getQPath().getAsString());
+    out.writeString(nodeData.getIdentifier());
+
+    if (nodeData.getParentIdentifier() != null) {
+      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeString(nodeData.getParentIdentifier());
+    } else
+      out.writeInt(SerializationConstants.NULL_DATA);
+
+    out.writeInt(nodeData.getPersistedVersion());
+    // -------------------
+
+    out.writeInt(nodeData.getOrderNumber());
+
+    // primary type
+    out.writeString(nodeData.getPrimaryTypeName().getAsString());
+
+    // mixins
+    InternalQName[] mixinNames = nodeData.getMixinTypeNames();
+
+    out.writeInt(mixinNames.length);
+    for (int i = 0; i < mixinNames.length; i++) {
+      out.writeString(mixinNames[i].getAsString());
+    }
+
+    ACLWriter wr = new ACLWriter();
+    wr.write(out, nodeData.getACL());
+  }
+
+}

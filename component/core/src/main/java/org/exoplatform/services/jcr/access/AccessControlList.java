@@ -30,7 +30,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
+import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: AccessControlList.java 14556 2008-05-21 15:22:15Z pnedonosko $
  */
 
-public class AccessControlList implements Externalizable, Storable {
+public class AccessControlList implements Externalizable{
 
   private static final long              serialVersionUID = 5848327750178729120L;
 
@@ -246,54 +246,4 @@ public class AccessControlList implements Externalizable, Storable {
     return accessList;
   }
 
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    // read id
-    int key;
-    if ((key = in.readInt())!= Storable.ACCESS_CONTROL_LIST){
-      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
-    
-    // reading owner
-    int ownLength = in.readInt();
-    if (ownLength == 1) {
-      this.owner = in.readString();
-    } else {
-      this.owner = null;
-    }
-    accessList.clear();
-    // reading access control entrys size
-    int listSize = in.readInt();
-    for (int i = 0; i < listSize; i++) {
-      // reading access control entrys identity
-      String ident = in.readString();
-      // reading permission
-      String perm = in.readString();
-
-      accessList.add(new AccessControlEntry(ident, perm));
-    }
-    
-  }
-
-  public void writeObject(ObjectWriter out) throws IOException {
-    // write id
-    out.writeInt(Storable.ACCESS_CONTROL_LIST);
-    
-    // Writing owner
-    if (owner != null) {
-      out.writeInt(1);
-      out.writeString(owner);
-    } else {
-      out.writeInt(0);
-    }
-
-    // writing access control entrys size
-    out.writeInt(accessList.size());
-
-    for (AccessControlEntry entry : accessList) {
-      // writing access control entrys identity
-      out.writeString(entry.getIdentity());
-      // writing permission
-      out.writeString(entry.getPermission());
-    }
-  }
 }

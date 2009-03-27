@@ -129,14 +129,15 @@ public class TestJCRSerializationVersionRestore extends JcrImplSerializationBase
     Node srcVersion = root.getNode("nt_file_node");
     srcVersion.checkin();
     session.save();
+    
 
     srcVersion.checkout();
     srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile2));
     session.save();
-
+    
     srcVersion.checkin();
     session.save();
-
+    
     srcVersion.checkout();
     srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile3));
     session.save();

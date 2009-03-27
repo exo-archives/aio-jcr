@@ -61,6 +61,8 @@ public class ObjectWriterImpl implements ObjectWriter {
     out.flush();
   }
 
+
+  
   /**
    * {@inheritDoc}
    */
@@ -82,6 +84,14 @@ public class ObjectWriterImpl implements ObjectWriter {
     out.write(v ? 1 : 0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+ // public void writeByte(byte b) throws IOException {
+ //   out.write(b);
+ // }
+
+  
   /**
    * {@inheritDoc}
    */

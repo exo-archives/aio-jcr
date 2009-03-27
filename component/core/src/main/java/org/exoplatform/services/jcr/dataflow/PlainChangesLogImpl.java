@@ -23,20 +23,14 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
-import org.exoplatform.services.jcr.impl.Constants;
-
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: PlainChangesLogImpl.java 14464 2008-05-19 11:05:20Z pnedonosko $ Stores collection
- *          of ItemStates
+ * @version $Id: PlainChangesLogImpl.java 14464 2008-05-19 11:05:20Z pnedonosko $
+ *          Stores collection of ItemStates
  */
-public class PlainChangesLogImpl implements Externalizable, Storable, PlainChangesLog {
+public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
 
   private static final long serialVersionUID = 5624550860372364084L;
 
@@ -87,6 +81,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataChangesLog#getAllStates()
    */
   public List<ItemState> getAllStates() {
@@ -95,6 +90,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataChangesLog#getSize()
    */
   public int getSize() {
@@ -103,6 +99,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.PlainChangesLog#getEventType()
    */
   public int getEventType() {
@@ -111,6 +108,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataChangesLog#getSessionId()
    */
   public String getSessionId() {
@@ -119,9 +117,9 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.PlainChangesLog#add(org.exoplatform.services.jcr.dataflow
-   * .ItemState)
+   * 
+   * @see org.exoplatform.services.jcr.dataflow.PlainChangesLog#add(org.exoplatform.services.jcr.dataflow
+   *      .ItemState)
    */
   public PlainChangesLog add(ItemState change) {
     items.add(change);
@@ -130,6 +128,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.PlainChangesLog#addAll(java.util.List)
    */
   public PlainChangesLog addAll(List<ItemState> changes) {
@@ -139,6 +138,7 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.dataflow.PlainChangesLog#clear()
    */
   public void clear() {
@@ -188,37 +188,4 @@ public class PlainChangesLogImpl implements Externalizable, Storable, PlainChang
       add((ItemState) in.readObject());
   }
   // ------------------ [ END ] ------------------
-
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    
-    // read id
-    int key;
-    if ((key = in.readInt())!= Storable.PLAIN_CHANGES_LOG_IMPL){
-      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
-    eventType = in.readInt();
-
-    sessionId = in.readString();
-
-    items = new ArrayList<ItemState>();
-    int listSize = in.readInt();
-    for (int i = 0; i < listSize; i++){
-      ItemState is = new ItemState();
-      is.readObject(in);
-      add(is);
-    } 
-  }
-
-  public void writeObject(ObjectWriter out) throws IOException {
-    // write id
-    out.writeInt(Storable.PLAIN_CHANGES_LOG_IMPL);
-    
-    out.writeInt(eventType);
-    out.writeString(sessionId);
-    
-    int listSize = items.size();
-    out.writeInt(listSize);
-    for (int i = 0; i < listSize; i++)
-      items.get(i).writeObject(out);
-  }
 }

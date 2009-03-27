@@ -57,7 +57,7 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
 
     Iterator<TransientValueData> it;
     // Serialize with JCR
-    
+
     long jcrwrite = 0;
     long jcrread = 0;
 
@@ -69,9 +69,9 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
       ObjectWriterImpl jcrout = new ObjectWriterImpl(new FileOutputStream(jcrfile));
 
       long t1 = System.currentTimeMillis();
+      TransientValueDataWriter wr = new TransientValueDataWriter();
       while (it.hasNext()) {
-        it.next().writeObject(jcrout);
-        //jcrout.writeObject(it.next());
+        wr.write(jcrout,it.next());
       }
       t1 = System.currentTimeMillis() - t1;
 
@@ -83,18 +83,18 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
 
       long t3 = System.currentTimeMillis();
 
+      TransientValueDataReader rdr = new TransientValueDataReader(null, 200 * 1024);
       for (int i = 0; i < nodes; i++) {
-        TransientValueData obj = new TransientValueData();
-        obj.readObject(jcrin);
+        TransientValueData obj = rdr.read(jcrin);
       }
       t3 = System.currentTimeMillis() - t3;
       jcrread += t3;
       jcrin.close();
-      
+
       jcrfile.delete();
 
     }
-    
+
     // java
     long javaWrite = 0;
     long javaRead = 0;
@@ -110,8 +110,8 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
       t2 = System.currentTimeMillis() - t2;
       javaWrite += t2;
       jout.close();
-      
-      //deserialize
+
+      // deserialize
       ObjectInputStream jin = new ObjectInputStream(new FileInputStream(jfile));
 
       it = list.iterator();
@@ -122,14 +122,14 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
       t4 = System.currentTimeMillis() - t4;
       javaRead += t4;
       jin.close();
-      
+
       jfile.delete();
     }
 
     System.out.println(" JCR s- " + (jcrwrite / iterations));
     System.out.println(" Java s- " + (javaWrite / iterations));
-  //  System.out.println(" JCR file size - " + jcrfile.length());
-  //  System.out.println(" Java file size - " + jfile.length());
+    // System.out.println(" JCR file size - " + jcrfile.length());
+    // System.out.println(" Java file size - " + jfile.length());
     System.out.println(" JCR des- " + (jcrread / iterations));
     System.out.println(" Java des- " + (javaRead / iterations));
 

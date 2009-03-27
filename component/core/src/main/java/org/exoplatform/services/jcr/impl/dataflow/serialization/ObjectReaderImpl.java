@@ -70,6 +70,15 @@ public class ObjectReaderImpl implements ObjectReader {
       throw new StreamCorruptedException ("Unexpected EOF in middle of data block.");
   }
 
+  
+  /**
+   * {@inheritDoc}
+   */
+  //public byte readByte() throws IOException {
+  //  return (byte)in.read();
+  //}
+
+  
   /**
    * {@inheritDoc}
    */

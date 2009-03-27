@@ -23,10 +23,6 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -40,8 +36,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @version $Id: TransactionChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class TransactionChangesLog implements CompositeChangesLog, Externalizable,
-    Storable {
+public class TransactionChangesLog implements CompositeChangesLog, Externalizable {
 
   private static final long       serialVersionUID = 4866736965040228027L;
 
@@ -194,7 +189,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
             }
 
             return new ItemState[] { delete, rename }; // 4. ok, there are no
-                                                        // more fresh we have
+            // more fresh we have
             // found before p.2
           } // else, it's not a rename, search deeper
         } catch (IndexOutOfBoundsException e) {
@@ -250,39 +245,4 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
   // ------------------ [ END ] ------------------
 
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    //read id
-    int key;
-    if ((key = in.readInt())!= Storable.TRANSACTION_CHANGES_LOG){
-      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
-    
-    if (in.readInt() == 1) {
-      systemId = in.readString();
-    }
-
-    int listSize = in.readInt();
-    for (int i = 0; i < listSize; i++) {
-      PlainChangesLogImpl l = new PlainChangesLogImpl();
-      l.readObject(in);
-      changesLogs.add(l);
-    }
-  }
-
-  public void writeObject(ObjectWriter out) throws IOException {
-    //write id
-    out.writeInt(Storable.TRANSACTION_CHANGES_LOG);
-    
-    if (systemId != null) {
-      out.writeInt(1);
-      out.writeString(systemId);
-    } else {
-      out.writeInt(0);
-    }
-
-    int listSize = changesLogs.size();
-    out.writeInt(listSize);
-    for (int i = 0; i < listSize; i++)
-      ((Storable) changesLogs.get(i)).writeObject(out);
-  }
 }

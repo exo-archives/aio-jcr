@@ -24,7 +24,7 @@ import java.io.ObjectOutput;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
+import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -38,7 +38,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: ItemState.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class ItemState implements Externalizable, Storable {
+public class ItemState implements Externalizable{
 
   private static final long   serialVersionUID  = 7967457831325761318L;
 
@@ -359,50 +359,6 @@ public class ItemState implements Externalizable, Storable {
     data = (ItemData) in.readObject();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    //read id
-    int key;
-    if ((key = in.readInt())!= Storable.ITEM_STATE){
-      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
-    
-    state = in.readInt();
-    isPersisted = in.readBoolean();
-    eventFire = in.readBoolean();
-    boolean isNodeData = in.readBoolean();
-    if(isNodeData){
-      TransientNodeData nd = new TransientNodeData();
-      nd.readObject(in);
-      data = nd;
-    }else{
-      TransientPropertyData pd = new TransientPropertyData();
-      pd.readObject(in);
-      data = pd;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void writeObject(ObjectWriter out) throws IOException {
-    // write id
-    out.writeInt(Storable.ITEM_STATE);
-    
-    out.writeInt(state);
-    out.writeBoolean(isPersisted);
-    out.writeBoolean(eventFire);
-    
-    // write flag isNodeData and ItemData
-    boolean isNodeData = (data instanceof TransientNodeData);
-    out.writeBoolean(isNodeData);
-    if(isNodeData){
-      ((TransientNodeData)data).writeObject(out);
-    }else{
-      ((TransientPropertyData)data).writeObject(out);
-    }
-  }
+ 
 
 }

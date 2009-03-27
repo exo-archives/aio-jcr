@@ -22,10 +22,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -40,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: TransientItemData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public abstract class TransientItemData implements MutableItemData, Externalizable, Storable {
+public abstract class TransientItemData implements MutableItemData, Externalizable {
 
   protected static final Log LOG            = ExoLogger.getLogger("jcr.TransientItemData");
 
@@ -197,47 +193,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     }
 
     persistedVersion = in.readInt();
-  }
-
-  @SuppressWarnings("serial")
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    try {
-      String sQPath = in.readString();
-      qpath = QPath.parse(sQPath);
-    } catch (final IllegalPathException e) {
-      throw new IOException("Deserialization error. " + e) {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Throwable getCause() {
-          return e;
-        }
-      };
-    }
-
-    identifier = in.readString();
-
-    int isNull = in.readInt();
-    if (isNull == NOT_NULL_VALUE) {
-      parentIdentifier = in.readString();
-    }
-
-    persistedVersion = in.readInt();
-  }
-
-  public void writeObject(ObjectWriter out) throws IOException {
-    out.writeString(qpath.getAsString());
-    out.writeString(identifier);
-
-    if (parentIdentifier != null) {
-      out.writeInt(NOT_NULL_VALUE);
-      out.writeString(parentIdentifier);
-    } else
-      out.writeInt(NULL_VALUE);
-
-    out.writeInt(persistedVersion);
   }
 
 }

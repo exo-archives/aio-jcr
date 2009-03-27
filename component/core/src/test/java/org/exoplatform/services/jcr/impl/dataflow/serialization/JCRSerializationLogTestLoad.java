@@ -61,6 +61,7 @@ public class JCRSerializationLogTestLoad extends JcrImplSerializationBaseTest {
     List<TransactionChangesLog> logs = pl.pushChanges();
 
     TransactionChangesLog  log  = logs.get(0);
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
 
     // Serialize with JCR
     long jcrwrite = 0;
@@ -72,7 +73,7 @@ public class JCRSerializationLogTestLoad extends JcrImplSerializationBaseTest {
     System.out.println(" WRITE START") ;
     long t1 = System.currentTimeMillis();
     for(int i= 0;i< iter ; i++  ){
-      log.writeObject(jcrout);
+      wr.write(jcrout, logs.get(0));
     }
     jcrwrite = System.currentTimeMillis() - t1;
     jcrout.close();
@@ -86,8 +87,9 @@ public class JCRSerializationLogTestLoad extends JcrImplSerializationBaseTest {
 
     
     for(int i=0; i<iter; i++){
-      TransactionChangesLog obj = new TransactionChangesLog();
-      obj.readObject(jcrin);
+      TransactionChangesLogReader rdr = new TransactionChangesLogReader(null, 200*1024);
+      TransactionChangesLog obj = (TransactionChangesLog)rdr.read(jcrin);
+      
       
     //  readed.add(obj); 
     }

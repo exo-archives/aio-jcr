@@ -41,7 +41,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
+import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -58,11 +58,11 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @author Gennady Azarenkov
  * @version $Id: TransientValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TransientValueData extends AbstractValueData implements Externalizable, Storable {
+public class TransientValueData extends AbstractValueData implements Externalizable{
 
   private static final long   serialVersionUID                 = -5280857006905550884L;
 
-  private static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "_JCRVDtemp";
+  public static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "_JCRVDtemp";
 
   private static final int    BYTE_ARRAY_DATA                  = 1;
 
@@ -659,113 +659,4 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.tmpStream = in;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-
-    if (tempDirectory == null) {
-      this.tempDirectory = new File(System.getProperty("java.io.tmpdir") + "/"
-          + TransientValueData.DESERIALIAED_SPOOLFILES_TEMP_DIR);
-      this.tempDirectory.mkdirs();
-    }
-
-    // read id
-    int key;
-    if ((key = in.readInt()) != Storable.TRANSIENT_VALUE_DATA) {
-      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
-
-    orderNumber = in.readInt();
-    maxBufferSize = in.readInt();
-
-    int type = in.readInt();
-
-    if (type == BYTE_ARRAY_DATA) {
-      data = new byte[in.readInt()];
-      in.readFully(data);
-    } else if (type == STREAM_DATA) {
-
-      // read property id - used for reread data optimization
-      String id = in.readString();
-
-      // read file
-      long length = in.readLong();
-
-      SpoolFile sf = new SpoolFile(this.tempDirectory, id);
-
-      if (sf.exists()) {
-        // skip data in input stream
-        if (in.skip(length) != length) {
-          throw new IOException("Content isn't skipped correctly.");
-        }
-      } else {
-        // TODO optimize it - use channels or streams
-        writeToFile(in, sf, length);
-      }
-
-      sf.acquire(this);
-      this.spoolFile = sf;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void writeObject(ObjectWriter out) throws IOException {
-    // write id
-    out.writeInt(Storable.TRANSIENT_VALUE_DATA);
-
-    out.writeInt(orderNumber);
-    out.writeInt(maxBufferSize);
-
-    if (this.isByteArray()) {
-      out.writeInt(BYTE_ARRAY_DATA);
-      int f = data.length;
-      out.writeInt(f);
-      out.write(data);
-    } else {
-      out.writeInt(STREAM_DATA);
-
-      // write property id - used for reread data optimization
-      String id = IdGenerator.generate();
-      out.writeString(id);
-
-      // write file content
-      // TODO optimize it, use channels
-      long length = this.spoolFile.length();
-      out.writeLong(length);
-      InputStream in = new FileInputStream(spoolFile);
-      try {
-        byte[] buf = new byte[200*1024];
-        int l = 0;
-        while ((l = in.read(buf)) != -1) {
-          out.write(buf, 0, l);
-        }
-      } finally {
-        in.close();
-      }
-    }
-  }
-
-  private void writeToFile(ObjectReader src, SpoolFile dest, long length) throws IOException {
-    // write data to file
-    FileOutputStream sfout = new FileOutputStream(dest);
-    int bSize = 200*1024;
-    try {
-      byte[] buff = new byte[bSize];
-      for (; length >= bSize; length -= bSize) {
-        src.readFully(buff);
-        sfout.write(buff);
-      }
-
-      if (length > 0) {
-        buff = new byte[(int) length];
-        src.readFully(buff);
-        sfout.write(buff);
-      }
-    } finally {
-      sfout.close();
-    }
-  }
 }

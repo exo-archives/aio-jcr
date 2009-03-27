@@ -26,10 +26,6 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.MutablePropertyData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -41,11 +37,12 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TransientPropertyData.java 13962 2008-05-07 16:00:48Z pnedonosko $
+ * @version $Id: TransientPropertyData.java 13962 2008-05-07 16:00:48Z
+ *          pnedonosko $
  */
 
 public class TransientPropertyData extends TransientItemData implements MutablePropertyData,
-    Externalizable, Storable {
+    Externalizable {
 
   private static final long  serialVersionUID = -8224902483861330191L;
 
@@ -58,18 +55,12 @@ public class TransientPropertyData extends TransientItemData implements MutableP
   protected boolean          multiValued      = false;
 
   /**
-   * @param path
-   *          qpath
-   * @param identifier
-   *          id
-   * @param version
-   *          persisted version
-   * @param type
-   *          property type
-   * @param parentIdentifier
-   *          parentId
-   * @param multiValued
-   *          multi-valued state
+   * @param path qpath
+   * @param identifier id
+   * @param version persisted version
+   * @param type property type
+   * @param parentIdentifier parentId
+   * @param multiValued multi-valued state
    */
   public TransientPropertyData(QPath path,
                                String identifier,
@@ -84,6 +75,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#isNode()
    */
   public boolean isNode() {
@@ -92,6 +84,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#getType()
    */
   public int getType() {
@@ -100,6 +93,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#getValues()
    */
   public List<ValueData> getValues() {
@@ -108,6 +102,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#isMultiValued()
    */
   public boolean isMultiValued() {
@@ -116,6 +111,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.MutablePropertyData#setValues(java.util.List)
    */
   public void setValues(List<ValueData> values) {
@@ -124,6 +120,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.MutablePropertyData#setType(int)
    */
   public void setType(int type) {
@@ -242,46 +239,5 @@ public class TransientPropertyData extends TransientItemData implements MutableP
         values.add((ValueData) in.readObject());
     }
   }
-  
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    //read id
-    int key;
-    if ((key = in.readInt())!= Storable.TRANSIENT_PROPERTY_DATA){
-      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
-    
-    super.readObject(in);
-    type = in.readInt();
-    multiValued = in.readBoolean();
 
-    int listSize = in.readInt();
-    if (listSize != NULL_VALUES) {
-      values = new ArrayList<ValueData>();
-      for (int i = 0; i < listSize; i++) {
-          TransientValueData vd = new TransientValueData();
-          vd.readObject(in);
-          values.add(vd);
-      }
-    }
-  }
-
-  public void writeObject(ObjectWriter out) throws IOException {
-    // write id
-    out.writeInt(Storable.TRANSIENT_PROPERTY_DATA);
-    
-    super.writeObject(out);
-
-    out.writeInt(type);
-    out.writeBoolean(multiValued);
-
-    if (values != null) {
-      int listSize = values.size();
-      out.writeInt(listSize);
-      for (int i = 0; i < listSize; i++)
-        ((TransientValueData)values.get(i)).writeObject(out);
-        
-    } else {
-      out.writeInt(NULL_VALUES);
-    }
-  }
 }

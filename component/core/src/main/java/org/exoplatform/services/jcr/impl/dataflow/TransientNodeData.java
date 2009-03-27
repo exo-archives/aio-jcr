@@ -17,11 +17,10 @@
 package org.exoplatform.services.jcr.impl.dataflow;
 
 /**
- * Created by The eXo Platform SAS.
- * <br>
- * Newly added Node's data (used for mock inmemory repository as well). 
- * Besides NodeData's methods includes child items adders
- *
+ * Created by The eXo Platform SAS. <br>
+ * Newly added Node's data (used for mock inmemory repository as well). Besides
+ * NodeData's methods includes child items adders
+ * 
  * @author Gennady Azarenkov
  * @version $Id: TransientNodeData.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -36,10 +35,6 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
-import org.exoplatform.services.jcr.dataflow.serialization.Storable;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -50,7 +45,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TransientNodeData extends TransientItemData implements Comparable, MutableNodeData,
-    Externalizable, Storable {
+    Externalizable {
 
   private static final long   serialVersionUID = -8675118546441306180L;
 
@@ -80,6 +75,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
   // --------------- ItemData ------------
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#isNode()
    */
   public boolean isNode() {
@@ -90,6 +86,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getOrderNumber()
    */
   public int getOrderNumber() {
@@ -98,6 +95,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getPrimaryTypeName()
    */
   public InternalQName getPrimaryTypeName() {
@@ -106,6 +104,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getMixinTypeNames()
    */
   public InternalQName[] getMixinTypeNames() {
@@ -114,6 +113,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getACL()
    */
   public AccessControlList getACL() {
@@ -124,6 +124,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setOrderNumber(int)
    */
   public void setOrderNumber(int orderNum) {
@@ -132,9 +133,9 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.datamodel.MutableNodeData#setMixinTypeNames(org.exoplatform.services
-   * .jcr.datamodel.InternalQName[])
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setMixinTypeNames(org.exoplatform.services
+   *      .jcr.datamodel.InternalQName[])
    */
   public void setMixinTypeNames(InternalQName[] mixinTypeNames) {
     this.mixinTypeNames = mixinTypeNames;
@@ -142,6 +143,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setId(java.lang.String)
    */
   public void setIdentifier(String identifier) {
@@ -150,9 +152,9 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.datamodel.MutableNodeData#setACL(org.exoplatform.services.jcr.
-   * access.AccessControlList)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setACL(org.exoplatform.services.jcr.
+   *      access.AccessControlList)
    */
   public void setACL(AccessControlList acl) {
     this.acl = acl;
@@ -160,9 +162,9 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow
-   * .ItemDataVisitor)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow
+   *      .ItemDataVisitor)
    */
   public void accept(ItemDataVisitor visitor) throws RepositoryException {
     visitor.visit(this);
@@ -311,7 +313,9 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
         mixinTypeNames[i] = InternalQName.parse(new String(buf, Constants.DEFAULT_ENCODING));
       } catch (final IllegalNameException e) {
         throw new IOException(e.getMessage()) {
-          private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
+          private static final long serialVersionUID = 3489809179234435268L; // eclipse
+
+          // gen
 
           /**
            * {@inheritDoc}
@@ -340,9 +344,8 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
                                                        getPrimaryTypeName(),
                                                        getMixinTypeNames(),
                                                        getOrderNumber(),
-                                                       getParentIdentifier() != null
-                                                           ? getParentIdentifier()
-                                                           : null,
+                                                       getParentIdentifier() != null ? getParentIdentifier()
+                                                                                    : null,
                                                        getACL());
 
     return dataCopy;
@@ -361,86 +364,12 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
                                                        getPrimaryTypeName(),
                                                        getMixinTypeNames(),
                                                        getOrderNumber(),
-                                                       getParentIdentifier() != null
-                                                           ? getParentIdentifier()
-                                                           : null,
+                                                       getParentIdentifier() != null ? getParentIdentifier()
+                                                                                    : null,
                                                        getACL());
 
     return dataCopy;
   }
 
   // -----------------------------------------
-  
-  
-  public void readObject(ObjectReader in) throws UnknownClassIdException, IOException {
-    //read id
-    int key;
-    if ((key = in.readInt())!= Storable.TRANSIENT_NODE_DATA){
-      throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
-    
-    super.readObject(in);
-    orderNum = in.readInt();
-
-    // primary type
-    byte[] buf;
-    try {
-      primaryTypeName = InternalQName.parse(in.readString());
-    } catch (final IllegalNameException e) {
-      throw new IOException(e.getMessage()) {
-        private static final long serialVersionUID = 3489809179234435267L;
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Throwable getCause() {
-          return e;
-        }
-      };
-    }
-
-    // mixins
-    int count = in.readInt();
-    mixinTypeNames = new InternalQName[count];
-    for (int i = 0; i < count; i++) {
-      try {
-        mixinTypeNames[i] = InternalQName.parse(in.readString());
-      } catch (final IllegalNameException e) {
-        throw new IOException(e.getMessage()) {
-          private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
-
-          /**
-           * {@inheritDoc}
-           */
-          @Override
-          public Throwable getCause() {
-            return e;
-          }
-        };
-      }
-    }
-
-    // acl
-    acl.readObject(in);
-  }
-
-  public void writeObject(ObjectWriter out) throws IOException {
-    // write id
-    out.writeInt(Storable.TRANSIENT_NODE_DATA);
-    
-    super.writeObject(out);
-    out.writeInt(orderNum);
-
-    // primary type
-    out.writeString(primaryTypeName.getAsString());
-
-    // mixins
-    out.writeInt(mixinTypeNames.length);
-    for (int i = 0; i < mixinTypeNames.length; i++) {
-      out.writeString(mixinTypeNames[i].getAsString());
-    }
-
-    acl.writeObject(out);
-  }
 }

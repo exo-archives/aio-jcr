@@ -41,7 +41,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: JcrImplSerializationBaseTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class JcrImplSerializationBaseTest extends JcrImplBaseTest {
+public abstract class JcrImplSerializationBaseTest extends JcrImplBaseTest {
 
   protected void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
 
@@ -87,9 +87,13 @@ public class JcrImplSerializationBaseTest extends JcrImplBaseTest {
     File jcrfile = File.createTempFile("jcr", "test");
     ObjectWriterImpl jcrout = new ObjectWriterImpl(new FileOutputStream(jcrfile));
 
-    for (TransactionChangesLog tcl : logs)
-      tcl.writeObject(jcrout);
+      
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+    for (TransactionChangesLog tcl : logs){
+      wr.write(jcrout, tcl);
+    }
 
+    jcrout.flush();
     jcrout.close();
 
     return jcrfile;
@@ -103,8 +107,9 @@ public class JcrImplSerializationBaseTest extends JcrImplBaseTest {
 
     try {
     while (true) {
-      TransactionChangesLog obj = new TransactionChangesLog();
-      obj.readObject(jcrin);
+      TransactionChangesLog obj  = (TransactionChangesLog)(new TransactionChangesLogReader(null, 200*1024)).read(jcrin);
+      //TransactionChangesLog obj = new TransactionChangesLog();
+      //obj.readObject(jcrin);
       readed.add(obj); 
     }
     } catch (EOFException e) {
@@ -114,6 +119,6 @@ public class JcrImplSerializationBaseTest extends JcrImplBaseTest {
     return readed;
   }
 
-  public void test() throws Exception {
-  }
+ // public void test() throws Exception {
+ // }
 }
