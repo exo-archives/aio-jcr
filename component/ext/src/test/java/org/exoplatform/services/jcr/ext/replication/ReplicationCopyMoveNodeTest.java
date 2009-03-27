@@ -27,15 +27,15 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 28.02.2007 10:59:36
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.com.ua 28.02.2007 10:59:36
  * 
  * @version $Id: TestReplicationCopyNode.java 28.02.2007 10:59:36 rainfox
  */
 
 public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
-  
-  private static final Log      log = ExoLogger.getLogger(ReplicationCopyMoveNodeTest.class);
+
+  private static final Log log = ExoLogger.getLogger(ReplicationCopyMoveNodeTest.class);
 
   public void testSessionMove() throws Exception {
 
@@ -159,12 +159,14 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
                                                        .createValue(Calendar.getInstance()));
 
     session.save();
+    log.info("FIRST");
 
     workspace.move("/testMove_", "/testMove_dest");
 
     session.save();
+    log.info("MOVED");
 
-    log.info("Sleep 15 secands");
+    log.info("Sleep 15 seconds");
     Thread.yield();
     Thread.sleep(15 * 1000);
 

@@ -39,6 +39,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS.
@@ -48,11 +49,16 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class MergeDataManager extends AbstractMergeManager {
 
+  protected final FileCleaner fileCleaner;
+  protected final int maxBufferSize;
+  
   MergeDataManager(RemoteExporter exporter,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager,
-                   String storageDir) {
+                   String storageDir, FileCleaner fileCleaner, int maxBufferSize) {
     super(exporter, dataManager, ntManager, storageDir);
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
   }
 
   public ChangesStorage<ItemState> merge(Iterator<MemberChangesStorage<ItemState>> membersChanges) throws RepositoryException,
@@ -69,11 +75,11 @@ public class MergeDataManager extends AbstractMergeManager {
                                                                                                     + first.getMember()
                                                                                                            .getPriority()),
                                                                                                 first.getMember(),
-                                                                                                resHolder);
+                                                                                                resHolder, fileCleaner, maxBufferSize);
 
       EditableChangesStorage<ItemState> result = new CompositeItemStatesStorage<ItemState>(makePath("result"),
                                                                                            localMember,
-                                                                                           resHolder);
+                                                                                           resHolder, fileCleaner, maxBufferSize);
 
       MemberChangesStorage<ItemState> local;
       MemberChangesStorage<ItemState> income;
@@ -102,7 +108,7 @@ public class MergeDataManager extends AbstractMergeManager {
         EditableChangesStorage<ItemState> iteration = new CompositeItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                                          second.getMember()),
                                                                                                 second.getMember(),
-                                                                                                resHolder);
+                                                                                                resHolder, fileCleaner, maxBufferSize);
 
         exporter.setRemoteMember(second.getMember().getAddress());
 
@@ -193,7 +199,7 @@ public class MergeDataManager extends AbstractMergeManager {
           if (isLocalPriority) {
             accumulated.delete();
             accumulated = new CompositeItemStatesStorage<ItemState>(makePath("accumulated-"
-                + second.getMember().getPriority()), second.getMember(), resHolder);
+                + second.getMember().getPriority()), second.getMember(), resHolder, fileCleaner, maxBufferSize);
 
             accumulated.addAll(second);
             accumulated.addAll(iteration);

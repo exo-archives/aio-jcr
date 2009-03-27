@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStor
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -75,10 +76,15 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   private RemoteExportException    exception    = null;
 
-  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver, String tempDir) {
+  protected final FileCleaner fileCleaner;
+  protected final int maxBufferSize;
+  
+  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver, String tempDir, FileCleaner fileCleaner, int maxBufferSize) {
     this.transmitter = transmitter;
     this.receiver = receiver;
     this.tempDir = new File(tempDir);
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
   }
 
   /**
@@ -125,7 +131,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         throw new RemoteExportException("Changes owner (member) is not set");
 
       // return Iterator based on ChangesFile
-      return new ItemStatesStorage<ItemState>(changesFile, context.getMember());
+      return new ItemStatesStorage<ItemState>(changesFile, context.getMember(), fileCleaner, maxBufferSize);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } finally {

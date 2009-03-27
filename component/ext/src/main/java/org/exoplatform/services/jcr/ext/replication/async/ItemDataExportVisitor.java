@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateWriter;
 
 /**
  * This visitor takes node and extracts its ItemStates in next order:
@@ -111,7 +112,12 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     newProperty.setValues(res);
 
     try {
-      (new ItemState(newProperty, ItemState.ADDED, false, curParent().getQPath(), level != 0)).writeObject(out);
+      ItemStateWriter wr = new ItemStateWriter();
+      wr.write(out, new ItemState(newProperty,
+                                  ItemState.ADDED,
+                                  false,
+                                  curParent().getQPath(),
+                                  level != 0));
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
@@ -137,7 +143,8 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     // if level == 0 set internal created as false for validating on save
 
     try {
-      (new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0)).writeObject(out);
+      ItemStateWriter wr = new ItemStateWriter();
+      wr.write(out, new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0));
     } catch (IOException e) {
       throw new RepositoryException(e);
     }

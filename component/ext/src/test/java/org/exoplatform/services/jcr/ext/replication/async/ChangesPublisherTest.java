@@ -133,7 +133,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     // deserialize
     List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
-      ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(destCfList);
+      ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(destCfList, fileCleaner, maxBufferSize);
       while (it.hasNext()) 
         destChangesLogList.add(it.next());
     }

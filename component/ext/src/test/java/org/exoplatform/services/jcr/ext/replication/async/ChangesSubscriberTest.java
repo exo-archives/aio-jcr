@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 
 /**
  * Created by The eXo Platform SAS.
@@ -65,6 +66,8 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
+    TransactionChangesLogWriter wr =new TransactionChangesLogWriter();
+    
     for (TransactionChangesLog tcl : pl.pushChanges()) {
       TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
                                                                      .getTimeInMillis());
@@ -72,7 +75,8 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
       MessageDigest digest = MessageDigest.getInstance("MD5");
       ObjectWriter oos = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(File.createTempFile("tmp", "tmp")),
                                                                              digest));
-      tcl.writeObject(oos);
+      wr.write(oos,tcl);
+      
       oos.flush();
       
       TesterRandomChangesFile cf2 = new TesterRandomChangesFile(digest.digest(), Calendar.getInstance()
@@ -80,7 +84,7 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
       
       ObjectWriter oos2 = new ObjectWriterImpl(cf2.getOutputStream());
 
-      tcl.writeObject(oos2);
+      wr.write(oos2, tcl);
       oos2.flush();
 
       cfList.add(cf2);

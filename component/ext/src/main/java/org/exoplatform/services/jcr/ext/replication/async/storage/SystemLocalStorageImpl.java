@@ -44,9 +44,9 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
    * @throws NoSuchAlgorithmException
    * @throws ChecksumNotFoundException
    */
-  public SystemLocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws ChecksumNotFoundException,
+  public SystemLocalStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize) throws ChecksumNotFoundException,
       NoSuchAlgorithmException {
-    super(storagePath, fileCleaner);
+    super(storagePath, fileCleaner, maxBufferSize);
   }
 
   /**

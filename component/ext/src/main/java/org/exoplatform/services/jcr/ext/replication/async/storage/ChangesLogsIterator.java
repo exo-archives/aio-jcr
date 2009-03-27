@@ -26,6 +26,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogReader;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -62,6 +64,16 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
   private L                       currentChangesLog = null;
 
   /**
+   * FileCleaner used for read TransientValueData.
+   */
+  private final FileCleaner fileCleaner;
+  
+  /**
+   * MaxBufferSize used for read TransientValueData.
+   */
+  private final int maxBufferSize;
+  
+  /**
    * Constructor. Changes file may contain many ChangesLogs.
    * 
    * @param list
@@ -69,9 +81,11 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  public ChangesLogsIterator(List<ChangesFile> list) throws IOException, ClassNotFoundException {
+  public ChangesLogsIterator(List<ChangesFile> list, FileCleaner fileCleaner, int maxBufferSize) throws IOException, ClassNotFoundException {
     this.list = list;
     this.currentChangesLog = readNextChangesLog();
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
   }
 
   public boolean hasNext() {
@@ -123,9 +137,8 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
         currentIn = new ObjectReaderImpl(list.get(curFileIndex++).getInputStream());
 
       try {
-        TransactionChangesLog tclog = new TransactionChangesLog();
-        tclog.readObject(currentIn);
-        return (L) tclog;
+        TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize);
+        return (L) rdr.read(currentIn);
       } catch (EOFException e) {
         currentIn.close();
         currentIn = null;

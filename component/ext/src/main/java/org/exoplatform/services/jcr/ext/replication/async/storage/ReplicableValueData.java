@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ReplicableValueData.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ReplicableValueData extends AbstractValueData implements Externalizable {
+@Deprecated public class ReplicableValueData extends AbstractValueData implements Externalizable {
 
   protected static final Log                  LOG              = ExoLogger.getLogger("jcr.LocalStorageImpl");
 

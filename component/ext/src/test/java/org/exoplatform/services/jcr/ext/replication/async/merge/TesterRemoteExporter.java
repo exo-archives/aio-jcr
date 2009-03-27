@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStor
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleOutputChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateWriter;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 
 /**
@@ -90,12 +91,14 @@ public class TesterRemoteExporter implements RemoteExporter {
 
       Iterator<ItemState> it = changes.getAllStates().iterator();
 
+      ItemStateWriter wr = new ItemStateWriter();
       while (it.hasNext()) {
-        it.next().writeObject(out);
+        wr.write(out, it.next());
+        
       }
       out.close();
 
-      chs = new ItemStatesStorage<ItemState>(chfile, null); // TODO member
+      chs = new ItemStatesStorage<ItemState>(chfile, null, null, 200*1024); // TODO member
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }

@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * 
  * @version $Id: BaseReplicationTest.java 20.02.2007 17:10:01 rainfox
  */
-public class BaseReplicationTest extends BaseStandaloneTest {
+public abstract class BaseReplicationTest extends BaseStandaloneTest {
 
   protected RepositoryImpl repository2;
 
@@ -91,7 +91,5 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected void tearDown() throws Exception {
   }
 
-  public void test() throws Exception {
-    // assertEquals(true,true);
-  }
+ 
 }

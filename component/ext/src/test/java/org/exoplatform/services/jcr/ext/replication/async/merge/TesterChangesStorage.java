@@ -32,6 +32,8 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesS
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS.
@@ -46,8 +48,8 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
 
   private final Member member;
 
-  public TesterChangesStorage(Member member) {
-    super(new ArrayList<ChangesFile>());
+  public TesterChangesStorage(Member member, FileCleaner fileCleaner, int maxBufferSize) {
+    super(new ArrayList<ChangesFile>(), fileCleaner, maxBufferSize);
     this.member = member;
   }
 
@@ -56,8 +58,8 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
     ch.deleteOnExit();
 
     ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(ch));
-    TransactionChangesLog tlog = (TransactionChangesLog) log;
-    tlog.writeObject(out);
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+    wr.write(out, (TransactionChangesLog)log);
     out.flush();
 
     this.storage.add(new SimpleChangesFile(ch,

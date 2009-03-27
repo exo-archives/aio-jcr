@@ -28,6 +28,8 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogReader;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -59,21 +61,20 @@ public class UnitReadTest extends BaseStandaloneTest {
 
     session.move(n1.getPath(), "/testNodeRenamed");
     root.save();
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter(); 
 
-    pl.pushChanges().get(0).writeObject(out);
-    pl.pushChanges().get(1).writeObject(out);
+    wr.write(out, pl.pushChanges().get(0));
+    wr.write(out, pl.pushChanges().get(1));
 
     out.flush();
     out.close();
 
     ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
 
-    // 
+    TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize);
     do {
       try {
-
-        curLog = new TransactionChangesLog();
-        curLog.readObject(in);
+        curLog = rdr.read(in);
         System.out.println(curLog.dump());
       } catch (EOFException e) {
         // ok

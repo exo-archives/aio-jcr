@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -48,8 +49,8 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
    */
   protected final Member           member;
 
-  public IncomeChangesStorage(ChangesStorage<T> income, Member member) {
-    super(Arrays.asList(income.getChangesFile()));
+  public IncomeChangesStorage(ChangesStorage<T> income, Member member,FileCleaner fileCleaner, int maxBufferSize) {
+    super(Arrays.asList(income.getChangesFile()), fileCleaner, maxBufferSize);
     this.member = member;
   }
 

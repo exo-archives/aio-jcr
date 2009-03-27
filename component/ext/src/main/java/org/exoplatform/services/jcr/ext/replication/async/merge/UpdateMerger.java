@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
@@ -49,8 +50,10 @@ public class UpdateMerger extends AbstractMerger {
                       RemoteExporter exporter,
                       DataManager dataManager,
                       NodeTypeDataManager ntManager,
-                      ResourcesHolder resHolder) {
-    super(localPriority, exporter, dataManager, ntManager, resHolder);
+                      ResourcesHolder resHolder,
+                      FileCleaner fileCleaner,
+                      int maxBufferSize) {
+    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize);
   }
 
   /**
@@ -79,7 +82,9 @@ public class UpdateMerger extends AbstractMerger {
 
     EditableChangesStorage<ItemState> resultState = new CompositeItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                               null,
-                                                                                              resHolder);
+                                                                                              resHolder,
+                                                                                              fileCleaner,
+                                                                                              maxBufferSize);
     // income update sequence
     List<ItemState> incUpdateSeq = income.getUpdateSequence(incomeState);
 
@@ -114,7 +119,9 @@ public class UpdateMerger extends AbstractMerger {
             if (localData.getQPath().isDescendantOf(st.getData().getQPath())) {
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
           }
           break;
@@ -124,13 +131,13 @@ public class UpdateMerger extends AbstractMerger {
 
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            QPath locNodePath = localData.isNode()
-                ? localData.getQPath()
-                : localData.getQPath().makeParentPath();
+            QPath locNodePath = localData.isNode() ? localData.getQPath()
+                                                  : localData.getQPath().makeParentPath();
 
-            QPath nextLocNodePath = localData.isNode()
-                ? nextLocalState.getData().getQPath()
-                : nextLocalState.getData().getQPath().makeParentPath();
+            QPath nextLocNodePath = localData.isNode() ? nextLocalState.getData().getQPath()
+                                                      : nextLocalState.getData()
+                                                                      .getQPath()
+                                                                      .makeParentPath();
 
             if (incomeData.isNode()) {
               for (ItemState item : incUpdateSeq) {
@@ -141,14 +148,18 @@ public class UpdateMerger extends AbstractMerger {
 
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
-                                                                  resHolder);
+                                                                  resHolder,
+                                                                  fileCleaner,
+                                                                  maxBufferSize);
                 }
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(locNodePath)) {
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder);
+                                                                resHolder,
+                                                                fileCleaner,
+                                                                maxBufferSize);
               }
             }
 
@@ -166,7 +177,9 @@ public class UpdateMerger extends AbstractMerger {
 
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
-                                                                  resHolder);
+                                                                  resHolder,
+                                                                  fileCleaner,
+                                                                  maxBufferSize);
                 }
               }
             break;
@@ -179,9 +192,8 @@ public class UpdateMerger extends AbstractMerger {
                                                              ItemState.DELETED);
 
           if (localData.isNode() || locParentNodeState != null) {
-            QPath locNodePath = localData.isNode()
-                ? localData.getQPath()
-                : locParentNodeState.getData().getQPath();
+            QPath locNodePath = localData.isNode() ? localData.getQPath()
+                                                  : locParentNodeState.getData().getQPath();
 
             for (ItemState item : incUpdateSeq) {
               if (item.getData().getQPath().isDescendantOf(locNodePath)
@@ -190,7 +202,9 @@ public class UpdateMerger extends AbstractMerger {
 
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder);
+                                                                resHolder,
+                                                                fileCleaner,
+                                                                maxBufferSize);
               }
             }
           } else {
@@ -199,14 +213,18 @@ public class UpdateMerger extends AbstractMerger {
                 if (localData.getQPath().isDescendantOf(item.getData().getQPath())) {
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
-                                                                  resHolder);
+                                                                  resHolder,
+                                                                  fileCleaner,
+                                                                  maxBufferSize);
                 }
               }
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder);
+                                                                resHolder,
+                                                                fileCleaner,
+                                                                maxBufferSize);
               }
             }
           }
@@ -220,14 +238,18 @@ public class UpdateMerger extends AbstractMerger {
                 accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder);
+                                                                resHolder,
+                                                                fileCleaner,
+                                                                maxBufferSize);
               }
             } else {
               for (ItemState item : incUpdateSeq) {
                 if (localData.getQPath().isDescendantOf(item.getData().getQPath())) {
                   return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                   null,
-                                                                  resHolder);
+                                                                  resHolder,
+                                                                  fileCleaner,
+                                                                  maxBufferSize);
                 }
               }
             }
@@ -243,7 +265,9 @@ public class UpdateMerger extends AbstractMerger {
                 || localData.getQPath().equals(st.getData().getQPath())) {
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
           }
           break;
@@ -316,13 +340,13 @@ public class UpdateMerger extends AbstractMerger {
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
-            QPath locNodePath = localData.isNode()
-                ? localData.getQPath()
-                : localData.getQPath().makeParentPath();
+            QPath locNodePath = localData.isNode() ? localData.getQPath()
+                                                  : localData.getQPath().makeParentPath();
 
-            QPath nextLocNodePath = localData.isNode()
-                ? nextLocalState.getData().getQPath()
-                : nextLocalState.getData().getQPath().makeParentPath();
+            QPath nextLocNodePath = localData.isNode() ? nextLocalState.getData().getQPath()
+                                                      : nextLocalState.getData()
+                                                                      .getQPath()
+                                                                      .makeParentPath();
 
             if (incomeData.isNode()) {
               for (ItemState st : incUpdateSeq) {
@@ -334,7 +358,9 @@ public class UpdateMerger extends AbstractMerger {
                   List<ItemState> rename = local.getRenameSequence(localState);
                   for (int i = rename.size() - 1; i >= 0; i--) {
                     ItemState item = rename.get(i);
-                    if (item.getState() == ItemState.RENAMED) { // generate delete state for new
+                    if (item.getState() == ItemState.RENAMED) { // generate
+                                                                // delete state
+                                                                // for new
                       // place
 
                       // delete lock properties if present
@@ -366,7 +392,9 @@ public class UpdateMerger extends AbstractMerger {
                   List<ItemState> rename = local.getRenameSequence(localState);
                   for (int i = rename.size() - 1; i >= 0; i--) {
                     ItemState item = rename.get(i);
-                    if (item.getState() == ItemState.RENAMED) { // delete lock properties if present
+                    if (item.getState() == ItemState.RENAMED) { // delete lock
+                                                                // properties if
+                                                                // present
                       if (item.getData().isNode()) {
                         for (ItemState inSt : generateDeleleLockProperties((NodeData) item.getData()))
                           resultState.add(inSt);

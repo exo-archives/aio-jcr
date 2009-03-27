@@ -31,6 +31,7 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 
 /**
@@ -87,7 +88,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder());
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize);
     
     Iterator<ItemState> it = expl.iterator();
     while(it.hasNext()){
@@ -106,23 +107,19 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     assertNotNull(in);
     
     ObjectReader oin = new ObjectReaderImpl(in);
-    
+    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize);
     List<ItemState> res = new ArrayList<ItemState>();
-    ItemState itemState = new ItemState();
-    itemState.readObject(oin);
+    ItemState itemState = rdr.read(oin);
     res.add(itemState);
     
-    itemState = new ItemState();
-    itemState.readObject(oin);
+    itemState = rdr.read(oin);
     res.add(itemState);
     
-    itemState = new ItemState();
-    itemState.readObject(oin);
+    itemState = rdr.read(oin);
     res.add(itemState);
     
     try{
-      itemState = new ItemState();
-      itemState.readObject(oin);
+      itemState = rdr.read(oin);
       res.add(itemState);
       fail();
     }catch (EOFException e){
@@ -157,7 +154,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     File dir = new File("target/testBufferedEdit2");
     dir.mkdirs();
     
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10),32, new ResourcesHolder());
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10),32, new ResourcesHolder(), fileCleaner, maxBufferSize);
     
     Iterator<ItemState> it = expl.iterator();
     while(it.hasNext()){
@@ -186,7 +183,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder());
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize);
     
     
     //write

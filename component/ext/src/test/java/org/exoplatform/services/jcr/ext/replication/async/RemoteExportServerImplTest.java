@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -159,9 +160,9 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
     Thread.sleep(5000);
 
     ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
-    ItemState itemState = new ItemState();
-    itemState.readObject(in);
-
+    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize);
+    ItemState itemState = rdr.read(in);
+    
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()
                                                                                   .getIdentifier());
   }
@@ -180,8 +181,8 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
     exportServer.onCancel();
 
     ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
-    ItemState itemState = new ItemState();
-    itemState.readObject(in);
+    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize);
+    ItemState itemState = rdr.read(in);
 
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()
                                                                                   .getIdentifier());

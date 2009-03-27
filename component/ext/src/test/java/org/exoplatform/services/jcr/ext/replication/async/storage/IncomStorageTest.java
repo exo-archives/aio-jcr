@@ -41,6 +41,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.jgroups.stack.IpAddress;
 
@@ -78,14 +79,15 @@ public class IncomStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log = createChangesLog((NodeData) n.getData());
 
     // create storage
-    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
+    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     MessageDigest digest = MessageDigest.getInstance("MD5");
     DigestOutputStream dout = new DigestOutputStream(bytes, digest);
-
+    
     ObjectWriter out = new ObjectWriterImpl(dout);
-    log.writeObject(out);
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+    wr.write(out, log);
     out.close();
 
     RandomChangesFile cf = storage.createChangesFile(digest.digest(),
@@ -137,14 +139,16 @@ public class IncomStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
     // create storage
-    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
+    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     MessageDigest digest = MessageDigest.getInstance("MD5");
     DigestOutputStream dout = new DigestOutputStream(bytes, digest);
 
-    ObjectWriter out = new ObjectWriterImpl(dout);
-    log1.writeObject(out);
+    ObjectWriterImpl out = new ObjectWriterImpl(dout);
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+    wr.write(out, log1);
+    
     out.close();
 
     RandomChangesFile cf = storage.createChangesFile(digest.digest(),
@@ -163,7 +167,8 @@ public class IncomStorageTest extends BaseStandaloneTest {
     digest.reset();
     dout = new DigestOutputStream(bytes, digest);
     out = new ObjectWriterImpl(dout);
-    log2.writeObject(out);
+    wr.write(out, log2);
+    
     out.close();
 
     cf = storage.createChangesFile(digest.digest(),
@@ -180,7 +185,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     digest.reset();
     dout = new DigestOutputStream(bytes, digest);
     out = new ObjectWriterImpl(dout);
-    log3.writeObject(out);
+    wr.write(out, log3);
     out.close();
 
     cf = storage.createChangesFile(digest.digest(),

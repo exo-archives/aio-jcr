@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 
 /**
  * Created by The eXo Platform SAS.
@@ -45,7 +46,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
   public void testAdd() throws Exception {
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null, new ResourcesHolder());
+                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize);
     cs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
                                                             0,
@@ -79,21 +80,22 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
     for (TransactionChangesLog tcl : pl.pushChanges()) {
       RandomChangesFile cf = new TesterRandomChangesFile(new byte[]{}, 123l);
 
       ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
 
-      tcl.writeObject(oos);
+      wr.write(oos, tcl);
       oos.flush();
 
       cfList.add(cf);
     }
 
-    ChangesLogStorage<ItemState> cls = new ChangesLogStorage<ItemState>(cfList);
+    ChangesLogStorage<ItemState> cls = new ChangesLogStorage<ItemState>(cfList, fileCleaner, maxBufferSize);
 
     BufferedItemStatesStorage<ItemState> bs = new BufferedItemStatesStorage<ItemState>(new File("./target"),
-                                                                                       null, new ResourcesHolder());
+                                                                                       null, new ResourcesHolder(), fileCleaner, maxBufferSize);
 
     bs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
@@ -106,7 +108,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
     initNodes++;
 
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null, new ResourcesHolder());
+                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize);
     cs.addAll(cls);
     cs.addAll(bs);
 

@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntime
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS.
@@ -62,17 +63,22 @@ public abstract class AbstractMerger implements ChangesMerger {
   protected final NodeTypeDataManager ntManager;
 
   protected final ResourcesHolder     resHolder;
-
+  
+  protected final FileCleaner fileCleaner;
+  protected final int maxBufferSize;
+  
   public AbstractMerger(boolean localPriority,
                         RemoteExporter exporter,
                         DataManager dataManager,
                         NodeTypeDataManager ntManager,
-                        ResourcesHolder resHolder) {
+                        ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize) {
     this.localPriority = localPriority;
     this.exporter = exporter;
     this.dataManager = dataManager;
     this.ntManager = ntManager;
     this.resHolder = resHolder;
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
   }
 
   /**

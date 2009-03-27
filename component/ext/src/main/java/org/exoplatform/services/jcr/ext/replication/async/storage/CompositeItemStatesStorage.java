@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS.
@@ -44,6 +45,10 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   protected final ResourcesHolder         resHolder;
 
   protected EditableChangesStorage<T>     current;
+  
+  private final FileCleaner fileCleaner;
+  
+  private final int maxBufferSize;
 
   class ItemStateIterator implements Iterator<T> {
 
@@ -114,10 +119,12 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     }
   }
 
-  public CompositeItemStatesStorage(File storageDir, Member member, ResourcesHolder resHolder) {
+  public CompositeItemStatesStorage(File storageDir, Member member, ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize) {
     this.member = member;
     this.storageDir = storageDir;
     this.resHolder = resHolder;
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
   }
 
   /**
@@ -129,7 +136,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   private EditableChangesStorage<T> current() {
     if (current == null) {
-      current = new BufferedItemStatesStorage<T>(storageDir, member, resHolder);
+      current = new BufferedItemStatesStorage<T>(storageDir, member, resHolder, fileCleaner, maxBufferSize);
       storages.add(current);
     }
 

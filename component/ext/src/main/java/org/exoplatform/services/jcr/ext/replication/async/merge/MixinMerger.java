@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS.
@@ -53,8 +54,8 @@ public class MixinMerger extends AbstractMerger {
                      RemoteExporter exporter,
                      DataManager dataManager,
                      NodeTypeDataManager ntManager,
-                     ResourcesHolder resHolder) {
-    super(localPriority, exporter, dataManager, ntManager, resHolder);
+                     ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize) {
+    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize);
   }
 
   /**
@@ -81,7 +82,7 @@ public class MixinMerger extends AbstractMerger {
     ItemState incomeState = itemChange;
     EditableChangesStorage<ItemState> resultState = new CompositeItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                               null,
-                                                                                              resHolder);
+                                                                                              resHolder, fileCleaner, maxBufferSize);
 
     ItemState parentNodeState;
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
@@ -116,7 +117,7 @@ public class MixinMerger extends AbstractMerger {
                 accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder);
+                                                                resHolder, fileCleaner, maxBufferSize);
               }
             }
             break;
@@ -130,7 +131,7 @@ public class MixinMerger extends AbstractMerger {
                 accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder);
+                                                                resHolder, fileCleaner, maxBufferSize);
               }
             }
             break;
@@ -142,7 +143,7 @@ public class MixinMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder, fileCleaner, maxBufferSize);
             }
           }
           break;
@@ -159,7 +160,7 @@ public class MixinMerger extends AbstractMerger {
             for (int i = 1; i < mixinSequence.size(); i++) { // first state is MIXIN_CHANGED
               skippedList.add(mixinSequence.get(i).getData().getQPath());
             }
-            return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+            return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder, fileCleaner, maxBufferSize);
           }
           break;
         }

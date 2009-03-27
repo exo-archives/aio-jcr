@@ -49,6 +49,7 @@ import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCyc
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -98,7 +99,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   private final String                                         storagePath;
 
   private final FileCleaner                                    fileCleaner;
-
+  
   protected final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
 
   protected ChangesSpooler                                     changesSpooler             = null;
@@ -117,6 +118,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   private boolean                                              incorrectPreviouslySavedData;
 
+  private final int maxBufferSize;
   /**
    * This unique index used as name for ChangesFiles.
    */
@@ -283,7 +285,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
                                                                  digest));
       }
 
-      itemStates.writeObject(currentOut);
+      TransactionChangesLogWriter writer = new TransactionChangesLogWriter();
+      writer.write(currentOut, itemStates);
+      
+      
       // keep stream opened
     }
   }
@@ -291,16 +296,18 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * LocalStorageImpl constructor.
    * 
-   * @param storagePath
-   * @param fileCleaner
-   * @throws NoSuchAlgorithmException
-   * @throws ChecksumNotFoundException
+   * @param storagePath - path to store changesLogs files.
+   * @param fileCleaner - FileCleaner used for delete changesLogs and TransiendValueData object deserialization.
+   * @param maxBufferSize - int used for internal TransientValueData deserialization.
+   * @throws NoSuchAlgorithmException - message digest instantiating error.
+   * @throws ChecksumNotFoundException - there is no file contains changesLog digest.
    */
-  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner) throws NoSuchAlgorithmException,
+  public LocalStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize) throws NoSuchAlgorithmException,
       ChecksumNotFoundException {
     this.incorrectPreviouslySavedData = false;
     this.storagePath = storagePath;
     this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
     this.digest = MessageDigest.getInstance("MD5");
 
     // find last index of storage
@@ -339,16 +346,18 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * LocalStorageImpl constructor.
    * 
-   * @param storagePath
-   * @param fileCleaner
-   * @throws NoSuchAlgorithmException
-   * @throws ChecksumNotFoundException
+   * @param storagePath - path to store changesLogs files.
+   * @param fileCleaner - FileCleaner used for delete changesLogs and TransiendValueData object deserialization.
+   * @param maxBufferSize - int used for internal TransientValueData deserialization.
+   * @param versionHolder - VersionHolder.
+   * @throws NoSuchAlgorithmException - message digest instantiating error.
+   * @throws ChecksumNotFoundException - there is no file contains changesLog digest.
    */
   public LocalStorageImpl(String storagePath,
-                          FileCleaner fileCleaner,
+                          FileCleaner fileCleaner,int maxBufferSize, 
                           VersionLogHolder versionLogHolder) throws NoSuchAlgorithmException,
       ChecksumNotFoundException {
-    this(storagePath, fileCleaner);
+    this(storagePath, fileCleaner, maxBufferSize);
     this.versionLogHolder = versionLogHolder;
   }
 
@@ -392,7 +401,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         }
       }
 
-      return new ChangesLogStorage<ItemState>(chFiles);
+      return new ChangesLogStorage<ItemState>(chFiles, fileCleaner, maxBufferSize);
     } else {
       return null;
     }

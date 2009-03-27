@@ -114,11 +114,11 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testStorage2WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      new FileCleaner());
+                                                                      fileCleaner, maxBufferSize);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    new FileCleaner(),
+                                                    fileCleaner, maxBufferSize,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -147,11 +147,11 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testStorage2WSWithoutVSChanges() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      new FileCleaner());
+                                                                      fileCleaner, maxBufferSize);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    new FileCleaner(),
+                                                    fileCleaner, maxBufferSize,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -178,7 +178,7 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testSystemLocalStorage1WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      new FileCleaner());
+                                                                      fileCleaner, maxBufferSize);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     NodeImpl node = (NodeImpl) root.addNode("test");

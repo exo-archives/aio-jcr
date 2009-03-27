@@ -38,11 +38,10 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 10.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AddMerger.java 24880 2008-12-11 11:49:03Z tolusha $
@@ -53,8 +52,10 @@ public class RenameMerger extends AbstractMerger {
                       RemoteExporter exporter,
                       DataManager dataManager,
                       NodeTypeDataManager ntManager,
-                      ResourcesHolder resHolder) {
-    super(localPriority, exporter, dataManager, ntManager, resHolder);
+                      ResourcesHolder resHolder,
+                      FileCleaner fileCleaner,
+                      int maxBufferSize) {
+    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize);
   }
 
   /**
@@ -84,17 +85,22 @@ public class RenameMerger extends AbstractMerger {
 
     ItemState parentNodeState;
 
-    QPath incNodePath = incomeState.getData().isNode()
-        ? incomeState.getData().getQPath()
-        : incomeState.getData().getQPath().makeParentPath();
+    QPath incNodePath = incomeState.getData().isNode() ? incomeState.getData().getQPath()
+                                                      : incomeState.getData()
+                                                                   .getQPath()
+                                                                   .makeParentPath();
 
-    QPath nextIncNodePath = nextIncomeState.getData().isNode()
-        ? nextIncomeState.getData().getQPath()
-        : nextIncomeState.getData().getQPath().makeParentPath();
+    QPath nextIncNodePath = nextIncomeState.getData().isNode() ? nextIncomeState.getData()
+                                                                                .getQPath()
+                                                              : nextIncomeState.getData()
+                                                                               .getQPath()
+                                                                               .makeParentPath();
 
     EditableChangesStorage<ItemState> resultState = new CompositeItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                               null,
-                                                                                              resHolder);
+                                                                                              resHolder,
+                                                                                              fileCleaner,
+                                                                                              maxBufferSize);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -123,7 +129,9 @@ public class RenameMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incNodePath, income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
           } else {
             if (localData.getQPath().isDescendantOf(incNodePath)) {
@@ -131,7 +139,9 @@ public class RenameMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incNodePath, income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
           }
           break;
@@ -151,7 +161,9 @@ public class RenameMerger extends AbstractMerger {
                 accumulateSkippedList(incomeState, incNodePath, income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder);
+                                                                resHolder,
+                                                                fileCleaner,
+                                                                maxBufferSize);
               }
             }
             break;
@@ -160,13 +172,13 @@ public class RenameMerger extends AbstractMerger {
           // Rename sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
-            QPath localPath = localData.isNode()
-                ? localData.getQPath()
-                : localData.getQPath().makeParentPath();
+            QPath localPath = localData.isNode() ? localData.getQPath()
+                                                : localData.getQPath().makeParentPath();
 
-            QPath nextLocalPath = localData.isNode()
-                ? nextLocalState.getData().getQPath()
-                : nextLocalState.getData().getQPath().makeParentPath();
+            QPath nextLocalPath = localData.isNode() ? nextLocalState.getData().getQPath()
+                                                    : nextLocalState.getData()
+                                                                    .getQPath()
+                                                                    .makeParentPath();
 
             if (localPath.isDescendantOf(incNodePath) || localPath.equals(incNodePath)
                 || nextIncNodePath.isDescendantOf(localPath)
@@ -176,7 +188,9 @@ public class RenameMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incNodePath, income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
             break;
           }
@@ -192,7 +206,9 @@ public class RenameMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incNodePath, income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
           } else {
             if (incNodePath.isDescendantOf(localData.getQPath().makeParentPath())
@@ -204,7 +220,9 @@ public class RenameMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incNodePath, income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
           }
           break;
@@ -217,7 +235,9 @@ public class RenameMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incNodePath, income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder);
+                                                              resHolder,
+                                                              fileCleaner,
+                                                              maxBufferSize);
             }
           }
           break;
@@ -230,7 +250,11 @@ public class RenameMerger extends AbstractMerger {
               || localData.getQPath().isDescendantOf(incNodePath)) {
 
             accumulateSkippedList(incomeState, incNodePath, income, skippedList);
-            return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder);
+            return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                            null,
+                                                            resHolder,
+                                                            fileCleaner,
+                                                            maxBufferSize);
           }
           break;
         }
@@ -387,13 +411,16 @@ public class RenameMerger extends AbstractMerger {
           // Rename sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
-            QPath locNodePath = localData.isNode()
-                ? localState.getData().getQPath()
-                : localState.getData().getQPath().makeParentPath();
+            QPath locNodePath = localData.isNode() ? localState.getData().getQPath()
+                                                  : localState.getData()
+                                                              .getQPath()
+                                                              .makeParentPath();
 
-            QPath nextLocNodePath = nextLocalState.getData().isNode()
-                ? nextLocalState.getData().getQPath()
-                : nextLocalState.getData().getQPath().makeParentPath();
+            QPath nextLocNodePath = nextLocalState.getData().isNode() ? nextLocalState.getData()
+                                                                                      .getQPath()
+                                                                     : nextLocalState.getData()
+                                                                                     .getQPath()
+                                                                                     .makeParentPath();
 
             // rename same node
             if (incNodePath.equals(locNodePath)) {
@@ -425,7 +452,8 @@ public class RenameMerger extends AbstractMerger {
               for (int i = locRenSeq.size() - 1; i >= 0; i--) {
                 ItemState item = locRenSeq.get(i);
 
-                if (item.getState() == ItemState.DELETED) { // generate add state for old
+                if (item.getState() == ItemState.DELETED) { // generate add
+                                                            // state for old
                   resultState.add(generateRestoreRenamedItem(item, locRenSeq.get(locRenSeq.size()
                       - i - 1)));
                 }
@@ -449,9 +477,8 @@ public class RenameMerger extends AbstractMerger {
               // destination node is renamed locally
             } else if (nextIncNodePath.isDescendantOf(locNodePath)) {
               // restore renamed node
-              resultState.addAll(exporter.exportItem(localData.isNode()
-                  ? localData.getIdentifier()
-                  : localData.getParentIdentifier()));
+              resultState.addAll(exporter.exportItem(localData.isNode() ? localData.getIdentifier()
+                                                                       : localData.getParentIdentifier()));
 
               // remove node on new destination
               for (ItemState st : local.getRenameSequence(localState)) {
@@ -494,7 +521,9 @@ public class RenameMerger extends AbstractMerger {
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
-                if (item.getState() == ItemState.RENAMED) { // generate delete state for new place
+                if (item.getState() == ItemState.RENAMED) { // generate delete
+                                                            // state for new
+                                                            // place
 
                   // delete lock properties if present
                   if (item.getData().isNode()) {
@@ -540,9 +569,8 @@ public class RenameMerger extends AbstractMerger {
                                                 ItemState.DELETED);
 
           if (localData.isNode() || parentNodeState != null) {
-            QPath locNodePath = localData.isNode()
-                ? localData.getQPath()
-                : parentNodeState.getData().getQPath();
+            QPath locNodePath = localData.isNode() ? localData.getQPath()
+                                                  : parentNodeState.getData().getQPath();
 
             if (incNodePath.equals(locNodePath)) {
 
@@ -597,9 +625,8 @@ public class RenameMerger extends AbstractMerger {
 
               accumulateSkippedList(incomeState, localData.getQPath(), income, skippedList);
 
-              resultState.addAll(exporter.exportItem(localData.isNode()
-                  ? localData.getIdentifier()
-                  : localData.getParentIdentifier()));
+              resultState.addAll(exporter.exportItem(localData.isNode() ? localData.getIdentifier()
+                                                                       : localData.getParentIdentifier()));
 
               return resultState;
             }

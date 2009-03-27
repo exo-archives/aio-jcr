@@ -20,8 +20,13 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -29,6 +34,9 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValu
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -40,6 +48,8 @@ import org.exoplatform.services.log.ExoLogger;
 public abstract class BaseStandaloneTest extends TestCase {
 
   private static final Log      log = ExoLogger.getLogger(BaseStandaloneTest.class);
+  
+  public static final String WS_NAME = "ws";
 
   protected SessionImpl         session;
 
@@ -56,6 +66,12 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected ValueFactory        valueFactory;
 
   protected StandaloneContainer container;
+  
+  public int maxBufferSize = 200*1024;
+  
+  public FileCleaner fileCleaner;
+  
+  
 
   protected class CompareStreamException extends Exception {
 
@@ -88,10 +104,23 @@ public abstract class BaseStandaloneTest extends TestCase {
     // container.start();
     repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 
-    session = (SessionImpl) repository.login(credentials, "ws");
+    session = (SessionImpl) repository.login(credentials, WS_NAME);
     workspace = session.getWorkspace();
     root = session.getRootNode();
     valueFactory = session.getValueFactory();
+    
+    
+    ManageableRepository repository = repositoryService.getDefaultRepository(); 
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(WS_NAME);
+
+    WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
+
+    maxBufferSize = wconf.getContainer()
+                             .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                  WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+
+    WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
+    fileCleaner = wfcleaner.getFileCleaner();
   }
 
   protected void tearDown() throws Exception {

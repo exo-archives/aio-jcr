@@ -24,12 +24,11 @@ import java.util.NoSuchElementException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date:
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SolidChangesLogStorage.java 111 2008-11-11 11:11:11Z serg $
@@ -43,15 +42,17 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    */
   protected final List<ChangesFile> storage;
 
+  private final FileCleaner fileCleaner;
+  
   /**
-   * Storage owner member info.
+   * 
    */
-  // protected final Member member;
+  private final int maxBufferSize;
+  
   /**
    * Iterator that goes throw ChangesFiles and return ItemStates.
    * 
-   * @param <C>
-   *          ItemState extender
+   * @param <C> ItemState extender
    */
   class ItemStateIterator<C extends ItemState> implements Iterator<C> {
 
@@ -59,10 +60,12 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     private Iterator<C>                                      currentChangesLog;
 
-    public ItemStateIterator(List<ChangesFile> store) throws IOException,
+    public ItemStateIterator(List<ChangesFile> store, FileCleaner fileCleaner, int maxBufferSize) throws IOException,
         ClassCastException,
         ClassNotFoundException {
-      this.logIterator = new ChangesLogsIterator<TransactionChangesLog>(store);
+      this.logIterator = new ChangesLogsIterator<TransactionChangesLog>(store,
+                                                                        fileCleaner,
+                                                                        maxBufferSize);
       this.currentChangesLog = readNextIterator();
     }
 
@@ -133,13 +136,14 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * Class constructor.
    * 
-   * @param storage
-   *          list of ChangesFiles
-   * @param member
-   *          owner
+   * @param storage - list of ChangesFiles.
+   * @param fileCleaner -  FileCleaner used for internal TransientValueData read.
+   * @param maxBufferSize - int used for internal TransientValueData read.
    */
-  public ChangesLogStorage(List<ChangesFile> storage) {
+  public ChangesLogStorage(List<ChangesFile> storage, FileCleaner fileCleaner, int maxBufferSize) {
     this.storage = storage;
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
   }
 
   /**
@@ -152,7 +156,8 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
   public int size() throws IOException, ClassNotFoundException {
     int size = 0;
-    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    //fileCleaner and maxBufferSize has no sense
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage, null, 0);
 
     while (it.hasNext()) {
       size += it.next().getSize();
@@ -164,7 +169,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new ItemStateIterator<T>(storage);
+    return new ItemStateIterator<T>(storage, fileCleaner, maxBufferSize);
   }
 
   /**

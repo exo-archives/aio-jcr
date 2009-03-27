@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -68,13 +69,14 @@ public class TransmitterChangesTest extends AbstractTrasportTest {
 
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+    
     for (TransactionChangesLog tcl : pl.pushChanges()) {
       TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
                                                                      .getTimeInMillis());
 
       ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
-
-      tcl.writeObject(oos);
+      wr.write(oos, tcl);
       oos.flush();
 
       cfList.add(cf);

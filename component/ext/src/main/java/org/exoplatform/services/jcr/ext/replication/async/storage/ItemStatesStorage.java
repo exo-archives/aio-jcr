@@ -24,7 +24,9 @@ import java.util.NoSuchElementException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -41,14 +43,20 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   private final ChangesFile  storage;
 
   protected final Member     member;
+  
+  private final FileCleaner fileCleaner;
+  private final int maxBufferSize;
 
   class ItemStateIterator<S extends ItemState> implements Iterator<S> {
 
     private ObjectReader in;
 
-    private S                 nextItem;
+    private S            nextItem;
 
-    public ItemStateIterator() throws IOException, ClassCastException, ClassNotFoundException {
+    private final FileCleaner fileCleaner;
+    private final int maxBufferSize;
+    
+    public ItemStateIterator(FileCleaner fileCleaner, int maxBufferSize) throws IOException, ClassCastException, ClassNotFoundException {
 
       if (storage == null) {
         throw new NullPointerException("ChangesFile not exists.");
@@ -56,6 +64,8 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
 
       this.in = new ObjectReaderImpl(storage.getInputStream());
       this.nextItem = readNext();
+      this.fileCleaner = fileCleaner;
+      this.maxBufferSize = maxBufferSize;
     }
 
     /**
@@ -96,9 +106,9 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     protected S readNext() throws IOException, ClassNotFoundException, ClassCastException {
       if (in != null) {
         try {
-          ItemState item = new ItemState();
-          item.readObject(in);
-          return (S) item;
+
+          ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize);
+          return (S) rdr.read(in);
         } catch (EOFException e) {
           // End of list
           in.close();
@@ -117,14 +127,14 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * ItemStatesStorage constructor for export.
    * 
-   * @param changes
-   *          ChagesFiles
-   * @param member
-   *          owner
+   * @param changes ChagesFiles
+   * @param member owner
    */
-  public ItemStatesStorage(ChangesFile changes, Member member) {
+  public ItemStatesStorage(ChangesFile changes, Member member, FileCleaner fileCleaner, int maxBufferSize) {
     this.storage = changes;
     this.member = member;
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
   }
 
   /**
@@ -165,7 +175,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new ItemStateIterator<T>();
+    return new ItemStateIterator<T>(fileCleaner, maxBufferSize);
   }
 
 }

@@ -86,10 +86,14 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     StorageKey skey = new StorageKey(repoName, workspaceName);
     LocalStorage localStorage = localStorages.get(skey);
-    IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey));
-
+    
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
+    int maxBufferSize = wconf.getContainer()
+    .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                         WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+    
+    IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey), wfcleaner.getFileCleaner(), maxBufferSize );
 
     AsyncWorker synchWorker = new AsyncWorker(dm,
                                               sysDm,

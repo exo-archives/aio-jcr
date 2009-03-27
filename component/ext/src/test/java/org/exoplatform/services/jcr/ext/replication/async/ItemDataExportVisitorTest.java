@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 
@@ -383,14 +384,13 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
     ItemState elem;
     List<ItemState> list = new ArrayList<ItemState>();
-    try {
-      while (true) {
-        elem = new ItemState();
-        elem.readObject(in);
-        list.add(elem);
-      }
-    } catch (EOFException e) {
-
+    try{
+    ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize);  
+    while(true){
+      elem =  rdr.read(in);
+      list.add(elem);
+    }
+    }catch(EOFException e){
     }
     return list;
   }

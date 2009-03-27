@@ -60,6 +60,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogReader;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -95,14 +97,14 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     List<TransactionChangesLog> srcChangesLogList = pl.pushChanges();
 
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
     for (TransactionChangesLog tcl : srcChangesLogList) {
       TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(),
                                                                Calendar.getInstance()
                                                                        .getTimeInMillis());
 
       ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
-
-      tcl.writeObject(oos);
+      wr.write(oos, tcl);
       oos.flush();
 
       cfList.add(cf);
@@ -147,8 +149,8 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
       ObjectReader ois = new ObjectReaderImpl(changesFile.getInputStream());
-      TransactionChangesLog tcLog = new TransactionChangesLog();
-      tcLog.readObject(ois);
+      TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize);
+      TransactionChangesLog tcLog = rdr.read(ois);
       destChangesLogList.add(tcLog);
     }
 
@@ -230,10 +232,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel2.disconnect();
 
     // compare data
-    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null).getChanges(); // TODO
+    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null, fileCleaner, maxBufferSize).getChanges(); // TODO
     // member
     Iterator<ItemState> destChanges = new ItemStatesStorage<ItemState>(exportChangesReceiver.getExportChangesFile(),
-                                                                       null).getChanges();
+                                                                       null, fileCleaner, maxBufferSize).getChanges();
     // compare ChangesLog
 
     while (srcChanges.hasNext()) {
