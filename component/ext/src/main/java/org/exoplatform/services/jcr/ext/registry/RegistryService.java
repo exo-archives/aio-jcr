@@ -72,6 +72,9 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 
+/**
+ * @author vetal
+ */
 public class RegistryService extends Registry implements Startable {
 
   private static Log                  log                  = ExoLogger.getLogger("jcr.RegistryService");
@@ -97,10 +100,10 @@ public class RegistryService extends Registry implements Startable {
   public final static String          EXO_GROUPS           = "exo:groups";
 
   protected final Map<String, String> regWorkspaces;
-  
-  private HashMap<String, String> appConfigurations = new HashMap<String, String>();
-  
-  private String entryLocation;
+
+  private HashMap<String, String>     appConfigurations    = new HashMap<String, String>();
+
+  private String                      entryLocation;
 
   protected final RepositoryService   repositoryService;
 
@@ -108,8 +111,7 @@ public class RegistryService extends Registry implements Startable {
   protected boolean                   started              = false;
 
   /**
-   * @param params
-   *          accepts "locations" properties param
+   * @param params accepts "locations" properties param
    * @param repositoryService
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
@@ -138,11 +140,8 @@ public class RegistryService extends Registry implements Startable {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry(
-   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String,
-   * org.exoplatform.services.jcr.core.ManageableRepository)
+  /**
+   * {@inheritDoc}
    */
   public RegistryEntry getEntry(final SessionProvider sessionProvider, final String entryPath) throws PathNotFoundException,
                                                                                               RepositoryException {
@@ -162,11 +161,8 @@ public class RegistryService extends Registry implements Startable {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#createEntry(
-   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
-   * org.w3c.dom.Document)
+  /**
+   * {@inheritDoc}
    */
   public void createEntry(final SessionProvider sessionProvider,
                           final String groupPath,
@@ -188,10 +184,8 @@ public class RegistryService extends Registry implements Startable {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#removeEntry(
-   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void removeEntry(final SessionProvider sessionProvider, final String entryPath) throws RepositoryException {
 
@@ -202,12 +196,8 @@ public class RegistryService extends Registry implements Startable {
     parent.save();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.registry.Registry#recreateEntry(org.exoplatform.services.jcr
-   * .ext.common.SessionProvider, java.lang.String,
-   * org.exoplatform.services.jcr.ext.registry.RegistryEntry)
+  /**
+   * {@inheritDoc}
    */
   public void recreateEntry(final SessionProvider sessionProvider,
                             final String groupPath,
@@ -241,11 +231,8 @@ public class RegistryService extends Registry implements Startable {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr
-   * .ext.common.SessionProvider, org.exoplatform.services.jcr.core.ManageableRepository)
+  /**
+   * {@inheritDoc}
    */
   public RegistryNode getRegistry(final SessionProvider sessionProvider) throws RepositoryException {
 
@@ -268,9 +255,8 @@ public class RegistryService extends Registry implements Startable {
     return started;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#start()
+  /**
+   * {@inheritDoc}
    */
   public void start() {
     if (!started)
@@ -300,9 +286,8 @@ public class RegistryService extends Registry implements Startable {
       log.warn("Registry service already started");
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#stop()
+  /**
+   * {@inheritDoc}
    */
   public void stop() {
   }
@@ -328,19 +313,18 @@ public class RegistryService extends Registry implements Startable {
         rootNode.addNode(EXO_APPLICATIONS, EXO_REGISTRYGROUP_NT);
         rootNode.addNode(EXO_USERS, EXO_REGISTRYGROUP_NT);
         rootNode.addNode(EXO_GROUPS, EXO_REGISTRYGROUP_NT);
-        
-        DocumentBuilder builder;
+
         Set<String> appNames = appConfigurations.keySet();
         final String fullPath = "/" + EXO_REGISTRY + "/" + entryLocation;
         for (String appName : appNames) {
           String xml = appConfigurations.get(appName);
-          try{
-            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+          try {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
             Document document = builder.parse(stream);
             RegistryEntry entry = new RegistryEntry(document);
-            sysSession.importXML(fullPath,entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
-          }catch (ParserConfigurationException e) {
+            sysSession.importXML(fullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
+          } catch (ParserConfigurationException e) {
             e.printStackTrace();
           } catch (IOException e) {
             e.printStackTrace();
@@ -348,10 +332,9 @@ public class RegistryService extends Registry implements Startable {
             e.printStackTrace();
           } catch (TransformerException e) {
             e.printStackTrace();
-          }     
-          
-        }     
-        
+          }
+
+        }
         sysSession.save();
       }
       sysSession.logout();
@@ -409,8 +392,7 @@ public class RegistryService extends Registry implements Startable {
   /**
    * Get value of force-xml-configuration param.
    * 
-   * @param initParams
-   *          The InitParams
+   * @param initParams The InitParams
    * @return force-xml-configuration value if present and false in other case
    */
   public boolean getForceXMLConfigurationValue(InitParams initParams) {
@@ -451,14 +433,13 @@ public class RegistryService extends Registry implements Startable {
       prefix = path;
     }
   }
-  
-  
-  public void addPlugin(ComponentPlugin plugin){
-    if(RegistryInitializationEntryPlugin.class.isAssignableFrom(plugin.getClass())) {
+
+  public void addPlugin(ComponentPlugin plugin) {
+    if (RegistryInitializationEntryPlugin.class.isAssignableFrom(plugin.getClass())) {
       RegistryInitializationEntryPlugin registryPlugin = (RegistryInitializationEntryPlugin) plugin;
       appConfigurations = registryPlugin.getAppConfiguration();
       entryLocation = registryPlugin.getLocation();
-      if (entryLocation == null) 
+      if (entryLocation == null)
         entryLocation = EXO_APPLICATIONS;
     }
   }
