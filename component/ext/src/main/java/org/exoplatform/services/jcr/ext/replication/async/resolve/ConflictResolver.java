@@ -18,11 +18,9 @@ package org.exoplatform.services.jcr.ext.replication.async.resolve;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
@@ -286,13 +284,13 @@ public class ConflictResolver {
       List<ItemState> restoredItems = new ArrayList<ItemState>();
 
       // items need to export
-      Map<QPath, ItemState> needToExport = new HashMap<QPath, ItemState>();
+      Set<QPath> needExportItem = new HashSet<QPath>();
 
       QPath rootExportPath = null;
       String rootExportIdentifier = null;
 
-      //
-      Set<String> versionableNodes = new HashSet<String>();
+      // version history need to export
+      Set<String> needExportItemVH = new HashSet<String>();
 
       for (int j = changes.size() - 1; j >= 0; j--) {
         ItemState item = changes.get(j);
@@ -306,7 +304,7 @@ public class ConflictResolver {
           if (getPrevState(changes, j) != -1)
             continue;
 
-          // restore deleted node from rename
+          // restore deleted node from local rename
           if (nextItem != null && nextItem.getState() == ItemState.RENAMED) {
             if (item.getData().isNode()) {
               NodeData node = (NodeData) item.getData();
@@ -330,11 +328,10 @@ public class ConflictResolver {
               newProp.setValues(((PropertyData) nextItem.getData()).getValues());
               restoredItems.add(new ItemState(newProp, ItemState.ADDED, true, prop.getQPath()));
             }
-
             continue;
           }
 
-          // restore deleted node
+          // restore deleted node from income rename
           ItemState incomeChange = income.findItemState(item.getData().getIdentifier(),
                                                         item.getData().getQPath(),
                                                         ItemState.DELETED);
@@ -362,6 +359,7 @@ public class ConflictResolver {
                                                                     node.getACL());
                   restoredItems.add(new ItemState(newNode, ItemState.UPDATED, true, item.getData()
                                                                                         .getQPath()));
+                  needExportItemVH.add(incomeChange.getData().getIdentifier());
                 } else {
                   PropertyData prop = (PropertyData) incomeChange.getData();
                   TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
@@ -391,7 +389,7 @@ public class ConflictResolver {
           }
 
           // add to export
-          needToExport.put(item.getData().getQPath(), item);
+          needExportItem.add(item.getData().getQPath());
           QPath nodePath = item.isNode() ? item.getData().getQPath() : item.getData()
                                                                            .getQPath()
                                                                            .makeParentPath();
@@ -434,7 +432,7 @@ public class ConflictResolver {
           }
 
           // add to export
-          needToExport.put(item.getData().getQPath(), item);
+          needExportItem.add(item.getData().getQPath());
           QPath nodePath = item.getData().getQPath().makeParentPath();
           if (rootExportPath == null || rootExportPath.isDescendantOf(nodePath)) {
             rootExportPath = nodePath;
@@ -443,19 +441,30 @@ public class ConflictResolver {
         }
       }
 
-      // export
+      // restore from export
       if (rootExportIdentifier != null) {
         ChangesStorage<ItemState> exportedItems = exporter.exportItem(rootExportIdentifier);
 
         Iterator<ItemState> itemStates = exportedItems.getChanges();
         while (itemStates.hasNext()) {
           ItemState item = itemStates.next();
-          if (needToExport.get(item.getData().getQPath()) != null) {
+          if (needExportItem.contains(item.getData().getQPath())) {
             iteration.add(item);
           }
         }
       }
 
+      // restore versionhistory from export
+      Iterator<String> uuids = needExportItemVH.iterator();
+      while (uuids.hasNext()) {
+        String uuid = uuids.next();
+        String vhUuid = income.findVHProperty(uuid);
+        if (vhUuid != null) {
+          iteration.addAll(exporter.exportItem(vhUuid));
+        }
+      }
+
+      // restore from changes log
       for (int k = 0; k < restoredItems.size(); k++)
         iteration.add(restoredItems.get(k));
     }

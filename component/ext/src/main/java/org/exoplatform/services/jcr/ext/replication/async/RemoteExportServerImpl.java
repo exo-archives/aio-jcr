@@ -157,10 +157,20 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
 
     NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
     NodeData parentNode;
+
+    DataManager requiredDataManager;
+
+    if (exportedNode == null) {
+      exportedNode = (NodeData) systemDataManager.getItemData(nodeId);
+      requiredDataManager = systemDataManager;
+    } else {
+      requiredDataManager = dataManager;
+    }
+
     if (nodeId.equals(Constants.ROOT_UUID)) {
       parentNode = exportedNode;
     } else {
-      parentNode = (NodeData) dataManager.getItemData(exportedNode.getParentIdentifier());
+      parentNode = (NodeData) requiredDataManager.getItemData(exportedNode.getParentIdentifier());
     }
 
     ObjectWriter out = null;
@@ -181,7 +191,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
       ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
                                                                  parentNode,
                                                                  ntManager,
-                                                                 dataManager,
+                                                                 requiredDataManager,
                                                                  systemDataManager);
       exportedNode.accept(exporter);
 

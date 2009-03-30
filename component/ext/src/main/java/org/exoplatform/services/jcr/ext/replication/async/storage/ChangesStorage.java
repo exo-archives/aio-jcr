@@ -218,8 +218,8 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws ClassNotFoundException
    */
   public T findItemState(String identifier, QPath path, int state) throws IOException,
-                                                              ClassCastException,
-                                                              ClassNotFoundException;
+                                                                  ClassCastException,
+                                                                  ClassNotFoundException;
 
   public T findPrevState(ItemState toState, String identifier) throws IOException,
                                                               ClassCastException,
@@ -381,6 +381,19 @@ public interface ChangesStorage<T extends ItemState> {
   public QPath findVSChanges(String uuid) throws IOException,
                                          ClassCastException,
                                          ClassNotFoundException;
+
+  /**
+   * findVHProperty.
+   * 
+   * @param uuid
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
+  public String findVHProperty(String uuid) throws IOException,
+                                           ClassCastException,
+                                           ClassNotFoundException;
 
   /**
    * getUniqueTreeChanges.

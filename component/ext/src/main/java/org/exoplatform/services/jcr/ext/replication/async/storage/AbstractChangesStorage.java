@@ -698,6 +698,29 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   /**
    * {@inheritDoc}
    */
+  public String findVHProperty(String uuid) throws IOException,
+                                           ClassCastException,
+                                           ClassNotFoundException {
+
+    Iterator<T> itemStates = getChanges();
+    while (itemStates.hasNext()) {
+      T item = itemStates.next();
+
+      if (!item.getData().isNode() && item.getData().getParentIdentifier().equals(uuid)
+          && item.getData().getQPath().getName().equals(Constants.JCR_VERSIONHISTORY)) {
+
+        PropertyData prop = (PropertyData) item.getData();
+        if (prop.getValues().size() > 0)
+          return new String(prop.getValues().get(0).getAsByteArray());
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public List<QPath> getUniquePathesByUUID(String identifier) throws IOException,
                                                              ClassCastException,
                                                              ClassNotFoundException {
