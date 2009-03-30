@@ -106,15 +106,6 @@ public interface ChangesStorage<T extends ItemState> {
   // =========== custom ==============
 
   /**
-   * Find last Item state value or return -1.
-   * 
-   * @param itemPath
-   *          QPath
-   * @return int with ItemState state value
-   */
-  int findLastState(QPath itemPath) throws IOException, ClassCastException, ClassNotFoundException;
-
-  /**
    * TODO can we rely on sequence on log?
    * 
    * getNextItemState.
@@ -166,45 +157,6 @@ public interface ChangesStorage<T extends ItemState> {
                                                                                        ClassNotFoundException;
 
   /**
-   * Tell if state presents in storage after specified.
-   * 
-   * @param state
-   *          ItemState
-   * @return boolean
-   * @throws IOException
-   *           if error
-   */
-  public T findNextState(ItemState fromState, QPath path, int state) throws IOException,
-                                                                    ClassCastException,
-                                                                    ClassNotFoundException;
-
-  /**
-   * Tell if state presents in storage after specified.
-   * 
-   * @param state
-   *          ItemState
-   * @return boolean
-   * @throws IOException
-   *           if error
-   */
-  public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException,
-                                                                            ClassCastException,
-                                                                            ClassNotFoundException;
-
-  /**
-   * Tell if state presents in storage before specified.
-   * 
-   * @param state
-   *          ItemState
-   * @return boolean
-   * @throws IOException
-   *           if error
-   */
-  public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
-                                                                                     ClassCastException,
-                                                                                     ClassNotFoundException;
-
-  /**
    * findState.
    * 
    * merger2
@@ -221,104 +173,16 @@ public interface ChangesStorage<T extends ItemState> {
                                                                   ClassCastException,
                                                                   ClassNotFoundException;
 
-  public T findPrevState(ItemState toState, String identifier) throws IOException,
-                                                              ClassCastException,
-                                                              ClassNotFoundException;
-
-  public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
-                                                                  ClassCastException,
-                                                                  ClassNotFoundException;
-
-  /**
-   * getNextItemStateByIndexOnUpdate.
-   * 
-   * @param fromState
-   *          from ItemState
-   * @param prevIndex
-   *          int
-   * @return ItemState
-   */
-  T getNextItemStateByIndexOnUpdate(ItemState fromState, int prevIndex) throws IOException,
-                                                                       ClassCastException,
-                                                                       ClassNotFoundException;
-
-  /**
-   * TODO can we rely on sequence on log?
-   * 
-   * getNextItemStateByUUIDOnUpdate.
-   * 
-   * @param startState
-   * @param UUID
-   * @return
-   */
-  T getNextItemStateByUUIDOnUpdate(ItemState fromState, String UUID) throws IOException,
-                                                                    ClassCastException,
-                                                                    ClassNotFoundException;
-
-  /**
-   * TODO
-   * 
-   * Return descendants changes for a given path.
-   * 
-   * @param rootPath
-   *          - QPath
-   * @return Collection of ItemState
-   */
-  List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
-                                                                                     ClassCastException,
-                                                                                     ClassNotFoundException;
-
   /**
    * TODO
    * 
    * Return changes for a given path
-   * 
-   * @param rootPath
-   * 
-   * @return Collection of ItemState
-   */
-  List<T> getTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
-                                                              ClassCastException,
-                                                              ClassNotFoundException;
-
-  /**
-   * TODO
-   * 
-   * Return changes for a given path
-   * 
-   * @param rootPath
-   * 
-   * @return Collection of ItemState
-   */
-  List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
-                                                          ClassCastException,
-                                                          ClassNotFoundException;
-
-  /**
-   * TODO
-   * 
-   * Return changes for a given path
-   * 
-   * Merge2.
    * 
    * @param rootPath
    * 
    * @return Collection of ItemState
    */
   List<T> getChanges(QPath rootPath) throws IOException, ClassCastException, ClassNotFoundException;
-
-  /**
-   * TODO
-   * 
-   * Return changes for a given path
-   * 
-   * @param rootPath
-   * 
-   * @return Collection of ItemState
-   */
-  List<T> getChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
-                                                                          ClassCastException,
-                                                                          ClassNotFoundException;
 
   /**
    * getUpdateSequence.
@@ -328,17 +192,6 @@ public interface ChangesStorage<T extends ItemState> {
    * @return List of ItemState
    */
   List<T> getUpdateSequence(ItemState firstState) throws IOException,
-                                                 ClassCastException,
-                                                 ClassNotFoundException;
-
-  /**
-   * getRenameSequence.
-   * 
-   * @param firstState
-   *          ItemState
-   * @return List of ItemState
-   */
-  List<T> getRenameSequence(ItemState firstState) throws IOException,
                                                  ClassCastException,
                                                  ClassNotFoundException;
 
@@ -354,20 +207,6 @@ public interface ChangesStorage<T extends ItemState> {
   List<T> getMixinSequence(ItemState firstState) throws IOException,
                                                 ClassCastException,
                                                 ClassNotFoundException;
-
-  /**
-   * isParentHasCheckIn.
-   * 
-   * @param toState
-   * @param childPath
-   * @return
-   * @throws IOException
-   * @throws ClassCastException
-   * @throws ClassNotFoundException
-   */
-  boolean isParentHasCheckIn(ItemState toState, QPath childPath) throws IOException,
-                                                                ClassCastException,
-                                                                ClassNotFoundException;
 
   /**
    * findNodeInVS.
@@ -396,23 +235,7 @@ public interface ChangesStorage<T extends ItemState> {
                                            ClassNotFoundException;
 
   /**
-   * getUniqueTreeChanges.
-   * 
-   * @param firstState
-   * @param rootPath
-   * @return
-   * @throws IOException
-   * @throws ClassCastException
-   * @throws ClassNotFoundException
-   */
-  public List<T> getUniqueTreeChanges(ItemState firstState, QPath rootPath) throws IOException,
-                                                                           ClassCastException,
-                                                                           ClassNotFoundException;
-
-  /**
    * getUniquePathesByUUID.
-   * 
-   * Merge2.
    * 
    * @param identifier
    * @return
