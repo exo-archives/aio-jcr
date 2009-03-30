@@ -547,7 +547,7 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
     @Override
     public void initDataHighPriority() throws Exception {
-      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      Node node = sessionHighPriority.getRootNode().addNode("item4");
       node.addMixin("mix:versionable");
       node.setProperty("prop", "value1");
       sessionHighPriority.save();
@@ -564,19 +564,19 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
     @Override
     public void prepareDataHighPriority() throws Exception {
-      sessionHighPriority.move("/item1", "/item2");
+      sessionHighPriority.move("/item4", "/item41");
       sessionHighPriority.save();
     }
 
     @Override
     public void prepareDataLowPriority() throws Exception {
-      sessionLowPriority.getRootNode().getNode("item1").remove();
+      sessionLowPriority.getRootNode().getNode("item4").remove();
       sessionLowPriority.save();
     }
 
     @Override
     public void useCaseHighPriority() throws Exception {
-      Node node = sessionHighPriority.getRootNode().getNode("item2");
+      Node node = sessionHighPriority.getRootNode().getNode("item41");
       node.restore("1", false);
       sessionHighPriority.save();
     }
@@ -752,17 +752,17 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
     @Override
     public void useCaseHighPriority() throws Exception {
-      Node node = sessionDB5WS.getRootNode().addNode("item1");
+      Node node = sessionDB5WS.getRootNode().addNode("item5");
       node.setProperty("prop", "valueH");
       sessionDB5WS.save();
 
-      sessionHighPriority.getWorkspace().clone("ws", "/item1", "/item1", false);
+      sessionHighPriority.getWorkspace().clone("ws", "/item5", "/item5", false);
       sessionHighPriority.save();
     }
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      Node node = sessionLowPriority.getRootNode().addNode("item5");
       node.setProperty("prop", "valueL");
       sessionLowPriority.save();
     }
