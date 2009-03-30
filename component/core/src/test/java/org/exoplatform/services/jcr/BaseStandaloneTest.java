@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 import java.lang.ref.WeakReference;
+import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -14,17 +14,21 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFactory;
 import javax.jcr.Workspace;
 
-import org.objectweb.jotm.Current;
-
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.StandaloneContainer;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -35,11 +39,11 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class BaseStandaloneTest extends TestCase {
 
-  protected static Log          log       = ExoLogger.getLogger("jcr.JCRTest");
+  protected static Log          log           = ExoLogger.getLogger("jcr.JCRTest");
 
-  protected static String       TEMP_PATH = "./temp/fsroot";
+  protected static String       TEMP_PATH     = "./temp/fsroot";
 
-  protected static String       WORKSPACE = "ws";
+  protected static String       WORKSPACE     = "ws";
 
   protected SessionImpl         session;
 
@@ -56,6 +60,13 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected ValueFactory        valueFactory;
 
   protected StandaloneContainer container;
+
+  public int                    maxBufferSize = 200 * 1024;
+
+  public FileCleaner            fileCleaner;
+  
+  public ReaderSpoolFileHolder  holder;
+  
 
   protected class CompareStreamException extends Exception {
 
@@ -97,6 +108,19 @@ public abstract class BaseStandaloneTest extends TestCase {
     valueFactory = session.getValueFactory();
 
     initRepository();
+    ManageableRepository repository = repositoryService.getDefaultRepository();
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer("ws");
+
+    WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
+
+    maxBufferSize = wconf.getContainer()
+                         .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                              WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+
+    WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
+    fileCleaner = wfcleaner.getFileCleaner();
+    holder = new ReaderSpoolFileHolder();
+    
   }
 
   protected void tearDown() throws Exception {
@@ -191,9 +215,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   /**
-   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
-   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of
-   * them will be read.
+   * Compare etalon stream with data stream begining from the offset in etalon
+   * and position in data. Length bytes will be readed and compared. if length
+   * is lower 0 then compare streams till one of them will be read.
    * 
    * @param etalon
    * @param data
@@ -349,8 +373,7 @@ public abstract class BaseStandaloneTest extends TestCase {
       System.gc();
       try {
         Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
     }
   }

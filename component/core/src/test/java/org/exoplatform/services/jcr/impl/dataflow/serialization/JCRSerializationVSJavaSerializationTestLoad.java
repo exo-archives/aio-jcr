@@ -83,7 +83,7 @@ public class JCRSerializationVSJavaSerializationTestLoad extends JcrImplSerializ
 
       long t3 = System.currentTimeMillis();
 
-      TransientValueDataReader rdr = new TransientValueDataReader(null, 200 * 1024);
+      TransientValueDataReader rdr = new TransientValueDataReader(fileCleaner, maxBufferSize, holder);
       for (int i = 0; i < nodes; i++) {
         TransientValueData obj = rdr.read(jcrin);
       }

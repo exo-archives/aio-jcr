@@ -41,15 +41,18 @@ public class TransientPropertyDataReader {
 
   private int         maxBufferSize;
 
+  private final ReaderSpoolFileHolder holder;
+  
   /**
    * Constructor.
    * 
    * @param fileCleaner - FileCleaner.
    * @param maxBufferSize - MaxBufferSize.
    */
-  public TransientPropertyDataReader(FileCleaner fileCleaner, int maxBufferSize) {
+  public TransientPropertyDataReader(FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -111,7 +114,7 @@ public class TransientPropertyDataReader {
 
       int listSize = in.readInt();
       List<ValueData> values = new ArrayList<ValueData>();
-      TransientValueDataReader rdr = new TransientValueDataReader(fileCleaner, maxBufferSize);
+      TransientValueDataReader rdr = new TransientValueDataReader(fileCleaner, maxBufferSize, holder);
       for (int i = 0; i < listSize; i++) {
         values.add(rdr.read(in));
       }

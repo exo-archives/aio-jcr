@@ -39,13 +39,15 @@ public class PlainChangesLogReader {
   private FileCleaner fileCleaner;
 
   private int         maxBufferSize;
+  private ReaderSpoolFileHolder holder;
 
   /**
    * Constructor.
    */
-  public PlainChangesLogReader(FileCleaner fileCleaner, int maxBufferSize) {
+  public PlainChangesLogReader(FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -70,7 +72,7 @@ public class PlainChangesLogReader {
     List<ItemState> items = new ArrayList<ItemState>();
     int listSize = in.readInt();
     for (int i = 0; i < listSize; i++) {
-      ItemStateReader isr = new ItemStateReader(fileCleaner, maxBufferSize);
+      ItemStateReader isr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
       ItemState is = isr.read(in);
       items.add(is);
     }

@@ -35,9 +35,11 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  */
 public class TransientValueDataReader {
 
-  private final FileCleaner fileCleaner;
+  private final FileCleaner           fileCleaner;
 
-  private final int         maxBufferSize;
+  private final int                   maxBufferSize;
+
+  private final ReaderSpoolFileHolder holder;
 
   /**
    * Constructor.
@@ -45,9 +47,12 @@ public class TransientValueDataReader {
    * @param fileCleaner
    * @param maxBufferSize
    */
-  public TransientValueDataReader(FileCleaner fileCleaner, int maxBufferSize) {
+  public TransientValueDataReader(FileCleaner fileCleaner,
+                                  int maxBufferSize,
+                                  ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -59,8 +64,7 @@ public class TransientValueDataReader {
    *           exist.
    * @throws IOException If an I/O error has occurred.
    */
-  public TransientValueData read(ObjectReader in) throws UnknownClassIdException,
-                                                             IOException {
+  public TransientValueData read(ObjectReader in) throws UnknownClassIdException, IOException {
     File tempDirectory = new File(System.getProperty("java.io.tmpdir") + "/"
         + TransientValueData.DESERIALIAED_SPOOLFILES_TEMP_DIR);
     tempDirectory.mkdirs();
@@ -77,7 +81,7 @@ public class TransientValueDataReader {
     boolean isByteArray = in.readBoolean();
 
     byte[] data = null;
-    SpoolFile sf = null;
+    ReadedSpoolFile sf = null;
     if (isByteArray) {
       data = new byte[in.readInt()];
       in.readFully(data);
@@ -86,10 +90,17 @@ public class TransientValueDataReader {
       // read file id - used for reread data optimization
       String id = in.readString();
 
+      synchronized (holder) {
+        sf = holder.get(id);
+        if (sf == null) {
+          sf = new ReadedSpoolFile(tempDirectory, id, holder);
+          holder.put(id, sf);
+        }
+      }
+
       // read file
       long length = in.readLong();
 
-      sf = new SpoolFile(tempDirectory, id);
       sf.acquire(this);
 
       if (sf.exists()) {

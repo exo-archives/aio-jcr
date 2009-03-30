@@ -31,71 +31,67 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.TransientValueDa
 import org.exoplatform.services.jcr.impl.dataflow.serialization.TransientValueDataWriter;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
-
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: RemoveVDTest.java 111 2008-11-11 11:11:11Z serg $
  */
-public class RemoveVDTest extends BaseUsecasesTest{
+public class RemoveVDTest extends BaseUsecasesTest {
 
-  public void testRemove() throws IOException{
- 
+  public void testRemove() throws IOException {
+
     File f = this.createBLOBTempFile("tempFile", 300);
-    
+
     TransientValueData vd = new TransientValueData(new FileInputStream(f));
-  //  vd.setMaxBufferSize(200*1024);
-    
+    // vd.setMaxBufferSize(200*1024);
+
     FileCleaner cleaner = new FileCleaner();
-    
+
     vd.setFileCleaner(cleaner);
-    
+
     assertNotNull(vd.getSpoolFile());
-    
+
     File serf = File.createTempFile("serialization", "test");
-    
+
     ObjectWriter wr = new ObjectWriterImpl(new FileOutputStream(serf));
-    
+
     TransientValueDataWriter vdw = new TransientValueDataWriter();
-    vdw.write(wr,vd);
+    vdw.write(wr, vd);
     wr.flush();
     wr.close();
-    
+
     vd = null;
-    
-    //read first time
+
+    // read first time
     ObjectReader or = new ObjectReaderImpl(new FileInputStream(serf));
-    
+
     TransientValueData vd1 = new TransientValueData();
- 
-    TransientValueDataReader vdr = new TransientValueDataReader(null, 200*1024);
+
+    TransientValueDataReader vdr = new TransientValueDataReader(fileCleaner, maxBufferSize, holder);
     try {
       vd1 = vdr.read(or);
     } catch (UnknownClassIdException e) {
       fail(e.getMessage());
     }
-    
+
     or.close();
-    
-    //read second time
+
+    // read second time
     or = new ObjectReaderImpl(new FileInputStream(serf));
     TransientValueData vd2 = new TransientValueData();
-    
+
     try {
       vd2 = vdr.read(or);
     } catch (UnknownClassIdException e) {
       fail(e.getMessage());
     }
     or.close();
-    
+
     assertTrue(vd1.getSpoolFile().exists());
     assertTrue(vd2.getSpoolFile().exists());
-    
-    
-    //remove first one
+
+    // remove first one
     vd1 = null;
     try {
       Thread.sleep(1000);
@@ -104,11 +100,8 @@ public class RemoveVDTest extends BaseUsecasesTest{
       e.printStackTrace();
     }
     assertTrue(vd2.getSpoolFile().exists());
-    
-//    f.delete();
+
+    // f.delete();
   }
 
-  
-  
-  
 }

@@ -35,13 +35,16 @@ public class ItemStateReader {
   private FileCleaner fileCleaner;
 
   private int         maxBufferSize;
+  private ReaderSpoolFileHolder holder;
+
 
   /**
    * Constructor.
    */
-  public ItemStateReader(FileCleaner fileCleaner, int maxBufferSize) {
+  public ItemStateReader(FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder ) {
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -71,7 +74,7 @@ public class ItemStateReader {
       TransientNodeDataReader rdr = new TransientNodeDataReader();
       is = new ItemState(rdr.read(in), state, eventFire, null, false, isPersisted);
     } else {
-      TransientPropertyDataReader rdr = new TransientPropertyDataReader(fileCleaner, maxBufferSize);
+      TransientPropertyDataReader rdr = new TransientPropertyDataReader(fileCleaner, maxBufferSize, holder);
       is = new ItemState(rdr.read(in), state, eventFire, null, false, isPersisted);
     }
     return is;

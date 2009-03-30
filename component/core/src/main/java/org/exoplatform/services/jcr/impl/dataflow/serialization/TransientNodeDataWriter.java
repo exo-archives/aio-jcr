@@ -63,23 +63,23 @@ public class TransientNodeDataWriter {
     // mixins
     InternalQName[] mixinNames = nodeData.getMixinTypeNames();
 
-    if(mixinNames!=null){
+    if (mixinNames != null) {
       out.writeInt(SerializationConstants.NOT_NULL_DATA);
       out.writeInt(mixinNames.length);
       for (int i = 0; i < mixinNames.length; i++) {
         out.writeString(mixinNames[i].getAsString());
       }
-    }else{
-      out.writeInt(SerializationConstants.NULL_DATA); 
+    } else {
+      out.writeInt(SerializationConstants.NULL_DATA);
     }
 
     ACLWriter wr = new ACLWriter();
-    
+
     AccessControlList acl = nodeData.getACL();
-    if(acl!=null){
+    if (acl != null) {
       out.writeInt(SerializationConstants.NOT_NULL_DATA);
-      wr.write(out,acl );
-    }else{
+      wr.write(out, acl);
+    } else {
       out.writeInt(SerializationConstants.NULL_DATA);
     }
   }

@@ -33,16 +33,21 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 public class TransactionChangesLogReader {
 
-  private FileCleaner fileCleaner;
+  private FileCleaner           fileCleaner;
 
-  private int         maxBufferSize;
+  private int                   maxBufferSize;
+
+  private ReaderSpoolFileHolder holder;
 
   /**
    * Constructor.
    */
-  public TransactionChangesLogReader(FileCleaner fileCleaner, int maxBufferSize) {
+  public TransactionChangesLogReader(FileCleaner fileCleaner,
+                                     int maxBufferSize,
+                                     ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -54,8 +59,7 @@ public class TransactionChangesLogReader {
    *           exist.
    * @throws IOException If an I/O error has occurred.
    */
-  public TransactionChangesLog read(ObjectReader in) throws UnknownClassIdException,
-                                                                IOException {
+  public TransactionChangesLog read(ObjectReader in) throws UnknownClassIdException, IOException {
 
     // read id
     int key;
@@ -69,7 +73,7 @@ public class TransactionChangesLogReader {
     }
 
     while (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
-      PlainChangesLogReader rdr = new PlainChangesLogReader(fileCleaner, maxBufferSize);
+      PlainChangesLogReader rdr = new PlainChangesLogReader(fileCleaner, maxBufferSize, holder);
       PlainChangesLog pl = rdr.read(in);
       log.addLog(pl);
     }

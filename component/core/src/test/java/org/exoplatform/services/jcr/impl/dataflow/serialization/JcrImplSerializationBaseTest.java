@@ -34,12 +34,11 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 16.02.2009
+ * Created by The eXo Platform SAS. <br/>Date: 16.02.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: JcrImplSerializationBaseTest.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id: JcrImplSerializationBaseTest.java 111 2008-11-11 11:11:11Z
+ *          rainf0x $
  */
 public abstract class JcrImplSerializationBaseTest extends JcrImplBaseTest {
 
@@ -87,9 +86,8 @@ public abstract class JcrImplSerializationBaseTest extends JcrImplBaseTest {
     File jcrfile = File.createTempFile("jcr", "test");
     ObjectWriterImpl jcrout = new ObjectWriterImpl(new FileOutputStream(jcrfile));
 
-      
     TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
-    for (TransactionChangesLog tcl : logs){
+    for (TransactionChangesLog tcl : logs) {
       wr.write(jcrout, tcl);
     }
 
@@ -100,25 +98,27 @@ public abstract class JcrImplSerializationBaseTest extends JcrImplBaseTest {
   }
 
   protected List<TransactionChangesLog> deSerializeLogs(File jcrfile) throws IOException,
-                                                                UnknownClassIdException {
+                                                                     UnknownClassIdException {
     ObjectReaderImpl jcrin = new ObjectReaderImpl(new FileInputStream(jcrfile));
 
     List<TransactionChangesLog> readed = new ArrayList<TransactionChangesLog>();
 
     try {
-    while (true) {
-      TransactionChangesLog obj  = (TransactionChangesLog)(new TransactionChangesLogReader(null, 200*1024)).read(jcrin);
-      //TransactionChangesLog obj = new TransactionChangesLog();
-      //obj.readObject(jcrin);
-      readed.add(obj); 
-    }
+      while (true) {
+        TransactionChangesLog obj = (TransactionChangesLog) (new TransactionChangesLogReader(fileCleaner,
+                                                                                             maxBufferSize,
+                                                                                             holder)).read(jcrin);
+        // TransactionChangesLog obj = new TransactionChangesLog();
+        // obj.readObject(jcrin);
+        readed.add(obj);
+      }
     } catch (EOFException e) {
-      //ok
+      // ok
     }
-    
+
     return readed;
   }
 
- // public void test() throws Exception {
- // }
+  // public void test() throws Exception {
+  // }
 }

@@ -87,7 +87,7 @@ public class JCRSerializationLogTestLoad extends JcrImplSerializationBaseTest {
 
     
     for(int i=0; i<iter; i++){
-      TransactionChangesLogReader rdr = new TransactionChangesLogReader(null, 200*1024);
+      TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize, holder);
       TransactionChangesLog obj = (TransactionChangesLog)rdr.read(jcrin);
       
       
