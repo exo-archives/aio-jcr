@@ -45,8 +45,7 @@ public class TransientNodeDataReader {
    *           exist.
    * @throws IOException If an I/O error has occurred.
    */
-  public TransientNodeData read(ObjectReader in) throws UnknownClassIdException,
-                                                            IOException {
+  public TransientNodeData read(ObjectReader in) throws UnknownClassIdException, IOException {
     // read id
     int key;
     if ((key = in.readInt()) != SerializationConstants.TRANSIENT_NODE_DATA) {
@@ -102,31 +101,37 @@ public class TransientNodeDataReader {
     }
 
     // mixins
-    int count = in.readInt();
-    InternalQName[] mixinTypeNames = new InternalQName[count];
-    for (int i = 0; i < count; i++) {
-      try {
-        mixinTypeNames[i] = InternalQName.parse(in.readString());
-      } catch (final IllegalNameException e) {
-        throw new IOException(e.getMessage()) {
-          private static final long serialVersionUID = 3489809179234435268L; // eclipse
+    InternalQName[] mixinTypeNames = null;
+    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+      int count = in.readInt();
+      mixinTypeNames = new InternalQName[count];
+      for (int i = 0; i < count; i++) {
+        try {
+          mixinTypeNames[i] = InternalQName.parse(in.readString());
+        } catch (final IllegalNameException e) {
+          throw new IOException(e.getMessage()) {
+            private static final long serialVersionUID = 3489809179234435268L; // eclipse
 
-          // gen
+            // gen
 
-          /**
-           * {@inheritDoc}
-           */
-          @Override
-          public Throwable getCause() {
-            return e;
-          }
-        };
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public Throwable getCause() {
+              return e;
+            }
+          };
+        }
       }
     }
 
     // acl
-    ACLReader rdr = new ACLReader();
-    AccessControlList acl = rdr.read(in);
+    AccessControlList acl = null;
+    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+      ACLReader rdr = new ACLReader();
+      acl = rdr.read(in);
+    }
 
     return new TransientNodeData(qpath,
                                  identifier,

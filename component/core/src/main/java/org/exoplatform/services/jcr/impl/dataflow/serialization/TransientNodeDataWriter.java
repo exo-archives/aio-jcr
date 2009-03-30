@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
 import java.io.IOException;
 
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -62,13 +63,25 @@ public class TransientNodeDataWriter {
     // mixins
     InternalQName[] mixinNames = nodeData.getMixinTypeNames();
 
-    out.writeInt(mixinNames.length);
-    for (int i = 0; i < mixinNames.length; i++) {
-      out.writeString(mixinNames[i].getAsString());
+    if(mixinNames!=null){
+      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeInt(mixinNames.length);
+      for (int i = 0; i < mixinNames.length; i++) {
+        out.writeString(mixinNames[i].getAsString());
+      }
+    }else{
+      out.writeInt(SerializationConstants.NULL_DATA); 
     }
 
     ACLWriter wr = new ACLWriter();
-    wr.write(out, nodeData.getACL());
+    
+    AccessControlList acl = nodeData.getACL();
+    if(acl!=null){
+      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      wr.write(out,acl );
+    }else{
+      out.writeInt(SerializationConstants.NULL_DATA);
+    }
   }
 
 }
