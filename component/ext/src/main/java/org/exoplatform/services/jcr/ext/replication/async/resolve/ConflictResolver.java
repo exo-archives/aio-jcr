@@ -19,9 +19,11 @@ package org.exoplatform.services.jcr.ext.replication.async.resolve;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
@@ -30,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -279,11 +282,17 @@ public class ConflictResolver {
     for (int i = 0; i < conflictedPathes.size(); i++) {
       List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
 
+      // restored items from changesLog
       List<ItemState> restoredItems = new ArrayList<ItemState>();
 
+      // items need to export
       Map<QPath, ItemState> needToExport = new HashMap<QPath, ItemState>();
+
       QPath rootExportPath = null;
       String rootExportIdentifier = null;
+
+      //
+      Set<String> versionableNodes = new HashSet<String>();
 
       for (int j = changes.size() - 1; j >= 0; j--) {
         ItemState item = changes.get(j);
@@ -321,6 +330,7 @@ public class ConflictResolver {
               newProp.setValues(((PropertyData) nextItem.getData()).getValues());
               restoredItems.add(new ItemState(newProp, ItemState.ADDED, true, prop.getQPath()));
             }
+
             continue;
           }
 
@@ -392,6 +402,7 @@ public class ConflictResolver {
                 : item.getData().getParentIdentifier();
           }
 
+          // restore updated properties
         } else if (item.getState() == ItemState.UPDATED && !item.getData().isNode()) {
           ItemState lastState = getLastItemState(changes, item.getData().getIdentifier());
           if (lastState.getState() == ItemState.DELETED)
@@ -590,9 +601,10 @@ public class ConflictResolver {
   private List<ItemState> deleleLockProperties(NodeData node) throws RepositoryException {
     List<ItemState> result = new ArrayList<ItemState>();
 
-    if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
-                             node.getPrimaryTypeName(),
-                             node.getMixinTypeNames())) {
+    InternalQName[] mixinTypeNames = node.getMixinTypeNames();
+    InternalQName primaryTypeName = node.getPrimaryTypeName();
+    if (mixinTypeNames != null && primaryTypeName != null
+        && ntManager.isNodeType(Constants.MIX_LOCKABLE, primaryTypeName, mixinTypeNames)) {
 
       ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
       if (item != null)
