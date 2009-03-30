@@ -112,7 +112,7 @@ public class ExportChangesTest extends BaseStandaloneTest {
 
     AsyncReceiver receiver = new AsyncReceiverImpl(channel, exportServer, otherPartisipantsPriority);
 
-    RemoteExporterImpl exporter = new RemoteExporterImpl(transmitter, receiver, "./target", fileCleaner, maxBufferSize);
+    RemoteExporterImpl exporter = new RemoteExporterImpl(transmitter, receiver, "./target", fileCleaner, maxBufferSize, holder);
 
     exporter.setRemoteMember(new MemberAddress(new IpAddress("127.0.0.1", 7800)));
     channel.addPacketListener(receiver);

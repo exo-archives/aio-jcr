@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntime
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -67,11 +68,13 @@ public abstract class AbstractMerger implements ChangesMerger {
   protected final FileCleaner fileCleaner;
   protected final int maxBufferSize;
   
+  protected final ReaderSpoolFileHolder holder;
+  
   public AbstractMerger(boolean localPriority,
                         RemoteExporter exporter,
                         DataManager dataManager,
                         NodeTypeDataManager ntManager,
-                        ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize) {
+                        ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.localPriority = localPriority;
     this.exporter = exporter;
     this.dataManager = dataManager;
@@ -79,6 +82,7 @@ public abstract class AbstractMerger implements ChangesMerger {
     this.resHolder = resHolder;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**

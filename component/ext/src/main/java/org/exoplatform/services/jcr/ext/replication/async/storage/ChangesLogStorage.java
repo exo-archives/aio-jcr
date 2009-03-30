@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -48,6 +49,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * 
    */
   private final int maxBufferSize;
+  private final ReaderSpoolFileHolder holder;
   
   /**
    * Iterator that goes throw ChangesFiles and return ItemStates.
@@ -60,12 +62,12 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     private Iterator<C>                                      currentChangesLog;
 
-    public ItemStateIterator(List<ChangesFile> store, FileCleaner fileCleaner, int maxBufferSize) throws IOException,
+    public ItemStateIterator(List<ChangesFile> store, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) throws IOException,
         ClassCastException,
         ClassNotFoundException {
       this.logIterator = new ChangesLogsIterator<TransactionChangesLog>(store,
                                                                         fileCleaner,
-                                                                        maxBufferSize);
+                                                                        maxBufferSize, holder);
       this.currentChangesLog = readNextIterator();
     }
 
@@ -140,10 +142,11 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * @param fileCleaner -  FileCleaner used for internal TransientValueData read.
    * @param maxBufferSize - int used for internal TransientValueData read.
    */
-  public ChangesLogStorage(List<ChangesFile> storage, FileCleaner fileCleaner, int maxBufferSize) {
+  public ChangesLogStorage(List<ChangesFile> storage, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.storage = storage;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -157,7 +160,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   public int size() throws IOException, ClassNotFoundException {
     int size = 0;
     //fileCleaner and maxBufferSize has no sense
-    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage, null, 0);
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage, fileCleaner, maxBufferSize, holder);
 
     while (it.hasNext()) {
       size += it.next().getSize();
@@ -169,7 +172,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new ItemStateIterator<T>(storage, fileCleaner, maxBufferSize);
+    return new ItemStateIterator<T>(storage, fileCleaner, maxBufferSize, holder);
   }
 
   /**

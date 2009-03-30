@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogReader;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
@@ -73,6 +74,8 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
    */
   private final int maxBufferSize;
   
+  private final ReaderSpoolFileHolder holder;
+  
   /**
    * Constructor. Changes file may contain many ChangesLogs.
    * 
@@ -81,11 +84,12 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  public ChangesLogsIterator(List<ChangesFile> list, FileCleaner fileCleaner, int maxBufferSize) throws IOException, ClassNotFoundException {
+  public ChangesLogsIterator(List<ChangesFile> list, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) throws IOException, ClassNotFoundException {
     this.list = list;
     this.currentChangesLog = readNextChangesLog();
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   public boolean hasNext() {
@@ -137,7 +141,7 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
         currentIn = new ObjectReaderImpl(list.get(curFileIndex++).getInputStream());
 
       try {
-        TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize);
+        TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize ,holder);
         return (L) rdr.read(currentIn);
       } catch (EOFException e) {
         currentIn.close();

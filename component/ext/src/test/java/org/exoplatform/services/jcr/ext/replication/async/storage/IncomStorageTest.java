@@ -79,7 +79,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log = createChangesLog((NodeData) n.getData());
 
     // create storage
-    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -139,7 +139,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
     // create storage
-    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     MessageDigest digest = MessageDigest.getInstance("MD5");

@@ -50,7 +50,7 @@ public class WorkspaceNullListenerTest extends BaseStandaloneTest {
 
     public SystemLocalStorageTest(String storagePath, FileCleaner fileCleaner) throws ChecksumNotFoundException,
         NoSuchAlgorithmException {
-      super(storagePath, fileCleaner, maxBufferSize);
+      super(storagePath, fileCleaner, maxBufferSize, holder);
     }
 
     public Collection<PairChangesLog> getPairLogs() {

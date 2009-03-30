@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -53,14 +54,16 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 public class MergeDataManagerOld extends AbstractMergeManager {
   protected final FileCleaner fileCleaner;
   protected final int maxBufferSize;
+  private final ReaderSpoolFileHolder holder;
   
   MergeDataManagerOld(RemoteExporter exporter,
                       DataManager dataManager,
                       NodeTypeDataManager ntManager,
-                      String storageDir, FileCleaner fileCleaner, int maxBufferSize) {
+                      String storageDir, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     super(exporter, dataManager, ntManager, storageDir );
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -90,11 +93,11 @@ public class MergeDataManagerOld extends AbstractMergeManager {
                                                                                                     + first.getMember()
                                                                                                            .getPriority()),
                                                                                                 first.getMember(),
-                                                                                                resHolder, fileCleaner, maxBufferSize);
+                                                                                                resHolder, fileCleaner, maxBufferSize, holder);
 
       EditableChangesStorage<ItemState> result = new CompositeItemStatesStorage<ItemState>(makePath("result"),
                                                                                            localMember,
-                                                                                           resHolder, fileCleaner, maxBufferSize);
+                                                                                           resHolder, fileCleaner, maxBufferSize, holder);
 
       MemberChangesStorage<ItemState> local;
       MemberChangesStorage<ItemState> income;
@@ -128,7 +131,7 @@ public class MergeDataManagerOld extends AbstractMergeManager {
         EditableChangesStorage<ItemState> iteration = new CompositeItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                                          second.getMember()),
                                                                                                 second.getMember(),
-                                                                                                resHolder, fileCleaner, maxBufferSize);
+                                                                                                resHolder, fileCleaner, maxBufferSize, holder);
 
         exporter.setRemoteMember(second.getMember().getAddress());
         // TODO NT reregistration
@@ -136,27 +139,27 @@ public class MergeDataManagerOld extends AbstractMergeManager {
                                             exporter,
                                             dataManager,
                                             ntManager,
-                                            resHolder, fileCleaner, maxBufferSize);
+                                            resHolder, fileCleaner, maxBufferSize, holder);
         DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager,
-                                                     resHolder, fileCleaner, maxBufferSize);
+                                                     resHolder, fileCleaner, maxBufferSize, holder);
         UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager,
-                                                     resHolder, fileCleaner, maxBufferSize);
+                                                     resHolder, fileCleaner, maxBufferSize, holder);
         RenameMerger renameMerger = new RenameMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager,
-                                                     resHolder, fileCleaner, maxBufferSize);
+                                                     resHolder, fileCleaner, maxBufferSize, holder);
         MixinMerger mixinMerger = new MixinMerger(isLocalPriority,
                                                   exporter,
                                                   dataManager,
                                                   ntManager,
-                                                  resHolder, fileCleaner, maxBufferSize);
+                                                  resHolder, fileCleaner, maxBufferSize, holder);
 
         if (run) {
           Iterator<ItemState> changes = income.getChanges();
@@ -291,7 +294,7 @@ public class MergeDataManagerOld extends AbstractMergeManager {
           if (isLocalPriority) {
             accumulated.delete();
             accumulated = new CompositeItemStatesStorage<ItemState>(makePath("accumulated-"
-                + second.getMember().getPriority()), second.getMember(), resHolder, fileCleaner, maxBufferSize);
+                + second.getMember().getPriority()), second.getMember(), resHolder, fileCleaner, maxBufferSize, holder);
 
             accumulated.addAll(second);
             accumulated.addAll(iteration);

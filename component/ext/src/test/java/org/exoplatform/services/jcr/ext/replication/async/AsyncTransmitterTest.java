@@ -149,7 +149,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
       ObjectReader ois = new ObjectReaderImpl(changesFile.getInputStream());
-      TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize);
+      TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize, holder);
       TransactionChangesLog tcLog = rdr.read(ois);
       destChangesLogList.add(tcLog);
     }
@@ -232,10 +232,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel2.disconnect();
 
     // compare data
-    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null, fileCleaner, maxBufferSize).getChanges(); // TODO
+    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null, fileCleaner, maxBufferSize, null).getChanges(); // TODO
     // member
     Iterator<ItemState> destChanges = new ItemStatesStorage<ItemState>(exportChangesReceiver.getExportChangesFile(),
-                                                                       null, fileCleaner, maxBufferSize).getChanges();
+                                                                       null, fileCleaner, maxBufferSize, null).getChanges();
     // compare ChangesLog
 
     while (srcChanges.hasNext()) {

@@ -24,9 +24,7 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
-import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -34,6 +32,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValu
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
@@ -47,9 +46,9 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class BaseStandaloneTest extends TestCase {
 
-  private static final Log      log = ExoLogger.getLogger(BaseStandaloneTest.class);
-  
-  public static final String WS_NAME = "ws";
+  private static final Log      log           = ExoLogger.getLogger(BaseStandaloneTest.class);
+
+  public static final String    WS_NAME       = "ws";
 
   protected SessionImpl         session;
 
@@ -66,12 +65,12 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected ValueFactory        valueFactory;
 
   protected StandaloneContainer container;
-  
-  public int maxBufferSize = 200*1024;
-  
-  public FileCleaner fileCleaner;
-  
-  
+
+  public int                    maxBufferSize = 200 * 1024;
+
+  public FileCleaner            fileCleaner;
+
+  public ReaderSpoolFileHolder holder;
 
   protected class CompareStreamException extends Exception {
 
@@ -108,19 +107,19 @@ public abstract class BaseStandaloneTest extends TestCase {
     workspace = session.getWorkspace();
     root = session.getRootNode();
     valueFactory = session.getValueFactory();
-    
-    
-    ManageableRepository repository = repositoryService.getDefaultRepository(); 
+
+    ManageableRepository repository = repositoryService.getDefaultRepository();
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(WS_NAME);
 
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
 
     maxBufferSize = wconf.getContainer()
-                             .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
-                                                  WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+                         .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                              WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
 
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
     fileCleaner = wfcleaner.getFileCleaner();
+    holder = new ReaderSpoolFileHolder();
   }
 
   protected void tearDown() throws Exception {
@@ -219,9 +218,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   /**
-   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
-   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of
-   * them will be read.
+   * Compare etalon stream with data stream begining from the offset in etalon
+   * and position in data. Length bytes will be readed and compared. if length
+   * is lower 0 then compare streams till one of them will be read.
    * 
    * @param etalon
    * @param data
@@ -367,7 +366,10 @@ public abstract class BaseStandaloneTest extends TestCase {
         + "min";
   }
 
-  public void checkItemStatesIterator(Iterator<ItemState> expected, Iterator<ItemState> changes, boolean checklast, boolean isRepValDat) throws Exception {
+  public void checkItemStatesIterator(Iterator<ItemState> expected,
+                                      Iterator<ItemState> changes,
+                                      boolean checklast,
+                                      boolean isRepValDat) throws Exception {
 
     while (expected.hasNext()) {
 
@@ -397,16 +399,15 @@ public abstract class BaseStandaloneTest extends TestCase {
           assertTrue(java.util.Arrays.equals(expValDat.get(j).getAsByteArray(),
                                              elemValDat.get(j).getAsByteArray()));
 
-          
-          if(isRepValDat){
+          if (isRepValDat) {
             // check is received property values ReplicableValueData
             assertTrue(elemValDat.get(j) instanceof ReplicableValueData);
           }
         }
       }
     }
-    
-    if(checklast){
+
+    if (checklast) {
       assertFalse(changes.hasNext());
     }
 

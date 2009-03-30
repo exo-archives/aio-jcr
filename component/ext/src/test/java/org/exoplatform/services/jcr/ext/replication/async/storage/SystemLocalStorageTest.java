@@ -114,11 +114,11 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testStorage2WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize);
+                                                                      fileCleaner, maxBufferSize, holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    fileCleaner, maxBufferSize,
+                                                    fileCleaner, maxBufferSize, holder,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -147,11 +147,11 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testStorage2WSWithoutVSChanges() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize);
+                                                                      fileCleaner, maxBufferSize, holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    fileCleaner, maxBufferSize,
+                                                    fileCleaner, maxBufferSize, holder,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -178,7 +178,7 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testSystemLocalStorage1WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize);
+                                                                      fileCleaner, maxBufferSize, holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     NodeImpl node = (NodeImpl) root.addNode("test");

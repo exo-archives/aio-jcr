@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateWriter;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -69,6 +70,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   private final FileCleaner        fileCleaner;
 
   private final int                maxBufferSize;
+  private final ReaderSpoolFileHolder holder;
 
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
@@ -248,7 +250,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
     private S readNext() throws IOException, ClassNotFoundException, ClassCastException {
       if (in != null) {
         try {
-          ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize);
+          ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
 
           return (S) rdr.read(in);
         } catch (EOFException e) {
@@ -280,13 +282,14 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
                                    Member member,
                                    ResourcesHolder resHolder,
                                    FileCleaner fileCleaner,
-                                   int maxBufferSize) {
+                                   int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.member = member;
     this.storagePath = storagePath;
     this.maxChangesLogSize = MAX_CHANGES_LOG_SIZE;
     this.resHolder = resHolder;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -299,13 +302,14 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
                                    long maxChangesLogSize,
                                    ResourcesHolder resHolder,
                                    FileCleaner fileCleaner,
-                                   int maxBufferSize) {
+                                   int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.member = member;
     this.storagePath = storagePath;
     this.maxChangesLogSize = maxChangesLogSize;
     this.resHolder = resHolder;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**

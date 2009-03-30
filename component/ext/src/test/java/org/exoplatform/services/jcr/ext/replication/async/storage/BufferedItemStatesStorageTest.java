@@ -88,7 +88,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize);
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
     
     Iterator<ItemState> it = expl.iterator();
     while(it.hasNext()){
@@ -107,7 +107,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     assertNotNull(in);
     
     ObjectReader oin = new ObjectReaderImpl(in);
-    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize);
+    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize, holder);
     List<ItemState> res = new ArrayList<ItemState>();
     ItemState itemState = rdr.read(oin);
     res.add(itemState);
@@ -154,7 +154,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     File dir = new File("target/testBufferedEdit2");
     dir.mkdirs();
     
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10),32, new ResourcesHolder(), fileCleaner, maxBufferSize);
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10),32, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
     
     Iterator<ItemState> it = expl.iterator();
     while(it.hasNext()){
@@ -183,7 +183,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize);
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
     
     
     //write

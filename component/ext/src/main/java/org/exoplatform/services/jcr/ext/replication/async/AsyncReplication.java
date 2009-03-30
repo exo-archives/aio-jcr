@@ -30,10 +30,7 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -51,10 +48,12 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageIm
 import org.exoplatform.services.jcr.ext.replication.async.storage.SystemLocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.WorkspaceNullListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -81,7 +80,8 @@ public class AsyncReplication implements Startable {
   protected LinkedHashMap<StorageKey, String>                      incomeStoragePaths;
 
   protected LinkedHashMap<StorageKey, LocalStorageImpl>            localStorages;
-
+  protected LinkedHashMap<StorageKey, ReaderSpoolFileHolder>       holderList;
+  
   protected Set<AsyncWorker>                                       currentWorkers;
 
   /**
@@ -137,7 +137,7 @@ public class AsyncReplication implements Startable {
                 AsyncWorkspaceConfig config,
                 String chanelNameSufix,
                 WorkspaceEntry workspaceConfig,
-                WorkspaceFileCleanerHolder workspaceCleanerHolder) {
+                WorkspaceFileCleanerHolder workspaceCleanerHolder, ReaderSpoolFileHolder holder) {
 
       
       int maxBufferSize = workspaceConfig.getContainer()
@@ -184,12 +184,12 @@ public class AsyncReplication implements Startable {
 
       this.exporter = new RemoteExporterImpl(this.transmitter,
                                              this.receiver,
-                                             config.getMergeTempDir(), fileCleaner, maxBufferSize);
+                                             config.getMergeTempDir(), fileCleaner, maxBufferSize, holder);
 
       this.mergeManager = new MergeDataManager(this.exporter,
                                                dataManager,
                                                ntManager,
-                                               config.getMergeTempDir(), fileCleaner, maxBufferSize);
+                                               config.getMergeTempDir(), fileCleaner, maxBufferSize, holder);
 
       this.initializer = new AsyncInitializer(this.channel,
                                               config.getPriority(),
@@ -209,7 +209,7 @@ public class AsyncReplication implements Startable {
                                                   this.changesSaveErrorLog,
                                                   config.getWaitAllMembersTimeout(),
                                                   config.getPriority(),
-                                                  config.getOtherParticipantsPriority().size() + 1, fileCleaner, maxBufferSize);
+                                                  config.getOtherParticipantsPriority().size() + 1, fileCleaner, maxBufferSize, holder);
 
       // listeners
       this.channel.addPacketListener(this.receiver);
@@ -338,6 +338,7 @@ public class AsyncReplication implements Startable {
     // this.fileCleaner = new FileCleaner(FILE_CLEANER_PERIOD, false);
     this.nullWorkspaces = new LinkedHashMap<StorageKey, WorkspaceNullListener>();
     this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
+    this.holderList = new LinkedHashMap<StorageKey, ReaderSpoolFileHolder>();
     this.incomeStoragePaths = new LinkedHashMap<StorageKey, String>();
     this.asyncWorkspaceConfigs = new ArrayList<AsyncWorkspaceConfig>();
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
@@ -354,6 +355,7 @@ public class AsyncReplication implements Startable {
     // this.fileCleaner = new FileCleaner(FILE_CLEANER_PERIOD, false);
     this.nullWorkspaces = new LinkedHashMap<StorageKey, WorkspaceNullListener>();
     this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
+    this.holderList = new LinkedHashMap<StorageKey, ReaderSpoolFileHolder>();
     this.incomeStoragePaths = new LinkedHashMap<StorageKey, String>();
     this.asyncWorkspaceConfigs = new ArrayList<AsyncWorkspaceConfig>();
     this.asyncWorkspaceConfigs.addAll(configs);
@@ -446,9 +448,10 @@ public class AsyncReplication implements Startable {
 
     StorageKey skey = new StorageKey(config.getRepositoryName(), config.getWorkspaceName());
     LocalStorageImpl localStorage = localStorages.get(skey);
+    ReaderSpoolFileHolder holder = holderList.get(skey);
     IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey),
                                                             fileCleaner,
-                                                            maxBufferSize);
+                                                            maxBufferSize, holder);
 
     AsyncWorker synchWorker = new AsyncWorker(dm,
                                               sysdm,
@@ -460,7 +463,7 @@ public class AsyncReplication implements Startable {
                                               config.getRepositoryName() + "_"
                                                   + config.getWorkspaceName(),
                                               wconf,
-                                              wfcleaner);
+                                              wfcleaner, holder);
     synchWorker.run();
 
     currentWorkers.add(synchWorker);
@@ -623,10 +626,11 @@ public class AsyncReplication implements Startable {
     localDirPerWorkspace.mkdirs();
 
     LocalStorageImpl localStorage = null;
+    ReaderSpoolFileHolder holder = new ReaderSpoolFileHolder();
     if (wsName.equals(systemWSName)) {
       localStorage = new SystemLocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
                                                 fileCleaner,
-                                                maxBufferSize);
+                                                maxBufferSize, holder);
       if (!isReplicableWorkspace(repositoryName, wsName)) {
         LOG.warn("System workspace " + wsName
             + " configured as non-replicable. It's added to replication process.");
@@ -636,10 +640,11 @@ public class AsyncReplication implements Startable {
                                                                                                             systemWSName));
       localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
                                           fileCleaner,
-                                          maxBufferSize,
+                                          maxBufferSize, holder,
                                           systemLocalStorage);
     }
     localStorages.put(skey, localStorage);
+    holderList.put(skey, holder);
 
     // add local storage as persistence listener
 

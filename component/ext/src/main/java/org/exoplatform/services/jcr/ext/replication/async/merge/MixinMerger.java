@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -54,8 +55,8 @@ public class MixinMerger extends AbstractMerger {
                      RemoteExporter exporter,
                      DataManager dataManager,
                      NodeTypeDataManager ntManager,
-                     ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize) {
-    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize);
+                     ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize, holder);
   }
 
   /**
@@ -82,7 +83,7 @@ public class MixinMerger extends AbstractMerger {
     ItemState incomeState = itemChange;
     EditableChangesStorage<ItemState> resultState = new CompositeItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                               null,
-                                                                                              resHolder, fileCleaner, maxBufferSize);
+                                                                                              resHolder, fileCleaner, maxBufferSize, holder);
 
     ItemState parentNodeState;
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
@@ -117,7 +118,7 @@ public class MixinMerger extends AbstractMerger {
                 accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder, fileCleaner, maxBufferSize);
+                                                                resHolder, fileCleaner, maxBufferSize, holder);
               }
             }
             break;
@@ -131,7 +132,7 @@ public class MixinMerger extends AbstractMerger {
                 accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
                 return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                 null,
-                                                                resHolder, fileCleaner, maxBufferSize);
+                                                                resHolder, fileCleaner, maxBufferSize, holder);
               }
             }
             break;
@@ -143,7 +144,7 @@ public class MixinMerger extends AbstractMerger {
               accumulateSkippedList(incomeState, incomeData.getQPath(), income, skippedList);
               return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                               null,
-                                                              resHolder, fileCleaner, maxBufferSize);
+                                                              resHolder, fileCleaner, maxBufferSize, holder);
             }
           }
           break;
@@ -160,7 +161,12 @@ public class MixinMerger extends AbstractMerger {
             for (int i = 1; i < mixinSequence.size(); i++) { // first state is MIXIN_CHANGED
               skippedList.add(mixinSequence.get(i).getData().getQPath());
             }
-            return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir), null, resHolder, fileCleaner, maxBufferSize);
+            return new BufferedItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                            null,
+                                                            resHolder,
+                                                            fileCleaner,
+                                                            maxBufferSize,
+                                                            holder);
           }
           break;
         }

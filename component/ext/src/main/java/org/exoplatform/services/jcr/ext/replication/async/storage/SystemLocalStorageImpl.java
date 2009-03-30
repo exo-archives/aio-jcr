@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.exoplatform.services.jcr.dataflow.PairChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -44,9 +45,9 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
    * @throws NoSuchAlgorithmException
    * @throws ChecksumNotFoundException
    */
-  public SystemLocalStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize) throws ChecksumNotFoundException,
+  public SystemLocalStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) throws ChecksumNotFoundException,
       NoSuchAlgorithmException {
-    super(storagePath, fileCleaner, maxBufferSize);
+    super(storagePath, fileCleaner, maxBufferSize, holder);
   }
 
   /**

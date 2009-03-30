@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
@@ -93,7 +94,8 @@ public class AsyncReplicationTester extends AsyncReplication {
     .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
                          WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
     
-    IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey), wfcleaner.getFileCleaner(), maxBufferSize );
+    ReaderSpoolFileHolder holder = new ReaderSpoolFileHolder();
+    IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey), wfcleaner.getFileCleaner(), maxBufferSize, holder );
 
     AsyncWorker synchWorker = new AsyncWorker(dm,
                                               sysDm,
@@ -104,7 +106,7 @@ public class AsyncReplicationTester extends AsyncReplication {
                                               awConfig,
                                               channelNameSuffix,
                                               wconf,
-                                              wfcleaner);
+                                              wfcleaner, holder);
 
     synchWorker.run();
 

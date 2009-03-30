@@ -90,13 +90,13 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     exporter = new TesterRemoteExporter();
 
-    mergerLow = new MergeDataManager(exporter, dm3, ntm3, "target/storage/low", fileCleaner, maxBufferSize);
+    mergerLow = new MergeDataManager(exporter, dm3, ntm3, "target/storage/low", fileCleaner, maxBufferSize, holder);
     mergerLow.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)),
                                         LOW_PRIORITY));
-    mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                       dm4,
                                       ntm4,
-                                      "target/storage/high", fileCleaner, maxBufferSize);
+                                      "target/storage/high", fileCleaner, maxBufferSize, holder);
     mergerHigh.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)),
                                          HIGH_PRIORITY));
     membersChanges = new ArrayList<MemberChangesStorage<ItemState>>();
@@ -197,10 +197,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 100);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/high", fileCleaner, maxBufferSize);
+                                                   "target/storage/high", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 60));
     ChangesStorage<ItemState> res4 = merger.merge(membersChanges.iterator());
@@ -224,10 +224,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session3.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/high", fileCleaner, maxBufferSize);
+                                                   "target/storage/high", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
     ChangesStorage<ItemState> res4 = merger.merge(membersChanges.iterator());
@@ -474,10 +474,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/60", fileCleaner, maxBufferSize);
+                                                   "target/storage/60", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 60));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
@@ -502,10 +502,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/40", fileCleaner, maxBufferSize);
+                                                   "target/storage/40", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 40));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
@@ -531,10 +531,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/20", fileCleaner, maxBufferSize);
+                                                   "target/storage/20", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
@@ -563,10 +563,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/60", fileCleaner, maxBufferSize);
+                                                   "target/storage/60", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 60));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
@@ -593,10 +593,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/60", fileCleaner, maxBufferSize);
+                                                   "target/storage/60", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 40));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
@@ -624,10 +624,10 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     session4.save();
     addChangesToChangesStorage(cLog, 60);
 
-    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize),
+    MergeDataManager merger = new MergeDataManager(new RemoteExporterImpl(null, null, "./target", fileCleaner, maxBufferSize, holder),
                                                    dm4,
                                                    ntm4,
-                                                   "target/storage/60", fileCleaner, maxBufferSize);
+                                                   "target/storage/60", fileCleaner, maxBufferSize, holder);
 
     merger.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 20));
     ChangesStorage<ItemState> res = merger.merge(membersChanges.iterator());
@@ -3945,7 +3945,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   protected void addChangesToChangesStorage(TransactionChangesLog log, int priority) throws Exception {
     Member member = new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), priority);
-    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(member, fileCleaner, maxBufferSize);
+    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(member, fileCleaner, maxBufferSize, holder);
     changes.addLog(log);
     membersChanges.add(changes);
   }
@@ -4009,7 +4009,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     ItemState elem;
     List<ItemState> list = new ArrayList<ItemState>();
     try {
-      ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize);
+      ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
       while (true) {
         elem = rdr.read(in);
         list.add(elem);

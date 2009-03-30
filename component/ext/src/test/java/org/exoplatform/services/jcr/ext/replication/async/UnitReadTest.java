@@ -71,7 +71,7 @@ public class UnitReadTest extends BaseStandaloneTest {
 
     ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
 
-    TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize);
+    TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize, holder);
     do {
       try {
         curLog = rdr.read(in);

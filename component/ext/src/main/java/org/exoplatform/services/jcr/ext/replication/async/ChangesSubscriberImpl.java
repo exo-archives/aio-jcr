@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntime
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -101,6 +102,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final FileCleaner fileCleaner;
   
   protected final int maxBufferSize;
+  private final ReaderSpoolFileHolder holder;
   
 
   class MergeWorker extends Thread {
@@ -194,12 +196,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localMember.getPriority()) {
         membersChanges.add(new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
-                                                               localMember, fileCleaner, maxBufferSize));
+                                                               localMember, fileCleaner, maxBufferSize, holder));
       } else {
         for (int i = 0; i < membersChanges.size(); i++) {
           if (membersChanges.get(i).getMember().getPriority() > localMember.getPriority()) {
             membersChanges.add(i, new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
-                                                                      localMember, fileCleaner, maxBufferSize));
+                                                                      localMember, fileCleaner, maxBufferSize, holder));
             break;
           }
         }
@@ -247,7 +249,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                ChangesSaveErrorLog errorLog,
                                int memberWaitTimeout,
                                int localPriority,
-                               int confMembersCount, FileCleaner fileCleaner, int maxBufferSize) {
+                               int confMembersCount, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.memberWaitTimeout = memberWaitTimeout;
     this.localPriority = localPriority;
     this.mergeManager = mergeManager;
@@ -261,6 +263,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     this.counterMap = new LinkedHashMap<Integer, Counter>();
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   public void addLocalListener(LocalEventListener listener) {

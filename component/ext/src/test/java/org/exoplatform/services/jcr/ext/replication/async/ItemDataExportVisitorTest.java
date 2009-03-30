@@ -385,7 +385,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     ItemState elem;
     List<ItemState> list = new ArrayList<ItemState>();
     try{
-    ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize);  
+    ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);  
     while(true){
       elem =  rdr.read(in);
       list.add(elem);

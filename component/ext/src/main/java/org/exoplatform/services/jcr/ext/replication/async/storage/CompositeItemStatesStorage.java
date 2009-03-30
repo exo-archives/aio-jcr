@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -49,6 +50,8 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   private final FileCleaner fileCleaner;
   
   private final int maxBufferSize;
+  
+  private final ReaderSpoolFileHolder holder;
 
   class ItemStateIterator implements Iterator<T> {
 
@@ -119,12 +122,13 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     }
   }
 
-  public CompositeItemStatesStorage(File storageDir, Member member, ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize) {
+  public CompositeItemStatesStorage(File storageDir, Member member, ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.member = member;
     this.storageDir = storageDir;
     this.resHolder = resHolder;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -136,7 +140,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   private EditableChangesStorage<T> current() {
     if (current == null) {
-      current = new BufferedItemStatesStorage<T>(storageDir, member, resHolder, fileCleaner, maxBufferSize);
+      current = new BufferedItemStatesStorage<T>(storageDir, member, resHolder, fileCleaner, maxBufferSize, holder);
       storages.add(current);
     }
 

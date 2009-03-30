@@ -98,7 +98,7 @@ public class TesterRemoteExporter implements RemoteExporter {
       }
       out.close();
 
-      chs = new ItemStatesStorage<ItemState>(chfile, null, null, 200*1024); // TODO member
+      chs = new ItemStatesStorage<ItemState>(chfile, null, null, 200*1024, null); // TODO member
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }

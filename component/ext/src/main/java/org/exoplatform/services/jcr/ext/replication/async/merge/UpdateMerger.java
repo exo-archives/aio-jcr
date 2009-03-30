@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -52,8 +53,8 @@ public class UpdateMerger extends AbstractMerger {
                       NodeTypeDataManager ntManager,
                       ResourcesHolder resHolder,
                       FileCleaner fileCleaner,
-                      int maxBufferSize) {
-    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize);
+                      int maxBufferSize, ReaderSpoolFileHolder holder) {
+    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize, holder);
   }
 
   /**
@@ -84,7 +85,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                                               null,
                                                                                               resHolder,
                                                                                               fileCleaner,
-                                                                                              maxBufferSize);
+                                                                                              maxBufferSize, holder);
     // income update sequence
     List<ItemState> incUpdateSeq = income.getUpdateSequence(incomeState);
 
@@ -121,7 +122,7 @@ public class UpdateMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize, holder);
             }
           }
           break;
@@ -150,7 +151,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                   null,
                                                                   resHolder,
                                                                   fileCleaner,
-                                                                  maxBufferSize);
+                                                                  maxBufferSize, holder);
                 }
               }
             } else {
@@ -159,7 +160,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                 null,
                                                                 resHolder,
                                                                 fileCleaner,
-                                                                maxBufferSize);
+                                                                maxBufferSize, holder);
               }
             }
 
@@ -179,7 +180,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                   null,
                                                                   resHolder,
                                                                   fileCleaner,
-                                                                  maxBufferSize);
+                                                                  maxBufferSize, holder);
                 }
               }
             break;
@@ -204,7 +205,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                 null,
                                                                 resHolder,
                                                                 fileCleaner,
-                                                                maxBufferSize);
+                                                                maxBufferSize, holder);
               }
             }
           } else {
@@ -215,7 +216,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                   null,
                                                                   resHolder,
                                                                   fileCleaner,
-                                                                  maxBufferSize);
+                                                                  maxBufferSize, holder);
                 }
               }
             } else {
@@ -224,7 +225,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                 null,
                                                                 resHolder,
                                                                 fileCleaner,
-                                                                maxBufferSize);
+                                                                maxBufferSize, holder);
               }
             }
           }
@@ -240,7 +241,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                 null,
                                                                 resHolder,
                                                                 fileCleaner,
-                                                                maxBufferSize);
+                                                                maxBufferSize, holder);
               }
             } else {
               for (ItemState item : incUpdateSeq) {
@@ -249,7 +250,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                   null,
                                                                   resHolder,
                                                                   fileCleaner,
-                                                                  maxBufferSize);
+                                                                  maxBufferSize, holder);
                 }
               }
             }
@@ -267,7 +268,7 @@ public class UpdateMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize, holder);
             }
           }
           break;

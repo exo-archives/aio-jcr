@@ -160,7 +160,7 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
     Thread.sleep(5000);
 
     ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
-    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize);
+    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize, holder);
     ItemState itemState = rdr.read(in);
     
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()
@@ -181,7 +181,7 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
     exportServer.onCancel();
 
     ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
-    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize);
+    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize, holder);
     ItemState itemState = rdr.read(in);
 
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()

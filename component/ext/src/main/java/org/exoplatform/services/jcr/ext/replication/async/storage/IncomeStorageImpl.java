@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -55,8 +56,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   protected final ResourcesHolder             resHolder = new ResourcesHolder();
   
   private final FileCleaner fileCleaner;
-  
   private final int maxBufferSize;
+  private final ReaderSpoolFileHolder holder;
   
   class MemberChanges {
 
@@ -70,10 +71,11 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     }
   }
 
-  public IncomeStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize) {
+  public IncomeStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.storagePath = storagePath;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -125,8 +127,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
     List<MemberChangesStorage<ItemState>> result = new ArrayList<MemberChangesStorage<ItemState>>();
     for (Map.Entry<Integer, MemberChanges> entry : changes.entrySet()) {
-      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue().changes, fileCleaner, maxBufferSize),
-                                                     entry.getValue().member, fileCleaner, maxBufferSize));
+      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue().changes, fileCleaner, maxBufferSize, holder),
+                                                     entry.getValue().member, fileCleaner, maxBufferSize, holder));
     }
 
     Collections.sort(result, new Comparator<MemberChangesStorage<ItemState>>() {
@@ -191,8 +193,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         if (LOG.isDebugEnabled())
           LOG.debug("The ChangesFiles in IncomeStorage = " + chFiles.size());
 
-        IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles, fileCleaner, maxBufferSize),
-                                                                                      null, fileCleaner, maxBufferSize); // TODO
+        IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles, fileCleaner, maxBufferSize, holder),
+                                                                                      null, fileCleaner, maxBufferSize, holder); // TODO
         // NPE
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {

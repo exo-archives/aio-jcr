@@ -26,6 +26,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -46,6 +47,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   
   private final FileCleaner fileCleaner;
   private final int maxBufferSize;
+  private final ReaderSpoolFileHolder holder;
 
   class ItemStateIterator<S extends ItemState> implements Iterator<S> {
 
@@ -107,7 +109,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       if (in != null) {
         try {
 
-          ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize);
+          ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
           return (S) rdr.read(in);
         } catch (EOFException e) {
           // End of list
@@ -129,12 +131,14 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * 
    * @param changes ChagesFiles
    * @param member owner
+   * @param holder TODO
    */
-  public ItemStatesStorage(ChangesFile changes, Member member, FileCleaner fileCleaner, int maxBufferSize) {
+  public ItemStatesStorage(ChangesFile changes, Member member, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.storage = changes;
     this.member = member;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**

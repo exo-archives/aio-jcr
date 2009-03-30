@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -54,8 +55,16 @@ public class RenameMerger extends AbstractMerger {
                       NodeTypeDataManager ntManager,
                       ResourcesHolder resHolder,
                       FileCleaner fileCleaner,
-                      int maxBufferSize) {
-    super(localPriority, exporter, dataManager, ntManager, resHolder, fileCleaner, maxBufferSize);
+                      int maxBufferSize,
+                      ReaderSpoolFileHolder holder) {
+    super(localPriority,
+          exporter,
+          dataManager,
+          ntManager,
+          resHolder,
+          fileCleaner,
+          maxBufferSize,
+          holder);
   }
 
   /**
@@ -100,7 +109,8 @@ public class RenameMerger extends AbstractMerger {
                                                                                               null,
                                                                                               resHolder,
                                                                                               fileCleaner,
-                                                                                              maxBufferSize);
+                                                                                              maxBufferSize,
+                                                                                              holder);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -131,7 +141,8 @@ public class RenameMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize,
+                                                              holder);
             }
           } else {
             if (localData.getQPath().isDescendantOf(incNodePath)) {
@@ -141,7 +152,8 @@ public class RenameMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize,
+                                                              holder);
             }
           }
           break;
@@ -163,7 +175,8 @@ public class RenameMerger extends AbstractMerger {
                                                                 null,
                                                                 resHolder,
                                                                 fileCleaner,
-                                                                maxBufferSize);
+                                                                maxBufferSize,
+                                                                holder);
               }
             }
             break;
@@ -190,7 +203,8 @@ public class RenameMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize,
+                                                              holder);
             }
             break;
           }
@@ -208,7 +222,8 @@ public class RenameMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize,
+                                                              holder);
             }
           } else {
             if (incNodePath.isDescendantOf(localData.getQPath().makeParentPath())
@@ -222,7 +237,8 @@ public class RenameMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize,
+                                                              holder);
             }
           }
           break;
@@ -237,7 +253,8 @@ public class RenameMerger extends AbstractMerger {
                                                               null,
                                                               resHolder,
                                                               fileCleaner,
-                                                              maxBufferSize);
+                                                              maxBufferSize,
+                                                              holder);
             }
           }
           break;
@@ -254,7 +271,8 @@ public class RenameMerger extends AbstractMerger {
                                                             null,
                                                             resHolder,
                                                             fileCleaner,
-                                                            maxBufferSize);
+                                                            maxBufferSize,
+                                                            holder);
           }
           break;
         }
@@ -453,7 +471,7 @@ public class RenameMerger extends AbstractMerger {
                 ItemState item = locRenSeq.get(i);
 
                 if (item.getState() == ItemState.DELETED) { // generate add
-                                                            // state for old
+                  // state for old
                   resultState.add(generateRestoreRenamedItem(item, locRenSeq.get(locRenSeq.size()
                       - i - 1)));
                 }
@@ -522,8 +540,8 @@ public class RenameMerger extends AbstractMerger {
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
                 if (item.getState() == ItemState.RENAMED) { // generate delete
-                                                            // state for new
-                                                            // place
+                  // state for new
+                  // place
 
                   // delete lock properties if present
                   if (item.getData().isNode()) {

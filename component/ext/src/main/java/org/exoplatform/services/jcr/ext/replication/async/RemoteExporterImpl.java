@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStor
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -54,6 +55,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   protected final ResourcesHolder  resHolder    = new ResourcesHolder();
 
   protected final File             tempDir;
+  protected final ReaderSpoolFileHolder             holder;
 
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each members pair merge.
@@ -79,12 +81,13 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   protected final FileCleaner fileCleaner;
   protected final int maxBufferSize;
   
-  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver, String tempDir, FileCleaner fileCleaner, int maxBufferSize) {
+  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver, String tempDir, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.transmitter = transmitter;
     this.receiver = receiver;
     this.tempDir = new File(tempDir);
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
   }
 
   /**
@@ -131,7 +134,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         throw new RemoteExportException("Changes owner (member) is not set");
 
       // return Iterator based on ChangesFile
-      return new ItemStatesStorage<ItemState>(changesFile, context.getMember(), fileCleaner, maxBufferSize);
+      return new ItemStatesStorage<ItemState>(changesFile, context.getMember(), fileCleaner, maxBufferSize, holder);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } finally {

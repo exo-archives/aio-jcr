@@ -46,7 +46,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
   public void testAdd() throws Exception {
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize);
+                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
     cs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
                                                             0,
@@ -92,10 +92,10 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
       cfList.add(cf);
     }
 
-    ChangesLogStorage<ItemState> cls = new ChangesLogStorage<ItemState>(cfList, fileCleaner, maxBufferSize);
+    ChangesLogStorage<ItemState> cls = new ChangesLogStorage<ItemState>(cfList, fileCleaner, maxBufferSize, holder);
 
     BufferedItemStatesStorage<ItemState> bs = new BufferedItemStatesStorage<ItemState>(new File("./target"),
-                                                                                       null, new ResourcesHolder(), fileCleaner, maxBufferSize);
+                                                                                       null, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
 
     bs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
@@ -108,7 +108,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
     initNodes++;
 
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize);
+                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
     cs.addAll(cls);
     cs.addAll(bs);
 

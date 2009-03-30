@@ -150,11 +150,11 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                           .getComponent(PersistentDataManager.class);
 
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize);
+                                                                      fileCleaner, maxBufferSize, holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    fileCleaner, maxBufferSize,
+                                                    fileCleaner, maxBufferSize, holder,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -189,7 +189,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR + "ss");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst", "nt:folder");
@@ -237,7 +237,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"startstop");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -274,7 +274,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
    */
   public void testImportEmptyLog() throws Exception {
 
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
     storage.onStart(null);
 
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
@@ -296,7 +296,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"ss");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n = (NodeImpl) root.addNode("testNode");
@@ -350,7 +350,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
     dataManager.addItemPersistenceListener(storage);
 
     n.remove();
@@ -377,7 +377,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     class TestLocalStorage extends LocalStorageImpl {
       public TestLocalStorage(String path, int pr) throws NoSuchAlgorithmException,
           ChecksumNotFoundException {
-        super(path, fileCleaner, maxBufferSize);
+        super(path, fileCleaner, maxBufferSize, holder);
       }
 
       public void report(Exception e) {
@@ -396,7 +396,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage = null;
 
-    storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize);
+    storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
 
     // check exception
     String[] errs = storage.getErrors();

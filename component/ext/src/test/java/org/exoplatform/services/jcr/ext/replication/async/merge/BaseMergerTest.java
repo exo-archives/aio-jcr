@@ -614,8 +614,8 @@ public class BaseMergerTest extends AbstractAsyncUseCases {
     // logs
     // TODO priority is dumy here
     localMember = new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 1);
-    local = new TesterChangesStorage<ItemState>(localMember, fileCleaner, maxBufferSize); // TODO member
-    income = new TesterChangesStorage<ItemState>(localMember, fileCleaner, maxBufferSize);
+    local = new TesterChangesStorage<ItemState>(localMember, fileCleaner, maxBufferSize, holder); // TODO member
+    income = new TesterChangesStorage<ItemState>(localMember, fileCleaner, maxBufferSize, holder);
   }
 
   /**
