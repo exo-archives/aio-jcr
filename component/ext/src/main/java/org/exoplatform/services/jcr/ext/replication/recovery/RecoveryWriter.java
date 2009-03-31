@@ -36,6 +36,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -137,14 +139,14 @@ public class RecoveryWriter extends AbstractFSAccess {
 
       File f = new File(dir.getCanonicalPath() + File.separator + File.separator + fileName);
 
+      
       // save data
-      ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
+      this.save(f, (TransactionChangesLog) confirmationChengesLog.getChangesLog());
 
-      writeExternal(objectOutputStream,
-                    (TransactionChangesLog) confirmationChengesLog.getChangesLog());
+      //ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
 
-      objectOutputStream.flush();
-      objectOutputStream.close();
+     // writeExternal(objectOutputStream,
+     //               (TransactionChangesLog) confirmationChengesLog.getChangesLog());
 
       // save info
       if (log.isDebugEnabled())
@@ -171,12 +173,13 @@ public class RecoveryWriter extends AbstractFSAccess {
    */
   public String save(File f, TransactionChangesLog changesLog) throws IOException {
       // save data
-      ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
-
-      writeExternal(objectOutputStream,  changesLog);
-
-      objectOutputStream.flush();
-      objectOutputStream.close();
+      ObjectWriterImpl out = new ObjectWriterImpl(new FileOutputStream(f));
+      TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+      wr.write(out, changesLog);
+      
+      //writeExternal(objectOutputStream,  changesLog);
+      out.flush();
+      out.close();
       return f.getName();
   }
 
@@ -216,7 +219,7 @@ public class RecoveryWriter extends AbstractFSAccess {
    * @throws IOException
    *           will be generated the IOException
    */
-  private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
+ /* private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
 
@@ -260,7 +263,7 @@ public class RecoveryWriter extends AbstractFSAccess {
     }
 
     out.flush();
-  }
+  }*/
 
   /**
    * writeContent.

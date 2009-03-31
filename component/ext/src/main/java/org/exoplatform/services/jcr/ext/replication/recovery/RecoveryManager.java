@@ -24,15 +24,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.management.annotations.ManagedBy;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.management.annotations.ManagedBy;
 
 /**
  * Created by The eXo Platform SAS.
@@ -67,12 +68,12 @@ public class RecoveryManager {
   /**
    * Definition the folder to ChangesLog.
    */
-  private File                                                    recoveryDir;
+  //private File                                                    recoveryDir;
 
   /**
    * The FileCleaner will delete the temporary files.
    */
-  private FileCleaner                                             fileCleaner;
+  //private FileCleaner                                             fileCleaner;
 
   /**
    * The date to ChangesLog.
@@ -163,10 +164,8 @@ public class RecoveryManager {
                          long waitConformation,
                          String repoName,
                          String wsName,
-                         ChannelManager channelManager) throws IOException {
-    this.recoveryDir = recoveryDir;
-    this.fileCleaner = new FileCleaner();
-
+                         ChannelManager channelManager, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) throws IOException {
+    
     this.ownName = ownName;
     this.participantsClusterList = new ArrayList<String>(participantsClusterList);
 
@@ -177,7 +176,7 @@ public class RecoveryManager {
     this.channelManager = channelManager;
 
     fileNameFactory = new FileNameFactory();
-    recoveryReader = new RecoveryReader(fileCleaner, recoveryDir);
+    recoveryReader = new RecoveryReader(fileCleaner, recoveryDir, maxBufferSize, holder);
     recoveryWriter = new RecoveryWriter(recoveryDir, fileNameFactory, fileCleaner, ownName);
     mapPendingConfirmation = new HashMap<String, PendingConfirmationChengesLog>();
     this.waitConfirmationTimeout = waitConformation;

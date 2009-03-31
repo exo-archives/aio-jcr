@@ -31,8 +31,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogReader;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -47,65 +51,80 @@ public class RecoveryReader extends AbstractFSAccess {
   /**
    * The apache logger.
    */
-  private static Log  log = ExoLogger.getLogger("ext.RecoveryReader");
+  private static Log            log = ExoLogger.getLogger("ext.RecoveryReader");
 
   /**
-   * The FileCleaner will delete the temporary files.
+   * The FileCleaner for delete the temporary files and correct
+   * TransientValueData deserialization.
    */
-  private FileCleaner fileCleaner;
+  private FileCleaner           fileCleaner;
+
+  /**
+   * For deserialization.
+   */
+  private int                   maxBufferSize;
+
+  /**
+   * For deserialization.
+   */
+  private ReaderSpoolFileHolder holder;
 
   /**
    * Definition the folder to ChangesLog.
    */
-  private File        recoveryDir;
+  private File                  recoveryDir;
 
   /**
-   * RecoveryReader  constructor.
-   *
-   * @param fileCleaner
-   *          the FileCleaner
-   * @param recoveryDir
-   *          the recoveryDir
+   * RecoveryReader constructor.
+   * 
+   * @param fileCleaner the FileCleaner
+   * @param recoveryDir the recoveryDir
    */
-  public RecoveryReader(FileCleaner fileCleaner, File recoveryDir) {
+  public RecoveryReader(FileCleaner fileCleaner,
+                        File recoveryDir,
+                        int maxBufferSize,
+                        ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
+    this.holder = holder;
     this.recoveryDir = recoveryDir;
   }
 
   /**
    * getChangesLog.
-   *
-   * @param filePath
-   *          full path to binary ChangesLog
-   * @return TransactionChangesLog
-   *           return the TransactionChangesLog 
-   * @throws IOException
-   *           will be generated the IOException
-   * @throws ClassNotFoundException
-   *           will be generated the ClassNotFoundException
+   * 
+   * @param filePath full path to binary ChangesLog
+   * @return TransactionChangesLog return the TransactionChangesLog
+   * @throws IOException will be generated the IOException
+   * @throws ClassNotFoundException will be generated the ClassNotFoundException
    */
   public TransactionChangesLog getChangesLog(String filePath) throws IOException,
                                                              ClassNotFoundException {
-    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
-    TransactionChangesLog tcl = readExternal(ois);
 
-    ois.close();
+    ObjectReaderImpl in = new ObjectReaderImpl(new FileInputStream(filePath));
+    TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner,
+                                                                      maxBufferSize,
+                                                                      holder);
+
+    TransactionChangesLog tcl;
+    try {
+      tcl = rdr.read(in);
+    } catch (UnknownClassIdException e) {
+      throw new ClassNotFoundException(e.getMessage(), e);
+    }
+    in.close();
     return tcl;
   }
 
   /**
    * readExternal.
-   *
-   * @param in
-   *          the ObjctInputStream
-   * @return  TransactionChangesLog
-   *           return the TransactionChangesLog
-   * @throws IOException
-   *           will be generated the IOException
-   * @throws ClassNotFoundException
-   *           will be generated the ClassNotFoundException          
+   * 
+   * @param in the ObjctInputStream
+   * @return TransactionChangesLog return the TransactionChangesLog
+   * @throws IOException will be generated the IOException
+   * @throws ClassNotFoundException will be generated the ClassNotFoundException
    */
-  private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
+ /* private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
                                                                   ClassNotFoundException {
     int changesLogType = in.readInt();
 
@@ -152,19 +171,15 @@ public class RecoveryReader extends AbstractFSAccess {
     }
 
     return transactionChangesLog;
-  }
+  }*/
 
-   /**
+  /**
    * getFilePathList.
-   *
-   * @param timeStamp
-   *          up to date
-   * @param ownName
-   *          owner name
-   * @return List
-   *           list of binary changes log up to date
-   * @throws IOException
-   *           will be generated IOException if fail. 
+   * 
+   * @param timeStamp up to date
+   * @param ownName owner name
+   * @return List list of binary changes log up to date
+   * @throws IOException will be generated IOException if fail.
    */
   public List<String> getFilePathList(Calendar timeStamp, String ownName) throws IOException {
     File dataInfo = new File(recoveryDir.getAbsolutePath() + File.separator + ownName);
@@ -197,11 +212,9 @@ public class RecoveryReader extends AbstractFSAccess {
 
   /**
    * getTimeStamp.
-   *
-   * @param fileName
-   *          name of file
-   * @return Calendar
-   *           TimeStamp from file name
+   * 
+   * @param fileName name of file
+   * @return Calendar TimeStamp from file name
    */
   private Calendar getTimeStamp(String fileName) {
     // 20080415_090302_824_50e4cf9d7f000001009bb457938f425b

@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.MembershipListener;
@@ -160,7 +161,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
    * @throws Exception
    *           will be generated Exception
    */
-  private String send(ItemStateChangesLog isChangesLog) throws Exception {
+  /*private String send(ItemStateChangesLog isChangesLog) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
     PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
 
@@ -228,7 +229,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     }
 
     return container.getIdentifier();
-  }
+  }*/
 
   /**
    * sendAsBinaryFile.
@@ -242,16 +243,17 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
    */
   private String sendAsBinaryFile(ItemStateChangesLog isChangesLog) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
-    PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
+    //PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
 
     // before save ChangesLog
-    recoveryManager.save(isChangesLog, container.getIdentifier());
+    //recoveryManager.save(isChangesLog, container.getIdentifier());
 
+    String identifier = IdGenerator.generate();
     File f = File.createTempFile("cl_", ".tmp");
 
     recoveryManager.getRecoveryWriter().save(f, changesLog);
 
-    switch (container.getConteinerType()) {
+   /* switch (container.getConteinerType()) {
     case PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM:
       byte[] buf1 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
 
@@ -289,9 +291,19 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
     default:
       break;
-    }
+    }*/
 
-    return container.getIdentifier();
+    channelManager.sendBinaryFile(f.getCanonicalPath(),
+                                  ownName,
+                                  identifier,
+                                  systemId,
+                                  Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET,
+                                  Packet.PacketType.BINARY_CHANGESLOG_MIDDLE_PACKET,
+                                  Packet.PacketType.BINARY_CHANGESLOG_LAST_PACKET);
+
+    fileCleaner.addFile(f);
+    
+    return identifier;
   }
 
   /**

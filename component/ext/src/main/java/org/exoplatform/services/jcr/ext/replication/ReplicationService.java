@@ -24,18 +24,19 @@ import javax.jcr.RepositoryException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jgroups.JChannel;
-import org.picocontainer.Startable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
+import org.exoplatform.management.ManagementAware;
+import org.exoplatform.management.ManagementContext;
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -46,15 +47,16 @@ import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.ext.replication.recovery.backup.BackupCreator;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.management.annotations.Managed;
-import org.exoplatform.management.annotations.ManagedDescription;
-import org.exoplatform.management.ManagementContext;
-import org.exoplatform.management.ManagementAware;
-import org.exoplatform.management.jmx.annotations.NameTemplate;
-import org.exoplatform.management.jmx.annotations.Property;
+import org.jgroups.JChannel;
+import org.picocontainer.Startable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Created by The eXo Platform SAS.
@@ -64,7 +66,7 @@ import org.exoplatform.management.jmx.annotations.Property;
  */
 @Managed
 @ManagedDescription("JCR replication service")
-@NameTemplate(@Property(key="service",value="replication"))
+@NameTemplate(@Property(key = "service", value = "replication"))
 public class ReplicationService implements Startable, ManagementAware {
 
   /**
@@ -145,17 +147,20 @@ public class ReplicationService implements Startable, ManagementAware {
   private String              channelConfig;
 
   /**
-   * The list of repositories. Fore this repositories will be worked replication.
+   * The list of repositories. Fore this repositories will be worked
+   * replication.
    */
   private List<String>        repoNamesList;
 
   /**
-   * If ChangesLog was not delivered, then ChangesLog will be saved in this folder.
+   * If ChangesLog was not delivered, then ChangesLog will be saved in this
+   * folder.
    */
   private File                recoveryDir;
 
   /**
-   * If ChangesLog was not delivered, then ChangesLog will be saved in this folder.
+   * If ChangesLog was not delivered, then ChangesLog will be saved in this
+   * folder.
    */
   private String              recDir;
 
@@ -175,12 +180,14 @@ public class ReplicationService implements Startable, ManagementAware {
   private String              participantsCluster;
 
   /**
-   * The definition timeout, how many time will be waited for successful save the Changeslog.
+   * The definition timeout, how many time will be waited for successful save
+   * the Changeslog.
    */
   private long                waitConfirmation;
 
   /**
-   * The definition timeout, how many time will be waited for successful save the Changeslog.
+   * The definition timeout, how many time will be waited for successful save
+   * the Changeslog.
    */
   private String              sWaitConfirmation;
 
@@ -205,14 +212,14 @@ public class ReplicationService implements Startable, ManagementAware {
   private String              sBackupDir;
 
   /**
-   * The definition of backup delay. Will be waited 'backupDelayTime' milliseconds before start full
-   * backup.
+   * The definition of backup delay. Will be waited 'backupDelayTime'
+   * milliseconds before start full backup.
    */
   private long                backupDelayTime       = 0;
 
   /**
-   * The definition of backup delay. Will be waited 'backupDelayTime' milliseconds before start full
-   * backup.
+   * The definition of backup delay. Will be waited 'backupDelayTime'
+   * milliseconds before start full backup.
    */
   private String              sDelayTime;
 
@@ -227,7 +234,8 @@ public class ReplicationService implements Startable, ManagementAware {
   private boolean             started;
 
   /**
-   * The definition of priority type. (PRIORITY_STATIC_TYPE or PRIORITY_DYNAMIC_TYPE)
+   * The definition of priority type. (PRIORITY_STATIC_TYPE or
+   * PRIORITY_DYNAMIC_TYPE)
    */
   private String              priprityType;
 
@@ -249,12 +257,10 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * ReplicationService constructor.
    * 
-   * @param repoService
-   *          the RepositoryService
-   * @param params
-   *          the configuration parameters
-   * @throws RepositoryConfigurationException
-   *           will be generated RepositoryConfigurationException
+   * @param repoService the RepositoryService
+   * @param params the configuration parameters
+   * @throws RepositoryConfigurationException will be generated
+   *           RepositoryConfigurationException
    */
   public ReplicationService(RepositoryService repoService, InitParams params) throws RepositoryConfigurationException {
     this(repoService, params, null);
@@ -263,14 +269,11 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * ReplicationService constructor.
    * 
-   * @param repoService
-   *          the RepositoryService
-   * @param params
-   *          the configuration parameters
-   * @param registryService
-   *          the RegistryService
-   * @throws RepositoryConfigurationException
-   *           will be generated RepositoryConfigurationException
+   * @param repoService the RepositoryService
+   * @param params the configuration parameters
+   * @param registryService the RegistryService
+   * @throws RepositoryConfigurationException will be generated
+   *           RepositoryConfigurationException
    */
   public ReplicationService(RepositoryService repoService,
                             InitParams params,
@@ -316,10 +319,13 @@ public class ReplicationService implements Startable, ManagementAware {
             ownName = (rIndex == 0 ? "cluster_node_1" : "cluster_node_2");
             participantsClusterList = new ArrayList<String>();
 
-            if (rIndex == 0)
+            if (rIndex == 0) {
+              ownPriority = 100;
               participantsClusterList.add("cluster_node_2");
-            else
+            } else {
+              ownPriority = 50;
               participantsClusterList.add("cluster_node_1");
+            }
           }
 
           for (int wIndex = 0; wIndex < workspaces.length; wIndex++)
@@ -339,9 +345,19 @@ public class ReplicationService implements Startable, ManagementAware {
 
               String uniqueNoame = jcrRepository.getName() + "_" + workspaces[wIndex];
               if (testMode != null && "true".equals(testMode))
-                uniqueNoame = "Test_Channel";
+                uniqueNoame = "Test_Channel234" ;
 
               ChannelManager channelManager = new ChannelManager(props, uniqueNoame);
+
+              WorkspaceContainerFacade wsFacade = jcrRepository.getWorkspaceContainer(workspaces[wIndex]);
+              WorkspaceEntry wconf = (WorkspaceEntry) wsFacade.getComponent(WorkspaceEntry.class);
+
+              int maxBufferSize = wconf.getContainer()
+                                       .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                            WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+
+              WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsFacade.getComponent(WorkspaceFileCleanerHolder.class);
+              FileCleaner fileCleaner = wfcleaner.getFileCleaner();
 
               // create the RecoveryManager
               RecoveryManager recoveryManager = new RecoveryManager(dir,
@@ -351,9 +367,11 @@ public class ReplicationService implements Startable, ManagementAware {
                                                                     waitConfirmation,
                                                                     jcrRepository.getName(),
                                                                     workspaces[wIndex],
-                                                                    channelManager);
+                                                                    channelManager,
+                                                                    fileCleaner,
+                                                                    maxBufferSize,
+                                                                    new ReaderSpoolFileHolder());
 
-              WorkspaceContainerFacade wsFacade = jcrRepository.getWorkspaceContainer(workspaces[wIndex]);
               WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
 
               ConnectionFailDetector failDetector = new ConnectionFailDetector(channelManager,
@@ -415,15 +433,12 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * initWorkspaceBackup. Will be initialized BackupCreator.
    * 
-   * @param repositoryName
-   *          the name of repository
-   * @param workspaceName
-   *          the name of workspace
+   * @param repositoryName the name of repository
+   * @param workspaceName the name of workspace
    * @return BackupCreator return the BackupCreator
-   * @throws RepositoryException
-   *           will be generated RepositoryException
-   * @throws RepositoryConfigurationException
-   *           will be generated RepositoryConfigurationException
+   * @throws RepositoryException will be generated RepositoryException
+   * @throws RepositoryConfigurationException will be generated
+   *           RepositoryConfigurationException
    */
   private BackupCreator initWorkspaceBackup(String repositoryName, String workspaceName) throws RepositoryException,
                                                                                         RepositoryConfigurationException {
@@ -566,10 +581,8 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * Get attribute value.
    * 
-   * @param element
-   *          The element to get attribute value
-   * @param attr
-   *          The attribute name
+   * @param element The element to get attribute value
+   * @param attr The attribute name
    * @return Value of attribute if present and null in other case
    */
   private String getAttributeSmart(Element element, String attr) {
@@ -579,12 +592,9 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * Set attribute value. If value is null the attribute will be removed.
    * 
-   * @param element
-   *          The element to set attribute value
-   * @param attr
-   *          The attribute name
-   * @param value
-   *          The value of attribute
+   * @param element The element to set attribute value
+   * @param attr The attribute name
+   * @param value The value of attribute
    */
   private void setAttributeSmart(Element element, String attr, String value) {
     if (value == null) {

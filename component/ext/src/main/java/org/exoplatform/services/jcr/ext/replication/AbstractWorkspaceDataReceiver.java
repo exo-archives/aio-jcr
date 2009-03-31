@@ -219,7 +219,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
       Packet bigPacket = null;
 
       switch (packet.getPacketType()) {
-      case Packet.PacketType.CHANGESLOG:
+     /* case Packet.PacketType.CHANGESLOG:
         TransactionChangesLog changesLog = PendingChangesLog.getAsItemDataChangesLog(packet.getByteArray());
         if (log.isDebugEnabled()) {
           log.debug("Received-->ItemDataChangesLog_without_Streams-->");
@@ -229,9 +229,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           log.debug("---------------------");
         }
         this.receive(changesLog, packet.getIdentifier());
-        break;
+        break;*/
 
-      case Packet.PacketType.FIRST_CHANGESLOG_WITH_STREAM:
+     /* case Packet.PacketType.FIRST_CHANGESLOG_WITH_STREAM:
         changesLog = PendingChangesLog.getAsItemDataChangesLog(packet.getByteArray());
 
         PendingChangesLog container = new PendingChangesLog(changesLog,
@@ -242,9 +242,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         mapPendingChangesLog.put(packet.getIdentifier(), container);
         if (log.isDebugEnabled())
           log.debug("Item DataChangesLog of type 'ItemDataChangesLog first whith stream'");
-        break;
+        break;*/
 
-      case Packet.PacketType.CHANGESLOG_WITH_STREAM_FIRST_PACKET:
+  /*    case Packet.PacketType.CHANGESLOG_WITH_STREAM_FIRST_PACKET:
         PendingChangesLog bigChangesLogWhithStream = new PendingChangesLog(packet.getIdentifier(),
                                                                            (int) packet.getSize());
         bigChangesLogWhithStream.putData((int) packet.getOffset(), packet.getByteArray());
@@ -283,9 +283,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           mapPendingChangesLog.put(packet.getIdentifier(), container);
         }
 
-        break;
+        break;*/
 
-      case Packet.PacketType.FIRST_PACKET_OF_STREAM:
+    /*  case Packet.PacketType.FIRST_PACKET_OF_STREAM:
         if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
 
@@ -328,9 +328,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           if (log.isDebugEnabled())
             log.debug("Last pocket of stream : " + packet.getByteArray().length + " bytes");
         }
-        break;
+        break;*/
 
-      case Packet.PacketType.LAST_CHANGESLOG_WITH_STREAM:
+    /*  case Packet.PacketType.LAST_CHANGESLOG_WITH_STREAM:
         if (mapPendingChangesLog.get(packet.getIdentifier()) != null)
           mapPendingChangesLog.get(packet.getIdentifier()).restore();
 
@@ -348,9 +348,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           this.receive(dataChangesLog, packet.getIdentifier());
           mapPendingChangesLog.remove(packet.getIdentifier());
         }
-        break;
+        break;*/
 
-      case Packet.PacketType.CHANGESLOG_FIRST_PACKET:
+     /* case Packet.PacketType.CHANGESLOG_FIRST_PACKET:
         PendingChangesLog bigChangesLog = new PendingChangesLog(packet.getIdentifier(),
                                                                 (int) packet.getSize());
         bigChangesLog.putData((int) packet.getOffset(), packet.getByteArray());
@@ -385,8 +385,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         }
 
         break;
-
-      case Packet.PacketType.BIG_PACKET_FIRST:
+*/
+   /*   case Packet.PacketType.BIG_PACKET_FIRST:
         PendingChangesLog bigLog = new PendingChangesLog(packet.getIdentifier(),
                                                          (int) packet.getSize());
         bigLog.putData((int) packet.getOffset(), packet.getByteArray());
@@ -416,7 +416,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           }
           mapPendingChangesLog.remove(packet.getIdentifier());
         }
-        break;
+        break;*/
 
       case Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET:
         if (mapPendingBinaryFile.containsKey(packet.getIdentifier()) == false)

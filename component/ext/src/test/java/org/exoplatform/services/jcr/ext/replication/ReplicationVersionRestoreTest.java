@@ -37,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
 public class ReplicationVersionRestoreTest extends BaseReplicationTest {
   
   private static final Log      log = ExoLogger.getLogger(ReplicationVersionRestoreTest.class);
-/*
+
   public void testRestore() throws Exception {
     Node srcVersionNode = root.addNode("Version node 1");
     srcVersionNode.setProperty("jcr:data", "Base version");
@@ -90,7 +90,7 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
 
     assertEquals("Base version", destVersionNode.getProperty("jcr:data").getString());
   }
-*/
+
   public void testBigFileRestore() throws Exception {
 
     File tempFile = File.createTempFile("tempFile", "doc");
