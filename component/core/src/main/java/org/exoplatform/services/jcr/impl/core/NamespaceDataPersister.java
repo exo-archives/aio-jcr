@@ -55,10 +55,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
- *         Azarenkov</a>
- * @version $Id: NamespaceDataPersister.java 13962 2008-05-07 16:00:48Z
- *          pnedonosko $
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @version $Id: NamespaceDataPersister.java 13962 2008-05-07 16:00:48Z pnedonosko $
  */
 
 public class NamespaceDataPersister {
@@ -173,9 +171,12 @@ public class NamespaceDataPersister {
   /**
    * Add new namespace.
    * 
-   * @param prefix NS prefix
-   * @param uri NS URI
-   * @throws RepositoryException Repository error
+   * @param prefix
+   *          NS prefix
+   * @param uri
+   *          NS URI
+   * @throws RepositoryException
+   *           Repository error
    */
   public void addNamespace(String prefix, String uri) throws RepositoryException {
 
@@ -292,7 +293,6 @@ public class NamespaceDataPersister {
 
   void saveChanges() throws RepositoryException, InvalidItemStateException {
     dataManager.save(new TransactionChangesLog(changesLog));
-    changesLog.clear();
   }
 
   private boolean isInialized() {
