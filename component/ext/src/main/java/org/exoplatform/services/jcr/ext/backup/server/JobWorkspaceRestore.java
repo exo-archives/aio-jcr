@@ -110,7 +110,7 @@ public class JobWorkspaceRestore extends Thread {
   /**
    * The exception on restore.
    */
-  private Exception               restoreException    = null;
+  private Throwable               restoreException    = null;
 
   /**
    * The start time of restore.
@@ -172,9 +172,9 @@ public class JobWorkspaceRestore extends Thread {
 
       stateRestore = RESTORE_SUCCESSFUL;
       endTime = Calendar.getInstance();
-    } catch (WorkspaceRestoreExeption e) {
+    } catch (Throwable t) {
       stateRestore = RESTORE_FAIL;
-      restoreException = e;
+      restoreException = t;
     }
   }
 
@@ -184,7 +184,7 @@ public class JobWorkspaceRestore extends Thread {
    * @throws WorkspaceRestoreExeption
    *           will be generated the WorkspaceRestoreExeption
    */
-  private void restore() throws WorkspaceRestoreExeption {
+  private void restore() throws Throwable {
     try {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
 
@@ -198,36 +198,15 @@ public class JobWorkspaceRestore extends Thread {
         File backLog = new File(path);
         backupChainLog = new BackupChainLog(backLog);
         backupManager.restore(backupChainLog, reEntry, wsEntry);
-      } catch (BackupOperationException e) {
+      } catch (Throwable t) {
         removeWorkspace(repository, workspaceName);
         throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-            + "' :" + e, e);
-      } catch (BackupConfigurationException e) {
-        removeWorkspace(repository, workspaceName);
-        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-            + "' :" + e, e);
-      } catch (RepositoryException e) {
-        removeWorkspace(repository, workspaceName);
-        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-            + "' :" + e, e);
-      } catch (RepositoryConfigurationException e) {
-        removeWorkspace(repository, workspaceName);
-        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-            + "' :" + e, e);
-      }
+            + "' :", t);
+      } 
 
-    } catch (NoSuchWorkspaceException e) {
-      throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-          + "' :" + e, e);
-    } catch (RepositoryException e) {
-      throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-          + "' :" + e, e);
-    } catch (RepositoryConfigurationException e) {
-      throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-          + "' :" + e, e);
     } catch (Throwable t) {
       throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-          + "' :" + t, t);
+          + "' :", t);
     }
   }
 
@@ -268,9 +247,9 @@ public class JobWorkspaceRestore extends Thread {
   /**
    * getRestoreException.
    * 
-   * @return Exception return the exception of restore.
+   * @return Throwable return the exception of restore.
    */
-  public Exception getRestoreException() {
+  public Throwable getRestoreException() {
     return restoreException;
   }
 
