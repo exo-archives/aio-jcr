@@ -45,8 +45,7 @@ import org.exoplatform.services.security.ConversationState;
 /**
  * Created by The eXo Platform SAS 15.12.2006
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ItemDataRemoveVisitor.java 14100 2008-05-12 10:53:47Z
  *          gazarenkov $
  */
@@ -213,9 +212,9 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     if (validate) {
       validate(property);
     }
-    if (!(property instanceof TransientItemData)) {
-      property = (PropertyData) copyItemData(property);
-    }
+    // if (!(property instanceof TransientItemData)) {
+    property = (PropertyData) copyItemData(property);
+    // }
     ItemState state = new ItemState(property,
                                     ItemState.DELETED,
                                     true,
@@ -305,14 +304,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
                                                               prop.getParentIdentifier(),
                                                               prop.isMultiValued());
 
-    List<ValueData> values = null;
-    // null is possible for deleting items
-    if (prop.getValues() != null) {
-      values = new ArrayList<ValueData>();
-      for (ValueData val : prop.getValues()) {
-        values.add(((AbstractValueData) val).createTransientCopy());
-      }
-    }
+    List<ValueData> values = new ArrayList<ValueData>();
     newData.setValues(values);
     return newData;
   }
