@@ -65,6 +65,8 @@ public class BackupChainLog {
   private LogReader                logReader;
 
   private BackupConfig             config;
+  
+  private String                   backupId;
 
   public BackupChainLog(File logDir,
                         BackupConfig config,
@@ -74,6 +76,7 @@ public class BackupChainLog {
     try {
       this.log = new File(logDir.getCanonicalPath() + File.separator + (PREFIX + backupId + SUFFIX));
       this.log.createNewFile();
+      this.backupId = backupId;
       this.config = config;
       this.jobEntries = new ArrayList<JobEntryInfo>();
 
@@ -91,6 +94,7 @@ public class BackupChainLog {
 
   public BackupChainLog(File log) throws BackupOperationException {
     this.log = log;
+    this.backupId = log.getName().replaceAll(PREFIX, "").replaceAll(SUFFIX, ""); 
 
     try {
       logReader = new LogReader(log);
@@ -123,6 +127,10 @@ public class BackupChainLog {
     } catch (Exception e) {
       logger.error("Can't add job", e);
     }
+  }
+  
+  public String getBackupId() {
+    return backupId;
   }
 
   public String getConfigInfo() {

@@ -1,0 +1,175 @@
+/*
+ * Copyright (C) 2003-2009 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.ext.backup.server.bean;
+
+import org.exoplatform.services.jcr.ext.backup.BackupConfig;
+
+
+/**
+ * Created by The eXo Platform SAS.
+ * 
+ * <br/>Date: 26.03.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id: BackupConfigBeen.java 111 2008-11-11 11:11:11Z rainf0x $
+ */
+public class BackupConfigBean extends BaseBean {
+
+  /**
+   * The backup type (full or full+incremental).
+   */
+  private Integer backupType;
+
+  /**
+   * The incremental job period.
+   */
+  private Long    incrementalJobPeriod;
+
+  /**
+   * The folder for backup data.
+   */
+  private String  backupDir;
+
+  /**
+   * BackupConfigBeen constructor. Empty constructor for JSON.
+   * 
+   */
+  public BackupConfigBean() {
+    super();
+  }
+
+  /**
+   * BackupConfigBeen constructor. Constructor for full backup.
+   * 
+   * @param backupType
+   *          Integer, backup tyeps
+   * @param repositoryName
+   *          String, repository name
+   * @param workspaceName
+   *          String, workspace name
+   * @param backupDir
+   *          String, path to backup folder
+   */
+  public BackupConfigBean(Integer backupType,
+                          String repositoryName,
+                          String workspaceName,
+                          String backupDir) {
+    this(backupType, repositoryName, workspaceName, backupDir, (long) 0);
+  }
+
+  /**
+   * BackupConfigBeen constructor. Constructor for full + incremental backup.
+   * 
+   * @param backupType
+   *          Integer, backup tyeps
+   * @param repositoryName
+   *          String, repository name
+   * @param workspaceName
+   *          String, workspace name
+   * @param backupDir
+   *          String, path to backup folder
+   * @param incrementalJobPeriod
+   *          Long, incremental job period
+   * @param incementalJobNumber
+   *          Integer, incremental job number
+   */
+  public BackupConfigBean(Integer backupType,
+                          String repositoryName,
+                          String workspaceName,
+                          String backupDir,
+                          Long incrementalJobPeriod) {
+    super(repositoryName, workspaceName);
+    this.backupType = backupType;
+    this.backupDir = backupDir;
+    this.incrementalJobPeriod = incrementalJobPeriod;
+  }
+  
+  /**
+   * BackupConfigBeen  constructor.
+   *
+   * @param config
+   *          the backup config
+   */
+  public BackupConfigBean(BackupConfig config) {
+    this(config.getBackupType(),
+         config.getRepository(),
+         config.getWorkspace(),
+         config.getBackupDir().getAbsolutePath(),
+         config.getIncrementalJobPeriod());
+  }
+
+  /**
+   * getIncrementalJobPeriod.
+   *
+   * @return Long
+   *           return the incremental job period
+   */
+  public Long getIncrementalJobPeriod() {
+    return incrementalJobPeriod;
+  }
+
+  /**
+   * setIncrementalJobPeriod.
+   *
+   * @param incrementalJobPeriod
+   *          Long, the incremental job period
+   */
+  public void setIncrementalJobPeriod(Long incrementalJobPeriod) {
+    this.incrementalJobPeriod = incrementalJobPeriod;
+  }
+
+  /**
+   * getBackupDir.
+   *
+   * @return String
+   *           return path to backup folder
+   */
+  public String getBackupDir() {
+    return backupDir;
+  }
+
+  /**
+   * setBackupDir.
+   *
+   * @param backupDir
+   *          String, path to backup folder
+   */
+  public void setBackupDir(String backupDir) {
+    this.backupDir = backupDir;
+  }
+
+  /**
+   * getBackupType.
+   *
+   * @return Integer
+   *           return the backup type
+   */
+  public Integer getBackupType() {
+    return backupType;
+  }
+
+  /**
+   * setBackupType.
+   *
+   * @param backupType
+   *          Integer, the backup type
+   */
+  public void setBackupType(Integer backupType) {
+    this.backupType = backupType;
+  }
+
+}

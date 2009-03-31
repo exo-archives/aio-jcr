@@ -19,12 +19,11 @@ package org.exoplatform.services.jcr.ext.backup.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Calendar;
 
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -51,7 +50,32 @@ import org.jibx.runtime.JiBXException;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: WorkspaceRestore.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class WorkspaceRestore {
+public class JobWorkspaceRestore extends Thread {
+
+  /**
+   * RESTORE_STARTED. The state of start restore.
+   */
+  public static final int         RESTORE_STARTED     = 1;
+
+  /**
+   * RESTORE_SUCCESSFUL. The state of restore successful.
+   */
+  public static final int         RESTORE_SUCCESSFUL  = 2;
+
+  /**
+   * RESTORE_FAIL. The state of restore fail.
+   */
+  public static final int         RESTORE_FAIL        = 3;
+
+  /**
+   * RESTORE_STARTED. The state of initialized restore.
+   */
+  public static final int         RESTORE_INITIALIZED = 4;
+
+  /**
+   * The state of restore.
+   */
+  private int                     stateRestore;
 
   /**
    * The destination repository.
@@ -84,6 +108,26 @@ public class WorkspaceRestore {
   private final BackupManager     backupManager;
 
   /**
+   * The exception on restore.
+   */
+  private Exception               restoreException    = null;
+
+  /**
+   * The start time of restore.
+   */
+  private Calendar                startTime;
+
+  /**
+   * The end time of restore.
+   */
+  private Calendar                endTime;
+
+  /**
+   * The BackupChainLog for restore.
+   */
+  private BackupChainLog          backupChainLog;
+
+  /**
    * WorkspaceRestore constructor.
    * 
    * @param repositoryService
@@ -101,21 +145,46 @@ public class WorkspaceRestore {
    * @param logPath
    *          path to backup log
    */
-  public WorkspaceRestore(RepositoryService repositoryService,
-                          BackupManager backupManager,
-                          String repositoryName,
-                          String workspaceName,
-                          String logPath,
-                          InputStream wEntry) {
+  public JobWorkspaceRestore(RepositoryService repositoryService,
+                             BackupManager backupManager,
+                             String repositoryName,
+                             String workspaceName,
+                             String logPath,
+                             InputStream wEntry) {
     this.repositoryService = repositoryService;
     this.backupManager = backupManager;
     this.repositoryName = repositoryName;
     this.workspaceName = workspaceName;
     this.path = logPath;
     this.wEntry = wEntry;
+    this.stateRestore = RESTORE_INITIALIZED;
   }
 
-  public void restore() throws WorkspaceRestoreExeption {
+  /**
+   * {@inheritDoc}
+   */
+  public void run() {
+    try {
+      stateRestore = RESTORE_STARTED;
+      startTime = Calendar.getInstance();
+
+      restore();
+
+      stateRestore = RESTORE_SUCCESSFUL;
+      endTime = Calendar.getInstance();
+    } catch (WorkspaceRestoreExeption e) {
+      stateRestore = RESTORE_FAIL;
+      restoreException = e;
+    }
+  }
+
+  /**
+   * Will be restored the workspace.
+   * 
+   * @throws WorkspaceRestoreExeption
+   *           will be generated the WorkspaceRestoreExeption
+   */
+  private void restore() throws WorkspaceRestoreExeption {
     try {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
 
@@ -127,8 +196,8 @@ public class WorkspaceRestore {
 
       try {
         File backLog = new File(path);
-        BackupChainLog bchLog = new BackupChainLog(backLog);
-        backupManager.restore(bchLog, reEntry, wsEntry);
+        backupChainLog = new BackupChainLog(backLog);
+        backupManager.restore(backupChainLog, reEntry, wsEntry);
       } catch (BackupOperationException e) {
         removeWorkspace(repository, workspaceName);
         throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
@@ -191,9 +260,80 @@ public class WorkspaceRestore {
       WorkspaceContainerFacade wc = mr.getWorkspaceContainer(workspaceName);
       SessionRegistry sessionRegistry = (SessionRegistry) wc.getComponent(SessionRegistry.class);
       sessionRegistry.closeSessions(workspaceName);
-    } 
-    
+    }
+
     mr.removeWorkspace(workspaceName);
+  }
+
+  /**
+   * getRestoreException.
+   * 
+   * @return Exception return the exception of restore.
+   */
+  public Exception getRestoreException() {
+    return restoreException;
+  }
+
+  /**
+   * getStateRestore.
+   * 
+   * @return int return state of restore.
+   */
+  public int getStateRestore() {
+    return stateRestore;
+  }
+
+  /**
+   * getBeginTime.
+   * 
+   * @return Calendar return the start time of restore
+   */
+  public Calendar getStartTime() {
+    return startTime;
+  }
+
+  /**
+   * getEndTime.
+   * 
+   * @return Calendar return the end time of restore
+   */
+  public Calendar getEndTime() {
+    return endTime;
+  }
+
+  /**
+   * getBackupChainLog.
+   *
+   * @return BackupChainLog
+   *           return the backup chain log for this restore.
+   */
+  public BackupChainLog getBackupChainLog() {
+    return backupChainLog;
+  }
+
+  /**
+   * getRepositoryName.
+   *
+   * @return String
+   *           the name of destination repository
+   */
+  public String getRepositoryName() {
+    return repositoryName;
+  }
+
+  /**
+   * getWorkspaceName.
+   *
+   * @return
+   */
+  /**
+   * getWorkspaceName.
+   *
+   * @return String
+   *           the name of destination workspace
+   */
+  public String getWorkspaceName() {
+    return workspaceName;
   }
 
 }

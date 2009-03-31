@@ -747,6 +747,16 @@ public class BackupManagerImpl implements BackupManager, Startable {
     }
     return null;
   }
+  
+  public BackupChain findBackup(String backupId) {
+    Iterator<BackupChain> it = currentBackups.iterator();
+    while (it.hasNext()) {
+      BackupChain chain = it.next();
+      if (backupId.equals(chain.getBackupId()))
+        return chain;
+    }
+    return null;
+  }
 
   public BackupScheduler getScheduler() {
     return scheduler;

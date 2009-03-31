@@ -18,30 +18,49 @@ package org.exoplatform.services.jcr.ext.backup.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.GET;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
-import org.apache.ws.commons.util.Base64;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
+import org.exoplatform.services.jcr.ext.backup.BackupChainLog;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
+import org.exoplatform.services.jcr.ext.backup.server.bean.BackupBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.DropWorkspaceBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.RestoreBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupChainBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupChainInfoBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupChainListBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.ChainLogBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.ChainLogListBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.FailureBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.MessageBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.RestoreChainLogBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.RestoreChainLogListBean;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
@@ -49,13 +68,12 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 24.02.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: BackupServer.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
 @Path("/jcr-backup/")
-@Produces("text/plain")
 public class HTTPBackupAgent implements ResourceContainer {
 
   /**
@@ -65,42 +83,57 @@ public class HTTPBackupAgent implements ResourceContainer {
     /**
      * The base path to this service.
      */
-    public static final String BASE_URL               = "/rest/jcr-backup";
+    public static final String BASE_URL = "/rest/jcr-backup";
 
     /**
      * Definition the operation types.
      */
     public static final class OperationType {
       /**
-       * Full backup only operation.
+       * Start backup operation.
        */
-      public static final String FULL_BACKUP_ONLY     = "fullOnly";
+      public static final String START_BACKUP   = "startBackup";
 
-      /**
-       * Full and incremental backup operations.
-       */
-      public static final String FULL_AND_INCREMENTAL = "fullAndIncremental";
-      
       /**
        * Restore operations.
        */
-      public static final String RESTORE              = "restore";
-      
+      public static final String RESTORE        = "restore";
+
       /**
        * Stop backup operations.
        */
-      public static final String STOP_BACKUP           = "stopBackup";
+      public static final String STOP_BACKUP    = "stopBackup";
+
+      /**
+       * The current backups info operations.
+       */
+      public static final String CURRENT_BACKUPS_INFO = "currentBackupsInfo";
       
       /**
-       * The backup status operations.
+       * The current backup info operations.
        */
-      public static final String GET_STATUS            = "getStatus";
+      public static final String CURRENT_BACKUP_INFO = "currentBackupInfo";
       
+      /**
+       * The current restores info operations.
+       */
+      public static final String CURRENT_RESTORES_INFO = "currentRestoresInfo";
+      
+      /**
+       * The completed backups info operations.
+       */
+      public static final String COMPLETED_BACKUPS_INFO = "completedBackupsInfo";
+      
+      /**
+       * The backup service info operations.
+       */
+      public static final String BACKUP_SERVICE_INFO = "backupServiceInfo";
+
       /**
        * The drop workspace operations.
        */
-      public static final String DROP_WORKSPACE        = "dropWorkspace";
-      
+      public static final String DROP_WORKSPACE = "dropWorkspace";
+
       /**
        * OperationType constructor.
        */
@@ -118,289 +151,370 @@ public class HTTPBackupAgent implements ResourceContainer {
   /**
    * The apache logger.
    */
-  private static Log        log = ExoLogger.getLogger("ext.BackupServer");
-  
+  private static Log                        log = ExoLogger.getLogger("ext.BackupServer");
+
   /**
    * The repository service.
    */
-  private RepositoryService repositoryService;
+  private RepositoryService                 repositoryService;
 
   /**
    * The backup manager.
    */
-  private BackupManager     backupManager;
-  
+  private BackupManager                     backupManager;
+
   /**
    * Will be get session over base authenticate.
    */
   private ThreadLocalSessionProviderService sessionProviderService;
   
   /**
+   * The list of restore job.
+   */
+  private  List<JobWorkspaceRestore>        restoreJobs;
+
+  /**
    * ReplicationTestService constructor.
    * 
-   * @param repoService the RepositoryService
-   * @param backupManager the BackupManager
-   * @param sessionProviderService the ThreadLocalSessionProviderService
+   * @param repoService
+   *          the RepositoryService
+   * @param backupManager
+   *          the BackupManager
+   * @param sessionProviderService
+   *          the ThreadLocalSessionProviderService
    */
   public HTTPBackupAgent(RepositoryService repoService,
-                      BackupManager backupManager,
-                      ThreadLocalSessionProviderService sessionProviderService) {
+                         BackupManager backupManager,
+                         ThreadLocalSessionProviderService sessionProviderService) {
     this.repositoryService = repoService;
     this.backupManager = backupManager;
     this.sessionProviderService = sessionProviderService;
+    this.restoreJobs = new ArrayList<JobWorkspaceRestore>();
 
     log.info("HTTPBackupAgent inited");
   }
-  
-  /**
-   * startFullBackup.
-   * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @return Response return the response
-   */
-  @GET
-  @Path("/{repositoryName}/{workspaceName}/fullOnly")
-  public Response startFullBackup(@PathParam("repositoryName") String repositoryName,
-                              @PathParam("workspaceName") String workspaceName) {
-    BackupConfig config = new BackupConfig();
-    config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
-    config.setRepository(repositoryName);
-    config.setWorkspace(workspaceName);
-    config.setBackupDir(backupManager.getBackupDirectory());
 
-    String result = "";
-
-    try {
-      validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName);
-      validateOneInstants(repositoryName, workspaceName);
-      
-      BackupChain backupChain = backupManager.startBackup(config);
-      
-      result += ("backup log : " + backupChain.getLogFilePath());
-    } catch (Exception e) {
-      result = "FAIL\n" + e.getMessage();
-      log.error("Can't start backup", e);
-    }
-
-    return Response.ok(result).build();
-  }
-  
   /**
    * startBackup.
-   * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param incementalJobPeriod the period for incremental backup (seconds)
-   * @param incementalJobNumber the number for incremental job
+   *
+   * @param bConfigBeen
+   *          BackupConfigBeen, the been with backup configuration. 
    * @return Response return the response
    */
-  @GET
-  @Path("/{repositoryName}/{workspaceName}/{incementalJobPeriod}/{incementalJobNumber}/fullAndIncremental")
-  public Response startBackup(@PathParam("repositoryName") String repositoryName,
-                              @PathParam("workspaceName") String workspaceName,
-                              @PathParam("incementalJobPeriod") Long incementalJobPeriod,
-                              @PathParam("incementalJobNumber") int incementalJobNumber) {
-    BackupConfig config = new BackupConfig();
-    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
-    config.setRepository(repositoryName);
-    config.setWorkspace(workspaceName);
-    config.setBackupDir(backupManager.getBackupDirectory());
-    config.setIncrementalJobPeriod(incementalJobPeriod);
-    config.setIncrementalJobNumber(incementalJobNumber);
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("/startBackup")
+  public Response startBackup(BackupConfigBean bConfigBeen) {
+    File backupDir = new File(bConfigBeen.getBackupDir());
+    // if (!backupDir.exists())
 
-    String result = "";
+    BackupConfig config = new BackupConfig();
+    config.setBackupType(bConfigBeen.getBackupType());
+    config.setRepository(bConfigBeen.getRepositoryName());
+    config.setWorkspace(bConfigBeen.getWorkspaceName());
+    config.setBackupDir(backupDir);
+    config.setIncrementalJobPeriod(bConfigBeen.getIncrementalJobPeriod());
 
     try {
-      validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName);
-      validateOneInstants(repositoryName, workspaceName);
-      
+      validateRepositoryName(bConfigBeen.getRepositoryName());
+      validateWorkspaceName(bConfigBeen.getRepositoryName(), bConfigBeen.getWorkspaceName());
+      validateOneInstants(bConfigBeen.getRepositoryName(), bConfigBeen.getWorkspaceName());
+
       BackupChain backupChain = backupManager.startBackup(config);
       
-      result += ("backup log : " + backupChain.getLogFilePath());
+      BackupChainBean backupChainBean = new BackupChainBean(backupChain);
+
+      return Response.ok(backupChainBean).build();
     } catch (Exception e) {
-      result = "FAIL\n" + e.getMessage();
       log.error("Can not start backup", e);
+      
+      FailureBean failureBean = new FailureBean("Can not start backup", e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
     }
-
-    return Response.ok(result).build();
   }
-  
+
   /**
-   * restore.
-   * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param forceCloseSession the Boolean
+   * dropWorkspace.
+   *
+   * @param dropWorkspaceBean
+   *          the been for drop workspace
    * @return Response return the response
    */
-  @GET
-  @Path("/{repositoryName}/{workspaceName}/{forceCloseSession}/dropWorkspace")
-  public Response dropWorkspace(@PathParam("repositoryName") String repositoryName,
-                                @PathParam("workspaceName") String workspaceName,
-                                @PathParam("forceCloseSession") Boolean forceCloseSession) {
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("/dropWorkspace")
+  public Response dropWorkspace(DropWorkspaceBean dropWorkspaceBean) {
 
-    String res = "";
-    
     try {
+      String res = "";
       
-      if (forceCloseSession) {
-        int closedSessions = forceCloseSession(repositoryName, workspaceName);
-        res += ("The " + closedSessions + " sessions was closed on workspace '" + "/" + repositoryName + "/" + workspaceName + "'\n");
+      if (dropWorkspaceBean.getForceSessionClose()) {
+        int closedSessions = forceCloseSession(dropWorkspaceBean.getRepositoryName(),
+                                               dropWorkspaceBean.getWorkspaceName());
+        res += ("The " + closedSessions + " sessions was closed on workspace '" + "/"
+            + dropWorkspaceBean.getRepositoryName() + "/" + dropWorkspaceBean.getWorkspaceName() + "'\n");
       }
-      
-      validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName);
-      
-      RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
-      repository.removeWorkspace(workspaceName);
-      
-      res += "The workspace '/" + repositoryName + "/" + workspaceName + "' was dropped.";
-    } catch (Exception e) {
-      res = "FAIL\n" + e.getMessage();
-      log.error("Can not drop the workspace '"
-                + "/" + repositoryName
-                + "/" + workspaceName + "'");
-    }
 
-    return Response.ok(res).build();
+      validateRepositoryName(dropWorkspaceBean.getRepositoryName());
+      validateWorkspaceName(dropWorkspaceBean.getRepositoryName(),
+                            dropWorkspaceBean.getWorkspaceName());
+
+      RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(dropWorkspaceBean.getRepositoryName());
+      repository.removeWorkspace(dropWorkspaceBean.getWorkspaceName());
+
+      res += "The workspace '/" + dropWorkspaceBean.getRepositoryName() + "/"
+             + dropWorkspaceBean.getWorkspaceName() + "' was dropped.";
+
+      MessageBean messageBean = new MessageBean(res);
+      
+      return Response.ok(messageBean).build();      
+    } catch (Exception e) {
+      log.error("Can not drop the workspace '" + "/" + dropWorkspaceBean.getRepositoryName() + "/"
+          + dropWorkspaceBean.getWorkspaceName() + "'", e);
+      
+      FailureBean failureBean = new FailureBean("Can not drop the workspace '" + "/" + dropWorkspaceBean.getRepositoryName() + "/"
+                                                + dropWorkspaceBean.getWorkspaceName() + "'",
+                                                e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
+    }
   }
-  
+
   /**
    * restore.
-   * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param path the  path to backup log on server
-   * @param workspaceEntry the workspace entry 
+   *
+   * @param restoreBean
+   *          RestoreBeen, the restore been configuration
    * @return Response return the response
    */
-  @GET
-  @Path("/{repositoryName}/{workspaceName}/{path}/{workspaceEntry}/restore")
-  public Response restore(@PathParam("repositoryName") String repositoryName,
-                          @PathParam("workspaceName") String workspaceName,
-                          @PathParam("path") String path,
-                          @PathParam("workspaceEntry") String workspaceEntry) {
-
-    String res = "";
-    String ePath = "";
-    
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("/restore")
+  public Response restore(RestoreBean restoreBean) {
     try {
-      byte buf[] = Base64.decode(path);
-      ePath = new String(buf, "UTF-8");
+      String res = "";
+      File backupLog = getBackupLogbyId(restoreBean.getBackupId());
       
-      byte bufDest[] = Base64.decode(workspaceEntry.replace("char_pluse", "+"));
-      ByteArrayInputStream wEntryStream = new ByteArrayInputStream(bufDest);
-      
-      WorkspaceRestore restore = new WorkspaceRestore(repositoryService,
-                                                      backupManager,
-                                                      repositoryName,
-                                                      workspaceName,
-                                                      ePath,
-                                                      wEntryStream);
-  
-      validateRepositoryName(repositoryName);
-      
-      //validate backup log file
-      if (!(new File(ePath).exists()))
-        throw new RuntimeException("The backup log file not exists : " + ePath);
-      
-      restore.restore();
-      
-      res += ("The workspace '" + "/" + repositoryName  + "/" + workspaceName + "' was restored.");
-    } catch (Exception e) {
-      res = "FAIL\n" + e.getMessage();
-      log.error("Can not restore the workspace '"
-                + "/" + repositoryName
-                + "/" + workspaceName + "' from "
-                + ePath, e);
-    }
+      // validate backup log file
+      if (backupLog == null)
+        throw new RuntimeException("The backup log file with id " + restoreBean.getBackupId() + " not exists.");
 
-    return Response.ok(res).build();
+      ByteArrayInputStream wEntryStream = new ByteArrayInputStream(restoreBean.getWorkspaceConfig()
+                                                                              .getBytes("UTF-8"));
+
+      JobWorkspaceRestore jobRestore = new JobWorkspaceRestore(repositoryService,
+                                                      backupManager,
+                                                      restoreBean.getRepositoryName(),
+                                                      restoreBean.getWorkspaceName(),
+                                                      backupLog.getAbsolutePath(),
+                                                      wEntryStream);
+
+      validateRepositoryName(restoreBean.getRepositoryName());
+
+      restoreJobs.add(jobRestore);
+      jobRestore.start();
+
+      res += ("The workspace '" + "/" + restoreBean.getRepositoryName() + "/"
+          + restoreBean.getWorkspaceName() + "' is start restoring from " + backupLog.getAbsolutePath() + ".");
+      
+      MessageBean messageBean = new MessageBean(res);
+      
+      return Response.ok(messageBean).build();
+    } catch (Exception e) {
+      log.error("Can not start restore the workspace '" + "/" + restoreBean.getRepositoryName() + "/"
+          + restoreBean.getWorkspaceName() + "' from backup log with id '" 
+          + restoreBean.getBackupId() + "'", e);
+      
+      FailureBean failureBean = new FailureBean("Can not start restore the workspace '" + "/" + restoreBean.getRepositoryName() + "/"
+                                                + restoreBean.getWorkspaceName() + "' from backup log with id '" 
+                                                + restoreBean.getBackupId() + "'", e);
+      
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
+    }
   }
-  
+
   /**
    * stopBackup.
-   * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
+   *
+   * @param backupBean
+   *          BackupBeen, the configuration for stop backup 
    * @return Response return the response
    */
-  @GET
-  @Path("/{repositoryName}/{workspaceName}/stopBackup")
-  public Response stopBackup(@PathParam("repositoryName") String repositoryName,
-                             @PathParam("workspaceName") String workspaceName) {
-    String result = "";
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("/stopBackup")
+  public Response stopBackup(BackupBean backupBean) {
 
     try {
-      validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName);
+      String result = "";
       
-      BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
-      
+      BackupChain bch = backupManager.findBackup(backupBean.getBackupId());
+
       if (bch != null) {
         backupManager.stopBackup(bch);
-        result += "The backup was stoped for '" + "/" + repositoryName + "/" + workspaceName + "'";
+        result += "The backup with id '" + backupBean.getBackupId()
+            + "' was stoped for workspace '" + "/" + bch.getBackupConfig().getRepository() + "/"
+            + bch.getBackupConfig().getWorkspace() + "'";
       } else
-        throw new RuntimeException("No active backup for '"
-                                   + "/" + repositoryName 
-                                   + "/" + workspaceName + "'");
+        throw new RuntimeException("No active backup with id '" + backupBean.getBackupId() + "'");
+
+      MessageBean messageBean = new MessageBean(result);
       
+      return Response.ok(messageBean).build();
     } catch (Exception e) {
-      result = "FAIL\n" + e.getMessage();
       log.error("Can not stop backup", e);
+      
+      FailureBean failureBean = new FailureBean("Can not stop backup", e);
+      
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
     }
 
-    return Response.ok(result).build();
+    
+  }
+
+  /**
+   * Will be returned the current backups info.
+   *
+   * @return Response 
+   *           return the response
+   */
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/currentBackupsInfo")
+  public Response currentBackupsInfo() {
+    List<BackupChainBean> list = new ArrayList<BackupChainBean>();
+    
+    for (BackupChain chain : backupManager.getCurrentBackups())
+      list.add(new BackupChainBean(chain));
+   
+    BackupChainListBean listBeen = new BackupChainListBean(list);
+
+    return Response.ok(listBeen).build();
   }
   
   /**
-   * getSatus.
-   * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @return Response return the response
+   * Will be returned the current backup info by backupId.
+   *
+   * @param backupBean
+   *          BackupBeen, the parameters for command currentBackupInfo 
+   * @return return the response
    */
-  @GET
-  @Path("/{repositoryName}/{workspaceName}/getStatus")
-  public Response getStatus(@PathParam("repositoryName") String repositoryName,
-                            @PathParam("workspaceName") String workspaceName) {
-    String result = "";
-
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("/currentBackupInfo")
+  public Response currentBackupInfo(BackupBean backupBean) {
     try {
-      validateRepositoryName(repositoryName);
-      validateWorkspaceName(repositoryName, workspaceName);
+      BackupChain backupChain = backupManager.findBackup(backupBean.getBackupId());
       
-      BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
+      if (backupChain == null) 
+        throw new RuntimeException("No active backup with id '" + backupBean.getBackupId() + "'");
       
-      if (bch != null) {
-        String incrementalBackupStatus = "";
-        
-        for (BackupJob job : bch.getBackupJobs()) 
-          if (job.getType() == BackupJob.INCREMENTAL)
-             incrementalBackupStatus = "The incremental backup for workspace '" + "/" + repositoryName + "/" + workspaceName + "' is working";
-        
-        String fullBackupStatus = "The full backup for workspace '" + "/" + repositoryName + "/" + workspaceName + "' " 
-          + (bch.getFullBackupState() == BackupJob.FINISHED ? "was " : "is ") + getState(bch.getFullBackupState());
-        
-        result += fullBackupStatus + "\n" + incrementalBackupStatus;
-      } else
-        result += "No active backup for workspace '/" + repositoryName + "/" + workspaceName + "'";
-      
+      BackupChainInfoBean chainInfoBeen = new BackupChainInfoBean(backupChain,
+                                                                  new BackupConfigBean(backupChain.getBackupConfig()));
+    
+      return Response.ok(chainInfoBeen).build();
     } catch (Exception e) {
-      result = "FAIL\n" + e.getMessage();
-      log.error("Can not get status of backup", e);
+      log.error("Can not get detailed info for backup with id '" + backupBean.getBackupId() + "'", e);
+      
+      FailureBean failureBean = new FailureBean("Can not get detailed info for backup with id '" + backupBean.getBackupId() + "'", e);
+      
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
     }
-
-    return Response.ok(result).build();
+    
+    
   }
   
+  /**
+   * Will be returned the current restores info.
+   *
+   * @return Response 
+   *           return the response
+   */
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/currentRestoresInfo")
+  public Response currentRestoresInfo() {
+    List<RestoreChainLogBean> list = new ArrayList<RestoreChainLogBean>();
+    
+    for (JobWorkspaceRestore job : restoreJobs) {
+      BackupConfigBean configBeen = new BackupConfigBean(job.getBackupChainLog().getBackupConfig());
+      
+      RestoreChainLogBean been = new RestoreChainLogBean(job.getBackupChainLog(),
+                                                         configBeen,
+                                                         job.getStateRestore(),
+                                                         JCRDateFormat.format(job.getStartTime()),
+                                                         JCRDateFormat.format(job.getEndTime()),
+                                                         job.getRepositoryName(),
+                                                         job.getWorkspaceName(),
+                                                         job.getRestoreException().getMessage());
+      list.add(been);
+    }
+    
+    RestoreChainLogListBean listBeen = new RestoreChainLogListBean(list);
+
+    return Response.ok(listBeen).build();
+  }
+  
+  /**
+   * Will be returned the completed backups info.
+   *
+   * @return Response 
+   *           return the response
+   */
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/completedBackupsInfo")
+  public Response completedBackupsInfo() {
+    List<ChainLogBean> list = new ArrayList<ChainLogBean>();
+    
+    for (BackupChainLog chainLog : backupManager.getBackupsLogs()) 
+      if(backupManager.findBackup(chainLog.getBackupId()) != null) 
+         list.add(new ChainLogBean(chainLog, new BackupConfigBean(chainLog.getBackupConfig())));
+    
+    ChainLogListBean logsListBeen = new ChainLogListBean(list);
+
+    return Response.ok(logsListBeen).build();
+  }
+  
+  /**
+   * Will be returned the backup service info.
+   *
+   * @return Response 
+   *           return the response
+   */
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/backupServiceInfo")
+  public Response backupServiceInfo() {
+    BackupServiceInfoBean infoBeen = new BackupServiceInfoBean(backupManager.getFullBackupType(),
+                                                               backupManager.getIncrementalBackupType(),
+                                                               backupManager.getBackupDirectory().getAbsolutePath());
+
+    return Response.ok(infoBeen).build();
+  }
   
   /**
    * validateRepositoryName.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    */
@@ -413,22 +527,23 @@ public class HTTPBackupAgent implements ResourceContainer {
       throw new RuntimeException("Can not get repository '" + repositoryName + "'", e);
     }
   }
-  
+
   /**
    * validateWorkspaceName.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
    *          the workspace name
    */
-  private void validateWorkspaceName(String repositoryName, 
-                                      String workspaceName) {
+  private void validateWorkspaceName(String repositoryName, String workspaceName) {
     try {
-      Session ses = sessionProviderService.getSessionProvider(null).getSession(workspaceName, repositoryService.getRepository(repositoryName));
+      Session ses = sessionProviderService.getSessionProvider(null)
+                                          .getSession(workspaceName,
+                                                      repositoryService.getRepository(repositoryName));
       ses.logout();
     } catch (LoginException e) {
-      throw new RuntimeException("Can not loogin to workspace '" + workspaceName + "'" , e);
+      throw new RuntimeException("Can not loogin to workspace '" + workspaceName + "'", e);
     } catch (NoSuchWorkspaceException e) {
       throw new RuntimeException("Can not get workspace '" + workspaceName + "'", e);
     } catch (RepositoryException e) {
@@ -437,11 +552,11 @@ public class HTTPBackupAgent implements ResourceContainer {
       throw new RuntimeException("Can not get workspace '" + workspaceName + "'", e);
     }
   }
-  
+
   /**
    * validateOneInstants.
-   *
-   *  @param repositoryName
+   * 
+   * @param repositoryName
    *          the repository name
    * @param workspaceName
    *          the workspace name
@@ -449,71 +564,85 @@ public class HTTPBackupAgent implements ResourceContainer {
    *           will be generated WorkspaceRestoreExeption
    */
   private void validateOneInstants(String repositoryName, String workspaceName) throws WorkspaceRestoreExeption {
-   
+
     BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
-    
+
     if (bch != null)
-      throw new WorkspaceRestoreExeption("The backup is already working on workspace '"
-                                         + "/" + repositoryName 
-                                         + "/" + workspaceName + "'");
+      throw new WorkspaceRestoreExeption("The backup is already working on workspace '" + "/"
+          + repositoryName + "/" + workspaceName + "'");
   }
-  
-  
+
   /**
    * getState.
-   *
+   * 
    * @param state
-   *         value of state
+   *          value of state
    * @return String sate
    */
   private String getState(int state) {
     String st = "";
     switch (state) {
-    
+
     case BackupJob.FINISHED:
       st = "finished";
       break;
-      
+
     case BackupJob.WORKING:
       st = "working";
       break;
-      
+
     case BackupJob.WAITING:
       st = "waiting";
       break;
-      
+
     case BackupJob.STARTING:
       st = "starting";
       break;
     default:
       break;
     }
-    
+
     return st;
   }
-  
+
   /**
-   * forceCloseSession.
-   *   Close sessions on specific workspace.
-   *
+   * forceCloseSession. Close sessions on specific workspace.
+   * 
    * @param repositoryName
    *          repository name
    * @param workspaceName
    *          workspace name
-   * @return int
-   *           how many sessions was closed
+   * @return int how many sessions was closed
    * @throws RepositoryConfigurationException
-   *           will be generate RepositoryConfigurationException  
-   * @throws RepositoryException 
+   *           will be generate RepositoryConfigurationException
+   * @throws RepositoryException
    *           will be generate RepositoryException
    */
-  private int forceCloseSession(String repositoryName, String workspaceName) throws RepositoryException, RepositoryConfigurationException {
+  private int forceCloseSession(String repositoryName, String workspaceName) throws RepositoryException,
+                                                                            RepositoryConfigurationException {
     ManageableRepository mr = repositoryService.getRepository(repositoryName);
     WorkspaceContainerFacade wc = mr.getWorkspaceContainer(workspaceName);
-    
-    
+
     SessionRegistry sessionRegistry = (SessionRegistry) wc.getComponent(SessionRegistry.class);
-    
-    return sessionRegistry.closeSessions(workspaceName);    
+
+    return sessionRegistry.closeSessions(workspaceName);
+  }
+
+  private File getBackupLogbyId(String backupId) {
+    FilenameFilter backupLogsFilter = new FilenameFilter() {
+
+      public boolean accept(File dir, String name) {
+        return (name.endsWith(".xml") && name.startsWith("backup-"));
+      }
+    };
+
+    File[] files = backupManager.getBackupDirectory().listFiles(backupLogsFilter);
+
+    if (files.length != 0)
+      for (File f : files)
+        if (f.getName().contains(backupId))
+          return f;
+
+    return null;
   }
 }

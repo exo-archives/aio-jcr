@@ -52,6 +52,8 @@ public interface BackupManager {
   void stopBackup(BackupChain backup);
 
   BackupChain findBackup(String reposytore, String workspace);
+  
+  BackupChain findBackup(String backupId);
 
   void restore(BackupChainLog log, RepositoryEntry repository, WorkspaceEntry workspaceEntry) throws BackupOperationException,
                                                                                              BackupConfigurationException,
