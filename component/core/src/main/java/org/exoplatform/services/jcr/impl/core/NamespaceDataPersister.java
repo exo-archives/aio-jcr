@@ -293,6 +293,7 @@ public class NamespaceDataPersister {
 
   void saveChanges() throws RepositoryException, InvalidItemStateException {
     dataManager.save(new TransactionChangesLog(changesLog));
+    changesLog = new PlainChangesLogImpl();
   }
 
   private boolean isInialized() {
