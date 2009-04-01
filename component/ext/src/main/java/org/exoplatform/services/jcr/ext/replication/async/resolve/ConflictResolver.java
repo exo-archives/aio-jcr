@@ -196,6 +196,10 @@ public class ConflictResolver {
           continue;
         }
 
+        if (item.getData().getIdentifier().equals(Constants.ROOT_UUID)) {
+          continue;
+        }
+
         if (isChangesConflicted(item.getData().getQPath()))
           continue;
 
@@ -216,6 +220,10 @@ public class ConflictResolver {
 
         if (item.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
             || item.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+          continue;
+        }
+
+        if (item.getData().getIdentifier().equals(Constants.ROOT_UUID)) {
           continue;
         }
 

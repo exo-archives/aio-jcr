@@ -73,6 +73,11 @@ public class AddAnalyzer extends AbstractAnalyzer {
         }
       }
 
+      // skip root node
+      if (localData.getIdentifier().equals(Constants.ROOT_UUID)) {
+        continue;
+      }
+
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
@@ -302,5 +307,4 @@ public class AddAnalyzer extends AbstractAnalyzer {
       }
     }
   }
-
 }
