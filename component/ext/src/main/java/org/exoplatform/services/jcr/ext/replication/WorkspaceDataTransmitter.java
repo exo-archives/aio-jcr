@@ -246,9 +246,9 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     //PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
 
     // before save ChangesLog
-    //recoveryManager.save(isChangesLog, container.getIdentifier());
-
     String identifier = IdGenerator.generate();
+    recoveryManager.save(isChangesLog, identifier);
+
     File f = File.createTempFile("cl_", ".tmp");
 
     recoveryManager.getRecoveryWriter().save(f, changesLog);
