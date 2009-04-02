@@ -30,69 +30,110 @@ public interface BackupClient {
   /**
    * Start Backup.
    * 
-   * @param pathToWS path to repository and workspace.
+   * @param repositoryName String, the repository name.
+   * @param workspaceName String, the workspace name.
+   * @param backupDir path to backup folder on remote server.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  String startBackUp(String pathToWS) throws IOException, BackupExecuteException;
+  String startBackUp(String repositoryName, String workspaceName, String backupDir) throws IOException, BackupExecuteException;
 
   /**
    * Start Incremental Backup.
    * 
-   * @param pathToWS path to repository and workspace.
+   * @param repositoryName String, the repository name.
+   * @param workspaceName String, the workspace name.
    * @param incr incemental job period.
-   * @param jobnumber incremental job number.
+   * @param backupDir path to backup folder on remote server.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  String startIncrementalBackUp(String pathToWS, long incr, int jobnumber) throws IOException,
+  String startIncrementalBackUp(String repositoryName, String workspaceName, String backupDir, long incr) throws IOException,
                                                                                  BackupExecuteException;
 
   /**
    * Get Status.
    * 
-   * @param pathToWS path to repository and workspace.
+   * @param backupId the backup identifier.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  String status(String pathToWS) throws IOException, BackupExecuteException;
+  String status(String backupId) throws IOException, BackupExecuteException;
+  
+  /**
+   * Get information about backup service.
+   * 
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException backup client internal exception.
+   */
+  String info() throws IOException, BackupExecuteException;
+  
+  /**
+   * Get information about current restores.
+   * 
+   * @return String result.
+   * @throws IOException transport exception.
+   * @throws BackupExecuteException backup client internal exception.
+   */
+  String restores() throws IOException, BackupExecuteException;
 
   /**
    * Restore repository from backup file.
    * 
-   * @param pathToWS path to repository and workspace.
-   * @param pathToBackup path to backup file on server side.
+   * @param repositoryName String, the repository name.
+   * @param workspaceName String, the workspace name.
+   * @param backupId the backup identifier.
    * @param config InputStream contains workspace configuration.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  String restore(String pathToWS, String pathToBackup, InputStream config) throws IOException,
+  String restore(String repositoryName, String workspaceName, String backupId, InputStream config) throws IOException,
                                                                                  BackupExecuteException;
 
   /**
    * Stop backup.
    * 
-   * @param pathToWS path to repository and workspace.
+   * @param backupId the backup identifier.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  String stop(String pathToWS) throws IOException, BackupExecuteException;
+  String stop(String backupId) throws IOException, BackupExecuteException;
 
   /**
    * Drop backup.
    * 
    * @param forceClose force sessions close on droped workspace.
-   * @param pathToWS path to repository and workspace.
+   * @param repositoryName String, the repository name.
+   * @param workspaceName String, the workspace name.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  String drop(boolean forceClose, String pathToWS) throws IOException,
+  String drop(boolean forceClose, String repositoryName, String workspaceName) throws IOException,
                                                          BackupExecuteException;
+  
+  /**
+   * Get information about the current backups (in progress).
+   *
+   * @return String result
+   * @throws IOException
+   * @throws BackupExecuteException
+   */
+  String list() throws IOException, BackupExecuteException;
+  
+  /**
+   * Get information about the completed (ready to restore) backups.
+   *
+   * @return String result
+   * @throws IOException
+   * @throws BackupExecuteException
+   */
+  String listCompleted() throws IOException, BackupExecuteException;
 
 }

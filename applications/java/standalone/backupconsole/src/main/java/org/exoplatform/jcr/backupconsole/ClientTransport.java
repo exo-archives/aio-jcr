@@ -29,12 +29,13 @@ import java.io.IOException;
 public interface ClientTransport {
   
   /**
-   * Execute assigned sURL using current transport and return result as String.
+   * Execute assigned sURL using current transport and return result as byte array.
    * 
    * @param sURL String form of URL to execute.
-   * @return String result.
+   * @param postData data for post request.
+   * @return BackupAgentResponce result.
    * @throws IOException any transport exception.
    * @throws BackupExecuteException other internal exception.
    */
-  String execute(String sURL) throws IOException, BackupExecuteException;
+  BackupAgentResponse execute(String sURL, String postData) throws IOException, BackupExecuteException;
 }

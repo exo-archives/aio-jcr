@@ -36,4 +36,14 @@ public class BackupExecuteException extends Exception {
   public BackupExecuteException(String message, Throwable cause) {
     super(message, cause);
   }
+  
+  /**
+   * Constructor.
+   * 
+   * @param message exception message.
+   */
+  public BackupExecuteException(String message) {
+    super(message);
+  }
+  
 }

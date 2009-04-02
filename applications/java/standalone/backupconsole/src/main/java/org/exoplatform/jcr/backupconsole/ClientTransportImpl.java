@@ -19,13 +19,15 @@ package org.exoplatform.jcr.backupconsole;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.ws.rs.core.Response;
+
 import org.exoplatform.common.http.client.AuthorizationHandler;
 import org.exoplatform.common.http.client.AuthorizationInfo;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.common.http.client.ModuleException;
-import org.exoplatform.common.http.client.ParseException;
+import org.exoplatform.common.http.client.NVPair;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -53,7 +55,7 @@ public class ClientTransportImpl implements ClientTransport {
   /**
    * Flag is SSL.
    */
-  private final boolean isSSL;
+  private final String protocol;
 
   /**
    * Constructor.
@@ -63,39 +65,11 @@ public class ClientTransportImpl implements ClientTransport {
    * @param host host string.
    * @param isSSL isSSL flag.
    */
-  public ClientTransportImpl(String login, String password, String host, boolean isSSL) {
+  public ClientTransportImpl(String login, String password, String host, String protocol) {
     this.host = host;
     this.login = login;
     this.password = password;
-    this.isSSL = isSSL;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public String execute(String sURL) throws IOException, BackupExecuteException {
-    String result = "fail";
-
-    try {
-      // execute the GET
-      String complURL = "http" + (isSSL ? "s" : "") + "://" + host + sURL;
-
-      URL url = new URL(complURL);
-      HTTPConnection connection = new HTTPConnection(url);
-      connection.removeModule(CookieModule.class);
-
-      connection.addBasicAuthorization(getRealm(complURL), login, password);
-
-      HTTPResponse resp = connection.Get(url.getFile());
-
-      result = resp.getText();
-    } catch (ModuleException e) {
-      throw new BackupExecuteException(e.getMessage(), e);
-    } catch (ParseException e) {
-      throw new BackupExecuteException(e.getMessage(), e);
-    }
-
-    return result;
+    this.protocol = protocol;
   }
 
   /**
@@ -128,6 +102,46 @@ public class ClientTransportImpl implements ClientTransport {
     } finally {
       AuthorizationInfo.setAuthHandler(ah);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public BackupAgentResponse execute(String sURL, String postData) throws IOException, BackupExecuteException {
+    try {
+      // execute the POST
+      String complURL = protocol + "://" + host + sURL;
+
+      URL url = new URL(complURL);
+      HTTPConnection connection = new HTTPConnection(url);
+      connection.removeModule(CookieModule.class);
+
+      connection.addBasicAuthorization(getRealm(complURL), login, password);
+
+      HTTPResponse resp;
+      if (postData == null) {
+        resp = connection.Post(url.getFile());  
+        
+        if (resp.getStatusCode() != Response.Status.OK.getStatusCode())
+          throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
+      } else {
+        NVPair[] pairs = new NVPair[2];
+        pairs[0] = new NVPair("Content-Type", "application/json; charset=UTF-8");
+        pairs[1] = new NVPair("Content-Length", Integer.toString(postData.length()));
+
+        resp = connection.Post(url.getFile(), postData.getBytes(), pairs);
+        
+        if (resp.getStatusCode() != Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() &&
+            resp.getStatusCode() != Response.Status.OK.getStatusCode()) 
+          throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
+      }
+
+      BackupAgentResponse responce = new BackupAgentResponse(resp.getData(), resp.getStatusCode());
+      return responce;
+    } catch (ModuleException e) {
+      throw new BackupExecuteException(e.getMessage(), e);
+    } 
+    
   }
 
 }

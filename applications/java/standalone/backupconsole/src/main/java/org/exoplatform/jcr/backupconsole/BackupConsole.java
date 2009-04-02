@@ -19,6 +19,8 @@ package org.exoplatform.jcr.backupconsole;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -52,19 +54,35 @@ public class BackupConsole {
    * Help string.
    */
   private static final String HELP_INFO           = "Help info:\n"
-                                                      + " [-ssl] <auth> <host> <cmd> \n"
-                                                      + " <auth> :   login:pathword\n"
-                                                      + " <host> :   <host ip>:<port>/<context>\n"
-                                                      + " <cmd>  :   start <repo/ws>  [ <incr>  <incr_jobnumber>]\n"
-                                                      + "            stop  <repo/ws>\n"
-                                                      + "            status <repo/ws>\n"
-                                                      + "            restore <repo/ws> <path> <pathToConfigFile>\n"
-                                                      + "            drop [force-close-session] <repo/ws>  \n\n"
-                                                      + " <repo/ws>   - /<reponame>/<ws name>\n"
-                                                      + " <path>      - path to backup file\n"
-                                                      + " <incr>      - incemental job period\n"
-                                                      + " <incr_jobnumber> - inremential job number\n"
-                                                      + " force-close-session - do server need to close opened session.\n";
+                                                      + " <url> <cmd> \n"
+                                                      + " <url>  :   http(s)//login:password@host:port/<context> \n"
+                                                      + " <cmd>  :   start <repo/ws> <backup_dir> [<incr>] \n"
+                                                      + "            stop <backup_id> \n"
+                                                      + "            status <backup_id> \n"
+                                                      + "            restores \n"
+                                                      + "            restore <repo/ws> <backup_id> <pathToConfigFile> \n"
+                                                      + "            list [completed] \n"
+                                                      + "            info \n"
+                                                      + "            drop [force-close-session] <repo/ws>  \n"
+                                                      + "            help  \n\n"
+                                                      
+                                                      + " start          - start backup \n"
+                                                      + " stop           - stop backup \n"
+                                                      + " status         - information about the current backup by 'backup_id' \n"
+                                                      + " restores       - information about the current restores \n"
+                                                      + " restore        - restore the workspace from specific backup \n"
+                                                      + " list           - information about the current backups (in progress) \n"
+                                                      + " list completed - information about the completed (ready to restore) backups \n"
+                                                      + " info           - information about the service backup \n"
+                                                      + " drop           - delete the workspace \n"
+                                                      + " help           - print help information about backup console \n\n"
+                                                      
+                                                      + " <repo/ws>           - /<reponsitory-name>/<workspace-name>  the wprkspace \n"
+                                                      + " <backup_dir>        - path to folder for backup on remote server \n"
+                                                      + " <backup_id>         - the identifier for backup \n"
+                                                      + " <incr>              - incemental job period \n"
+                                                      + " <pathToConfigFile>  - path (local) to workspace configuration \n"
+                                                      + " force-close-session - close opened sessions on workspace. \n\n";
 
   /**
    * Main.
@@ -86,40 +104,32 @@ public class BackupConsole {
       return;
     }
 
-    // this parameter is always first so do not check is it exist
-    boolean isSSL = false;
-    if (args[curArg].equalsIgnoreCase("-ssl")) {
-      isSSL = true;
-      curArg++;
-    }
-
-    // login:password
-    if (curArg == args.length) {
-      System.out.println(INCORRECT_PARAM + "There is no Login:Password parameter.");
+    // url
+    String sUrl = args[curArg];
+    curArg++;
+    URL url;
+    try {
+      url = new URL(sUrl);
+    } catch (MalformedURLException e) {
+      System.out.println(INCORRECT_PARAM + "There is no url parameter.");
       return;
     }
-    String login = args[curArg++];
-    if (!login.matches("[^:]+:[^:]+")) {
+    
+    // login:password
+    String login = url.getUserInfo();
+    if (login == null) {
+      System.out.println(INCORRECT_PARAM + "There is no specific Login:Password in url parameter - " + sUrl);
+      return;
+    } else if (!login.matches("[^:]+:[^:]+")) {
       System.out.println(INCORRECT_PARAM + "There is incorrect Login:Password parameter - " + login);
       return;
     }
 
-    // host:port
-    if (curArg == args.length) {
-      System.out.println(INCORRECT_PARAM + "There is no Host:Port parameter.");
-      return;
-    }
-    String host = args[curArg++];
-    // TODO
-    // if (!host.matches("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:\\d{1,6}")) {
-    // System.out.println(INCORRECT_PARAM + "There is incorrect Host:Port
-    // parameter - " + host);
-    // return;
-    // }
+    String host = url.getHost() + ":" + url.getPort();
 
     // initialize transport and backup client
     String[] lp = login.split(LOGIN_PASS_SPLITTER);
-    ClientTransport transport = new ClientTransportImpl(lp[0], lp[1], host, isSSL);
+    ClientTransport transport = new ClientTransportImpl(lp[0], lp[1], host, url.getProtocol());
     BackupClient client = new BackupClientImpl(transport, lp[0], lp[1]);
 
     // commands
@@ -134,9 +144,18 @@ public class BackupConsole {
         String pathToWS = getRepoWS(args, curArg++);
         if (pathToWS == null)
           return;
-
+        
+        String repositoryName = getRepositoryName(pathToWS);
+        String workspaceName = getWorkspaceName(pathToWS);
+        
         if (curArg == args.length) {
-          System.out.println(client.startBackUp(pathToWS));
+          System.out.println(INCORRECT_PARAM + "There is no path to backup dir parameter.");
+          return;
+        }
+        String backupDir = args[curArg++];
+        
+        if (curArg == args.length) {
+          System.out.println(client.startBackUp(repositoryName, workspaceName, backupDir));
         } else {
           // incremental job period
           String incr = args[curArg++];
@@ -149,41 +168,30 @@ public class BackupConsole {
             return;
           }
 
-          // incremental job number
-          if (curArg == args.length) {
-            System.out.println(INCORRECT_PARAM + "There is no job number parameter.");
-            return;
-          }
-          String jobNumber = args[curArg++];
-          int jn = 0;
-          try {
-            jn = Integer.parseInt(jobNumber);
-          } catch (NumberFormatException e) {
-            System.out.println(INCORRECT_PARAM + "Job number is not didgit - " + e.getMessage());
-            return;
-          }
-
           if (curArg < args.length) {
             System.out.println(TOO_MANY_PARAMS);
             return;
           }
-          System.out.println(client.startIncrementalBackUp(pathToWS, inc, jn));
+          System.out.println(client.startIncrementalBackUp(repositoryName, workspaceName, backupDir, inc));
         }
       } else if (command.equalsIgnoreCase("stop")) {
-        String pathToWS = getRepoWS(args, curArg++);
-        if (pathToWS == null)
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no backup identifier parameter.");
           return;
+        }
+        String backupId = args[curArg++];
 
         if (curArg < args.length) {
           System.out.println(TOO_MANY_PARAMS);
           return;
         }
-        System.out.println(client.stop(pathToWS));
+        System.out.println(client.stop(backupId));
       } else if (command.equalsIgnoreCase("drop")) {
 
         if (curArg == args.length) {
           System.out.println(INCORRECT_PARAM
               + "There is no path to workspace or force-session-close parameter.");
+          return;
         }
 
         String param = args[curArg++];
@@ -198,34 +206,73 @@ public class BackupConsole {
 
         if (pathToWS == null)
           return;
+        
+        String repositoryName = getRepositoryName(pathToWS);
+        String workspaceName = getWorkspaceName(pathToWS);
 
         if (curArg < args.length) {
           System.out.println(TOO_MANY_PARAMS);
           return;
         }
-        System.out.println(client.drop(isForce, pathToWS));
+        System.out.println(client.drop(isForce, repositoryName, workspaceName));
       } else if (command.equalsIgnoreCase("status")) {
-        String pathToWS = getRepoWS(args, curArg++);
-        if (pathToWS == null)
+        if (curArg == args.length) {
+          System.out.println(INCORRECT_PARAM + "There is no backup identifier parameter.");
           return;
+        }
+        
+        String backupId = args[curArg++];
 
         if (curArg < args.length) {
           System.out.println(TOO_MANY_PARAMS);
           return;
         }
-        System.out.println(client.status(pathToWS));
+        System.out.println(client.status(backupId));
+      } else if (command.equalsIgnoreCase("info")) {
+        if (curArg < args.length) {
+          System.out.println(TOO_MANY_PARAMS);
+          return;
+        }
+        System.out.println(client.info());
+      } else if (command.equalsIgnoreCase("restores")) {
+        if (curArg < args.length) {
+          System.out.println(TOO_MANY_PARAMS);
+          return;
+        }
+        System.out.println(client.restores());
+      } else if (command.equalsIgnoreCase("list")) {
+        if (curArg == args.length) {
+          System.out.println(client.list());
+        } else {
+          String complated = args[curArg++];
+          
+          if (complated.equalsIgnoreCase("completed")) {
+            if (curArg < args.length) {
+              System.out.println(TOO_MANY_PARAMS);
+              return;
+            }
+            System.out.println(client.listCompleted());
+          } else {
+            System.out.println(INCORRECT_PARAM + "There is no 'completed' parameter - " + complated);
+            return;
+          }
+        }
+        
       } else if (command.equalsIgnoreCase("restore")) {
 
         String pathToWS = getRepoWS(args, curArg++);
         if (pathToWS == null)
           return;
+        
+        String repositoryName = getRepositoryName(pathToWS);
+        String workspaceName = getWorkspaceName(pathToWS);
 
-        // path to backup file
+        // backup id
         if (curArg == args.length) {
-          System.out.println(INCORRECT_PARAM + "There is no path to backup file parameter.");
+          System.out.println(INCORRECT_PARAM + "There is no backup identifier parameter.");
           return;
         }
-        String pathToBackup = args[curArg++];
+        String backupId = args[curArg++];
 
         if (curArg == args.length) {
           System.out.println(INCORRECT_PARAM + "There is no path to config file parameter.");
@@ -243,7 +290,7 @@ public class BackupConsole {
           System.out.println(TOO_MANY_PARAMS);
           return;
         }
-        System.out.println(client.restore(pathToWS, pathToBackup, new FileInputStream(conf)));
+        System.out.println(client.restore(repositoryName, workspaceName, backupId, new FileInputStream(conf)));
       } else {
         System.out.println("Unknown command <" + command + ">");
       }
@@ -255,6 +302,30 @@ public class BackupConsole {
       System.out.println("ERROR: " + e.getMessage());
       e.printStackTrace();
     }
+  }
+
+  /**
+   * getWorkspaceName.
+   *
+   * @param pathToWS
+   *          the /<repository-name>/<workspace name>
+   * @return String
+   *           return the workspace name
+   */
+  private static String getWorkspaceName(String pathToWS) {
+    return pathToWS.split("/")[2];
+  }
+
+  /**
+   * getRepositoryName.
+   *
+   * @param pathToWS
+   *          the /<repository-name>/<workspace name>
+   * @return String
+   *           return the repository name
+   */
+  private static String getRepositoryName(String pathToWS) {
+    return pathToWS.split("/")[1];
   }
 
   /**
