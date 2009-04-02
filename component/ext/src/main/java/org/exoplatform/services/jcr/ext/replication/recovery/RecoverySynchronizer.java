@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -33,8 +32,8 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
+import org.exoplatform.services.jcr.ext.replication.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
-import org.exoplatform.services.jcr.ext.replication.FileDescriptor;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.PendingBinaryFile;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
@@ -59,8 +58,7 @@ public class RecoverySynchronizer {
   /**
    * Definition the folder to ChangesLog.
    */
-  private File                               recoveryDir;
-
+  // private File recoveryDir;
   /**
    * The FileNameFactory will be generated name of file to binary ChangesLog.
    */
@@ -117,25 +115,16 @@ public class RecoverySynchronizer {
   private List<String>                       successfulSynchronizedList;
 
   /**
-   * RecoverySynchronizer  constructor.
-   *
-   *
-   * @param recoveryDir
-   *          the recovery dir
-   * @param fileNameFactory
-   *          the FileNameFactory
-   * @param fileCleaner
-   *          the FileCleaner
-   * @param channelManager
-   *          the ChannelManager
-   * @param ownName
-   *          the own name
-   * @param recoveryWriter
-   *          the RecoveryWriter
-   * @param recoveryReader
-   *          the RecoveryReader
-   * @param systemId
-   *          the system identification string
+   * RecoverySynchronizer constructor.
+   * 
+   * @param recoveryDir the recovery dir
+   * @param fileNameFactory the FileNameFactory
+   * @param fileCleaner the FileCleaner
+   * @param channelManager the ChannelManager
+   * @param ownName the own name
+   * @param recoveryWriter the RecoveryWriter
+   * @param recoveryReader the RecoveryReader
+   * @param systemId the system identification string
    */
   public RecoverySynchronizer(File recoveryDir,
                               FileNameFactory fileNameFactory,
@@ -145,7 +134,7 @@ public class RecoverySynchronizer {
                               RecoveryWriter recoveryWriter,
                               RecoveryReader recoveryReader,
                               String systemId) {
-    this.recoveryDir = recoveryDir;
+    // this.recoveryDir = recoveryDir;
     this.fileNameFactory = fileNameFactory;
     this.fileCleaner = fileCleaner;
     this.channelManager = channelManager;
@@ -162,8 +151,7 @@ public class RecoverySynchronizer {
   }
 
   /**
-   * Will be initialized the synchronization. 
-   *
+   * Will be initialized the synchronization.
    */
   public void synchronizRepository() {
     try {
@@ -179,11 +167,9 @@ public class RecoverySynchronizer {
 
   /**
    * send.
-   *
-   * @param packet
-   *          the Packet
-   * @throws Exception
-   *           will be generated the Exception
+   * 
+   * @param packet the Packet
+   * @throws Exception will be generated the Exception
    */
   private void send(Packet packet) throws Exception {
     byte[] buffer = Packet.getAsByteArray(packet);
@@ -196,18 +182,14 @@ public class RecoverySynchronizer {
 
   /**
    * processingPacket.
-   *
-   * @param packet
-   *          the Packet
-   * @param status
-   *          before status
-   * @return int
-   *           after status
-   * @throws Exception
-   *           will be generated the Exception
+   * 
+   * @param packet the Packet
+   * @param status before status
+   * @return int after status
+   * @throws Exception will be generated the Exception
    */
   public int processingPacket(Packet packet, int status) throws Exception {
-    PendingBinaryFile container;
+
     int stat = status;
 
     switch (packet.getPacketType()) {
@@ -216,57 +198,33 @@ public class RecoverySynchronizer {
       sendChangesLogUpDate(packet.getTimeStamp(), packet.getOwnerName(), packet.getIdentifier());
       break;
 
-    case Packet.PacketType.BINARY_FILE_FIRST_PACKET:
-      if (mapPendingBinaryFile.containsKey(packet.getIdentifier()) == false)
-        mapPendingBinaryFile.put(packet.getIdentifier(), new PendingBinaryFile());
+    case Packet.PacketType.BINARY_FILE_PACKET:
 
-      container = mapPendingBinaryFile.get(packet.getIdentifier());
+      PendingBinaryFile container = mapPendingBinaryFile.get(packet.getIdentifier());
+      if (container == null) {
+        container = new PendingBinaryFile();
+        mapPendingBinaryFile.put(packet.getIdentifier(), container);
+      }
 
+      ChangesFile chf;
       synchronized (container) {
-        container.addBinaryFile(packet.getOwnerName(), packet.getFileName(), packet.getSystemId());
+        chf = container.getChangesFile(packet.getOwnerName(), packet.getFileName());
+        if (chf == null) {
+          chf = container.addChangesFile(packet.getOwnerName(),
+                                         packet.getFileName(),
+                                         packet.getSystemId(),
+                                         packet.getTotalPacketCount());
+        }
       }
-      break;
 
-    case Packet.PacketType.BINARY_FILE_MIDDLE_PACKET:
-      if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
-        container = mapPendingBinaryFile.get(packet.getIdentifier());
+      chf.write(packet.getOffset(), packet.getByteArray());
 
-        RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getOwnerName(),
-                                                                          packet.getFileName());
+      if (chf.isStored()) {
+        if (log.isDebugEnabled())
+          log.debug("Last packet of file has been received : " + packet.getFileName());
 
-        if (randomAccessFile != null) {
-          if (log.isDebugEnabled())
-            log.info("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
-
-          randomAccessFile.seek(packet.getOffset());
-          randomAccessFile.write(packet.getByteArray());
-        } else
-          log.warn("Can't find the RandomAccessFile : \n" + "owner - \t" + packet.getOwnerName()
-              + "\nfile name - \t" + packet.getFileName());
       }
-      break;
 
-    case Packet.PacketType.BINARY_FILE_LAST_PACKET:
-      if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
-        container = mapPendingBinaryFile.get(packet.getIdentifier());
-
-        RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getOwnerName(),
-                                                                          packet.getFileName());
-
-        if (randomAccessFile != null) {
-          if (log.isDebugEnabled())
-            log.info("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
-
-          randomAccessFile.seek(packet.getOffset());
-          randomAccessFile.write(packet.getByteArray());
-          randomAccessFile.close();
-
-          if (log.isDebugEnabled())
-            log.debug("Last packet of file has been received : " + packet.getFileName());
-        } else
-          log.warn("Can't find the RandomAccessFile : \n" + "owner - \t" + packet.getOwnerName()
-              + "\nfile name - \t" + packet.getFileName());
-      }
       break;
 
     case Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK:
@@ -279,14 +237,14 @@ public class RecoverySynchronizer {
             log.debug("The signal ALL_BinaryFile_transferred_OK has been received  from "
                 + packet.getOwnerName());
 
-          List<FileDescriptor> fileDescriptorList = pbf.getSortedFilesDescriptorList();
+          List<ChangesFile> fileDescriptorList = pbf.getSortedFilesDescriptorList();
 
           if (log.isDebugEnabled())
             log.info("fileDescriptorList.size() == pbf.getNeedTransferCounter() : "
                 + fileDescriptorList.size() + "== " + pbf.getNeedTransferCounter());
 
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
-            for (FileDescriptor fileDescriptor : fileDescriptorList) {
+            for (ChangesFile fileDescriptor : fileDescriptorList) {
               try {
                 TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
                                                                                                          .getAbsolutePath());
@@ -367,7 +325,7 @@ public class RecoverySynchronizer {
         if (pbf.isAllOldChangesLogsRemoved()) {
 
           // remove temporary files
-          for (FileDescriptor fd : pbf.getSortedFilesDescriptorList())
+          for (ChangesFile fd : pbf.getSortedFilesDescriptorList())
             fileCleaner.addFile(fd.getFile());
 
           // remove PendingBinaryFile
@@ -411,13 +369,10 @@ public class RecoverySynchronizer {
 
   /**
    * sendChangesLogUpDate.
-   *
-   * @param timeStamp
-   *          the update to this date
-   * @param ownerName
-   *          the member name who initialize synchronization  
-   * @param identifier
-   *          the operation identifier
+   * 
+   * @param timeStamp the update to this date
+   * @param ownerName the member name who initialize synchronization
+   * @param identifier the operation identifier
    */
   private void sendChangesLogUpDate(Calendar timeStamp, String ownerName, String identifier) {
     try {
@@ -439,9 +394,7 @@ public class RecoverySynchronizer {
                                         ownerName,
                                         identifier,
                                         systemId,
-                                        Packet.PacketType.BINARY_FILE_FIRST_PACKET,
-                                        Packet.PacketType.BINARY_FILE_MIDDLE_PACKET,
-                                        Packet.PacketType.BINARY_FILE_LAST_PACKET);
+                                        Packet.PacketType.BINARY_FILE_PACKET);
         }
 
         Packet endPocket = new Packet(Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK, identifier);
@@ -463,9 +416,8 @@ public class RecoverySynchronizer {
 
   /**
    * setDataKeeper.
-   *
-   * @param dataKeeper
-   *          the ItemDataKeeper
+   * 
+   * @param dataKeeper the ItemDataKeeper
    */
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
     this.dataKeeper = dataKeeper;
@@ -473,9 +425,8 @@ public class RecoverySynchronizer {
 
   /**
    * updateInitedParticipantsClusterList.
-   *
-   * @param list 
-   *          the list of initialized members
+   * 
+   * @param list the list of initialized members
    */
   public void updateInitedParticipantsClusterList(Collection<? extends String> list) {
     initedParticipantsClusterList = new ArrayList<String>(list);
@@ -483,15 +434,11 @@ public class RecoverySynchronizer {
 
   /**
    * saveChangesLog.
-   *
-   * @param dataManager
-   *          the ItemDataKeeper 
-   * @param changesLog
-   *          the ChangesLog with data
-   * @param cLogTime
-   *          the  date of ChangesLog
-   * @throws ReplicationException
-   *           will be generated the ReplicationException
+   * 
+   * @param dataManager the ItemDataKeeper
+   * @param changesLog the ChangesLog with data
+   * @param cLogTime the date of ChangesLog
+   * @throws ReplicationException will be generated the ReplicationException
    */
   private void saveChangesLog(ItemDataKeeper dataManager,
                               TransactionChangesLog changesLog,

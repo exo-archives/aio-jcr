@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,43 +37,43 @@ public class PendingBinaryFile {
   /**
    * The apache logger.
    */
-  private static Log                                       log = ExoLogger.getLogger("ext.PendingBinaryFile");
+  private static Log                                    log = ExoLogger.getLogger("ext.PendingBinaryFile");
 
   /**
-   * The map for FileDesctiptor per owner. 
+   * The map for FileDesctiptor per owner.
    */
-  private HashMap<String, HashMap<String, FileDescriptor>> mapFilePerOwner;
+  private HashMap<String, HashMap<String, ChangesFile>> mapFilePerOwner;
 
   /**
    * Need transfer counter.
    */
-  private long                                             needTransferCounter;
+  private long                                          needTransferCounter;
 
   /**
    * Successful transfer counter.
    */
-  private long                                             successfulTransferCounter;
+  private long                                          successfulTransferCounter;
 
   /**
    * Removed old ChangesLog counter.
    */
-  private long                                             removedOldChangesLogCounter;
+  private long                                          removedOldChangesLogCounter;
 
   /**
    * Successful transfer 'flag'.
    */
-  private boolean                                          isSuccessfulTransfer;
+  private boolean                                       isSuccessfulTransfer;
 
   /**
    * Successful save 'flag'.
    */
-  private boolean                                          isSuccessfulSave;
+  private boolean                                       isSuccessfulSave;
 
   /**
-   * PendingBinaryFile  constructor.
+   * PendingBinaryFile constructor.
    */
   public PendingBinaryFile() {
-    mapFilePerOwner = new HashMap<String, HashMap<String, FileDescriptor>>();
+    mapFilePerOwner = new HashMap<String, HashMap<String, ChangesFile>>();
     needTransferCounter = 0;
     removedOldChangesLogCounter = 0;
     successfulTransferCounter = 0;
@@ -84,86 +83,58 @@ public class PendingBinaryFile {
 
   /**
    * addBinaryFile.
-   *
-   * @param ownerName
-   *          owner name
-   * @param fileName
-   *          name of file
-   * @param systemId
-   *          String of system identification 
-   * @throws IOException
-   *           will be generated IOException 
+   * 
+   * @param ownerName owner name
+   * @param fileName name of file
+   * @param systemId String of system identification
+   * @throws IOException will be generated IOException
    */
-  public void addBinaryFile(String ownerName, String fileName, String systemId) throws IOException {
+  public ChangesFile addChangesFile(String ownerName,
+                                    String fileName,
+                                    String systemId,
+                                    long totalPacketCount) throws IOException {
     File f = File.createTempFile(fileName, "");
-    RandomAccessFile binaryFile = new RandomAccessFile(f, "rw");
+    ChangesFile fileDescriptor = new ChangesFile(f, systemId, totalPacketCount);
 
-    FileDescriptor fileDescriptor = new FileDescriptor(f, binaryFile, systemId);
-
-    HashMap<String, FileDescriptor> fileMap;
+    HashMap<String, ChangesFile> fileMap;
 
     if (mapFilePerOwner.containsKey(ownerName) == false) {
-      fileMap = new HashMap<String, FileDescriptor>();
+      fileMap = new HashMap<String, ChangesFile>();
       mapFilePerOwner.put(ownerName, fileMap);
     } else {
       fileMap = mapFilePerOwner.get(ownerName);
     }
 
     fileMap.put(fileName, fileDescriptor);
-  }
-
-  /**
-   * getRandomAccessFile.
-   *
-   * @param ownName
-   *          owner name
-   * @param fileName
-   *          name of file
-   * @return RandomAccessFile
-   *           the RandomAccessFile
-   * @throws Exception
-   *           will be generated Exception
-   */
-  public RandomAccessFile getRandomAccessFile(String ownName, String fileName) throws Exception {
-    HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownName);
-
-    return fileMap.get(fileName).getRandomAccessFile();
+    return fileDescriptor;
   }
 
   /**
    * getFileDescriptor.
-   *
-   * @param ownName
-   *          owner name
-   * @param fileName
-   *          name of file
-   * @return FileDescriptor
-   *           return the FileDescriptor 
-   * @throws IOException
-   *           will be generated IOException
+   * 
+   * @param ownName owner name
+   * @param fileName name of file
+   * @return FileDescriptor return the FileDescriptor
    */
-  public FileDescriptor getFileDescriptor(String ownName, String fileName) throws IOException {
+  public ChangesFile getChangesFile(String ownName, String fileName) {
     if (mapFilePerOwner.containsKey(ownName)) {
-      HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownName);
+      HashMap<String, ChangesFile> fileMap = mapFilePerOwner.get(ownName);
       return fileMap.get(fileName);
-    } else {
-      this.addBinaryFile(ownName, fileName, "");
-      return getFileDescriptor(ownName, fileName);
     }
+    return null;
   }
 
   /**
    * getSortedFilesDescriptorList.
-   *
-   * @return List
-   *           return the list of FileDescriptors
+   * 
+   * @return List return the list of FileDescriptors
    */
-  public List<FileDescriptor> getSortedFilesDescriptorList() {
+  public List<ChangesFile> getSortedFilesDescriptorList() {
 
-    ArrayList<FileDescriptor> fileDescriptorhList = new ArrayList<FileDescriptor>();
+    ArrayList<ChangesFile> fileDescriptorhList = new ArrayList<ChangesFile>();
 
     for (String ownerName : mapFilePerOwner.keySet()) {
-      HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownerName);
+      HashMap<String, ChangesFile> fileMap = mapFilePerOwner.get(ownerName);
 
       fileDescriptorhList.addAll(fileMap.values());
     }
@@ -175,7 +146,7 @@ public class PendingBinaryFile {
 
     if (log.isDebugEnabled()) {
       log.debug("\n\nList has been sorted :\n");
-      for (FileDescriptor fd : fileDescriptorhList)
+      for (ChangesFile fd : fileDescriptorhList)
         log.debug(fd.getFile().getAbsolutePath());
     }
 
@@ -184,15 +155,14 @@ public class PendingBinaryFile {
 
   /**
    * getFileNameList.
-   *
-   * @return List
-   *           return the list of names of files
+   * 
+   * @return List return the list of names of files
    */
   public List<String> getFileNameList() {
     ArrayList<String> list = new ArrayList<String>();
 
     for (String ownerName : mapFilePerOwner.keySet()) {
-      HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownerName);
+      HashMap<String, ChangesFile> fileMap = mapFilePerOwner.get(ownerName);
 
       for (String fileName : fileMap.keySet())
         list.add(fileName);
@@ -203,9 +173,8 @@ public class PendingBinaryFile {
 
   /**
    * getNeedTransferCounter.
-   *
-   * @return long 
-   *           return the needTransferCounter
+   * 
+   * @return long return the needTransferCounter
    */
   public long getNeedTransferCounter() {
     return needTransferCounter;
@@ -213,9 +182,8 @@ public class PendingBinaryFile {
 
   /**
    * setNeedTransferCounter.
-   *
-   * @param needTransferCounter
-   *          set the needTransferCounter 
+   * 
+   * @param needTransferCounter set the needTransferCounter
    */
   public void setNeedTransferCounter(long needTransferCounter) {
     this.needTransferCounter = needTransferCounter;
@@ -223,9 +191,8 @@ public class PendingBinaryFile {
 
   /**
    * getRemovedOldChangesLogCounter.
-   *
-   * @return long
-   *           return the removedOldChangesLogCounter
+   * 
+   * @return long return the removedOldChangesLogCounter
    */
   public long getRemovedOldChangesLogCounter() {
     return removedOldChangesLogCounter;
@@ -233,9 +200,8 @@ public class PendingBinaryFile {
 
   /**
    * setRemovedOldChangesLogCounter.
-   *
-   * @param needRemoveOldChangesLogCounter
-   *          set the removedOldChangesLogCounter
+   * 
+   * @param needRemoveOldChangesLogCounter set the removedOldChangesLogCounter
    */
   public void setRemovedOldChangesLogCounter(long needRemoveOldChangesLogCounter) {
     this.removedOldChangesLogCounter = needRemoveOldChangesLogCounter;
@@ -243,9 +209,8 @@ public class PendingBinaryFile {
 
   /**
    * isAllOldChangesLogsRemoved.
-   *
-   * @return boolean
-   *           return 'true' if  all old ChangesLogs was removed 
+   * 
+   * @return boolean return 'true' if all old ChangesLogs was removed
    */
   public boolean isAllOldChangesLogsRemoved() {
     return (needTransferCounter == removedOldChangesLogCounter ? true : false);
@@ -253,19 +218,17 @@ public class PendingBinaryFile {
 
   /**
    * getSuccessfulTransferCounter.
-   *
-   * @return long
-   *          return the successfulTransferCounter
-   */ 
+   * 
+   * @return long return the successfulTransferCounter
+   */
   public long getSuccessfulTransferCounter() {
     return successfulTransferCounter;
   }
 
   /**
    * setSuccessfulTransferCounter.
-   *
-   * @param successfulTransferCounter
-   *          set the successfulTransferCounter
+   * 
+   * @param successfulTransferCounter set the successfulTransferCounter
    */
   public void setSuccessfulTransferCounter(long successfulTransferCounter) {
     this.successfulTransferCounter = successfulTransferCounter;
@@ -273,9 +236,8 @@ public class PendingBinaryFile {
 
   /**
    * isSuccessfulTransfer.
-   *
-   * @return boolean
-   *           return 'true' if is successful transfer
+   * 
+   * @return boolean return 'true' if is successful transfer
    */
   public boolean isSuccessfulTransfer() {
     return isSuccessfulTransfer;
@@ -283,10 +245,8 @@ public class PendingBinaryFile {
 
   /**
    * addToSuccessfulTransferCounter.
-   *
-   * @param count
-   *          add the 'count' to successfulTransferCounter
-   *         
+   * 
+   * @param count add the 'count' to successfulTransferCounter
    */
   public void addToSuccessfulTransferCounter(long count) {
     successfulTransferCounter += count;
@@ -296,9 +256,8 @@ public class PendingBinaryFile {
 
   /**
    * isSuccessfulSave.
-   *
-   * @return boolean
-   *           return the 'true' if successful save
+   * 
+   * @return boolean return the 'true' if successful save
    */
   public boolean isSuccessfulSave() {
     return isSuccessfulSave;
@@ -306,9 +265,8 @@ public class PendingBinaryFile {
 
   /**
    * setSuccessfulSave.
-   *
-   * @param successfulSave
-   *           set the isSuccessfulSave
+   * 
+   * @param successfulSave set the isSuccessfulSave
    */
   public void setSuccessfulSave(boolean successfulSave) {
     this.isSuccessfulSave = successfulSave;

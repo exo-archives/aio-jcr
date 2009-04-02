@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -56,7 +55,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   private String          systemId;
 
   /**
-   * The ChannalManager will be transmitted the Packets. 
+   * The ChannalManager will be transmitted the Packets.
    */
   private ChannelManager  channelManager;
 
@@ -81,12 +80,11 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   private String          ownName;
 
   /**
-   * WorkspaceDataTransmitter  constructor.
-   *
-   * @param dataManager
-   *          the CacheableWorkspaceDataManager
-   * @throws RepositoryConfigurationException
-   *           will be generated RepositoryConfigurationException
+   * WorkspaceDataTransmitter constructor.
+   * 
+   * @param dataManager the CacheableWorkspaceDataManager
+   * @throws RepositoryConfigurationException will be generated
+   *           RepositoryConfigurationException
    */
   public WorkspaceDataTransmitter(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
     dataManager.addItemPersistenceListener(this);
@@ -95,15 +93,11 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * init.
-   *
-   * @param channelManager
-   *          the ChannelManager
-   * @param systemId
-   *          system identification string
-   * @param ownName
-   *          own name
-   * @param recoveryManager
-   *          the RecoveryManager
+   * 
+   * @param channelManager the ChannelManager
+   * @param systemId system identification string
+   * @param ownName own name
+   * @param recoveryManager the RecoveryManager
    */
   public void init(ChannelManager channelManager,
                    String systemId,
@@ -136,7 +130,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
             log.info(pcl.dump());
           }
         }
-        
+
         String identifier = this.sendAsBinaryFile(changesLog);
 
         if (log.isDebugEnabled()) {
@@ -152,98 +146,14 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   }
 
   /**
-   * send.
-   *
-   * @param isChangesLog
-   *          the ChangegLog
-   * @return String
-   *           return the identification string for PendingChangesLog
-   * @throws Exception
-   *           will be generated Exception
-   */
-  /*private String send(ItemStateChangesLog isChangesLog) throws Exception {
-    TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
-    PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
-
-    // before save ChangesLog
-    recoveryManager.save(isChangesLog, container.getIdentifier());
-
-    switch (container.getConteinerType()) {
-    case PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM:
-      byte[] buf1 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
-
-      if (buf1.length > Packet.MAX_PACKET_SIZE) {
-        sendBigItemDataChangesLog(buf1, container.getIdentifier());
-      } else {
-        Packet firstPacket = new Packet(Packet.PacketType.CHANGESLOG,
-                                        buf1.length,
-                                        buf1,
-                                        container.getIdentifier());
-        channelManager.sendPacket(firstPacket);
-
-        if (log.isDebugEnabled()) {
-          log.debug("Send-->ItemDataChangesLog_without_Streams-->");
-          log.debug("---------------------");
-          log.debug("Size of buffer --> " + buf1.length);
-          log.debug("ItemStates size  --> " + changesLog.getAllStates().size());
-          log.debug("---------------------");
-        }
-      }
-      break;
-
-    case PendingChangesLog.Type.CHANGESLOG_WITH_STREAM:
-      byte[] buf2 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
-
-      if (buf2.length < Packet.MAX_PACKET_SIZE) {
-        Packet packet = new Packet(Packet.PacketType.FIRST_CHANGESLOG_WITH_STREAM,
-                                   buf2.length,
-                                   buf2,
-                                   container.getIdentifier());
-        channelManager.sendPacket(packet);
-      } else {
-        sendBigItemDataChangesLogWhithStream(buf2, container.getIdentifier());
-      }
-
-      for (int i = 0; i < container.getInputStreams().size(); i++)
-        sendStream(container.getInputStreams().get(i),
-                   container.getFixupStreams().get(i),
-                   container.getIdentifier());
-
-      Packet lastPacket = new Packet(Packet.PacketType.LAST_CHANGESLOG_WITH_STREAM,
-                                     container.getIdentifier());
-      channelManager.sendPacket(lastPacket);
-
-      if (log.isDebugEnabled()) {
-        log.debug("Send-->ItemDataChangesLog_with_Streams-->");
-        log.debug("---------------------");
-        log.debug("Size of damp --> " + buf2.length);
-        log.debug("ItemStates   --> " + changesLog.getAllStates().size());
-        log.debug("Streams      --> " + container.getInputStreams().size());
-        log.debug("---------------------");
-      }
-
-      break;
-
-    default:
-      break;
-    }
-
-    return container.getIdentifier();
-  }*/
-
-  /**
    * sendAsBinaryFile.
-   *
-   * @param isChangesLog
-   *          the ChangesLog
-   * @return String
-   *           return the identification string for PendingChangesLog
-   * @throws Exception
-   *           will be generated Exception
+   * 
+   * @param isChangesLog the ChangesLog
+   * @return String return the identification string for PendingChangesLog
+   * @throws Exception will be generated Exception
    */
   private String sendAsBinaryFile(ItemStateChangesLog isChangesLog) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
-    //PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
 
     // before save ChangesLog
     String identifier = IdGenerator.generate();
@@ -253,242 +163,16 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
     recoveryManager.getRecoveryWriter().save(f, changesLog);
 
-   /* switch (container.getConteinerType()) {
-    case PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM:
-      byte[] buf1 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
-
-      if (buf1.length > Packet.MAX_PACKET_SIZE) {
-        sendBigItemDataChangesLog(buf1, container.getIdentifier());
-      } else {
-        Packet firstPacket = new Packet(Packet.PacketType.CHANGESLOG,
-                                        buf1.length,
-                                        buf1,
-                                        container.getIdentifier());
-        channelManager.sendPacket(firstPacket);
-
-        if (log.isDebugEnabled()) {
-          log.debug("Send-->ItemDataChangesLog_without_Streams-->");
-          log.debug("---------------------");
-          log.debug("Size of buffer --> " + buf1.length);
-          log.debug("ItemStates size  --> " + changesLog.getAllStates().size());
-          log.debug("---------------------");
-        }
-      }
-      break;
-
-    case PendingChangesLog.Type.CHANGESLOG_WITH_STREAM:
-      // send the serializabe Changeslog
-      channelManager.sendBinaryFile(f.getCanonicalPath(),
-                                    ownName,
-                                    container.getIdentifier(),
-                                    systemId,
-                                    Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET,
-                                    Packet.PacketType.BINARY_CHANGESLOG_MIDDLE_PACKET,
-                                    Packet.PacketType.BINARY_CHANGESLOG_LAST_PACKET);
-
-      fileCleaner.addFile(f);
-      break;
-
-    default:
-      break;
-    }*/
-
     channelManager.sendBinaryFile(f.getCanonicalPath(),
                                   ownName,
                                   identifier,
                                   systemId,
-                                  Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET,
-                                  Packet.PacketType.BINARY_CHANGESLOG_MIDDLE_PACKET,
-                                  Packet.PacketType.BINARY_CHANGESLOG_LAST_PACKET);
+                                  Packet.PacketType.BINARY_CHANGESLOG_PACKET);
 
-    fileCleaner.addFile(f);
-    
+    if (!f.delete())
+      fileCleaner.addFile(f);
+
     return identifier;
-  }
-
-  /**
-   * sendStream.
-   *
-   * @param in
-   *          the InputStream
-   * @param fixupStream
-   *          the FixupStream
-   * @param identifier
-   *          the identification string for PendingChangesLog
-   * @throws Exception
-   *           will be generated Exception
-   */
-  private void sendStream(InputStream in, FixupStream fixupStream, String identifier) throws Exception {
-    Packet packet = new Packet(Packet.PacketType.FIRST_PACKET_OF_STREAM, fixupStream, identifier);
-    channelManager.sendPacket(packet);
-
-    byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
-    int len;
-    long offset = 0;
-
-    try {
-      while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-        packet = new Packet(Packet.PacketType.PACKET_OF_STREAM, fixupStream, identifier, buf);
-        packet.setOffset(offset);
-        channelManager.sendPacket(packet);
-
-        offset += len;
-        if (log.isDebugEnabled())
-          log.debug("Send  --> " + offset);
-
-        Thread.sleep(1);
-      }
-
-      if (len < Packet.MAX_PACKET_SIZE) {
-        // check if empty stream
-        len = (len == -1 ? 0 : len);
-
-        byte[] buffer = new byte[len];
-
-        for (int i = 0; i < len; i++)
-          buffer[i] = buf[i];
-
-        packet = new Packet(Packet.PacketType.LAST_PACKET_OF_STREAM,
-                            fixupStream,
-                            identifier,
-                            buffer);
-        packet.setOffset(offset);
-        channelManager.sendPacket(packet);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * sendBigItemDataChangesLog.
-   *
-   * @param data
-   *          the array of bytes with data
-   * @param identifier
-   *          the identification string for PendingChangesLog
-   * @throws Exception
-   *           will be generated Exception
-   */
-  private void sendBigItemDataChangesLog(byte[] data, String identifier) throws Exception {
-    long offset = 0;
-    byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
-
-    cutData(data, offset, tempBuffer);
-
-    Packet firsPacket = new Packet(Packet.PacketType.CHANGESLOG_FIRST_PACKET,
-                                   data.length,
-                                   tempBuffer,
-                                   identifier);
-    firsPacket.setOffset(offset);
-    channelManager.sendPacket(firsPacket);
-
-    if (log.isDebugEnabled())
-      log.info("Send of damp --> " + firsPacket.getByteArray().length);
-
-    offset += tempBuffer.length;
-
-    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
-      cutData(data, offset, tempBuffer);
-
-      Packet middlePacket = new Packet(Packet.PacketType.CHANGESLOG_MIDDLE_PACKET,
-                                       data.length,
-                                       tempBuffer,
-                                       identifier);
-      middlePacket.setOffset(offset);
-      channelManager.sendPacket(middlePacket);
-
-      if (log.isDebugEnabled())
-        log.info("Send of damp --> " + middlePacket.getByteArray().length);
-
-      offset += tempBuffer.length;
-    }
-
-    byte[] lastBuffer = new byte[data.length - (int) offset];
-    cutData(data, offset, lastBuffer);
-
-    Packet lastPacket = new Packet(Packet.PacketType.CHANGESLOG_LAST_PACKET,
-                                   data.length,
-                                   lastBuffer,
-                                   identifier);
-    lastPacket.setOffset(offset);
-    channelManager.sendPacket(lastPacket);
-
-    if (log.isDebugEnabled())
-      log.info("Send of damp --> " + lastPacket.getByteArray().length);
-  }
-
-  /**
-   * sendBigItemDataChangesLogWhithStream.
-   *
-   * @param data
-   *          the array of bytes with data
-   * @param identifier
-   *          the identification string for PendingChangesLog
-   * @throws Exception
-   *           will be generated Exception
-   */
-  private void sendBigItemDataChangesLogWhithStream(byte[] data, String identifier) throws Exception {
-    long offset = 0;
-    byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
-
-    cutData(data, offset, tempBuffer);
-
-    Packet firsPacket = new Packet(Packet.PacketType.CHANGESLOG_WITH_STREAM_FIRST_PACKET,
-                                   data.length,
-                                   tempBuffer,
-                                   identifier);
-    firsPacket.setOffset(offset);
-    channelManager.sendPacket(firsPacket);
-
-    if (log.isDebugEnabled())
-      log.info("Send of damp --> " + firsPacket.getByteArray().length);
-
-    offset += tempBuffer.length;
-
-    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
-      cutData(data, offset, tempBuffer);
-
-      Packet middlePacket = new Packet(Packet.PacketType.CHANGESLOG_WITH_STREAM_MIDDLE_PACKET,
-                                       data.length,
-                                       tempBuffer,
-                                       identifier);
-      middlePacket.setOffset(offset);
-      channelManager.sendPacket(middlePacket);
-
-      if (log.isDebugEnabled())
-        log.info("Send of damp --> " + middlePacket.getByteArray().length);
-
-      offset += tempBuffer.length;
-    }
-
-    byte[] lastBuffer = new byte[data.length - (int) offset];
-    cutData(data, offset, lastBuffer);
-
-    Packet lastPacket = new Packet(Packet.PacketType.CHANGESLOG_WITH_STREAM_LAST_PACKET,
-                                   data.length,
-                                   lastBuffer,
-                                   identifier);
-    lastPacket.setOffset(offset);
-    channelManager.sendPacket(lastPacket);
-
-    if (log.isDebugEnabled())
-      log.info("Send of damp --> " + lastPacket.getByteArray().length);
-  }
-
-  /**
-   * cutData.
-   *
-   * @param sourceData
-   *          source data
-   * @param startPos
-   *          start position in 'sourceData'
-   * @param destination
-   *          destination data 
-   */
-  private void cutData(byte[] sourceData, long startPos, byte[] destination) {
-    for (int i = 0; i < destination.length; i++)
-      destination[i] = sourceData[i + (int) startPos];
   }
 
   /**
@@ -505,11 +189,9 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * isSessionNull.
-   *
-   * @param changesLog
-   *          the ChangesLog
-   * @return boolean
-   *           return the 'false' if same 'SessionId' is null 
+   * 
+   * @param changesLog the ChangesLog
+   * @return boolean return the 'false' if same 'SessionId' is null
    */
   private boolean isSessionNull(TransactionChangesLog changesLog) {
     boolean isSessionNull = false;
@@ -544,9 +226,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * getChannelManager.
-   *
-   * @return ChannelManager
-   *           return the ChannelManager
+   * 
+   * @return ChannelManager return the ChannelManager
    */
   public ChannelManager getChannelManager() {
     return channelManager;

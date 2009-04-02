@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,8 +31,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
-import org.exoplatform.services.jcr.ext.replication.FixupStream;
-import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogReader;
@@ -115,63 +112,6 @@ public class RecoveryReader extends AbstractFSAccess {
     in.close();
     return tcl;
   }
-
-  /**
-   * readExternal.
-   * 
-   * @param in the ObjctInputStream
-   * @return TransactionChangesLog return the TransactionChangesLog
-   * @throws IOException will be generated the IOException
-   * @throws ClassNotFoundException will be generated the ClassNotFoundException
-   */
- /* private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
-                                                                  ClassNotFoundException {
-    int changesLogType = in.readInt();
-
-    TransactionChangesLog transactionChangesLog = null;
-
-    if (changesLogType == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
-
-      // read ChangesLog
-      transactionChangesLog = (TransactionChangesLog) in.readObject();
-
-      // read FixupStream count
-      int iFixupStream = in.readInt();
-
-      ArrayList<FixupStream> listFixupStreams = new ArrayList<FixupStream>();
-
-      for (int i = 0; i < iFixupStream; i++)
-        listFixupStreams.add((FixupStream) in.readObject());
-
-      // read stream data
-      int iStreamCount = in.readInt();
-      ArrayList<File> listFiles = new ArrayList<File>();
-
-      for (int i = 0; i < iStreamCount; i++) {
-
-        // read file size
-        long fileSize = in.readLong();
-
-        // read content file
-        File contentFile = getAsFile(in, fileSize);
-        listFiles.add(contentFile);
-      }
-
-      PendingChangesLog pendingChangesLog = new PendingChangesLog(transactionChangesLog,
-                                                                  listFixupStreams,
-                                                                  listFiles,
-                                                                  fileCleaner);
-
-      pendingChangesLog.restore();
-
-      // TransactionChangesLog log = pendingChangesLog.getItemDataChangesLog();
-
-    } else if (changesLogType == PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM) {
-      transactionChangesLog = (TransactionChangesLog) in.readObject();
-    }
-
-    return transactionChangesLog;
-  }*/
 
   /**
    * getFilePathList.

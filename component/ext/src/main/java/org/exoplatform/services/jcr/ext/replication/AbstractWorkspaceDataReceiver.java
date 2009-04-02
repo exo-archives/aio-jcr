@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication;
 
-import java.io.RandomAccessFile;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
@@ -35,7 +34,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id$
+ * @version $Id: AbstractWorkspaceDataReceiver.java 30384 2009-03-31 15:06:32Z
+ *          serg $
  */
 
 public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
@@ -113,8 +113,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * AbstractWorkspaceDataReceiver constructor.
    * 
-   * @throws RepositoryConfigurationException
-   *           will be generated the RepositoryConfigurationException
+   * @throws RepositoryConfigurationException will be generated the
+   *           RepositoryConfigurationException
    */
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
     this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
@@ -127,14 +127,10 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * init.
    * 
-   * @param channelManager
-   *          the ChannelManager
-   * @param systemId
-   *          system identification string
-   * @param ownName
-   *          own name
-   * @param recoveryManager
-   *          the RecoveryManager
+   * @param channelManager the ChannelManager
+   * @param systemId system identification string
+   * @param ownName own name
+   * @param recoveryManager the RecoveryManager
    */
   public void init(ChannelManager channelManager,
                    String systemId,
@@ -152,7 +148,6 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * The call 'start()' for information other participants.
-   * 
    */
   public void start() {
     try {
@@ -174,13 +169,11 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * receive.
-   *
-   * @param itemStatechangesLog
-   *          the received ChangesLog
-   * @param identifier
-   *          the PandingChangeLog or PendingBinaryFile identifier string
-   * @throws Exception
-   *           will be generated the Exception
+   * 
+   * @param itemStatechangesLog the received ChangesLog
+   * @param identifier the PandingChangeLog or PendingBinaryFile identifier
+   *          string
+   * @throws Exception will be generated the Exception
    */
   public void receive(ItemStateChangesLog itemStatechangesLog, String identifier) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) itemStatechangesLog;
@@ -219,267 +212,40 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
       Packet bigPacket = null;
 
       switch (packet.getPacketType()) {
-     /* case Packet.PacketType.CHANGESLOG:
-        TransactionChangesLog changesLog = PendingChangesLog.getAsItemDataChangesLog(packet.getByteArray());
-        if (log.isDebugEnabled()) {
-          log.debug("Received-->ItemDataChangesLog_without_Streams-->");
-          log.debug("---------------------");
-          log.debug("Size of received packet --> " + packet.getByteArray().length);
-          log.debug("Size of ItemStates          --> " + changesLog.getAllStates().size());
-          log.debug("---------------------");
+
+      case Packet.PacketType.BINARY_CHANGESLOG_PACKET:
+        PendingBinaryFile container = mapPendingBinaryFile.get(packet.getIdentifier());
+        if (container == null) {
+          container = new PendingBinaryFile();
+          mapPendingBinaryFile.put(packet.getIdentifier(), container);
         }
-        this.receive(changesLog, packet.getIdentifier());
-        break;*/
 
-     /* case Packet.PacketType.FIRST_CHANGESLOG_WITH_STREAM:
-        changesLog = PendingChangesLog.getAsItemDataChangesLog(packet.getByteArray());
+        ChangesFile chf;
 
-        PendingChangesLog container = new PendingChangesLog(changesLog,
-                                                            packet.getIdentifier(),
-                                                            PendingChangesLog.Type.CHANGESLOG_WITH_STREAM,
-                                                            fileCleaner);
-
-        mapPendingChangesLog.put(packet.getIdentifier(), container);
-        if (log.isDebugEnabled())
-          log.debug("Item DataChangesLog of type 'ItemDataChangesLog first whith stream'");
-        break;*/
-
-  /*    case Packet.PacketType.CHANGESLOG_WITH_STREAM_FIRST_PACKET:
-        PendingChangesLog bigChangesLogWhithStream = new PendingChangesLog(packet.getIdentifier(),
-                                                                           (int) packet.getSize());
-        bigChangesLogWhithStream.putData((int) packet.getOffset(), packet.getByteArray());
-
-        mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLogWhithStream);
-        break;
-
-      case Packet.PacketType.CHANGESLOG_WITH_STREAM_MIDDLE_PACKET:
-        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-          container.putData((int) packet.getOffset(), packet.getByteArray());
-        }
-        break;
-
-      case Packet.PacketType.CHANGESLOG_WITH_STREAM_LAST_PACKET:
-        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-          container.putData((int) packet.getOffset(), packet.getByteArray());
-
-          TransactionChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container.getData());
-          if (log.isDebugEnabled()) {
-            log.debug("Recive-->Big ItemDataChangesLog_without_Streams-->");
-            log.debug("---------------------");
-            log.debug("Size of recive damp --> " + container.getData().length);
-            log.debug("ItemStates          --> " + tempChangesLog.getAllStates().size());
-            log.debug("---------------------");
-            log.debug("Item big DataChangesLog of type 'ItemDataChangesLog only'");
+        synchronized (container) {
+          chf = container.getChangesFile(packet.getOwnerName(), packet.getFileName());
+          if (chf == null) {
+            chf = container.addChangesFile(packet.getOwnerName(),
+                                           packet.getFileName(),
+                                           packet.getSystemId(),
+                                           packet.getTotalPacketCount());
           }
-          mapPendingChangesLog.remove(packet.getIdentifier());
-
-          container = new PendingChangesLog(tempChangesLog,
-                                            packet.getIdentifier(),
-                                            PendingChangesLog.Type.CHANGESLOG_WITH_STREAM,
-                                            fileCleaner);
-
-          mapPendingChangesLog.put(packet.getIdentifier(), container);
         }
 
-        break;*/
+        chf.write(packet.getOffset(), packet.getByteArray());
 
-    /*  case Packet.PacketType.FIRST_PACKET_OF_STREAM:
-        if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
+        // save to JCR
+        if (chf.isStored()) {
+          saveChangesLog(chf, packet.getIdentifier());
 
-          synchronized (container) {
-            container.addNewStream(packet.getFixupStream());
-          }
+          // remove
+          if (!chf.getFile().delete())
+            fileCleaner.addFile(chf.getFile());
+          mapPendingBinaryFile.remove(packet.getIdentifier());
 
           if (log.isDebugEnabled())
-            log.debug("First pocket of stream");
-
+            log.debug("Last packet of file has been received : " + packet.getFileName());
         }
-        break;
-
-      case Packet.PacketType.PACKET_OF_STREAM:
-        if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-
-          RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getFixupStream());
-
-          if (randomAccessFile != null) {
-            randomAccessFile.seek(packet.getOffset());
-            randomAccessFile.write(packet.getByteArray());
-          }
-
-          if (log.isDebugEnabled())
-            log.debug("Pocket of stream : " + packet.getByteArray().length + " bytes");
-        }
-        break;
-
-      case Packet.PacketType.LAST_PACKET_OF_STREAM:
-        if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-
-          RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getFixupStream());
-
-          if (randomAccessFile != null) {
-            randomAccessFile.seek(packet.getOffset());
-            randomAccessFile.write(packet.getByteArray());
-          }
-          if (log.isDebugEnabled())
-            log.debug("Last pocket of stream : " + packet.getByteArray().length + " bytes");
-        }
-        break;*/
-
-    /*  case Packet.PacketType.LAST_CHANGESLOG_WITH_STREAM:
-        if (mapPendingChangesLog.get(packet.getIdentifier()) != null)
-          mapPendingChangesLog.get(packet.getIdentifier()).restore();
-
-        ItemStateChangesLog dataChangesLog = (mapPendingChangesLog.get(packet.getIdentifier())).getItemDataChangesLog();
-        if (dataChangesLog != null) {
-          if (log.isDebugEnabled()) {
-            log.debug("Send-->ItemDataChangesLog_with_Streams-->");
-            log.debug("---------------------");
-            log.debug("ItemStates   --> " + dataChangesLog.getAllStates().size());
-            log.debug("Streams      --> "
-                + (mapPendingChangesLog.get(packet.getIdentifier()).getInputStreams().size()));
-            log.debug("---------------------");
-          }
-
-          this.receive(dataChangesLog, packet.getIdentifier());
-          mapPendingChangesLog.remove(packet.getIdentifier());
-        }
-        break;*/
-
-     /* case Packet.PacketType.CHANGESLOG_FIRST_PACKET:
-        PendingChangesLog bigChangesLog = new PendingChangesLog(packet.getIdentifier(),
-                                                                (int) packet.getSize());
-        bigChangesLog.putData((int) packet.getOffset(), packet.getByteArray());
-
-        mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLog);
-        break;
-
-      case Packet.PacketType.CHANGESLOG_MIDDLE_PACKET:
-        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-          container.putData((int) packet.getOffset(), packet.getByteArray());
-        }
-        break;
-
-      case Packet.PacketType.CHANGESLOG_LAST_PACKET:
-        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-          container.putData((int) packet.getOffset(), packet.getByteArray());
-
-          ItemStateChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container.getData());
-          if (log.isDebugEnabled()) {
-            log.debug("Recive-->Big ItemDataChangesLog_without_Streams-->");
-            log.debug("---------------------");
-            log.debug("Size of recive damp --> " + container.getData().length);
-            log.debug("ItemStates          --> " + tempChangesLog.getAllStates().size());
-            log.debug("---------------------");
-            log.debug("Item big DataChangesLog of type 'ItemDataChangesLog only'");
-          }
-
-          this.receive(tempChangesLog, packet.getIdentifier());
-          mapPendingChangesLog.remove(packet.getIdentifier());
-        }
-
-        break;
-*/
-   /*   case Packet.PacketType.BIG_PACKET_FIRST:
-        PendingChangesLog bigLog = new PendingChangesLog(packet.getIdentifier(),
-                                                         (int) packet.getSize());
-        bigLog.putData((int) packet.getOffset(), packet.getByteArray());
-
-        mapPendingChangesLog.put(packet.getIdentifier(), bigLog);
-        break;
-
-      case Packet.PacketType.BIG_PACKET_MIDDLE:
-        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-          container.putData((int) packet.getOffset(), packet.getByteArray());
-        }
-        break;
-
-      case Packet.PacketType.BIG_PACKET_LAST:
-        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
-          container = mapPendingChangesLog.get(packet.getIdentifier());
-          container.putData((int) packet.getOffset(), packet.getByteArray());
-
-          bigPacket = Packet.getAsPacket(container.getData());
-
-          if (log.isDebugEnabled()) {
-            log.debug("Recive-->Big packet-->");
-            log.debug("---------------------");
-            log.debug("Size of recive damp --> " + container.getData().length);
-            log.debug("---------------------");
-          }
-          mapPendingChangesLog.remove(packet.getIdentifier());
-        }
-        break;*/
-
-      case Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET:
-        if (mapPendingBinaryFile.containsKey(packet.getIdentifier()) == false)
-          mapPendingBinaryFile.put(packet.getIdentifier(), new PendingBinaryFile());
-
-        PendingBinaryFile pbf = mapPendingBinaryFile.get(packet.getIdentifier());
-
-        synchronized (pbf) {
-          pbf.addBinaryFile(packet.getOwnerName(), packet.getFileName(), packet.getSystemId());
-        }
-        break;
-
-      case Packet.PacketType.BINARY_CHANGESLOG_MIDDLE_PACKET:
-        if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
-          pbf = mapPendingBinaryFile.get(packet.getIdentifier());
-
-          FileDescriptor fd = pbf.getFileDescriptor(packet.getOwnerName(), packet.getFileName());
-          RandomAccessFile randomAccessFile = fd.getRandomAccessFile();
-
-          if (randomAccessFile != null) {
-            if (log.isDebugEnabled())
-              log.info("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
-
-            randomAccessFile.seek(packet.getOffset());
-            randomAccessFile.write(packet.getByteArray());
-          } else
-            log.warn("Can't find the RandomAccessFile : \n" + "owner - \t" + packet.getOwnerName()
-                + "\nfile name - \t" + packet.getFileName());
-        }
-        break;
-
-      case Packet.PacketType.BINARY_CHANGESLOG_LAST_PACKET:
-        if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
-          pbf = mapPendingBinaryFile.get(packet.getIdentifier());
-
-          RandomAccessFile randomAccessFile = pbf.getRandomAccessFile(packet.getOwnerName(),
-                                                                      packet.getFileName());
-
-          if (randomAccessFile != null) {
-            if (log.isDebugEnabled())
-              log.info("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
-
-            randomAccessFile.seek(packet.getOffset());
-            randomAccessFile.write(packet.getByteArray());
-
-            // save to JCR
-            randomAccessFile.close();
-            FileDescriptor fd = pbf.getFileDescriptor(packet.getOwnerName(), packet.getFileName());
-            saveChangesLog(fd, packet.getIdentifier());
-
-            // remove
-            fileCleaner.addFile(fd.getFile());
-            mapPendingBinaryFile.remove(packet.getIdentifier());
-
-            if (log.isDebugEnabled())
-              log.debug("Last packet of file has been received : " + packet.getFileName());
-          } else
-            log.warn("Can't find the RandomAccessFile : \n" + "owner - \t" + packet.getOwnerName()
-                + "\nfile name - \t" + packet.getFileName());
-        }
-        break;
-
-      default:
         break;
       }
 
@@ -496,9 +262,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * getDataKeeper.
-   *
-   * @return ItemDataKeeper
-   *           return the dataKeeper
+   * 
+   * @return ItemDataKeeper return the dataKeeper
    */
   public ItemDataKeeper getDataKeeper() {
     return dataKeeper;
@@ -506,15 +271,12 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * saveChangesLog.
-   *
-   * @param fileDescriptor
-   *          the FileDescriptor
-   * @param identifire
-   *          the PendingBinaryFile identification string
-   * @throws Exception
-   *           will be generated the Exception
+   * 
+   * @param fileDescriptor the FileDescriptor
+   * @param identifire the PendingBinaryFile identification string
+   * @throws Exception will be generated the Exception
    */
-  private void saveChangesLog(FileDescriptor fileDescriptor, String identifire) throws Exception {
+  private void saveChangesLog(ChangesFile fileDescriptor, String identifire) throws Exception {
     TransactionChangesLog transactionChangesLog = recoveryManager.getRecoveryReader()
                                                                  .getChangesLog(fileDescriptor.getFile()
                                                                                               .getAbsolutePath());

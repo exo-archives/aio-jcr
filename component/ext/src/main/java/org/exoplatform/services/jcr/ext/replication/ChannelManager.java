@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.ws.frameworks.json.value.impl.ArrayValue;
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.ChannelException;
@@ -49,73 +49,60 @@ import org.jgroups.blocks.RequestHandler;
 public class ChannelManager implements RequestHandler {
 
   /**
-   * log.
-   *   the apache logger.
+   * log. the apache logger.
    */
   private static Log           log = ExoLogger.getLogger("ext.ChannelManager");
 
   /**
-   * channel.
-   *   The JChanel object of JGroups.
+   * channel. The JChanel object of JGroups.
    */
   private JChannel             channel;
 
   /**
-   * dispatcher.
-   *   The MessageDispatcher will be transmitted the Massage.    
+   * dispatcher. The MessageDispatcher will be transmitted the Massage.
    */
   private MessageDispatcher    dispatcher;
 
   /**
-   * channelConfig.
-   *   The configuration to JChannel. 
+   * channelConfig. The configuration to JChannel.
    */
   private final String         channelConfig;
 
   /**
-   * channelName.
-   *   The name to JChannel.
+   * channelName. The name to JChannel.
    */
   private final String         channelName;
 
   /**
-   * testChannelName.
-   *   The name to JChannel.
-   *   Using only testing. 
+   * testChannelName. The name to JChannel. Using only testing.
    */
   private String               testChannelName;
 
   /**
-   * membershipListener.
-   *   The listener to JChannel when channel-state changed.
+   * membershipListener. The listener to JChannel when channel-state changed.
    */
   private MembershipListener   membershipListener;
 
   /**
-   * messageListener.
-   *   The listener for Messages.
+   * messageListener. The listener for Messages.
    */
   private MessageListener      messageListener;
 
   /**
-   * packetListeners.
-   *   The packet listeners.
+   * packetListeners. The packet listeners.
    */
   private List<PacketListener> packetListeners;
 
   /**
-   * channelListener.
-   *   The listener to JChannel when channel-state changed.
+   * channelListener. The listener to JChannel when channel-state changed.
    */
   private ChannelListener      channelListener;
 
   /**
-   * ChannelManager  constructor.
-   *
-   * @param channelConfig
-   *          channel configuration
-   * @param channelName
-   *          name of channel
+   * ChannelManager constructor.
+   * 
+   * @param channelConfig channel configuration
+   * @param channelName name of channel
    */
   public ChannelManager(String channelConfig, String channelName) {
     this.channelConfig = channelConfig;
@@ -124,11 +111,9 @@ public class ChannelManager implements RequestHandler {
   }
 
   /**
-   * init.
-   *   Will be initialized JChannel and MessageDispatcher.
-   *
-   * @throws ReplicationException
-   *           Will be generated the ReplicationException.
+   * init. Will be initialized JChannel and MessageDispatcher.
+   * 
+   * @throws ReplicationException Will be generated the ReplicationException.
    */
   public synchronized void init() throws ReplicationException {
     try {
@@ -157,11 +142,9 @@ public class ChannelManager implements RequestHandler {
   }
 
   /**
-   * connect.
-   *   Connect to channel.
-   *
-   * @throws ReplicationException
-   *           Will be generated the ReplicationException.        
+   * connect. Connect to channel.
+   * 
+   * @throws ReplicationException Will be generated the ReplicationException.
    */
   public synchronized void connect() throws ReplicationException {
 
@@ -181,8 +164,7 @@ public class ChannelManager implements RequestHandler {
   }
 
   /**
-   * closeChannel.
-   *   Close the channel.
+   * closeChannel. Close the channel.
    */
   public void closeChannel() {
     channel.close();
@@ -191,9 +173,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setMembershipListener.
-   *
-   * @param membershipListener
-   *          set the MembershipListener
+   * 
+   * @param membershipListener set the MembershipListener
    */
   public void setMembershipListener(MembershipListener membershipListener) {
     this.membershipListener = membershipListener;
@@ -201,19 +182,17 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setMessageListener.
-   *
-   * @param messageListener
-   *          set the MessageListener
-   */ 
+   * 
+   * @param messageListener set the MessageListener
+   */
   public void setMessageListener(MessageListener messageListener) {
     this.messageListener = messageListener;
   }
 
   /**
    * addPacketListener.
-   *
-   * @param packetListener
-   *          add the PacketListener
+   * 
+   * @param packetListener add the PacketListener
    */
   public void addPacketListener(PacketListener packetListener) {
     this.packetListeners.add(packetListener);
@@ -221,9 +200,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setChannelListener.
-   *
-   * @param channelListener
-   *          set the ChannelListener
+   * 
+   * @param channelListener set the ChannelListener
    */
   public void setChannelListener(ChannelListener channelListener) {
     this.channelListener = channelListener;
@@ -231,9 +209,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * getDispatcher.
-   *
-   * @return MessageDispatcher
-   *           return the MessageDispatcher object
+   * 
+   * @return MessageDispatcher return the MessageDispatcher object
    */
   public MessageDispatcher getDispatcher() {
     return dispatcher;
@@ -241,17 +218,15 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * sendPacket.
-   *
-   * @param packet
-   *          the Packet with content
-   * @throws Exception
-   *           will be generated Exception
+   * 
+   * @param packet the Packet with content
+   * @throws Exception will be generated Exception
    */
   public void sendPacket(Packet packet) throws Exception {
     byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    
+
     Vector<Address> addr = new Vector<Address>(channel.getView().getMembers());
     addr.remove(channel.getLocalAddress());
     dispatcher.castMessage(addr, msg, GroupRequest.GET_NONE, 0);
@@ -259,9 +234,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * getChannel.
-   *
-   * @return JChannel
-   *           return the JChannel object
+   * 
+   * @return JChannel return the JChannel object
    */
   public JChannel getChannel() {
     return channel;
@@ -269,9 +243,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * send.
-   *
-   * @param buffer
-   *          the binary data
+   * 
+   * @param buffer the binary data
    */
   public synchronized void send(byte[] buffer) {
     Message msg = new Message(null, null, buffer);
@@ -280,168 +253,112 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * sendBigPacket.
-   *
-   * @param data
-   *          the binary data
-   * @param packet
-   *          the Packet
-   * @throws Exception
-   *           will be generated Exception
+   * 
+   * @param data the binary data
+   * @param packet the Packet
+   * @throws Exception will be generated Exception
    */
   public synchronized void sendBigPacket(byte[] data, Packet packet) throws Exception {
-    long offset = 0;
-    byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
 
-    cutData(data, offset, tempBuffer);
+    long totalPacketCount = this.getPacketCount(data.length, Packet.MAX_PACKET_SIZE);
+    int offset = 0;
 
-    Packet firsPacket = new Packet(Packet.PacketType.BIG_PACKET_FIRST,
-                                   data.length,
-                                   tempBuffer,
-                                   packet.getIdentifier());
-    firsPacket.setOwnName(packet.getOwnerName());
-    firsPacket.setOffset(offset);
-    sendPacket(firsPacket);
+    int len;
 
-    if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + firsPacket.getByteArray().length);
+    while ((len = data.length - offset) > 0) {
 
-    offset += tempBuffer.length;
+      int l = (len > Packet.MAX_PACKET_SIZE) ? Packet.MAX_PACKET_SIZE : (int) len;
+      byte[] buf = new byte[l];
+      System.arraycopy(data, offset, buf, 0, l);
 
-    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
-      cutData(data, offset, tempBuffer);
+      Packet bigPacket = new Packet(Packet.PacketType.BIG_PACKET,
+                                    packet.getIdentifier(),
+                                    totalPacketCount,
+                                    data.length,
+                                    offset,
+                                    buf);
 
-      Packet middlePacket = new Packet(Packet.PacketType.BIG_PACKET_MIDDLE,
-                                       data.length,
-                                       tempBuffer,
-                                       packet.getIdentifier());
-      middlePacket.setOwnName(packet.getOwnerName());
-      middlePacket.setOffset(offset);
-      Thread.sleep(1);
-      sendPacket(middlePacket);
-
+      sendPacket(bigPacket);
+      offset += l;
       if (log.isDebugEnabled())
-        log.debug("Send of damp --> " + middlePacket.getByteArray().length);
-
-      offset += tempBuffer.length;
+        log.debug("Send of damp --> " + bigPacket.getByteArray().length);
     }
-
-    byte[] lastBuffer = new byte[data.length - (int) offset];
-    cutData(data, offset, lastBuffer);
-
-    Packet lastPacket = new Packet(Packet.PacketType.BIG_PACKET_LAST,
-                                   data.length,
-                                   lastBuffer,
-                                   packet.getIdentifier());
-    lastPacket.setOwnName(packet.getOwnerName());
-    lastPacket.setOffset(offset);
-    sendPacket(lastPacket);
-
-    if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + lastPacket.getByteArray().length);
-  }
-
-  /**
-   * cutData.
-   *
-   * @param sourceData
-   *          the binary data
-   * @param startPos
-   *          the start position in  'sourceData'
-   * @param destination
-   *          destination datas
-   */
-  private void cutData(byte[] sourceData, long startPos, byte[] destination) {
-    for (int i = 0; i < destination.length; i++)
-      destination[i] = sourceData[i + (int) startPos];
   }
 
   /**
    * sendBinaryFile.
-   *
-   * @param filePath
-   *          full path to file
-   * @param ownerName
-   *          owner name
-   * @param identifier
-   *          the identifier String
-   * @param systemId
-   *          system identifications ID
-   * @param firstPacketType
-   *          the packet type for first packet
-   * @param middlePocketType
-   *          the packet type for middle packets
-   * @param lastPocketType
-   *          the packet type for last packet
-   * @throws Exception
-   *           will be generated the Exception
+   * 
+   * @param filePath full path to file
+   * @param ownerName owner name
+   * @param identifier the identifier String
+   * @param systemId system identifications ID
+   * @param packetType the packet type for first packet
+   * @throws Exception will be generated the Exception
    */
   public synchronized void sendBinaryFile(String filePath,
                                           String ownerName,
                                           String identifier,
                                           String systemId,
-                                          int firstPacketType,
-                                          int middlePocketType,
-                                          int lastPocketType) throws Exception {
-    long count = 0;
+                                          int packetType) throws Exception {
 
     if (log.isDebugEnabled())
       log.debug("Begin send : " + filePath);
 
     File f = new File(filePath);
+    long packetCount = getPacketCount(f.length(), Packet.MAX_PACKET_SIZE);
+
     InputStream in = new FileInputStream(f);
-
-    Packet packet = new Packet(firstPacketType, identifier, ownerName, f.getName());
-    packet.setSystemId(systemId);
-    //
-    packet.setSize(count);
-    count++;
-    //
-    sendPacket(packet);
-
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
-
-    while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-      packet = new Packet(middlePocketType, new FixupStream(), identifier, buf);
-
-      packet.setOffset(offset);
-      packet.setOwnName(ownerName);
-      packet.setFileName(f.getName());
-      packet.setSize(count);
-      count++;
-
-      sendPacket(packet);
-
-      offset += len;
-      if (log.isDebugEnabled())
-        log.debug("Send  --> " + offset);
-
-      Thread.sleep(1);
-    }
-
+    
+    // Send first packet in all cases. If InputStream is empty too.
+    len = in.read(buf);
     if (len < Packet.MAX_PACKET_SIZE) {
-      // check if empty stream
-      len = (len == -1 ? 0 : len);
-
-      byte[] buffer = new byte[len];
-
-      for (int i = 0; i < len; i++)
-        buffer[i] = buf[i];
-
-      packet = new Packet(lastPocketType, new FixupStream(), identifier, buffer);
-      packet.setOffset(offset);
-      packet.setOwnName(ownerName);
-      packet.setFileName(f.getName());
-      packet.setSize(count);
-      count++;
-
-      sendPacket(packet);
+      // cut buffer to original size;
+      byte[] b = new byte[len];
+      System.arraycopy(buf, 0, b, 0, len);
+      buf = b;
     }
 
-    if (log.isDebugEnabled())
-      log.debug("End send : " + filePath);
+    Packet packet = new Packet(packetType,
+                               systemId,
+                               identifier,
+                               ownerName,
+                               f.getName(),
+                               packetCount,
+                               offset,
+                               buf);
 
+    sendPacket(packet);
+    offset+= len;
+    if (log.isDebugEnabled())
+      log.debug("Send packet type [" + packetType + "] --> " + offset);
+
+    while ((len = in.read(buf)) > 0) {
+      if (len < AbstractPacket.MAX_PACKET_SIZE) {
+        byte[] b = new byte[len];
+        // cut buffer to original size;
+        System.arraycopy(buf, 0, b, 0, len);
+        buf = b;
+      }
+      packet = new Packet(packetType,
+                          systemId,
+                          identifier,
+                          ownerName,
+                          f.getName(),
+                          packetCount,
+                          offset,
+                          buf);
+
+      sendPacket(packet);
+      offset += len;
+      
+      if (log.isDebugEnabled())
+        log.debug("Send packet type [" + packetType + "] --> " + offset);
+
+     // Thread.sleep(1);
+    }
     in.close();
   }
 
@@ -466,9 +383,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setAllowConnect.
-   *
-   * @param allowConnect
-   *          allow connection state(true or false)
+   * 
+   * @param allowConnect allow connection state(true or false)
    */
   public void setAllowConnect(boolean allowConnect) {
     if (!allowConnect)
@@ -479,16 +395,20 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setAllowConnect.
-   *
-   * @param allowConnect
-   *          allow connection state(true or false)
-   * @param id
-   *          channel id
+   * 
+   * @param allowConnect allow connection state(true or false)
+   * @param id channel id
    */
   public void setAllowConnect(boolean allowConnect, int id) {
     if (!allowConnect)
       testChannelName = channelName + id;
     else
       testChannelName = null;
+  }
+
+  private long getPacketCount(long contentLength, long packetSize) {
+    long count = contentLength / packetSize;
+    count += ((count * packetSize - contentLength) != 0) ? 1 : 0;
+    return count;
   }
 }

@@ -66,16 +66,6 @@ public class RecoveryManager {
   private RecoveryReader                                          recoveryReader;
 
   /**
-   * Definition the folder to ChangesLog.
-   */
-  //private File                                                    recoveryDir;
-
-  /**
-   * The FileCleaner will delete the temporary files.
-   */
-  //private FileCleaner                                             fileCleaner;
-
-  /**
    * The date to ChangesLog.
    */
   private Calendar                                                timeStamp;
@@ -113,7 +103,7 @@ public class RecoveryManager {
   /**
    * The ItemDataKeeper will be saved the ChangesLog to JCR.
    */
-  private ItemDataKeeper                                          dataKeeper;
+//  private ItemDataKeeper                                          dataKeeper;
 
   /**
    * The ChannalManager will be transmitted or receive the Packets.
@@ -355,20 +345,11 @@ public class RecoveryManager {
         recoverySynchronizer.processingPacket(packet, state);
       break;
 
-    case Packet.PacketType.BINARY_FILE_FIRST_PACKET:
-      if (ownName.equals(packet.getOwnerName()) == true)
-        recoverySynchronizer.processingPacket(packet, state);
-      break;
-
-    case Packet.PacketType.BINARY_FILE_MIDDLE_PACKET:
-      if (ownName.equals(packet.getOwnerName()) == true)
-        recoverySynchronizer.processingPacket(packet, state);
-      break;
-
-    case Packet.PacketType.BINARY_FILE_LAST_PACKET:
-      if (ownName.equals(packet.getOwnerName()) == true)
-        recoverySynchronizer.processingPacket(packet, state);
-      break;
+      
+    case Packet.PacketType.BINARY_FILE_PACKET:
+    if (ownName.equals(packet.getOwnerName()) == true)
+      recoverySynchronizer.processingPacket(packet, state);
+    break;
 
     case Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK:
       if (ownName.equals(packet.getOwnerName()) == true)
@@ -453,7 +434,6 @@ public class RecoveryManager {
    *         the ItemDataKeeper
    */
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
-    this.dataKeeper = dataKeeper;
     recoverySynchronizer.setDataKeeper(dataKeeper);
   }
 
