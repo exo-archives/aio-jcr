@@ -30,9 +30,14 @@ import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.util.VersionHistoryImporter;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.Identity;
 
 /**
  * Created by The eXo Platform SAS.
@@ -394,6 +399,53 @@ public class TestImport extends AbstractImportTest {
     testRoot.checkin();
     testRoot.checkout();
     assertEquals(4, testRoot.getVersionHistory().getAllVersions().getSize());
+
+  }
+
+  public void testAclImpormt() throws Exception {
+    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+
+    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot");
+
+    testRoot.addMixin("exo:owneable");
+    testRoot.addMixin("exo:privilegeable");
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+
+    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
+    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
+    testRoot.removePermission(SystemIdentity.ANY);
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+    assertFalse(accessManager.hasPermission(testRoot.getACL(),
+                                            PermissionType.READ,
+                                            new Identity("exo")));
+
+    File tmp = File.createTempFile("testAclImpormt", "tmp");
+    tmp.deleteOnExit();
+    serialize(testRoot, false, true, tmp);
+    testRoot.remove();
+    session.save();
+
+    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+
+    deserialize(importRoot,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+                new BufferedInputStream(new FileInputStream(tmp)));
+    session.save();
+    Node n1 = importRoot.getNode("TestRoot");
+    assertTrue(accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+    assertFalse(accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                            PermissionType.READ,
+                                            new Identity("exo")));
 
   }
 }
