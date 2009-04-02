@@ -402,7 +402,12 @@ public class TestImport extends AbstractImportTest {
 
   }
 
-  public void testAclImpormt() throws Exception {
+  /**
+   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * 
+   * @throws Exception
+   */
+  public void testAclImport() throws Exception {
     AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
 
     NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot");
