@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.backup.server.bean.response;
 
 import org.exoplatform.services.jcr.ext.backup.server.bean.BaseBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.RestoreBean;
 
 /**
  * Created by The eXo Platform SAS.

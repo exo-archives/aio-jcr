@@ -17,6 +17,8 @@
 package org.exoplatform.services.jcr.ext.backup.server.bean.response;
 
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
+import org.exoplatform.services.jcr.ext.backup.BackupJob;
+import org.exoplatform.services.jcr.ext.backup.BackupManager;
 
 /**
  * Created by The eXo Platform SAS.
@@ -48,6 +50,15 @@ public class BackupChainBean {
    */
   private String workspaceName;
   
+  /**
+   * The full backup state.
+   */
+  private Integer  fullBackupState;
+
+  /**
+   * The incremental backup state.
+   */
+  private Integer  incrementalBackupState;
   
   /**
    * BackupChainBeen  constructor.
@@ -67,38 +78,135 @@ public class BackupChainBean {
     this.backupType = backupChain.getBackupConfig().getBackupType();
     this.repositoryName = backupChain.getBackupConfig().getRepository();
     this.workspaceName = backupChain.getBackupConfig().getWorkspace();
+    
+    this.fullBackupState = backupChain.getFullBackupState();
+
+    if (backupChain.getBackupConfig().getBackupType() == BackupManager.FULL_BACKUP_ONLY)
+      this.incrementalBackupState = 0;
+    else
+      for (BackupJob job : backupChain.getBackupJobs())
+        if (job.getType() == BackupJob.INCREMENTAL)
+          this.incrementalBackupState = job.getState();
   }
 
+  /**
+   * getBackupId.
+   *
+   * @return String
+   *           return the backup identifier
+   */
   public String getBackupId() {
     return backupId;
   }
 
+  /**
+   * setBackupId.
+   *
+   * @param backupId
+   *          String, the backup identifier
+   */
   public void setBackupId(String backupId) {
     this.backupId = backupId;
   }
 
+  /**
+   * getBackupType.
+   *
+   * @return Integer
+   *           the backup type
+   */
   public Integer getBackupType() {
     return backupType;
   }
 
+  /**
+   * setBackupType.
+   *
+   * @param backupType
+   *          Integer, the backup type
+   */
   public void setBackupType(Integer backupType) {
     this.backupType = backupType;
   }
 
+  /**
+   * getRepositoryName.
+   *
+   * @return String
+   *           return the repository name
+   */
   public String getRepositoryName() {
     return repositoryName;
   }
 
+  /**
+   * setRepositoryName.
+   *
+   * @param repositoryName
+   *          String, the repository name
+   */
   public void setRepositoryName(String repositoryName) {
     this.repositoryName = repositoryName;
   }
 
+  /**
+   * getWorkspaceName.
+   *
+   * @return String
+   *           return the workspace name
+   */
   public String getWorkspaceName() {
     return workspaceName;
   }
 
+  /**
+   * setWorkspaceName.
+   *
+   * @param workspaceName
+   *          String, the workspace name
+   */
   public void setWorkspaceName(String workspaceName) {
     this.workspaceName = workspaceName;
+  }
+  
+  /**
+   * getFullBackupState.
+   *
+   * @return Integer
+   *           return the state of full backup
+   */
+  public Integer getFullBackupState() {
+    return fullBackupState;
+  }
+
+  /**
+   * setFullBackupState.
+   *
+   * @param fullBackupState
+   *          Integer, the state of full backup
+   */
+  public void setFullBackupState(Integer fullBackupState) {
+    this.fullBackupState = fullBackupState;
+  }
+
+  /**
+   * getIncrementalBackupState.
+   *
+   * @return Integer
+   *           return the state of incremental backup
+   */
+  public Integer getIncrementalBackupState() {
+    return incrementalBackupState;
+  }
+
+  /**
+   * setIncrementalBackupState.
+   *
+   * @param incrementalBackupState
+   *          Integer, teh state of incremental backup
+   */
+  public void setIncrementalBackupState(Integer incrementalBackupState) {
+    this.incrementalBackupState = incrementalBackupState;
   }
 
 }

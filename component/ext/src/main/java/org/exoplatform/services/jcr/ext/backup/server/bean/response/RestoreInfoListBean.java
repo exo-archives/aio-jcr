@@ -40,6 +40,12 @@ public class RestoreInfoListBean {
   public RestoreInfoListBean() {
   }
   
+  /**
+   * RestoreInfoListBean  constructor.
+   *
+   * @param restoresInfo
+   *          Collection, the collection with RestoreInfoBean
+   */
   public RestoreInfoListBean(Collection<RestoreInfoBean> restoresInfo) {
     this.restoresInfo = restoresInfo;
   }
@@ -47,7 +53,7 @@ public class RestoreInfoListBean {
   /**
    * getRestoresInfo.
    *
-   * @return Collection<RestoreInfoBeen>
+   * @return Collection
    *           return the list of RestoreInfoBeen
    */
   public Collection<RestoreInfoBean> getRestoresInfo() {
@@ -58,7 +64,7 @@ public class RestoreInfoListBean {
    * setRestoresInfo.
    *
    * @param restoresInfo
-   *          Collection<RestoreInfoBeen>, the list of RestoreInfoBeen
+   *          Collection, the list of RestoreInfoBeen
    */
   public void setRestoresInfo(Collection<RestoreInfoBean> restoresInfo) {
     this.restoresInfo = restoresInfo;

@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Calendar;
 
-import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.RepositoryService;
@@ -32,9 +31,7 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.backup.BackupChainLog;
-import org.exoplatform.services.jcr.ext.backup.BackupConfigurationException;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
-import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.jibx.runtime.BindingDirectory;
@@ -128,7 +125,7 @@ public class JobWorkspaceRestore extends Thread {
   private BackupChainLog          backupChainLog;
 
   /**
-   * WorkspaceRestore constructor.
+   * JobWorkspaceRestore constructor.
    * 
    * @param repositoryService
    *          the RepositoryService
@@ -138,12 +135,10 @@ public class JobWorkspaceRestore extends Thread {
    *          the destination repository
    * @param workspaceName
    *          the destination workspace
-   * @param userName
-   *          the user name
-   * @param password
-   *          the password
    * @param logPath
    *          path to backup log
+   * @param wEntry 
+   *          the workspace configuration
    */
   public JobWorkspaceRestore(RepositoryService repositoryService,
                              BackupManager backupManager,
@@ -181,8 +176,8 @@ public class JobWorkspaceRestore extends Thread {
   /**
    * Will be restored the workspace.
    * 
-   * @throws WorkspaceRestoreExeption
-   *           will be generated the WorkspaceRestoreExeption
+   * @throws Throwable
+   *           will be generated the Throwable
    */
   private void restore() throws Throwable {
     try {
@@ -210,6 +205,22 @@ public class JobWorkspaceRestore extends Thread {
     }
   }
 
+  /**
+   * getWorkspaceEntry.
+   *
+   * @param wEntryStream
+   *          InputStream, the workspace configuration
+   * @param workspaceName
+   *          String, the workspace name 
+   * @return WorkspaceEntry
+   *           return the workspace entry
+   * @throws FileNotFoundException
+   *           will be generated the FileNotFoundException 
+   * @throws JiBXException
+   *           will be generated the JiBXException 
+   * @throws RepositoryConfigurationException
+   *           will be generated the RepositoryConfigurationException 
+   */
   private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream, String workspaceName) throws FileNotFoundException,
                                                                                           JiBXException,
                                                                                           RepositoryConfigurationException {
@@ -233,6 +244,16 @@ public class JobWorkspaceRestore extends Thread {
     return wsEntry;
   }
 
+  /**
+   * removeWorkspace.
+   *
+   * @param mr
+   *          the manageable repository
+   * @param workspaceName
+   *          String, the workspace name
+   * @throws RepositoryException
+   *           will be generated the RepositoryException
+   */
   private void removeWorkspace(ManageableRepository mr, String workspaceName) throws RepositoryException {
 
     if (!mr.canRemoveWorkspace(workspaceName)) {

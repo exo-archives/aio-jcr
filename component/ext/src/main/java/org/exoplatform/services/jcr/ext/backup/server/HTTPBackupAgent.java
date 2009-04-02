@@ -42,7 +42,6 @@ import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
 import org.exoplatform.services.jcr.ext.backup.BackupChainLog;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
-import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
@@ -206,20 +205,21 @@ public class HTTPBackupAgent implements ResourceContainer {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("/startBackup")
   public Response startBackup(BackupConfigBean bConfigBeen) {
-    File backupDir = new File(bConfigBeen.getBackupDir());
-    // if (!backupDir.exists())
-
-    BackupConfig config = new BackupConfig();
-    config.setBackupType(bConfigBeen.getBackupType());
-    config.setRepository(bConfigBeen.getRepositoryName());
-    config.setWorkspace(bConfigBeen.getWorkspaceName());
-    config.setBackupDir(backupDir);
-    config.setIncrementalJobPeriod(bConfigBeen.getIncrementalJobPeriod());
-
     try {
+      File backupDir = new File(bConfigBeen.getBackupDir());
+      if (!backupDir.exists()) 
+        throw new RuntimeException("The backup folder not exists :  " + backupDir.getAbsolutePath());
+  
+      BackupConfig config = new BackupConfig();
+      config.setBackupType(bConfigBeen.getBackupType());
+      config.setRepository(bConfigBeen.getRepositoryName());
+      config.setWorkspace(bConfigBeen.getWorkspaceName());
+      config.setBackupDir(backupDir);
+      config.setIncrementalJobPeriod(bConfigBeen.getIncrementalJobPeriod());
+
       validateRepositoryName(bConfigBeen.getRepositoryName());
       validateWorkspaceName(bConfigBeen.getRepositoryName(), bConfigBeen.getWorkspaceName());
-      validateOneInstants(bConfigBeen.getRepositoryName(), bConfigBeen.getWorkspaceName());
+      validateOneBackupInstants(bConfigBeen.getRepositoryName(), bConfigBeen.getWorkspaceName());
 
       BackupChain backupChain = backupManager.startBackup(config);
       
@@ -300,7 +300,8 @@ public class HTTPBackupAgent implements ResourceContainer {
   @Path("/restore")
   public Response restore(RestoreBean restoreBean) {
     try {
-      String res = "";
+      validateOneRestoreInstants(restoreBean.getRepositoryName(), restoreBean.getWorkspaceName());
+      
       File backupLog = getBackupLogbyId(restoreBean.getBackupId());
       
       // validate backup log file
@@ -322,7 +323,7 @@ public class HTTPBackupAgent implements ResourceContainer {
       restoreJobs.add(jobRestore);
       jobRestore.start();
 
-      res += ("The workspace '" + "/" + restoreBean.getRepositoryName() + "/"
+      String res = ("The workspace '" + "/" + restoreBean.getRepositoryName() + "/"
           + restoreBean.getWorkspaceName() + "' is start restoring from " + backupLog.getAbsolutePath() + ".");
       
       MessageBean messageBean = new MessageBean(res);
@@ -397,14 +398,25 @@ public class HTTPBackupAgent implements ResourceContainer {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/currentBackupsInfo")
   public Response currentBackupsInfo() {
-    List<BackupChainBean> list = new ArrayList<BackupChainBean>();
-    
-    for (BackupChain chain : backupManager.getCurrentBackups())
-      list.add(new BackupChainBean(chain));
-   
-    BackupChainListBean listBeen = new BackupChainListBean(list);
-
-    return Response.ok(listBeen).build();
+    try { 
+      List<BackupChainBean> list = new ArrayList<BackupChainBean>();
+      
+      for (BackupChain chain : backupManager.getCurrentBackups())
+        list.add(new BackupChainBean(chain));
+     
+      BackupChainListBean listBeen = new BackupChainListBean(list);
+  
+      return Response.ok(listBeen).build();
+    } catch (Exception e) {
+      log.error("Can not get information about current backups (in progress)", e);
+      
+      FailureBean failureBean = new FailureBean("Can not get information about current backups (in progress)", e);
+      
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
+    }
   }
   
   /**
@@ -453,25 +465,36 @@ public class HTTPBackupAgent implements ResourceContainer {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/currentRestoresInfo")
   public Response currentRestoresInfo() {
-    List<RestoreChainLogBean> list = new ArrayList<RestoreChainLogBean>();
-    
-    for (JobWorkspaceRestore job : restoreJobs) {
-      BackupConfigBean configBeen = new BackupConfigBean(job.getBackupChainLog().getBackupConfig());
+    try {
+      List<RestoreChainLogBean> list = new ArrayList<RestoreChainLogBean>();
       
-      RestoreChainLogBean been = new RestoreChainLogBean(job.getBackupChainLog(),
-                                                         configBeen,
-                                                         job.getStateRestore(),
-                                                         JCRDateFormat.format(job.getStartTime()),
-                                                         JCRDateFormat.format(job.getEndTime()),
-                                                         job.getRepositoryName(),
-                                                         job.getWorkspaceName(),
-                                                         job.getRestoreException().getMessage());
-      list.add(been);
+      for (JobWorkspaceRestore job : restoreJobs) {
+        BackupConfigBean configBeen = new BackupConfigBean(job.getBackupChainLog().getBackupConfig());
+        
+        RestoreChainLogBean been = new RestoreChainLogBean(job.getBackupChainLog(),
+                                                           configBeen,
+                                                           job.getStateRestore(),
+                                                           JCRDateFormat.format(job.getStartTime()),
+                                                           (job.getEndTime() == null ? "" : JCRDateFormat.format(job.getEndTime())),
+                                                           job.getRepositoryName(),
+                                                           job.getWorkspaceName(),
+                                                           (job.getRestoreException() == null ? "" : job.getRestoreException().getMessage()));
+        list.add(been);
+      }
+  
+      RestoreChainLogListBean listBeen = new RestoreChainLogListBean(list);
+  
+      return Response.ok(listBeen).build();
+    } catch (Exception e) {
+      log.error("Can not get information about current restores", e);
+      
+      FailureBean failureBean = new FailureBean("Can not get information about current restores", e);
+      
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
     }
-    
-    RestoreChainLogListBean listBeen = new RestoreChainLogListBean(list);
-
-    return Response.ok(listBeen).build();
   }
   
   /**
@@ -484,15 +507,26 @@ public class HTTPBackupAgent implements ResourceContainer {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/completedBackupsInfo")
   public Response completedBackupsInfo() {
-    List<ChainLogBean> list = new ArrayList<ChainLogBean>();
-    
-    for (BackupChainLog chainLog : backupManager.getBackupsLogs()) 
-      if(backupManager.findBackup(chainLog.getBackupId()) != null) 
-         list.add(new ChainLogBean(chainLog, new BackupConfigBean(chainLog.getBackupConfig())));
-    
-    ChainLogListBean logsListBeen = new ChainLogListBean(list);
-
-    return Response.ok(logsListBeen).build();
+    try {
+      List<ChainLogBean> list = new ArrayList<ChainLogBean>();
+      
+      for (BackupChainLog chainLog : backupManager.getBackupsLogs()) 
+        if (backupManager.findBackup(chainLog.getBackupId()) == null) 
+           list.add(new ChainLogBean(chainLog, new BackupConfigBean(chainLog.getBackupConfig())));
+      
+      ChainLogListBean logsListBeen = new ChainLogListBean(list);
+  
+      return Response.ok(logsListBeen).build();
+    } catch (Exception e) {
+      log.error("Can not get information about completed (ready to restore) backups", e);
+      
+      FailureBean failureBean = new FailureBean("Can not get information about completed (ready to restore) backups", e);
+      
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
+    }
   }
   
   /**
@@ -505,11 +539,22 @@ public class HTTPBackupAgent implements ResourceContainer {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/backupServiceInfo")
   public Response backupServiceInfo() {
-    BackupServiceInfoBean infoBeen = new BackupServiceInfoBean(backupManager.getFullBackupType(),
-                                                               backupManager.getIncrementalBackupType(),
-                                                               backupManager.getBackupDirectory().getAbsolutePath());
-
-    return Response.ok(infoBeen).build();
+    try {
+      BackupServiceInfoBean infoBeen = new BackupServiceInfoBean(backupManager.getFullBackupType(),
+                                                                 backupManager.getIncrementalBackupType(),
+                                                                 backupManager.getBackupDirectory().getAbsolutePath());
+  
+      return Response.ok(infoBeen).build();
+    } catch (Exception e) {
+      log.error("Can not get information about backup service", e);
+      
+      FailureBean failureBean = new FailureBean("Can not get information about backup service", e);
+      
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity(failureBean)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
+    }
   }
   
   /**
@@ -554,7 +599,7 @@ public class HTTPBackupAgent implements ResourceContainer {
   }
 
   /**
-   * validateOneInstants.
+   * validateOneBackupInstants.
    * 
    * @param repositoryName
    *          the repository name
@@ -563,7 +608,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    * @throws WorkspaceRestoreExeption
    *           will be generated WorkspaceRestoreExeption
    */
-  private void validateOneInstants(String repositoryName, String workspaceName) throws WorkspaceRestoreExeption {
+  private void validateOneBackupInstants(String repositoryName, String workspaceName) throws WorkspaceRestoreExeption {
 
     BackupChain bch = backupManager.findBackup(repositoryName, workspaceName);
 
@@ -571,38 +616,26 @@ public class HTTPBackupAgent implements ResourceContainer {
       throw new WorkspaceRestoreExeption("The backup is already working on workspace '" + "/"
           + repositoryName + "/" + workspaceName + "'");
   }
-
+  
   /**
-   * getState.
+   * validateOneRestoreInstants.
    * 
-   * @param state
-   *          value of state
-   * @return String sate
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @throws WorkspaceRestoreExeption
+   *           will be generated WorkspaceRestoreExeption
    */
-  private String getState(int state) {
-    String st = "";
-    switch (state) {
+  private void validateOneRestoreInstants(String repositoryName, String workspaceName) throws WorkspaceRestoreExeption {
 
-    case BackupJob.FINISHED:
-      st = "finished";
-      break;
-
-    case BackupJob.WORKING:
-      st = "working";
-      break;
-
-    case BackupJob.WAITING:
-      st = "waiting";
-      break;
-
-    case BackupJob.STARTING:
-      st = "starting";
-      break;
-    default:
-      break;
-    }
-
-    return st;
+    for (JobWorkspaceRestore job : restoreJobs) 
+      if (repositoryName.equals(job.getRepositoryName()) 
+          && workspaceName.endsWith(job.getWorkspaceName())) {
+        throw new WorkspaceRestoreExeption("The workspace '" + "/"
+                                           + repositoryName + "/" + workspaceName 
+                                           + "' is already restoring.");
+      }
   }
 
   /**
@@ -628,6 +661,14 @@ public class HTTPBackupAgent implements ResourceContainer {
     return sessionRegistry.closeSessions(workspaceName);
   }
 
+  /**
+   * getBackupLogbyId.
+   *
+   * @param backupId
+   *          String, the backup identifier
+   * @return File
+   *           return backup log file
+   */
   private File getBackupLogbyId(String backupId) {
     FilenameFilter backupLogsFilter = new FilenameFilter() {
 
@@ -639,8 +680,8 @@ public class HTTPBackupAgent implements ResourceContainer {
     File[] files = backupManager.getBackupDirectory().listFiles(backupLogsFilter);
 
     if (files.length != 0)
-      for (File f : files)
-        if (f.getName().contains(backupId))
+      for (File f : files) 
+        if (f.getName().replaceAll(".xml", "").replaceAll("backup-", "").equals(backupId))
           return f;
 
     return null;

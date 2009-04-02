@@ -44,7 +44,7 @@ public class RestoreChainLogListBean {
    * RestoreChainLogListBeen  constructor.
    *
    * @param logsBeen
-   *          Collection<RestoreChainLogBeen>, the list of RestoreChainLogBeen 
+   *          Collection, the list of RestoreChainLogBeen 
    */
   public RestoreChainLogListBean(Collection<RestoreChainLogBean> logsBeen) {
     this.restoresChainLogs = logsBeen;
@@ -53,7 +53,7 @@ public class RestoreChainLogListBean {
   /**
    * getRestoresChainLogs.
    *
-   * @return Collection<RestoreChainLogBeen>
+   * @return Collection
    *           the list of RestoreChainLogBeen          
    */
   public Collection<RestoreChainLogBean> getRestoresChainLogs() {
@@ -64,7 +64,7 @@ public class RestoreChainLogListBean {
    * setChainLogs.
    *
    * @param restroresChainLogs
-   *          Collection<ChainLogBeen>, the list of ChainLogBeen
+   *          Collection, the list of ChainLogBeen
    */
   public void setRestoresChainLogs(Collection<RestoreChainLogBean> restroresChainLogs) {
     this.restoresChainLogs = restroresChainLogs;

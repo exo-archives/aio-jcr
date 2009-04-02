@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.jcr.ValueFormatException;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -38,6 +39,7 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.StartElement;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -103,6 +105,13 @@ public class BackupChainLog {
 
       config = logReader.getBackupConfig();
       jobEntries = logReader.getJobEntryInfoNormalizeList();
+      
+      for (JobEntryInfo info : jobEntries) {
+        if (info.getType() == BackupJob.INCREMENTAL) {
+          config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
+          break;
+        }
+      }
     } catch (FileNotFoundException e) {
       throw new BackupOperationException(e);
     } catch (XMLStreamException e) {
@@ -110,6 +119,8 @@ public class BackupChainLog {
     } catch (FactoryConfigurationError e) {
       throw new BackupOperationException(e);
     } catch (MalformedURLException e) {
+      throw new BackupOperationException(e);
+    } catch (ValueFormatException e) {
       throw new BackupOperationException(e);
     }
   }
@@ -196,7 +207,7 @@ public class BackupChainLog {
       return jobEntriesNormalize;
     }
 
-    public void readLogFile() throws XMLStreamException, MalformedURLException {
+    public void readLogFile() throws XMLStreamException, MalformedURLException, ValueFormatException {
       boolean endDocument = false;
 
       while (!endDocument) {
@@ -221,7 +232,7 @@ public class BackupChainLog {
       }
     }
 
-    private JobEntryInfo readJobEntryInfo() throws XMLStreamException, MalformedURLException {
+    private JobEntryInfo readJobEntryInfo() throws XMLStreamException, MalformedURLException, ValueFormatException {
       JobEntryInfo info = new JobEntryInfo();
 
       boolean endJobEntryInfo = false;
@@ -241,6 +252,9 @@ public class BackupChainLog {
 
           if (name.equals("url"))
             info.setURL(new URL(readContent()));
+          
+          if (name.equals("date"))
+            info.setDate(JCRDateFormat.parse(readContent()));
 
           break;
 
@@ -430,7 +444,7 @@ public class BackupChainLog {
       writer.writeEndElement();
 
       writer.writeStartElement("date");
-      writer.writeCharacters(info.getDate().getTime().toString());
+      writer.writeCharacters(JCRDateFormat.format(info.getDate()));
       writer.writeEndElement();
 
       writer.writeEndElement();

@@ -47,6 +47,7 @@ public class RestoreBean extends BaseBean {
    * RestoreBeen  constructor.
    *
    * @param backupId
+   *          String, the backup identifier
    * @param repositoryName
    *          String, repository name
    * @param workspaceName
@@ -83,10 +84,22 @@ public class RestoreBean extends BaseBean {
     this.backupId = backupId;
   }
 
+  /**
+   * getWorkspaceConfig.
+   *
+   * @return String
+   *           return the workspace configuration
+   */
   public String getWorkspaceConfig() {
     return workspaceConfig;
   }
 
+  /**
+   * setWorkspaceConfig.
+   *
+   * @param workspaceConfig
+   *          String, the workspace configuration
+   */
   public void setWorkspaceConfig(String workspaceConfig) {
     this.workspaceConfig = workspaceConfig;
   }

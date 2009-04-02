@@ -48,6 +48,16 @@ public class BackupServiceInfoBean {
   public BackupServiceInfoBean() {
   }
 
+  /**
+   * BackupServiceInfoBean  constructor.
+   *
+   * @param fullBackupType
+   *          String, the type of full backup
+   * @param incrementalBackupType
+   *          String, the type of incremental backup
+   * @param backupLogDir
+   *          String, the backup folder
+   */
   public BackupServiceInfoBean(String fullBackupType,
                                String incrementalBackupType,
                                String backupLogDir) {

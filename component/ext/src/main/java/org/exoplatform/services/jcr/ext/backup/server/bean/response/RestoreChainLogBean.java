@@ -67,6 +67,26 @@ public class RestoreChainLogBean extends ChainLogBean {
     super();
   }
 
+  /**
+   * RestoreChainLogBean  constructor.
+   *
+   * @param chainLog
+   *          BackupChainLog, the backup chain log
+   * @param backupConfigBean
+   *          BackupConfigBean,  the bean to backup configuration
+   * @param restoreState
+   *          Integer, the state of restore
+   * @param restoreStart
+   *          String, the start time of restore
+   * @param restoreEnd
+   *          String, the end time of restore
+   * @param repositoryName
+   *          String, repository name
+   * @param workspaceName
+   *          String, workspace name
+   * @param failMessage
+   *          String, the failure message 
+   */
   public RestoreChainLogBean(BackupChainLog chainLog,
                              BackupConfigBean backupConfigBean,
                              Integer restoreState,
@@ -84,6 +104,24 @@ public class RestoreChainLogBean extends ChainLogBean {
     this.failMessage = failMessage;
   }
   
+  /**
+   * RestoreChainLogBean  constructor.
+   *
+   * @param chainLog
+   *          BackupChainLog, the backup chain log
+   * @param backupConfigBean
+   *          BackupConfigBean,  the bean to backup configuration
+   * @param restoreState
+   *          Integer, the state of restore
+   * @param restoreStart
+   *          String, the start time of restore
+   * @param restoreEnd
+   *          String, the end time of restore
+   * @param repositoryName
+   *          String, repository name
+   * @param workspaceName
+   *          String, workspace name
+   */
   public RestoreChainLogBean(BackupChainLog chainLog,
                              BackupConfigBean backupConfigBean,
                              Integer restoreState,
@@ -101,50 +139,122 @@ public class RestoreChainLogBean extends ChainLogBean {
          null);
   }
 
+  /**
+   * getRestoreState.
+   *
+   * @return Integer
+   *           return the state of restore
+   */
   public Integer getRestoreState() {
     return restoreState;
   }
 
+  /**
+   * setRestoreState.
+   *
+   * @param restoreState
+   *          Integer,  the state of restore
+   */
   public void setRestoreState(Integer restoreState) {
     this.restoreState = restoreState;
   }
 
+  /**
+   * getRestoreStart.
+   *
+   * @return String
+   *           return the start time of restore
+   */
   public String getRestoreStart() {
     return restoreStart;
   }
 
+  /**
+   * setRestoreStart.
+   *
+   * @param restoreStart
+   *          String, the start time of restore
+   */
   public void setRestoreStart(String restoreStart) {
     this.restoreStart = restoreStart;
   }
 
+  /**
+   * getRestoreEnd.
+   *
+   * @return String
+   *           return the end time of restore 
+   */
   public String getRestoreEnd() {
     return restoreEnd;
   }
 
+  /**
+   * setRestoreEnd.
+   *
+   * @param restoreEnd
+   *          String, the end time of restore
+   */
   public void setRestoreEnd(String restoreEnd) {
     this.restoreEnd = restoreEnd;
   }
 
+  /**
+   * getRepositoryName.
+   *
+   * @return String
+   *           return the repository name
+   */
   public String getRepositoryName() {
     return repositoryName;
   }
 
+  /**
+   * setRepositoryName.
+   *
+   * @param repositoryName
+   *          String, the repository name
+   */
   public void setRepositoryName(String repositoryName) {
     this.repositoryName = repositoryName;
   }
 
+  /**
+   * getWorkspaceName.
+   *
+   * @return String
+   *           return the workspace name
+   */
   public String getWorkspaceName() {
     return workspaceName;
   }
 
+  /**
+   * setWorkspaceName.
+   *
+   * @param workspaceName
+   *          String, the workspace name 
+   */
   public void setWorkspaceName(String workspaceName) {
     this.workspaceName = workspaceName;
   }
 
+  /**
+   * getFailMessage.
+   *
+   * @return String
+   *           return the failure message
+   */
   public String getFailMessage() {
     return failMessage;
   }
 
+  /**
+   * setFailMessage.
+   *
+   * @param failMessage
+   *          String, the failure message
+   */
   public void setFailMessage(String failMessage) {
     this.failMessage = failMessage;
   }

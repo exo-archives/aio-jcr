@@ -84,8 +84,6 @@ public class BackupConfigBean extends BaseBean {
    *          String, path to backup folder
    * @param incrementalJobPeriod
    *          Long, incremental job period
-   * @param incementalJobNumber
-   *          Integer, incremental job number
    */
   public BackupConfigBean(Integer backupType,
                           String repositoryName,

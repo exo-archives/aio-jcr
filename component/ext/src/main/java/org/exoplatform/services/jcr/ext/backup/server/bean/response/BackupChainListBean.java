@@ -54,7 +54,7 @@ public class BackupChainListBean {
   /**
    * getBackupChains.
    *
-   * @return Collection<BackupChainBeen>
+   * @return Collection
    *           return the list of BackupChainBeen.
    */
   public Collection<BackupChainBean> getBackupChains() {
@@ -64,8 +64,8 @@ public class BackupChainListBean {
   /**
    * setBackupChains.
    *
-   * @param Collection<BackupChainBeen>
-   *           the list of BackupChainBeen.
+   * @param backupChains
+   *          Collection, the list of BackupChainBeen.
    */
   public void setBackupChains(Collection<BackupChainBean> backupChains) {
     this.backupChains = backupChains;

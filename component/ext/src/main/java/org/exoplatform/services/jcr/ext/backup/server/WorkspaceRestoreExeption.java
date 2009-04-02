@@ -26,14 +26,34 @@ package org.exoplatform.services.jcr.ext.backup.server;
  */
 public class WorkspaceRestoreExeption extends Exception {
 
+  /**
+   * WorkspaceRestoreExeption  constructor.
+   *
+   * @param message
+   *          String, the exception message
+   */
   public WorkspaceRestoreExeption(String message) {
     super(message);
   }
 
+  /**
+   * WorkspaceRestoreExeption  constructor.
+   *
+   * @param message
+   *          String, the exception message
+   * @param e
+   *          the cause exception 
+   */
   public WorkspaceRestoreExeption(String message, Throwable e) {
     super(message, e);
   }
 
+  /**
+   * WorkspaceRestoreExeption  constructor.
+   *
+   * @param e
+   *          the cause exception
+   */
   public WorkspaceRestoreExeption(Throwable e) {
     super(e.getMessage(), e);
   }

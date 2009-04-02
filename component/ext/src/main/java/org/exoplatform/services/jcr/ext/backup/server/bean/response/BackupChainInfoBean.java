@@ -17,8 +17,6 @@
 package org.exoplatform.services.jcr.ext.backup.server.bean.response;
 
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
-import org.exoplatform.services.jcr.ext.backup.BackupJob;
-import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 
 /**
@@ -42,16 +40,6 @@ public class BackupChainInfoBean extends BackupChainBean {
   private String           backupLog;
 
   /**
-   * The full backup state.
-   */
-  private Integer          fullBackupState;
-
-  /**
-   * The incremental backup state.
-   */
-  private Integer          incrementalBackupState;
-
-  /**
    * BackupChainInfoBeen constructor.
    * 
    */
@@ -71,15 +59,6 @@ public class BackupChainInfoBean extends BackupChainBean {
     super(backupChain);
     this.backupConfigBean = configBeen;
     this.backupLog = backupChain.getLogFilePath();
-    this.fullBackupState = backupChain.getFullBackupState();
-
-    if (backupChain.getBackupConfig().getBackupType() == BackupManager.FULL_BACKUP_ONLY)
-      this.incrementalBackupState = 0;
-    else
-      for (BackupJob job : backupChain.getBackupJobs())
-        if (job.getType() == BackupJob.INCREMENTAL)
-          this.incrementalBackupState = job.getState();
-
   }
 
   /**
@@ -119,46 +98,6 @@ public class BackupChainInfoBean extends BackupChainBean {
    */
   public void setBackupLog(String backupLog) {
     this.backupLog = backupLog;
-  }
-
-  /**
-   * getFullBackupState.
-   *
-   * @return Integer
-   *           return the state of full backup
-   */
-  public Integer getFullBackupState() {
-    return fullBackupState;
-  }
-
-  /**
-   * setFullBackupState.
-   *
-   * @param fullBackupState
-   *          Integer, the state of full backup
-   */
-  public void setFullBackupState(Integer fullBackupState) {
-    this.fullBackupState = fullBackupState;
-  }
-
-  /**
-   * getIncrementalBackupState.
-   *
-   * @return Integer
-   *           return the state of incremental backup
-   */
-  public Integer getIncrementalBackupState() {
-    return incrementalBackupState;
-  }
-
-  /**
-   * setIncrementalBackupState.
-   *
-   * @param incrementalBackupState
-   *          Integer, teh state of incremental backup
-   */
-  public void setIncrementalBackupState(Integer incrementalBackupState) {
-    this.incrementalBackupState = incrementalBackupState;
   }
 
 }

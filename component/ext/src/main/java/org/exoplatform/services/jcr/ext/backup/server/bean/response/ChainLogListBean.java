@@ -44,7 +44,7 @@ public class ChainLogListBean {
    * ChainLogListBeen  constructor.
    *
    * @param logsBeen
-   *          Collection<ChainLogBeen>, the list of ChainLogBeen 
+   *          Collection, the list of ChainLogBeen 
    */
   public ChainLogListBean(Collection<ChainLogBean> logsBeen) {
     this.chainLogs = logsBeen;
@@ -53,7 +53,7 @@ public class ChainLogListBean {
   /**
    * getChainLogs.
    *
-   * @return Collection<ChainLogBeen>
+   * @return Collection
    *           the list of ChainLogBeen          
    */
   public Collection<ChainLogBean> getChainLogs() {
@@ -64,7 +64,7 @@ public class ChainLogListBean {
    * setChainLogs.
    *
    * @param chainLogs
-   *          Collection<ChainLogBeen>, the list of ChainLogBeen
+   *          Collection, the list of ChainLogBeen
    */
   public void setChainLogs(Collection<ChainLogBean> chainLogs) {
     this.chainLogs = chainLogs;
