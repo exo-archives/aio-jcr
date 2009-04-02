@@ -146,6 +146,11 @@ public class HTTPBackupAgent implements ResourceContainer {
     private Constants() {
     }
   }
+  
+  /**
+   * The 24h timeout for JobRestoresCleaner.
+   */
+  private static final int JOB_RESTORES_CLEANER = 24 * 60 * 60 * 1000;
 
   /**
    * The apache logger.
@@ -171,6 +176,11 @@ public class HTTPBackupAgent implements ResourceContainer {
    * The list of restore job.
    */
   private  List<JobWorkspaceRestore>        restoreJobs;
+  
+  /**
+   * The cleaner for restoreJobs.
+   */
+  private final JobRestoresCleaner          jobRestoresCleaner;
 
   /**
    * ReplicationTestService constructor.
@@ -189,6 +199,8 @@ public class HTTPBackupAgent implements ResourceContainer {
     this.backupManager = backupManager;
     this.sessionProviderService = sessionProviderService;
     this.restoreJobs = new ArrayList<JobWorkspaceRestore>();
+    this.jobRestoresCleaner = new JobRestoresCleaner();
+    this.jobRestoresCleaner.start();
 
     log.info("HTTPBackupAgent inited");
   }
@@ -631,7 +643,9 @@ public class HTTPBackupAgent implements ResourceContainer {
 
     for (JobWorkspaceRestore job : restoreJobs) 
       if (repositoryName.equals(job.getRepositoryName()) 
-          && workspaceName.endsWith(job.getWorkspaceName())) {
+          && workspaceName.endsWith(job.getWorkspaceName())
+          && (job.getStateRestore() == JobWorkspaceRestore.RESTORE_INITIALIZED 
+              || job.getStateRestore() == JobWorkspaceRestore.RESTORE_STARTED)) {
         throw new WorkspaceRestoreExeption("The workspace '" + "/"
                                            + repositoryName + "/" + workspaceName 
                                            + "' is already restoring.");
@@ -685,5 +699,35 @@ public class HTTPBackupAgent implements ResourceContainer {
           return f;
 
     return null;
+  }
+  
+  /**
+   * JobRestoresCleaner.
+   *   Will be clean the list of JobWorkspaceRestore.
+   *
+   */
+  private class JobRestoresCleaner extends Thread {
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void run() {
+      while (true) {
+        try {
+          Thread.sleep(JOB_RESTORES_CLEANER);
+          
+          synchronized (restoreJobs) {
+            for (JobWorkspaceRestore job : restoreJobs) 
+              if (job.getStateRestore() == JobWorkspaceRestore.RESTORE_FAIL
+                  || job.getStateRestore() == JobWorkspaceRestore.RESTORE_SUCCESSFUL)
+                restoreJobs.remove(job);
+              
+          }
+          
+        } catch (InterruptedException e) {
+          log.error("The JobRestoresCleaner was interapted", e);
+        }
+      }
+    }
   }
 }

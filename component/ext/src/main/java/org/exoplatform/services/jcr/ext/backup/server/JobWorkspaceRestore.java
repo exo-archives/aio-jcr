@@ -23,6 +23,7 @@ import java.util.Calendar;
 
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -34,6 +35,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupChainLog;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
+import org.exoplatform.services.log.ExoLogger;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
@@ -48,6 +50,11 @@ import org.jibx.runtime.JiBXException;
  * @version $Id: WorkspaceRestore.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class JobWorkspaceRestore extends Thread {
+  
+  /**
+   * The apache logger.
+   */
+  private static Log              log = ExoLogger.getLogger("ext.JobWorkspaceRestore");
 
   /**
    * RESTORE_STARTED. The state of start restore.
@@ -170,6 +177,8 @@ public class JobWorkspaceRestore extends Thread {
     } catch (Throwable t) {
       stateRestore = RESTORE_FAIL;
       restoreException = t;
+      
+      log.error("The restore was fail", t);
     }
   }
 
@@ -195,13 +204,13 @@ public class JobWorkspaceRestore extends Thread {
         backupManager.restore(backupChainLog, reEntry, wsEntry);
       } catch (Throwable t) {
         removeWorkspace(repository, workspaceName);
-        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-            + "' :", t);
+        throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + "/" + repositoryName + "/"
+          + workspaceName + "' :", t);
       } 
 
     } catch (Throwable t) {
-      throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + workspaceName
-          + "' :", t);
+      throw new WorkspaceRestoreExeption("Can not be restored the workspace  '" + "/" + repositoryName + "/"
+          + workspaceName + "' :", t);
     }
   }
 
