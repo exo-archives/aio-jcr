@@ -18,12 +18,15 @@ package org.exoplatform.services.jcr.api.importing;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Random;
 
 import javax.jcr.ImportUUIDBehavior;
+import javax.jcr.NamespaceException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -33,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.util.VersionHistoryImporter;
@@ -451,6 +455,107 @@ public class TestImport extends AbstractImportTest {
     assertFalse(accessManager.hasPermission(((NodeImpl) n1).getACL(),
                                             PermissionType.READ,
                                             new Identity("exo")));
+  }
 
+  /**
+   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * 
+   * @throws Exception
+   */
+  public void _testAcl2Import() throws Exception {
+    // registerNodetypes();
+    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+
+    File tmp = new File("/java/tmp/testPermdocview.xml");
+    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+
+    deserialize(importRoot,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+                new BufferedInputStream(new FileInputStream(tmp)));
+    session.save();
+    Node n1 = importRoot.getNode("rapport_intervention-M6-20080828.doc");
+    // assertTrue(accessManager.hasPermission(((NodeImpl) n1).getACL(),
+    // PermissionType.SET_PROPERTY,
+    // new Identity("*:/platform/administrators")));
+    // assertFalse(accessManager.hasPermission(((NodeImpl) n1).getACL(),
+    // PermissionType.READ,
+    // new Identity("validator:/platform/administrators")));
+  }
+
+  private void registerNodetypes() throws Exception {
+
+    registerNamespace("kfx", "http://www.exoplatform.com/jcr/kfx/1.1/");
+    registerNamespace("dc", "http://purl.org/dc/elements/1.1/");
+
+    // InputStream xml = this.getClass()
+    // .getResourceAsStream(
+    // "/org/exoplatform/services/jcr/usecases/query/ext-nodetypes-config.xml");
+    // repositoryService.getCurrentRepository()
+    // .getNodeTypeManager()
+    // .registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    InputStream xml1 = this.getClass()
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml1, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    InputStream xml2 = this.getClass()
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config-extended.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml2, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    // InputStream xml3 = this.getClass()
+    // .getResourceAsStream(
+    // "/org/exoplatform/services/jcr/usecases/query/nodetypes-ecm.xml");
+    // repositoryService.getCurrentRepository()
+    // .getNodeTypeManager()
+    // .registerNodeTypes(xml3, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    // InputStream xml4 = this.getClass()
+    // .getResourceAsStream(
+    // "/org/exoplatform/services/jcr/usecases/query/business-process-nodetypes.xml"
+    // );
+    // repositoryService.getCurrentRepository()
+    // .getNodeTypeManager()
+    // .registerNodeTypes(xml4, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+  }
+
+  public void registerNamespace(String prefix, String uri) {
+    try {
+      session.getWorkspace().getNamespaceRegistry().getPrefix(uri);
+    } catch (NamespaceException e) {
+      try {
+        session.getWorkspace().getNamespaceRegistry().registerNamespace(prefix, uri);
+      } catch (NamespaceException e1) {
+        throw new RuntimeException(e1);
+      } catch (RepositoryException e1) {
+        throw new RuntimeException(e1);
+      }
+    } catch (RepositoryException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  private ByteArrayInputStream readXmlContent(String fileName) {
+
+    try {
+      InputStream is = TestImport.class.getResourceAsStream(fileName);
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      int r = is.available();
+      byte[] bs = new byte[r];
+      while (r > 0) {
+        r = is.read(bs);
+        if (r > 0) {
+          output.write(bs, 0, r);
+        }
+        r = is.available();
+      }
+      is.close();
+      return new ByteArrayInputStream(output.toByteArray());
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
   }
 }
