@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
@@ -73,7 +74,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
      */
     public void run() {
       try {
-        ChangesFile[] localChanges = storage.getLocalChanges().getChangesFile();
+        ChangesFile[] localChanges = storage.getLocalChanges(true).getChangesFile();
         if (LOG.isDebugEnabled())
           LOG.debug("Local changes : " + localChanges.length);
 
