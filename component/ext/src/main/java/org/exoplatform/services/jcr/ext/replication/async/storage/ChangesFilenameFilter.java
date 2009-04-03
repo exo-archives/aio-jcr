@@ -21,22 +21,36 @@ import java.io.FilenameFilter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesFileNameFilter.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ChangesFilenameFilter implements FilenameFilter {
-  private final static String FILENAME_REGEX = "[0-9]+"; 
-  private final Pattern PATTERN = Pattern.compile(FILENAME_REGEX);
-  
+
+  private final boolean       skipInternal;
+
+  private final static String FILENAME_REGEX               = "[0-9]+";
+
+  private final static String FILENAME_REGEX_WITH_INTERNAL = "[0-9]"
+                                                               + LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG
+                                                               + "?";
+
+  private final Pattern       PATTERN                      = Pattern.compile(FILENAME_REGEX);
+
+  private final Pattern       PATTERN_WITH_INTERNAL        = Pattern.compile(FILENAME_REGEX_WITH_INTERNAL);
+
+  ChangesFilenameFilter(boolean skipInternal) {
+    this.skipInternal = skipInternal;
+  }
+
   public boolean accept(File dir, String name) {
-    Matcher m = PATTERN.matcher(name);
-    if(!m.matches()) return false;
+    Matcher m = skipInternal ? PATTERN.matcher(name) : PATTERN_WITH_INTERNAL.matcher(name);
+    if (!m.matches())
+      return false;
     File file = new File(dir, name);
     return !file.isDirectory();
   }

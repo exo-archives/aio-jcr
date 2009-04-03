@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
@@ -54,11 +55,13 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   protected final Map<Integer, MemberChanges> changes   = new HashMap<Integer, MemberChanges>();
 
   protected final ResourcesHolder             resHolder = new ResourcesHolder();
-  
-  private final FileCleaner fileCleaner;
-  private final int maxBufferSize;
-  private final ReaderSpoolFileHolder holder;
-  
+
+  private final FileCleaner                   fileCleaner;
+
+  private final int                           maxBufferSize;
+
+  private final ReaderSpoolFileHolder         holder;
+
   class MemberChanges {
 
     final Member            member;
@@ -71,7 +74,10 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     }
   }
 
-  public IncomeStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+  public IncomeStorageImpl(String storagePath,
+                           FileCleaner fileCleaner,
+                           int maxBufferSize,
+                           ReaderSpoolFileHolder holder) {
     this.storagePath = storagePath;
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
@@ -127,8 +133,14 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
     List<MemberChangesStorage<ItemState>> result = new ArrayList<MemberChangesStorage<ItemState>>();
     for (Map.Entry<Integer, MemberChanges> entry : changes.entrySet()) {
-      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue().changes, fileCleaner, maxBufferSize, holder),
-                                                     entry.getValue().member, fileCleaner, maxBufferSize, holder));
+      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue().changes,
+                                                                                      fileCleaner,
+                                                                                      maxBufferSize,
+                                                                                      holder),
+                                                     entry.getValue().member,
+                                                     fileCleaner,
+                                                     maxBufferSize,
+                                                     holder));
     }
 
     Collections.sort(result, new Comparator<MemberChangesStorage<ItemState>>() {
@@ -173,7 +185,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         // is
         // member folder;
 
-        File[] files = memberDir.listFiles(new ChangesFilenameFilter());
+        File[] files = memberDir.listFiles(new ChangesFilenameFilter(false));
 
         java.util.Arrays.sort(files, new ChangesFileComparator<File>());
 
@@ -193,8 +205,14 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         if (LOG.isDebugEnabled())
           LOG.debug("The ChangesFiles in IncomeStorage = " + chFiles.size());
 
-        IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles, fileCleaner, maxBufferSize, holder),
-                                                                                      null, fileCleaner, maxBufferSize, holder); // TODO
+        IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles,
+                                                                                                                       fileCleaner,
+                                                                                                                       maxBufferSize,
+                                                                                                                       holder),
+                                                                                      null,
+                                                                                      fileCleaner,
+                                                                                      maxBufferSize,
+                                                                                      holder); // TODO
         // NPE
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {

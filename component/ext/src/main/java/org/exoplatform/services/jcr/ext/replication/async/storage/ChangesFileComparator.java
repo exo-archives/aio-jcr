@@ -31,17 +31,28 @@ public class ChangesFileComparator<F extends File> implements Comparator<F> {
 
   public int compare(F o1, F o2) {
 
-//    long first = Long.parseLong(o1.getName());
-//    long second = Long.parseLong(o2.getName());
-//    if (first < second) {
-//      return -1;
-//    } else if (first == second) {
-//      return 0;
-//    } else {
-//      return 1;
-//    }
-    
-    return (int) (Long.parseLong(o1.getName()) - Long.parseLong(o2.getName())); 
-  }
+    // long first = Long.parseLong(o1.getName());
+    // long second = Long.parseLong(o2.getName());
+    // if (first < second) {
+    // return -1;
+    // } else if (first == second) {
+    // return 0;
+    // } else {
+    // return 1;
+    // }
 
+    String fileName1 = o1.getName().endsWith(LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG)
+        ? o1.getName().substring(0,
+                                 o1.getName().length()
+                                     - LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG.length())
+        : o1.getName();
+
+    String fileName2 = o2.getName().endsWith(LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG)
+        ? o2.getName().substring(0,
+                                 o2.getName().length()
+                                     - LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG.length())
+        : o2.getName();
+
+    return (int) (Long.parseLong(fileName1) - Long.parseLong(fileName2));
+  }
 }

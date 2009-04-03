@@ -177,7 +177,7 @@ public class AsyncReplicationTester extends AsyncReplication {
     dm.removeItemPersistenceListener(sls);
     sls.onStart(null);
 
-    Iterator<ItemState> changes = sls.getLocalChanges().getChanges();
+    Iterator<ItemState> changes = sls.getLocalChanges(false).getChanges();
     ItemState item = changes.next();
     return ItemState.isSame(item, Constants.ROOT_UUID, Constants.ROOT_PATH, ItemState.ADDED);
   }

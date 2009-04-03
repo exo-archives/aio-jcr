@@ -134,11 +134,11 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
     systemDataManager.removeItemPersistenceListener(systemStorage);
     systemStorage.onStart(null);
 
-    assertFalse(systemStorage.getLocalChanges().getChanges().hasNext());
+    assertFalse(systemStorage.getLocalChanges(false).getChanges().hasNext());
     assertEquals(cLog.size(), 2);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < cLog.get(i).getAllStates().size(); j++) {
-        assertTrue(storage.getLocalChanges().hasState(cLog.get(i).getAllStates().get(j)));
+        assertTrue(storage.getLocalChanges(false).hasState(cLog.get(i).getAllStates().get(j)));
       }
     }
   }
@@ -165,11 +165,11 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
     systemDataManager.removeItemPersistenceListener(systemStorage);
     systemStorage.onStart(null);
 
-    assertFalse(systemStorage.getLocalChanges().getChanges().hasNext());
+    assertFalse(systemStorage.getLocalChanges(false).getChanges().hasNext());
     assertEquals(cLog.size(), 1);
     for (int i = 0; i < 1; i++) {
       for (int j = 0; j < cLog.get(i).getAllStates().size(); j++) {
-        assertTrue(storage.getLocalChanges().hasState(cLog.get(i).getAllStates().get(j)));
+        assertTrue(storage.getLocalChanges(false).hasState(cLog.get(i).getAllStates().get(j)));
       }
     }
   }
@@ -190,7 +190,7 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
 
     assertEquals(cLog.size(), 1);
     for (int j = 0; j < cLog.get(0).getAllStates().size(); j++) {
-      assertTrue(systemStorage.getLocalChanges().hasState(cLog.get(0).getAllStates().get(j)));
+      assertTrue(systemStorage.getLocalChanges(false).hasState(cLog.get(0).getAllStates().get(j)));
     }
   }
 

@@ -37,9 +37,10 @@ public interface LocalStorage extends ItemsPersistenceListener {
 
   /**
    * Return Local changes persisted to a <code>ChangesStorage</code>.
+   * @param skipInternal TODO
    * @return ChangesStorage
    */
-  ChangesStorage<ItemState> getLocalChanges() throws IOException;
+  ChangesStorage<ItemState> getLocalChanges(boolean skipInternal) throws IOException;
 
   /**
    * Return list of error messages. Can be 0.

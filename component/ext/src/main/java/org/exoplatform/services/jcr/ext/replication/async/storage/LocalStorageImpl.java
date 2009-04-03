@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
@@ -61,6 +62,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
     LocalEventListener, RemoteEventListener {
+
+  public static final String                                   INTERNAL_CHANGES_FILE_TAG  = "i";
 
   protected static final Log                                   LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
@@ -157,9 +160,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     /**
      * Change all TransientValueData to ReplicableValueData.
      * 
-     * @param log local TransactionChangesLog
+     * @param log
+     *          local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException if error occurs
+     * @throws IOException
+     *           if error occurs
      */
     /*
      * private TransactionChangesLog prepareChangesLog(final
@@ -195,25 +200,28 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     /**
      * Set sessionId if it null for PlainChangesLog.
      * 
-     * @param log local TransactionChangesLog
+     * @param log
+     *          local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException if error occurs
+     * @throws IOException
+     *           if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
 
       final TransactionChangesLog result = new TransactionChangesLog();
-      result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
-      // PlainChangesLogImpl.writeExternal
+      result.setSystemId(log.getSystemId() == null ? EXTERNALIZATION_SYSTEM_ID : log.getSystemId()); // for
+      // PlainChangesLogImpl
+      // .
+      // writeExternal
 
       while (chIt.hasNextLog()) {
         PlainChangesLog plog = chIt.nextLog();
 
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(plog.getAllStates(),
-                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                         : plog.getSessionId(),
-                                              plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(plog.getAllStates(), plog.getSessionId() == null
+            ? EXTERNALIZATION_SESSION_ID
+            : plog.getSessionId(), plog.getEventType()));
       }
       return result;
     }
@@ -221,30 +229,49 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     private void writeLog(TransactionChangesLog itemStates) throws IOException,
                                                            UnknownClassIdException {
 
-      if (currentFile == null) {
-        long id = getNextFileId();
-        currentFile = new File(currentDir, Long.toString(id));
+      if (itemStates.getSystemId() == null
+          || !itemStates.getSystemId()
+                        .equals(Constants.JCR_CORE_RESOTRE_WORKSPACE_INITIALIZER_SYSTEM_ID)) {
+        if (currentFile == null) {
+          long id = getNextFileId();
+          currentFile = new File(currentDir, Long.toString(id));
+          currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
+                                                                   digest));
+        } else if (currentFile.length() > MAX_FILE_SIZE) {
+          // close stream
+          closeCurrentOutput();
 
-        currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                                 digest));
-      } else if (currentFile.length() > MAX_FILE_SIZE) {
-        // close stream
-        closeCurrentOutput();
+          // create new file
+          long id = getNextFileId();
+          currentFile = new File(currentDir, Long.toString(id));
+          if (currentFile.exists()) {
+            LOG.warn("Changes file :" + currentFile.getAbsolutePath()
+                + " already exist and will be rewrited.");
+          }
 
-        // create new file
-        long id = getNextFileId();
-        currentFile = new File(currentDir, Long.toString(id));
-        if (currentFile.exists()) {
-          LOG.warn("Changes file :" + currentFile.getAbsolutePath()
-              + " already exist and will be rewrited.");
+          currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
+                                                                   digest));
         }
 
+        TransactionChangesLogWriter writer = new TransactionChangesLogWriter();
+        writer.write(currentOut, itemStates);
+      } else {
+        if (currentFile != null) {
+          closeCurrentOutput();
+          currentFile = null;
+        }
+
+        long id = getNextFileId();
+        currentFile = new File(currentDir, Long.toString(id) + INTERNAL_CHANGES_FILE_TAG);
         currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
                                                                  digest));
-      }
 
-      TransactionChangesLogWriter writer = new TransactionChangesLogWriter();
-      writer.write(currentOut, itemStates);
+        TransactionChangesLogWriter writer = new TransactionChangesLogWriter();
+        writer.write(currentOut, itemStates);
+
+        closeCurrentOutput();
+        currentFile = null;
+      }
 
       // keep stream opened
     }
@@ -253,14 +280,17 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * LocalStorageImpl constructor.
    * 
-   * @param storagePath - path to store changesLogs files.
-   * @param fileCleaner - FileCleaner used for delete changesLogs and
-   *          TransiendValueData object deserialization.
-   * @param maxBufferSize - int used for internal TransientValueData
+   * @param storagePath
+   *          - path to store changesLogs files.
+   * @param fileCleaner
+   *          - FileCleaner used for delete changesLogs and TransiendValueData object
    *          deserialization.
-   * @throws NoSuchAlgorithmException - message digest instantiating error.
-   * @throws ChecksumNotFoundException - there is no file contains changesLog
-   *           digest.
+   * @param maxBufferSize
+   *          - int used for internal TransientValueData deserialization.
+   * @throws NoSuchAlgorithmException
+   *           - message digest instantiating error.
+   * @throws ChecksumNotFoundException
+   *           - there is no file contains changesLog digest.
    */
   public LocalStorageImpl(String storagePath,
                           FileCleaner fileCleaner,
@@ -289,7 +319,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     // check files
 
-    File[] files = currentDir.listFiles(new ChangesFilenameFilter());
+    File[] files = currentDir.listFiles(new ChangesFilenameFilter(false));
 
     java.util.Arrays.sort(files, new ChangesFileComparator<File>());
 
@@ -310,15 +340,19 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * LocalStorageImpl constructor.
    * 
-   * @param storagePath - path to store changesLogs files.
-   * @param fileCleaner - FileCleaner used for delete changesLogs and
-   *          TransiendValueData object deserialization.
-   * @param maxBufferSize - int used for internal TransientValueData
+   * @param storagePath
+   *          - path to store changesLogs files.
+   * @param fileCleaner
+   *          - FileCleaner used for delete changesLogs and TransiendValueData object
    *          deserialization.
-   * @param versionHolder - VersionHolder.
-   * @throws NoSuchAlgorithmException - message digest instantiating error.
-   * @throws ChecksumNotFoundException - there is no file contains changesLog
-   *           digest.
+   * @param maxBufferSize
+   *          - int used for internal TransientValueData deserialization.
+   * @param versionHolder
+   *          - VersionHolder.
+   * @throws NoSuchAlgorithmException
+   *           - message digest instantiating error.
+   * @throws ChecksumNotFoundException
+   *           - there is no file contains changesLog digest.
    */
   public LocalStorageImpl(String storagePath,
                           FileCleaner fileCleaner,
@@ -333,7 +367,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> getLocalChanges() throws IOException {
+  public ChangesStorage<ItemState> getLocalChanges(boolean skipInternal) throws IOException {
 
     if (isStopped())
       throw new IOException("Local storage already stopped.");
@@ -341,7 +375,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     if (currentDir != null) {
       List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
-      File[] files = currentDir.listFiles(new ChangesFilenameFilter());
+      File[] files = currentDir.listFiles(new ChangesFilenameFilter(skipInternal));
 
       java.util.Arrays.sort(files, new ChangesFileComparator<File>());
 
@@ -360,10 +394,16 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
             din.read(crc);
             din.close();
 
-            chFiles.add(new SimpleChangesFile(curFile,
-                                              crc,
-                                              Long.parseLong(curFile.getName()),
-                                              resHolder));
+            String curFileName = curFile.getName()
+                                        .endsWith(LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG)
+                ? curFile.getName()
+                         .substring(0,
+                                    curFile.getName().length()
+                                        - LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG.length())
+                : curFile.getName();
+
+            chFiles.add(new SimpleChangesFile(curFile, crc, Long.parseLong(curFileName), resHolder));
+
           }
         } catch (NumberFormatException e) {
           throw new IOException(e.getMessage());
@@ -390,9 +430,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Save list changeslogs.
    * 
-   * @param listItemStates The list of changeslogs.
+   * @param listItemStates
+   *          The list of changeslogs.
    */
-  public void saveListItems(List<ItemStateChangesLog> listItemStates) {
+  public void saveStartChanges(List<ItemStateChangesLog> listItemStates) {
     synchronized (this) {
       int curSize = listItemStates.size();
       for (int i = 0; i < curSize; i++) {
@@ -404,7 +445,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Save one changeslog to storage.
    * 
-   * @param itemStates The changeslog to save.
+   * @param itemStates
+   *          The changeslog to save.
    */
   protected void saveItems(ItemStateChangesLog itemStates) {
     if (!(itemStates instanceof SynchronizerChangesLog)) {
@@ -417,9 +459,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         while (cLogs.hasNextLog()) {
           PlainChangesLog cLog = cLogs.nextLog();
           if (cLog instanceof PairChangesLog) {
-            processedPairChangesLog((PairChangesLog) cLog);
+            processedPairChangesLog((PairChangesLog) cLog, tLog.getSystemId());
           } else {
-            changesQueue.add(new TransactionChangesLog(cLog));
+            TransactionChangesLog t = new TransactionChangesLog(cLog);
+            t.setSystemId(tLog.getSystemId());
+
+            changesQueue.add(t);
           }
         }
       }
@@ -435,11 +480,15 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Process PairChangesLog according to implementation.
    * 
-   * @param pcLog The PairChangesLog for process
+   * @param pcLog
+   *          The PairChangesLog for process
    */
-  protected void processedPairChangesLog(PairChangesLog pcLog) {
+  protected void processedPairChangesLog(PairChangesLog pcLog, String systemId) {
     if (versionLogHolder != null) {
-      changesQueue.add(new TransactionChangesLog(versionLogHolder.getPairLog(pcLog.getPairId())));
+      TransactionChangesLog t = new TransactionChangesLog(versionLogHolder.getPairLog(pcLog.getPairId()));
+      t.setSystemId(systemId);
+
+      changesQueue.add(t);
     }
     changesQueue.add(new TransactionChangesLog(pcLog));
   }
@@ -447,7 +496,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath Path of root directory
+   * @param rootPath
+   *          Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -466,7 +516,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -563,7 +614,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       LOG.debug("On START");
 
     // check lastDir for any changes;
-    String[] subfiles = currentDir.list(new ChangesFilenameFilter());
+    String[] subfiles = currentDir.list(new ChangesFilenameFilter(false));
     if (subfiles.length == 0) {
       // write empty log to have at least one file to send/compare
       onSaveItems(new TransactionChangesLog());

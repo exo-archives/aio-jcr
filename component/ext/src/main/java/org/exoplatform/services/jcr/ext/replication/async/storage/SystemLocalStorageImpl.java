@@ -45,7 +45,10 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
    * @throws NoSuchAlgorithmException
    * @throws ChecksumNotFoundException
    */
-  public SystemLocalStorageImpl(String storagePath, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) throws ChecksumNotFoundException,
+  public SystemLocalStorageImpl(String storagePath,
+                                FileCleaner fileCleaner,
+                                int maxBufferSize,
+                                ReaderSpoolFileHolder holder) throws ChecksumNotFoundException,
       NoSuchAlgorithmException {
     super(storagePath, fileCleaner, maxBufferSize, holder);
   }
@@ -60,12 +63,18 @@ public class SystemLocalStorageImpl extends LocalStorageImpl implements VersionL
   /**
    * {@inheritDoc}
    */
-  protected void processedPairChangesLog(PairChangesLog pcLog) {
+  protected void processedPairChangesLog(PairChangesLog pcLog, String systemId) {
     if (pcLogs.get(pcLog.getPairId()) == null) {
       pcLogs.put(pcLog.getPairId(), pcLog);
     } else {
-      changesQueue.add(new TransactionChangesLog(pcLog));
-      changesQueue.add(new TransactionChangesLog(getPairLog(pcLog.getPairId())));
+      TransactionChangesLog t = new TransactionChangesLog(pcLog);
+      t.setSystemId(systemId);
+
+      changesQueue.add(t);
+
+      t = new TransactionChangesLog(getPairLog(pcLog.getPairId()));
+      t.setSystemId(systemId);
+      changesQueue.add(t);
     }
   }
 

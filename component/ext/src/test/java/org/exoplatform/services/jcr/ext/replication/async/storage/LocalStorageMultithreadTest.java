@@ -124,7 +124,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
     Iterator<TransactionChangesLog> it = logs.iterator();
 
-    Iterator<ItemState> ch = storage.getLocalChanges().getChanges();
+    Iterator<ItemState> ch = storage.getLocalChanges(false).getChanges();
    /* int c = 0;
     while (it.hasNext()) {
       TransactionChangesLog tlog = it.next();
@@ -145,7 +145,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     checkLocalStorage(storage);
 
     it = logs.iterator();
-    ch = storage.getLocalChanges().getChanges();
+    ch = storage.getLocalChanges(false).getChanges();
     while (it.hasNext()) {
       TransactionChangesLog tlog = it.next();
 
@@ -219,7 +219,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
   private void checkLocalStorage(LocalStorageImpl storage) throws Exception {
 
     final int size = (threadCount*(subnodesCount*3+2));
-    Iterator<ItemState> it = storage.getLocalChanges().getChanges();
+    Iterator<ItemState> it = storage.getLocalChanges(false).getChanges();
 
     // store it as array
     ItemState[] items = new ItemState[size];

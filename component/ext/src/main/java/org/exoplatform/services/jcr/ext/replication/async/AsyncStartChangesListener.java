@@ -40,7 +40,8 @@ public class AsyncStartChangesListener implements ItemsPersistenceListener {
    * 
    * @param workspaceName
    */
-  public AsyncStartChangesListener(PersistentDataManager dataManager) {
+  public AsyncStartChangesListener(PersistentDataManager dataManager,
+                                   AsyncReplication asyncReplication) {
     this.changes = new ArrayList<ItemStateChangesLog>();
     this.dataManager = dataManager;
     this.dataManager.addItemPersistenceListener(this);

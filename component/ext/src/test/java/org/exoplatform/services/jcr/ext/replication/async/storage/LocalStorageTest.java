@@ -171,7 +171,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     systemDataManager.removeItemPersistenceListener(systemStorage);
     systemStorage.onStart(null);
 
-    assertFalse(systemStorage.getLocalChanges().getChanges().hasNext());
+    assertFalse(systemStorage.getLocalChanges(false).getChanges().hasNext());
   }
 
   /**
@@ -213,7 +213,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     List<TransactionChangesLog> logs = pl.pushChanges();
 
     // create storage
-    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    ChangesStorage<ItemState> ch = storage.getLocalChanges(false);
 
     try {
       assertEquals(logs.get(0).getSize() + logs.get(1).getSize(), ch.size());
@@ -248,7 +248,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     storage.onStart(null);
     assertEquals(0, storage.getErrors().length);
     // read Changes
-    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    ChangesStorage<ItemState> ch = storage.getLocalChanges(false);
     // check current data
     TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
 
@@ -259,7 +259,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     storage.onStart(null);
     // read Changes
     assertEquals(0, storage.getErrors().length);
-    ch = storage.getLocalChanges();
+    ch = storage.getLocalChanges(false);
 
     assertFalse(ch.getChanges().hasNext());
 
@@ -277,7 +277,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
     storage.onStart(null);
 
-    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    ChangesStorage<ItemState> ch = storage.getLocalChanges(false);
 
     assertEquals(0, storage.getErrors().length);
     assertFalse(ch.getChanges().hasNext());
@@ -313,7 +313,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     dataManager.removeItemPersistenceListener(storage);
 
-    ChangesFile[] files = storage.getLocalChanges().getChangesFile();
+    ChangesFile[] files = storage.getLocalChanges(false).getChangesFile();
     assertEquals(1, files.length);
 
     ChangesFile cf = files[0];
@@ -327,7 +327,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     fileAccessor.close();
 
     try {
-      storage.getLocalChanges().size();
+      storage.getLocalChanges(false).size();
       fail();
     } catch (StorageRuntimeException e) {
       // OK.
@@ -358,7 +358,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage.onStart(null);
 
-    this.checkIterator(pl.pushChanges().get(0).getAllStates().iterator(), storage.getLocalChanges()
+    this.checkIterator(pl.pushChanges().get(0).getAllStates().iterator(), storage.getLocalChanges(false)
                                                                                  .getChanges());
 
     dataManager.removeItemPersistenceListener(storage);
