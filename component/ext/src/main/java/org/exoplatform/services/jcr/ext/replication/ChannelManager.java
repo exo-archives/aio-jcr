@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
@@ -97,6 +98,84 @@ public class ChannelManager implements RequestHandler {
    * channelListener. The listener to JChannel when channel-state changed.
    */
   private ChannelListener      channelListener;
+  
+  /**
+   * Packets handler.
+   */
+  private final PacketHandler            packetsHandler;
+
+  class PacketHandler extends Thread {
+
+    /**
+     * Wait lock.
+     */
+    private final Object                              lock  = new Object();
+
+    /**
+     * Packets queue.
+     */
+    private final ConcurrentLinkedQueue<Packet> queue = new ConcurrentLinkedQueue<Packet>();
+    
+    /**
+     * User flag.
+     */
+    private Packet current;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run() {
+      while (true) {
+        try {
+          synchronized (lock) {
+            current = queue.poll();
+            while (current != null) {
+              PacketListener[] pl = packetListeners.toArray(new PacketListener[packetListeners.size()]);
+              for (PacketListener handler : pl)
+                handler.receive(current);
+
+              current = queue.poll();
+            }
+
+            lock.wait();
+          }
+        } catch (InterruptedException e) {
+          log.error("Cannot handle the queue. Wait lock failed " + e, e);
+        } catch (Throwable e) {
+          log.error("Cannot handle the queue now. Error " + e, e);
+          try {
+            sleep(5000);
+          } catch (Throwable e1) {
+            log.error("Sleep error " + e1);
+          }
+        }
+      }
+    }
+
+    /**
+     * Add packet to the queue.
+     * 
+     * @param packet
+     *          AbstractPacket
+     */
+    void add(Packet packet) {
+      queue.add(packet);
+    }
+
+    /**
+     * Run handler if channel is ready.
+     * 
+     */
+    void handle() {
+      
+      if (current == null)
+        synchronized (lock) {
+          lock.notify();
+        }
+    }
+  }
+
 
   /**
    * ChannelManager constructor.
@@ -108,6 +187,8 @@ public class ChannelManager implements RequestHandler {
     this.channelConfig = channelConfig;
     this.channelName = channelName;
     this.packetListeners = new ArrayList<PacketListener>();
+    this.packetsHandler = new PacketHandler();
+    this.packetsHandler.start();
   }
 
   /**
@@ -368,10 +449,16 @@ public class ChannelManager implements RequestHandler {
   public Object handle(Message message) {
     try {
       Packet packet = Packet.getAsPacket(message.getBuffer());
+      packetsHandler.add(packet);
+      
+      if (channel.getView() != null) {
+        packetsHandler.handle();
+      } else
+        log.warn("No members found or channel closed, queue message " + message);
 
-      for (PacketListener handler : packetListeners) {
+      /*for (PacketListener handler : packetListeners) {
         handler.receive(packet);
-      }
+      }*/
 
     } catch (IOException e) {
       log.error("An error in processing packet : ", e);

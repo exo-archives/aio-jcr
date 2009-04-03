@@ -106,8 +106,8 @@ public class ChangesFile implements Comparable<ChangesFile> {
     randomAccessFile.seek(offset);
     randomAccessFile.write(data);
 
-   // System.out.println(" WRITE " + file.getName() + " off=" + offset + " len=" + data.length
-    //    + " c=" + count + " tc=" + totalPacketCount);
+   /*System.out.println(" WRITE " + file.getName() + " off=" + offset + " len=" + data.length
+        + " c=" + count + " tc=" + totalPacketCount);*/
     count++;
     if (isStored()) {
       randomAccessFile.close();
