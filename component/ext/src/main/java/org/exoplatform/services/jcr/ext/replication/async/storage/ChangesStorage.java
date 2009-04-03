@@ -144,19 +144,6 @@ public interface ChangesStorage<T extends ItemState> {
                                                             ClassNotFoundException;
 
   /**
-   * Tell if state presents in storage after specified.
-   * 
-   * @param state
-   *          ItemState
-   * @return boolean
-   * @throws IOException
-   *           if error
-   */
-  public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException,
-                                                                                       ClassCastException,
-                                                                                       ClassNotFoundException;
-
-  /**
    * findState.
    * 
    * merger2

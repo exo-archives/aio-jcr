@@ -315,7 +315,7 @@
       <component-plugin>
         <name>register.listener</name>
         <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.jcr.impl.RegisterListenerPlugin</type>
+        <type>org.exoplatform.services.jcr.impl.RepositoryChangesListenerRegisterPlugin</type>
         <init-params>
           <value-param>
             <name>repository-name</name>

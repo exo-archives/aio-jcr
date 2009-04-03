@@ -117,17 +117,11 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             if (incomeData.isNode()) {
               QPath locNodePath = localData.isNode()
                   ? localData.getQPath()
-                  : local.findNextState(localState,
-                                        localData.getParentIdentifier(),
-                                        localData.getQPath().makeParentPath(),
-                                        ItemState.DELETED).getData().getQPath();
+                  : localData.getQPath().makeParentPath();
 
               QPath nextLocNodePath = localData.isNode()
                   ? nextLocalState.getData().getQPath()
-                  : local.findNextState(localState,
-                                        nextLocalState.getData().getParentIdentifier(),
-                                        nextLocalState.getData().getQPath().makeParentPath(),
-                                        ItemState.RENAMED).getData().getQPath();
+                  : nextLocalState.getData().getQPath().makeParentPath();
 
               if (incomeData.getQPath().isDescendantOf(locNodePath)
                   || locNodePath.isDescendantOf(incomeData.getQPath())
@@ -258,17 +252,11 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             if (incomeData.isNode()) {
               QPath locNodePath = localData.isNode()
                   ? localData.getQPath()
-                  : local.findNextState(localState,
-                                        localData.getParentIdentifier(),
-                                        localData.getQPath().makeParentPath(),
-                                        ItemState.DELETED).getData().getQPath();
+                  : localData.getQPath().makeParentPath();
 
               QPath nextLocNodePath = localData.isNode()
                   ? nextLocalState.getData().getQPath()
-                  : local.findNextState(localState,
-                                        nextLocalState.getData().getParentIdentifier(),
-                                        nextLocalState.getData().getQPath().makeParentPath(),
-                                        ItemState.RENAMED).getData().getQPath();
+                  : nextLocalState.getData().getQPath().makeParentPath();
 
               if (incomeData.getQPath().isDescendantOf(locNodePath)
                   || locNodePath.isDescendantOf(incomeData.getQPath())
