@@ -326,7 +326,7 @@
             <value>ws,ws3,ws4</value>
           </value-param>
           <value-param>
-            <name>listener-class-name</name>
+            <name>component-class-name</name>
             <value>org.exoplatform.services.jcr.ext.replication.async.AsyncStartChangesListener</value>
           </value-param>
         </init-params>

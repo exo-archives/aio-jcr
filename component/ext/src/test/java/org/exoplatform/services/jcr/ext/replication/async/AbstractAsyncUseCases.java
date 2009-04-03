@@ -69,6 +69,10 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
   private SessionImpl           sessionDB5WS;
 
+  private SessionImpl           sessionDB4WS1;
+
+  private SessionImpl           sessionDB5WS1;
+
   private TransactionChangesLog cLog;
 
   public void setUp() throws Exception {
@@ -76,6 +80,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
     sessionDB4WS = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws");
     sessionDB5WS = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws");
+
+    sessionDB4WS1 = (SessionImpl) repositoryService.getRepository("db4").login(credentials, "ws1");
+    sessionDB5WS1 = (SessionImpl) repositoryService.getRepository("db5").login(credentials, "ws1");
 
     WorkspaceContainerFacade wsc = repositoryService.getRepository("db4")
                                                     .getWorkspaceContainer(sessionDB4WS.getWorkspace()
@@ -1276,6 +1283,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
       node.checkout();
       sessionDB5WS.save();
 
+      // saveChanges(cLog, "db4", "ws");
+
       node = sessionHighPriority.getRootNode().getNode("item1");
       node.checkin();
       node.checkout();
@@ -1288,9 +1297,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
     @Override
     public void useCaseLowPriority() throws Exception {
-      Node node = sessionLowPriority.getRootNode().getNode("item1");
-      node.remove();
-      sessionLowPriority.save();
+      // Node node = sessionLowPriority.getRootNode().getNode("item1");
+      // node.remove();
+      // sessionLowPriority.save();
     }
   }
 
