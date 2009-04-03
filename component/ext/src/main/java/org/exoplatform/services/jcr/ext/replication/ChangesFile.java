@@ -94,15 +94,20 @@ public class ChangesFile implements Comparable<ChangesFile> {
    * @param data - byte[].
    * @throws IOException if IO exception occurs.
    */
-  public void write(long offset, byte[] data) throws IOException {
+  public synchronized  void write(long offset, byte[] data) throws IOException {
     if (randomAccessFile == null) {
       randomAccessFile = new RandomAccessFile(file, "rw");
-      randomAccessFile.seek(file.length());
+      if (file.length() != 0) {
+        System.out.println(" ERROR!!!!  ------------------------ file size is" + file.length());
+      }
+      // randomAccessFile.seek(file.length());
     }
 
     randomAccessFile.seek(offset);
     randomAccessFile.write(data);
 
+   // System.out.println(" WRITE " + file.getName() + " off=" + offset + " len=" + data.length
+    //    + " c=" + count + " tc=" + totalPacketCount);
     count++;
     if (isStored()) {
       randomAccessFile.close();
