@@ -26,7 +26,7 @@ import org.exoplatform.container.xml.ValueParam;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: StoreChangesPlugin.java 111 2008-11-11 11:11:11Z $
  */
-public class RegisterListenerPlugin extends BaseComponentPlugin {
+public class RepositoryChangesListenerRegisterPlugin extends BaseComponentPlugin {
 
   private String repositoryName    = null;
 
@@ -39,7 +39,7 @@ public class RegisterListenerPlugin extends BaseComponentPlugin {
    * 
    * @param params
    */
-  public RegisterListenerPlugin(InitParams params) {
+  public RepositoryChangesListenerRegisterPlugin(InitParams params) {
     if (params != null) {
       ValueParam valueParam = params.getValueParam("repository-name");
       if (valueParam != null) {
@@ -51,7 +51,7 @@ public class RegisterListenerPlugin extends BaseComponentPlugin {
         workspaces = valueParam.getValue();
       }
 
-      valueParam = params.getValueParam("listener-class-name");
+      valueParam = params.getValueParam("component-class-name");
       if (valueParam != null) {
         listenerClassName = valueParam.getValue();
       }

@@ -96,8 +96,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       addNodeTypePlugins.add(plugin);
     else if (plugin instanceof AddNamespacesPlugin)
       addNamespacesPlugins.add(plugin);
-    else if (plugin instanceof RegisterListenerPlugin) {
-      managerStartChanges.addPlugin((RegisterListenerPlugin) plugin);
+    else if (plugin instanceof RepositoryChangesListenerRegisterPlugin) {
+      managerStartChanges.addPlugin((RepositoryChangesListenerRegisterPlugin) plugin);
     }
   }
 
@@ -360,7 +360,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
      * @param plugin
      *          The StartChangesPlugin
      */
-    public void addPlugin(RegisterListenerPlugin plugin) {
+    public void addPlugin(RepositoryChangesListenerRegisterPlugin plugin) {
       String repositoryName = plugin.getRepositoryName();
       String workspaces = plugin.getWorkspaces();
       String listenerClassName = plugin.getListenerClassName();
@@ -388,9 +388,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
           WorkspaceContainer wc = repositoryContainer.getWorkspaceContainer(sk.getWorkspaceName());
 
           try {
-            Class<?> containerType = Class.forName(sk.getListenerClassName());
-            wc.registerComponentImplementation(containerType);
-            ItemsPersistenceListener listener = (ItemsPersistenceListener) wc.getComponentInstanceOfType(containerType);
+            Class<?> listenerType = Class.forName(sk.getListenerClassName());
+            wc.registerComponentImplementation(listenerType);
+            ItemsPersistenceListener listener = (ItemsPersistenceListener) wc.getComponentInstanceOfType(listenerType);
             startChangesListeners.put(sk, listener);
           } catch (ClassNotFoundException e) {
             log.error("Can not register listener " + e.getMessage());
