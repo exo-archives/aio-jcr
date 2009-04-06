@@ -84,6 +84,18 @@ public class MixinAnalyzer extends AbstractAnalyzer {
           break;
 
         case ItemState.DELETED:
+          if (localState.isPersisted()) {
+            // DELETE
+            if (localData.isNode()) {
+              if (incomeData.getQPath().equals(localData.getQPath())
+                  || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+              }
+            }
+            break;
+          }
+
           ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE node
@@ -111,16 +123,6 @@ public class MixinAnalyzer extends AbstractAnalyzer {
             break;
           }
 
-          // DELETE
-          if (localData.isNode()) {
-            if (incomeData.getQPath().equals(localData.getQPath())
-                || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-              confilictResolver.add(incomeData.getQPath());
-              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-            }
-          }
-          break;
-
         case ItemState.UPDATED:
           break;
 
@@ -144,6 +146,17 @@ public class MixinAnalyzer extends AbstractAnalyzer {
           break;
 
         case ItemState.DELETED:
+          if (localState.isPersisted()) {
+            // DELETE
+            if (localData.isNode()) {
+              if (incomeData.getQPath().equals(localData.getQPath())
+                  || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+                confilictResolver.add(localData.getQPath());
+              }
+            }
+            break;
+          }
+
           ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE node
@@ -168,15 +181,6 @@ public class MixinAnalyzer extends AbstractAnalyzer {
             }
             break;
           }
-
-          // DELETE
-          if (localData.isNode()) {
-            if (incomeData.getQPath().equals(localData.getQPath())
-                || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-              confilictResolver.add(localData.getQPath());
-            }
-          }
-          break;
 
         case ItemState.RENAMED:
           break;

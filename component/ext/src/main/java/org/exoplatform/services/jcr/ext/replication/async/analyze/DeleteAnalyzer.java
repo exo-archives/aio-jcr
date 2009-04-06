@@ -94,6 +94,32 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           break;
 
         case ItemState.DELETED:
+          if (localState.isPersisted()) {
+            // DELETE
+            if (incomeData.isNode()) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(localData.getQPath())
+                  || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+              }
+            } else {
+              if (localData.isNode()) {
+                if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                    || incomeData.getQPath().equals(localData.getQPath())) {
+                  confilictResolver.add(incomeData.getQPath());
+                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                }
+              } else {
+                if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+                  confilictResolver.add(incomeData.getQPath());
+                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+                }
+              }
+            }
+            break;
+          }
+
           ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE sequences
@@ -145,30 +171,6 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             }
             break;
           }
-
-          // DELETE
-          if (incomeData.isNode()) {
-            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                || incomeData.getQPath().equals(localData.getQPath())
-                || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
-              confilictResolver.add(incomeData.getQPath());
-              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-            }
-          } else {
-            if (localData.isNode()) {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                  || incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-              }
-            } else {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-              }
-            }
-          }
-          break;
 
         case ItemState.UPDATED:
           if (!localData.isNode()) {
@@ -231,6 +233,31 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
           break;
 
         case ItemState.DELETED:
+          if (localState.isPersisted()) {
+            // DELETE
+            if (incomeData.isNode()) {
+              if (localData.isNode()) {
+                if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                    || incomeData.getQPath().equals(localData.getQPath())
+                    || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+                  confilictResolver.add(localData.getQPath());
+                }
+              }
+            } else {
+              if (localData.isNode()) {
+                if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                    || incomeData.getQPath().equals(localData.getQPath())) {
+                  confilictResolver.add(localData.getQPath());
+                }
+              } else {
+                if (incomeData.getQPath().equals(localData.getQPath())) {
+                  confilictResolver.add(localData.getQPath());
+                }
+              }
+            }
+            break;
+          }
+
           ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE sequences
@@ -277,29 +304,6 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             }
             break;
           }
-
-          // DELETE
-          if (incomeData.isNode()) {
-            if (localData.isNode()) {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                  || incomeData.getQPath().equals(localData.getQPath())
-                  || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
-              }
-            }
-          } else {
-            if (localData.isNode()) {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                  || incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
-              }
-            } else {
-              if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(localData.getQPath());
-              }
-            }
-          }
-          break;
 
         case ItemState.UPDATED:
           if (!localData.isNode()) {
