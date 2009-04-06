@@ -29,12 +29,15 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.NullMembershipTypeException;
+import org.exoplatform.services.organization.NullGroupException;
 import org.exoplatform.services.organization.User;
 
 /**
@@ -471,12 +474,12 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     try {
       if (group == null) {
-        throw new OrganizationServiceException("Can not create membership record for user '"
+        throw new NullGroupException("Can not create membership record for user '"
             + user.getUserName() + "' because group not found");
       }
 
       if (m == null) {
-        throw new OrganizationServiceException("Can not create membership record for '"
+        throw new NullMembershipTypeException("Can not create membership record for '"
             + user.getUserName() + "' because membership type not found");
       }
 
