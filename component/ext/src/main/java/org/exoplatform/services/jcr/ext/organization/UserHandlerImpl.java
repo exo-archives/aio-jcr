@@ -352,7 +352,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
         }
       }
 
-      return new LazyPageList(new UserListAccess(types), 10);
+      return new LazyPageList(new JCRUserListAccess(types), 10);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find users", e);
@@ -400,10 +400,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
         users.add(readObjectFromNode(membs.nextNode().getParent()));
       }
-      return new LazyPageList(new UserListAccess(users), 10);
+      return new LazyPageList(new JCRUserListAccess(users), 10);
 
     } catch (PathNotFoundException e) {
-      return new LazyPageList(new UserListAccess(users), 10);
+      return new LazyPageList(new JCRUserListAccess(users), 10);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find users by group '" + groupId + "'", e);
     }
@@ -444,7 +444,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
         types.add(readObjectFromNode(uNodes.nextNode()));
       }
-      return new LazyPageList(new UserListAccess(types), pageSize);
+      return new LazyPageList(new JCRUserListAccess(types), pageSize);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not get user page list", e);

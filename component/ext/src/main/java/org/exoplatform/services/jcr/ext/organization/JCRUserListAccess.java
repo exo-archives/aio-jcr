@@ -27,11 +27,11 @@ import org.exoplatform.services.organization.User;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: MyResourceAccess.java 111 2008-11-11 11:11:11Z $
  */
-public class UserListAccess implements ListAccess<User> {
+public class JCRUserListAccess implements ListAccess<User> {
 
   private final List<User> list;
 
-  UserListAccess(List<User> list) {
+  JCRUserListAccess(List<User> list) {
     this.list = list;
   }
 
