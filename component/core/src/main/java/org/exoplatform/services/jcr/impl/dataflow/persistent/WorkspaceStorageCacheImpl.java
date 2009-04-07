@@ -86,6 +86,9 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   public WorkspaceStorageCacheImpl(CacheService cacheService, WorkspaceEntry wsConfig) throws Exception {
 
     this.name = "jcr." + wsConfig.getUniqueName();
+    
+    log.warn("This cache implementaion (WorkspaceStorageCacheImpl) is deprecated and will be removed in future versions of eXo JCR.");
+    
     this.cache = cacheService.getCacheInstance(name);
 
     CacheEntry cacheConfig = wsConfig.getCache();
