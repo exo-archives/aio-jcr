@@ -16,16 +16,21 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.Calendar;
+
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Workspace;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
+import org.picocontainer.Startable;
+
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
 /**
@@ -36,47 +41,37 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  */
 
 @Path("/async-test/")
-public class AsyncTestAdapter implements ResourceContainer {
+public class AsyncTestAdapter implements Startable, ResourceContainer {
 
   /**
    * Root node for testing.
    */
-  private final static String     ASYNC_ROOT_NODE = "AsyncFolder";
-
-  /**
-   * Working repository name.
-   */
-  private final static String     REPO_NAME       = "repository";
-
-  /**
-   * Working workspace name.
-   */
-  private final static String     WS_NAME         = "production";
+  private final static String ASYNC_ROOT_NODE = "AsyncFolder";
 
   /**
    * Current working session.
    */
-  private final SessionImpl       session;
+  protected SessionImpl       session;
 
   /**
    * Current working workspace.
    */
-  protected Workspace             workspace;
+  protected Workspace         workspace;
 
   /**
    * Current working repository.
    */
-  private final RepositoryImpl    repository;
+  protected RepositoryImpl    repository;
 
   /**
    * Repository service.
    */
-  private final RepositoryService repositoryService;
+  protected RepositoryService repositoryService;
 
   /**
    * Root node.
    */
-  private final Node              root;
+  protected Node              root;
 
   /**
    * AsyncTestAdapter constructor.
@@ -85,16 +80,8 @@ public class AsyncTestAdapter implements ResourceContainer {
    *          The repository service
    * @throws Exception
    */
-  public AsyncTestAdapter(RepositoryService repositoryService) throws Exception {
+  public AsyncTestAdapter(RepositoryService repositoryService, OrganizationService orgService) throws Exception {
     this.repositoryService = repositoryService;
-
-    repository = (RepositoryImpl) repositoryService.getRepository(REPO_NAME);
-
-    CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
-
-    session = (SessionImpl) repository.login(credentials, WS_NAME);
-    workspace = session.getWorkspace();
-    root = session.getRootNode();
   }
 
   /**
@@ -118,6 +105,13 @@ public class AsyncTestAdapter implements ResourceContainer {
   @Path("/addFileA")
   public void addFileA() throws Exception {
     Node node = root.getNode(ASYNC_ROOT_NODE).addNode("fileA", "nt:file");
+    node.addMixin("mix:versionable");
+
+    Node content = node.addNode("jcr:content", "nt:resource");
+    content.addMixin("dc:elementSet");
+    content.setProperty("jcr:mimeType", "text/plain");
+    content.setProperty("jcr:lastModified", Calendar.getInstance());
+
     setValue(node, "version1");
     session.save();
   }
@@ -179,7 +173,7 @@ public class AsyncTestAdapter implements ResourceContainer {
    * @throws Exception
    */
   @GET
-  @Path("/moveFileA")
+  @Path("/moveFileA2Folder1")
   public void moveFileA() throws Exception {
     session.move("/" + ASYNC_ROOT_NODE + "/fileA", "/" + ASYNC_ROOT_NODE + "/folder1/fileA");
     session.save();
@@ -218,6 +212,7 @@ public class AsyncTestAdapter implements ResourceContainer {
   @Path("/clean")
   public void clean() throws Exception {
     root.getNode(ASYNC_ROOT_NODE).remove();
+    session.save();
   }
 
   /**
@@ -249,4 +244,22 @@ public class AsyncTestAdapter implements ResourceContainer {
   private void setValue(Node node, String value) throws Exception {
     node.getNode("jcr:content").setProperty("jcr:data", value);
   }
+
+  public void start() {
+    try {
+      repository = (RepositoryImpl) repositoryService.getDefaultRepository();
+
+      CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
+
+      session = (SessionImpl) repository.login(credentials, repository.getSystemWorkspaceName());
+      workspace = session.getWorkspace();
+      root = session.getRootNode();
+    } catch (Exception e) {
+      throw new RuntimeException("Can not initilize data", e);
+    }
+  }
+
+  public void stop() {
+  }
+
 }
