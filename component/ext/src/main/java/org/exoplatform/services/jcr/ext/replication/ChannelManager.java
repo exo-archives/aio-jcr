@@ -26,6 +26,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.ext.replication.async.ConnectionListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
@@ -248,8 +249,35 @@ public class ChannelManager implements RequestHandler {
    * closeChannel. Close the channel.
    */
   public void closeChannel() {
-    channel.close();
-    channel = null;
+    if (dispatcher != null) {
+      dispatcher.setRequestHandler(null);
+      dispatcher.setMembershipListener(null);
+      dispatcher.stop();
+      dispatcher = null;
+
+      if (log.isDebugEnabled())
+        log.debug("dispatcher stopped");
+        try {
+          Thread.sleep(3000);
+        } catch (InterruptedException e) {
+          log.error("The interapted on disconnect : " + e, e);
+        }
+      }
+
+      if (channel != null) {
+        channel.disconnect();
+
+        if (log.isDebugEnabled())
+          log.debug("channel disconnected");
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException e) {
+          log.error("The interapted on disconnect : " + e, e);
+        }
+
+        channel.close();
+        channel = null;
+      }
   }
 
   /**
@@ -307,10 +335,24 @@ public class ChannelManager implements RequestHandler {
     byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-
+    
     Vector<Address> addr = new Vector<Address>(channel.getView().getMembers());
     addr.remove(channel.getLocalAddress());
     dispatcher.castMessage(addr, msg, GroupRequest.GET_NONE, 0);
+  }
+  
+  /**
+   * sendPacketToAll.
+   * 
+   * @param packet the Packet with content
+   * @throws Exception will be generated Exception
+   */
+  public void sendPacketToAll(Packet packet) throws Exception {
+    byte[] buffer = Packet.getAsByteArray(packet);
+
+    Message msg = new Message(null, null, buffer);
+    
+    dispatcher.castMessage(null, msg, GroupRequest.GET_NONE, 0);
   }
 
   /**
@@ -451,14 +493,10 @@ public class ChannelManager implements RequestHandler {
       Packet packet = Packet.getAsPacket(message.getBuffer());
       packetsHandler.add(packet);
       
-      if (channel.getView() != null) {
+      if (channel != null || channel.getView() != null ) {
         packetsHandler.handle();
       } else
         log.warn("No members found or channel closed, queue message " + message);
-
-      /*for (PacketListener handler : packetListeners) {
-        handler.receive(packet);
-      }*/
 
     } catch (IOException e) {
       log.error("An error in processing packet : ", e);

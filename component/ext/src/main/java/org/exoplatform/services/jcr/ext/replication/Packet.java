@@ -133,19 +133,6 @@ public class Packet implements Externalizable {
     public static final int BINARY_FILE_PACKET                   = 15;
 
     /**
-     * BINARY_FILE_FIRST_PACKET. the pocket type for first packet to binary file
-     */
-    // public static final int BINARY_FILE_FIRST_PACKET = 15;
-    /**
-     * BINARY_FILE_MIDDLE_PACKET. the pocket type for middle packet to binary
-     * file
-     */
-    // public static final int BINARY_FILE_MIDDLE_PACKET = 16;
-    /**
-     * BINARY_FILE_LAST_PACKET. the pocket type for last packet to binary file
-     */
-    // public static final int BINARY_FILE_LAST_PACKET = 17;
-    /**
      * ALL_BINARY_FILE_TRANSFERRED_OK. the pocket type for information of all
      * files was transferred
      */
@@ -207,17 +194,7 @@ public class Packet implements Externalizable {
      * BIG_PACKET_FIRST. the pocket type for first packet to binary Changeslog
      * (using for recovery)
      */
-    // public static final int BIG_PACKET_FIRST = 27;
-    /**
-     * BIG_PACKET_MIDDLE. the pocket type for middle packet to binary Changeslog
-     * (using for recovery)
-     */
-    // public static final int BIG_PACKET_MIDDLE = 28;
-    /**
-     * BIG_PACKET_LAST. the pocket type for last packet to binary Changeslog
-     * (using for recovery)
-     */
-    // public static final int BIG_PACKET_LAST = 29;
+    
     /**
      * GET_ALL_PRIORITY. the pocket type for request to other their priorities
      */
@@ -233,21 +210,6 @@ public class Packet implements Externalizable {
      */
     public static final int BINARY_CHANGESLOG_PACKET             = 32;
 
-    /**
-     * BINARY_CHANGESLOG_FIRST_PACKET. the pocket type for first packet to
-     * binary Changeslog
-     */
-    // public static final int BINARY_CHANGESLOG_FIRST_PACKET = 32;
-    /**
-     * BINARY_CHANGESLOG_MIDDLE_PACKET. the pocket type for middle packet to
-     * binary Changeslog
-     */
-    // public static final int BINARY_CHANGESLOG_MIDDLE_PACKET = 33;
-    /**
-     * BINARY_CHANGESLOG_LAST_PACKET. the pocket type for last packet to binary
-     * Changeslog
-     */
-    // public static final int BINARY_CHANGESLOG_LAST_PACKET = 34;
     /**
      * Private PacketType constructor.
      */

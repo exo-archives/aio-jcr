@@ -113,6 +113,11 @@ public class RecoverySynchronizer {
    * The list of names other participants who was Synchronized successful.
    */
   private List<String>                       successfulSynchronizedList;
+  
+  /**
+   * The flag for local synchronization.
+   */
+  private volatile boolean                   localSynchronization = false;
 
   /**
    * RecoverySynchronizer constructor.
@@ -155,14 +160,18 @@ public class RecoverySynchronizer {
    */
   public void synchronizRepository() {
     try {
-      Packet packet = new Packet(Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE,
-                                 IdGenerator.generate(),
-                                 ownName,
-                                 Calendar.getInstance());
-      channelManager.sendPacket(packet);
+      if (localSynchronization) {
+        log.info("Synchronization init...");
+        Packet packet = new Packet(Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE,
+                                   IdGenerator.generate(),
+                                   ownName,
+                                   Calendar.getInstance());
+        channelManager.sendPacket(packet);
+      } 
     } catch (Exception e) {
       log.error("Synchronization error", e);
     }
+    
   }
 
   /**
@@ -244,6 +253,8 @@ public class RecoverySynchronizer {
                 + fileDescriptorList.size() + "== " + pbf.getNeedTransferCounter());
 
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
+            List<String> failList = new ArrayList<String>();
+            
             for (ChangesFile fileDescriptor : fileDescriptorList) {
               try {
                 TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
@@ -278,13 +289,16 @@ public class RecoverySynchronizer {
                 }
 
               } catch (Exception e) {
+                failList.add(fileDescriptor.getFile().getName());
                 log.error("Can't save to JCR ", e);
               }
             }
 
             // Send file name list
-            List<String> fileNameList = mapPendingBinaryFile.get(packet.getIdentifier())
-                                                            .getFileNameList();
+            List<String> fileNameList = new ArrayList<String>(mapPendingBinaryFile.get(packet.getIdentifier())
+                                                            .getFileNameList());
+            if (failList.size() != 0) 
+              fileNameList.removeAll(failList);
 
             Packet packetFileNameList = new Packet(Packet.PacketType.ALL_CHANGESLOG_SAVED_OK,
                                                    packet.getIdentifier(),
@@ -292,7 +306,7 @@ public class RecoverySynchronizer {
                                                    fileNameList);
             send(packetFileNameList);
 
-            log.info("The " + fileDescriptorList.size() + " changeslogs were received and saved");
+            log.info("The " + fileDescriptorList.size() + " changeslogs were received and " + fileNameList.size() + " saved");
 
           } else if (log.isDebugEnabled()) {
             log.debug("Do not start save : " + fileDescriptorList.size() + " of "
@@ -358,6 +372,8 @@ public class RecoverySynchronizer {
 
       if (successfulSynchronizedList.size() == initedParticipantsClusterList.size()) {
         stat = AbstractWorkspaceDataReceiver.NORMAL_MODE;
+        
+        localSynchronization = false;
       }
       break;
     default:
@@ -381,7 +397,7 @@ public class RecoverySynchronizer {
             + Calendar.getInstance().getTime().toGMTString());
 
       List<String> filePathList = recoveryReader.getFilePathList(timeStamp, ownerName);
-
+      
       Packet needTransferCounter = new Packet(Packet.PacketType.NEED_TRANSFER_COUNTER,
                                               identifier,
                                               ownName);
@@ -430,6 +446,14 @@ public class RecoverySynchronizer {
    */
   public void updateInitedParticipantsClusterList(Collection<? extends String> list) {
     initedParticipantsClusterList = new ArrayList<String>(list);
+  }
+  
+  /**
+   * localSynchronization.
+   *
+   */
+  public void localSynchronization() {
+    localSynchronization = true;
   }
 
   /**

@@ -271,6 +271,11 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     }
 
     if (priorityChecker.isAllOnline()) {
+      if (reconectTtread != null) {
+        reconectTtread.setStop(false);
+        reconectTtread = null;
+      }
+      
       memberRejoin();
       return;
     }
@@ -344,7 +349,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
 
           if (viewSize != null)
             viewAccepted(viewSize);
-
+          
           sleep(VIEW_CHECK * 2);
         } catch (PriorityDucplicatedException e) {
           log.error("The wrong priority :", e);
@@ -394,7 +399,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
 
             curruntOnlin = channelManager.getChannel().getView().size();
           }
-
+          
           if (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline())) {
             channelManager.closeChannel();
 
