@@ -27,6 +27,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
+import javax.naming.InvalidNameException;
 
 import org.apache.commons.logging.Log;
 
@@ -36,8 +37,6 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.NullMembershipTypeException;
-import org.exoplatform.services.organization.NullGroupException;
 import org.exoplatform.services.organization.User;
 
 /**
@@ -474,13 +473,13 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     try {
       if (group == null) {
-        throw new NullGroupException("Can not create membership record for user '"
-            + user.getUserName() + "' because group not found");
+        throw new InvalidNameException("Can not create membership record for " + user.getUserName()
+            + " because group is null");
       }
 
       if (m == null) {
-        throw new NullMembershipTypeException("Can not create membership record for '"
-            + user.getUserName() + "' because membership type not found");
+        throw new InvalidNameException("Can not create membership record for " + user.getUserName()
+            + " because membership type is null");
       }
 
       Membership membership = new MembershipImpl(null,
