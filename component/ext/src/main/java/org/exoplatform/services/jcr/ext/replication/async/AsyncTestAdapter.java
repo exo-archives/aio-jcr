@@ -104,11 +104,12 @@ public class AsyncTestAdapter implements Startable, ResourceContainer {
   @GET
   @Path("/addFileA")
   public void addFileA() throws Exception {
-    Node node = root.getNode(ASYNC_ROOT_NODE).addNode("fileA", "nt:file");
+    Node node = root.getNode(ASYNC_ROOT_NODE).addNode("fileA.txt", "nt:file");
     node.addMixin("mix:versionable");
 
     Node content = node.addNode("jcr:content", "nt:resource");
     content.addMixin("dc:elementSet");
+
     content.setProperty("jcr:mimeType", "text/plain");
     content.setProperty("jcr:lastModified", Calendar.getInstance());
 
@@ -175,7 +176,7 @@ public class AsyncTestAdapter implements Startable, ResourceContainer {
   @GET
   @Path("/moveFileA2Folder1")
   public void moveFileA() throws Exception {
-    session.move("/" + ASYNC_ROOT_NODE + "/fileA", "/" + ASYNC_ROOT_NODE + "/folder1/fileA");
+    session.move("/" + ASYNC_ROOT_NODE + "/fileA.txt", "/" + ASYNC_ROOT_NODE + "/folder1/fileA.txt");
     session.save();
   }
 
@@ -224,9 +225,9 @@ public class AsyncTestAdapter implements Startable, ResourceContainer {
   private Node getFileA() throws Exception {
     Node node;
     try {
-      node = root.getNode(ASYNC_ROOT_NODE).getNode("fileA");
+      node = root.getNode(ASYNC_ROOT_NODE).getNode("fileA.txt");
     } catch (PathNotFoundException e) {
-      node = root.getNode(ASYNC_ROOT_NODE).getNode("folder1").getNode("fileA");
+      node = root.getNode(ASYNC_ROOT_NODE).getNode("folder1").getNode("fileA.txt");
     }
 
     return node;
