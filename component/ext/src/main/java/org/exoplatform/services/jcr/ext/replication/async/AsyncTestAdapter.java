@@ -92,7 +92,7 @@ public class AsyncTestAdapter implements Startable, ResourceContainer {
   @GET
   @Path("/addAsyncFolder")
   public void addAsyncFolder() throws Exception {
-    root.addNode(ASYNC_ROOT_NODE);
+    root.addNode(ASYNC_ROOT_NODE, "nt:folder");
     session.save();
   }
 
