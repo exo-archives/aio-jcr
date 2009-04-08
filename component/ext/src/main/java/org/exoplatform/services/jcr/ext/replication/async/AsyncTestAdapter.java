@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Workspace;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -105,10 +106,24 @@ public class AsyncTestAdapter implements ResourceContainer {
   @Path("/addAsyncFolder")
   public void addAsyncFolder() throws Exception {
     root.addNode(ASYNC_ROOT_NODE);
+    session.save();
   }
 
   /**
-   * Add Folder1.
+   * Add fileA.
+   * 
+   * @throws Exception
+   */
+  @GET
+  @Path("/addFileA")
+  public void addFileA() throws Exception {
+    Node node = root.getNode(ASYNC_ROOT_NODE).addNode("fileA", "nt:file");
+    setValue(node, "version1");
+    session.save();
+  }
+
+  /**
+   * Add folder1.
    * 
    * @throws Exception
    */
@@ -116,39 +131,82 @@ public class AsyncTestAdapter implements ResourceContainer {
   @Path("/addFolder1")
   public void addFolder1() throws Exception {
     root.getNode(ASYNC_ROOT_NODE).addNode("folder1", "nt:folder");
+    session.save();
   }
 
   /**
-   * Add Folder2.
+   * CheckIn/CheckOut fileA.
    * 
    * @throws Exception
    */
   @GET
-  @Path("/addFolder2")
-  public void addFolder2() throws Exception {
-    root.getNode(ASYNC_ROOT_NODE).addNode("folder2", "nt:folder");
+  @Path("/checkinCheckoutFileA")
+  public void checkinCheckoutFileA() throws Exception {
+    Node node = getFileA();
+    node.checkin();
+    node.checkout();
+    setValue(node, "version2");
+    session.save();
   }
 
   /**
-   * Add file1.
+   * Restore fileA.
    * 
    * @throws Exception
    */
   @GET
-  @Path("/addFile1")
-  public void addFile1() throws Exception {
-    root.getNode(ASYNC_ROOT_NODE).getNode("folder1").addNode("file1", "nt:file");
+  @Path("/restoreFileA")
+  public void restoreFileA() throws Exception {
+    getFileA().restore("1", false);
+    session.save();
   }
 
   /**
-   * Add file2.
+   * Delete fileA.
    * 
    * @throws Exception
    */
   @GET
-  @Path("/addFile2")
-  public void addFile2() throws Exception {
-    root.getNode(ASYNC_ROOT_NODE).getNode("folder2").addNode("file2", "nt:file");
+  @Path("/deleteFileA")
+  public void deleteFileA() throws Exception {
+    getFileA().remove();
+    session.save();
+  }
+
+  /**
+   * Move fileA to folder1.
+   * 
+   * @throws Exception
+   */
+  @GET
+  @Path("/moveFileA")
+  public void moveFileA() throws Exception {
+    session.move("/" + ASYNC_ROOT_NODE + "/fileA", "/" + ASYNC_ROOT_NODE + "/folder1/fileA");
+    session.save();
+  }
+
+  /**
+   * Edit fileA.
+   * 
+   * @throws Exception
+   */
+  @GET
+  @Path("/editFileASetValueL")
+  public void editFileASetValueL() throws Exception {
+    setValue(getFileA(), "valueL");
+    session.save();
+  }
+
+  /**
+   * Edit fileA.
+   * 
+   * @throws Exception
+   */
+  @GET
+  @Path("/editFileASetValueH")
+  public void editFileASetValueH() throws Exception {
+    setValue(getFileA(), "valueH");
+    session.save();
   }
 
   /**
@@ -160,5 +218,35 @@ public class AsyncTestAdapter implements ResourceContainer {
   @Path("/clean")
   public void clean() throws Exception {
     root.getNode(ASYNC_ROOT_NODE).remove();
+  }
+
+  /**
+   * GetFileA.
+   * 
+   * @return
+   * @throws Exception
+   */
+  private Node getFileA() throws Exception {
+    Node node;
+    try {
+      node = root.getNode(ASYNC_ROOT_NODE).getNode("fileA");
+    } catch (PathNotFoundException e) {
+      node = root.getNode(ASYNC_ROOT_NODE).getNode("folder1").getNode("fileA");
+    }
+
+    return node;
+  }
+
+  /**
+   * SetValue.
+   * 
+   * @param node
+   *          The node "nt:file"
+   * @param value
+   *          The new value
+   * @throws Exception
+   */
+  private void setValue(Node node, String value) throws Exception {
+    node.getNode("jcr:content").setProperty("jcr:data", value);
   }
 }
