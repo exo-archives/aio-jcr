@@ -24,11 +24,44 @@
     </driver>
   </driverGroup>
 
-  <!-- Accessing the Repository -->
-  <testCase name="LoadFilesAndSynchronizeTest">
+  <!-- testCase name="LoadFilesAndSynchronizeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.LoadFilesAndSynchronizeTest" />
+    <param name="ext.fileSizeInKb" value="100" />
+    <param name="ext.filePerSaveCount" value="10" />
+    <param name="ext.savesCount" value="25" />
     <param name="ext.rootFolder" value="folderFirst" />
     <param name="ext.oponentRootFolder" value="folderSecond" />
+  </testCase-->
+
+  <!--testCase name="ConflictSynchronizeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.ConflictSynchronizeTest" />
+    <param name="ext.fileSizeInKb" value="100" />
+    <param name="ext.filePerSaveCount" value="10" />
+    <param name="ext.savesCount" value="25" />
+  </testCase-->
+  
+  <!--testCase name="ConflictSynchronizeAndDeleteTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.ConflictSynchronizeAndDeleteTest" />
+    <param name="ext.fileSizeInKb" value="1024"/>
+    <param name="ext.filePerSaveCount" value="100" />
+    <param name="ext.savesCount" value="25" />
+    <param name="ext.nodePriority" value="high" />
+  </testCase-->
+  
+  <!--tCase name="ConflictSunchronizeMoveTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.ConflictSunchronizeMoveTest" />
+    <param name="ext.fileSizeInKb" value="100" />
+    <param name="ext.filePerSaveCount" value="10" />
+    <param name="ext.savesCount" value="25" />
+    <param name="ext.rootFolder" value="folderFirst" />
+  </testCase-->
+  
+  <testCase name="ConflictVersionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.ConflictVersionTest" />
+    <param name="ext.fileSizeInKb" value="100"/>
+    <param name="ext.filePerSaveCount" value="10" />
+    <param name="ext.savesCount" value="10" />
+    <param name="ext.nodePriority" value="high" />
   </testCase>
 
 </testSuite>

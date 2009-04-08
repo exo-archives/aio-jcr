@@ -16,17 +16,13 @@
  */
 package org.exoplatform.jcr.benchmark.ext.asyncrep;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
 
-import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 
 import com.sun.japex.TestCase;
@@ -35,19 +31,19 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS. <br/>Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id: LoadFilesAndSynchronizeTest.java 111 2008-11-11 11:11:11Z serg $
+ * @version $Id: ConflictSynchronizeTest.java 111 2008-11-11 11:11:11Z serg $
  */
-public class LoadFilesAndSynchronizeTest extends AsyncTestBase {
+public class ConflictSynchronizeTest extends AsyncTestBase {
 
-  private Node         root;
+  public static String FOLDER_NAME = "conflictFolder";
+
+  public Node          root;
 
   @Override
   public void doPrepare(TestCase tc, AsyncTestContext context) throws Exception {
-
     super.doPrepare(tc, context);
-    String rootFolder = tc.getParam("ext.rootFolder");
     Session s = context.getSession();
-    root = s.getRootNode().addNode(rootFolder);
+    root = s.getRootNode().addNode(FOLDER_NAME);
     s.save();
   }
 
@@ -61,9 +57,9 @@ public class LoadFilesAndSynchronizeTest extends AsyncTestBase {
         Node nodeToAdd = root.addNode("node_" + i + "_" + j, "nt:file");
         Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
         contentNodeOfNodeToAdd.setProperty("jcr:data", new FileInputStream(content));
-        contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "application/pdf");
+        contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "plain/text");
         contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
-    //    System.out.println(nodeToAdd.getName() + " file added");
+        // System.out.println(nodeToAdd.getName() + " file added");
       }
       s.save();
       log.info(i + " log saved");
@@ -71,33 +67,25 @@ public class LoadFilesAndSynchronizeTest extends AsyncTestBase {
 
     AsyncReplication rep = context.getReplicationServer();
     rep.synchronize();
-    log.info("Synchronize started.");
+    log.info("Synchronize ADD started.");
 
     // wait for synchronization end
     while (rep.isActive()) {
       Thread.sleep(3000);
     }
 
-    // check files
-    String opRootName = tc.getParam("ext.oponentRootFolder");
-
-    if (!s.getRootNode().hasNode(opRootName)) {
-      log.info("FAIL: there is no merged opponent folder.");
-    } else {
-      log.info("OK : opponent folder is merged.");
-      Node opRoot = s.getRootNode().getNode(opRootName);
-      if (opRoot.getNodes().getSize() != (sc * fc)) {
-        log.info("FAIL: add files count is not expected. There is "
-            + opRoot.getNodes().getSize() + " but must " + (sc * fc));
-      } else {
-        log.info("OK : opponent files is added.");
-      }
-    }
+    log.info("Synchronization ADD  done.");
   }
 
   @Override
   public void doFinish(TestCase tc, AsyncTestContext context) throws Exception {
-    root.remove();
-    context.getSession().save();
+    Session s = context.getSession();
+    if (s.getRootNode().hasNode(FOLDER_NAME)) {
+      root = s.getRootNode().getNode(FOLDER_NAME);
+      root.remove();
+      s.save();
+    }
+    super.doFinish(tc, context);
   }
+
 }
