@@ -73,10 +73,10 @@
   </dependencyManagement>
 
   <dependencies>
-      <dependency>
-        <groupId>emma</groupId>
-        <artifactId>emma</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>emma</groupId>
+      <artifactId>emma</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

@@ -45,19 +45,15 @@ public class CacheId extends CacheKey {
     if (id.hashCode() == obj.hashCode() && obj instanceof CacheId)
       return id.equals(((CacheId) obj).id);
     return false;
-
-    // return this.id.equals(obj);
   }
 
   @Override
   public int hashCode() {
-
     return this.id.hashCode();
   }
 
   @Override
   public String toString() {
-
     return this.id.toString();
   }
 
