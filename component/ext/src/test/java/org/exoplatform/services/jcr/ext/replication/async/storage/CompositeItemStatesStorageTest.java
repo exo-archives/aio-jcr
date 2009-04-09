@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,10 +27,12 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.async.AbstractAsyncUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
@@ -46,7 +49,11 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
   public void testAdd() throws Exception {
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
+                                                                                         null,
+                                                                                         new ResourcesHolder(),
+                                                                                         fileCleaner,
+                                                                                         maxBufferSize,
+                                                                                         holder);
     cs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
                                                             0,
@@ -82,7 +89,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
     TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
     for (TransactionChangesLog tcl : pl.pushChanges()) {
-      RandomChangesFile cf = new TesterRandomChangesFile(new byte[]{}, 123l);
+      RandomChangesFile cf = new TesterRandomChangesFile(new byte[] {}, 123l);
 
       ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
 
@@ -92,10 +99,17 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
       cfList.add(cf);
     }
 
-    ChangesLogStorage<ItemState> cls = new ChangesLogStorage<ItemState>(cfList, fileCleaner, maxBufferSize, holder);
+    ChangesLogStorage<ItemState> cls = new ChangesLogStorage<ItemState>(cfList,
+                                                                        fileCleaner,
+                                                                        maxBufferSize,
+                                                                        holder);
 
     BufferedItemStatesStorage<ItemState> bs = new BufferedItemStatesStorage<ItemState>(new File("./target"),
-                                                                                       null, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
+                                                                                       null,
+                                                                                       new ResourcesHolder(),
+                                                                                       fileCleaner,
+                                                                                       maxBufferSize,
+                                                                                       holder);
 
     bs.add(ItemState.createAddedState(new TransientNodeData(Constants.JCR_SYSTEM_PATH,
                                                             Constants.SYSTEM_UUID,
@@ -108,7 +122,11 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
     initNodes++;
 
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
+                                                                                         null,
+                                                                                         new ResourcesHolder(),
+                                                                                         fileCleaner,
+                                                                                         maxBufferSize,
+                                                                                         holder);
     cs.addAll(cls);
     cs.addAll(bs);
 
@@ -128,5 +146,28 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
     }
 
     assertEquals(initNodes, resNodes);
+  }
+
+  public void testJavaHeapSpace() throws Exception {
+    NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
+    root.save();
+
+    ItemData d = ((PropertyImpl) root.getNode("testBuf").getProperty("data")).getData();
+    ItemState st = new ItemState(d, ItemState.ADDED, false, d.getQPath());
+
+    CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
+                                                                                         null,
+                                                                                         new ResourcesHolder(),
+                                                                                         fileCleaner,
+                                                                                         maxBufferSize,
+                                                                                         holder);
+
+    try {
+      for (int i = 0; i < 100; i++)
+        cs.add(st);
+    } catch (Exception e) {
+      fail("Exception should not be thrown");
+    }
   }
 }

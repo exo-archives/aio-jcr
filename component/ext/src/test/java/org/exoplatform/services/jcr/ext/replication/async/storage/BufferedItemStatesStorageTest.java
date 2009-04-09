@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,10 +26,12 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
@@ -37,26 +40,26 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: BufferedItemStatesStoragetest.java 111 2008-11-11 11:11:11Z serg $
  */
 public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
 
   File dir;
-  
-  public void setUp()throws Exception{
+
+  public void setUp() throws Exception {
     super.setUp();
     dir = new File("target/testLocalStorage");
     dir.mkdirs();
   }
-  
-  public void tearDown() throws Exception{
+
+  public void tearDown() throws Exception {
     deleteDir(dir);
     super.tearDown();
   }
-  
+
   private void deleteDir(File file) {
     if (file != null) {
       if (file.isDirectory()) {
@@ -68,14 +71,15 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       file.delete();
     }
   }
+
   public void testSimpleAddByteBuf() throws Exception {
-    
+
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
     n.setProperty("firstone", "first");
     root.save();
 
     NodeData d = (NodeData) n.getData();
-    
+
     SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
 
     List<ItemState> expl = new ArrayList<ItemState>();
@@ -88,57 +92,60 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
-    
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
     Iterator<ItemState> it = expl.iterator();
-    while(it.hasNext()){
+    while (it.hasNext()) {
       stor.add(it.next());
     }
-    
-    
-    assertEquals(expl.size(),stor.size());
-    
+
+    assertEquals(expl.size(), stor.size());
+
     this.checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
-    
+
     ChangesFile[] files = stor.getChangesFile();
     assertEquals(1, files.length);
     assertTrue(files[0] instanceof MemoryChangesFile);
     InputStream in = files[0].getInputStream();
     assertNotNull(in);
-    
+
     ObjectReader oin = new ObjectReaderImpl(in);
-    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize, holder);
+    ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
     List<ItemState> res = new ArrayList<ItemState>();
     ItemState itemState = rdr.read(oin);
     res.add(itemState);
-    
+
     itemState = rdr.read(oin);
     res.add(itemState);
-    
+
     itemState = rdr.read(oin);
     res.add(itemState);
-    
-    try{
+
+    try {
       itemState = rdr.read(oin);
       res.add(itemState);
       fail();
-    }catch (EOFException e){
-      //OK
+    } catch (EOFException e) {
+      // OK
     }
-    
+
     checkItemStatesIterator(expl.iterator(), res.iterator(), true, false);
-    
-    
+
   }
-  
+
   public void testSimpleAddFile() throws Exception {
-    
+
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
     n.setProperty("firstone", "first");
     root.save();
 
     NodeData d = (NodeData) n.getData();
-    
+
     SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
 
     List<ItemState> expl = new ArrayList<ItemState>();
@@ -153,24 +160,30 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
 
     File dir = new File("target/testBufferedEdit2");
     dir.mkdirs();
-    
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10),32, new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
-    
+
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   32,
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
     Iterator<ItemState> it = expl.iterator();
-    while(it.hasNext()){
+    while (it.hasNext()) {
       stor.add(it.next());
     }
-    assertEquals(expl.size(),stor.size());
+    assertEquals(expl.size(), stor.size());
     this.checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
   }
-  
+
   public void testWriteReadWrite() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
     n.setProperty("firstone", "first");
     root.save();
 
     NodeData d = (NodeData) n.getData();
-    
+
     SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
 
     List<ItemState> expl = new ArrayList<ItemState>();
@@ -183,29 +196,53 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       expl.add(is);
     }
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir, new Member(null, 10), new ResourcesHolder(), fileCleaner, maxBufferSize, holder);
-    
-    
-    //write
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
+    // write
     stor.add(expl.get(0));
     stor.add(expl.get(1));
-    
+
     List<ItemState> expM = new ArrayList<ItemState>();
     expM.add(expl.get(0));
     expM.add(expl.get(1));
-    
-    
-    assertEquals(expM.size(),stor.size());
-    
-    //read - check
+
+    assertEquals(expM.size(), stor.size());
+
+    // read - check
     checkItemStatesIterator(expM.iterator(), stor.getChanges(), true, false);
-    
-    //write
+
+    // write
     stor.add(expl.get(2));
-    
-    //check
+
+    // check
     checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
   }
-  
-  
+
+  public void testJavaHeapSpace() throws Exception {
+    NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
+    root.save();
+
+    ItemData d = ((PropertyImpl) root.getNode("testBuf").getProperty("data")).getData();
+    ItemState st = new ItemState(d, ItemState.ADDED, false, d.getQPath());
+
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
+    try {
+      for (int i = 0; i < 100; i++)
+        stor.add(st);
+    } catch (Exception e) {
+      fail("Exception should not be thrown");
+    }
+  }
 }
