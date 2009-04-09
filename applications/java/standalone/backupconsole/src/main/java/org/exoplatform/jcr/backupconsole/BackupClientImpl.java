@@ -27,7 +27,6 @@ import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.server.HTTPBackupAgent;
 import org.exoplatform.services.jcr.ext.backup.server.JobWorkspaceRestore;
-import org.exoplatform.services.jcr.ext.backup.server.bean.BackupBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.DropWorkspaceBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.RestoreBean;
@@ -110,7 +109,7 @@ public class BackupClientImpl implements BackupClient {
       throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
     }
         
-    BackupAgentResponse response  = transport.execute(sURL, json.toString());
+    BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       BackupChainBean chainBean;
@@ -154,7 +153,7 @@ public class BackupClientImpl implements BackupClient {
       throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
     }
         
-    BackupAgentResponse response  = transport.execute(sURL, json.toString());
+    BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       BackupChainBean chainBean;
@@ -181,19 +180,9 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String status(String backupId) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUP_INFO;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUP_INFO + "/" + backupId;
 
-    BackupBean bean = new BackupBean(backupId);
-    JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
-    JsonValue json;
-    
-    try {
-      json = generatorImpl.createJsonObject(bean);
-    } catch (JsonException e) {
-      throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
-    }
-        
-    BackupAgentResponse response  = transport.execute(sURL, json.toString());
+    BackupAgentResponse response  = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       BackupChainInfoBean infoBeen;
@@ -226,19 +215,9 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String stop(String backupId) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.STOP_BACKUP;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.STOP_BACKUP + "/" + backupId;
 
-    BackupBean bean = new BackupBean(backupId);
-    JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
-    JsonValue json;
-    
-    try {
-      json = generatorImpl.createJsonObject(bean);
-    } catch (JsonException e) {
-      throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
-    }
-        
-    BackupAgentResponse response  = transport.execute(sURL, json.toString());
+    BackupAgentResponse response  = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       MessageBean message;
@@ -284,7 +263,7 @@ public class BackupClientImpl implements BackupClient {
       throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
     }
         
-    BackupAgentResponse response  = transport.execute(sURL, json.toString());
+    BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       MessageBean message;
@@ -318,8 +297,8 @@ public class BackupClientImpl implements BackupClient {
     } catch (JsonException e) {
       throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
     }
-        
-    BackupAgentResponse response  = transport.execute(sURL, json.toString());
+    
+    BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       MessageBean message;
@@ -340,7 +319,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String info() throws IOException, BackupExecuteException {
     String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO;
-    BackupAgentResponse response = transport.execute(sURL, null);
+    BackupAgentResponse response = transport.executePOST(sURL, null);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       BackupServiceInfoBean info;
@@ -366,7 +345,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String list() throws IOException, BackupExecuteException {
     String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO;
-    BackupAgentResponse response = transport.execute(sURL, null);
+    BackupAgentResponse response = transport.executePOST(sURL, null);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       BackupChainListBean listBeen;
@@ -406,7 +385,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String listCompleted() throws IOException, BackupExecuteException {
     String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO;
-    BackupAgentResponse response = transport.execute(sURL, null);
+    BackupAgentResponse response = transport.executePOST(sURL, null);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       ChainLogListBean listBeen;
@@ -449,7 +428,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String restores() throws IOException, BackupExecuteException {
     String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORES_INFO;
-    BackupAgentResponse response = transport.execute(sURL, null);
+    BackupAgentResponse response = transport.executePOST(sURL, null);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       RestoreChainLogListBean listBeen;

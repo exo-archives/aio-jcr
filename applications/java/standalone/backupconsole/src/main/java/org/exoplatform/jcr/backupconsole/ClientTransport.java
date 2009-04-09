@@ -37,5 +37,15 @@ public interface ClientTransport {
    * @throws IOException any transport exception.
    * @throws BackupExecuteException other internal exception.
    */
-  BackupAgentResponse execute(String sURL, String postData) throws IOException, BackupExecuteException;
+  BackupAgentResponse executePOST(String sURL, String postData) throws IOException, BackupExecuteException;
+  
+  /**
+   * Execute assigned sURL using current transport and return result as byte array.
+   * 
+   * @param sURL String form of URL to execute, GET method.
+   * @return BackupAgentResponce result.
+   * @throws IOException any transport exception.
+   * @throws BackupExecuteException other internal exception.
+   */
+  BackupAgentResponse executeGET(String sURL) throws IOException, BackupExecuteException;
 }

@@ -107,7 +107,7 @@ public class ClientTransportImpl implements ClientTransport {
   /**
    * {@inheritDoc}
    */
-  public BackupAgentResponse execute(String sURL, String postData) throws IOException, BackupExecuteException {
+  public BackupAgentResponse executePOST(String sURL, String postData) throws IOException, BackupExecuteException {
     try {
       // execute the POST
       String complURL = protocol + "://" + host + sURL;
@@ -122,7 +122,8 @@ public class ClientTransportImpl implements ClientTransport {
       if (postData == null) {
         resp = connection.Post(url.getFile());  
         
-        if (resp.getStatusCode() != Response.Status.OK.getStatusCode())
+        if (resp.getStatusCode() != Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() &&
+            resp.getStatusCode() != Response.Status.OK.getStatusCode())
           throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
       } else {
         NVPair[] pairs = new NVPair[2];
@@ -135,6 +136,35 @@ public class ClientTransportImpl implements ClientTransport {
             resp.getStatusCode() != Response.Status.OK.getStatusCode()) 
           throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
       }
+
+      BackupAgentResponse responce = new BackupAgentResponse(resp.getData(), resp.getStatusCode());
+      return responce;
+    } catch (ModuleException e) {
+      throw new BackupExecuteException(e.getMessage(), e);
+    } 
+    
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public BackupAgentResponse executeGET(String sURL) throws IOException, BackupExecuteException {
+    try {
+      // execute the POST
+      String complURL = protocol + "://" + host + sURL;
+
+      URL url = new URL(complURL);
+      HTTPConnection connection = new HTTPConnection(url);
+      connection.removeModule(CookieModule.class);
+
+      connection.addBasicAuthorization(getRealm(complURL), login, password);
+
+      HTTPResponse resp = connection.Get(url.getFile());  
+        
+        if (resp.getStatusCode() != Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() &&
+            resp.getStatusCode() != Response.Status.OK.getStatusCode())
+          throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
+
 
       BackupAgentResponse responce = new BackupAgentResponse(resp.getData(), resp.getStatusCode());
       return responce;
