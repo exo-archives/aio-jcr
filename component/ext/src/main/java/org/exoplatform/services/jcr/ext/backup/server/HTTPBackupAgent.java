@@ -27,8 +27,10 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -364,24 +366,23 @@ public class HTTPBackupAgent implements ResourceContainer {
    *          BackupBeen, the configuration for stop backup 
    * @return Response return the response
    */
-  @POST
+  @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Path("/stopBackup")
-  public Response stopBackup(BackupBean backupBean) {
+  @Path("/stopBackup/{backupId}")
+  public Response stopBackup(@PathParam("backupId")  String backupId) {
 
     try {
       String result = "";
       
-      BackupChain bch = backupManager.findBackup(backupBean.getBackupId());
+      BackupChain bch = backupManager.findBackup(backupId);
 
       if (bch != null) {
         backupManager.stopBackup(bch);
-        result += "The backup with id '" + backupBean.getBackupId()
+        result += "The backup with id '" + backupId
             + "' was stoped for workspace '" + "/" + bch.getBackupConfig().getRepository() + "/"
             + bch.getBackupConfig().getWorkspace() + "'";
       } else
-        throw new RuntimeException("No active backup with id '" + backupBean.getBackupId() + "'");
+        throw new RuntimeException("No active backup with id '" + backupId + "'");
 
       MessageBean messageBean = new MessageBean(result);
       
@@ -438,25 +439,24 @@ public class HTTPBackupAgent implements ResourceContainer {
    *          BackupBeen, the parameters for command currentBackupInfo 
    * @return return the response
    */
-  @POST
+  @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Path("/currentBackupInfo")
-  public Response currentBackupInfo(BackupBean backupBean) {
+  @Path("/currentBackupInfo/{backupId}")
+  public Response currentBackupInfo(@PathParam("backupId")  String backupId) {
     try {
-      BackupChain backupChain = backupManager.findBackup(backupBean.getBackupId());
+      BackupChain backupChain = backupManager.findBackup(backupId);
       
       if (backupChain == null) 
-        throw new RuntimeException("No active backup with id '" + backupBean.getBackupId() + "'");
+        throw new RuntimeException("No active backup with id '" + backupId + "'");
       
       BackupChainInfoBean chainInfoBeen = new BackupChainInfoBean(backupChain,
                                                                   new BackupConfigBean(backupChain.getBackupConfig()));
     
       return Response.ok(chainInfoBeen).build();
     } catch (Exception e) {
-      log.error("Can not get detailed info for backup with id '" + backupBean.getBackupId() + "'", e);
+      log.error("Can not get detailed info for backup with id '" + backupId + "'", e);
       
-      FailureBean failureBean = new FailureBean("Can not get detailed info for backup with id '" + backupBean.getBackupId() + "'", e);
+      FailureBean failureBean = new FailureBean("Can not get detailed info for backup with id '" + backupId + "'", e);
       
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                      .entity(failureBean)
