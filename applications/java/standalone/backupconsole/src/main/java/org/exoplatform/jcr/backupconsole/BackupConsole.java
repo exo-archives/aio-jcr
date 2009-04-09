@@ -77,7 +77,7 @@ public class BackupConsole {
                                                       + " drop           - delete the workspace \n"
                                                       + " help           - print help information about backup console \n\n"
                                                       
-                                                      + " <repo/ws>           - /<reponsitory-name>/<workspace-name>  the wprkspace \n"
+                                                      + " <repo/ws>           - /<reponsitory-name>/<workspace-name>  the workspace \n"
                                                       + " <backup_dir>        - path to folder for backup on remote server \n"
                                                       + " <backup_id>         - the identifier for backup \n"
                                                       + " <incr>              - incemental job period \n"
