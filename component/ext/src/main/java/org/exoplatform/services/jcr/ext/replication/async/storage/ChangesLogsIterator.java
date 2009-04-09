@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
@@ -42,40 +43,40 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
 
-  private static final Log            LOG = ExoLogger.getLogger("ext.ChangesLogsIterator");
-  
+  private static final Log            LOG               = ExoLogger.getLogger("ext.ChangesLogsIterator");
+
   /**
    * ChangesFiles to iterate.
    */
-  private final List<ChangesFile> list;
+  private final List<ChangesFile>     list;
 
   /**
    * Current file index in list.
    */
-  private int                     curFileIndex      = 0;
+  private int                         curFileIndex      = 0;
 
   /**
    * InputStream from current file.
    */
-  private ObjectReader            currentIn         = null;
+  private ObjectReader                currentIn         = null;
 
   /**
    * Current ChangesLog.
    */
-  private L                       currentChangesLog = null;
+  private L                           currentChangesLog = null;
 
   /**
    * FileCleaner used for read TransientValueData.
    */
-  private final FileCleaner fileCleaner;
-  
+  private final FileCleaner           fileCleaner;
+
   /**
    * MaxBufferSize used for read TransientValueData.
    */
-  private final int maxBufferSize;
-  
+  private final int                   maxBufferSize;
+
   private final ReaderSpoolFileHolder holder;
-  
+
   /**
    * Constructor. Changes file may contain many ChangesLogs.
    * 
@@ -84,12 +85,16 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  public ChangesLogsIterator(List<ChangesFile> list, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) throws IOException, ClassNotFoundException {
+  public ChangesLogsIterator(List<ChangesFile> list,
+                             FileCleaner fileCleaner,
+                             int maxBufferSize,
+                             ReaderSpoolFileHolder holder) throws IOException,
+      ClassNotFoundException {
     this.list = list;
-    this.currentChangesLog = readNextChangesLog();
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
     this.holder = holder;
+    this.currentChangesLog = readNextChangesLog();
   }
 
   public boolean hasNext() {
@@ -141,7 +146,9 @@ public class ChangesLogsIterator<L extends TransactionChangesLog> implements Ite
         currentIn = new ObjectReaderImpl(list.get(curFileIndex++).getInputStream());
 
       try {
-        TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize ,holder);
+        TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner,
+                                                                          maxBufferSize,
+                                                                          holder);
         return (L) rdr.read(currentIn);
       } catch (EOFException e) {
         currentIn.close();
