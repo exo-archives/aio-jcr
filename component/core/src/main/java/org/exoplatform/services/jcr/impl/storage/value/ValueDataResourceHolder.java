@@ -37,23 +37,50 @@ import org.exoplatform.services.jcr.impl.storage.value.fs.operations.ValueLockSu
  */
 public class ValueDataResourceHolder {
 
+  /**
+   * Resources map.
+   */
   protected final Map<Object, VDResource> resources = new ConcurrentHashMap<Object, VDResource>();
 
+  /**
+   * ValueData resource holder.
+   *
+   */
   class VDResource {
+    /**
+     * User Thread.
+     */
     final Thread           user;
 
+    /**
+     * Per-JVM lock.
+     */
     final Object           lock;
 
-    final ValueLockSupport lockHolder;
+    /**
+     * Lock support.
+     */
+    final ValueLockSupport lockSupport;
 
+    /**
+     * Same user locks count.
+     */
     int                    userLocks = 0;
 
-    VDResource(Thread user, Object lock, ValueLockSupport lockHolder) throws IOException {
+    /**
+     * VDResource  constructor.
+     *
+     * @param user Thread
+     * @param lock Object
+     * @param lockSupport ValueLockSupport
+     * @throws IOException if lock error occurs
+     */
+    VDResource(Thread user, Object lock, ValueLockSupport lockSupport) throws IOException {
       this.user = user;
       this.lock = lock;
-      this.lockHolder = lockHolder;
+      this.lockSupport = lockSupport;
 
-      lockHolder.lock();
+      lockSupport.lock();
 
       userLocks = 1;
     }
@@ -65,15 +92,15 @@ public class ValueDataResourceHolder {
      * 
      * @param user
      *          Thread
-     * @param lockHolder
+     * @param lockSupport
      *          ValueLockSupport
      * @return boolean, true if the resource reaquired by the same user
      * @throws IOException
      *           if share is not supported
      */
-    boolean addUserLock(Thread user, ValueLockSupport lockHolder) throws IOException {
+    boolean addUserLock(Thread user, ValueLockSupport lockSupport) throws IOException {
       if (this.user.equals(user)) {
-        lockHolder.share(this.lockHolder);
+        lockSupport.share(this.lockSupport);
         userLocks++;
         return true;
       }
@@ -150,7 +177,7 @@ public class ValueDataResourceHolder {
       if (res.removeUserLock(myThread)) {
         synchronized (res.lock) {
           // unlock holder
-          res.lockHolder.unlock();
+          res.lockSupport.unlock();
 
           // locked by this thread (by me)
           // ...Wakes up a single thread that is waiting on this object's monitor

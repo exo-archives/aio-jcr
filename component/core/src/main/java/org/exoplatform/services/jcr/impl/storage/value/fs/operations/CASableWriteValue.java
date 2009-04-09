@@ -41,18 +41,39 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 public class CASableWriteValue extends WriteValue {
 
+  /**
+   * CAS manager.
+   */
   protected final ValueContentAddressStorage vcas;
 
+  /**
+   * CAS I/O support.
+   */
   protected final CASableIOSupport           cas;
 
+  /**
+   * Affected Property Id.
+   */
   protected final String                     propertyId;
 
+  /**
+   * Value order number.
+   */
   protected final int                        orderNumb;
 
+  /**
+   * Temp file.
+   */
   protected File                             tempFile;
 
+  /**
+   * CAS file.
+   */
   protected File                             vcasFile;
 
+  /**
+   * Value CAS hash.
+   */
   protected String                           vcasHash;
 
   /**
@@ -60,12 +81,18 @@ public class CASableWriteValue extends WriteValue {
    * 
    * @param value
    *          ValueData to be saved
-   * @param rootDir
-   *          storage root directory
    * @param resources
    *          ValueDataResourceHolder
    * @param cleaner
    *          FileCleaner
+   * @param tempDir
+   *          File
+   * @param propertyId
+   *          Affected Property Id.
+   * @param vcas
+   *          ValueContentAddressStorage
+   * @param cas
+   *          CASableIOSupport
    */
   public CASableWriteValue(ValueData value,
                            ValueDataResourceHolder resources,
@@ -87,9 +114,6 @@ public class CASableWriteValue extends WriteValue {
    */
   @Override
   public void execute() throws IOException {
-
-    // TODO do it in commit
-
     makePerformed();
 
     // write calc digest hash
@@ -114,7 +138,7 @@ public class CASableWriteValue extends WriteValue {
 
     // lock CAS file location
     fileLock = new ValueFileLock(vcasFile);
-    boolean alreadyLockedByThisThread = !fileLock.lock();
+    fileLock.lock();
 
     // TODO cleanup
     // If same hash-named file exists (vcasFile) or modified in this commit (locked by this Thread),

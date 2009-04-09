@@ -28,10 +28,26 @@ import java.io.IOException;
  */
 public interface ValueLockSupport {
 
+  /**
+   * Perform lock.
+   *
+   * @throws IOException if error occurs
+   */
   void lock() throws IOException;
   
+  /**
+   * Perform unlock.
+   *
+   * @throws IOException  if error occurs
+   */
   void unlock() throws IOException;
   
+  /**
+   * Share this lock resource with another lock.
+   *
+   * @param anotherLock ValueLockSupport
+   * @throws IOException if error occurs
+   */
   void share(ValueLockSupport anotherLock) throws IOException;
   
 }

@@ -36,6 +36,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
 /**
+ * Single database connection implementation.
+ * 
  * Created by The eXo Platform SAS. </br>
  * 
  * Concrete JDBC based data container that uses "table-set per Workspace policy" i.e each JCR
@@ -47,29 +49,14 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
 public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
-  /**
-   * findItemById.
-   */
   protected PreparedStatement findItemById;
 
-  /**
-   * findItemByPath.
-   */
   protected PreparedStatement findItemByPath;
 
-  /**
-   * findItemByName.
-   */
   protected PreparedStatement findItemByName;
 
-  /**
-   * findChildPropertyByPath.
-   */
   protected PreparedStatement findChildPropertyByPath;
 
-  /**
-   * findPropertyByName.
-   */
   protected PreparedStatement findPropertyByName;
 
   protected PreparedStatement findDescendantNodes;
@@ -103,7 +90,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement updateNode;
 
   protected PreparedStatement updateProperty;
-  
+
   protected PreparedStatement updateValue;
 
   protected PreparedStatement deleteItem;
@@ -265,9 +252,6 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return insertProperty.executeUpdate();
   }
 
-  /**
-   * For REFERENCE properties only
-   */
   /**
    * {@inheritDoc}
    */
@@ -490,10 +474,10 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
    * {@inheritDoc}
    */
   protected int updateValueData(String cid,
-                             int orderNumber,
-                             InputStream stream,
-                             int streamLength,
-                             String storageDesc) throws SQLException {
+                                int orderNumber,
+                                InputStream stream,
+                                int streamLength,
+                                String storageDesc) throws SQLException {
 
     if (updateValue == null)
       updateValue = dbConnection.prepareStatement(UPDATE_VALUE);
@@ -512,8 +496,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     updateValue.setString(2, cid);
     updateValue.setInt(3, orderNumber);
     return updateValue.executeUpdate();
-  }  
-  
+  }
+
   /**
    * {@inheritDoc}
    */

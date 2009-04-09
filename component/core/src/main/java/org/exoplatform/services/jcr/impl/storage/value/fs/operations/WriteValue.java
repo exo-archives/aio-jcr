@@ -35,14 +35,30 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 public class WriteValue extends ValueFileOperation {
 
+  /**
+   * Affected file.
+   */
   protected final File      file;
 
+  /**
+   * Value to save.
+   */
   protected final ValueData value;
 
+  /**
+   * File lock.
+   */
   protected ValueFileLock   fileLock;
 
-  protected boolean         update = false;
-
+  /**
+   * WriteValue  constructor.
+   *
+   * @param file File
+   * @param value  ValueData
+   * @param resources ValueDataResourceHolder
+   * @param cleaner FileCleaner
+   * @param tempDir File
+   */ 
   public WriteValue(File file,
                     ValueData value,
                     ValueDataResourceHolder resources,
@@ -62,10 +78,11 @@ public class WriteValue extends ValueFileOperation {
 
     fileLock = new ValueFileLock(file);
     fileLock.lock();
-
-    update = file.exists();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void rollback() throws IOException {
     if (fileLock != null)
       fileLock.unlock();

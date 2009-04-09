@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.naming.InitialContext;
@@ -53,53 +52,62 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * JDBC DataSource name for lookup in JNDI.
    */
-  public static final String JDBC_SOURCE_NAME_PARAM             = "jdbc-source-name";
+  public static final String   JDBC_SOURCE_NAME_PARAM             = "jdbc-source-name";
 
   /**
-   * JDBC dialect to work with DataSource
+   * JDBC dialect to work with DataSource.
    */
-  public static final String JDBC_DIALECT_PARAM                 = "jdbc-dialect";
+  public static final String   JDBC_DIALECT_PARAM                 = "jdbc-dialect";
 
   /**
    * It's possible reassign VCAS table name with this parameter. For development purpose!
    */
-  public static final String TABLE_NAME_PARAM                   = "jdbc-table-name";
+  public static final String   TABLE_NAME_PARAM                   = "jdbc-table-name";
 
   /**
    * Default VCAS table name.
    */
-  public static final String DEFAULT_TABLE_NAME                 = "JCR_VCAS";
+  public static final String   DEFAULT_TABLE_NAME                 = "JCR_VCAS";
 
-  private static Log         LOG                                = ExoLogger.getLogger("jcr.JDBCValueContentAddressStorageImpl");
+  /**
+   * LOG.
+   */
+  private static final Log     LOG                                = ExoLogger.getLogger("jcr.JDBCValueContentAddressStorageImpl");
 
-  private final String       MYSQL_PK_CONSTRAINT_DETECT_PATTERN = "(.*Constraint+.*Violation+.*Duplicate+.*entry+.*)+?";
+  /**
+   * MYSQL_PK_CONSTRAINT_DETECT_PATTERN.
+   */
+  private static final String  MYSQL_PK_CONSTRAINT_DETECT_PATTERN = "(.*Constraint+.*Violation+.*Duplicate+.*entry+.*)+?";
 
-  private final Pattern      MYSQL_PK_CONSTRAINT_DETECT         = Pattern.compile(MYSQL_PK_CONSTRAINT_DETECT_PATTERN,
-                                                                                  Pattern.CASE_INSENSITIVE);
+  /**
+   * MYSQL_PK_CONSTRAINT_DETECT.
+   */
+  private static final Pattern MYSQL_PK_CONSTRAINT_DETECT         = Pattern.compile(MYSQL_PK_CONSTRAINT_DETECT_PATTERN,
+                                                                                    Pattern.CASE_INSENSITIVE);
 
-  protected DataSource       dataSource;
+  protected DataSource         dataSource;
 
-  protected String           tableName;
+  protected String             tableName;
 
-  protected String           dialect;
+  protected String             dialect;
 
-  protected String           sqlAddRecord;
+  protected String             sqlAddRecord;
 
-  protected String           sqlDeleteRecord;
-  
-  protected String           sqlDeleteValueRecord;
+  protected String             sqlDeleteRecord;
 
-  protected String           sqlSelectRecord;
+  protected String             sqlDeleteValueRecord;
 
-  protected String           sqlSelectRecords;
+  protected String             sqlSelectRecord;
 
-  protected String           sqlSelectOwnRecords;
+  protected String             sqlSelectRecords;
 
-  protected String           sqlSelectSharingProps;
+  protected String             sqlSelectOwnRecords;
 
-  protected String           sqlConstraintPK;
+  protected String             sqlSelectSharingProps;
 
-  protected String           sqlVCASIDX;
+  protected String             sqlConstraintPK;
+
+  protected String             sqlVCASIDX;
 
   /**
    * {@inheritDoc}
@@ -118,7 +126,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
     sqlVCASIDX = tableName + "_IDX";
 
-    if (DBConstants.DB_DIALECT_PGSQL.equalsIgnoreCase(dialect) || DBConstants.DB_DIALECT_INGRES.equalsIgnoreCase(dialect)) {
+    if (DBConstants.DB_DIALECT_PGSQL.equalsIgnoreCase(dialect)
+        || DBConstants.DB_DIALECT_INGRES.equalsIgnoreCase(dialect)) {
       // use lowercase for postgres/ingres metadata.getTable(), HSQLDB wants UPPERCASE
       // for other seems not matter
       tableName = tableName.toUpperCase().toLowerCase();
@@ -191,8 +200,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * {@inheritDoc}
    */
-  public void addValue(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
-                                                                     VCASException {
+  public void addValue(String propertyId, int orderNum, String identifier) throws VCASException {
 
     try {
       Connection con = dataSource.getConnection();
@@ -217,6 +225,13 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     }
   }
 
+  /**
+   * Tell is it a RecordAlreadyExistsException.
+   * 
+   * @param e
+   *          SQLException
+   * @return boolean
+   */
   private boolean isRecordAlreadyExistsException(SQLException e) {
     // Search in UPPER case
     // MySQL 5.0.x - com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException:
@@ -248,7 +263,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * {@inheritDoc}
    */
-  public void deleteProperty(String propertyId) throws RecordNotFoundException, VCASException {
+  public void deleteProperty(String propertyId) throws VCASException {
     try {
       Connection con = dataSource.getConnection();
       try {
@@ -266,11 +281,11 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
       throw new VCASException("VCAS DELETE database error: " + e, e);
     }
   }
-  
+
   /**
    * {@inheritDoc}
    */
-  public void deleteValue(String propertyId, int orderNumb) throws RecordNotFoundException, VCASException {
+  public void deleteValue(String propertyId, int orderNumb) throws VCASException {
     try {
       Connection con = dataSource.getConnection();
       try {
@@ -281,7 +296,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
         ps.close();
 
         if (res <= 0)
-          throw new RecordNotFoundException("Value record not found, propertyId=" + propertyId + " orderNumb=" + orderNumb);
+          throw new RecordNotFoundException("Value record not found, propertyId=" + propertyId
+              + " orderNumb=" + orderNumb);
       } finally {
         con.close();
       }
@@ -293,8 +309,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * {@inheritDoc}
    */
-  public String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException,
-                                                              VCASException {
+  public String getIdentifier(String propertyId, int orderNum) throws VCASException {
     try {
       Connection con = dataSource.getConnection();
       try {
@@ -319,8 +334,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * {@inheritDoc}
    */
-  public List<String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException,
-                                                                        VCASException {
+  public List<String> getIdentifiers(String propertyId, boolean ownOnly) throws VCASException {
     try {
       Connection con = dataSource.getConnection();
       try {
@@ -364,7 +378,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * {@inheritDoc}
    */
-  public boolean hasSharedContent(String propertyId) throws RecordNotFoundException, VCASException {
+  public boolean hasSharedContent(String propertyId) throws VCASException {
     try {
       Connection con = dataSource.getConnection();
       try {

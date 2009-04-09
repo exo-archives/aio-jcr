@@ -47,14 +47,30 @@ public abstract class S3IOChannel implements ValueIOChannel {
    */
   protected final String               awsSecretAccessKey;
 
+  /**
+   * S3 swap directory.
+   */
   protected final File                 s3SwapDirectory;
 
+  /**
+   * File cleaner.
+   */
   protected final FileCleaner          cleaner;
 
+  /**
+   * Storage Id.
+   */
   protected final String               storageId;
 
+  /**
+   * Value changes.
+   */
   protected final List<ValueOperation> changes = new ArrayList<ValueOperation>();
 
+  /**
+   * DeleteOperation.
+   *
+   */
   class DeleteOperation implements ValueOperation {
 
     private final String propertyId;
@@ -94,12 +110,28 @@ public abstract class S3IOChannel implements ValueIOChannel {
 
   }
 
+  /**
+   * WriteOperation.
+   *
+   */
   class WriteOperation implements ValueOperation {
 
+    /**
+     * Property Id.
+     */
     private final String    propertyId;
 
+    /**
+     * Value.
+     */
     private final ValueData value;
 
+    /**
+     * WriteOperation  constructor.
+     *
+     * @param propertyId String
+     * @param value ValueData
+     */
     WriteOperation(String propertyId, ValueData value) {
       this.propertyId = propertyId;
       this.value = value;

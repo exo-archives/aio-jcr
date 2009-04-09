@@ -34,8 +34,14 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 public class CASableDeleteValues extends DeleteValues {
 
+  /**
+   * CAS manager.
+   */
   protected final ValueContentAddressStorage vcas;
 
+  /**
+   * Affected Property Id.
+   */
   protected final String                     propertyId;
 
   /**
@@ -47,7 +53,17 @@ public class CASableDeleteValues extends DeleteValues {
    *          ValueDataResourceHolder
    * @param cleaner
    *          FileCleaner
-   * @throws IOException
+   * @param tempDir
+   *          File, temp dir
+   * @param propertyId
+   *          Property Id
+   * @param vcas
+   *          ValueContentAddressStorage CAS manager
+   */
+  /**
+   * CASableDeleteValues constructor.
+   * 
+   * 
    */
   public CASableDeleteValues(File[] files,
                              ValueDataResourceHolder resources,

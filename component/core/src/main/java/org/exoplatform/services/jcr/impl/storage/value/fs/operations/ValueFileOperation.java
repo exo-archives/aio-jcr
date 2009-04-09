@@ -42,18 +42,39 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class ValueFileOperation extends ValueFileIOHelper implements ValueOperation {
 
+  /**
+   * Temporary files extension.
+   */
   public static final String              TEMP_FILE_EXTENSION = ".temp";
 
+  /**
+   * Lock files extension.
+   */
   public static final String              LOCK_FILE_EXTENSION = ".lock";
 
-  protected static Log                    LOG                 = ExoLogger.getLogger("jcr.ValueFileOperation");
+  /**
+   * Logger.
+   */
+  protected static final Log              LOG                 = ExoLogger.getLogger("jcr.ValueFileOperation");
 
+  /**
+   * File cleaner.
+   */
   protected final FileCleaner             cleaner;
 
+  /**
+   * Resources resources.
+   */
   protected final ValueDataResourceHolder resources;
 
+  /**
+   * Operation info (not used).
+   */
   protected final String                  operationInfo;
 
+  /**
+   * Directory for temporary operations (temp files and locks).
+   */
   protected final File                    tempDir;
 
   /**
@@ -61,14 +82,33 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
    */
   private boolean                         performed           = false;
 
+  /**
+   * Internal ValueLockSupport implementation.
+   * 
+   */
   class ValueFileLockHolder implements ValueLockSupport {
 
+    /**
+     * Target File.
+     */
     private final File       targetFile;
 
+    /**
+     * Lock File.
+     */
     private File             lockFile;
 
+    /**
+     * Lock File stream.
+     */
     private FileOutputStream lockFileStream;
 
+    /**
+     * ValueFileLockHolder constructor.
+     * 
+     * @param file
+     *          target File
+     */
     ValueFileLockHolder(File file) {
       this.targetFile = file;
     }
@@ -115,14 +155,23 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
 
   }
 
+  /**
+   * Value File lock abstraction.
+   * 
+   */
   class ValueFileLock {
 
-    private final File          file;
+    /**
+     * Target file.
+     */
+    private final File file;
 
-    //private File                fileLock;
-
-    //private ValueFileLockHolder fileLockHolder;
-
+    /**
+     * ValueFileLock constructor.
+     * 
+     * @param file
+     *          File
+     */
     ValueFileLock(File file) {
       this.file = file;
     }
@@ -135,22 +184,23 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
      *           if error occurs
      */
     public boolean lock() throws IOException {
-//      if (fileLockHolder != null)
-//        throw new IOException("File already locked " + file.getAbsolutePath());
+      // TODO cleanup
+      // if (fileLockHolder != null)
+      // throw new IOException("File already locked " + file.getAbsolutePath());
 
       // lock in JVM (wait for unlock if required)
       try {
         return resources.aquire(file.getAbsolutePath(), new ValueFileLockHolder(file));
-//        if (resources.aquire(file.getAbsolutePath())) {
-//          // locked in JVM,
-//          // lock on FS (locking fileLock via NIO, wait for unlock if required)
-//          fileLockHolder = new ValueFileLockHolder(file);
-//          return true;
-//        } else {
-//          // already locked in JVM by me
-//          fileLockHolder = null;
-//          return false;
-//        }
+        // if (resources.aquire(file.getAbsolutePath())) {
+        // // locked in JVM,
+        // // lock on FS (locking fileLock via NIO, wait for unlock if required)
+        // fileLockHolder = new ValueFileLockHolder(file);
+        // return true;
+        // } else {
+        // // already locked in JVM by me
+        // fileLockHolder = null;
+        // return false;
+        // }
       } catch (InterruptedException e) {
         throw new FileLockException("Lock error on " + file.getAbsolutePath(), e);
       }
@@ -164,31 +214,32 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
      *           if error occurs
      */
     public boolean unlock() throws IOException {
-//      if (fileLock == null)
-//        throw new IOException("File not locked " + file.getAbsolutePath());
+      // TODO cleanup
+      // if (fileLock == null)
+      // throw new IOException("File not locked " + file.getAbsolutePath());
 
       return resources.release(file.getAbsolutePath());
-      
-//      try {
-//        // unlock in JVM
-//        if (resources.release(file.getAbsolutePath())) {
-//          // unlock FS lock
-//          if (fileLockHolder != null) {
-//            fileLockHolder.close();
-//
-//            if (!fileLock.delete()) { // TODO don't use FileCleaner, delete should be enough
-//              LOG.warn("Cannot delete lock file " + fileLock.getAbsolutePath()
-//                  + ". Add to the FileCleaner");
-//              cleaner.addFile(fileLock);
-//            }
-//          }
-//          return true;
-//        } else
-//          return false;
-//      } finally {
-//        fileLockHolder = null;
-//        fileLock = null;
-//      }
+
+      // try {
+      // // unlock in JVM
+      // if (resources.release(file.getAbsolutePath())) {
+      // // unlock FS lock
+      // if (fileLockHolder != null) {
+      // fileLockHolder.close();
+      //
+      // if (!fileLock.delete()) { // TODO don't use FileCleaner, delete should be enough
+      // LOG.warn("Cannot delete lock file " + fileLock.getAbsolutePath()
+      // + ". Add to the FileCleaner");
+      // cleaner.addFile(fileLock);
+      // }
+      // }
+      // return true;
+      // } else
+      // return false;
+      // } finally {
+      // fileLockHolder = null;
+      // fileLock = null;
+      // }
     }
   }
 
@@ -222,10 +273,21 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
     operationInfo = System.currentTimeMillis() + " " + localAddr;
   }
 
-  protected boolean isPerformed() throws IOException {
+  /**
+   * Tell if operation was performed.
+   * 
+   * @return boolean - true if operation was performed
+   */
+  protected boolean isPerformed() {
     return performed;
   }
 
+  /**
+   * Make operation as performed.
+   * 
+   * @throws IOException
+   *           if operation was already performed
+   */
   protected void makePerformed() throws IOException {
     if (performed)
       throw new IOException("Operation cannot be performed twice");
@@ -281,7 +343,7 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
    *          File
    * @param failOnExists
    *          if true and dest file exists an IOException will be thrown
-   * @throws IOException
+   * @throws IOException if error occurs
    */
   protected void moveFile(File src, File dest, boolean failOnExists) throws IOException {
     if (dest.exists())

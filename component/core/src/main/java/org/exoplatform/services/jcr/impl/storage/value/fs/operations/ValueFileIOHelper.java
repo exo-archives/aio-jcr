@@ -49,8 +49,8 @@ public class ValueFileIOHelper {
    *          - threshold for spooling
    * @param temp
    *          - temporary file flag
-   * @return
-   * @throws IOException
+   * @return ValueData
+   * @throws IOException if error
    */
   protected ValueData readValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
     

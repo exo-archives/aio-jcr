@@ -33,8 +33,14 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 public class DeleteValues extends ValueFileOperation {
 
+  /**
+   * Files to be deleted.
+   */
   private final File[]    files;
 
+  /**
+   * Locks on files.
+   */
   private ValueFileLock[] locks;
 
   /**
@@ -71,6 +77,9 @@ public class DeleteValues extends ValueFileOperation {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void rollback() throws IOException {
     if (locks != null)
       for (ValueFileLock fl : locks)
