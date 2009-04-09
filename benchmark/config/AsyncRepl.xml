@@ -56,12 +56,29 @@
     <param name="ext.rootFolder" value="folderFirst" />
   </testCase-->
   
-  <testCase name="ConflictVersionTest">
+  <!--testCase name="ConflictVersionTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.ConflictVersionTest" />
     <param name="ext.fileSizeInKb" value="100"/>
     <param name="ext.filePerSaveCount" value="10" />
     <param name="ext.savesCount" value="10" />
     <param name="ext.nodePriority" value="high" />
-  </testCase>
+  </testCase-->
 
+  <testCase name="SimpleVersionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.SimpleVersionTest" />
+    <param name="ext.fileSizeInKb" value="100"/>
+    <param name="ext.filePerSaveCount" value="10" />
+    <param name="ext.savesCount" value="10" />
+    <param name="ext.nodePriority" value="high" />
+  </testCase>
+  
+  <!--testCase name="ExtendedVersionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.ext.asyncrep.ExtendedVersionTest" />
+    <param name="ext.fileSizeInKb" value="100"/>
+    <param name="ext.filePerSaveCount" value="10" />
+    <param name="ext.savesCount" value="10" />
+    <param name="ext.nodePriority" value="high" />
+  </testCase-->
+  
+  
 </testSuite>

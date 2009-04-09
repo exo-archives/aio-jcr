@@ -21,8 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-import javax.jcr.Node;
-
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -40,20 +38,37 @@ import com.sun.japex.TestCase;
 public abstract class AsyncTestBase {
   protected static Log log = ExoLogger.getLogger("jcr.benchmark.async");
 
+  /**
+   * Default saves count.
+   */
   public final int COUNT_I = 50;
 
+  /**
+   * Default file per save count.
+   */
   public final int COUNT_J = 5;
 
+  /**
+   * File content generated in doPrepare();
+   */
   public File              content;
 
+  /**
+   * Saves Count.
+   */
   public int       sc;
 
+  /**
+   * File per save Count.
+   */
   public int       fc;
   
   /**
-   * @param tc
-   * @param context
-   * @throws Exception
+   * Do test prepare.
+   * 
+   * @param tc - TestCase.
+   * @param context - AsyncTestContext.
+   * @throws Exception - internal Exception.
    */
   public void doPrepare(final TestCase tc, AsyncTestContext context) throws Exception {
     String size = tc.getParam("ext.fileSizeInKb");
@@ -70,21 +85,31 @@ public abstract class AsyncTestBase {
   }
 
   /**
-   * @param tc
-   * @param context
-   * @throws Exception
+   * Do finish operations.
+   * 
+   * @param tc - TestCase.
+   * @param context - AsyncTestContext.
+   * @throws Exception - internal Exception.
    */
   public void doFinish(final TestCase tc, AsyncTestContext context) throws Exception {
     content.delete();
   }
 
   /**
-   * @param tc
-   * @param context
-   * @throws Exception
+   * Run test.
+   * 
+   * @param tc - TestCase.
+   * @param context - AsyncTestContext.
+   * @throws Exception - internal Exception.
    */
   public abstract void doRun(final TestCase tc, AsyncTestContext context) throws Exception;
 
+  /**
+   * Create File with random content and fixed size.
+   * @param sizeKb - file size in Kb.
+   * @return File
+   * @throws IOException - if IO exception occurs.
+   */
   public static File createBLOBfile(int sizeKb) throws IOException{
     // create test file
     byte[] data = new byte[1024]; // 1Kb
