@@ -59,7 +59,7 @@ public abstract class S3IOChannel implements ValueIOChannel {
 
     private final String propertyId;
 
-    DeleteOperation(String propertyId) throws IOException {
+    DeleteOperation(String propertyId) {
       this.propertyId = propertyId;
     }
 
@@ -100,7 +100,7 @@ public abstract class S3IOChannel implements ValueIOChannel {
 
     private final ValueData value;
 
-    WriteOperation(String propertyId, ValueData value) throws IOException {
+    WriteOperation(String propertyId, ValueData value) {
       this.propertyId = propertyId;
       this.value = value;
     }

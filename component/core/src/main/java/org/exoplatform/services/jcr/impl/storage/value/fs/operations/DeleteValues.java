@@ -46,15 +46,11 @@ public class DeleteValues extends ValueFileOperation {
    *          ValueDataResourceHolder
    * @param cleaner
    *          FileCleaner
-   * @throws IOException
-   *           if IO errors occurs
-   * @throws InterruptedException
-   *           if lock wait error occurs
    */
   public DeleteValues(File[] files,
                       ValueDataResourceHolder resources,
                       FileCleaner cleaner,
-                      File tempDir) throws IOException {
+                      File tempDir) {
 
     super(resources, cleaner, tempDir);
 

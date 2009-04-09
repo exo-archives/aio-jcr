@@ -1469,23 +1469,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
         if (!valueRecords.wasNull() && !deletedVS.contains(storageId)) {
           final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
-          try {
-            // delete all Values data in VS
-            channel.delete(pdata.getIdentifier());
-            deletedVS.add(storageId);
-          } catch (RecordNotFoundException e) {
-            // This is workaround for CAS VS. No records found for this value. See logic in
-            // CASableDeleteValues operation.
-            // CASableDeleteValues saves VCAS record on commit, but it's possible the Property just
-            // added in this transaction and not commited.
-
-            // TODO 08.04.2009 Skip error now but the better logic is required
-            if (!update)
-              throw new RecordNotFoundException("Cannot delete property "
-                  + pdata.getQPath().getAsString(), e);
-          } finally {
-            valueChanges.add(channel);
-          }
+          // delete all Values data in VS
+          channel.delete(pdata.getIdentifier());
+          deletedVS.add(storageId);
+          valueChanges.add(channel);
         }
         // } while (valueRecords.next());
 

@@ -47,7 +47,7 @@ public class WriteValue extends ValueFileOperation {
                     ValueData value,
                     ValueDataResourceHolder resources,
                     FileCleaner cleaner,
-                    File tempDir) throws IOException {
+                    File tempDir) {
     super(resources, cleaner, tempDir);
 
     this.file = file;

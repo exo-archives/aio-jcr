@@ -201,10 +201,8 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
    *          FileCleaner
    * @param tempDir
    *          temp dir for locking and other I/O operations
-   * @throws IOException
-   *           if error occurs
    */
-  ValueFileOperation(ValueDataResourceHolder resources, FileCleaner cleaner, File tempDir) throws IOException {
+  ValueFileOperation(ValueDataResourceHolder resources, FileCleaner cleaner, File tempDir) {
 
     this.cleaner = cleaner;
     this.resources = resources;

@@ -66,10 +66,6 @@ public class CASableWriteValue extends WriteValue {
    *          ValueDataResourceHolder
    * @param cleaner
    *          FileCleaner
-   * @throws IOException
-   *           if IO errors occurs
-   * @throws InterruptedException
-   *           if lock wait error occurs
    */
   public CASableWriteValue(ValueData value,
                            ValueDataResourceHolder resources,
@@ -77,7 +73,7 @@ public class CASableWriteValue extends WriteValue {
                            File tempDir,
                            String propertyId,
                            ValueContentAddressStorage vcas,
-                           CASableIOSupport cas) throws IOException {
+                           CASableIOSupport cas) {
     super(null, value, resources, cleaner, tempDir);
 
     this.vcas = vcas;
