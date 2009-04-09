@@ -49,24 +49,32 @@ public interface ValueContentAddressStorage {
   static final String VCAS_TYPE_PARAM   = "vcas-type";
 
   /**
-   * Deletes the address for given property value.
+   * Deletes the address for given Property.
    * 
-   * @param propertyId
-   * @param orderNum
-   * @throws RecordNotFoundException
+   * @param propertyId String Property ID
+   * @throws RecordNotFoundException if Record not found
    */
-  void delete(String propertyId) throws RecordNotFoundException, VCASException;
+  void deleteProperty(String propertyId) throws RecordNotFoundException, VCASException;
+  
+  /**
+   * Deletes the address for given Property Value.
+   * 
+   * @param propertyId String Property ID
+   * @param orderNum int
+   * @throws RecordNotFoundException if Record not found
+   */
+  void deleteValue(String propertyId, int orderNumb) throws RecordNotFoundException, VCASException;
 
   /**
-   * Add property address record to the storage.
+   * Add Property Value address record to the storage.
    * 
-   * @param propertyId
-   * @param orderNum
-   * @param identifier
+   * @param propertyId String Property ID
+   * @param orderNum int
+   * @param identifier CAS ID (hash)
    * @throws RecordAlreadyExistsException
    *           if such propertyId/orderNumber already exists in storage
    */
-  void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
+  void addValue(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
                                                               VCASException;
 
   /**

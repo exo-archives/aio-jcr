@@ -18,41 +18,120 @@ package org.exoplatform.services.jcr.aws.storage.value.s3;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
+import org.exoplatform.services.jcr.impl.storage.value.ValueOperation;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.log.ExoLogger;
 
 public abstract class S3IOChannel implements ValueIOChannel {
 
-  protected static Log        log = ExoLogger.getLogger("S3IOChannel");
+  protected static Log                 log     = ExoLogger.getLogger("S3IOChannel");
 
   /**
    * Bucket name. See <a href="http://amazonaws.com">amazon S3 wikipedia</a>
    */
-  protected final String      bucket;
+  protected final String               bucket;
 
   /**
    * AWS access key id. See <a href="http://amazonaws.com">amazon S3 wikipedia</a>
    */
-  protected final String      awsAccessKey;
+  protected final String               awsAccessKey;
 
   /**
    * AWS access secret key. See <a href="http://amazonaws.com">amazon S3 wikipedia</a>
    */
-  protected final String      awsSecretAccessKey;
+  protected final String               awsSecretAccessKey;
 
-  protected final File        s3SwapDirectory;
+  protected final File                 s3SwapDirectory;
 
-  protected final FileCleaner cleaner;
+  protected final FileCleaner          cleaner;
 
-  protected final String      storageId;
+  protected final String               storageId;
+
+  protected final List<ValueOperation> changes = new ArrayList<ValueOperation>();
+
+  class DeleteOperation implements ValueOperation {
+
+    private final String propertyId;
+
+    DeleteOperation(String propertyId) throws IOException {
+      this.propertyId = propertyId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void commit() throws IOException {
+      // perform operation on commit, SDB connection does the same
+      final String[] s3fileList = getFiles(propertyId);
+      for (String s3fileName : s3fileList) {
+        if (!S3ValueIOUtil.deleteValue(bucket, awsAccessKey, awsSecretAccessKey, s3fileName)) {
+          log.warn("!!! Can't delete file " + s3fileName + "on Amazon S3 storage (Bucket: "
+              + bucket + "). File added in FileCleaner list");
+          cleaner.addFile(new S3File(bucket, awsAccessKey, awsSecretAccessKey, s3fileName));
+        }
+      }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rollback() throws IOException {
+      // TODO we have to restore prev file
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void execute() throws IOException {
+      // do nothing
+    }
+
+  }
+
+  class WriteOperation implements ValueOperation {
+
+    private final String    propertyId;
+
+    private final ValueData value;
+
+    WriteOperation(String propertyId, ValueData value) throws IOException {
+      this.propertyId = propertyId;
+      this.value = value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void commit() throws IOException {
+      // perform operation on commit, SDB connection does the same
+      String s3fileName = getFile(propertyId, value.getOrderNumber());
+      S3ValueIOUtil.writeValue(bucket, awsAccessKey, awsSecretAccessKey, s3fileName, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rollback() throws IOException {
+      // TODO we have to rever file on S3 to prev state or delete if it was added
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void execute() throws IOException {
+      // do nothing
+    }
+
+  }
 
   /**
-   * New S3 channel
+   * New S3 channel.
    * 
    * @param bucket
    *          the Bucket name
@@ -78,33 +157,14 @@ public abstract class S3IOChannel implements ValueIOChannel {
     this.storageId = storageId;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#delete(java.lang.String)
-   */
-  public boolean delete(String propertyId) throws IOException {
-    final String[] s3fileList = getFiles(propertyId);
-
-    for (String s3fileName : s3fileList) {
-      if (!S3ValueIOUtil.deleteValue(bucket, awsAccessKey, awsSecretAccessKey, s3fileName)) {
-        log.warn("!!! Can't delete file " + s3fileName + "on Amazon S3 storage (Bucket: " + bucket
-            + "). File added in FileCleaner list");
-        cleaner.addFile(new S3File(bucket, awsAccessKey, awsSecretAccessKey, s3fileName));
-      }
-    }
-    return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#close()
+  /**
+   * {@inheritDoc}
    */
   public void close() {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#read(java.lang.String, int, int)
+  /**
+   * {@inheritDoc}
    */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
     String s3fileName = getFile(propertyId, orderNumber);
@@ -118,28 +178,45 @@ public abstract class S3IOChannel implements ValueIOChannel {
                                    cleaner);
   }
 
-  public ValueFile write(String propertyId, ValueData value) throws IOException {
-    String s3fileName = getFile(propertyId, value.getOrderNumber());
-    S3ValueIOUtil.writeValue(bucket, awsAccessKey, awsSecretAccessKey, s3fileName, value);
-    // return "/" + bucket + "/" +s3fileName;
-    
-    return new ValueFile() {
+  /**
+   * {@inheritDoc}
+   */
+  public void delete(String propertyId) throws IOException {
+    ValueOperation o = new DeleteOperation(propertyId);
+    o.execute();
+    changes.add(o);
+  }
 
-      /**
-       * {@inheritDoc}
-       */
-      public void rollback() {
-        // TODO fix it with Values delete on Property delete
-      }
-    };
+  public void write(String propertyId, ValueData value) throws IOException {
+    ValueOperation o = new WriteOperation(propertyId, value);
+    o.execute();
+    changes.add(o);
   }
 
   /**
-   * creates file name by propertyId and order number
+   * {@inheritDoc}
+   */
+  public void commit() throws IOException {
+    for (ValueOperation vo : changes)
+      vo.commit();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void rollback() throws IOException {
+    for (int p = changes.size() - 1; p >= 0; p--)
+      changes.get(p).rollback();
+  }
+
+  /**
+   * Creates file name by propertyId and order number.
    * 
    * @param propertyId
+   *          Strign
    * @param orderNumber
-   * @return file name
+   *          int
+   * @return file name String
    */
   protected abstract String getFile(String propertyId, int orderNumber);
 

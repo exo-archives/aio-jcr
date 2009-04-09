@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
 
 /**
@@ -41,7 +42,7 @@ public class TestFileValueIO extends TestCase {
   static class FileValueIOUtil extends FileIOChannel {
 
     FileValueIOUtil() {
-      super(null, null, "Test #1");
+      super(null, null, "Test #1", new ValueDataResourceHolder());
     }
 
     @Override

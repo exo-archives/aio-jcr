@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
 
 /**
@@ -34,9 +35,13 @@ public class CASableTreeFileValueStorage extends TreeFileValueStorage {
 
   private String                     digestAlgo;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void init(Properties props) throws IOException, RepositoryConfigurationException {
-    super.init(props);
+  public void init(Properties props, ValueDataResourceHolder resources) throws IOException,
+                                                                       RepositoryConfigurationException {
+    super.init(props, resources);
 
     this.digestAlgo = props.getProperty(ValueContentAddressStorage.DIGEST_ALGO_PARAM);
     String vcasType = props.getProperty(ValueContentAddressStorage.VCAS_TYPE_PARAM);
@@ -50,8 +55,11 @@ public class CASableTreeFileValueStorage extends TreeFileValueStorage {
     vcas.init(props);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FileIOChannel openIOChannel() throws IOException {
-    return new CASableTreeFileIOChannel(rootDir, cleaner, getId(), vcas, digestAlgo);
+    return new CASableTreeFileIOChannel(rootDir, cleaner, getId(), resources, vcas, digestAlgo);
   }
 }

@@ -68,7 +68,7 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
 
   public void testAddRecord() throws Exception {
     String propertyId, hashId;
-    vcas.add(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
+    vcas.addValue(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
 
     assertEquals("id should be same but ", hashId, vcas.getIdentifier(propertyId, 0));
   }
@@ -79,7 +79,7 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
 
     for (int i = 0; i < 100; i++) {
       String hashId = IdGenerator.generate();
-      vcas.add(propertyId, i, hashId);
+      vcas.addValue(propertyId, i, hashId);
       testSet.add(hashId);
     }
 
@@ -99,7 +99,7 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
       String hashId = IdGenerator.generate();
       if (i == 5)
         sharedHashId = hashId;
-      vcas.add(property1Id, i, hashId);
+      vcas.addValue(property1Id, i, hashId);
       testSet.add(hashId);
     }
 
@@ -110,15 +110,15 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
         hashId = sharedHashId;
       else
         hashId = IdGenerator.generate();
-      vcas.add(property2Id, i, hashId);
+      vcas.addValue(property2Id, i, hashId);
     }
 
     // any stuf
-    vcas.add(IdGenerator.generate(), 0, IdGenerator.generate());
-    vcas.add(IdGenerator.generate(), 0, IdGenerator.generate());
+    vcas.addValue(IdGenerator.generate(), 0, IdGenerator.generate());
+    vcas.addValue(IdGenerator.generate(), 0, IdGenerator.generate());
 
     // shared in singlevalued property notation
-    vcas.add(IdGenerator.generate(), 0, sharedHashId);
+    vcas.addValue(IdGenerator.generate(), 0, sharedHashId);
 
     // test if can get full values list of proeprty incl. shared
     List<String> ids = vcas.getIdentifiers(property1Id, false);
@@ -136,9 +136,9 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
 
   public void testDeleteRecord() throws Exception {
     String propertyId;
-    vcas.add(propertyId = IdGenerator.generate(), 0, IdGenerator.generate());
+    vcas.addValue(propertyId = IdGenerator.generate(), 0, IdGenerator.generate());
 
-    vcas.delete(propertyId);
+    vcas.deleteProperty(propertyId);
 
     try {
       vcas.getIdentifier(propertyId, 0);
@@ -150,10 +150,10 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
 
   public void testAddExisting() throws Exception {
     String propertyId, hashId;
-    vcas.add(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
+    vcas.addValue(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
 
     try {
-      vcas.add(propertyId, 0, hashId);
+      vcas.addValue(propertyId, 0, hashId);
       fail("RecordAlreadyExistsException should be thrown, record exists");
     } catch (RecordAlreadyExistsException e) {
       // ok
@@ -187,7 +187,7 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
 
   public void testDeleteNotExisting() throws Exception {
     try {
-      vcas.delete(IdGenerator.generate());
+      vcas.deleteProperty(IdGenerator.generate());
       fail("RecordNotFoundException should be thrown, record not found");
     } catch (RecordNotFoundException e) {
       // ok
@@ -197,11 +197,11 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
   public void testHasSharedContent() throws Exception {
     String propertyId, hashId;
     // multiplevalues property record
-    vcas.add(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
-    vcas.add(propertyId, 1, IdGenerator.generate());
+    vcas.addValue(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
+    vcas.addValue(propertyId, 1, IdGenerator.generate());
 
     // singlevalued one
-    vcas.add(IdGenerator.generate(), 0, hashId);
+    vcas.addValue(IdGenerator.generate(), 0, hashId);
 
     assertTrue("Property has shared content but the answer - false",
                vcas.hasSharedContent(propertyId));

@@ -20,9 +20,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import javax.naming.NamingException;
-
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 /**
@@ -42,41 +41,79 @@ public abstract class ValueStoragePlugin {
    * Initialize this plugin.
    * 
    * @param props
+   *          configuration Properties
+   * @param resources
+   *          ValueDataResourceHolder
    * @throws RepositoryConfigurationException
+   *           if config error
    * @throws IOException
-   * @throws NamingException
+   *           if IO error
    */
-  public abstract void init(Properties props) throws RepositoryConfigurationException, IOException;
+  public abstract void init(Properties props, ValueDataResourceHolder resources) throws RepositoryConfigurationException,
+                                                                                IOException;
 
+  /**
+   * Open ValueIOChannel.
+   * 
+   * @return ValueIOChannel
+   * @throws IOException
+   *           if error occurs
+   */
   public abstract ValueIOChannel openIOChannel() throws IOException;
 
   /**
-   * @return filters
+   * Return filters.
+   * 
+   * @return List of ValuePluginFilter
    */
   public final List<ValuePluginFilter> getFilters() {
     return filters;
   }
 
+  /**
+   * Set filters.
+   * 
+   * @param filters
+   *          List of ValuePluginFilter
+   */
   public final void setFilters(List<ValuePluginFilter> filters) {
     this.filters = filters;
   }
 
+  /**
+   * Get Stirage Id.
+   * 
+   * @return String
+   */
   public final String getId() {
     return id;
   }
 
+  /**
+   * Set Storage Id.
+   * 
+   * @param id
+   *          String
+   */
   public final void setId(String id) {
     this.id = id;
   }
 
   /**
-   * Run consistency check operation
+   * Run consistency check operation.
    * 
    * @param dataConnection
    *          - connection to metadata storage
    */
   public abstract void checkConsistency(WorkspaceStorageConnection dataConnection);
 
+  /**
+   * Check criteria match.
+   * 
+   * @param valueDataDescriptor
+   *          String
+   * @return boolean, tru iof match
+   */
   public abstract boolean match(String valueDataDescriptor);
 
 }

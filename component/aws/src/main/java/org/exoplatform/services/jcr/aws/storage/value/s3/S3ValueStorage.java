@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePlugin;
@@ -54,15 +54,19 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
 
   protected final FileCleaner cleaner;
 
+  /**
+   * S3ValueStorage  constructor.
+   *
+   */
   public S3ValueStorage() {
     this.cleaner = new FileCleaner();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#init(java.util.Properties)
+  /**
+   * {@inheritDoc}
    */
-  public void init(Properties props) throws IOException, RepositoryConfigurationException {
+  public void init(Properties props, ValueDataResourceHolder resources) throws IOException,
+                                                                       RepositoryConfigurationException {
     bucket = props.getProperty(BUCKET);
     awsAccessKey = props.getProperty(AWS_ACCESS_KEY);
     awsSecretAccessKey = props.getProperty(AWS_SECRET_ACCESS_KEY);
@@ -78,20 +82,15 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
     S3ValueIOUtil.createBucket(bucket, awsAccessKey, awsSecretAccessKey);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#checkConsistency(org.exoplatform
-   * .services.jcr.storage.WorkspaceStorageConnection)
+  /**
+   * {@inheritDoc}
    */
   public void checkConsistency(WorkspaceStorageConnection dataConnection) {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#match(java.lang.String,
-   * org.exoplatform.services.jcr.datamodel.PropertyData, int)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public boolean match(String storageId) {

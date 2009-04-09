@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -44,8 +45,8 @@ public class SimpleFileIOChannel extends FileIOChannel {
     }
   }
 
-  public SimpleFileIOChannel(File rootDir, FileCleaner cleaner, String storageId) {
-    super(rootDir, cleaner, storageId);
+  public SimpleFileIOChannel(File rootDir, FileCleaner cleaner, String storageId, ValueDataResourceHolder resources) {
+    super(rootDir, cleaner, storageId, resources);
   }
 
   @Override

@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddressStorageImpl;
 
 /**
@@ -32,6 +33,8 @@ import org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddre
  */
 public class TestCASableTreeFileIOChannel extends CASableFileIOChannelTestBase {
 
+  private ValueDataResourceHolder resources = new ValueDataResourceHolder();
+  
   @Override
   protected void initVCAS() throws Exception {
     Properties props = new Properties();
@@ -61,7 +64,7 @@ public class TestCASableTreeFileIOChannel extends CASableFileIOChannelTestBase {
 
   @Override
   protected FileIOChannel openCASChannel(String digestType) throws Exception {
-    return new CASableTreeFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    return new CASableTreeFileIOChannel(rootDir, fileCleaner, storageId, resources, vcas, digestType);
   }
 
 }

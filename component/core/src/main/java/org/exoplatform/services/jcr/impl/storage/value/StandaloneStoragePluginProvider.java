@@ -53,9 +53,16 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
 
   private static Log        log              = ExoLogger.getLogger("jcr.ValueStoragePluginFactory");
 
+  /**
+   * ValueData resorces holder (Files etc). It's singleton feature.
+   */
+  private final ValueDataResourceHolder resorcesHolder;
+  
   public StandaloneStoragePluginProvider(WorkspaceEntry wsConfig) throws RepositoryConfigurationException,
       IOException {
 
+    this.resorcesHolder = new ValueDataResourceHolder();
+    
     List<ValueStorageEntry> storages = wsConfig.getContainer().getValueStorages();
 
     if (storages != null)
@@ -99,7 +106,7 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
           props.setProperty(paramEntry.getName(), paramEntry.getValue());
         }
 
-        plugin.init(props);
+        plugin.init(props, resorcesHolder);
         plugin.setId(storageEntry.getId());
         plugin.setFilters(filters);
 

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -34,8 +35,11 @@ public class TreeFileIOChannel extends FileIOChannel {
 
   private static Semaphore mkdirsLock = new Semaphore(1);
 
-  TreeFileIOChannel(File rootDir, FileCleaner cleaner, String storageId) {
-    super(rootDir, cleaner, storageId);
+  TreeFileIOChannel(File rootDir,
+                    FileCleaner cleaner,
+                    String storageId,
+                    ValueDataResourceHolder resources) {
+    super(rootDir, cleaner, storageId, resources);
   }
 
   @Override

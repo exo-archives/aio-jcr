@@ -23,11 +23,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
-import org.exoplatform.services.jcr.impl.storage.value.cas.RecordAlreadyExistsException;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
+import org.exoplatform.services.jcr.impl.storage.value.ValueOperation;
 import org.exoplatform.services.jcr.impl.storage.value.cas.RecordNotFoundException;
-import org.exoplatform.services.jcr.impl.storage.value.cas.VCASException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
+import org.exoplatform.services.jcr.impl.storage.value.fs.operations.CASableDeleteValues;
+import org.exoplatform.services.jcr.impl.storage.value.fs.operations.CASableWriteValue;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -35,8 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: CASableSimpleFileIOChannel.java 20384 2008-09-24 16:25:43Z
- *          pnedonosko $
+ * @version $Id$
  */
 
 public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
@@ -47,64 +47,66 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
 
   private final ValueContentAddressStorage vcas;
 
-    public CASableSimpleFileIOChannel(File rootDir,
+  public CASableSimpleFileIOChannel(File rootDir,
                                     FileCleaner cleaner,
                                     String storageId,
+                                    ValueDataResourceHolder resources,
                                     ValueContentAddressStorage vcas,
                                     String digestAlgo) {
-    super(rootDir, cleaner, storageId);
+    super(rootDir, cleaner, storageId, resources);
 
     this.vcas = vcas;
     this.cas = new CASableIOSupport(this, digestAlgo);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public ValueFile write(String propertyId, ValueData value) throws IOException {
-    // calc digest hash
-    // TODO optimize with NIO
-    // we need hash at first to know do we have to store file or just use one
-    // existing (with same
-    // hash)
-    File temp = new File(rootDir, propertyId + value.getOrderNumber() + ".cas-temp");
-    FileDigestOutputStream out = cas.openFile(temp);
-    writeOutput(out, value);
+  public void write(String propertyId, ValueData value) throws IOException {
 
-    // close stream
-    out.close();
-
-    // add reference to content
-    try {
-      vcas.add(propertyId, value.getOrderNumber(), out.getDigestHash());
-      // rename to VCAS-named
-      File vcasFile = cas.saveFile(out);
-      return new CASValueFileImpl(propertyId, vcasFile, vcas, cleaner);
-      
-    } catch (RecordAlreadyExistsException e) {
-      if (!temp.delete()) {
-        LOG.warn("Can't delete cas-temp file. Added to file cleaner. " + temp.getAbsolutePath());
-        cleaner.addFile(temp);
-      }
-      throw new RecordAlreadyExistsException("Write error: " + e, e);
-    }
-    
+    CASableWriteValue o = new CASableWriteValue(value,
+                                                resources,
+                                                cleaner,
+                                                tempDir,
+                                                propertyId,
+                                                vcas,
+                                                cas);
+    o.execute();
+    changes.add(o);
   }
 
   /**
-   * Delete given property value.<br/> Special logic implemented for Values
-   * CAS. As the storage may have one file (same hash) for multiple
-   * properties/values.<br/> The implementation assumes that delete operations
-   * based on {@link getFiles()} method result.
+   * Delete given property value.<br/>
+   * Special logic implemented for Values CAS. As the storage may have one file (same hash) for
+   * multiple properties/values.<br/>
+   * The implementation assumes that delete operations based on {@link getFiles()} method result.
    * 
    * @see getFiles()
-   * @param propertyId - property id to be deleted
+   * @param propertyId
+   *          - property id to be deleted
    */
   @Override
-  public boolean delete(String propertyId) throws IOException {
+  public void delete(String propertyId) throws IOException {
+    File[] files;
     try {
-      return super.delete(propertyId);
-    } finally {
-      vcas.delete(propertyId);
+      files = getFiles(propertyId);
+    } catch (RecordNotFoundException e) {
+      // This is workaround for CAS VS. No records found for this value at the moment.
+      // CASableDeleteValues saves VCAS record on commit, but it's possible the Property just
+      // added in this transaction and not commited.
+
+      // TODO 08.04.2009 Skip error now
+      files = new File[0];
     }
+    CASableDeleteValues o = new CASableDeleteValues(files,
+                                                    resources,
+                                                    cleaner,
+                                                    tempDir,
+                                                    propertyId,
+                                                    vcas);
+    o.execute();
+    changes.add(o);
   }
 
   @Override
@@ -114,9 +116,9 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
   }
 
   /**
-   * Returns storage files list by propertyId.<br/> NOTE: Files list used for
-   * <strong>delete</strong> operation. The list will not contains files shared
-   * with other properties!
+   * Returns storage files list by propertyId.<br/>
+   * NOTE: Files list used for <strong>delete</strong> operation. The list will not contains files
+   * shared with other properties!
    * 
    * @see ValueContentAddressStorage.getIdentifiers()
    * @param propertyId

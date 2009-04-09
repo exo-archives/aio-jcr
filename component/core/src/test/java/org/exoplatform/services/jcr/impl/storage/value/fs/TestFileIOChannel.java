@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.impl.value;
+package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,8 +26,7 @@ import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
-import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
-import org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileIOChannel;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -39,12 +38,33 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 public class TestFileIOChannel extends TestCase {
 
-  private FileCleaner cleaner = new FileCleaner(100);
+  private File rootDir;
 
-  public void testReadFromIOChannel() throws Exception {
+  private FileCleaner             cleaner   = new FileCleaner(2000);
+
+  private ValueDataResourceHolder resources = new ValueDataResourceHolder();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+
+    rootDir = new File(new File("target"), "vs1");
+    rootDir.mkdirs();
+    
+    new File(rootDir, FileValueStorage.TEMP_DIR_NAME).mkdirs();
+    
+    if (!rootDir.exists())
+      throw new Exception("Folder does not exist " + rootDir.getAbsolutePath());
+
+  }
+
+  public void testRead() throws Exception {
 
     byte[] buf = "0123456789".getBytes();
-    File file = new File("target/testReadFromIOChannel0");
+    File file = new File(rootDir, "testReadFromIOChannel0");
     file.deleteOnExit();
     if (file.exists())
       file.delete();
@@ -54,17 +74,14 @@ public class TestFileIOChannel extends TestCase {
 
     buf = "01234567890123456789".getBytes();
 
-    file = new File("target/testReadFromIOChannel1");
+    file = new File(rootDir, "testReadFromIOChannel1");
     if (file.exists())
       file.delete();
     out = new FileOutputStream(file);
     out.write(buf);
     out.close();
 
-    File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
-    if (!root.exists())
-      throw new Exception("Folder does not exist " + root.getAbsolutePath());
+    FileIOChannel channel = new SimpleFileIOChannel(rootDir, cleaner, "#1", resources);
 
     // first value - to buffer (length`=10), second - file (length`=20)
     // List <ValueData> values = channel.read("testReadFromIOChannel", 11);
@@ -89,14 +106,11 @@ public class TestFileIOChannel extends TestCase {
     } catch (IllegalStateException e) {
     }
     channel.delete("testReadFromIOChannel");
+    channel.commit();
   }
 
-  public void testWriteToIOChannel() throws Exception {
-    File root = new File("target");
-
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
-    if (!root.exists())
-      throw new Exception("Folder does not exist " + root.getAbsolutePath());
+  public void testWriteAdd() throws Exception {
+    FileIOChannel channel = new SimpleFileIOChannel(rootDir, cleaner, "#1", resources);
 
     byte[] buf = "0123456789".getBytes();
     List<ValueData> values = new ArrayList<ValueData>();
@@ -107,24 +121,55 @@ public class TestFileIOChannel extends TestCase {
     for (ValueData valueData : values) {
       channel.write("testWriteToIOChannel", valueData);
     }
+    channel.commit();
 
-    assertTrue(new File("target/testWriteToIOChannel0").exists());
-    assertTrue(new File("target/testWriteToIOChannel1").exists());
-    assertTrue(new File("target/testWriteToIOChannel2").exists());
+    assertTrue(new File(rootDir, "testWriteToIOChannel0").exists());
+    assertTrue(new File(rootDir, "testWriteToIOChannel1").exists());
+    assertTrue(new File(rootDir, "testWriteToIOChannel2").exists());
 
-    assertEquals(10, new File("target/testWriteToIOChannel0").length());
+    assertEquals(10, new File(rootDir, "testWriteToIOChannel0").length());
 
     channel.delete("testWriteToIOChannel");
+    channel.commit();
     // try to read
     // values = channel.read("testWriteToIOChannel", 5);
     // assertEquals(3, values.size());
   }
+  
+  protected void writeUpdate(FileIOChannel channel) throws Exception {
+    
+    byte[] buf = "0123456789".getBytes();
+    channel.write("testWriteUpdate", new ByteArrayPersistedValueData(buf, 0));    
+    channel.commit();
 
-  public void testDeleteFromIOChannel() throws Exception {
-    File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
-    if (!root.exists())
-      throw new Exception("Folder does not exist " + root.getAbsolutePath());
+    File f = channel.getFile("testWriteUpdate", 0);
+    assertTrue(f.exists());
+    assertEquals(10, f.length());
+
+    byte[] buf1 = "qwerty".getBytes();
+    channel.write("testWriteUpdate", new ByteArrayPersistedValueData(buf1, 0));    
+    channel.commit();
+    
+    f = channel.getFile("testWriteUpdate", 0);
+    assertTrue(f.exists());
+    assertEquals(6, f.length());
+    
+    channel.delete("testWriteUpdate");
+    channel.commit();
+  }
+  
+  public void testWriteUpdate() throws Exception {
+    FileIOChannel channel = new SimpleFileIOChannel(rootDir, cleaner, "#1", resources);
+
+    writeUpdate(channel);
+    
+    channel = new TreeFileIOChannel(rootDir, cleaner, "#1", resources);
+
+    writeUpdate(channel);
+  }
+
+  public void testDelete() throws Exception {
+    FileIOChannel channel = new SimpleFileIOChannel(rootDir, cleaner, "#1", resources);
 
     byte[] buf = "0123456789".getBytes();
     List<ValueData> values = new ArrayList<ValueData>();
@@ -135,29 +180,29 @@ public class TestFileIOChannel extends TestCase {
     for (ValueData valueData : values) {
       channel.write("testDeleteFromIOChannel", valueData);
     }
+    channel.commit();
 
-    assertTrue(new File("target/testDeleteFromIOChannel0").exists());
-    assertTrue(new File("target/testDeleteFromIOChannel1").exists());
-    assertTrue(new File("target/testDeleteFromIOChannel2").exists());
-
-    channel.delete("testDeleteFromIOChannel");
-
-    assertFalse(new File("target/testDeleteFromIOChannel0").exists());
-    assertFalse(new File("target/testDeleteFromIOChannel1").exists());
-    assertFalse(new File("target/testDeleteFromIOChannel2").exists());
+    assertTrue(new File(rootDir, "testDeleteFromIOChannel0").exists());
+    assertTrue(new File(rootDir, "testDeleteFromIOChannel1").exists());
+    assertTrue(new File(rootDir, "testDeleteFromIOChannel2").exists());
 
     channel.delete("testDeleteFromIOChannel");
+    channel.commit();
+
+    assertFalse(new File(rootDir, "testDeleteFromIOChannel0").exists());
+    assertFalse(new File(rootDir, "testDeleteFromIOChannel1").exists());
+    assertFalse(new File(rootDir, "testDeleteFromIOChannel2").exists());
+
+    channel.delete("testDeleteFromIOChannel");
+    channel.commit();
     // try to read
     // values = channel.read("testDeleteFromIOChannel", 5);
     // assertEquals(0, values.size());
 
   }
 
-  public void testConcurrentReadFromIOChannel() throws Exception {
-    File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
-    if (!root.exists())
-      throw new Exception("Folder does not exist " + root.getAbsolutePath());
+  public void testConcurrentRead() throws Exception {
+    FileIOChannel channel = new SimpleFileIOChannel(rootDir, cleaner, "#1", resources);
 
     List<ValueData> values = new ArrayList<ValueData>();
     byte[] buf = new byte[100 * 100];
@@ -170,8 +215,9 @@ public class TestFileIOChannel extends TestCase {
     for (ValueData valueData : values) {
       channel.write("testConcurrentReadFromIOChannel", valueData);
     }
+    channel.commit();
 
-    File f = new File("target/testConcurrentReadFromIOChannel0");
+    File f = new File(rootDir, "testConcurrentReadFromIOChannel0");
     if (!f.exists())
       throw new Exception("File does not exist " + f.getAbsolutePath());
 
@@ -192,13 +238,11 @@ public class TestFileIOChannel extends TestCase {
       assertEquals(100 * 100, p[i].getLen());
     }
     channel.delete("testConcurrentReadFromIOChannel");
+    channel.commit();
   }
 
-  public void testDeleteLockedFileFromIOChannel() throws Exception {
-    File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
-    if (!root.exists())
-      throw new Exception("Folder does not exist " + root.getAbsolutePath());
+  public void testDeleteLockedFile() throws Exception {
+    FileIOChannel channel = new SimpleFileIOChannel(rootDir, cleaner, "#1", resources);
 
     List<ValueData> values = new ArrayList<ValueData>();
     byte[] buf = new byte[100000];
@@ -211,26 +255,22 @@ public class TestFileIOChannel extends TestCase {
     for (ValueData valueData : values) {
       channel.write("testDeleteLockedFileFromIOChannel", valueData);
     }
+    channel.commit();
 
-    File f = new File("target/testDeleteLockedFileFromIOChannel0");
+    File f = new File(rootDir, "testDeleteLockedFileFromIOChannel0");
     new Probe(f).start();
 
     f = null;
 
     Thread.sleep(100);
-    // if(channel.delete("testDeleteLockedFileFromIOChannel"))
-    // fail(
-    // "File target/testDeleteLockedFileFromIOChannel0 is deleted! try to increase sleep value below!"
-    // );
 
     // removed by FileCleaner
     Thread.sleep(3000);
-    f = new File("target/testDeleteLockedFileFromIOChannel0");
+    f = new File(rootDir, "testDeleteLockedFileFromIOChannel0");
     // assertFalse(f.exists());
     System.out.println(">>>>>>>>>>>>>" + f.canRead() + " " + f.exists() + " " + f.canWrite());
     System.out.println(">>>>>>>>>>>>>" + new FileInputStream(f).read());
 
     // new Probe(f).start();
-
   }
 }

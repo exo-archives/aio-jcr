@@ -60,7 +60,7 @@ public class DBConstants {
   protected String              FIND_VALUES_BY_PROPERTYID;
 
   protected String              FIND_VALUE_BY_PROPERTYID_OREDERNUMB;
-
+  
   protected String              FIND_NODES_BY_PARENTID;
 
   protected String              FIND_PROPERTIES_BY_PARENTID;
@@ -70,7 +70,7 @@ public class DBConstants {
   protected String              INSERT_PROPERTY;
 
   protected String              INSERT_VALUE;
-
+  
   protected String              INSERT_REF;
 
   protected String              RENAME_NODE;
@@ -78,6 +78,8 @@ public class DBConstants {
   protected String              UPDATE_NODE;
 
   protected String              UPDATE_PROPERTY;
+  
+  protected String              UPDATE_VALUE;
 
   protected String              DELETE_ITEM;
 

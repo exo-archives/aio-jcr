@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.aws.storage.sdb;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,7 +87,8 @@ import com.amazonaws.sdb.model.ReplaceableAttribute;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 30.09.2008
+ * <br/>
+ * Date: 30.09.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -215,6 +217,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * External Value Storages provider.
    */
   protected final ValueStoragePluginProvider valueStorageProvider;
+
+  /**
+   * External VS changes (FS, S3 etc).
+   */
+  protected final List<ValueIOChannel>       valueChanges;
 
   /**
    * Node IData descriptor.
@@ -637,7 +644,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     Object rollback() throws RepositoryException {
       try {
         // TODO delete external values
-        
+
         return deleteItem(sdbService, domainName, property.getIdentifier());
       } catch (AmazonSimpleDBException e) {
         throw new SDBStorageException("(add) Property " + property.getQPath().getAsString() + " "
@@ -1042,7 +1049,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
-   * NOT USED.<br/> PropertyData comparator. Order allways will be following
+   * NOT USED.<br/>
+   * PropertyData comparator. Order allways will be following
    * 
    * <pre>
    * 1. jcr:primaryType
@@ -1117,18 +1125,26 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
     this.valueStorageProvider = valueStorageProvider;
 
+    // SDB changes
     this.changes = new ArrayList<WriteOperation>();
+    // Changed Items Identifiers
     this.changedItems = new HashSet<String>();
+
+    // External VS changes (FS, S3 etc)
+    this.valueChanges = new ArrayList<ValueIOChannel>();
   }
 
   /**
-   * Init SimpleDB storage. <br/> Check if domain exists. Will create one new if there is not. Write
-   * version value in special row.
+   * Init SimpleDB storage. <br/>
+   * Check if domain exists. Will create one new if there is not. Write version value in special
+   * row.
    * 
-   * <br/> If current storage (domain) contains version row (already initialized) will check if
-   * container name matches to the given.
+   * <br/>
+   * If current storage (domain) contains version row (already initialized) will check if container
+   * name matches to the given.
    * 
-   * <br/> If the given and stored container names are not same the WARNING will be printed.
+   * <br/>
+   * If the given and stored container names are not same the WARNING will be printed.
    * 
    * @param containerName
    *          - Workspace container name
@@ -1609,7 +1625,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   /**
    * Query Node references properties by node ID (QueryWithAttributes).
    * 
-   * <br/>NOTE: REFERENCE Properties SHOULD be stored in SimpleDB storage (not in External Values
+   * <br/>
+   * NOTE: REFERENCE Properties SHOULD be stored in SimpleDB storage (not in External Values
    * Storage).
    * 
    * @param service
@@ -1880,8 +1897,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * Property Values processing. Extract Value data into String representation. If Value is
    * multivalued return sequence of Strings.
    * 
-   * <br/> Each Value will be stored as a String with fixed prefix of 4 chars XNNN. Where X - 'D'
-   * for data or 'S' for external storage link; NNN - Value order number.
+   * <br/>
+   * Each Value will be stored as a String with fixed prefix of 4 chars XNNN. Where X - 'D' for data
+   * or 'S' for external storage link; NNN - Value order number.
    * 
    * @param data
    *          - Value data
@@ -1942,6 +1960,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       } else {
         // store in External storage
         channel.write(data.getIdentifier(), vd);
+        valueChanges.add(channel);
         vprefix[0] = VALUEPREFIX_STORAGEID;
         v = new String(vprefix) + channel.getStorageId();
       }
@@ -2071,7 +2090,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                 inames.append(i.getName());
                 inames.append(" ");
               }
-              
+
               throw new SDBRepositoryException("(add) FATAL Storage contains more of one Item with ID: "
                   + data.getParentIdentifier()
                   + ". Check of "
@@ -2468,29 +2487,85 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * {@inheritDoc}
    */
   public void commit() throws IllegalStateException, RepositoryException {
-    // execute changes operations
-    for (Iterator<WriteOperation> iter = changes.iterator(); iter.hasNext();)
-      iter.next().execute();
+    try {
+      // TODO cleanup
+//      int sdbi = 0;
+//      try {
+//        // execute SimpleDB changes operations
+//        for (; sdbi < changes.size(); sdbi++)
+//          changes.get(sdbi).execute();
+//      } catch (Throwable e) {
+//        // SDB error, rollback executed SDB
+//        try {
+//          for (; sdbi >= 0; sdbi--)
+//            changes.get(sdbi).rollback();
+//        } catch (Throwable re) {
+//          LOG.error("Error of changes rollback on SimpleDB commit error", re);
+//        }
+//
+//        try {
+//          // rollback VS
+//          for (int p = valueChanges.size() - 1; p >= 0; p--)
+//            valueChanges.get(p).rollback();
+//        } catch (IOException ioe) {
+//          LOG.error("Error of Externally stored Values changes rollback on SimpleDB commit error", ioe);
+//        }
+//
+//        throw new RepositoryException("Commit error", e);
+//      }
 
-    changes.clear();
-    changedItems.clear();
+      // execute SimpleDB changes operations
+      for (WriteOperation wo : changes)
+        wo.execute();      
+      
+      // commit VS changes operations
+      for (ValueIOChannel vo : valueChanges)
+        vo.commit();
+
+      // clean only on success, otherwise rollback will do cleaup
+      changes.clear();
+      changedItems.clear();
+      valueChanges.clear();
+    } catch (IOException e) {
+      throw new RepositoryException("Commit error", e);
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   public void rollback() throws IllegalStateException, RepositoryException {
-    // iter backward
+
+    boolean sdbError = false;
     try {
+      // rollback SDB changes at first
+      // iter backward
       for (int i = changes.size() - 1; i >= 0; i--) {
         WriteOperation o = changes.get(i);
         if (o.executed())
           o.rollback();
       }
+    } catch (RepositoryException e) {
+      sdbError = true;
+      throw new RepositoryException("Rollback error", e);
     } finally {
       // clear all on rollback anyway
       changes.clear();
       changedItems.clear();
+
+      try {
+        // rollback VS from the end
+        for (int i = valueChanges.size() - 1; i >= 0; i--)
+          valueChanges.get(i).rollback();
+      } catch (IOException e) {
+        if (sdbError)
+          LOG.warn("Error of Property Value changes rollback. But SimpleDB changes rollback error was before.",
+                   e);
+        else
+          throw new RepositoryException("Rollback error", e);
+      } finally {
+        valueChanges.clear();
+      }
     }
   }
 
@@ -2754,7 +2829,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             inames.append(i.getName());
             inames.append(" ");
           }
-          
+
           throw new SDBRepositoryException("(item) FATAL Location "
               + parent.getQPath().getAsString() + name + " (parentId=" + parentId
               + ") match multiple items in storage: " + inames);

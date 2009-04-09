@@ -38,11 +38,11 @@ public class TreeFileValueStorage extends FileValueStorage {
   }
 
   public TreeFileValueStorage() {
-    this.cleaner = new TreeFileCleaner();
+    this.cleaner = new TreeFileCleaner(); // TODO use container cleaner
   }
 
   @Override
   public ValueIOChannel openIOChannel() throws IOException {
-    return new TreeFileIOChannel(rootDir, cleaner, getId());
+    return new TreeFileIOChannel(rootDir, cleaner, getId(), resources);
   }
 }

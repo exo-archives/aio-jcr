@@ -27,8 +27,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.jcr.InvalidItemStateException;
@@ -55,7 +56,8 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedV
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataNotFoundException;
-import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
+import org.exoplatform.services.jcr.impl.storage.value.ValueOperation;
+import org.exoplatform.services.jcr.impl.storage.value.cas.RecordNotFoundException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
@@ -100,8 +102,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   protected final String                     containerName;
 
   protected final SQLExceptionHandler        exceptionHandler;
-  
-  protected final List<ValueFile>            currentChanges;
+
+  protected final List<ValueIOChannel>       valueChanges;
 
   /**
    * JDBCStorageConnection constructor.
@@ -148,8 +150,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
     prepareQueries();
     this.exceptionHandler = new SQLExceptionHandler(containerName, this);
-    
-    this.currentChanges = new ArrayList<ValueFile>();
+
+    this.valueChanges = new ArrayList<ValueIOChannel>();
   }
 
   /**
@@ -233,13 +235,15 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       dbConnection.rollback();
       dbConnection.close();
 
-      Iterator<ValueFile> it = currentChanges.iterator();
-      while(it.hasNext()){
-        it.next().rollback();
-      }
-      currentChanges.clear();
+      // rollback from the end
+      for (int p = valueChanges.size() - 1; p >= 0; p--)
+        valueChanges.get(p).rollback();
     } catch (SQLException e) {
       throw new RepositoryException(e);
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    } finally {
+      valueChanges.clear();
     }
   }
 
@@ -251,7 +255,16 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       dbConnection.commit();
       dbConnection.close();
-      currentChanges.clear();
+
+      try {
+        for (ValueIOChannel vo : valueChanges)
+          vo.commit();
+
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      } finally {
+        valueChanges.clear();
+      }
     } catch (SQLException e) {
       throw new RepositoryException(e);
     }
@@ -300,7 +313,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         }
       }
 
-      addValues(data);
+      addValues(getInternalId(data.getIdentifier()), data);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Property added "
@@ -314,7 +327,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     } catch (IOException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property add. IO error: " + e, e);
-      exceptionHandler.handleAddException(e, data);
+      throw new RepositoryException("Error of Property Value add " + e, e);
     } catch (SQLException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property add. Database error: " + e, e);
@@ -334,16 +347,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       if (renameNode(data) <= 0)
         throw new JCRInvalidItemStateException("(rename) Node not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.RENAMED);
-    } catch (IOException e) {
-      if (LOG.isDebugEnabled())
-        LOG.error("Property add. IO error: " + e, e);
-      exceptionHandler.handleAddException(e, data);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.RENAMED);
     } catch (SQLException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property add. Database error: " + e, e);
@@ -366,12 +371,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
         throw new JCRInvalidItemStateException("(delete) Node not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.DELETED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.DELETED);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier()
@@ -396,8 +397,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     final String cid = getInternalId(data.getIdentifier());
 
     try {
-      deleteExternalValues(cid, data);
-      deleteValues(cid);
+      deleteValues(cid, data, false);
 
       // delete references
       deleteReference(cid);
@@ -406,12 +406,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
         throw new JCRInvalidItemStateException("(delete) Property not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.DELETED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.DELETED);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Property deleted "
@@ -424,7 +420,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     } catch (IOException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property remove. IO error: " + e, e);
-      exceptionHandler.handleDeleteException(e, data);
+      throw new RepositoryException("Error of Property Value delete " + e, e);
     } catch (SQLException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property remove. Database error: " + e, e);
@@ -448,12 +444,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                  data.getOrderNumber(),
                                  cid) <= 0)
         throw new JCRInvalidItemStateException("(update) Node not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.UPDATED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.UPDATED);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getIdentifier()
@@ -481,12 +473,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       // update type
       if (updatePropertyByIdentifier(data.getPersistedVersion(), data.getType(), cid) <= 0)
         throw new JCRInvalidItemStateException("(update) Property not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.UPDATED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.UPDATED);
 
       // update reference
       try {
@@ -500,10 +488,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
             + data.getIdentifier() + ") value: " + e.getMessage(), e);
       }
 
-      deleteExternalValues(cid, data);
-      deleteValues(cid);
-
-      addValues(data);
+      // do Values update: delete all and add all
+      deleteValues(cid, data, true);
+      addValues(cid, data);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Property updated "
@@ -517,7 +504,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     } catch (IOException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property update. IO error: " + e, e);
-      exceptionHandler.handleUpdateException(e, data);
+      throw new RepositoryException("Error of Property Value update " + e, e);
     } catch (SQLException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property update. Database error: " + e, e);
@@ -536,7 +523,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       List<NodeData> childrens = new ArrayList<NodeData>();
       while (node.next())
         childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE, parent.getACL()));
-      
+
       return childrens;
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -617,10 +604,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       }
       return references;
     } catch (SQLException e) {
-      e.printStackTrace();
       throw new RepositoryException(e);
     } catch (IOException e) {
-      e.printStackTrace();
       throw new RepositoryException(e);
     }
   }
@@ -687,10 +672,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         return itemData(parent.getQPath(), item, item.getInt(COLUMN_CLASS), parent.getACL());
       return null;
     } catch (SQLException e) {
-      e.printStackTrace();
       throw new RepositoryException(e);
     } catch (IOException e) {
-      e.printStackTrace();
       throw new RepositoryException(e);
     } finally {
       try {
@@ -789,9 +772,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *          - initial parent node id
    * @return Collection<String>
    * @throws SQLException
+   *           if database error
    * @throws IllegalACLException
+   *           if wrong ACL
    * @throws IllegalNameException
+   *           if wrong QName
    * @throws RepositoryException
+   *           if Repository error
    */
   private List<AccessControlEntry> traverseACLPermissions(String cpid) throws SQLException,
                                                                       IllegalACLException,
@@ -832,9 +819,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *          - initial parent node id
    * @return owner name
    * @throws SQLException
+   *           if database error
    * @throws IllegalACLException
+   *           if wrong ACL
    * @throws IllegalNameException
+   *           if wrong QName
    * @throws RepositoryException
+   *           if Repository error
    */
   private String traverseACLOwner(String cpid) throws SQLException,
                                               IllegalACLException,
@@ -863,9 +854,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *          - initial parent node id
    * @return owner name
    * @throws SQLException
+   *           if database error
    * @throws IllegalACLException
+   *           if wrong ACL
    * @throws IllegalNameException
+   *           if wrong QName
    * @throws RepositoryException
+   *           if Repository error
    */
   private AccessControlList traverseACL(String cpid) throws SQLException,
                                                     IllegalACLException,
@@ -917,8 +912,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @param cpid
    * @return
    * @throws SQLException
+   *           if database error
    * @throws InvalidItemStateException
+   *           if Item state is obsolete
    * @throws IllegalNameException
+   *           if invalid QName
    */
   private QPath traverseQPath_SP_PGSQL(String cpid) throws SQLException,
                                                    InvalidItemStateException,
@@ -1436,46 +1434,64 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Delete External Values.
+   * Delete Property Values.
    * 
    * @param cid
    *          Property id
    * @param pdata
    *          PropertyData
+   * @param update
+   *          boolean true if it's delete-add sequence (update operation)
    * @throws IOException
    *           i/O error
    * @throws ValueDataNotFoundException
    *           if no ValueData found for Property
+   * @throws SQLException
+   *           if database error occurs
    */
-  private void deleteExternalValues(String cid, PropertyData pdata) throws IOException,
-                                                                   ValueDataNotFoundException {
+  private void deleteValues(String cid, PropertyData pdata, boolean update) throws IOException,
+                                                                           ValueDataNotFoundException,
+                                                                           SQLException {
 
+    final ResultSet valueRecords = findValuesByPropertyId(cid);
     try {
+      // [PN] 12.07.07 if (... instead while (...
+      // so, we don't need iterate throught each value of the property
+      // IO channel will do this work according the existed files on FS
+      if (valueRecords.next()) {
+        // delete all Values in database
+        deleteValueData(cid);
 
-      final ResultSet valueRecords = findValuesByPropertyId(cid);
-      try {
-        // [PN] 12.07.07 if (... instead while (...
-        // so, we don't need iterate throught each value of the property
-        // IO channel will do this work according the existed files on FS
-        if (valueRecords.next()) {
-          final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
-          if (!valueRecords.wasNull()) {
-            final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
-            try {
-              channel.delete(pdata.getIdentifier());
-            } finally {
-              channel.close();
-            }
+        // delete each VS once per Property
+        // traverse each ValueData record to be sure all Values Storage data deleted
+        Set<String> deletedVS = new HashSet<String>();
+        // do { // TODO we need it for multiple VS
+        final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
+        if (!valueRecords.wasNull() && !deletedVS.contains(storageId)) {
+          final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
+          try {
+            // delete all Values data in VS
+            channel.delete(pdata.getIdentifier());
+            deletedVS.add(storageId);
+          } catch (RecordNotFoundException e) {
+            // This is workaround for CAS VS. No records found for this value. See logic in
+            // CASableDeleteValues operation.
+            // CASableDeleteValues saves VCAS record on commit, but it's possible the Property just
+            // added in this transaction and not commited.
+
+            // TODO 08.04.2009 Skip error now but the better logic is required
+            if (!update)
+              throw new RecordNotFoundException("Cannot delete property "
+                  + pdata.getQPath().getAsString(), e);
+          } finally {
+            valueChanges.add(channel);
           }
         }
-      } finally {
-        valueRecords.close();
-      }
+        // } while (valueRecords.next());
 
-    } catch (SQLException e) {
-      String msg = "Can't read value data of property with id " + cid + ", error:" + e;
-      LOG.error(msg, e);
-      throw new IOException(msg);
+      } // else property without Value(s) - it's may means empty Values for multivalued Property
+    } finally {
+      valueRecords.close();
     }
   }
 
@@ -1491,32 +1507,27 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *           i/O error
    * @throws ValueDataNotFoundException
    *           if no ValueData found for Property
+   * @throws SQLException
+   *           if database errro occurs
    */
   private List<ValueData> readValues(String cid, PropertyData pdata) throws IOException,
-                                                                    ValueDataNotFoundException {
+                                                                    ValueDataNotFoundException,
+                                                                    SQLException {
 
     List<ValueData> data = new ArrayList<ValueData>();
 
+    final ResultSet valueRecords = findValuesByPropertyId(cid);
     try {
-
-      final ResultSet valueRecords = findValuesByPropertyId(cid);
-      try {
-        while (valueRecords.next()) {
-          final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
-          final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
-          ValueData vdata = valueRecords.wasNull()
-              ? readValueData(cid, orderNum, pdata.getPersistedVersion())
-              : readValueData(pdata, orderNum, storageId);
-          data.add(vdata);
-        }
-      } finally {
-        valueRecords.close();
+      while (valueRecords.next()) {
+        final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
+        final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
+        ValueData vdata = valueRecords.wasNull()
+            ? readValueData(cid, orderNum, pdata.getPersistedVersion())
+            : readValueData(pdata, orderNum, storageId);
+        data.add(vdata);
       }
-
-    } catch (SQLException e) {
-      String msg = "Can't read value data of property with id " + cid + ", error:" + e;
-      LOG.error(msg, e);
-      throw new IOException(msg);
+    } finally {
+      valueRecords.close();
     }
 
     return data;
@@ -1637,7 +1648,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @throws IOException
    *           I/O error
    */
-  protected void addValues(PropertyData data) throws IOException, SQLException {
+  protected void addValues(String cid, PropertyData data) throws IOException, SQLException {
     List<ValueData> vdata = data.getValues();
 
     for (int i = 0; i < vdata.size(); i++) {
@@ -1648,6 +1659,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       int streamLength;
       String storageId;
       if (channel == null) {
+        // prepare write of Value in database
         if (vd.isByteArray()) {
           byte[] dataBytes = vd.getAsByteArray();
           stream = new ByteArrayInputStream(dataBytes);
@@ -1658,12 +1670,60 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         }
         storageId = null;
       } else {
-        currentChanges.add(channel.write(data.getIdentifier(), vd));
+        // write Value in external VS
+        channel.write(data.getIdentifier(), vd);
+        valueChanges.add(channel);
         storageId = channel.getStorageId();
         stream = null;
         streamLength = 0;
       }
-      addValueData(getInternalId(data.getIdentifier()), i, stream, streamLength, storageId);
+      addValueData(cid, i, stream, streamLength, storageId);
+    }
+  }
+
+  /**
+   * Update Values to Property record.
+   * 
+   * @param data
+   *          PropertyData
+   * @throws SQLException
+   *           database error
+   * @throws IOException
+   *           I/O error
+   */
+  @Deprecated
+  // DONT USE IT
+  protected void updateValues(String cid, PropertyData data) throws IOException, SQLException {
+
+    List<ValueData> vdata = data.getValues();
+
+    for (int i = 0; i < vdata.size(); i++) {
+      ValueData vd = vdata.get(i);
+      vd.setOrderNumber(i);
+      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
+      InputStream stream;
+      int streamLength;
+      String storageId;
+      if (channel == null) {
+        // prepare update of Value in database
+        if (vd.isByteArray()) {
+          byte[] dataBytes = vd.getAsByteArray();
+          stream = new ByteArrayInputStream(dataBytes);
+          streamLength = dataBytes.length;
+        } else {
+          stream = vd.getAsStream();
+          streamLength = stream.available();
+        }
+        storageId = null;
+      } else {
+        // update Value in external VS
+        channel.write(data.getIdentifier(), vd);
+        valueChanges.add(channel);
+        storageId = channel.getStorageId();
+        stream = null;
+        streamLength = 0;
+      }
+      updateValueData(cid, i, stream, streamLength, storageId);
     }
   }
 
@@ -1685,7 +1745,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
   protected abstract int addReference(PropertyData data) throws SQLException, IOException;
 
-  protected abstract int renameNode(NodeData data) throws SQLException, IOException;
+  protected abstract int renameNode(NodeData data) throws SQLException;
 
   protected abstract int deleteReference(String propertyIdentifier) throws SQLException;
 
@@ -1705,9 +1765,15 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                       int orderNumber,
                                       InputStream stream,
                                       int streamLength,
-                                      String storageId) throws SQLException, IOException;
+                                      String storageId) throws SQLException;
 
-  protected abstract int deleteValues(String cid) throws SQLException;
+  protected abstract int deleteValueData(String cid) throws SQLException;
+
+  protected abstract int updateValueData(String cid,
+                                         int orderNumber,
+                                         InputStream stream,
+                                         int streamLength,
+                                         String storageId) throws SQLException;
 
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
 

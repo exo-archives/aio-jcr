@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.storage.value;
 import java.io.IOException;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
 
 /**
  * Created by The eXo Platform SAS.
@@ -31,36 +30,42 @@ import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
 public interface ValueIOChannel {
 
   /**
-   * reads values
+   * Read Property value.
    * 
    * @param propertyId
+   *          - Property ID
    * @param maxBufferSize
    *          - maximum size when value will be read to memory buffer
-   * @return List of ValueData
+   * @return ValueData
    * @throws IOException
+   *           if error occurs
    */
   ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException;
 
   /**
-   * writes values
+   * Add or update Property value.
    * 
    * @param propertyId
+   *          - Property ID
    * @param data
-   *          - list of ValueData
+   *          - ValueData
    * @throws IOException
+   *           if error occurs
    */
-  ValueFile write(String propertyId, ValueData data) throws IOException;
+  void write(String propertyId, ValueData data) throws IOException;
 
   /**
-   * deletes values
+   * Delete Property values.
    * 
    * @param propertyId
+   *          - Property ID
    * @throws IOException
+   *           if error occurs
    */
-  boolean delete(String propertyId) throws IOException;
+  void delete(String propertyId) throws IOException;
 
   /**
-   * closes channel
+   * Closes channel.
    */
   void close();
 
@@ -68,4 +73,20 @@ public interface ValueIOChannel {
    * Return this value storage id.
    */
   String getStorageId();
+
+  /**
+   * Commit channel changes.
+   * 
+   * @throws IOException
+   *           if error occurs
+   */
+  void commit() throws IOException;
+
+  /**
+   * Rollback channel changes.
+   * 
+   * @throws IOException
+   *           if error occurs
+   */
+  void rollback() throws IOException;
 }

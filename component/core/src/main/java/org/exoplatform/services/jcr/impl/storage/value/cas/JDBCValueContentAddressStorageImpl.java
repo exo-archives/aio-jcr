@@ -86,6 +86,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   protected String           sqlAddRecord;
 
   protected String           sqlDeleteRecord;
+  
+  protected String           sqlDeleteValueRecord;
 
   protected String           sqlSelectRecord;
 
@@ -126,6 +128,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
     sqlAddRecord = "INSERT INTO " + tableName + " (PROPERTY_ID, ORDER_NUM, CAS_ID) VALUES(?,?,?)";
     sqlDeleteRecord = "DELETE FROM " + tableName + " WHERE PROPERTY_ID=?";
+    sqlDeleteValueRecord = "DELETE FROM " + tableName + " WHERE PROPERTY_ID=? AND ORDER_NUM=?";
     sqlSelectRecord = "SELECT CAS_ID FROM " + tableName + " WHERE PROPERTY_ID=? AND ORDER_NUM=?";
     sqlSelectRecords = "SELECT CAS_ID, ORDER_NUM FROM " + tableName
         + " WHERE PROPERTY_ID=? ORDER BY ORDER_NUM";
@@ -188,7 +191,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * {@inheritDoc}
    */
-  public void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
+  public void addValue(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
                                                                      VCASException {
 
     try {
@@ -245,7 +248,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * {@inheritDoc}
    */
-  public void delete(String propertyId) throws RecordNotFoundException, VCASException {
+  public void deleteProperty(String propertyId) throws RecordNotFoundException, VCASException {
     try {
       Connection con = dataSource.getConnection();
       try {
@@ -261,6 +264,29 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
       }
     } catch (SQLException e) {
       throw new VCASException("VCAS DELETE database error: " + e, e);
+    }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void deleteValue(String propertyId, int orderNumb) throws RecordNotFoundException, VCASException {
+    try {
+      Connection con = dataSource.getConnection();
+      try {
+        PreparedStatement ps = con.prepareStatement(sqlDeleteValueRecord);
+        ps.setString(1, propertyId);
+        ps.setInt(2, orderNumb);
+        int res = ps.executeUpdate();
+        ps.close();
+
+        if (res <= 0)
+          throw new RecordNotFoundException("Value record not found, propertyId=" + propertyId + " orderNumb=" + orderNumb);
+      } finally {
+        con.close();
+      }
+    } catch (SQLException e) {
+      throw new VCASException("VCAS Value DELETE database error: " + e, e);
     }
   }
 
@@ -335,11 +361,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#hasSharedContent
-   * (java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public boolean hasSharedContent(String propertyId) throws RecordNotFoundException, VCASException {
     try {

@@ -86,6 +86,8 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
   protected PreparedStatement updateProperty;
 
+  protected PreparedStatement updateValue;
+  
   protected PreparedStatement deleteItem;
 
   protected PreparedStatement deleteNode;
@@ -202,6 +204,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
     UPDATE_NODE = "update JCR_SITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
     UPDATE_PROPERTY = "update JCR_SITEM set VERSION=?, P_TYPE=? where ID=?";
+    UPDATE_VALUE = "update JCR_SVALUE set DATA=?, STORAGE_DESC=? where PROPERTY_ID=?, ORDER_NUM=?";
 
     DELETE_ITEM = "delete from JCR_SITEM where ID=?";
     DELETE_VALUE = "delete from JCR_SVALUE where PROPERTY_ID=?";
@@ -439,7 +442,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
                              int orderNumber,
                              InputStream stream,
                              int streamLength,
-                             String storageDesc) throws SQLException, IOException {
+                             String storageDesc) throws SQLException {
 
     if (insertValue == null)
       insertValue = dbConnection.prepareStatement(INSERT_VALUE);
@@ -463,7 +466,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   /**
    * {@inheritDoc}
    */
-  protected int deleteValues(String cid) throws SQLException {
+  protected int deleteValueData(String cid) throws SQLException {
     if (deleteValue == null)
       deleteValue = dbConnection.prepareStatement(DELETE_VALUE);
     else
@@ -473,6 +476,34 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return deleteValue.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  protected int updateValueData(String cid,
+                             int orderNumber,
+                             InputStream stream,
+                             int streamLength,
+                             String storageDesc) throws SQLException {
+
+    if (updateValue == null)
+      updateValue = dbConnection.prepareStatement(UPDATE_VALUE);
+    else
+      updateValue.clearParameters();
+
+    if (stream == null) {
+      // [PN] store vd reference to external storage etc.
+      updateValue.setNull(1, Types.BINARY);
+      updateValue.setString(4, storageDesc);
+    } else {
+      updateValue.setBinaryStream(1, stream, streamLength);
+      updateValue.setNull(4, Types.VARCHAR);
+    }
+
+    updateValue.setString(2, cid);
+    updateValue.setInt(3, orderNumber);
+    return updateValue.executeUpdate();
+  }  
+  
   /**
    * {@inheritDoc}
    */
@@ -504,7 +535,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
    * {@inheritDoc}
    */
   @Override
-  protected int renameNode(NodeData data) throws SQLException, IOException {
+  protected int renameNode(NodeData data) throws SQLException {
     if (renameNode == null)
       renameNode = dbConnection.prepareStatement(RENAME_NODE);
     else

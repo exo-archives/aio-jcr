@@ -61,7 +61,7 @@ public class CASableIOSupport {
    * @return - digester output stream
    * @throws IOException
    */
-  FileDigestOutputStream openFile(File file) throws IOException {
+  public FileDigestOutputStream openFile(File file) throws IOException {
     MessageDigest md;
     try {
       md = MessageDigest.getInstance(digestAlgo);
@@ -74,34 +74,13 @@ public class CASableIOSupport {
   }
 
   /**
-   * Save content of digester output to storage and record hash id in address database.
+   * Construct file name of given hash.
    * 
-   * @param propertyId
-   *          - proeprty id
-   * @param orderNumber
-   *          - value number
-   * @param dout
-   *          - digester write output (File writter)
-   * @throws IOException
-   * @throws RecordAlreadyExistsException
+   * @param hash String
+   *          - digester hash
    */
-  File saveFile(FileDigestOutputStream dout) throws IOException, RecordAlreadyExistsException {
-
+  public File getFile(String hash) {
     // work with digest
-    File vcasFile = new File(channel.rootDir, channel.makeFilePath(dout.getDigestHash(), 0));
-    // TODO (same performed in TreeFileIOChannel.getFile()) make sure parent dir exists
-    vcasFile.getParentFile().mkdirs();
-
-    // Actually add content if not existed
-    // Created file with name inherited from this channel super class.
-    // If same hash exists, the file should be removed
-    // if doesn't the file will be renamed to hash name.
-    if (vcasFile.exists())
-      // remove file if same exists
-      dout.getFile().delete(); // should be ok without file cleaner
-    else if (!dout.getFile().renameTo(vcasFile)) // rename propetynamed file to hashnamed one
-      throw new VCASException("File " + dout.getFile().getAbsolutePath()
-          + " can't be renamed to VCAS-named " + vcasFile.getAbsolutePath());
-    return vcasFile;
+    return new File(channel.rootDir, channel.makeFilePath(hash, 0));
   }
 }

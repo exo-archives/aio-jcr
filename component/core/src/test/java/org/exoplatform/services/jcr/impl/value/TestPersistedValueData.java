@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
+import org.exoplatform.services.jcr.impl.storage.value.fs.Probe;
 
 /**
  * Created by The eXo Platform SAS.

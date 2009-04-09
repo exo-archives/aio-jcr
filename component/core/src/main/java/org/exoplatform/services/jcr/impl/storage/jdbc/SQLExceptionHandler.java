@@ -16,6 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl.storage.jdbc;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.ItemExistsException;
 import javax.jcr.RepositoryException;
@@ -78,10 +81,10 @@ public class SQLExceptionHandler {
   }
 
   /**
-   * Handle Add Exceptions.
+   * Handle Add SQLException.
    * 
    * @param e
-   *          - an Exception
+   *          - an SQLException
    * @param item
    *          - context ItemData
    * @return String with error message
@@ -90,7 +93,7 @@ public class SQLExceptionHandler {
    * @throws InvalidItemStateException
    *           if <code>InvalidItemStateException</code> should be thrown
    */
-  protected String handleAddException(Exception e, ItemData item) throws RepositoryException,
+  protected String handleAddException(SQLException e, ItemData item) throws RepositoryException,
                                                                  InvalidItemStateException {
     String message = "[" + containerName + "] ADD " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
@@ -177,12 +180,12 @@ public class SQLExceptionHandler {
     message += "Error of item add. " + itemInfo;
     throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
   }
-
+  
   /**
-   * Handle delete Exceptions.
+   * Handle Add IOException.
    * 
    * @param e
-   *          - an Exception
+   *          - an IOException
    * @param item
    *          - context ItemData
    * @return String with error message
@@ -191,7 +194,69 @@ public class SQLExceptionHandler {
    * @throws InvalidItemStateException
    *           if <code>InvalidItemStateException</code> should be thrown
    */
-  protected String handleDeleteException(Exception e, ItemData item) throws RepositoryException,
+  protected String handleAddException(IOException e, ItemData item) throws RepositoryException,
+                                                                 InvalidItemStateException {
+    String message = "[" + containerName + "] ADD " + (item.isNode() ? "NODE. " : "PROPERTY. ");
+    String errMessage = e.getMessage();
+    String itemInfo = item.getQPath().getAsString() + ", ID: " + item.getIdentifier()
+        + ", ParentID: " + item.getParentIdentifier()
+        + (errMessage != null ? ". Cause >>>> " + errMessage : "");
+
+    // try detect integrity violation
+    RepositoryException ownException = null;
+    try {
+      NodeData parent = (NodeData) conn.getItemData(item.getParentIdentifier());
+      if (parent != null) {
+        // have a parent
+        try {
+          ItemData me = conn.getItemData(item.getIdentifier());
+          if (me != null) {
+            // item already exists
+            message += "Item already exists in storage: " + itemInfo;
+            ownException = new ItemExistsException(message, e);
+            throw ownException;
+          }
+
+          me = conn.getItemData(parent, new QPathEntry(item.getQPath().getName(), item.getQPath()
+                                                                                      .getIndex()));
+          if (me != null) {
+            message += "Item already exists in storage: " + itemInfo;
+            ownException = new ItemExistsException(message, e);
+            throw ownException;
+          }
+
+        } catch (Exception ep) {
+          // item not found or other things but error of item reading
+          if (ownException != null)
+            throw ownException;
+        }
+        message += "Error of item add. " + itemInfo;
+        ownException = new RepositoryException(message, e);
+        throw ownException;
+      }
+    } catch (Exception ep) {
+      // no parent or error access it
+      if (ownException != null)
+        throw ownException;
+    }
+    message += "Error of item add. " + itemInfo;
+    throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
+  }
+
+  /**
+   * Handle delete Exceptions.
+   * 
+   * @param e
+   *          - an SQLException
+   * @param item
+   *          - context ItemData
+   * @return String with error message
+   * @throws RepositoryException
+   *           if <code>RepositoryException</code> should be thrown
+   * @throws InvalidItemStateException
+   *           if <code>InvalidItemStateException</code> should be thrown
+   */
+  protected String handleDeleteException(SQLException e, ItemData item) throws RepositoryException,
                                                                     InvalidItemStateException {
     String message = "[" + containerName + "] DELETE " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
@@ -219,7 +284,7 @@ public class SQLExceptionHandler {
    * Handle update Exceptions.
    * 
    * @param e
-   *          - an Exception
+   *          - an SQLException
    * @param item
    *          - context ItemData
    * @return String with error message
@@ -228,7 +293,7 @@ public class SQLExceptionHandler {
    * @throws InvalidItemStateException
    *           if <code>InvalidItemStateException</code> should be thrown
    */
-  protected String handleUpdateException(Exception e, ItemData item) throws RepositoryException,
+  protected String handleUpdateException(SQLException e, ItemData item) throws RepositoryException,
                                                                     InvalidItemStateException {
     String message = "[" + containerName + "] EDIT " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();

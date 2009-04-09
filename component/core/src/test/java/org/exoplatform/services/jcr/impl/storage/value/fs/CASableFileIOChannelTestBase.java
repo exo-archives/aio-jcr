@@ -23,7 +23,6 @@ import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.cas.RecordAlreadyExistsException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.RecordNotFoundException;
@@ -67,6 +66,11 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     if (rootDir == null) {
       rootDir = new File("target/temp/values-test");
       rootDir.mkdirs();
+
+      new File(rootDir, FileValueStorage.TEMP_DIR_NAME).mkdirs();
+
+      if (!rootDir.exists())
+        throw new Exception("Folder does not exist " + rootDir.getAbsolutePath());
     }
 
     if (storageId == null)
@@ -99,8 +103,9 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     FileIOChannel fch = openCASChannel(digestType);
 
     String propertyId = IdGenerator.generate();
-    TransientValueData value = new TransientValueData(new FileInputStream(testFile));
+    ValueData value = new FileStreamPersistedValueData(testFile, 0, false);
     fch.write(propertyId, value);
+    fch.commit();
 
     File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 0),
                                                      CASableIOSupport.HASHFILE_ORDERNUMBER)); // orderNum
@@ -127,20 +132,52 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
 
     // prepare
     String propertyId = IdGenerator.generate();
-    TransientValueData value = new TransientValueData(new FileInputStream(testFile));
+    ValueData value = new FileStreamPersistedValueData(testFile, 0, false);
     fch.write(propertyId, value);
+    fch.commit();
 
     long initialSize = calcDirSize(rootDir);
 
     try {
-      openCASChannel(digestType).write(new String(propertyId),
-                                       new TransientValueData(new FileInputStream(testFile)));
+      fch = openCASChannel(digestType);
+      fch.write(new String(propertyId), new FileStreamPersistedValueData(testFile, 0, false));
+      fch.commit();
+
       fail("RecordAlreadyExistsException should be thrown, record exists");
     } catch (RecordAlreadyExistsException e) {
       // ok
     }
 
     assertEquals("Storage size must be unchanged ", initialSize, calcDirSize(rootDir));
+  }
+
+  /**
+   * Tries update (delete/write) just added value in this transaction.
+   * 
+   * Check if excpetion RecordAlreadyExistsException will be thrown and storage content will not be
+   * changed.
+   * 
+   * @param digestType
+   * @throws Exception
+   */
+  protected void writeDeleteWriteInSameTransaction(String digestType) throws Exception {
+    FileIOChannel fch = openCASChannel(digestType);
+
+    // prepare
+    String propertyId = IdGenerator.generate();
+    try {
+      ValueData value = new FileStreamPersistedValueData(testFile, 0, false);
+      fch.write(propertyId, value);
+      fch.delete(propertyId);
+      fch.write(propertyId, new FileStreamPersistedValueData(testFile, 0, false));
+      fch.commit();
+
+      //long initialSize = calcDirSize(rootDir);
+    } catch (RecordAlreadyExistsException e) {
+      fail("RecordAlreadyExistsException should not be thrown, record updated in same transaction");
+    }
+
+    //assertEquals("Storage size must be unchanged ", initialSize, calcDirSize(rootDir));
   }
 
   /**
@@ -153,8 +190,9 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     FileIOChannel fch = openCASChannel(digestType);
 
     String propertyId = IdGenerator.generate();
-    TransientValueData value = new TransientValueData(new FileInputStream(testFile));
+    ValueData value = new FileStreamPersistedValueData(testFile, 0, false);
     fch.write(propertyId, value);
+    fch.commit();
 
     ValueData fvalue = fch.read(propertyId, value.getOrderNumber(), 200 * 1024);
 
@@ -174,14 +212,16 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     FileIOChannel fch = openCASChannel(digestType);
 
     String propertyId = IdGenerator.generate();
-    TransientValueData value = new TransientValueData(new FileInputStream(testFile));
+    ValueData value = new FileStreamPersistedValueData(testFile, 0, false);
     fch.write(propertyId, value);
+    fch.commit();
 
     File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 0),
                                                      CASableIOSupport.HASHFILE_ORDERNUMBER)); // orderNum
     // =0
 
     fch.delete(propertyId);
+    fch.commit();
 
     assertFalse("File should not exists " + vsfile.getAbsolutePath(), vsfile.exists());
   }
@@ -199,7 +239,9 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     long initialSize = calcDirSize(rootDir);
 
     try {
-      openCASChannel(digestType).delete(IdGenerator.generate());
+      FileIOChannel fch = openCASChannel(digestType);
+      fch.delete(IdGenerator.generate());
+      fch.commit();
       fail("RecordNotFoundException should be thrown, record not found");
     } catch (RecordNotFoundException e) {
       // ok
@@ -244,8 +286,9 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     long initialSize = calcDirSize(rootDir);
 
     for (int i = 0; i < 20; i++) {
-      fch.write(propertyId, new FileStreamPersistedValueData(testFile, i, true));
+      fch.write(propertyId, new FileStreamPersistedValueData(testFile, i, false));
     }
+    fch.commit();
 
     File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 15),
                                                      CASableIOSupport.HASHFILE_ORDERNUMBER));
@@ -271,8 +314,9 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     for (int i = 0; i < 20; i++) {
       File f = createBLOBTempFile(300);
       addedSize += f.length();
-      fch.write(propertyId, new FileStreamPersistedValueData(f, i, true));
+      fch.write(propertyId, new FileStreamPersistedValueData(f, i, false));
     }
+    fch.commit();
 
     File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 15),
                                                      CASableIOSupport.HASHFILE_ORDERNUMBER));
@@ -298,7 +342,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
       propertyId = IdGenerator.generate();
 
       FileIOChannel fch = openCASChannel(digestType);
-      fch.write(propertyId, new FileStreamPersistedValueData(testFile, 0, true));
+      fch.write(propertyId, new FileStreamPersistedValueData(testFile, 0, false));
+      fch.commit();
     }
 
     assertEquals("Storage size must be increased on size of ONE file ", initialSize
@@ -324,7 +369,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
       addedSize += f.length();
 
       FileIOChannel fch = openCASChannel(digestType);
-      fch.write(propertyId, new FileStreamPersistedValueData(f, 0, true));
+      fch.write(propertyId, new FileStreamPersistedValueData(f, 0, false));
+      fch.commit();
     }
 
     assertEquals("Storage size must be increased on size of ALL files ",
@@ -352,12 +398,14 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
         propertyId = pid;
 
       FileIOChannel fch = openCASChannel(digestType);
-      fch.write(pid, new FileStreamPersistedValueData(testFile, 0, true));
+      fch.write(pid, new FileStreamPersistedValueData(testFile, 0, false));
+      fch.commit();
     }
 
     // remove mapping in VCAS for one of files
     FileIOChannel fch = openCASChannel(digestType);
     fch.delete(propertyId);
+    fch.commit();
 
     assertEquals("Storage size must be unchanged after the delete ", initialSize
         + testFile.length(), calcDirSize(rootDir));
@@ -389,12 +437,14 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
       addedSize += (fileSize = f.length());
 
       FileIOChannel fch = openCASChannel(digestType);
-      fch.write(pid, new FileStreamPersistedValueData(f, 0, true));
+      fch.write(pid, new FileStreamPersistedValueData(f, 0, false));
+      fch.commit();
     }
 
     // remove mapping in VCAS for one of files
     FileIOChannel fch = openCASChannel(digestType);
     fch.delete(propertyId);
+    fch.commit();
 
     assertEquals("Storage size must be decreased on one file size after the delete ", initialSize
         + (addedSize - fileSize), calcDirSize(rootDir));
@@ -425,7 +475,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
       File f = createBLOBTempFile(450);
       addedSize += (m1fileSize = f.length());
 
-      FileStreamPersistedValueData v = new FileStreamPersistedValueData(f, i, true);
+      FileStreamPersistedValueData v = new FileStreamPersistedValueData(f, i, false);
 
       if (i == 1)
         sharedValue = v;
@@ -434,6 +484,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
 
       fch.write(property1MultivaluedId, v);
     }
+    fch.commit();
 
     // add another multivalued with shared file
     final String property2MultivaluedId = IdGenerator.generate();
@@ -451,10 +502,11 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
         m2filesCount++;
         File f = createBLOBTempFile(350);
         addedSize += (m2fileSize = f.length()); // add size
-        v = new FileStreamPersistedValueData(f, i, true);
+        v = new FileStreamPersistedValueData(f, i, false);
       }
       fch.write(property2MultivaluedId, v);
     }
+    fch.commit();
 
     // add some single valued properties, two new property will have shared value too
     String property1Id = null;
@@ -476,6 +528,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
       }
       FileIOChannel vfch = openCASChannel(digestType);
       vfch.write(pid, v);
+      vfch.commit();
     }
 
     // final size
@@ -484,6 +537,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     // remove mapping in VCAS for singlevalued property #2
     fch = openCASChannel(digestType);
     fch.delete(property2Id);
+    fch.commit();
     assertEquals("Storage size must be unchanged after the delete of property #2 ",
                  finalSize,
                  calcDirSize(rootDir));
@@ -492,6 +546,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     finalSize -= m1fileSize * m1filesCount;
     fch = openCASChannel(digestType);
     fch.delete(property1MultivaluedId);
+    fch.commit();
     assertEquals("Storage size must be unchanged after the delete of multivalue property #1 ",
                  finalSize,
                  calcDirSize(rootDir));
@@ -500,6 +555,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     finalSize -= m2fileSize * m2filesCount;
     fch = openCASChannel(digestType);
     fch.delete(property2MultivaluedId);
+    fch.commit();
     assertEquals("Storage size must be decreased on " + (m2fileSize * m2filesCount)
         + " bytes after the delete of multivalue property #2 ", finalSize, calcDirSize(rootDir));
 
@@ -507,6 +563,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     finalSize -= m1fileSize;
     fch = openCASChannel(digestType);
     fch.delete(property1Id);
+    fch.commit();
     assertEquals("Storage size must be decreased on " + m1fileSize
         + " bytes after the delete of property #1 ", finalSize, calcDirSize(rootDir));
   }
@@ -540,6 +597,14 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
 
   // ------ tests ------
 
+//  public void testWriteDeleteWriteMD5() throws Exception {
+//    writeDeleteWriteInSameTransaction("MD5");
+//  }
+//
+//  public void testWriteDeleteWriteSHA1() throws Exception {
+//    writeDeleteWriteInSameTransaction("SHA1");
+//  }
+  
   public void testWriteMD5() throws Exception {
     write("MD5");
   }
@@ -645,4 +710,5 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   public void testReadNotExistingSHA1() throws Exception {
     readNotExisting("SHA1");
   }
+  
 }

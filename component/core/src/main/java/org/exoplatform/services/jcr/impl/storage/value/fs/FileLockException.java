@@ -14,19 +14,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.impl.storage.value;
+package org.exoplatform.services.jcr.impl.storage.value.fs;
 
+import java.io.IOException;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
- * @version $Id: ValueFile.java 111 2008-11-11 11:11:11Z serg $
+ * <br/>
+ * Date: 03.04.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
-public interface ValueFile {
+public class FileLockException extends IOException {
+  /**
+   * serialVersionUID.
+   */
+  private static final long serialVersionUID = 5513012215532388738L;
   
-  void rollback();
+  private final InterruptedException lockError;
 
+  /**
+   * FileLockException constructor.
+   * 
+   * @param s
+   *          String message
+   */
+  public FileLockException(String s, InterruptedException lockError) {
+    super(s);
+    this.lockError = lockError;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Throwable getCause() {
+    return lockError;
+  }
 }

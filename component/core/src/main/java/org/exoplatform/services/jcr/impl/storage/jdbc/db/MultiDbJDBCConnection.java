@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
 import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
@@ -102,6 +103,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement updateNode;
 
   protected PreparedStatement updateProperty;
+  
+  protected PreparedStatement updateValue;
 
   protected PreparedStatement deleteItem;
 
@@ -213,6 +216,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
     UPDATE_NODE = "update JCR_MITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
     UPDATE_PROPERTY = "update JCR_MITEM set VERSION=?, P_TYPE=? where ID=?";
+    UPDATE_VALUE = "update JCR_MVALUE set DATA=?, STORAGE_DESC=? where PROPERTY_ID=?, ORDER_NUM=?";
 
     DELETE_ITEM = "delete from JCR_MITEM where ID=?";
     DELETE_VALUE = "delete from JCR_MVALUE where PROPERTY_ID=?";
@@ -281,7 +285,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     int added = 0;
     for (int i = 0; i < values.size(); i++) {
       ValueData vdata = values.get(i);
-      String refNodeIdentifier = new String(vdata.getAsByteArray());
+      String refNodeIdentifier = ValueDataConvertor.readString(vdata);
 
       insertReference.setString(1, refNodeIdentifier);
       insertReference.setString(2, data.getIdentifier());
@@ -448,7 +452,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
                              int orderNumber,
                              InputStream stream,
                              int streamLength,
-                             String storageDesc) throws SQLException, IOException {
+                             String storageDesc) throws SQLException {
 
     if (insertValue == null)
       insertValue = dbConnection.prepareStatement(INSERT_VALUE);
@@ -472,7 +476,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   /**
    * {@inheritDoc}
    */
-  protected int deleteValues(String cid) throws SQLException {
+  protected int deleteValueData(String cid) throws SQLException {
     if (deleteValue == null)
       deleteValue = dbConnection.prepareStatement(DELETE_VALUE);
     else
@@ -482,6 +486,34 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return deleteValue.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  protected int updateValueData(String cid,
+                             int orderNumber,
+                             InputStream stream,
+                             int streamLength,
+                             String storageDesc) throws SQLException {
+
+    if (updateValue == null)
+      updateValue = dbConnection.prepareStatement(UPDATE_VALUE);
+    else
+      updateValue.clearParameters();
+
+    if (stream == null) {
+      // [PN] store vd reference to external storage etc.
+      updateValue.setNull(1, Types.BINARY);
+      updateValue.setString(4, storageDesc);
+    } else {
+      updateValue.setBinaryStream(1, stream, streamLength);
+      updateValue.setNull(4, Types.VARCHAR);
+    }
+
+    updateValue.setString(2, cid);
+    updateValue.setInt(3, orderNumber);
+    return updateValue.executeUpdate();
+  }  
+  
   /**
    * {@inheritDoc}
    */
@@ -513,7 +545,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
    * {@inheritDoc}
    */
   @Override
-  protected int renameNode(NodeData data) throws SQLException, IOException {
+  protected int renameNode(NodeData data) throws SQLException {
     if (renameNode == null)
       renameNode = dbConnection.prepareStatement(RENAME_NODE);
     else

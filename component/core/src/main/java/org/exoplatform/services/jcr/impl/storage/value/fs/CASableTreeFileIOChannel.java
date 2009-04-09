@@ -22,10 +22,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.storage.value.ValueFile;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
+import org.exoplatform.services.jcr.impl.storage.value.ValueOperation;
 import org.exoplatform.services.jcr.impl.storage.value.cas.RecordNotFoundException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.VCASException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
+import org.exoplatform.services.jcr.impl.storage.value.fs.operations.CASableDeleteValues;
+import org.exoplatform.services.jcr.impl.storage.value.fs.operations.CASableWriteValue;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -33,8 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS Date: 22.07.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: CASableTreeFileIOChannel.java 20384 2008-09-24 16:25:43Z
- *          pnedonosko $
+ * @version $Id$
  */
 public class CASableTreeFileIOChannel extends TreeFileIOChannel {
 
@@ -44,12 +46,13 @@ public class CASableTreeFileIOChannel extends TreeFileIOChannel {
 
   private final CASableIOSupport           cas;
 
-   CASableTreeFileIOChannel(File rootDir,
+  CASableTreeFileIOChannel(File rootDir,
                            FileCleaner cleaner,
                            String storageId,
+                           ValueDataResourceHolder resources,
                            ValueContentAddressStorage vcas,
                            String digestAlgo) {
-    super(rootDir, cleaner, storageId);
+    super(rootDir, cleaner, storageId, resources);
 
     this.vcas = vcas;
     this.cas = new CASableIOSupport(this, digestAlgo);
@@ -64,7 +67,7 @@ public class CASableTreeFileIOChannel extends TreeFileIOChannel {
   @Override
   protected File[] getFiles(final String propertyId) throws IOException {
     List<String> hids = vcas.getIdentifiers(propertyId, true); // return only
-                                                                // own ids
+    // own ids
     File[] files = new File[hids.size()];
     for (int i = 0; i < hids.size(); i++)
       // TODO super.getFile calls mkdirs(tfile.getParentFile())
@@ -74,43 +77,48 @@ public class CASableTreeFileIOChannel extends TreeFileIOChannel {
   }
 
   /**
-   * Delete given property value.<br/> Special logic implemented for Values
-   * CAS. As the storage may have one file (same hash) for multiple
-   * properties/values.<br/> The implementation assumes that delete operations
-   * based on {@link getFiles()} method result.
+   * Delete given property value.<br/>
+   * Special logic implemented for Values CAS. As the storage may have one file (same hash) for
+   * multiple properties/values.<br/>
+   * The implementation assumes that delete operations based on {@link getFiles()} method result.
    * 
    * @see getFiles()
-   * @param propertyId - property id to be deleted
+   * @param propertyId
+   *          - property id to be deleted
    */
   @Override
-  public boolean delete(String propertyId) throws IOException {
+  public void delete(String propertyId) throws IOException {
+    File[] files;
     try {
-      return super.delete(propertyId);
-    } finally {
-      vcas.delete(propertyId);
+      files = getFiles(propertyId);
+    } catch (RecordNotFoundException e) {
+      // This is workaround for CAS VS. No records found for this value at the moment.
+      // CASableDeleteValues saves VCAS record on commit, but it's possible the Property just
+      // added in this transaction and not commited.
+
+      // TODO 08.04.2009 Skip error now
+      files = new File[0];
     }
+    CASableDeleteValues o = new CASableDeleteValues(files,
+                                                    resources,
+                                                    cleaner,
+                                                    tempDir,
+                                                    propertyId,
+                                                    vcas);
+    o.execute();
+    changes.add(o);
   }
 
   @Override
-  public ValueFile write(String propertyId, ValueData value) throws IOException {
-    // calc digest hash
-    // TODO optimize with NIO
-    // we need hash at first to know do we have to store file or just use one
-    // existing (with same
-    // hash)
-    FileDigestOutputStream out = cas.openFile(new File(rootDir, propertyId + value.getOrderNumber()
-        + ".cas-temp"));
-    writeOutput(out, value);
-
-    // close stream
-    out.close();
-
-    // rename to hashnamed
-    File vcasFile = cas.saveFile(out);
-
-    // add reference to content anyway
-    vcas.add(propertyId, value.getOrderNumber(), out.getDigestHash());
-
-    return new CASValueFileImpl(propertyId, vcasFile, vcas);
+  public void write(String propertyId, ValueData value) throws IOException {
+    CASableWriteValue o = new CASableWriteValue(value,
+                                                resources,
+                                                cleaner,
+                                                tempDir,
+                                                propertyId,
+                                                vcas,
+                                                cas);
+    o.execute();
+    changes.add(o);
   }
 }

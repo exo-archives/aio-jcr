@@ -33,7 +33,7 @@ public class SimpleFileValueStorage extends FileValueStorage {
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#openIOChannel()
    */
   public ValueIOChannel openIOChannel() throws IOException {
-    return new SimpleFileIOChannel(rootDir, cleaner, getId());
+    return new SimpleFileIOChannel(rootDir, cleaner, getId(), resources);
   }
 
 }
