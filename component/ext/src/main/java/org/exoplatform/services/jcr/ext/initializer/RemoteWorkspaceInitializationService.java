@@ -385,6 +385,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
           
          // send data 
          transport.sendWorkspaceData(new File(path));
+         Thread.sleep(BACKUP_WAIT_INTERVAL * 20 * 30);
         } catch (RemoteWorkspaceInitializationException e) {
           try {
             transport.sendError("Can not send the workspace data : " + e.getMessage());
