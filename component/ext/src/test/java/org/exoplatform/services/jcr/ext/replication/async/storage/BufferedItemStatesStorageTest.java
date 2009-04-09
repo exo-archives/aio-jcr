@@ -225,24 +225,58 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
 
   public void testJavaHeapSpace() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
-    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 1000)));
     root.save();
 
     ItemData d = ((PropertyImpl) root.getNode("testBuf").getProperty("data")).getData();
     ItemState st = new ItemState(d, ItemState.ADDED, false, d.getQPath());
 
-    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
-                                                                   new Member(null, 10),
-                                                                   new ResourcesHolder(),
-                                                                   fileCleaner,
-                                                                   maxBufferSize,
-                                                                   holder);
+    BufferedItemStatesStorage stor1 = new BufferedItemStatesStorage(dir,
+                                                                    new Member(null, 10),
+                                                                    new ResourcesHolder(),
+                                                                    fileCleaner,
+                                                                    maxBufferSize,
+                                                                    holder);
 
     try {
-      for (int i = 0; i < 100; i++)
-        stor.add(st);
+      for (int i = 0; i < 1000; i++) {
+        stor1.add(st);
+      }
     } catch (Exception e) {
       fail("Exception should not be thrown");
     }
   }
+
+  public void testJavaHeapSpace2() throws Exception {
+    NodeImpl n = (NodeImpl) root.addNode("testBuf2", "nt:unstructured");
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 1000)));
+    root.save();
+
+    ItemData d = ((PropertyImpl) root.getNode("testBuf2").getProperty("data")).getData();
+    ItemState st = new ItemState(d, ItemState.ADDED, false, d.getQPath());
+
+    BufferedItemStatesStorage stor1 = new BufferedItemStatesStorage(dir,
+                                                                    new Member(null, 10),
+                                                                    new ResourcesHolder(),
+                                                                    fileCleaner,
+                                                                    maxBufferSize,
+                                                                    holder);
+
+    BufferedItemStatesStorage stor2 = new BufferedItemStatesStorage(dir,
+                                                                    new Member(null, 10),
+                                                                    new ResourcesHolder(),
+                                                                    fileCleaner,
+                                                                    maxBufferSize,
+                                                                    holder);
+
+    try {
+      for (int i = 0; i < 1000; i++) {
+        stor1.add(st);
+        stor2.add(st);
+      }
+    } catch (Exception e) {
+      fail("Exception should not be thrown");
+    }
+  }
+
 }

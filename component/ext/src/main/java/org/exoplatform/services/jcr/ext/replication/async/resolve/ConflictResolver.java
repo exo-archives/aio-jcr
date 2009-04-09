@@ -265,8 +265,27 @@ public class ConflictResolver {
               iteration.add(itemState);
           }
 
-          iteration.add(new ItemState(item.getData(), ItemState.DELETED, true, item.getData()
-                                                                                   .getQPath()));
+          if (item.getData().isNode()) {
+            NodeData node = (NodeData) item.getData();
+            TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                              node.getIdentifier(),
+                                                              node.getPersistedVersion(),
+                                                              node.getPrimaryTypeName(),
+                                                              node.getMixinTypeNames(),
+                                                              node.getOrderNumber(),
+                                                              node.getParentIdentifier(),
+                                                              node.getACL());
+            iteration.add(new ItemState(newNode, ItemState.DELETED, true, item.getData().getQPath()));
+          } else {
+            PropertyData prop = (PropertyData) item.getData();
+            TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                      prop.getIdentifier(),
+                                                                      prop.getPersistedVersion(),
+                                                                      prop.getType(),
+                                                                      prop.getParentIdentifier(),
+                                                                      prop.isMultiValued());
+            iteration.add(new ItemState(newProp, ItemState.DELETED, true, item.getData().getQPath()));
+          }
         }
       }
     }

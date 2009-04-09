@@ -150,22 +150,31 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
   public void testJavaHeapSpace() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
-    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 1000)));
     root.save();
 
     ItemData d = ((PropertyImpl) root.getNode("testBuf").getProperty("data")).getData();
     ItemState st = new ItemState(d, ItemState.ADDED, false, d.getQPath());
 
-    CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
-                                                                                         null,
-                                                                                         new ResourcesHolder(),
-                                                                                         fileCleaner,
-                                                                                         maxBufferSize,
-                                                                                         holder);
+    CompositeItemStatesStorage<ItemState> cs1 = new CompositeItemStatesStorage<ItemState>(new File("./target"),
+                                                                                          null,
+                                                                                          new ResourcesHolder(),
+                                                                                          fileCleaner,
+                                                                                          maxBufferSize,
+                                                                                          holder);
+    CompositeItemStatesStorage<ItemState> cs2 = new CompositeItemStatesStorage<ItemState>(new File("./target"),
+
+                                                                                          null,
+                                                                                          new ResourcesHolder(),
+                                                                                          fileCleaner,
+                                                                                          maxBufferSize,
+                                                                                          holder);
 
     try {
-      for (int i = 0; i < 100; i++)
-        cs.add(st);
+      for (int i = 0; i < 100; i++) {
+        cs1.add(st);
+        cs2.add(st);
+      }
     } catch (Exception e) {
       fail("Exception should not be thrown");
     }
