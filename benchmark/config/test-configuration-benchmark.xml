@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<configuration>
+<configuration
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
+   xmlns="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd">
+   	
   <component>
     <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
     <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
@@ -43,6 +47,37 @@
         <value>test-jcr-config-benchmark.xml</value>
       </value-param>
     </init-params>
+  </component>
+
+  <component>
+    <key>org.exoplatform.services.jcr.RepositoryService</key>
+    <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
+    <component-plugins>
+      <component-plugin>
+        <name>add.namespaces</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
+        <init-params>
+          <properties-param>
+            <name>namespaces</name>
+            <property name="dc" value="http://purl.org/dc/elements/1.1/"/>
+          </properties-param>
+        </init-params>
+      </component-plugin>
+      <component-plugin>
+        <name>add.nodeType</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
+        <init-params>
+          <values-param>
+            <name>autoCreatedInNewRepository</name>
+            <description>Node types configuration file</description>
+            <value>jar:/conf/ext-nodetypes-config.xml</value>
+			<value>jar:/conf/organization-nodetypes.xml</value>
+          </values-param>
+        </init-params>
+      </component-plugin>
+    </component-plugins>
   </component>
 
   <!--component>
@@ -668,7 +703,5 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-
-  <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
 
 </configuration>

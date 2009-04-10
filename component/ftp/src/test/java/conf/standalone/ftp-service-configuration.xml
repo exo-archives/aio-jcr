@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<configuration>
+<configuration
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
+   xmlns="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd">
+
   <component>
     <key>org.exoplatform.services.ftp.FtpServiceImpl</key>
     <type>org.exoplatform.services.ftp.FtpServiceImpl</type>
     <init-params>
       <value-param>
         <name>command-port</name>
-        <value>2121</value>
+        <value>2122</value>
       </value-param>
       <value-param>
         <name>data-min-port</name>
@@ -40,30 +44,28 @@
       </value-param>
       <value-param>
         <name>cache-folder-name</name>
-        <value>../temp/ftp_cache</value>
+        <value>../../temp/ftp_cache</value>
       </value-param>
       
-<!--      <bytes per second>-->
-<!--      <value-param>-->
-<!--        <name>upload-speed-limit</name>-->
-<!--        <value>20480</value>-->
-<!--      </value-param -->
+      <!-- bytes per second -->
+      <!-- value-param>
+        <name>upload-speed-limit</name>       
+        <value>20480</value>
+      </value-param -->
       
-<!--       bytes per second -->
-<!--      <value-param>-->
-<!--        <name>download-speed-limit</name>-->
-<!--        <value>20480</value>-->
-<!--      </value-param>-->
+      <!-- bytes per second -->
+      <!-- value-param>
+        <name>download-speed-limit</name>       
+        <value>20480</value>        
+      </value-param -->
 
-<!--      <seconds>      -->
-<!--      <value-param>-->
-<!--        <name>timeout</name>-->
-<!--        <value>60</value>-->
-<!--      </value-param>-->
-      <value-param>
-        <name>portalContainerName</name>
-        <value>portal</value>
-      </value-param>
+      <!-- seconds -->      
+      <!-- value-param>
+        <name>timeout</name>
+        <value>60</value>
+      </value-param -->
     </init-params>
   </component>
-</configuration>
+  
+</configuration>  
+  

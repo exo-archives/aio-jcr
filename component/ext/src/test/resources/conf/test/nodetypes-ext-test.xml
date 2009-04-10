@@ -1,8 +1,8 @@
 <nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
   xmlns:jcr="http://www.jcp.org/jcr/1.0">
-
+  
   <!-- /////////  Node types for eXo JCR Ext tests ////////// -->
-
+  
   <nodeType name="exo:testUnstructuredNoSNS" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
     <supertypes>
       <supertype>nt:base</supertype>
@@ -26,5 +26,5 @@
       </childNodeDefinition>
     </childNodeDefinitions>
   </nodeType>
-
+  
 </nodeTypes>

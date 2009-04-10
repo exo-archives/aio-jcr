@@ -1,4 +1,9 @@
-<configuration>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<configuration
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
+  xmlns="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd">
+
   <component>
     <key>org.exoplatform.services.ftp.FtpServiceImpl</key>
     <type>org.exoplatform.services.ftp.FtpServiceImpl</type>
@@ -39,7 +44,7 @@
       </value-param>
       <value-param>
         <name>cache-folder-name</name>
-        <value>../../temp/ftp_cache</value>
+        <value>target/ftp_cache</value>
       </value-param>
       
       <!-- bytes per second -->
@@ -61,13 +66,41 @@
       </value-param -->
     </init-params>
   </component>
+
   <component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
+
   <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
+    <component-plugins>
+      <component-plugin>
+        <name>add.namespaces</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
+        <init-params>
+          <properties-param>
+            <name>namespaces</name>
+            <property name="dc" value="http://purl.org/dc/elements/1.1/"/>
+          </properties-param>
+        </init-params>
+      </component-plugin>
+      <component-plugin>
+        <name>add.nodeType</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
+        <init-params>
+          <values-param>
+            <name>autoCreatedInNewRepository</name>
+            <description>Node types configuration file</description>
+            <value>jar:/conf/ext-nodetypes-config.xml</value>
+          </values-param>
+        </init-params>
+      </component-plugin>
+    </component-plugins>
   </component>
+  
   <component>
     <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
     <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
@@ -77,15 +110,9 @@
         <description>JCR configuration file</description>
         <value>test-jcr-config.xml</value>
       </value-param>
-      <properties-param>
-        <name>working-conf</name>
-        <description>working-conf</description>
-        <property name="source-name" value="jdbcjcr" />
-        <property name="dialect" value="hsqldb" />
-        <property name="persister-class-name" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister" />
-      </properties-param>
     </init-params>
   </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
     <component-plugin>
@@ -116,5 +143,5 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-  <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
 </configuration>
+  
