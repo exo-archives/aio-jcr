@@ -231,7 +231,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       if (itemStates.getSystemId() == null
           || !itemStates.getSystemId()
-                        .equals(Constants.JCR_CORE_RESOTRE_WORKSPACE_INITIALIZER_SYSTEM_ID)) {
+                        .equals(Constants.JCR_CORE_RESTORE_WORKSPACE_INITIALIZER_SYSTEM_ID)) {
         if (currentFile == null) {
           long id = getNextFileId();
           currentFile = new File(currentDir, Long.toString(id));

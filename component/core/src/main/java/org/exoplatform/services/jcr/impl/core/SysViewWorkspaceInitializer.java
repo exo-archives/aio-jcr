@@ -423,7 +423,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
       PlainChangesLog changes = read();
 
       TransactionChangesLog tLog = new TransactionChangesLog(changes);
-      tLog.setSystemId(Constants.JCR_CORE_RESOTRE_WORKSPACE_INITIALIZER_SYSTEM_ID); // mark changes
+      tLog.setSystemId(Constants.JCR_CORE_RESTORE_WORKSPACE_INITIALIZER_SYSTEM_ID); // mark changes
 
       dataManager.save(tLog);
 

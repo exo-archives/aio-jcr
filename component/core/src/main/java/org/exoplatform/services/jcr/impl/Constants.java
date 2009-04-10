@@ -754,7 +754,7 @@ public class Constants {
   /**
    * System identifier for remote workspace initializer changes.
    */
-  public static final String        JCR_CORE_RESOTRE_WORKSPACE_INITIALIZER_SYSTEM_ID = "JCR_CORE_RESOTRE_WORKSPACE_INITIALIZER_SYSTEM_ID";
+  public static final String        JCR_CORE_RESTORE_WORKSPACE_INITIALIZER_SYSTEM_ID = "JCR_CORE_RESOTRE_WORKSPACE_INITIALIZER_SYSTEM_ID";
 
   static {
 

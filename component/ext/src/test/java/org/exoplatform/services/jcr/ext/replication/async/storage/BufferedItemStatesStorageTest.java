@@ -225,7 +225,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
 
   public void testJavaHeapSpace() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
-    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 1000)));
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 100)));
     root.save();
 
     ItemData d = ((PropertyImpl) root.getNode("testBuf").getProperty("data")).getData();
@@ -239,7 +239,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
                                                                     holder);
 
     try {
-      for (int i = 0; i < 1000; i++) {
+      for (int i = 0; i < 10000; i++) {
         stor1.add(st);
       }
     } catch (Exception e) {
