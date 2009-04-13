@@ -225,7 +225,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
 
   public void testJavaHeapSpace() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
-    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 100)));
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
     root.save();
 
     ItemData d = ((PropertyImpl) root.getNode("testBuf").getProperty("data")).getData();
@@ -239,7 +239,9 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
                                                                     holder);
 
     try {
-      for (int i = 0; i < 10000; i++) {
+      for (int i = 0; i < 100; i++) {
+        System.out.print(i + " ");
+
         stor1.add(st);
       }
     } catch (Exception e) {
@@ -249,7 +251,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
 
   public void testJavaHeapSpace2() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf2", "nt:unstructured");
-    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 1000)));
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
     root.save();
 
     ItemData d = ((PropertyImpl) root.getNode("testBuf2").getProperty("data")).getData();
@@ -270,7 +272,9 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
                                                                     holder);
 
     try {
-      for (int i = 0; i < 1000; i++) {
+      for (int i = 0; i < 100; i++) {
+        System.out.print(i + " ");
+
         stor1.add(st);
         stor2.add(st);
       }

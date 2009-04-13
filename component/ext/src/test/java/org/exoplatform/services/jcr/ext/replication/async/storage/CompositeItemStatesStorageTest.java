@@ -150,7 +150,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
   public void testJavaHeapSpace() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
-    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 1000)));
+    n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
     root.save();
 
     ItemData d = ((PropertyImpl) root.getNode("testBuf").getProperty("data")).getData();
@@ -172,6 +172,7 @@ public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
     try {
       for (int i = 0; i < 100; i++) {
+        System.out.print(i + " ");
         cs1.add(st);
         cs2.add(st);
       }
