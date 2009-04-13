@@ -251,13 +251,13 @@ public class ConflictResolver {
                                                                              ClassNotFoundException,
                                                                              RepositoryException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
+      List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i));
 
-      for (int j = changes.size() - 1; j >= 0; j--) {
-        ItemState item = changes.get(j);
+      for (int j = localChanges.size() - 1; j >= 0; j--) {
+        ItemState item = localChanges.get(j);
         if (item.getState() == ItemState.ADDED || item.getState() == ItemState.RENAMED) {
 
-          if (hasDeleteState(changes, j, item.getData().getIdentifier()))
+          if (hasState(localChanges, j + 1, item.getData().getIdentifier(), ItemState.DELETED))
             continue;
 
           if (item.isNode()) {
@@ -305,7 +305,7 @@ public class ConflictResolver {
                                                                                ClassNotFoundException,
                                                                                RemoteExportException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
+      List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i));
 
       // restored items from changesLog
       List<ItemState> restoredItems = new ArrayList<ItemState>();
@@ -319,8 +319,8 @@ public class ConflictResolver {
       // version history need to export
       Set<String> needExportItemVH = new HashSet<String>();
 
-      for (int j = changes.size() - 1; j >= 0; j--) {
-        ItemState item = changes.get(j);
+      for (int j = localChanges.size() - 1; j >= 0; j--) {
+        ItemState item = localChanges.get(j);
 
         if (item.getState() == ItemState.DELETED) {
 
@@ -328,7 +328,8 @@ public class ConflictResolver {
           if (nextItem != null && nextItem.getState() == ItemState.UPDATED)
             continue;
 
-          if (getPrevState(changes, j) != -1)
+          if (getPrevState(localChanges, j, item.getData().getIdentifier()) != -1
+              && !hasPrevOnlyUpdateState(localChanges, j - 1, item.getData().getIdentifier()))
             continue;
 
           // restore deleted node from local rename
@@ -429,11 +430,10 @@ public class ConflictResolver {
 
           // restore updated properties
         } else if (item.getState() == ItemState.UPDATED && !item.getData().isNode()) {
-          ItemState lastState = getLastItemState(changes, item.getData().getIdentifier());
-          if (lastState.getState() == ItemState.DELETED)
+          if (getLastState(localChanges, item.getData().getIdentifier()) == ItemState.DELETED)
             continue;
 
-          if (getPrevState(changes, j) != -1)
+          if (getPrevState(localChanges, j, item.getData().getIdentifier()) != -1)
             continue;
 
           ItemState incomeChange = income.findItemState(item.getData().getIdentifier(),
@@ -509,10 +509,10 @@ public class ConflictResolver {
                                                                                   IOException,
                                                                                   ClassNotFoundException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> changes = local.getChanges(conflictedPathes.get(i));
+      List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i));
 
-      for (int j = changes.size() - 1; j >= 0; j--) {
-        ItemState curItem = changes.get(j);
+      for (int j = localChanges.size() - 1; j >= 0; j--) {
+        ItemState curItem = localChanges.get(j);
 
         if (curItem.getState() == ItemState.DELETED && !curItem.isPersisted()) {
           ItemState nextItem = local.findNextState(curItem, curItem.getData().getIdentifier());
@@ -585,29 +585,46 @@ public class ConflictResolver {
    * @param identifier
    * @return
    */
-  private ItemState getLastItemState(List<ItemState> changes, String identifier) {
+  private int getLastState(List<ItemState> changes, String identifier) {
     for (int i = changes.size() - 1; i >= 0; i--)
       if (changes.get(i).getData().getIdentifier().equals(identifier))
-        return changes.get(i);
+        return changes.get(i).getState();
 
-    return null;
+    return -1;
   }
 
   /**
    * getNextItemState.
    * 
    * @param changes
-   * @param startIndex
+   * @param firstIndex
    * @param identifier
    * @return
    */
-  private boolean hasDeleteState(List<ItemState> changes, int startIndex, String identifier) {
-    for (int i = startIndex + 1; i < changes.size(); i++)
-      if (changes.get(i).getState() == ItemState.DELETED
+  private boolean hasState(List<ItemState> changes, int firstIndex, String identifier, int state) {
+    for (int i = firstIndex; i < changes.size(); i++)
+      if (changes.get(i).getState() == state
           && changes.get(i).getData().getIdentifier().equals(identifier))
         return true;
 
     return false;
+  }
+
+  /**
+   * hasPrevOnlyUpdateState.
+   * 
+   * @param changes
+   * @param lastIndex
+   * @param identifier
+   * @return
+   */
+  private boolean hasPrevOnlyUpdateState(List<ItemState> changes, int lastIndex, String identifier) {
+    for (int i = lastIndex; i >= 0; i--)
+      if (changes.get(i).getData().getIdentifier().equals(identifier)
+          && changes.get(i).getState() != ItemState.UPDATED)
+        return false;
+
+    return true;
   }
 
   /**
@@ -617,9 +634,7 @@ public class ConflictResolver {
    * @param identifier
    * @return
    */
-  private int getPrevState(List<ItemState> changes, int index) {
-    String identifier = changes.get(index).getData().getIdentifier();
-
+  private int getPrevState(List<ItemState> changes, int index, String identifier) {
     for (int i = index - 1; i >= 0; i--)
       if (changes.get(i).getData().getIdentifier().equals(identifier))
         return changes.get(i).getState();

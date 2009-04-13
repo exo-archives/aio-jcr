@@ -2423,6 +2423,107 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
   }
 
   /**
+   * Test add/delete sequence.
+   */
+  public class AddDeleteUseCase extends BaseTwoMembersMergeUseCase {
+    public AddDeleteUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().addNode("item1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.remove();
+      sessionLowPriority.save();
+    }
+  }
+
+  /**
+   * * Test update/delete/add sequence.
+   */
+  public class UpdateRenameUseCase extends BaseTwoMembersMergeUseCase {
+    public UpdateRenameUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("prop1", "value1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item1");
+      node.setProperty("prop1", "value2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.setProperty("prop1", "value3");
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.save();
+    }
+  }
+
+  /**
+   * Test update/delete/add sequence.
+   */
+  public class UpdateDeleteAddUseCase extends BaseTwoMembersMergeUseCase {
+    public UpdateDeleteAddUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("prop1", "value1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().getNode("item1");
+      node.setProperty("prop1", "value2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().getNode("item1");
+      node.setProperty("prop1", "value3");
+      node.getProperty("prop1").remove();
+      node.setProperty("prop1", "value4");
+      sessionLowPriority.save();
+    }
+  }
+
+  /**
    * Add tree of nodes item on low priority, already added on high priority.
    */
   public class AddSameTreeUseCase extends BaseTwoMembersMergeUseCase {
