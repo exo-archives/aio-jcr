@@ -329,7 +329,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     List<ItemState> list = getItemStatesFromChLog(chLogFile);
     ItemState elem = list.get(0);
 
-    assertNull(elem.getAncestorToSave());
+    assertNotNull(elem.getAncestorToSave());
     assertEquals(p.getQPath(), elem.getData().getQPath());
   }
 
@@ -354,7 +354,7 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
       ItemState elem = changes.get(i);
 
       assertEquals(expect.getState(), elem.getState());
-      assertNull(elem.getAncestorToSave());
+      assertNotNull(elem.getAncestorToSave());
       ItemData expData = expect.getData();
       ItemData elemData = elem.getData();
       assertEquals(expData.getQPath(), elemData.getQPath());
@@ -384,13 +384,13 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
     ItemState elem;
     List<ItemState> list = new ArrayList<ItemState>();
-    try{
-    ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);  
-    while(true){
-      elem =  rdr.read(in);
-      list.add(elem);
-    }
-    }catch(EOFException e){
+    try {
+      ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
+      while (true) {
+        elem = rdr.read(in);
+        list.add(elem);
+      }
+    } catch (EOFException e) {
     }
     return list;
   }
