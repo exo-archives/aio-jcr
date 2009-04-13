@@ -66,28 +66,32 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
-    TransactionChangesLogWriter wr =new TransactionChangesLogWriter();
-    
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+
+    int id = 0;
     for (TransactionChangesLog tcl : pl.pushChanges()) {
-      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
-                                                                     .getTimeInMillis());
+      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(),
+                                                               Calendar.getInstance()
+                                                                       .getTimeInMillis());
 
       MessageDigest digest = MessageDigest.getInstance("MD5");
-      ObjectWriter oos = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(File.createTempFile("tmp", "tmp")),
-                                                                             digest));
-      wr.write(oos,tcl);
-      
+      ObjectWriter oos = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(File.createTempFile("tmp",
+                                                                                                              "tmp")),
+                                                                     digest));
+      wr.write(oos, tcl);
+
       oos.flush();
-      
-      TesterRandomChangesFile cf2 = new TesterRandomChangesFile(digest.digest(), Calendar.getInstance()
-                                                               .getTimeInMillis());
-      
+
+      TesterRandomChangesFile cf2 = new TesterRandomChangesFile(digest.digest(), id);
+
       ObjectWriter oos2 = new ObjectWriterImpl(cf2.getOutputStream());
 
       wr.write(oos2, tcl);
       oos2.flush();
 
       cfList.add(cf2);
+
+      id++;
     }
 
     // Initialization AsyncReplication (ChangesSubscriber).
@@ -101,20 +105,20 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     int priority2 = 100;
     int waitAllMemberTimeout = 60; // 60 seconds.
 
-    File storage = new File("../target/temp/storage/" + System.currentTimeMillis());
+    File storage = new File("target/temp/storage/" + System.currentTimeMillis());
     storage.mkdirs();
 
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
     otherParticipantsPriority.add(priority2);
-    
-    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0), 
-                                                             sessionWS1.getWorkspace().getName(), 
-                                                             priority1, 
-                                                             otherParticipantsPriority, 
-                                                             bindAddress, 
-                                                             CH_CONFIG, 
-                                                             CH_NAME, 
-                                                             storage.getAbsolutePath(), 
+
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0),
+                                                             sessionWS1.getWorkspace().getName(),
+                                                             priority1,
+                                                             otherParticipantsPriority,
+                                                             bindAddress,
+                                                             CH_CONFIG,
+                                                             CH_NAME,
+                                                             storage.getAbsolutePath(),
                                                              waitAllMemberTimeout);
 
     AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService,
@@ -139,16 +143,16 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     channel.connect();
 
     List<MemberAddress> sa = new ArrayList<MemberAddress>();
-    for (Member m: memberList) 
+    for (Member m : memberList)
       sa.add(m.getAddress());
-    
+
     transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), sa);
 
     transmitter.sendMerge();
 
     // Wait end of synchronization.
     Thread.sleep(30000);
-    
+
     // disconnect from cahnel
     channel.disconnect();
 
@@ -158,8 +162,8 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
     for (int j = 0; j < 10; j++)
       for (int i = 0; i < 10; i++)
-        assertEquals(srcNode.getNode("testNode_" + j + "_" + i).getName(), destNode.getNode("testNode_" + j + "_" + i)
-                                                                         .getName());
+        assertEquals(srcNode.getNode("testNode_" + j + "_" + i).getName(),
+                     destNode.getNode("testNode_" + j + "_" + i).getName());
 
   }
 }
