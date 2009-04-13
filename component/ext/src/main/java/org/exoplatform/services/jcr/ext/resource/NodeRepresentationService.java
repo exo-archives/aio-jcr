@@ -104,9 +104,8 @@ public class NodeRepresentationService implements Startable {
     return factoriesByKey.keySet();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#start()
+  /**
+   * {@inheritDoc}
    */
   public void start() {
     ExoContainer container = containerContext.getContainer();
@@ -118,9 +117,8 @@ public class NodeRepresentationService implements Startable {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#stop()
+  /**
+   * {@inheritDoc}
    */
   public void stop() {
 

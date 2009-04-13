@@ -22,7 +22,6 @@ import java.io.IOException;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SAS.

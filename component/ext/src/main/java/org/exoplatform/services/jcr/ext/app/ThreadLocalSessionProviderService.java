@@ -33,16 +33,17 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
 
   private static ThreadLocal<SessionProvider> systemSessionProviderKeeper;
 
+  /**
+   * ThreadLocalSessionProviderService  constructor.
+   *
+   */
   public ThreadLocalSessionProviderService() {
     sessionProviderKeeper = new ThreadLocal<SessionProvider>();
     systemSessionProviderKeeper = new ThreadLocal<SessionProvider>();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.app.SessionProviderService#getSessionProvider(java.lang.Object
-   * )
+  /**
+   * {@inheritDoc}
    */
   public SessionProvider getSessionProvider(Object key) {
     if (sessionProviderKeeper.get() != null)
@@ -50,11 +51,8 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.app.SessionProviderService#getSystemSessionProvider(java.lang
-   * .Object)
+  /**
+   * {@inheritDoc}
    */
   public SessionProvider getSystemSessionProvider(Object key) {
     if (systemSessionProviderKeeper.get() != null) {
@@ -66,21 +64,15 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.app.SessionProviderService#setSessionProvider(java.lang.Object
-   * , org.exoplatform.services.jcr.ext.common.SessionProvider)
+  /**
+   * {@inheritDoc}
    */
   public void setSessionProvider(Object key, SessionProvider sessionProvider) {
     sessionProviderKeeper.set(sessionProvider);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.app.SessionProviderService#removeSessionProvider(java.lang
-   * .Object)
+  /**
+   * {@inheritDoc}
    */
   public void removeSessionProvider(Object key) {
     getSessionProvider(key).close();
