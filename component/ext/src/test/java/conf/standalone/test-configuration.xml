@@ -55,7 +55,7 @@
           </value-param>
           <value-param>
             <name>workspaces</name>
-            <value>ws,ws3,ws4</value>
+            <value>ws,ws3,ws4,ws5</value>
           </value-param>
           <value-param>
             <name>component-class-name</name>
