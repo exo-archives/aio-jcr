@@ -33,10 +33,17 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class ObjectReaderImpl implements ObjectReader {
 
+  /**
+   * SKIP_BUFFER_SIZE is used to determine the size of skipBuffer
+   */
+  private static final int  SKIP_BUFFER_SIZE = 2 * 1048;
+
+  private static final int  DEF_BUFFER_SIZE  = 2 * 1048;
+
   private final InputStream in;
 
   public ObjectReaderImpl(InputStream in) {
-    this.in = new BufferedInputStream(in, 2*1024);
+    this.in = new BufferedInputStream(in, DEF_BUFFER_SIZE);
   }
 
   /**
@@ -44,7 +51,7 @@ public class ObjectReaderImpl implements ObjectReader {
    */
   public void close() throws IOException {
     in.close();
-   
+
   }
 
   /**
@@ -65,28 +72,25 @@ public class ObjectReaderImpl implements ObjectReader {
     int l = in.read(b);
 
     if (l < 0)
-     throw new EOFException();
+      throw new EOFException();
     if (l < b.length && l > 0)
-      throw new StreamCorruptedException ("Unexpected EOF in middle of data block.");
+      throw new StreamCorruptedException("Unexpected EOF in middle of data block.");
   }
 
-  
   /**
    * {@inheritDoc}
    */
-  //public byte readByte() throws IOException {
-  //  return (byte)in.read();
-  //}
-
-  
+  // public byte readByte() throws IOException {
+  // return (byte)in.read();
+  // }
   /**
    * {@inheritDoc}
    */
   public int readInt() throws IOException {
     byte[] readBuffer = new byte[4];
     readFully(readBuffer);
-    return ((readBuffer[0] & 255) << 24) + ((readBuffer[1] & 255) << 16) + 
-        ((readBuffer[2] & 255) << 8) + ((readBuffer[3] & 255));
+    return ((readBuffer[0] & 255) << 24) + ((readBuffer[1] & 255) << 16)
+        + ((readBuffer[2] & 255) << 8) + ((readBuffer[3] & 255));
   }
 
   /**
@@ -106,26 +110,23 @@ public class ObjectReaderImpl implements ObjectReader {
    * {@inheritDoc}
    */
   public long skip(long n) throws IOException {
+    if (n <= 0) {
+      return 0;
+    }
 
     long remaining = n;
     int nr;
-    byte[] skipBuffer = new byte[1024*1024];
 
-    byte[] localSkipBuffer = skipBuffer;
-      
-    if (n <= 0) {
-        return 0;
-    }
+    byte[] skipBuffer = new byte[SKIP_BUFFER_SIZE];
 
     while (remaining > 0) {
-        nr = in.read(localSkipBuffer, 0,
-            (int) Math.min(1024, remaining));
-        if (nr < 0) {
-      break;
-        }
-        remaining -= nr;
+      nr = in.read(skipBuffer, 0, (int) Math.min(SKIP_BUFFER_SIZE, remaining));
+      if (nr < 0) {
+        break;
+      }
+      remaining -= nr;
     }
-    
+
     return n - remaining;
   }
 
@@ -133,7 +134,7 @@ public class ObjectReaderImpl implements ObjectReader {
    * {@inheritDoc}
    */
   public String readString() throws IOException {
-    
+
     int length = readInt();
     byte[] buf = new byte[length];
     readFully(buf);
