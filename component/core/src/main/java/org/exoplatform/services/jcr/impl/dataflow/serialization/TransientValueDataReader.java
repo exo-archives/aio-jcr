@@ -100,9 +100,9 @@ public class TransientValueDataReader {
       ReadedSpoolFile sf = holder.get(id);
       if (sf == null) {
         sf = new ReadedSpoolFile(tempDirectory, id, holder);
-        holder.put(id, sf);
         // TODO optimize writeToFile - use channels or streams
         writeToFile(in, sf, length);
+        holder.put(id, sf);
         return new TransientValueData(orderNumber,
                                       null,
                                       null,
@@ -121,9 +121,9 @@ public class TransientValueDataReader {
                                                        tempDirectory,
                                                        true);
         // skip data in input stream
-        if (in.skip(length) != length) {
+        if (in.skip(length) != length)
           throw new IOException("Content isn't skipped correctly.");
-        }
+        
         return vd;
       }
       // sf.acquire(this);
