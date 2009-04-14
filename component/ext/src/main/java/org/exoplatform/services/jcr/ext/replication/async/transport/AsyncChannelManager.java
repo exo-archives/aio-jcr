@@ -175,10 +175,14 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      */
     void handle() {
       
-      if (current == null)
+      if (current == null) {
         synchronized (lock) {
           lock.notify();
         }
+        
+        // JCR-886: let other threads work
+        Thread.yield();
+      }
     }
   }
 
