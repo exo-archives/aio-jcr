@@ -20,20 +20,31 @@ import java.io.File;
 
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 
-
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ReadedSpoolFile.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ReadedSpoolFile extends SpoolFile {
-  
+
+  /**
+   * ReadedSpoolFileHolder
+   */
   private final ReaderSpoolFileHolder holder;
-  private final String id; 
-  
+
+  /**
+   * Read SpoolFile id.
+   */
+  private final String                id;
+
+  /**
+   * Constructor.
+   * 
+   * @param parent parent directory.
+   * @param id ReadedSpoolFiel id.
+   * @param holder ReaderSpoolFileHolder.
+   */
   public ReadedSpoolFile(File parent, String id, ReaderSpoolFileHolder holder) {
     super(parent, id);
     this.holder = holder;
@@ -42,11 +53,11 @@ public class ReadedSpoolFile extends SpoolFile {
 
   @Override
   public synchronized boolean delete() {
-    boolean result = super.delete(); 
-    if(result){
-      holder.remove(id); 
+    boolean result = super.delete();
+    if (result) {
+      holder.remove(id);
     }
     return result;
-  }  
-    
+  }
+
 }

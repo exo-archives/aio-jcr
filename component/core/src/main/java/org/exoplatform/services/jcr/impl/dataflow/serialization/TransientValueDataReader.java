@@ -76,54 +76,59 @@ public class TransientValueDataReader {
     }
 
     int orderNumber = in.readInt();
-    // maxBufferSize = in.readInt();
 
     boolean isByteArray = in.readBoolean();
 
-    byte[] data = null;
-    ReadedSpoolFile sf = null;
     if (isByteArray) {
-      data = new byte[in.readInt()];
+      byte[] data = new byte[in.readInt()];
       in.readFully(data);
-    } else {
+      return new TransientValueData(orderNumber,
+                                    data,
+                                    null,
+                                    null,
+                                    fileCleaner,
+                                    maxBufferSize,
+                                    tempDirectory,
+                                    true);
 
+    } else {
       // read file id - used for reread data optimization
       String id = in.readString();
-
-      synchronized (holder) {
-        sf = holder.get(id);
-        if (sf == null) {
-          sf = new ReadedSpoolFile(tempDirectory, id, holder);
-          holder.put(id, sf);
-        }
-      }
-
-      // read file
+      // read file length
       long length = in.readLong();
 
-      sf.acquire(this);
-
-      if (sf.exists()) {
+      ReadedSpoolFile sf = holder.get(id);
+      if (sf == null) {
+        sf = new ReadedSpoolFile(tempDirectory, id, holder);
+        holder.put(id, sf);
+        // TODO optimize writeToFile - use channels or streams
+        writeToFile(in, sf, length);
+        return new TransientValueData(orderNumber,
+                                      null,
+                                      null,
+                                      sf,
+                                      fileCleaner,
+                                      maxBufferSize,
+                                      tempDirectory,
+                                      true);
+      } else {
+        TransientValueData vd = new TransientValueData(orderNumber,
+                                                       null,
+                                                       null,
+                                                       sf,
+                                                       fileCleaner,
+                                                       maxBufferSize,
+                                                       tempDirectory,
+                                                       true);
         // skip data in input stream
         if (in.skip(length) != length) {
           throw new IOException("Content isn't skipped correctly.");
         }
-      } else {
-        // TODO optimize it - use channels or streams
-        writeToFile(in, sf, length);
+        return vd;
       }
+      // sf.acquire(this);
     }
 
-    TransientValueData vd = new TransientValueData(orderNumber,
-                                                   data,
-                                                   null,
-                                                   sf,
-                                                   fileCleaner,
-                                                   maxBufferSize,
-                                                   tempDirectory,
-                                                   true);
-
-    return vd;
   }
 
   private void writeToFile(ObjectReader src, SpoolFile dest, long length) throws IOException {
