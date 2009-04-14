@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -37,13 +38,12 @@ public class ObjectWriterImpl implements ObjectWriter {
   private final OutputStream out;
 
   /**
-   * JCRObjectOutputImpl  constructor.
-   *
-   * @param out
-   *          the OutputStream.          
+   * JCRObjectOutputImpl constructor.
+   * 
+   * @param out the OutputStream.
    */
   public ObjectWriterImpl(OutputStream out) {
-    this.out = new BufferedOutputStream(out, 2*1024);
+    this.out = new BufferedOutputStream(out, SerializationConstants.INTERNAL_BUFFER_SIZE);
   }
 
   /**
@@ -61,20 +61,18 @@ public class ObjectWriterImpl implements ObjectWriter {
     out.flush();
   }
 
-
-  
   /**
    * {@inheritDoc}
    */
   public void write(byte[] b) throws IOException {
     out.write(b);
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public void write(byte[] b, int off, int len) throws IOException {
-    out.write(b, off, len);    
+    out.write(b, off, len);
   }
 
   /**
@@ -84,14 +82,11 @@ public class ObjectWriterImpl implements ObjectWriter {
     out.write(v ? 1 : 0);
   }
 
-  /**
-   * {@inheritDoc}
-   */
- // public void writeByte(byte b) throws IOException {
- //   out.write(b);
- // }
+  // TODO can be useful to flag write
+  // public void writeByte(byte b) throws IOException {
+  // out.write(b);
+  // }
 
-  
   /**
    * {@inheritDoc}
    */

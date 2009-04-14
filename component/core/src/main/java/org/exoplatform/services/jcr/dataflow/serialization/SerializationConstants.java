@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.dataflow.serialization;
 
-
 /**
  * Created by The eXo Platform SAS. <br/>Date: 13.02.2009
  * 
@@ -60,10 +59,14 @@ public class SerializationConstants {
    */
   public static final int TRANSIENT_PROPERTY_DATA = 8;
 
-  
   // flags
-  
-  public static final int NULL_DATA = 0;
-  
-  public static final int NOT_NULL_DATA = 1;
+
+  public static final int NULL_DATA               = 0;
+
+  public static final int NOT_NULL_DATA           = 1;
+
+  /**
+   * Serialization bytebuffer size.
+   */
+  public static final int INTERNAL_BUFFER_SIZE    = 2 * 1048;
 }

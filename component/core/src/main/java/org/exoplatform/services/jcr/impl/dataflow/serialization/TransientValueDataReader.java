@@ -35,8 +35,6 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  */
 public class TransientValueDataReader {
 
-  private final static int            BUF_SIZE = 32 * 1024;
-  
   /**
    * FileCleaner used to construct TransientValueData.
    */
@@ -134,7 +132,7 @@ public class TransientValueDataReader {
         // skip data in input stream
         if (in.skip(length) != length)
           throw new IOException("Content isn't skipped correctly.");
-        
+
         return vd;
       }
     }
@@ -143,7 +141,7 @@ public class TransientValueDataReader {
   private void writeToFile(ObjectReader src, SpoolFile dest, long length) throws IOException {
     // write data to file
     FileOutputStream sfout = new FileOutputStream(dest);
-    int bSize = BUF_SIZE;
+    int bSize = SerializationConstants.INTERNAL_BUFFER_SIZE;
     try {
       byte[] buff = new byte[bSize];
       for (; length >= bSize; length -= bSize) {

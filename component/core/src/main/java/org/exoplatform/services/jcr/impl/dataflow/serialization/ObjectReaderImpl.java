@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.StreamCorruptedException;
 
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -33,17 +34,10 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class ObjectReaderImpl implements ObjectReader {
 
-  /**
-   * SKIP_BUFFER_SIZE is used to determine the size of skipBuffer
-   */
-  private static final int  SKIP_BUFFER_SIZE = 2 * 1048;
-
-  private static final int  DEF_BUFFER_SIZE  = 2 * 1048;
-
   private final InputStream in;
 
   public ObjectReaderImpl(InputStream in) {
-    this.in = new BufferedInputStream(in, DEF_BUFFER_SIZE);
+    this.in = new BufferedInputStream(in, SerializationConstants.INTERNAL_BUFFER_SIZE);
   }
 
   /**
@@ -77,12 +71,11 @@ public class ObjectReaderImpl implements ObjectReader {
       throw new StreamCorruptedException("Unexpected EOF in middle of data block.");
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  // TODO can be useful to flag read
   // public byte readByte() throws IOException {
   // return (byte)in.read();
   // }
+
   /**
    * {@inheritDoc}
    */
@@ -116,17 +109,15 @@ public class ObjectReaderImpl implements ObjectReader {
 
     long remaining = n;
     int nr;
-
-    byte[] skipBuffer = new byte[SKIP_BUFFER_SIZE];
-
+    byte[] skipBuffer = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
     while (remaining > 0) {
-      nr = in.read(skipBuffer, 0, (int) Math.min(SKIP_BUFFER_SIZE, remaining));
+      nr = in.read(skipBuffer, 0, (int) Math.min(SerializationConstants.INTERNAL_BUFFER_SIZE,
+                                                 remaining));
       if (nr < 0) {
         break;
       }
       remaining -= nr;
     }
-
     return n - remaining;
   }
 

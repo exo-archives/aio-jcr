@@ -45,7 +45,6 @@ public class TransientValueDataWriter {
     out.writeInt(SerializationConstants.TRANSIENT_VALUE_DATA);
 
     out.writeInt(vd.getOrderNumber());
-    // out.writeInt(vd.maxBufferSize);//????
 
     boolean isByteArray = vd.isByteArray();
     out.writeBoolean(isByteArray);
@@ -68,7 +67,7 @@ public class TransientValueDataWriter {
       out.writeLong(length);
       InputStream in = new FileInputStream(vd.getSpoolFile());
       try {
-        byte[] buf = new byte[200 * 1024];
+        byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
         int l = 0;
         while ((l = in.read(buf)) != -1) {
           out.write(buf, 0, l);
