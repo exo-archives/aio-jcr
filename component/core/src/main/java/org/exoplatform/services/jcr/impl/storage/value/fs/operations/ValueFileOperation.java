@@ -184,23 +184,9 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
      *           if error occurs
      */
     public boolean lock() throws IOException {
-      // TODO cleanup
-      // if (fileLockHolder != null)
-      // throw new IOException("File already locked " + file.getAbsolutePath());
-
       // lock in JVM (wait for unlock if required)
       try {
         return resources.aquire(file.getAbsolutePath(), new ValueFileLockHolder(file));
-        // if (resources.aquire(file.getAbsolutePath())) {
-        // // locked in JVM,
-        // // lock on FS (locking fileLock via NIO, wait for unlock if required)
-        // fileLockHolder = new ValueFileLockHolder(file);
-        // return true;
-        // } else {
-        // // already locked in JVM by me
-        // fileLockHolder = null;
-        // return false;
-        // }
       } catch (InterruptedException e) {
         throw new FileLockException("Lock error on " + file.getAbsolutePath(), e);
       }
@@ -214,32 +200,7 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
      *           if error occurs
      */
     public boolean unlock() throws IOException {
-      // TODO cleanup
-      // if (fileLock == null)
-      // throw new IOException("File not locked " + file.getAbsolutePath());
-
       return resources.release(file.getAbsolutePath());
-
-      // try {
-      // // unlock in JVM
-      // if (resources.release(file.getAbsolutePath())) {
-      // // unlock FS lock
-      // if (fileLockHolder != null) {
-      // fileLockHolder.close();
-      //
-      // if (!fileLock.delete()) { // TODO don't use FileCleaner, delete should be enough
-      // LOG.warn("Cannot delete lock file " + fileLock.getAbsolutePath()
-      // + ". Add to the FileCleaner");
-      // cleaner.addFile(fileLock);
-      // }
-      // }
-      // return true;
-      // } else
-      // return false;
-      // } finally {
-      // fileLockHolder = null;
-      // fileLock = null;
-      // }
     }
   }
 
@@ -320,12 +281,6 @@ public abstract class ValueFileOperation extends ValueFileIOHelper implements Va
           r += out.transferFrom(in, r, fsize - r);
           out.position(r);
         } while (r < fsize);
-
-        // int r = -1;
-        // byte[] buff = new byte[2048];
-        // while ((r = is.read(buff)) >= 0) {
-        // os.write(buff, 0, r);
-        // }
       } finally {
         is.close();
       }

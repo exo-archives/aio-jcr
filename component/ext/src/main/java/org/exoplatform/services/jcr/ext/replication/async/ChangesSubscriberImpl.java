@@ -98,12 +98,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    * Listeners in order of addition.
    */
   protected final Set<LocalEventListener>      listeners    = new LinkedHashSet<LocalEventListener>();
-  
-  protected final FileCleaner fileCleaner;
-  
-  protected final int maxBufferSize;
-  private final ReaderSpoolFileHolder holder;
-  
+
+  protected final FileCleaner                  fileCleaner;
+
+  protected final int                          maxBufferSize;
+
+  private final ReaderSpoolFileHolder          holder;
 
   class MergeWorker extends Thread {
 
@@ -196,12 +196,18 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localMember.getPriority()) {
         membersChanges.add(new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
-                                                               localMember, fileCleaner, maxBufferSize, holder));
+                                                               localMember,
+                                                               fileCleaner,
+                                                               maxBufferSize,
+                                                               holder));
       } else {
         for (int i = 0; i < membersChanges.size(); i++) {
           if (membersChanges.get(i).getMember().getPriority() > localMember.getPriority()) {
             membersChanges.add(i, new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
-                                                                      localMember, fileCleaner, maxBufferSize, holder));
+                                                                      localMember,
+                                                                      fileCleaner,
+                                                                      maxBufferSize,
+                                                                      holder));
             break;
           }
         }
@@ -249,7 +255,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                ChangesSaveErrorLog errorLog,
                                int memberWaitTimeout,
                                int localPriority,
-                               int confMembersCount, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+                               int confMembersCount,
+                               FileCleaner fileCleaner,
+                               int maxBufferSize,
+                               ReaderSpoolFileHolder holder) {
     this.memberWaitTimeout = memberWaitTimeout;
     this.localPriority = localPriority;
     this.mergeManager = mergeManager;
@@ -277,7 +286,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void onChanges(ChangesPacket packet, Member member) {
 
     try {
-      LOG.info("Receiving member " + member.getName() + " changes.");
+      if (LOG.isDebugEnabled())
+        LOG.debug("Receiving member " + member.getName() + " changes.");
 
       if (isInitialized()) {
         // Fire START on non-Coordinator
@@ -341,10 +351,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       doCancel();
       LOG.error("Error of ChangesFile data packet processing. Packet from " + member.getName(), e);
     }
-
-    // switch (packet.getType()) {
-    // case AsyncPacketTypes.CHANGESLOG_PACKET: {
-
   }
 
   private boolean isAllTransfered() {
