@@ -126,9 +126,7 @@ public class TransientValueDataReader {
         
         return vd;
       }
-      // sf.acquire(this);
     }
-
   }
 
   private void writeToFile(ObjectReader src, SpoolFile dest, long length) throws IOException {
