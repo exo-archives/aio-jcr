@@ -69,7 +69,7 @@ public class TransientValueDataWriter {
       try {
         byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
         int l = 0;
-        while ((l = in.read(buf)) <= 0) 
+        while ((l = in.read(buf)) >= 0) 
           out.write(buf, 0, l);
       } finally {
         in.close();
