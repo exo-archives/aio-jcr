@@ -18,8 +18,11 @@ package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StreamCorruptedException;
 
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
@@ -27,17 +30,37 @@ import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstant
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 13.02.2009
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 13.02.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: JCRObjectInputImpl.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ObjectReaderImpl implements ObjectReader {
 
-  private final InputStream in;
+  /**
+   * Reader stream.
+   */
+  private InputStream           in;
 
+  /**
+   * File stream. Can be null.
+   */
+  private final FileInputStream fileIn;
+
+  /**
+   * ObjectReaderImpl constructor.
+   * 
+   * @param in
+   *          original InputStream
+   */
   public ObjectReaderImpl(InputStream in) {
     this.in = new BufferedInputStream(in, SerializationConstants.INTERNAL_BUFFER_SIZE);
+
+    if (in instanceof FileInputStream)
+      this.fileIn = (FileInputStream) in;
+    else
+      this.fileIn = null;
   }
 
   /**
@@ -45,7 +68,6 @@ public class ObjectReaderImpl implements ObjectReader {
    */
   public void close() throws IOException {
     in.close();
-
   }
 
   /**
@@ -53,10 +75,10 @@ public class ObjectReaderImpl implements ObjectReader {
    */
   public boolean readBoolean() throws IOException {
     int v = in.read();
-    if (v < 0) {
+    if (v < 0)
       throw new EOFException();
-    }
-    return (v != 0);
+
+    return v != 0;
   }
 
   /**
@@ -69,6 +91,53 @@ public class ObjectReaderImpl implements ObjectReader {
       throw new EOFException();
     if (l < b.length && l > 0)
       throw new StreamCorruptedException("Unexpected EOF in middle of data block.");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public synchronized long read(OutputStream stream, long length) throws IOException {
+    if (true)
+      throw new IOException("Not implemented");
+    // TODO this is not a workable code due to buffered stream reads!!!
+    
+    boolean recreateBuffer = true;
+    // TODO use FileChannel for buffered read???
+    try {
+      if (fileIn != null && stream instanceof FileOutputStream) {
+        // use NIO
+        
+        return fileIn.getChannel().transferTo(0, length, ((FileOutputStream) stream).getChannel());
+      } else {
+        // bytes copy
+
+        // choose which kind of stream to use
+        // if this input stream contains enough available bytes we think it's large content - use
+        // fileIn
+        // if not - use buffered write
+        InputStream readIn;
+
+        if (fileIn != null && fileIn.available() >= SerializationConstants.INTERNAL_BUFFER_SIZE) {
+          readIn = fileIn; // and use File stream
+        } else {
+          readIn = this.in;
+          recreateBuffer = false;
+        }
+
+        byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
+        int r;
+        int readed = 0;
+        while ((r = readIn.read(buf)) <= 0) {
+          stream.write(buf, 0, r);
+          readed += r;
+        }
+        return readed;
+      }
+    } finally {
+      if (recreateBuffer)
+        // we cannot use existing buffered stream anymore, create one new
+        this.in = new BufferedInputStream(in, SerializationConstants.INTERNAL_BUFFER_SIZE);
+    }
   }
 
   // TODO can be useful to flag read
@@ -103,9 +172,8 @@ public class ObjectReaderImpl implements ObjectReader {
    * {@inheritDoc}
    */
   public long skip(long n) throws IOException {
-    if (n <= 0) {
+    if (n <= 0)
       return 0;
-    }
 
     long remaining = n;
     int nr;

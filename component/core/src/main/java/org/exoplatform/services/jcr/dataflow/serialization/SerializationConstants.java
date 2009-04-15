@@ -68,5 +68,5 @@ public class SerializationConstants {
   /**
    * Serialization bytebuffer size.
    */
-  public static final int INTERNAL_BUFFER_SIZE    = 2 * 1048;
+  public static final int INTERNAL_BUFFER_SIZE    = 2048;
 }

@@ -17,15 +17,20 @@
 package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
 import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 13.02.2009
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 13.02.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: JCRObjectOutputImpl.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -35,15 +40,26 @@ public class ObjectWriterImpl implements ObjectWriter {
   /**
    * The output stream.
    */
-  private final OutputStream out;
+  private final OutputStream     out;
 
   /**
-   * JCRObjectOutputImpl constructor.
+   * File output stream. Can be null.
+   */
+  private final FileOutputStream fileOut;
+
+  /**
+   * JCR ObjectOutputImpl constructor.
    * 
-   * @param out the OutputStream.
+   * @param out
+   *          the OutputStream.
    */
   public ObjectWriterImpl(OutputStream out) {
     this.out = new BufferedOutputStream(out, SerializationConstants.INTERNAL_BUFFER_SIZE);
+
+    if (out instanceof FileOutputStream)
+      this.fileOut = (FileOutputStream) out;
+    else
+      this.fileOut = null;
   }
 
   /**
@@ -123,4 +139,38 @@ public class ObjectWriterImpl implements ObjectWriter {
     write(bytes);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public synchronized void writeStream(InputStream stream) throws IOException {
+    
+    if (true)
+      throw new IOException("Not implemented");
+    
+    if (fileOut != null && stream instanceof FileInputStream) {
+      out.flush(); // flush buffer
+
+      // and use NIO on original stream for transfer
+      FileChannel fin = ((FileInputStream) stream).getChannel();
+      fileOut.getChannel().transferFrom(fin, 0, fin.size());
+    } else {
+      // bytes copy
+
+      // choose which kind of stream to use
+      // if input stream contains enough available bytes we think it's large content - use fileOut
+      // if not - use buffered write
+      OutputStream writeOut;
+
+      if (fileOut != null && stream.available() >= SerializationConstants.INTERNAL_BUFFER_SIZE) {
+        out.flush(); // flush buffer before the write
+        writeOut = fileOut; // and use File stream
+      } else
+        writeOut = this.out;
+
+      byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
+      int r;
+      while ((r = stream.read(buf)) <= 0)
+        writeOut.write(buf, 0, r);
+    }
+  }
 }

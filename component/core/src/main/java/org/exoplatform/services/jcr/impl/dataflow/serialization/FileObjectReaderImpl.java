@@ -16,16 +16,23 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
+import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -58,7 +65,7 @@ public class FileObjectReaderImpl implements ObjectReader {
     if (r < dst.capacity() && r > 0)
       throw new StreamCorruptedException("Unexpected EOF in middle of data block.");
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -66,7 +73,7 @@ public class FileObjectReaderImpl implements ObjectReader {
     int v = readInt();
     if (v < 0) // TODO ?
       throw new EOFException();
-    
+
     return v != 0;
   }
 
@@ -102,7 +109,7 @@ public class FileObjectReaderImpl implements ObjectReader {
   public String readString() throws IOException {
     ByteBuffer dst = ByteBuffer.allocate(readInt());
     readFully(dst);
-    return new String(dst.array(), Constants.DEFAULT_ENCODING);    
+    return new String(dst.array(), Constants.DEFAULT_ENCODING);
   }
 
   /**
@@ -115,5 +122,49 @@ public class FileObjectReaderImpl implements ObjectReader {
     channel.position(channel.position() + n);
     return n;
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  public long read(OutputStream stream, long length) throws IOException {
+    if (stream instanceof FileOutputStream) {
+      // use NIO
+      return channel.transferTo(0, length, ((FileOutputStream) stream).getChannel());
+    } else {
+      // bytes copy
+      ByteBuffer buff = ByteBuffer.allocate(SerializationConstants.INTERNAL_BUFFER_SIZE);
+
+      int r;
+      int readed = 0;
+      while ((r = channel.read(buff)) <= 0) {
+        stream.write(buff.array(), 0, r);
+        buff.rewind();
+        readed += r;
+      }
+      return readed;
+
+      // choose which kind of stream to use
+      // if this input stream contains enough available bytes we think it's large content - use
+      // fileIn
+      // if not - use buffered write
+      // InputStream readIn;
+      //
+      // if (fileIn != null && fileIn.available() >= SerializationConstants.INTERNAL_BUFFER_SIZE) {
+      // readIn = fileIn; // and use File stream
+      // } else {
+      // readIn = this.in;
+      // recreateBuffer = false;
+      // }
+      //
+      // byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
+      // int r;
+      // int readed = 0;
+      // while ((r = readIn.read(buf)) <= 0) {
+      // stream.write(buf, 0, r);
+      // readed += r;
+      // }
+      // return readed;
+    }
+  }
+
 }
