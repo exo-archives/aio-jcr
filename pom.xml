@@ -13,6 +13,11 @@
   <version>1.11.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <properties>
+    <exo.product.name>exo-jcr</exo.product.name>
+    <exo.product.specification>1.11</exo.product.specification>
+  </properties>
+
   <scm>
     <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</connection>
     <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</developerConnection>
