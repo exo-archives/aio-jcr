@@ -59,7 +59,7 @@ public class BackupConsole {
                                                       + " <cmd>  :   start <repo/ws> <backup_dir> [<incr>] \n"
                                                       + "            stop <backup_id> \n"
                                                       + "            status <backup_id> \n"
-                                                      + "            restores \n"
+                                                      + "            restores <repo/ws> \n"
                                                       + "            restore <repo/ws> <backup_id> <pathToConfigFile> \n"
                                                       + "            list [completed] \n"
                                                       + "            info \n"
@@ -68,8 +68,8 @@ public class BackupConsole {
                                                       
                                                       + " start          - start backup \n"
                                                       + " stop           - stop backup \n"
-                                                      + " status         - information about the current backup by 'backup_id' \n"
-                                                      + " restores       - information about the current restores \n"
+                                                      + " status         - information about the current or completed backup by 'backup_id' \n"
+                                                      + " restores       - information about the last restore on specific workspace \n"
                                                       + " restore        - restore the workspace from specific backup \n"
                                                       + " list           - information about the current backups (in progress) \n"
                                                       + " list completed - information about the completed (ready to restore) backups \n"
@@ -235,11 +235,20 @@ public class BackupConsole {
         }
         System.out.println(client.info());
       } else if (command.equalsIgnoreCase("restores")) {
+        
+        String pathToWS = getRepoWS(args, curArg++);
+        if (pathToWS == null)
+          return;
+        
+        String repositoryName = getRepositoryName(pathToWS);
+        String workspaceName = getWorkspaceName(pathToWS);
+        
         if (curArg < args.length) {
           System.out.println(TOO_MANY_PARAMS);
           return;
         }
-        System.out.println(client.restores());
+        
+        System.out.println(client.restores(repositoryName, workspaceName));
       } else if (command.equalsIgnoreCase("list")) {
         if (curArg == args.length) {
           System.out.println(client.list());

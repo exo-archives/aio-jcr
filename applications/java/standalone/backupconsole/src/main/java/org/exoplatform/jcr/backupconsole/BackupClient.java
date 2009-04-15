@@ -75,11 +75,13 @@ public interface BackupClient {
   /**
    * Get information about current restores.
    * 
+   * @param repositoryName String, the repository name.
+   * @param workspaceName String, the workspace name.
    * @return String result.
    * @throws IOException transport exception.
    * @throws BackupExecuteException backup client internal exception.
    */
-  String restores() throws IOException, BackupExecuteException;
+  String restores(String repositoryName, String workspaceName) throws IOException, BackupExecuteException;
 
   /**
    * Restore repository from backup file.

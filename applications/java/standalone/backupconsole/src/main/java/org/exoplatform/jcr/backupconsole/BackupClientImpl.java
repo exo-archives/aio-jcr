@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.ws.rs.core.Response;
 
@@ -28,18 +29,11 @@ import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.server.HTTPBackupAgent;
 import org.exoplatform.services.jcr.ext.backup.server.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.DropWorkspaceBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.RestoreBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupChainBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupChainInfoBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupChainListBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.ChainLogBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.ChainLogListBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.FailureBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.MessageBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.RestoreChainLogBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.RestoreChainLogListBean;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfoList;
 import org.exoplatform.ws.frameworks.json.JsonHandler;
 import org.exoplatform.ws.frameworks.json.JsonParser;
 import org.exoplatform.ws.frameworks.json.impl.BeanBuilder;
@@ -94,11 +88,12 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String startBackUp(String repositoryName, String workspaceName, String backupDir) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.START_BACKUP;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+                  HTTPBackupAgent.Constants.OperationType.START_BACKUP +
+                  "/" + repositoryName +
+                  "/" + workspaceName;
 
     BackupConfigBean bean = new BackupConfigBean(BackupManager.FULL_BACKUP_ONLY,
-                                                 repositoryName,
-                                                 workspaceName,
                                                  backupDir);
     
     JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
@@ -112,23 +107,10 @@ public class BackupClientImpl implements BackupClient {
     BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      BackupChainBean chainBean;
-      try {
-        chainBean = (BackupChainBean) getObject(BackupChainBean.class, response.getResponseData());
-      } catch (Exception e) {
-        throw new  BackupExecuteException("Can not get BackupChainBean from responce.", e);
-      }
-      
-      String result = "\nThe backup has been started : \n";
-      
-      result  += ("\tbackup id                : " + chainBean.getBackupId() + "\n"
-                + "\tbackup type              : " + (chainBean.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n" 
-                + "\trepository name          : " + chainBean.getRepositoryName() + "\n"
-                + "\tworkspace name           : " + chainBean.getWorkspaceName() + "\n\n");
-      
-      return result;
+      return "\nSuccessful : \n" +
+      		   "\tstatus code = " + response.getStatus() + "\n";
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     } 
   }
 
@@ -137,11 +119,12 @@ public class BackupClientImpl implements BackupClient {
    */
   public String startIncrementalBackUp(String repositoryName, String workspaceName, String backupDir, long incr) throws IOException,
                                                                                  BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.START_BACKUP;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+                  HTTPBackupAgent.Constants.OperationType.START_BACKUP +
+                  "/" + repositoryName +
+                  "/" + workspaceName;
 
     BackupConfigBean bean = new BackupConfigBean(BackupManager.FULL_AND_INCREMENTAL,
-                                                 repositoryName,
-                                                 workspaceName,
                                                  backupDir,
                                                  incr);
     
@@ -156,23 +139,10 @@ public class BackupClientImpl implements BackupClient {
     BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      BackupChainBean chainBean;
-      try {
-        chainBean = (BackupChainBean) getObject(BackupChainBean.class, response.getResponseData());
-      } catch (Exception e) {
-        throw new  BackupExecuteException("Can not get BackupChainBean from responce.", e);
-      }
-      
-      String result = "\nThe backup has been started : \n";
-      
-      result  += ("\tbackup id                : " + chainBean.getBackupId() + "\n"
-                + "\tbackup type              : " + (chainBean.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n" 
-                + "\trepository name          : " + chainBean.getRepositoryName() + "\n"
-                + "\tworkspace name           : " + chainBean.getWorkspaceName() + "\n\n");
-      
-      return result;
+      return "\nSuccessful : \n" +
+             "\tstatus code = " + response.getStatus() + "\n";
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     } 
   }
 
@@ -180,34 +150,56 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String status(String backupId) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUP_INFO + "/" + backupId;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+                  HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO + 
+                  "/" + backupId;
 
     BackupAgentResponse response  = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      BackupChainInfoBean infoBeen;
+      DetailedInfo info;
       try {
-        infoBeen = (BackupChainInfoBean) getObject(BackupChainInfoBean.class, response.getResponseData());
+        info = (DetailedInfo) getObject(DetailedInfo.class, response.getResponseData());
       } catch (Exception e) {
-        throw new  BackupExecuteException("Can not get BackupChainInfoBean from responce.", e);
+        throw new  RuntimeException("Can not get DetailedInfo from responce.", e);
       }
       
-      String result = "\nThe active backup information : \n";
+      if (info.getType() == DetailedInfo.COMPLETED) {
+        String result = "\nThe completed (ready to restore) backup information : \n";
       
-      result  += ("\tbackup id                : " + infoBeen.getBackupId() + "\n"
-                + "\tbackup log file          : " + infoBeen.getBackupLog() + "\n" 
-                + "\trepository name          : " + infoBeen.getRepositoryName() + "\n"
-                + "\tworkspace name           : " + infoBeen.getWorkspaceName() + "\n"
-                + "\tbackup type              : " + (infoBeen.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"
-                + (infoBeen.getBackupType() == BackupManager.FULL_BACKUP_ONLY ? "" : 
-                  "\tincremental job period   : " + infoBeen.getBackupConfigBeen().getIncrementalJobPeriod() + "\n")
-                + "\tpath to backup folder    : " + infoBeen.getBackupConfigBeen().getBackupDir() + "\n"
-                + "\tfull backup state        : " +  getState(infoBeen.getFullBackupState()) + "\n"
-                + (infoBeen.getBackupType() == BackupManager.FULL_BACKUP_ONLY ? "\n" : "\tincremental backup state : " +  "working" + "\n\n"));
-      
-      return result;
+        BackupConfigBean configBean = info.getBackupConfig();
+        
+        result  += ("\t\tbackup id               : " + info.getBackupId() + "\n" 
+                  + "\t\tbackup folder           : " + configBean.getBackupDir() + "\n" 
+                  + "\t\trepository name         : " + info.getRepositoryName() + "\n"
+                  + "\t\tworkspace name          : " + info.getWorkspaceName() + "\n"
+                  + "\t\tbackup type             : " + (configBean.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"
+                  + "\t\tstarted time            : " + info.getStartedTime() + "\n"
+                  + (info.getFinishedTime().equals("") ? "\n" : 
+                    "\t\tfinished time           : " + info.getFinishedTime() + "\n\n"));
+        
+        return result;
+      } else {
+        String result = "\nThe current backup information : \n";
+        
+        BackupConfigBean configBean = info.getBackupConfig();
+        
+        result  += ("\t\tbackup id                : " + info.getBackupId() + "\n" 
+                  + "\t\tbackup folder            : " + configBean.getBackupDir() + "\n" 
+                  + "\t\trepository name          : " + info.getRepositoryName() + "\n"
+                  + "\t\tworkspace name           : " + info.getWorkspaceName() + "\n"
+                  + "\t\tbackup type              : " + (configBean.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"
+                  + "\t\tfull backup state        : " + getState(info.getState())) + "\n"
+                  + (info.getBackupType() == BackupManager.FULL_BACKUP_ONLY ? "" : 
+                    "\t\tincremental backup state : " +  "working" + "\n")
+                  + "\t\tstarted time             : " + info.getStartedTime() + "\n"
+                  + (info.getFinishedTime().equals("") ? "\n" : 
+                    "\t\tfinished time            : " + info.getFinishedTime() + "\n\n");
+        
+        return result;
+      }
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     }
   }
 
@@ -215,21 +207,17 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String stop(String backupId) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.STOP_BACKUP + "/" + backupId;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+                  HTTPBackupAgent.Constants.OperationType.STOP_BACKUP + 
+                  "/" + backupId;
 
     BackupAgentResponse response  = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      MessageBean message;
-      try {
-        message = (MessageBean) getObject(MessageBean.class, response.getResponseData());
-      } catch (Exception e) {
-        throw new  BackupExecuteException("Can not get MessageBean from responce.", e);
-      }
-      
-      return "\n" + message.getMessage() + "\n\n";
+      return "\nSuccessful : \n" +
+             "\tstatus code = " + response.getStatus() + "\n";
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     } 
   }
 
@@ -238,7 +226,10 @@ public class BackupClientImpl implements BackupClient {
    */
   public String restore(String repositoryName, String workspaceName, String backupId, InputStream config) throws IOException,
                                                                                  BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.RESTORE;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+                  HTTPBackupAgent.Constants.OperationType.RESTORE +
+                  "/" + repositoryName +
+                  "/" + workspaceName;
 
     ByteArrayOutputStream bout = new ByteArrayOutputStream();
     byte[] b = new byte[BLOCK_SIZE];
@@ -251,8 +242,6 @@ public class BackupClientImpl implements BackupClient {
     bout.close();
 
     RestoreBean bean = new RestoreBean(backupId,
-                                       repositoryName,
-                                       workspaceName,
                                        new String(cb, "UTF-8"));
     JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
     JsonValue json;
@@ -266,16 +255,10 @@ public class BackupClientImpl implements BackupClient {
     BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      MessageBean message;
-      try {
-        message = (MessageBean) getObject(MessageBean.class, response.getResponseData());
-      } catch (Exception e) {
-        throw new  BackupExecuteException("Can not get MessageBean from responce.", e);
-      }
-      
-      return "\n" + message.getMessage() + "\n\n";
+      return "\nSuccessful : \n" +
+             "\tstatus code = " + response.getStatus() + "\n";
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     }
   }
 
@@ -284,33 +267,19 @@ public class BackupClientImpl implements BackupClient {
    */
   public String drop(boolean forceClose, String repositoryName, String workspaceName) throws IOException,
                                                          BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.DROP_WORKSPACE;
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+                  HTTPBackupAgent.Constants.OperationType.DROP_WORKSPACE +
+                  "/" + repositoryName +
+                  "/" + workspaceName + 
+                  "/" + forceClose;
 
-    DropWorkspaceBean bean = new DropWorkspaceBean(repositoryName,
-                                                   workspaceName, 
-                                                   forceClose);
-    
-    JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
-    JsonValue json;
-    try {
-      json = generatorImpl.createJsonObject(bean);
-    } catch (JsonException e) {
-      throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
-    }
-    
-    BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
+    BackupAgentResponse response  = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      MessageBean message;
-      try {
-        message = (MessageBean) getObject(MessageBean.class, response.getResponseData());
-      } catch (Exception e) {
-        throw new  BackupExecuteException("Can not get MessageBean from responce.", e);
-      }
-      
-      return "\n" + message.getMessage() + "\n\n";
+      return "\nSuccessful : \n" +
+             "\tstatus code = " + response.getStatus() + "\n";
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     } 
   }
 
@@ -318,8 +287,8 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String info() throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO;
-    BackupAgentResponse response = transport.executePOST(sURL, null);
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO;
+    BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
       BackupServiceInfoBean info;
@@ -330,13 +299,14 @@ public class BackupClientImpl implements BackupClient {
       }
       
       String result = "\nThe backup service information : \n"
-                      + "\tfull backup type       : " + info.getFullBackupType() + "\n"
-                      + "\tincremetal backup type : " + info.getIncrementalBackupType() + "\n"
-                      + "\tbackup log folder      : " + info.getBackupLogDir() + "\n\n";
+                      + "\tfull backup type               : " + info.getFullBackupType() + "\n"
+                      + "\tincremetal backup type         : " + info.getIncrementalBackupType() + "\n"
+                      + "\tbackup log folder              : " + info.getBackupLogDir() + "\n"
+                      + "\tdefault incremental job period : " + info.getDefaultIncrementalJobPeriod() + "\n\n";
       
       return result;
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     } 
   }
 
@@ -344,39 +314,41 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String list() throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO;
-    BackupAgentResponse response = transport.executePOST(sURL, null);
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO;
+    BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      BackupChainListBean listBeen;
+      ShortInfoList infoList;
       try {
-        listBeen = (BackupChainListBean) getObject(BackupChainListBean.class, response.getResponseData());
+        infoList = (ShortInfoList) getObject(ShortInfoList.class, response.getResponseData());
       } catch (Exception e) {
-        throw new  RuntimeException("Can not get BackupChainListBean from responce.", e);
+        throw new  RuntimeException("Can not get ShortInfoList from responce.", e);
       }
-      
       
       String result = "\nThe current backups information : \n";
       
-      if (listBeen.getBackupChains().size() == 0)
+      if (infoList.getBackups().size() == 0)
         result += "\tNo active backups.\n\n";
       
       int count = 1;
-      for (BackupChainBean chainBean : listBeen.getBackupChains()) {
-        result += "\t" + count + ") Backup with id " + chainBean.getBackupId()  + " :\n";
+      for (ShortInfo shortInfo : infoList.getBackups()) {
+        result += "\t" + count + ") Backup with id " + shortInfo.getBackupId()  + " :\n";
         
-        result  += ("\t\trepository name           : " + chainBean.getRepositoryName() + "\n"
-                  + "\t\tworkspace name            : " + chainBean.getWorkspaceName() + "\n"
-                  + "\t\tbackup type               : " + (chainBean.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"  
-                  + "\t\tfull backup state         : " +  getState(chainBean.getFullBackupState()) + "\n"
-                  + (chainBean.getBackupType() == BackupManager.FULL_BACKUP_ONLY ? "\n" : 
-                    "\t\tincremental backup state  : " +  "working" + "\n\n"));
+        result  += ("\t\trepository name           : " + shortInfo.getRepositoryName() + "\n"
+                  + "\t\tworkspace name            : " + shortInfo.getWorkspaceName() + "\n"
+                  + "\t\tbackup type               : " + (shortInfo.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"  
+                  + "\t\tfull backup state         : " + getState(shortInfo.getState())) + "\n"
+                  + (shortInfo.getBackupType() == BackupManager.FULL_BACKUP_ONLY ? "" : 
+                    "\t\tincremental backup state  : " +  "working" + "\n")
+                  + "\t\tstarted time              : " + shortInfo.getStartedTime() + "\n"
+                  + (shortInfo.getFinishedTime().equals("") ? "" : 
+                    "\t\tfinished time             : " + shortInfo.getFinishedTime() + "\n");
         count++;
       }   
       
       return result;
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     }
   }
 
@@ -384,87 +356,79 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String listCompleted() throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO;
-    BackupAgentResponse response = transport.executePOST(sURL, null);
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO;
+    BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      ChainLogListBean listBeen;
+      ShortInfoList infoList;
       try {
-        listBeen = (ChainLogListBean) getObject(ChainLogListBean.class, response.getResponseData());
-      } catch (Exception e) {
-        throw new  RuntimeException("Can not get ChainLogListBean from responce.", e);
+        infoList = (ShortInfoList) getObject(ShortInfoList.class, response.getResponseData());
+        new String(response.getResponseData());
+      } catch (Exception e) {e.printStackTrace();
+        throw new  RuntimeException("Can not get ShortInfoList from responce.", e);
       }
-      
       
       String result = "\nThe completed (ready to restore) backups information : \n";
       
-      if (listBeen.getChainLogs().size() == 0)
+      if (infoList.getBackups().size() == 0)
         result += "\tNo completed backups.\n\n";
       
       int count = 1;
-      for (ChainLogBean chainLogBean : listBeen.getChainLogs()) {
-        result += "\t" + count + ") Backup with id " + chainLogBean.getBackupId()  + " :\n";
+      for (ShortInfo shortInfo : infoList.getBackups()) {
+        result += "\t" + count + ") Backup with id " + shortInfo.getBackupId()  + " :\n";
         
-        BackupConfigBean configBean = chainLogBean.getBackupConfigBeen();
-        
-        result  += ("\t\tfull backup date         : " + chainLogBean.getFullBackupDate() + "\n"
-                  + "\t\tbackup log file         : " + chainLogBean.getBackupLog() + "\n" 
-                  + "\t\trepository name         : " + configBean.getRepositoryName() + "\n"
-                  + "\t\tworkspace name          : " + configBean.getWorkspaceName() + "\n"
-                  + "\t\tbackup type             : " + (configBean.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"
-                  + (configBean.getBackupType() == BackupManager.FULL_BACKUP_ONLY ? "" : "\t\tincremental job period  : " + configBean.getIncrementalJobPeriod() + "\n")
-                  + "\t\tpath to backup folder   : " + configBean.getBackupDir() + "\n\n");
+        result  += ("\t\trepository name           : " + shortInfo.getRepositoryName() + "\n"
+                  + "\t\tworkspace name            : " + shortInfo.getWorkspaceName() + "\n"
+                  + "\t\tbackup type               : " + (shortInfo.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"  
+                  + "\t\tstarted time              : " + shortInfo.getStartedTime() + "\n"
+                  + (shortInfo.getFinishedTime().equals("") ? "\n" : 
+                    "\t\tfinished time             : " + shortInfo.getFinishedTime() + "\n"));
         count++;
       }   
       
       return result;
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public String restores() throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + "/" + HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORES_INFO;
-    BackupAgentResponse response = transport.executePOST(sURL, null);
+  public String restores(String repositoryName, String workspaceName) throws IOException, BackupExecuteException {
+    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+                  HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORE_INFO_ON_WS +
+                  "/" + repositoryName +
+                  "/" + workspaceName;
+    BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      RestoreChainLogListBean listBeen;
+      DetailedInfo info;
       try {
-        listBeen = (RestoreChainLogListBean) getObject(RestoreChainLogListBean.class, response.getResponseData());
+        info = (DetailedInfo) getObject(DetailedInfo.class, response.getResponseData());
       } catch (Exception e) {
-        throw new  RuntimeException("Can not get RestoreChainLogListBean from responce.", e);
+        throw new  RuntimeException("Can not get DetailedInfo from responce.", e);
       }
       
       
       String result = "\nThe current restores information : \n";
       
-      if (listBeen.getRestoresChainLogs().size() == 0)
-        result += "\tNo active restores.\n";
-      
-      int count = 1;
-      for (RestoreChainLogBean chainLogBean : listBeen.getRestoresChainLogs()) {
-        result += "\t" + count + ") Restore with id " + chainLogBean.getBackupId()  + ":\n";
+        result += "\tRestore with id " + info.getBackupId()  + ":\n";
         
-        BackupConfigBean configBean = chainLogBean.getBackupConfigBeen();
+        BackupConfigBean configBean = info.getBackupConfig();
         
-        result  += ("\t\tfull backup date        : " + chainLogBean.getFullBackupDate() + "\n"
-                  + "\t\tbackup log file         : " + chainLogBean.getBackupLog() + "\n" 
-                  + "\t\trepository name         : " + chainLogBean.getRepositoryName() + "\n"
-                  + "\t\tworkspace name          : " + chainLogBean.getWorkspaceName() + "\n"
+        result  += ("\t\tbackup folder           : " + configBean.getBackupDir() + "\n" 
+                  + "\t\trepository name         : " + info.getRepositoryName() + "\n"
+                  + "\t\tworkspace name          : " + info.getWorkspaceName() + "\n"
                   + "\t\tbackup type             : " + (configBean.getBackupType() == BackupManager.FULL_AND_INCREMENTAL ? "full + incremetal" : "full only") + "\n"
-                  + "\t\tpath to backup folder   : " + configBean.getBackupDir() + "\n"
-                  + "\t\trestore state           : " +  getRestoreState(chainLogBean.getRestoreState()) + "\n"
-                  + (chainLogBean.getRestoreState() == JobWorkspaceRestore.RESTORE_FAIL ? 
-                    "\t\tfailure message         : "  + chainLogBean.getFailMessage()  + "\n" : "\n"));
-        count++;
-      }   
-      
-      return result;
+                  + "\t\trestore state           : " +  getRestoreState(info.getState()) + "\n"
+                  + "\t\tstarted time            : " + info.getStartedTime() + "\n"
+                  + (info.getFinishedTime().equals("") ? "\n" : 
+                    "\t\tfinished time           : " + info.getFinishedTime() + "\n\n"));
+        
+        return result;
     } else {
-      return failureProcessing(response.getResponseData());
+      return failureProcessing(response);
     }
   }
   
@@ -561,17 +525,15 @@ public class BackupClientImpl implements BackupClient {
    * @throws BackupExecuteException
    *           will be generated BackupExecuteException  
    */
-  private String failureProcessing(byte[] data) throws BackupExecuteException {
-    FailureBean failure;
+  private String failureProcessing(BackupAgentResponse response) throws BackupExecuteException {
     try {
-      failure = (FailureBean) getObject(FailureBean.class, data);
-    } catch (Exception e) {
-      throw new  BackupExecuteException("Can not get FailureBean from responce.", e);
+      String result = "\nFailure :\n"
+                      + "\tsatatus code : " + response.getStatus() + "\n"
+                      + "\tmessage      : " + new String(response.getResponseData(), "UTF-8") + "\n\n";
+      
+      return result;
+    } catch (UnsupportedEncodingException e) {
+      throw new BackupExecuteException("Can not encoded the responce : " + e.getMessage(), e);
     }
-    
-    String result = "\n" + failure.getMessage() + "\n"
-                    + "\texception message    : " + failure.getExceptionMessage() + "\n\n";
-    
-    return result;
   }
 }

@@ -121,20 +121,12 @@ public class ClientTransportImpl implements ClientTransport {
       HTTPResponse resp;
       if (postData == null) {
         resp = connection.Post(url.getFile());  
-        
-        if (resp.getStatusCode() != Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() &&
-            resp.getStatusCode() != Response.Status.OK.getStatusCode())
-          throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
       } else {
         NVPair[] pairs = new NVPair[2];
         pairs[0] = new NVPair("Content-Type", "application/json; charset=UTF-8");
         pairs[1] = new NVPair("Content-Length", Integer.toString(postData.length()));
 
         resp = connection.Post(url.getFile(), postData.getBytes(), pairs);
-        
-        if (resp.getStatusCode() != Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() &&
-            resp.getStatusCode() != Response.Status.OK.getStatusCode()) 
-          throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
       }
 
       BackupAgentResponse responce = new BackupAgentResponse(resp.getData(), resp.getStatusCode());
@@ -161,11 +153,6 @@ public class ClientTransportImpl implements ClientTransport {
 
       HTTPResponse resp = connection.Get(url.getFile());  
         
-        if (resp.getStatusCode() != Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() &&
-            resp.getStatusCode() != Response.Status.OK.getStatusCode())
-          throw new BackupExecuteException("Unknown response, status code : " + resp.getStatusCode());
-
-
       BackupAgentResponse responce = new BackupAgentResponse(resp.getData(), resp.getStatusCode());
       return responce;
     } catch (ModuleException e) {
