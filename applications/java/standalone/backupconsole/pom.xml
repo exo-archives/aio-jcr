@@ -9,7 +9,7 @@
   <artifactId>exo.jcr.applications.backupconsole</artifactId>
   <version>1.11.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>eXo backup console</name>
+  <name>eXo JCR backup console</name>
 
   <dependencies>
     <dependency>
