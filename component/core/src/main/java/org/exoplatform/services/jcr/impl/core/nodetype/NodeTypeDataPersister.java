@@ -70,13 +70,10 @@ public class NodeTypeDataPersister {
 
   private DataManager     dataManager;
 
-  // private PlainChangesLog changesLog;
-
   private NodeData        ntRoot;
 
   public NodeTypeDataPersister(DataManager dataManager) {
     this.dataManager = dataManager;
-    // this.changesLog = new PlainChangesLogImpl();
     try {
       NodeData jcrSystem = (NodeData) dataManager.getItemData(Constants.SYSTEM_UUID);
       if (jcrSystem != null)

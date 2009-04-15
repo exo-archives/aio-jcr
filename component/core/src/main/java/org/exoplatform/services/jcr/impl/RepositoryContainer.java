@@ -400,13 +400,6 @@ public class RepositoryContainer extends ExoContainer {
     // Init Root and jcr:system if workspace is system workspace
     WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
     wsInitializer.initWorkspace();
-
-    // TODO cleanup
-    // SearchManager searchManager = (SearchManager)
-    // workspaceContainer.getComponentInstanceOfType(SearchManager.class);
-    // NodeTypeManagerImpl typeManager = (NodeTypeManagerImpl)
-    // workspaceContainer.getComponentInstanceOfType(NodeTypeManagerImpl.class);
-    // typeManager.setQueryHandler(searchManager.getHandler());
   }
 
   // ////// initialize --------------
@@ -479,13 +472,6 @@ public class RepositoryContainer extends ExoContainer {
    */
   private void load() throws RepositoryException {
     NamespaceRegistryImpl nsRegistry = (NamespaceRegistryImpl) getNamespaceRegistry();
-
-    // TODO cleanup
-    // NodeTypeDataPersister ntManager = (NodeTypeDataPersister)
-    // getComponentInstanceOfType(NodeTypeDataPersister.class);
-    //
-    // NodeTypeDataManager nodeTypeDataManager = (NodeTypeDataManager)
-    // getComponentInstanceOfType(NodeTypeDataManager.class);
 
     NodeTypeDataPersister nodeTypeDataPersister = (NodeTypeDataPersister) getComponentInstanceOfType(NodeTypeDataPersister.class);
 

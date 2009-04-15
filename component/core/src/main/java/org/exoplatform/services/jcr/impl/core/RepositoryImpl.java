@@ -33,10 +33,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.picocontainer.ComponentAdapter;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AuthenticationPolicy;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -49,7 +46,6 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.RepositoryContainer;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
@@ -60,6 +56,7 @@ import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
+import org.picocontainer.ComponentAdapter;
 
 /**
  * Created by The eXo Platform SAS.<br/> Implementation of javax.jcr.Repository

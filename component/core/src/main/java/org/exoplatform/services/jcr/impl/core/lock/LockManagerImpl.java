@@ -76,7 +76,7 @@ import org.exoplatform.management.jmx.annotations.Property;
  * @version $Id: LockManagerImpl.java 12096 2008-03-19 11:42:40Z gazarenkov $
  */
 @Managed
-@NameTemplate(@Property(key="service",value="lockmanager"))
+@NameTemplate(@Property(key = "service", value = "lockmanager"))
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   /**
@@ -161,7 +161,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           ? config.getLockManager().getTimeout()
           : DEFAULT_LOCK_TIMEOUT;
     } else
-       lockTimeOut = DEFAULT_LOCK_TIMEOUT;
+      lockTimeOut = DEFAULT_LOCK_TIMEOUT;
 
     locks = new HashMap<String, LockData>();
     pendingLocks = new HashMap<String, LockData>();
@@ -310,12 +310,16 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
             // if no session currently holds lock except this
             try {
               // TODO it's possible to have next error
-//              java.lang.NullPointerException
-//              at org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl.onCloseSession(LockManagerImpl.java:312)
-//              at org.exoplatform.services.jcr.impl.core.SessionImpl.logout(SessionImpl.java:794)
-//              at org.exoplatform.services.jcr.impl.core.XASessionImpl.logout(XASessionImpl.java:254)
-//              at org.exoplatform.services.jcr.impl.core.SessionRegistry$SessionCleaner.callPeriodically(SessionRegistry.java:165)
-//              at org.exoplatform.services.jcr.impl.proccess.WorkerThread.run(WorkerThread.java:46)              
+              // java.lang.NullPointerException
+              // at
+              // org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl.onCloseSession(LockManagerImpl.java:312)
+              // at org.exoplatform.services.jcr.impl.core.SessionImpl.logout(SessionImpl.java:794)
+              // at
+              // org.exoplatform.services.jcr.impl.core.XASessionImpl.logout(XASessionImpl.java:254)
+              // at
+              // org.exoplatform.services.jcr.impl.core.SessionRegistry$SessionCleaner.callPeriodically(SessionRegistry.java:165)
+              // at
+              // org.exoplatform.services.jcr.impl.proccess.WorkerThread.run(WorkerThread.java:46)
               ((NodeImpl) sessionImpl.getTransientNodesManager()
                                      .getItemByIdentifier(lockData.getNodeIdentifier(), false)).unlock();
             } catch (UnsupportedRepositoryOperationException e) {
@@ -625,13 +629,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   private synchronized void internalUnLock(String sessionId, String nodeIdentifier) throws LockException {
     LockData lData = locks.get(nodeIdentifier);
 
-    // TODO [AR] JCR-474
-    // if (lData == null) {
-    // throw new LockException("Node with id " + nodeIdentifier + " not locked");
-    // }
-
     if (lData != null) {
-
       tokensMap.remove(lData.getLockToken(sessionId));
       locks.remove(nodeIdentifier);
 
@@ -647,12 +645,18 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
    * For locks comes from remote JCRs (replication usecase)
    * 
    * @param sessionId
+   *          String
    * @param nodeIdentifier
+   *          String
    * @param lockToken
+   *          String
    * @param isDeep
+   *          boolean
    * @param sessionScoped
+   *          boolean
    * @param owner
-   * @return
+   *          String
+   * @return LockData
    */
   private synchronized LockData createRemoteLock(String sessionId,
                                                  String nodeIdentifier,
@@ -676,10 +680,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   /**
    * Remove lock, used by Lock remover.
    * 
-   * @param nodeIdentifier
+   * @param nodeIdentifier String
    */
   protected void removeLock(String nodeIdentifier) {
-    // if (locks.containsKey(nodeIdentifier)) {
     try {
       NodeData nData = (NodeData) dataManager.getItemData(nodeIdentifier);
       PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(),
@@ -704,7 +707,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     } catch (RepositoryException e) {
       log.error("Error occur during removing lock" + e.getLocalizedMessage());
     }
-    // }
   }
 
   @Managed

@@ -72,8 +72,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
- * Restores workspace from ready backupset. <br/> Should be configured with restore-path parameter.
- * The path to a backup result file.
+ * Restores workspace from ready backupset. <br/>
+ * Should be configured with restore-path parameter. The path to a backup result file.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -318,22 +318,30 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
   }
 
   /**
-   * Initializer constructor.
+   * SysViewWorkspaceInitializer constructor.
    * 
    * @param config
+   *          WorkspaceEntry
    * @param repConfig
+   *          RepositoryEntry
    * @param dataManager
+   *          CacheableWorkspaceDataManager
    * @param namespaceRegistry
+   *          NamespaceRegistryImpl
    * @param locationFactory
+   *          LocationFactory
    * @param nodeTypeManager
-   *          TODO remove it
+   *          NodeTypeManagerImpl
    * @param valueFactory
-   *          TODO remove it
+   *          ValueFactoryImpl
    * @param accessManager
-   *          TODO remove it
+   *          AccessManager
    * @throws RepositoryConfigurationException
+   *           if configuration restore-path is null
    * @throws PathNotFoundException
+   *           if path not found
    * @throws RepositoryException
+   *           if Repository error
    */
   public SysViewWorkspaceInitializer(WorkspaceEntry config,
                                      RepositoryEntry repConfig,
@@ -368,22 +376,28 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
   }
 
   /**
-   * Initializer constructor.
+   * SysViewWorkspaceInitializer constructor.
    * 
    * @param config
+   *          WorkspaceEntry
    * @param repConfig
+   *          RepositoryEntry
    * @param dataManager
+   *          CacheableWorkspaceDataManager
    * @param namespaceRegistry
+   *          NamespaceRegistryImpl
    * @param locationFactory
+   *          LocationFactory
    * @param nodeTypeManager
-   *          TODO remove it
+   *          NodeTypeManagerImpl
    * @param valueFactory
-   *          TODO remove it
+   *          ValueFactoryImpl
    * @param accessManager
-   *          TODO remove it
-   * @throws RepositoryConfigurationException
-   * @throws PathNotFoundException
+   *          AccessManager
+   * @param restorePath
+   *          String
    * @throws RepositoryException
+   *           if Repository error
    */
   public SysViewWorkspaceInitializer(WorkspaceEntry config,
                                      RepositoryEntry repConfig,
@@ -393,9 +407,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
                                      NodeTypeManagerImpl nodeTypeManager,
                                      ValueFactoryImpl valueFactory,
                                      AccessManager accessManager,
-                                     String restorePath) throws RepositoryConfigurationException,
-      PathNotFoundException,
-      RepositoryException {
+                                     String restorePath) throws RepositoryException {
 
     this.workspaceName = config.getName();
 
@@ -411,6 +423,9 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
     this.restorePath = restorePath;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public NodeData initWorkspace() throws RepositoryException {
 
     if (isWorkspaceInitialized()) {
@@ -448,11 +463,17 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
    * Parse of SysView export content and fill changes log within it.
    * 
    * @throws XMLStreamException
+   *           if stream data corrupted
    * @throws FactoryConfigurationError
+   *           if XML factory configured bad
    * @throws IOException
+   *           fi IO error
    * @throws RepositoryException
+   *           if Repository error
    * @throws NamespaceException
+   *           if namespace is not registered
    * @throws IllegalNameException
+   *           if illegal name
    */
   protected PlainChangesLog read() throws XMLStreamException,
                                   FactoryConfigurationError,

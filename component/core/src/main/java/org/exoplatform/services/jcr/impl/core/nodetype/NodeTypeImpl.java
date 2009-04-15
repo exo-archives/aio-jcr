@@ -213,7 +213,6 @@ public class NodeTypeImpl implements NodeType {
    */
   public NodeDefinition[] getChildNodeDefinitions() {
     NodeDefinitionData[] nodeDefs = typesHolder.getAllChildNodeDefinitions(new InternalQName[] { data.getName() });
-    // TODO declared and from super
     NodeDefinition[] ndefs = new NodeDefinition[nodeDefs.length];
     for (int i = 0; i < nodeDefs.length; i++) {
       NodeDefinitionData cnd = nodeDefs[i];
@@ -357,7 +356,6 @@ public class NodeTypeImpl implements NodeType {
   }
 
   public PropertyDefinition[] getPropertyDefinitions() {
-    // TODO Auto-generated method stub
     PropertyDefinitionData[] propertyDefs = typesHolder.getAllPropertyDefinitions(data.getName());
     return getPropertyDefinition(propertyDefs);
   }
@@ -402,22 +400,18 @@ public class NodeTypeImpl implements NodeType {
   }
 
   public NodeDefinition getChildNodeDefinition(String name) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public ArrayList<ItemDefinition> getManadatoryItemDefs() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public PropertyDefinitions getPropertyDefinitions(InternalQName name) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public PropertyDefinitions getPropertyDefinitions(String name) {
-    // TODO Auto-generated method stub
     return null;
   }
 

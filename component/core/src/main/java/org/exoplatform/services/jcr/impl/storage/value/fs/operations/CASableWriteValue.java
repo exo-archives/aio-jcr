@@ -26,7 +26,6 @@ import org.exoplatform.services.jcr.impl.storage.value.cas.VCASException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
 import org.exoplatform.services.jcr.impl.storage.value.fs.CASableIOSupport;
 import org.exoplatform.services.jcr.impl.storage.value.fs.FileDigestOutputStream;
-import org.exoplatform.services.jcr.impl.storage.value.fs.operations.ValueFileOperation.ValueFileLock;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
@@ -139,16 +138,6 @@ public class CASableWriteValue extends WriteValue {
     // lock CAS file location
     fileLock = new ValueFileLock(vcasFile);
     fileLock.lock();
-
-    // TODO cleanup
-    // If same hash-named file exists (vcasFile) or modified in this commit (locked by this Thread),
-    // the temp file should be removed.
-    // if doesn't the file will be renamed to hash name on commit().
-    // if (vcasFile.exists() || alreadyLockedByThisThread) {
-    // // remove file if same exists
-    // temp.delete(); // should be ok without file cleaner
-    // this.tempFile = null;
-    // } else
 
     this.tempFile = temp;
   }

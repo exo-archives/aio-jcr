@@ -142,12 +142,6 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     sqlSelectRecords = "SELECT CAS_ID, ORDER_NUM FROM " + tableName
         + " WHERE PROPERTY_ID=? ORDER BY ORDER_NUM";
 
-    // TODO CLEANUP. this script works ok if shared exists only
-    // sqlSelectOwnRecords =
-    // "SELECT DISTINCT OWN.cas_id, OWN.order_num FROM jcr_vcas_test OWN, jcr_vcas_test S, jcr_vcas_test P "
-    // +
-    // "WHERE OWN.property_id=P.property_id AND OWN.cas_id<>S.cas_id AND S.cas_id=P.cas_id AND S.property_id<>P.property_id AND P.property_id=? "
-    // + "ORDER BY OWN.order_num";
     sqlSelectOwnRecords = "SELECT P.CAS_ID, P.ORDER_NUM, S.CAS_ID as SHARED_ID " + "FROM "
         + tableName + " P LEFT JOIN " + tableName
         + " S ON P.PROPERTY_ID<>S.PROPERTY_ID AND P.CAS_ID=S.CAS_ID "
