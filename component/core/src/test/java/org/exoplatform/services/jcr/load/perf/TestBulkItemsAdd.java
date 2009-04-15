@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
  * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 20.07.2006
  * 
- * @version $Id: TestBulkItemsAdd.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestBulkItemsAdd extends JcrAPIBaseTest {
 

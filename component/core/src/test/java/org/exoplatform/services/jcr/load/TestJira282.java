@@ -39,7 +39,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestJira282.java 14508 2008-05-20 10:07:45Z ksm $
+ * @version $Id$
  */
 public class TestJira282 extends JcrAPIBaseTest {
   private final static int          ADD_THREAD_COUNT          = 1;

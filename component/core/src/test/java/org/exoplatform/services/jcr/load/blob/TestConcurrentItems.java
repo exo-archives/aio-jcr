@@ -45,7 +45,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * values storage.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestConcurrentItems.java 11962 2008-03-16 16:31:14Z gazarenkov $
+ * @version $Id$
  */
 public class TestConcurrentItems extends JcrAPIBaseTest {
 

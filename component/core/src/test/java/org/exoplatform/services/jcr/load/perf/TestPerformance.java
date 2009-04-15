@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Created by The eXo Platform SAS Author : Vitaliy Obmanjuk vitaliy.obmanjuk@exoplatform.com.ua
  * 20.07.2006
  * 
- * @version $Id: TestPerformance.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestPerformance extends JcrAPIBaseTest {
 
