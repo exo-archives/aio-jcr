@@ -62,11 +62,14 @@ public class TestSameUserLogin extends BaseUsecasesTest {
       
       try {
         synchronized (lock) {
-          TLOG.info("On wait");
+          //TLOG.info("On wait");
           lock.wait();  
         }
         session = repository.login(user, "ws1");
         TLOG.info("Login ok " + System.currentTimeMillis());
+        
+        session.logout();
+        TLOG.info("Logout ok " + System.currentTimeMillis());
       } catch (LoginException e) {
         e.printStackTrace();
       } catch (NoSuchWorkspaceException e) {
@@ -86,7 +89,7 @@ public class TestSameUserLogin extends BaseUsecasesTest {
 
   public void testMultiThreadLogin() {
    
-    LoginThread[] queue = new LoginThread[250];
+    LoginThread[] queue = new LoginThread[20];
     
     Object runLock = new Object();
     
