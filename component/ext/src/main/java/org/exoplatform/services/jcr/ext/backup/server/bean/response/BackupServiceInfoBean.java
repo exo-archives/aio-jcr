@@ -40,6 +40,11 @@ public class BackupServiceInfoBean {
    * The path to backup log folder.
    */
   private String backupLogDir;
+  
+  /**
+   * The default incremental job period.
+   */
+  private Long defaultIncrementalJobPeriod;
 
   /**
    * BackupServiceInfoBeen constructor.
@@ -57,14 +62,18 @@ public class BackupServiceInfoBean {
    *          String, the type of incremental backup
    * @param backupLogDir
    *          String, the backup folder
+   * @param defaultIncrementalJobPeriod
+   *          Long, the default incremental job period
    */
   public BackupServiceInfoBean(String fullBackupType,
                                String incrementalBackupType,
-                               String backupLogDir) {
+                               String backupLogDir,
+                               Long defaultIncrementalJobPeriod) {
 
     this.fullBackupType = fullBackupType;
     this.incrementalBackupType = incrementalBackupType;
     this.backupLogDir = backupLogDir;
+    this.defaultIncrementalJobPeriod = defaultIncrementalJobPeriod;
   }
 
   /**
@@ -122,6 +131,26 @@ public class BackupServiceInfoBean {
    */
   public void setBackupLogDir(String backupLogDir) {
     this.backupLogDir = backupLogDir;
+  }
+
+  /**
+   * getDefaultIncrementalJobPeriod.
+   *
+   * @return Long
+   *           return the default incremental job period
+   */
+  public Long getDefaultIncrementalJobPeriod() {
+    return defaultIncrementalJobPeriod;
+  }
+
+  /**
+   * setDefaultIncrementalJobPeriod.
+   *
+   * @param defaultIncrementalJobPeriod
+   *          Long, the default incremental job period
+   */
+  public void setDefaultIncrementalJobPeriod(Long defaultIncrementalJobPeriod) {
+    this.defaultIncrementalJobPeriod = defaultIncrementalJobPeriod;
   }
 
 }

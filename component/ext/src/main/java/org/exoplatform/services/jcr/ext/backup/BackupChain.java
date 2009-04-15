@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.backup;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -64,5 +65,7 @@ public interface BackupChain {
   void removeListener(BackupJobListener listener);
   
   String getBackupId();
+  
+  Calendar getStartedTime();
 
 }

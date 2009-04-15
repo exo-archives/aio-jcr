@@ -14,58 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.backup.server.bean;
+package org.exoplatform.services.jcr.ext.backup.server;
+
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 26.03.2009
+ * <br/>Date: 10.04.2009
  *
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: BackupBeen.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id: BackupLogNotFoundException.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class BackupBean {
+public class BackupLogNotFoundException extends Exception {
 
   /**
-   * The backup identifier.
-   */
-  String backupId;
-  
-  /**
-   * BackupBeen  constructor.
-   * Empty constructor.
-   */
-  public BackupBean() {
-  }
-  
-  /**
-   * BackupBeen  constructor.
+   * BackupLogNotFoundException  constructor.
    *
-   * @param backupId
-   *          the backup identifier
+   * @param message
+   *          String, the exception message
    */
-  public BackupBean(String backupId) {
-    this.backupId = backupId;
-  }
-
-  /**
-   * getBackupId.
-   *
-   * @return String
-   *           the backup identifier
-   */
-  public String getBackupId() {
-    return backupId;
-  }
-
-  /**
-   * setBackupId.
-   *
-   * @param backupId
-   *          the backup identifier
-   */
-  public void setBackupId(String backupId) {
-    this.backupId = backupId;
+  public BackupLogNotFoundException(String message) {
+    super(message);
   }
   
 }

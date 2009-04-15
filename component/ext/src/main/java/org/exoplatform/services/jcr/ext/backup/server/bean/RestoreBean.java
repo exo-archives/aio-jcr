@@ -24,7 +24,7 @@ package org.exoplatform.services.jcr.ext.backup.server.bean;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
  * @version $Id: RestoreBeen.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class RestoreBean extends BaseBean {
+public class RestoreBean {
 
   /**
    * The backup identifier.
@@ -48,18 +48,11 @@ public class RestoreBean extends BaseBean {
    *
    * @param backupId
    *          String, the backup identifier
-   * @param repositoryName
-   *          String, repository name
-   * @param workspaceName
-   *          String, workspace name
    * @param workspaceConfig
    *           the workspace configuration
    */
   public RestoreBean(String backupId,
-                     String repositoryName,
-                     String workspaceName,
                      String workspaceConfig) {
-    super(repositoryName, workspaceName);
     this.backupId = backupId;
     this.workspaceConfig = workspaceConfig;
   }

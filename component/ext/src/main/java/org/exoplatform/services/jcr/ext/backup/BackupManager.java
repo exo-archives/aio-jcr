@@ -69,4 +69,6 @@ public interface BackupManager {
   String getFullBackupType();
 
   String getIncrementalBackupType();
+  
+  long getDefaultIncrementalJobPeriod();
 }

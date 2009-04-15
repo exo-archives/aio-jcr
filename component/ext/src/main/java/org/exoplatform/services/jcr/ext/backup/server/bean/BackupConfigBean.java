@@ -17,7 +17,7 @@
 package org.exoplatform.services.jcr.ext.backup.server.bean;
 
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
-
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupJobConfig;
 
 /**
  * Created by The eXo Platform SAS.
@@ -27,29 +27,43 @@ import org.exoplatform.services.jcr.ext.backup.BackupConfig;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: BackupConfigBeen.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class BackupConfigBean extends BaseBean {
+public class BackupConfigBean {
 
   /**
    * The backup type (full or full+incremental).
    */
-  private Integer backupType;
+  private Integer         backupType;
 
   /**
    * The incremental job period.
    */
-  private Long    incrementalJobPeriod;
+  private Long            incrementalJobPeriod;
+
+  /**
+   * The incremental repetition number.
+   */
+  private Integer         incrementalRepetitionNumber = 0;
+
+  /**
+   * The BackupJobConfig to full backup.
+   */
+  private BackupJobConfig fullBackupJobConfig         = new BackupJobConfig();
+
+  /**
+   * The BackupJobConfig to incremental backup.
+   */
+  private BackupJobConfig incrementalBackupJobConfig  = new BackupJobConfig();
 
   /**
    * The folder for backup data.
    */
-  private String  backupDir;
+  private String          backupDir;
 
   /**
    * BackupConfigBeen constructor. Empty constructor for JSON.
    * 
    */
   public BackupConfigBean() {
-    super();
   }
 
   /**
@@ -57,18 +71,11 @@ public class BackupConfigBean extends BaseBean {
    * 
    * @param backupType
    *          Integer, backup tyeps
-   * @param repositoryName
-   *          String, repository name
-   * @param workspaceName
-   *          String, workspace name
    * @param backupDir
    *          String, path to backup folder
    */
-  public BackupConfigBean(Integer backupType,
-                          String repositoryName,
-                          String workspaceName,
-                          String backupDir) {
-    this(backupType, repositoryName, workspaceName, backupDir, (long) 0);
+  public BackupConfigBean(Integer backupType, String backupDir) {
+    this(backupType, backupDir, (long) 0);
   }
 
   /**
@@ -76,45 +83,56 @@ public class BackupConfigBean extends BaseBean {
    * 
    * @param backupType
    *          Integer, backup tyeps
-   * @param repositoryName
-   *          String, repository name
-   * @param workspaceName
-   *          String, workspace name
    * @param backupDir
    *          String, path to backup folder
    * @param incrementalJobPeriod
    *          Long, incremental job period
    */
-  public BackupConfigBean(Integer backupType,
-                          String repositoryName,
-                          String workspaceName,
-                          String backupDir,
-                          Long incrementalJobPeriod) {
-    super(repositoryName, workspaceName);
+  public BackupConfigBean(Integer backupType, String backupDir, Long incrementalJobPeriod) {
     this.backupType = backupType;
     this.backupDir = backupDir;
     this.incrementalJobPeriod = incrementalJobPeriod;
   }
-  
+
   /**
-   * BackupConfigBeen  constructor.
-   *
+   * BackupConfigBeen constructor. Constructor for full + incremental backup.
+   * 
+   * @param backupType
+   *          Integer, backup tyeps
+   * @param backupDir
+   *          String, path to backup folder
+   * @param incrementalJobPeriod
+   *          Long, incremental job period
+   * @param incrementalRepetitionNumber
+   *          Integer, incremental repetition number
+   */
+  public BackupConfigBean(Integer backupType,
+                          String backupDir,
+                          Long incrementalJobPeriod,
+                          Integer incrementalRepetitionNumber) {
+    this.backupType = backupType;
+    this.backupDir = backupDir;
+    this.incrementalJobPeriod = incrementalJobPeriod;
+    this.incrementalRepetitionNumber = incrementalRepetitionNumber;
+  }
+
+  /**
+   * BackupConfigBeen constructor.
+   * 
    * @param config
    *          the backup config
    */
   public BackupConfigBean(BackupConfig config) {
     this(config.getBackupType(),
-         config.getRepository(),
-         config.getWorkspace(),
          config.getBackupDir().getAbsolutePath(),
          config.getIncrementalJobPeriod());
+    this.incrementalRepetitionNumber = config.getIncrementalJobNumber();
   }
 
   /**
    * getIncrementalJobPeriod.
-   *
-   * @return Long
-   *           return the incremental job period
+   * 
+   * @return Long return the incremental job period
    */
   public Long getIncrementalJobPeriod() {
     return incrementalJobPeriod;
@@ -122,7 +140,7 @@ public class BackupConfigBean extends BaseBean {
 
   /**
    * setIncrementalJobPeriod.
-   *
+   * 
    * @param incrementalJobPeriod
    *          Long, the incremental job period
    */
@@ -132,9 +150,8 @@ public class BackupConfigBean extends BaseBean {
 
   /**
    * getBackupDir.
-   *
-   * @return String
-   *           return path to backup folder
+   * 
+   * @return String return path to backup folder
    */
   public String getBackupDir() {
     return backupDir;
@@ -142,7 +159,7 @@ public class BackupConfigBean extends BaseBean {
 
   /**
    * setBackupDir.
-   *
+   * 
    * @param backupDir
    *          String, path to backup folder
    */
@@ -152,9 +169,8 @@ public class BackupConfigBean extends BaseBean {
 
   /**
    * getBackupType.
-   *
-   * @return Integer
-   *           return the backup type
+   * 
+   * @return Integer return the backup type
    */
   public Integer getBackupType() {
     return backupType;
@@ -162,12 +178,69 @@ public class BackupConfigBean extends BaseBean {
 
   /**
    * setBackupType.
-   *
+   * 
    * @param backupType
    *          Integer, the backup type
    */
   public void setBackupType(Integer backupType) {
     this.backupType = backupType;
+  }
+
+  /**
+   * getIncrementalRepetitionNumber.
+   * 
+   * @return Integer return the incremental repetition number
+   */
+  public Integer getIncrementalRepetitionNumber() {
+    return incrementalRepetitionNumber;
+  }
+
+  /**
+   * setIncrementalRepetitionNumber.
+   * 
+   * @param incrementalRepetitionNumber
+   *          Integer, incremental repetition number
+   */
+  public void setIncrementalRepetitionNumber(Integer incrementalRepetitionNumber) {
+    this.incrementalRepetitionNumber = incrementalRepetitionNumber;
+  }
+
+  /**
+   * getFullBackupJobConfig.
+   * 
+   * @return BackupJobConfig return the backup job configuration to full backup
+   */
+  public BackupJobConfig getFullBackupJobConfig() {
+    return fullBackupJobConfig;
+  }
+
+  /**
+   * setFullBackupJobConfig.
+   * 
+   * @param fullBackupJobConfig
+   *          BackupJobConfig the backup job configuration to full backup
+   */
+  public void setFullBackupJobConfig(BackupJobConfig fullBackupJobConfig) {
+    this.fullBackupJobConfig = fullBackupJobConfig;
+  }
+
+  /**
+   * getIncrementalBackupJobConfig.
+   * 
+   * @return BackupJobConfig return the backup job configuration to incremental backup
+   */
+  public BackupJobConfig getIncrementalBackupJobConfig() {
+    return incrementalBackupJobConfig;
+  }
+
+  /**
+   * setIncrementalBackupJobConfig.
+   * 
+   * @param incrementalBackupJobConfig
+   *          BackupJobConfig the backup job configuration to incremental backup
+   */
+  public void setIncrementalBackupJobConfig(BackupJobConfig incrementalBackupJobConfig) {
+    this.incrementalBackupJobConfig = incrementalBackupJobConfig;
   }
 
 }

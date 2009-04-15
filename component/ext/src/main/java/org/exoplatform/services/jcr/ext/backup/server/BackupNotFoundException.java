@@ -14,58 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.backup.server.bean.response;
+package org.exoplatform.services.jcr.ext.backup.server;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 27.03.2009
+ * <br/>Date: 10.04.2009
  *
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: MessageBeen.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id: BackupNotFoundException.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class MessageBean {
-  
+public class BackupNotFoundException extends Exception {
+
   /**
-   * The message.
-   */
-  private String message;
-  
-  /**
-   * MessageBeen  constructor.
-   *
-   */
-  public MessageBean() {
-  }
-  
-  /**
-   * MessageBeen  constructor.
+   * BackupNotFoundException  constructor.
    *
    * @param message
-   *          the message
+   *          String, the exception message
    */
-  public MessageBean(String message) {
-    this.message = message;
+  public BackupNotFoundException(String message) {
+    super(message);
   }
-
-  /**
-   * getMessage.
-   *
-   * @return String
-   *           the message
-   */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * setMessage.
-   *
-   * @param message
-   *          String, the message
-   */
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
+  
 }

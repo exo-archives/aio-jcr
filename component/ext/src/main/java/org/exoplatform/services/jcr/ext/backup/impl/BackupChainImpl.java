@@ -274,4 +274,8 @@ public class BackupChainImpl implements BackupChain {
   public String getBackupId() {
     return backupId;
   }
+
+  public Calendar getStartedTime() {
+    return timeStamp;
+  }
 }

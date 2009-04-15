@@ -47,9 +47,9 @@ public class BackupConfig {
     this.incrementalJobPeriod = incrementalJobPeriod;
   }
 
-  /*public int getIncrementalJobNumber() {
+  public int getIncrementalJobNumber() {
     return incrementalJobNumber;
-  }*/
+  }
 
   public void setIncrementalJobNumber(int incrementalJobNumber) {
     this.incrementalJobNumber = incrementalJobNumber;

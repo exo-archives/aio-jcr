@@ -21,54 +21,53 @@ import java.util.Collection;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 27.03.2009
+ * <br/>Date: 13.04.2009
  *
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: BackupChainListBeen.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id: ShortInfoList.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class BackupChainListBean {
-  
+public class ShortInfoList {
+
   /**
-   * The list of BackupChainBeen.
+   * The list of ShortInfo for current and completed backups.
    */
-  private Collection<BackupChainBean> backupChains;
+  private Collection<ShortInfo> backups;
   
   /**
-   * BackupChainListBeen  constructor.
+   * ShortInfoList  constructor.
    *
    */
-  public BackupChainListBean() {
-    
+  public ShortInfoList() {
   }
   
   /**
-   * BackupChainListBeen  constructor.
+   * ShortInfoList  constructor.
    *
-   * @param backupChains
-   *          the list of BackupChainBeen.
+   * @param backups
+   *          Collection, the collection with ShortInfo for current and completed backups
    */
-  public BackupChainListBean(Collection<BackupChainBean> backupChains) {
-    this.backupChains = backupChains;
+  public ShortInfoList(Collection<ShortInfo> backups) {
+    this.backups = backups; 
   }
 
   /**
-   * getBackupChains.
+   * getBackups.
    *
    * @return Collection
-   *           return the list of BackupChainBeen.
+   *           return the list of ShortInfo for current backups
    */
-  public Collection<BackupChainBean> getBackupChains() {
-    return backupChains;
+  public Collection<ShortInfo> getBackups() {
+    return backups;
   }
 
   /**
-   * setBackupChains.
+   * setBackups.
    *
-   * @param backupChains
-   *          Collection, the list of BackupChainBeen.
+   * @param backups
+   *          Collection, the list of ShortInfo for current and completed backups
    */
-  public void setBackupChains(Collection<BackupChainBean> backupChains) {
-    this.backupChains = backupChains;
+  public void setBackups(Collection<ShortInfo> backups) {
+    this.backups = backups;
   }
   
 }

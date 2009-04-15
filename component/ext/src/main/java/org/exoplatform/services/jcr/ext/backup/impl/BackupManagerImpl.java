@@ -782,4 +782,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
   public String getIncrementalBackupType() {
     return incrementalBackupType;
   }
+
+  public long getDefaultIncrementalJobPeriod() {
+    return defaultIncrementalJobPeriod;
+  }
 }
