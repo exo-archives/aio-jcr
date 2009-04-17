@@ -85,7 +85,8 @@ public class TestPersistedValueData extends TestCase {
     System.gc();
 
     // allows GC to call finalize on vd
-    Thread.sleep(1000);
+    Thread.sleep(2500);
+    System.gc();
 
     assertFalse(file.exists());
   }
