@@ -53,11 +53,7 @@ public class TestPropFind extends BaseStandaloneTest {
     ContainerResponse containerResponse = service("PUT","/jcr/"+repoName+"/ws/" + file , "", null, content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
     ContainerResponse containerResponseFind = service("PROPFIND","/jcr/"+repoName+"/ws/" + file , "", null, null);
-    System.out.println("TestPropFind.testPropFind()" + containerResponseFind.getStatus());
-    PropFindResponseEntity entity = (PropFindResponseEntity) containerResponseFind.getEntity();
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    entity.write(outputStream);
-    System.out.println("TestPropFind.testPropFind()" + outputStream.toString());
+    assertEquals(HTTPStatus.MULTISTATUS, containerResponseFind.getStatus());
   }
 
 //  protected void setUp() throws Exception {
