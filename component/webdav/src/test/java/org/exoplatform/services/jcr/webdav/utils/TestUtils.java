@@ -18,6 +18,8 @@ package org.exoplatform.services.jcr.webdav.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Random;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -65,11 +67,11 @@ public class TestUtils {
   }
 
   public static String getFolderName() {
-    return "/test folder " + System.currentTimeMillis();
+    return "/test-folder-" + System.currentTimeMillis();
   }
 
   public static String getFileName() {
-    return "test file " + System.currentTimeMillis() + ".txt";
+    return "test-file-" + System.currentTimeMillis() + ".txt";
   }
 
   public static Document getXmlFromString(String string) throws Exception {
@@ -78,6 +80,14 @@ public class TestUtils {
     InputStream inputStream = new ByteArrayInputStream(string.getBytes());
     return builderFactory.newDocumentBuilder().parse(inputStream);
 
+  }
+  
+  public static String getFileContent(){
+    String content = new String();
+    for(int i=0; i<10;i++){
+      content += UUID.randomUUID().toString();
+    }
+    return content;
   }
 
 }
