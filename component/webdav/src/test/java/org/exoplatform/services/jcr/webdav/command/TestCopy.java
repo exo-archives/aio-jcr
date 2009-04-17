@@ -16,91 +16,91 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+
+import javax.ws.rs.core.Response;
+
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
+import org.exoplatform.commons.utils.MimeTypeResolver;
+import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
+import org.exoplatform.services.jcr.webdav.Range;
+import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
  * work.visor.ck@gmail.com Aug 13, 2008
  */
-public class TestCopy extends BaseWebDavTest {
+public class TestCopy extends BaseStandaloneTest {
   
-  private final String fileName    = TestUtils.getFileName();
   
-  private final String fileContent = "TEST FILE CONTENT...";
-
-  private final String srcFileName  = TestUtils.getFullWorkSpacePath() + "/" + fileName;
-
-  private final String testFolder   = TestUtils.getFullUri() + "/test";
-
-  private final String destFileName = testFolder + "/" + TestUtils.getFileName();
-
-  protected void setUp() throws Exception {
-    super.setUp();
-
-    HTTPResponse response = connection.Put(srcFileName, fileContent);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    response = connection.MkCol(testFolder);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
+  public void testeCopyForNonCollectionSingleWorkSpace () throws Exception {
+    String content = TestUtils.getFileContent();
+    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    MimeTypeResolver resolver = new MimeTypeResolver();
+    String filename = TestUtils.getFileName();
+    String destFilename = "copy_"+filename;
+    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
+                                                                              "/" + filename,
+                                                                              inputStream,
+                                                                              "nt:file",
+                                                                              resolver.getMimeType(destFilename),
+                                                                              null,
+                                                                              null);
+    assertEquals(HTTPStatus.CREATED, response.getStatus());
+    Response copyResponse = new CopyCommand().copy(session, "/" + filename, "/" + destFilename);
+    assertEquals(HTTPStatus.CREATED, copyResponse.getStatus());
+    Response getResponse = new GetCommand().get(session, "/" + destFilename, null, null, new ArrayList<Range>());
+    ByteArrayInputStream getContent = (ByteArrayInputStream) getResponse.getEntity();
+    Reader r = new InputStreamReader(getContent);  
+    StringWriter sw = new StringWriter();  
+    char[] buffer = new char[1024];  
+    for (int n; (n = r.read(buffer)) != -1; )  
+        sw.write(buffer, 0, n);  
+    String str = sw.toString(); 
+    assertEquals(HTTPStatus.OK, getResponse.getStatus());
+    assertEquals(content, str);
+  }
+  
+  public void testeCopyForNonCollectionDiferentWorkSpaces() throws Exception {
+    assertNotSame(session.getWorkspace().getName(), destSession.getWorkspace().getName());
+    String content = TestUtils.getFileContent();
+    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    MimeTypeResolver resolver = new MimeTypeResolver();
+    String filename = TestUtils.getFileName();
+    String destFilename = "copy_" + filename;
+    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
+                                                                              "/" + filename,
+                                                                              inputStream,
+                                                                              "nt:file",
+                                                                              resolver.getMimeType(destFilename),
+                                                                              null,
+                                                                              null);
+    assertEquals(HTTPStatus.CREATED, response.getStatus());
+    Response copyResponse = new CopyCommand().copy(destSession,"ws", "/" + filename, "/" + destFilename);
+    assertEquals(HTTPStatus.CREATED, copyResponse.getStatus());
+    Response getResponse = new GetCommand().get(destSession, "/" + destFilename, null, null, new ArrayList<Range>());
+    ByteArrayInputStream getContent = (ByteArrayInputStream) getResponse.getEntity();
+    Reader r = new InputStreamReader(getContent);  
+    StringWriter sw = new StringWriter();  
+    char[] buffer = new char[1024];  
+    for (int n; (n = r.read(buffer)) != -1; )  
+        sw.write(buffer, 0, n);  
+    String str = sw.toString(); 
+    assertEquals(HTTPStatus.OK, getResponse.getStatus());
+    assertEquals(content, str);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
-    HTTPResponse response = connection.Delete(testFolder);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
 
-    response = connection.Delete(srcFileName);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+    @Override
+    protected String getRepositoryName() {
+      return null;
+    }
 
-    super.tearDown();
-  }
-
-  public void testeCopyForNonCollection() throws Exception {
-
-    HTTPResponse response = connection.Copy(srcFileName, destFileName);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-  }
-
-  public void testNoDestinationHeader() throws Exception {
-
-    HTTPResponse response = connection.Copy(srcFileName, "");
-    assertEquals(HTTPStatus.BAD_GATEWAY, response.getStatusCode());
-
-  }
-
-  public void testDepthHeader() throws Exception {
-
-    HTTPResponse response = connection.Copy(srcFileName, destFileName);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    String destFolder = TestUtils.getFullUri() + "/test2";
-    response = connection.MkCol(destFolder);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    response = connection.Copy(testFolder, destFolder, true, false);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    response = connection.Delete(destFolder);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-  }
-
-  public void testOverwriteCopy() throws Exception {
-
-    HTTPResponse response = connection.Copy(srcFileName, destFileName);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    response = connection.Copy(srcFileName, destFileName, false, false);
-    assertEquals(HTTPStatus.PRECON_FAILED, response.getStatusCode());
-
-    response = connection.Copy(srcFileName, destFileName, true, false);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-  }
 
 }

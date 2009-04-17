@@ -16,48 +16,80 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Set;
+
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.commons.utils.MimeTypeResolver;
+import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
+import org.exoplatform.services.jcr.webdav.Range;
+import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
  * work.visor.ck@gmail.com Aug 13, 2008
  */
-public class TestGet extends BaseWebDavTest {
+public class TestGet extends BaseStandaloneTest {
 
   private String       fileName    = TestUtils.getFileName();
 
   private final String fileContent = "TEST FILE CONTENT...";
 
-  private final String testFile = TestUtils.getFullWorkSpacePath() + "/" + fileName;
 
   @Override
-  protected void setUp() throws Exception {
-
+  public void setUp() throws Exception {
     super.setUp();
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    MimeTypeResolver resolver = new MimeTypeResolver();
+    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
+                                                                              "/" + fileName,
+                                                                              inputStream,
+                                                                              "nt:file",
+                                                                              resolver.getMimeType(fileName),
+                                                                              null,
+                                                                              null);
+    assertEquals(HTTPStatus.CREATED, response.getStatus());
+  }
 
-    HTTPResponse response = connection.Put(testFile, fileContent);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
+ 
+  public void testSimpleGet() throws Exception {
+    Response getResponse = new GetCommand().get(session, "/" + fileName, null, null, new ArrayList<Range>());
+    ByteArrayInputStream content = (ByteArrayInputStream) getResponse.getEntity();
+    Reader r = new InputStreamReader(content);  
+    StringWriter sw = new StringWriter();  
+    char[] buffer = new char[1024];  
+    for (int n; (n = r.read(buffer)) != -1; )  
+        sw.write(buffer, 0, n);  
+    String str = sw.toString(); 
+    assertEquals(HTTPStatus.OK, getResponse.getStatus());
+    assertEquals(fileContent, str);
+    MultivaluedMap<String,Object> mapImpl = getResponse.getMetadata();
+    Set<String> key = mapImpl.keySet();
+    for (String string : key) {
+      System.out.println("TestGet.testSimpleGet()" + key);
+    }
+  }
+  
+  public void testNotFoundGet(){
+    Response getResponse = new GetCommand().get(session, "/not-found/" + fileName, null, null, new ArrayList<Range>());
+    assertEquals(HTTPStatus.NOT_FOUND, getResponse.getStatus());
   }
 
   @Override
-  protected void tearDown() throws Exception {
-
-    HTTPResponse response = connection.Delete(testFile);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-    super.tearDown();
-  }
-
-  public void testSimpleGet() throws Exception {
-
-    HTTPResponse response = connection.Get(testFile);
-    assertEquals(HTTPStatus.OK, response.getStatusCode());
-    assertEquals(new String(fileContent.getBytes()), new String(response.getData()));
-
+  protected String getRepositoryName() {
+    return null;
   }
 
 }

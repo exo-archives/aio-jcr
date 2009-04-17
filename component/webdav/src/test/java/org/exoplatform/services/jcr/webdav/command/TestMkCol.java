@@ -16,47 +16,87 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+
+import javax.ws.rs.core.Response;
+
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.commons.utils.MimeTypeResolver;
+import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
+import org.exoplatform.services.jcr.webdav.Range;
+import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
+import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
  * work.visor.ck@gmail.com Aug 13, 2008
  */
-public class TestMkCol extends BaseWebDavTest {
+public class TestMkCol extends BaseStandaloneTest {
 
-  private final String destName = TestUtils.getFolderName();
+  public void testSimpleMkCol() throws Exception {
+
+    String folder = TestUtils.getFolderName();
+    Response response = new MkColCommand(new NullResourceLocksHolder()).mkCol(session,
+                                                                              folder,
+                                                                              "nt:folder",
+                                                                              new ArrayList<String>(),
+                                                                              new ArrayList<String>());
+    assertEquals(HTTPStatus.CREATED, response.getStatus());
+  }
+
+  public void testMkCol() throws Exception {
+    String folder = TestUtils.getFolderName();
+    Response response = new MkColCommand(new NullResourceLocksHolder()).mkCol(session,
+                                                                              folder,
+                                                                              "nt:folder",
+                                                                              new ArrayList<String>(),
+                                                                              new ArrayList<String>());
+    assertEquals(HTTPStatus.CREATED, response.getStatus());
+    String file = TestUtils.getFileName();
+    String path = folder + "/" + file;
+    String content = TestUtils.getFileContent();
+    MimeTypeResolver resolver = new MimeTypeResolver();
+    Response putResponse = new PutCommand(new NullResourceLocksHolder()).put(session,
+                                                                             path,
+                                                                             new ByteArrayInputStream(content.getBytes()),
+                                                                             "nt:file",
+                                                                             resolver.getMimeType(file),
+                                                                             null,
+                                                                             null);
+    assertEquals(HTTPStatus.CREATED, putResponse.getStatus());
+    Response getResponse = new GetCommand().get(session, path, null, null, new ArrayList<Range>());
+    ByteArrayInputStream getContent = (ByteArrayInputStream) getResponse.getEntity();
+    Reader r = new InputStreamReader(getContent);
+    StringWriter sw = new StringWriter();
+    char[] buffer = new char[1024];
+    for (int n; (n = r.read(buffer)) != -1;)
+      sw.write(buffer, 0, n);
+    String str = sw.toString();
+    assertEquals(HTTPStatus.OK, getResponse.getStatus());
+    assertEquals(content, str);
+  }
 
   @Override
-  protected void tearDown() throws Exception {
-    connection.Delete(TestUtils.getFullWorkSpacePath() + destName);
-
-    super.tearDown();
+  protected String getRepositoryName() {
+    return null;
   }
 
-  public void testSucceed() throws Exception {
-
-    String str = TestUtils.getFullWorkSpacePath() + destName;
-
-    HTTPResponse response = connection.MkCol(str);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-  }
-
-  public void testForbidden() throws Exception {
-
-    HTTPResponse response = connection.MkCol(TestUtils.SERVLET_PATH + TestUtils.INAVLID_WORKSPACE
-        + destName);
-    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
-
-  }
-
-  public void testConflict() throws Exception {
-
-    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + "/path" + destName);
-    assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
-
-  }
-
+   public void testConflict() throws Exception {
+     String folder = TestUtils.getFolderName();
+     Response response = new MkColCommand(new NullResourceLocksHolder()).mkCol(session,
+                                                                               folder + folder,
+                                                                               "nt:folder",
+                                                                               new ArrayList<String>(),
+                                                                               new ArrayList<String>());
+     assertEquals(HTTPStatus.CONFLICT, response.getStatus());
+    }
+ 
 }

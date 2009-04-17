@@ -16,9 +16,17 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import javax.ws.rs.core.Response;
+
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.commons.utils.MimeTypeResolver;
+import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
+import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
@@ -26,7 +34,7 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
  * work.visor.ck@gmail.com Aug 13, 2008
  */
 
-public class TestDelete extends BaseWebDavTest {
+public class TestDelete extends BaseStandaloneTest {
 
   private String       fileName    = TestUtils.getFileName();
 
@@ -35,37 +43,54 @@ public class TestDelete extends BaseWebDavTest {
   private final String testFile = TestUtils.getFullWorkSpacePath() + "/" + fileName;
 
   private final String folderName  = TestUtils.getFolderName();
+  
+ 
 
   public void testDeleteForNonCollection() throws Exception {
 
-    HTTPResponse response = connection.Put(testFile, fileContent);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    MimeTypeResolver resolver = new MimeTypeResolver();
+    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
+                                                                              "/" + fileName,
+                                                                              inputStream,
+                                                                              "nt:file",
+                                                                              resolver.getMimeType(fileName),
+                                                                              null,
+                                                                              null);
+    assertEquals(HTTPStatus.CREATED, response.getStatus());
+    
+    
 
-    response = connection.Delete(testFile);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+    response = new DeleteCommand().delete(session, "/" + fileName);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
 
   }
 
-  public void testDeleteForCollection() throws Exception {
+//  public void testDeleteForCollection() throws Exception {
+//
+//    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + folderName);
+//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+//
+//    String subFolder = TestUtils.getFullWorkSpacePath() + folderName + "/" + "subfolder";
+//    response = connection.MkCol(subFolder);
+//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+//
+//    String testFileName = TestUtils.getFileName();
+//
+//    response = connection.Put(subFolder + "/" + testFileName, fileContent.getBytes());
+//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+//
+//    response = connection.Delete(TestUtils.getFullWorkSpacePath() + folderName);
+//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+//
+//    response = connection.Get(subFolder + "/" + testFileName);
+//    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
+//
+//  }
 
-    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + folderName);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    String subFolder = TestUtils.getFullWorkSpacePath() + folderName + "/" + "subfolder";
-    response = connection.MkCol(subFolder);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    String testFileName = TestUtils.getFileName();
-
-    response = connection.Put(subFolder + "/" + testFileName, fileContent.getBytes());
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    response = connection.Delete(TestUtils.getFullWorkSpacePath() + folderName);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-    response = connection.Get(subFolder + "/" + testFileName);
-    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
-
+  @Override
+  protected String getRepositoryName() {
+    return null;
   }
 
 }

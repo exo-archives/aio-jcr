@@ -16,16 +16,24 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import javax.ws.rs.core.Response;
+
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.commons.utils.MimeTypeResolver;
+import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
+import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
  * work.visor.ck@gmail.com Aug 13, 2008
  */
-public class TestHead extends BaseWebDavTest {
+public class TestHead extends BaseStandaloneTest{
   
   private String       fileName    = TestUtils.getFileName();
 
@@ -33,30 +41,34 @@ public class TestHead extends BaseWebDavTest {
 
   private final String testFile = TestUtils.getFullWorkSpacePath() + "/" + fileName;
       
-  protected void setUp() throws Exception {
+  @Override
+  public void setUp() throws Exception {
 
     super.setUp();
 
-    HTTPResponse response = connection.Put(testFile, fileContent);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-    
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    MimeTypeResolver resolver = new MimeTypeResolver();
+    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
+                                                                              "/" + fileName,
+                                                                              inputStream,
+                                                                              "nt:file",
+                                                                              resolver.getMimeType(fileName),
+                                                                              null,
+                                                                              null);
+    assertEquals(HTTPStatus.CREATED, response.getStatus());
+  }
 
+  
+
+  public void testSimpleHead() throws Exception {
+    Response response = new HeadCommand().head(session, "/" + fileName, null);    
+    assertEquals(HTTPStatus.OK, response.getStatus());
+    assertNotNull(response.getMetadata());
   }
 
   @Override
-  protected void tearDown() throws Exception {
-
-    HTTPResponse response = connection.Delete(testFile);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-    super.tearDown();
-  }
-
-  public void testSimpleHead() throws Exception {
-
-    HTTPResponse response = connection.Head(testFile);
-    assertEquals(HTTPStatus.OK, response.getStatusCode());
-
+  protected String getRepositoryName() {
+    return null;
   }
 
 }

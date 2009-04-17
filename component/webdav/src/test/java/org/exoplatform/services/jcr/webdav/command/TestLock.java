@@ -16,11 +16,20 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.commons.utils.QName;
+import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.WebDavConst.Lock;
+import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS. <br/>
@@ -30,7 +39,17 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
  * @version $Id: TestLock.java
  */
 
-public class TestLock extends BaseWebDavTest {
+//<?xml version="1.0" encoding="utf-8" ?>
+//<d:lockinfo xmlns:d="DAV:">
+//  <d:lockscope><d:exclusive/></d:lockscope>
+//  <d:locktype><d:write/></d:locktype>
+//  <d:owner>
+//    <d:href>http://www.contoso.com/~user/contact.htm</d:href>
+//  </d:owner>
+//</d:lockinfo>
+
+
+public class TestLock extends BaseStandaloneTest {
 
   private String       fileName   = TestUtils.getFileName();
 
@@ -40,43 +59,25 @@ public class TestLock extends BaseWebDavTest {
   
   private final String fileContent = "TEST FILE CONTENT...";
 
-  protected void setUp() throws Exception {
-    super.setUp();
-
-    HTTPResponse response = connection.Put(testFile, fileContent);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
-    response = connection.MkCol(testFolder);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-
+  
+  public void testLockForCollections() throws Exception {
+    String content = TestUtils.getFileContent();
+    String file = TestUtils.getFileName();
+    ContainerResponse containerResponse = service("PUT","/jcr/"+repoName+"/ws/" + file , "", null, content.getBytes());
+    assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.add("Content-Type", MediaType.TEXT_PLAIN);
+    containerResponse = service("LOCK","/jcr/"+repoName+"/ws/" + file , "", headers, null);
+    assertEquals(HTTPStatus.OK, containerResponse.getStatus());
+    containerResponse = service("DELETE","/jcr/"+repoName+"/ws/" + file , "", null, null);
+    assertEquals(HTTPStatus.LOCKED, containerResponse.getStatus());
+    
   }
+
 
   @Override
-  protected void tearDown() throws Exception {
-    HTTPResponse response = connection.Delete(testFolder);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-    response = connection.Delete(testFile);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
-    super.tearDown();
-  }
-
-  public void testLockForCollections() throws Exception {
-
-    HTTPResponse response = connection.Lock(testFolder, true, false, -1);
-    assertEquals(HTTPStatus.OK, response.getStatusCode());
-    
-    String responseBody = response.getText();
-    assertTrue(responseBody.contains(Lock.OPAQUE_LOCK_TOKEN));
-    
-    response = connection.PropfindAllprop(testFolder);
-    responseBody = response.getText();
-    assertTrue(responseBody.contains("<D:locktoken>"));
-    
-    response = connection.Delete(testFolder);
-    assertEquals(HTTPStatus.LOCKED, response.getStatusCode());        
-    
+  protected String getRepositoryName() {
+    return null;
   }
 
 }
