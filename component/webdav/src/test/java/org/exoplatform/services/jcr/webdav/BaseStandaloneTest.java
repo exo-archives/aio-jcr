@@ -1,10 +1,12 @@
 package org.exoplatform.services.jcr.webdav;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.util.Random;
 
 import javax.jcr.Node;
@@ -13,6 +15,8 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFactory;
 import javax.jcr.Workspace;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MultivaluedMap;
 
 import junit.framework.TestCase;
 
@@ -20,10 +24,26 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.ext.app.SessionProviderService;
+import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ContainerResponseWriter;
+import org.exoplatform.services.rest.impl.ApplicationContextImpl;
+import org.exoplatform.services.rest.impl.ContainerRequest;
+import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.EnvironmentContext;
+import org.exoplatform.services.rest.impl.InputHeadersMap;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
+import org.exoplatform.services.rest.impl.ProviderBinder;
+import org.exoplatform.services.rest.impl.RequestHandlerImpl;
+import org.exoplatform.services.rest.impl.ResourceBinder;
+import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Identity;
 
 /**
  * Created by The eXo Platform SAS.
@@ -38,8 +58,12 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected static String       TEMP_PATH = "./temp/fsroot";
 
   protected static String       WORKSPACE = "ws";
+  
+  public static final String    DEST_WORKSPACE       = "ws2";
 
   protected SessionImpl         session;
+  
+  protected SessionImpl         destSession;
 
   protected RepositoryImpl      repository;
 
@@ -54,6 +78,14 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected ValueFactory        valueFactory;
 
   protected StandaloneContainer container;
+  
+  protected ProviderBinder providers;
+
+  protected ResourceBinder     resourceBinder;
+
+  protected RequestHandlerImpl requestHandler;
+  
+  public String repoName;
 
   protected class CompareStreamException extends Exception {
 
@@ -67,9 +99,8 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   public void setUp() throws Exception {
-
-    String containerConf = BaseStandaloneTest.class.getResource(System.getProperty("jcr.test.configuration.file"))
-                                                   .toString();
+    
+    String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
     String loginConf = BaseStandaloneTest.class.getResource("/login.conf").toString();
 
     StandaloneContainer.addConfigurationURL(containerConf);
@@ -83,13 +114,72 @@ public abstract class BaseStandaloneTest extends TestCase {
 
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     repository = (RepositoryImpl) repositoryService.getDefaultRepository();
-
-    session = (SessionImpl) repository.login(credentials, "ws");
+    repoName = repository.getName();
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
+    destSession = (SessionImpl) repository.login(credentials, DEST_WORKSPACE);
     workspace = session.getWorkspace();
     root = session.getRootNode();
     valueFactory = session.getValueFactory();
 
     initRepository();
+
+    // 
+    
+    SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
+    assertNotNull(sessionProviderService);
+    sessionProviderService.setSessionProvider(null, new SessionProvider(new ConversationState(new Identity("admin"))));
+    
+    WebDavServiceImpl webDavServiceImpl = (WebDavServiceImpl) container.getComponentInstanceOfType(WebDavServiceImpl.class);
+    assertNotNull(webDavServiceImpl);
+    resourceBinder = (ResourceBinder) container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(resourceBinder);
+    requestHandler = (RequestHandlerImpl) container.getComponentInstanceOfType(RequestHandlerImpl.class);
+    assertNotNull(requestHandler);
+    ProviderBinder.setInstance(new ProviderBinder());
+    providers = ProviderBinder.getInstance();
+    ApplicationContextImpl.setCurrent(new ApplicationContextImpl(null, null, providers));
+    
+    
+  }
+  
+  public ContainerResponse service(String method,
+                                   String requestURI,
+                                   String baseURI,
+                                   MultivaluedMap<String, String> headers,
+                                   byte[] data,
+                                   ContainerResponseWriter writer) throws Exception {
+
+    if (headers == null)
+      headers = new MultivaluedMapImpl();
+
+    ByteArrayInputStream in = null;
+    if (data != null)
+      in = new ByteArrayInputStream(data);
+
+    EnvironmentContext envctx = new EnvironmentContext();
+    HttpServletRequest httpRequest = new MockHttpServletRequest(in,
+                                                                in != null ? in.available() : 0,
+                                                                method,
+                                                                new InputHeadersMap(headers));
+    envctx.put(HttpServletRequest.class, httpRequest);
+    EnvironmentContext.setCurrent(envctx);
+    ContainerRequest request = new ContainerRequest(method,
+                                                    new URI(requestURI),
+                                                    new URI(baseURI),
+                                                    in,
+                                                    new InputHeadersMap(headers));
+    ContainerResponse response = new ContainerResponse(writer);
+    requestHandler.handleRequest(request, response);
+    return response;
+  }
+
+  public ContainerResponse service(String method,
+                                   String requestURI,
+                                   String baseURI,
+                                   MultivaluedMap<String, String> headers,
+                                   byte[] data) throws Exception {
+    return service(method, requestURI, baseURI, headers, data, new DummyContainerResponseWriter());
+
   }
 
   protected void tearDown() throws Exception {
@@ -320,6 +410,26 @@ public abstract class BaseStandaloneTest extends TestCase {
         + mb(Runtime.getRuntime().totalMemory()) + "M (max: "
         + mb(Runtime.getRuntime().maxMemory()) + "M)";
     return info;
+  }
+  
+    public boolean registry(Object resource) throws Exception {
+  //  container.registerComponentInstance(resource);
+    return resourceBinder.bind(resource);
+  }
+  
+  public boolean registry(Class<?> resourceClass) throws Exception {
+  //  container.registerComponentImplementation(resourceClass.getName(), resourceClass);
+    return resourceBinder.bind(resourceClass);
+  }
+  
+  public boolean unregistry(Object resource) {
+  //  container.unregisterComponentByInstance(resource);
+    return resourceBinder.unbind(resource.getClass());
+  }
+  
+  public boolean unregistry(Class<?> resourceClass) {
+  //  container.unregisterComponent(resourceClass.getName());
+    return resourceBinder.unbind(resourceClass);
   }
 
   // bytes to Mbytes
