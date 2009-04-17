@@ -73,7 +73,7 @@ public class TransientNodeDataReader {
     String identifier = in.readString();
 
     String parentIdentifier = null;
-    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    if (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
       parentIdentifier = in.readString();
     }
 
@@ -102,7 +102,7 @@ public class TransientNodeDataReader {
 
     // mixins
     InternalQName[] mixinTypeNames = null;
-    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    if (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
       int count = in.readInt();
       mixinTypeNames = new InternalQName[count];
       for (int i = 0; i < count; i++) {
@@ -128,7 +128,7 @@ public class TransientNodeDataReader {
 
     // acl
     AccessControlList acl = null;
-    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    if (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
       ACLReader rdr = new ACLReader();
       acl = rdr.read(in);
     }

@@ -47,10 +47,10 @@ public class TransientNodeDataWriter {
     out.writeString(nodeData.getIdentifier());
 
     if (nodeData.getParentIdentifier() != null) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       out.writeString(nodeData.getParentIdentifier());
     } else
-      out.writeInt(SerializationConstants.NULL_DATA);
+      out.writeByte(SerializationConstants.NULL_DATA);
 
     out.writeInt(nodeData.getPersistedVersion());
     // -------------------
@@ -64,23 +64,23 @@ public class TransientNodeDataWriter {
     InternalQName[] mixinNames = nodeData.getMixinTypeNames();
 
     if (mixinNames != null) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       out.writeInt(mixinNames.length);
       for (int i = 0; i < mixinNames.length; i++) {
         out.writeString(mixinNames[i].getAsString());
       }
     } else {
-      out.writeInt(SerializationConstants.NULL_DATA);
+      out.writeByte(SerializationConstants.NULL_DATA);
     }
 
     ACLWriter wr = new ACLWriter();
 
     AccessControlList acl = nodeData.getACL();
     if (acl != null) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       wr.write(out, acl);
     } else {
-      out.writeInt(SerializationConstants.NULL_DATA);
+      out.writeByte(SerializationConstants.NULL_DATA);
     }
   }
 

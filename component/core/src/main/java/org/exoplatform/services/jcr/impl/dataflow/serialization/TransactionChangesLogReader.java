@@ -68,11 +68,11 @@ public class TransactionChangesLogReader {
     }
 
     TransactionChangesLog log = new TransactionChangesLog();
-    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    if (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
       log.setSystemId(in.readString());
     }
 
-    while (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    while (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
       PlainChangesLogReader rdr = new PlainChangesLogReader(fileCleaner, maxBufferSize, holder);
       PlainChangesLog pl = rdr.read(in);
       log.addLog(pl);

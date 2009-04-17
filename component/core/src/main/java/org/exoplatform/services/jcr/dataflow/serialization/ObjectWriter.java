@@ -105,7 +105,7 @@ public interface ObjectWriter {
    */
   void writeBoolean(boolean v) throws IOException;
 
-  // void writeByte(byte b) throws IOException;
+  void writeByte(byte b) throws IOException;
 
   /**
    * Writes an <code>int</code> value, which is comprised of four bytes, to the output stream. The

@@ -30,8 +30,7 @@ import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstant
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS. <br/>
- * Date: 13.02.2009
+ * Created by The eXo Platform SAS. <br/> Date: 13.02.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: JCRObjectInputImpl.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -51,8 +50,7 @@ public class ObjectReaderImpl implements ObjectReader {
   /**
    * ObjectReaderImpl constructor.
    * 
-   * @param in
-   *          original InputStream
+   * @param in original InputStream
    */
   public ObjectReaderImpl(InputStream in) {
     this.in = new BufferedInputStream(in, SerializationConstants.INTERNAL_BUFFER_SIZE);
@@ -80,6 +78,16 @@ public class ObjectReaderImpl implements ObjectReader {
 
     return v != 0;
   }
+  
+  public byte readByte() throws IOException {
+    int v = in.read();
+    if (v < 0)
+      throw new EOFException();
+
+    return (byte)v;
+  }
+  
+  
 
   /**
    * {@inheritDoc}
@@ -100,19 +108,20 @@ public class ObjectReaderImpl implements ObjectReader {
     if (true)
       throw new IOException("Not implemented");
     // TODO this is not a workable code due to buffered stream reads!!!
-    
+
     boolean recreateBuffer = true;
     // TODO use FileChannel for buffered read???
     try {
       if (fileIn != null && stream instanceof FileOutputStream) {
         // use NIO
-        
+
         return fileIn.getChannel().transferTo(0, length, ((FileOutputStream) stream).getChannel());
       } else {
         // bytes copy
 
         // choose which kind of stream to use
-        // if this input stream contains enough available bytes we think it's large content - use
+        // if this input stream contains enough available bytes we think it's
+        // large content - use
         // fileIn
         // if not - use buffered write
         InputStream readIn;

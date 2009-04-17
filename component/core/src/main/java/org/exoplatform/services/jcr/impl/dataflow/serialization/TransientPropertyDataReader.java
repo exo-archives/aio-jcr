@@ -93,7 +93,7 @@ public class TransientPropertyDataReader {
     String identifier = in.readString();
 
     String parentIdentifier = null;
-    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    if (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
       parentIdentifier = in.readString();
     }
 
@@ -110,7 +110,7 @@ public class TransientPropertyDataReader {
                                                            parentIdentifier,
                                                            multiValued);
 
-    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    if (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
 
       int listSize = in.readInt();
       List<ValueData> values = new ArrayList<ValueData>();

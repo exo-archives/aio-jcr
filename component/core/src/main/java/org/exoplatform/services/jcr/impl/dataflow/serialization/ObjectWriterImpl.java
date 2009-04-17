@@ -99,9 +99,9 @@ public class ObjectWriterImpl implements ObjectWriter {
   }
 
   // TODO can be useful to flag write
-  // public void writeByte(byte b) throws IOException {
-  // out.write(b);
-  // }
+  public void writeByte(byte b) throws IOException {
+    out.write(b);
+  }
 
   /**
    * {@inheritDoc}

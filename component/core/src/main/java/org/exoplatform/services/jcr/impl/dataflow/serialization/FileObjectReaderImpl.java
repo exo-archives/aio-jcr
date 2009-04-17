@@ -76,6 +76,14 @@ public class FileObjectReaderImpl implements ObjectReader {
 
     return v != 0;
   }
+  
+  public byte readByte() throws IOException {
+    
+    ByteBuffer dst = ByteBuffer.allocate(1);
+    readFully(dst);
+    return dst.get();
+  }
+  
 
   /**
    * {@inheritDoc}

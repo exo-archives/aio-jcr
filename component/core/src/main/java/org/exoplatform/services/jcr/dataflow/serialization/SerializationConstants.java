@@ -61,9 +61,9 @@ public class SerializationConstants {
 
   // flags
 
-  public static final int NULL_DATA               = 0;
+  public static final byte NULL_DATA               = 0;
 
-  public static final int NOT_NULL_DATA           = 1;
+  public static final byte NOT_NULL_DATA           = 1;
 
   /**
    * Serialization bytebuffer size.

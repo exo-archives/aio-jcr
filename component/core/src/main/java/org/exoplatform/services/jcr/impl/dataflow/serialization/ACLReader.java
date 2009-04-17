@@ -53,7 +53,7 @@ public class ACLReader {
 
     // reading owner
     String owner;
-    if (in.readInt() == SerializationConstants.NOT_NULL_DATA) {
+    if (in.readByte() == SerializationConstants.NOT_NULL_DATA) {
       owner = in.readString();
     } else {
       owner = null;

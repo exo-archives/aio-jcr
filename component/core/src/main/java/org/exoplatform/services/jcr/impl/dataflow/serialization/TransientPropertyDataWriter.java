@@ -48,10 +48,10 @@ public class TransientPropertyDataWriter {
     out.writeString(propData.getIdentifier());
 
     if (propData.getParentIdentifier() != null) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       out.writeString(propData.getParentIdentifier());
     } else
-      out.writeInt(SerializationConstants.NULL_DATA);
+      out.writeByte(SerializationConstants.NULL_DATA);
 
     out.writeInt(propData.getPersistedVersion());
     // -------------------
@@ -61,7 +61,7 @@ public class TransientPropertyDataWriter {
 
     List<ValueData> values = propData.getValues();
     if (values != null) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       int listSize = values.size();
       out.writeInt(listSize);
       TransientValueDataWriter wr = new TransientValueDataWriter();
@@ -69,7 +69,7 @@ public class TransientPropertyDataWriter {
         wr.write(out, (TransientValueData) values.get(i));
       }
     } else {
-      out.writeInt(SerializationConstants.NULL_DATA);
+      out.writeByte(SerializationConstants.NULL_DATA);
     }
 
   }

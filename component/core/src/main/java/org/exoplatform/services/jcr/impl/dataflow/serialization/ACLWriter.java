@@ -39,10 +39,10 @@ public class ACLWriter {
     // Writing owner
     String owner = acl.getOwner();
     if (owner != null) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       out.writeString(owner);
     } else {
-      out.writeInt(SerializationConstants.NULL_DATA);
+      out.writeByte(SerializationConstants.NULL_DATA);
     }
 
     // writing access control entries size

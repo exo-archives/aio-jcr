@@ -96,7 +96,7 @@ public interface ObjectReader {
    */
   boolean readBoolean() throws IOException;
 
-  // byte readByte() throws IOException;
+  byte readByte() throws IOException;
 
   /**
    * Reads four input bytes and returns an <code>int</code> value. Let <code>a</code> be the first

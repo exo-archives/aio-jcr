@@ -36,19 +36,19 @@ public class TransactionChangesLogWriter {
     out.writeInt(SerializationConstants.TRANSACTION_CHANGES_LOG);
 
     if (tcl.getSystemId() != null) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       out.writeString(tcl.getSystemId());
     } else {
-      out.writeInt(SerializationConstants.NULL_DATA);
+      out.writeByte(SerializationConstants.NULL_DATA);
     }
 
     ChangesLogIterator it = tcl.getLogIterator();
     PlainChangesLogWriter wr = new PlainChangesLogWriter();
     while (it.hasNextLog()) {
-      out.writeInt(SerializationConstants.NOT_NULL_DATA);
+      out.writeByte(SerializationConstants.NOT_NULL_DATA);
       wr.write(out, it.nextLog());
     }
-    out.writeInt(SerializationConstants.NULL_DATA);
+    out.writeByte(SerializationConstants.NULL_DATA);
   }
 
 }
