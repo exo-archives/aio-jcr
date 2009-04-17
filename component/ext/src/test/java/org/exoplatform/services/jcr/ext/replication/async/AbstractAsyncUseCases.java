@@ -1521,6 +1521,85 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
   }
 
   /**
+   * Complex UseCase4 (server 1 - high priority, server 2 -low priority)
+   * 
+   * With complex node type (nt:file + mixin dc:elementSet)
+   */
+  public class CompexUsecaseBigFile extends BaseTwoMembersMergeUseCase {
+    public CompexUsecaseBigFile(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node test = sessionHighPriority.getRootNode().addNode("cms1");
+      Node cool = test.addNode("nnn", "nt:file");
+      Node contentNode = cool.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:encoding", "UTF-8");
+      contentNode.setProperty("jcr:data", new FileInputStream(createBLOBTempFile(100000)));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+      contentNode.setProperty("jcr:lastModified",
+                              sessionHighPriority.getValueFactory()
+                                                 .createValue(Calendar.getInstance()));
+
+      cool.addMixin("dc:elementSet");
+
+      cool.setProperty("dc:creator", new String[] { "Creator 1", "Creator 2", "Creator 3" });
+
+      ValueFactory vf = cool.getSession().getValueFactory();
+      cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+          vf.createValue(Calendar.getInstance()), vf.createValue(Calendar.getInstance()) });
+
+      cool.setProperty("dc:source", new String[] { "Source 1", "Source 2", "Source 3" });
+      cool.setProperty("dc:description", new String[] { "description 1", "description 2",
+          "description 3", "description 4" });
+      cool.setProperty("dc:publisher", new String[] { "publisher 1", "publisher 2", "publisher 3" });
+      cool.setProperty("dc:language", new String[] { "language 1", "language 2", "language3",
+          "language 4", "language5" });
+
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+      Node test = sessionLowPriority.getRootNode().addNode("cms1");
+      Node cool = test.addNode("nnn", "nt:file");
+      Node contentNode = cool.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:encoding", "UTF-8");
+      contentNode.setProperty("jcr:data", new FileInputStream(createBLOBTempFile(300)));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+      contentNode.setProperty("jcr:lastModified",
+                              sessionHighPriority.getValueFactory()
+                                                 .createValue(Calendar.getInstance()));
+
+      cool.addMixin("dc:elementSet");
+
+      cool.setProperty("dc:creator", new String[] { "Creator 1", "Creator 2", "Creator 3" });
+
+      ValueFactory vf = cool.getSession().getValueFactory();
+      cool.setProperty("dc:date", new Value[] { vf.createValue(Calendar.getInstance()),
+          vf.createValue(Calendar.getInstance()), vf.createValue(Calendar.getInstance()) });
+
+      cool.setProperty("dc:source", new String[] { "Source 1", "Source 2", "Source 3" });
+      cool.setProperty("dc:description", new String[] { "description 1", "description 2",
+          "description 3", "description 4" });
+      cool.setProperty("dc:publisher", new String[] { "publisher 1", "publisher 2", "publisher 3" });
+      cool.setProperty("dc:language", new String[] { "language 1", "language 2", "language3",
+          "language 4", "language5" });
+
+      sessionLowPriority.save();
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+    }
+  }
+
+  /**
    * Complex UseCase5 (server 1 - high priority, server 2 -low priority)
    * 
    * With complex node type (nt:file + mixin dc:elementSet)

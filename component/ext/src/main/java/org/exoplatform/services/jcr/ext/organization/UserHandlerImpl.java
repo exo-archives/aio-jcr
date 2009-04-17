@@ -18,21 +18,15 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
 
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.commons.utils.LazyPageList;
-import org.exoplatform.commons.utils.ObjectPageList;
-import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
@@ -298,157 +292,21 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public LazyPageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
-    Session session = service.getStorageSession();
-    try {
-      return findUsers(session, query);
-    } finally {
-      session.logout();
-    }
-  }
-
-  /**
-   * This method search for the users according to a search criteria.
-   * 
-   * @param session
-   *          The current session
-   * @param query
-   *          The query object contains the search criteria.
-   * @return return the found users in a page list according to the query.
-   * @throws Exception
-   *           throw exception if the service cannot access the database
-   */
-  private LazyPageList findUsers(Session session, org.exoplatform.services.organization.Query query) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.findUsers method is started");
-    }
-
-    try {
-      String where = "jcr:path LIKE '" + "%" + "'";
-      if (query.getEmail() != null) {
-        where += " AND " + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
-      }
-      if (query.getFirstName() != null) {
-        where += " AND " + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
-      }
-      if (query.getLastName() != null) {
-        where += " AND " + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
-      }
-
-      List<User> types = new ArrayList<User>();
-
-      String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
-      Query uQuery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
-      QueryResult uRes = uQuery.execute();
-      for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
-        Node uNode = uNodes.nextNode();
-        if (query.getUserName() == null || isNameLike(uNode.getName(), query.getUserName())) {
-          Date lastLoginTime = readDateProperty(uNode, EXO_LAST_LOGIN_TIME);
-          if ((query.getFromLoginDate() == null || (lastLoginTime != null && query.getFromLoginDate()
-                                                                                  .getTime() <= lastLoginTime.getTime()))
-              && (query.getToLoginDate() == null || (lastLoginTime != null && query.getToLoginDate()
-                                                                                   .getTime() >= lastLoginTime.getTime()))) {
-            types.add(readObjectFromNode(uNode));
-          }
-        }
-      }
-
-      return new LazyPageList(new JCRUserListAccess(types), 10);
-
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find users", e);
-    }
+    return new LazyPageList(new UserByQueryJCRUserListAccess(service, query), 10);
   }
 
   /**
    * {@inheritDoc}
    */
   public LazyPageList findUsersByGroup(String groupId) throws Exception {
-    Session session = service.getStorageSession();
-    try {
-      return findUsersByGroup(session, groupId);
-    } finally {
-      session.logout();
-    }
-  }
-
-  /**
-   * This method should search and return the list of the users in a given group.
-   * 
-   * @param session
-   *          The current session
-   * @param groupId
-   *          id of the group. The return users list should be in this group
-   * @return return a page list iterator of a group of the user in the database
-   * @throws Exception
-   *           If method can not get access to the database
-   */
-  private LazyPageList findUsersByGroup(Session session, String groupId) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.findUsersByGroup method is started");
-    }
-
-    List<User> users = new ArrayList<User>();
-    try {
-      Node gNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId);
-
-      // find memberships
-      String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
-          + "'";
-      Query mquery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
-      QueryResult mres = mquery.execute();
-      for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
-        users.add(readObjectFromNode(membs.nextNode().getParent()));
-      }
-      return new LazyPageList(new JCRUserListAccess(users), 10);
-
-    } catch (PathNotFoundException e) {
-      return new LazyPageList(new JCRUserListAccess(users), 10);
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find users by group '" + groupId + "'", e);
-    }
+    return new LazyPageList(new UserByGroupJCRUserListAccess(service, groupId), 10);
   }
 
   /**
    * {@inheritDoc}
    */
   public LazyPageList getUserPageList(int pageSize) throws Exception {
-    Session session = service.getStorageSession();
-    try {
-      return getUserPageList(session, pageSize);
-    } finally {
-      session.logout();
-    }
-  }
-
-  /**
-   * This method is used to get all the users in the database.
-   * 
-   * @param session
-   *          The current session
-   * @param pageSize
-   *          The number of user in each page
-   * @return return a page list iterator. The page list should allow the developer get all the users
-   *         or get a page of users if the return number of users is too large.
-   * @throws Exception
-   *           If method can not get access to the database
-   */
-  private LazyPageList getUserPageList(Session session, int pageSize) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.getUserPageList method is started");
-    }
-
-    try {
-      List<User> types = new ArrayList<User>();
-      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
-      for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
-        types.add(readObjectFromNode(uNodes.nextNode()));
-      }
-      return new LazyPageList(new JCRUserListAccess(types), pageSize);
-
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not get user page list", e);
-    }
+    return new LazyPageList(new SimpleJCRUserListAccess(service), pageSize);
   }
 
   /**
@@ -592,7 +450,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * @throws Exception
    *           An exception is thrown if method can not get access to the database
    */
-  private User readObjectFromNode(Node node) throws Exception {
+  public User readObjectFromNode(Node node) throws Exception {
     try {
       User user = new UserImpl(node.getName(), node.getUUID());
       user.setCreatedDate(readDateProperty(node, EXO_CREATED_DATE));
@@ -713,31 +571,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       str = str.substring(0, str.length() - 1);
     }
     return str;
-  }
-
-  private boolean isNameLike(String userName, String queryName) {
-    boolean startWith = false;
-    boolean endWith = false;
-
-    if (queryName.startsWith("*")) {
-      startWith = true;
-      queryName = queryName.substring(1);
-    }
-
-    if (queryName.endsWith("*")) {
-      endWith = true;
-      queryName = queryName.substring(0, queryName.length() - 1);
-    }
-
-    if (startWith && endWith) {
-      return userName.indexOf(queryName) != -1;
-    } else if (startWith) {
-      return userName.startsWith(queryName);
-    } else if (endWith) {
-      return userName.endsWith(queryName);
-    } else {
-      return userName.equals(queryName);
-    }
   }
 
 }

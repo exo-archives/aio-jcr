@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.organization;
 
-import java.util.List;
+import javax.jcr.Session;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.organization.User;
@@ -27,32 +27,71 @@ import org.exoplatform.services.organization.User;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: MyResourceAccess.java 111 2008-11-11 11:11:11Z $
  */
-public class JCRUserListAccess implements ListAccess<User> {
+public abstract class JCRUserListAccess implements ListAccess<User> {
 
-  private final List<User> list;
+  /**
+   * The JCROrganizationService.
+   */
+  protected JCROrganizationServiceImpl service;
 
-  JCRUserListAccess(List<User> list) {
-    this.list = list;
+  /**
+   * JCRUserListAccess constructor.
+   * 
+   * @param service
+   *          The JCROrganizationService
+   */
+  public JCRUserListAccess(JCROrganizationServiceImpl service) {
+    this.service = service;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public User[] load(int index, int length) throws Exception, IllegalArgumentException {
-    if (index < 0)
-      throw new IllegalArgumentException("Illegal index: index must be a positive number");
-
-    if (length < 0)
-      throw new IllegalArgumentException("Illegal length: length must be a positive number");
-
-    if (index + length > list.size())
-      throw new IllegalArgumentException("Illegal index or length: sum of the index and the length cannot be greater than the list size");
-
-    User result[] = new User[length];
-    for (int i = 0; i < length; i++)
-      result[i] = list.get(i + index);
-
-    return result;
+    Session session = service.getStorageSession();
+    try {
+      return load(session, index, length);
+    } finally {
+      session.logout();
+    }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int getSize() throws Exception {
-    return list.size();
+    Session session = service.getStorageSession();
+    try {
+      return getSize(session);
+    } finally {
+      session.logout();
+    }
   }
+
+  /**
+   * Load users into array.
+   * 
+   * @param session
+   *          The current session
+   * @param index
+   *          Offset
+   * @param length
+   *          Number of users
+   * @return result array of users
+   * @throws Exception
+   *           if any error occurs
+   */
+  protected abstract User[] load(Session session, int index, int length) throws Exception;
+
+  /**
+   * Determine the count of available users.
+   * 
+   * @param session
+   *          The current session
+   * @return list size
+   * @throws Exception
+   *           if any error occurs
+   */
+  protected abstract int getSize(Session session) throws Exception;
+
 }
