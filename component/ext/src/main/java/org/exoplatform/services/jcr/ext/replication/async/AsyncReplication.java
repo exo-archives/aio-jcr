@@ -42,9 +42,10 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChecksumNotFoundException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogsIterator;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
@@ -619,10 +620,11 @@ public class AsyncReplication implements Startable {
                                      String wsName,
                                      String systemWSName,
                                      String localStorageDir,
-                                     String incomeStorageDir) throws ChecksumNotFoundException,
-                                                             NoSuchAlgorithmException,
+                                     String incomeStorageDir) throws NoSuchAlgorithmException,
                                                              RepositoryException,
-                                                             RepositoryConfigurationException {
+                                                             RepositoryConfigurationException,
+                                                             IOException,
+                                                             ClassNotFoundException {
     StorageKey skey = new StorageKey(repositoryName, wsName);
 
     // workspace
@@ -672,8 +674,9 @@ public class AsyncReplication implements Startable {
 
     // apply previously saved changes
     if (asyncStartChangesListener != null) {
+      asyncStartChangesListener.stop();
       localStorage.saveStartChanges(asyncStartChangesListener.getChanges());
-      asyncStartChangesListener.clear();
+      asyncStartChangesListener.cleanup();
     }
 
     // income storage paths
@@ -712,11 +715,14 @@ public class AsyncReplication implements Startable {
    *          - workspace name.
    * @param systemWSName
    *          - syetme workspace name.
+   * @throws ClassNotFoundException
+   * @throws IOException
    */
   private void addWorkspaceNullListener(ManageableRepository repository,
                                         String repositoryName,
                                         String wsName,
-                                        String systemWSName) {
+                                        String systemWSName) throws IOException,
+                                                            ClassNotFoundException {
 
     SystemLocalStorageImpl systemLocalStorage = (SystemLocalStorageImpl) localStorages.get(new StorageKey(repositoryName,
                                                                                                           systemWSName));
@@ -732,11 +738,11 @@ public class AsyncReplication implements Startable {
     // apply previously saved changes
     AsyncStartChangesListener asyncStartChangesListener = (AsyncStartChangesListener) wsc.getComponent(AsyncStartChangesListener.class);
     if (asyncStartChangesListener != null) {
-      for (int i = 0; i < asyncStartChangesListener.getChanges().size(); i++) {
-        listener.onSaveItems(asyncStartChangesListener.getChanges().get(i));
-      }
+      ChangesLogsIterator<TransactionChangesLog> changes = asyncStartChangesListener.getChanges();
+      while (changes.hasNext())
+        listener.onSaveItems(changes.next());
 
-      asyncStartChangesListener.clear();
+      asyncStartChangesListener.cleanup();
     }
   }
 

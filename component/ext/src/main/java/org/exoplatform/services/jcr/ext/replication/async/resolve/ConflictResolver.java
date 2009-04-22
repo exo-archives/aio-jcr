@@ -60,7 +60,7 @@ public class ConflictResolver {
 
   private final List<QPath>                     conflictedPathes;
 
-  private final List<QPath>                     VSSkippedPathes;
+  private final List<QPath>                     vsSkippedPathes;
 
   private final RemoteExporter                  exporter;
 
@@ -87,7 +87,7 @@ public class ConflictResolver {
                           RemoteExporter exporter,
                           DataManager dataManager,
                           NodeTypeDataManager ntManager) {
-    this.VSSkippedPathes = new ArrayList<QPath>();
+    this.vsSkippedPathes = new ArrayList<QPath>();
     this.conflictedPathes = new ArrayList<QPath>();
     this.local = local;
     this.income = income;
@@ -110,7 +110,7 @@ public class ConflictResolver {
                                                     ClassNotFoundException {
     QPath skippedPath = income.findVSChanges(identifier);
     if (skippedPath != null)
-      VSSkippedPathes.add(skippedPath);
+      vsSkippedPathes.add(skippedPath);
   }
 
   /**
@@ -654,6 +654,7 @@ public class ConflictResolver {
 
     InternalQName[] mixinTypeNames = node.getMixinTypeNames();
     InternalQName primaryTypeName = node.getPrimaryTypeName();
+
     if (mixinTypeNames != null && primaryTypeName != null
         && ntManager.isNodeType(Constants.MIX_LOCKABLE, primaryTypeName, mixinTypeNames)) {
 
@@ -692,8 +693,8 @@ public class ConflictResolver {
    * @return
    */
   private boolean isVSChangesConflicted(QPath path) {
-    for (int i = 0; i < VSSkippedPathes.size(); i++) {
-      if (path.equals(VSSkippedPathes.get(i)) || path.isDescendantOf(VSSkippedPathes.get(i))) {
+    for (int i = 0; i < vsSkippedPathes.size(); i++) {
+      if (path.equals(vsSkippedPathes.get(i)) || path.isDescendantOf(vsSkippedPathes.get(i))) {
         return true;
       }
     }

@@ -44,6 +44,7 @@ import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistence
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
@@ -150,11 +151,15 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                           .getComponent(PersistentDataManager.class);
 
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize, holder);
+                                                                      fileCleaner,
+                                                                      maxBufferSize,
+                                                                      holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    fileCleaner, maxBufferSize, holder,
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -189,7 +194,10 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR + "ss");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst", "nt:folder");
@@ -237,7 +245,10 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"startstop");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -274,7 +285,10 @@ public class LocalStorageTest extends BaseStandaloneTest {
    */
   public void testImportEmptyLog() throws Exception {
 
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder);
     storage.onStart(null);
 
     ChangesStorage<ItemState> ch = storage.getLocalChanges(false);
@@ -296,7 +310,10 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // File dir = new File(STORAGE_DIR+"ss");
     // dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n = (NodeImpl) root.addNode("testNode");
@@ -304,10 +321,10 @@ public class LocalStorageTest extends BaseStandaloneTest {
     n.setProperty("secondProp", "ohohoh");
     root.save();
 
-    n = (NodeImpl) root.addNode("testBrokenNode");
-    n.setProperty("prop1", "dfdasfsdf");
-    n.setProperty("secondProp", "ohohoh");
-    root.save();
+    /*    n = (NodeImpl) root.addNode("testBrokenNode");
+        n.setProperty("prop1", "dfdasfsdf");
+        n.setProperty("secondProp", "ohohoh");
+        root.save();*/
 
     storage.onStart(null);
 
@@ -329,7 +346,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     try {
       storage.getLocalChanges(false).size();
       fail();
-    } catch (StorageRuntimeException e) {
+    } catch (StorageIOException e) {
       // OK.
     }
 
@@ -350,7 +367,10 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder);
     dataManager.addItemPersistenceListener(storage);
 
     n.remove();
@@ -358,8 +378,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage.onStart(null);
 
-    this.checkIterator(pl.pushChanges().get(0).getAllStates().iterator(), storage.getLocalChanges(false)
-                                                                                 .getChanges());
+    this.checkIterator(pl.pushChanges().get(0).getAllStates().iterator(),
+                       storage.getLocalChanges(false).getChanges());
 
     dataManager.removeItemPersistenceListener(storage);
 
@@ -374,10 +394,17 @@ public class LocalStorageTest extends BaseStandaloneTest {
   public void testGetErrors() throws Exception {
     // File dir = new File(STORAGE_DIR+"errors");
     // dir.mkdirs();
+
+    final int lMaxBufferSize = maxBufferSize;
+
+    final FileCleaner lFileCleaner = fileCleaner;
+
+    final ReaderSpoolFileHolder lHolder = holder;
+
     class TestLocalStorage extends LocalStorageImpl {
       public TestLocalStorage(String path, int pr) throws NoSuchAlgorithmException,
           ChecksumNotFoundException {
-        super(path, fileCleaner, maxBufferSize, holder);
+        super(path, lFileCleaner, lMaxBufferSize, lHolder);
       }
 
       public void report(Exception e) {

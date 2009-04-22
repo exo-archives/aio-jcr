@@ -2502,6 +2502,39 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
   }
 
   /**
+   * 
+   */
+  public class MoveUseCase extends BaseTwoMembersMergeUseCase {
+    public MoveUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().addNode("item1");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().addNode("item3");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.move("/item2", "/item3");
+      sessionLowPriority.getRootNode().addNode("item2");
+      sessionLowPriority.save();
+    }
+  }
+
+  /**
    * Test add/delete sequence.
    */
   public class AddDeleteUseCase extends BaseTwoMembersMergeUseCase {

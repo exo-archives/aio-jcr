@@ -16,43 +16,23 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PairChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
-import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
-import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
-import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -60,222 +40,12 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SolidLocalStorageImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
+public class LocalStorageImpl extends AbstractLocalStorage implements LocalStorage,
     LocalEventListener, RemoteEventListener {
 
-  public static final String                                   INTERNAL_CHANGES_FILE_TAG  = "i";
+  private VersionLogHolder versionLogHolder = null;
 
-  protected static final Log                                   LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
-
-  /**
-   * Stuff for TransactionChangesLog.writeExternal.
-   */
-  private static final String                                  EXTERNALIZATION_SYSTEM_ID  = "".intern();
-
-  /**
-   * Stuff for PlainChangesLogImpl.writeExternal.
-   */
-  private static final String                                  EXTERNALIZATION_SESSION_ID = "".intern();
-
-  /**
-   * Error container file name.
-   */
-  private static final String                                  ERROR_FILENAME             = "errors";
-
-  /**
-   * The name of local storage sub-directory that contains changes logs.
-   */
-  private static final String                                  DIRECTORY_NAME             = "changes";
-
-  private static final String                                  DIGESTFILE_EXTENTION       = ".md5";
-
-  private static final long                                    ERROR_TIMEOUT              = 10000;
-
-  /**
-   * Max ChangesLog file size in Kb.
-   */
-  private static final long                                    MAX_FILE_SIZE              = 32 * 1024 * 1024;
-
-  /**
-   * Path to Local Storage.
-   */
-  private final String                                         storagePath;
-
-  private final FileCleaner                                    fileCleaner;
-
-  protected final ConcurrentLinkedQueue<TransactionChangesLog> changesQueue               = new ConcurrentLinkedQueue<TransactionChangesLog>();
-
-  protected ChangesSpooler                                     changesSpooler             = null;
-
-  private final ResourcesHolder                                resHolder                  = new ResourcesHolder();
-
-  private File                                                 currentDir                 = null;
-
-  private File                                                 currentFile                = null;
-
-  private MessageDigest                                        digest;
-
-  private ObjectWriter                                         currentOut                 = null;
-
-  private VersionLogHolder                                     versionLogHolder           = null;
-
-  private boolean                                              incorrectPreviouslySavedData;
-
-  private final int                                            maxBufferSize;
-
-  private final ReaderSpoolFileHolder                          holder;
-
-  /**
-   * This unique index used as name for ChangesFiles.
-   */
-  private Long                                                 index                      = new Long(0);
-
-  class ChangesSpooler extends Thread {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void run() {
-      try {
-        TransactionChangesLog chl = changesQueue.poll();
-        while (chl != null) {
-          writeLog(prepareChangesLog(chl));
-
-          Thread.yield();
-
-          chl = changesQueue.poll();
-        }
-      } catch (IOException e) {
-        LOG.error("Cannot spool changes queue. I/O error " + e, e);
-        reportException(e);
-      } catch (Throwable e) {
-        LOG.error("Cannot spool changes queue. Error " + e, e);
-        reportException(e);
-      } finally {
-        changesSpooler = null; // reset self-reference
-      }
-    }
-
-    /**
-     * Change all TransientValueData to ReplicableValueData.
-     * 
-     * @param log
-     *          local TransactionChangesLog
-     * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException
-     *           if error occurs
-     */
-    /*
-     * private TransactionChangesLog prepareChangesLog(final
-     * TransactionChangesLog log) throws IOException { final ChangesLogIterator
-     * chIt = log.getLogIterator(); final TransactionChangesLog result = new
-     * TransactionChangesLog(); result.setSystemId(EXTERNALIZATION_SYSTEM_ID); //
-     * for // PlainChangesLogImpl.writeExternal while (chIt.hasNextLog()) {
-     * PlainChangesLog plog = chIt.nextLog(); List<ItemState> destlist = new
-     * ArrayList<ItemState>(); for (ItemState item : plog.getAllStates()) { if
-     * (item.isNode()) { // use nodes states as is destlist.add(item); } else {
-     * TransientPropertyData prop = (TransientPropertyData) item.getData(); List<ValueData>
-     * srcVals = prop.getValues(); List<ValueData> nVals = new ArrayList<ValueData>();
-     * for (ValueData vd : srcVals) { if (vd.isByteArray()) { nVals.add(vd); }
-     * else { // create new dataFile if (vd instanceof TransientValueData) {
-     * File vdf = ((TransientValueData) vd).getSpoolFile(); if (vdf instanceof
-     * SpoolFile) { nVals.add(new ReplicableValueData((SpoolFile) vdf,
-     * vd.getOrderNumber(), fileCleaner)); } else { // TODO, check how it's
-     * possible with EditableValueData nVals.add(new ReplicableValueData(new
-     * SpoolFile(vdf.getCanonicalPath()), vd.getOrderNumber(), fileCleaner)); } }
-     * else throw new StorageIOException("Non transient value data " + vd); } } //
-     * rewrite values, TODO use setter TransientPropertyData nProp = new
-     * TransientPropertyData(prop.getQPath(), prop.getIdentifier(),
-     * prop.getPersistedVersion(), prop.getType(), prop.getParentIdentifier(),
-     * prop.isMultiValued()); nProp.setValues(nVals); // create new ItemState
-     * ItemState nItem = new ItemState(nProp, item.getState(),
-     * item.isEventFire(), item.getAncestorToSave(), item.isInternallyCreated(),
-     * item.isPersisted()); destlist.add(nItem); } } // create new plain changes
-     * log result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() ==
-     * null ? EXTERNALIZATION_SESSION_ID : plog.getSessionId(),
-     * plog.getEventType())); } return result; }
-     */
-
-    /**
-     * Set sessionId if it null for PlainChangesLog.
-     * 
-     * @param log
-     *          local TransactionChangesLog
-     * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException
-     *           if error occurs
-     */
-    private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
-      final ChangesLogIterator chIt = log.getLogIterator();
-
-      final TransactionChangesLog result = new TransactionChangesLog();
-      result.setSystemId(log.getSystemId() == null ? EXTERNALIZATION_SYSTEM_ID : log.getSystemId()); // for
-      // PlainChangesLogImpl
-      // .
-      // writeExternal
-
-      while (chIt.hasNextLog()) {
-        PlainChangesLog plog = chIt.nextLog();
-
-        // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(plog.getAllStates(), plog.getSessionId() == null
-            ? EXTERNALIZATION_SESSION_ID
-            : plog.getSessionId(), plog.getEventType()));
-      }
-      return result;
-    }
-
-    private void writeLog(TransactionChangesLog itemStates) throws IOException,
-                                                           UnknownClassIdException {
-
-      if (itemStates.getSystemId() == null
-          || !itemStates.getSystemId()
-                        .equals(Constants.JCR_CORE_RESTORE_WORKSPACE_INITIALIZER_SYSTEM_ID)) {
-        if (currentFile == null) {
-          long id = getNextFileId();
-          currentFile = new File(currentDir, Long.toString(id));
-          currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                                   digest));
-        } else if (currentFile.length() > MAX_FILE_SIZE) {
-          // close stream
-          closeCurrentOutput();
-
-          // create new file
-          long id = getNextFileId();
-          currentFile = new File(currentDir, Long.toString(id));
-          if (currentFile.exists()) {
-            LOG.warn("Changes file :" + currentFile.getAbsolutePath()
-                + " already exist and will be rewrited.");
-          }
-
-          currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                                   digest));
-        }
-
-        TransactionChangesLogWriter writer = new TransactionChangesLogWriter();
-        writer.write(currentOut, itemStates);
-      } else {
-        if (currentFile != null) {
-          closeCurrentOutput();
-          currentFile = null;
-        }
-
-        long id = getNextFileId();
-        currentFile = new File(currentDir, Long.toString(id) + INTERNAL_CHANGES_FILE_TAG);
-        currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                                 digest));
-
-        TransactionChangesLogWriter writer = new TransactionChangesLogWriter();
-        writer.write(currentOut, itemStates);
-
-        closeCurrentOutput();
-        currentFile = null;
-      }
-
-      // keep stream opened
-    }
-  }
+  private boolean          incorrectPreviouslySavedData;
 
   /**
    * LocalStorageImpl constructor.
@@ -297,28 +67,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
                           int maxBufferSize,
                           ReaderSpoolFileHolder holder) throws NoSuchAlgorithmException,
       ChecksumNotFoundException {
+    super(storagePath, fileCleaner, maxBufferSize, holder);
+
     this.incorrectPreviouslySavedData = false;
-    this.storagePath = storagePath;
-    this.fileCleaner = fileCleaner;
-    this.maxBufferSize = maxBufferSize;
-    this.holder = holder;
-    this.digest = MessageDigest.getInstance("MD5");
-
-    // find last index of storage
-    String[] dirs = getSubStorageNames(storagePath);
-    // check local storage
-    if (dirs.length > 1) {
-      LOG.warn("Local storage contains more than one sub-directory!");
-    }
-
-    currentDir = new File(storagePath, DIRECTORY_NAME);
-
-    if (!currentDir.exists()) {
-      currentDir.mkdirs();
-    }
 
     // check files
-
     File[] files = currentDir.listFiles(new ChangesFilenameFilter(false));
 
     java.util.Arrays.sort(files, new ChangesFileComparator<File>());
@@ -433,11 +186,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * @param listItemStates
    *          The list of changeslogs.
    */
-  public void saveStartChanges(List<ItemStateChangesLog> listItemStates) {
+  public void saveStartChanges(ChangesLogsIterator<TransactionChangesLog> changes) {
     synchronized (this) {
-      int curSize = listItemStates.size();
-      for (int i = 0; i < curSize; i++) {
-        saveItems(listItemStates.get(i));
+      while (changes.hasNext()) {
+        saveItems(changes.next());
       }
     }
   }
@@ -491,213 +243,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       changesQueue.add(t);
     }
     changesQueue.add(new TransactionChangesLog(pcLog));
-  }
-
-  /**
-   * Return all rootPath sub file names that has are numbers in ascending order.
-   * 
-   * @param rootPath
-   *          Path of root directory
-   * @return list of sub-files names
-   */
-  private String[] getSubStorageNames(String rootPath) {
-
-    File storage = new File(rootPath);
-    String[] dirNames = storage.list(new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        File file = new File(dir, name);
-        return file.isDirectory();
-      }
-    });
-
-    return dirNames;
-  }
-
-  /**
-   * Add exception in exception storage.
-   * 
-   * @param e
-   *          Exception
-   */
-  protected void reportException(Throwable e) {
-    try {
-      BufferedWriter errorOut = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(storagePath,
-                                                                                                        ERROR_FILENAME),
-                                                                                               true),
-                                                                          Constants.DEFAULT_ENCODING));
-
-      errorOut.write(e.getMessage() + "\n");
-      errorOut.flush();
-      errorOut.close();
-
-    } catch (IOException ex) {
-      // do nothing
-      LOG.warn("Exception on write to error storage file: ", ex);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public String[] getErrors() throws IOException {
-
-    File err = new File(storagePath, ERROR_FILENAME);
-    if (!err.exists()) {
-      return new String[0];
-    } else {
-      List<String> list = new ArrayList<String>();
-
-      // Open reader
-      BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(err),
-                                                                   Constants.DEFAULT_ENCODING));
-      String s;
-      while ((s = br.readLine()) != null) {
-        list.add(s);
-      }
-      br.close();
-      return list.toArray(new String[list.size()]);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onStop() {
-    if (LOG.isDebugEnabled())
-      LOG.debug("On STOP");
-
-    if (isStarted()) {
-
-      try {
-        resHolder.close();
-      } catch (IOException e) {
-        LOG.error("Error of data streams close " + e, e);
-      }
-
-      // delete merged content
-      File[] subfiles = currentDir.listFiles();
-
-      for (File f : subfiles) {
-        if (!f.delete()) {
-          LOG.warn("Canot delete file " + f.getAbsolutePath());
-          reportException(new Exception("Cannot delete file " + f.getAbsolutePath()));
-        }
-      }
-
-      // reset files index
-      index = new Long(0);
-
-    } else
-      LOG.warn("Not started or already stopped");
-
-    doStop();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onCancel() {
-    if (LOG.isDebugEnabled())
-      LOG.debug("On CANCEL");
-
-    if (isStarted()) {
-      doStop();
-    } else
-      LOG.warn("Not started or already stopped");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onStart(List<MemberAddress> members) {
-    if (LOG.isDebugEnabled())
-      LOG.debug("On START");
-
-    // check lastDir for any changes;
-    String[] subfiles = currentDir.list(new ChangesFilenameFilter(false));
-    if (subfiles.length == 0) {
-      // write empty log to have at least one file to send/compare
-      onSaveItems(new TransactionChangesLog());
-    }
-
-    flushChanges();
-
-    doStart();
-  }
-
-  /**
-   * FlushChanges.
-   */
-  private void flushChanges() {
-    ChangesSpooler csp = changesSpooler;
-    if (csp != null) {
-      if (LOG.isDebugEnabled())
-        LOG.debug("Waitig for the changes spooler done.");
-      try {
-        csp.join();
-      } catch (InterruptedException e) {
-        LOG.error("Waitig for the changes spooler fails. Data still can be not spooled to the file. Error "
-                      + e,
-                  e);
-        try {
-          Thread.sleep(ERROR_TIMEOUT);
-        } catch (InterruptedException e1) {
-          LOG.error("Sleep error " + e, e);
-        }
-      }
-    }
-
-    // close current file
-    try {
-      closeCurrentOutput();
-
-    } catch (IOException e) {
-      LOG.error("Can't close current output stream " + e, e);
-      reportException(e);
-    }
-
-    currentFile = null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onDisconnectMembers(List<Member> member) {
-    // not interested
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onMerge(MemberAddress member) {
-    // not interested
-  }
-
-  private long getNextFileId() {
-    long fileId = 0;
-    synchronized (index) {
-      fileId = index++;
-    }
-    return fileId;
-  }
-
-  private void closeCurrentOutput() throws IOException {
-    if (currentOut != null) {
-
-      // close stream
-      currentOut.close();
-
-      // flush digest
-      File digestFile = new File(currentDir, currentFile.getName() + DIGESTFILE_EXTENTION);
-      FileOutputStream foutDigest = new FileOutputStream(digestFile);
-      byte[] crc = digest.digest();
-      foutDigest.write(crc);
-      foutDigest.close();
-      digest.reset();
-
-      currentOut = null;
-    }
-
   }
 
 }

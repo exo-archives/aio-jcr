@@ -26,6 +26,7 @@ import org.exoplatform.services.jcr.dataflow.PairChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -46,11 +47,15 @@ public class WorkspaceNullListenerTest extends BaseStandaloneTest {
 
   private SessionImpl           session3;
 
+  final int                     lMaxBufferSize     = maxBufferSize;
+
+  final ReaderSpoolFileHolder   lHolder            = holder;
+
   class SystemLocalStorageTest extends SystemLocalStorageImpl {
 
     public SystemLocalStorageTest(String storagePath, FileCleaner fileCleaner) throws ChecksumNotFoundException,
         NoSuchAlgorithmException {
-      super(storagePath, fileCleaner, maxBufferSize, holder);
+      super(storagePath, fileCleaner, lMaxBufferSize, lHolder);
     }
 
     public Collection<PairChangesLog> getPairLogs() {
@@ -80,7 +85,8 @@ public class WorkspaceNullListenerTest extends BaseStandaloneTest {
   /**
    * Delete directory and all subfiles.
    * 
-   * @param file directory
+   * @param file
+   *          directory
    * @return true if all files successfuly deleted, and false if not.
    */
   private boolean deleteDir(File file) {
@@ -117,7 +123,7 @@ public class WorkspaceNullListenerTest extends BaseStandaloneTest {
 
     // check VersionHolder
     assertEquals(0, systemStorage.getPairLogs().size());
-    
+
     // cleanUp
     systemDataManager.removeItemPersistenceListener(systemStorage);
     systemDataManager.removeItemPersistenceListener(nullWS);

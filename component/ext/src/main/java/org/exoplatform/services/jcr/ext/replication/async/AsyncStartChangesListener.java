@@ -16,12 +16,21 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
+import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogsIterator;
+import org.exoplatform.services.jcr.ext.replication.async.storage.StartChangesLocalStorageImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
  * Created by The eXo Platform SAS.
@@ -31,43 +40,97 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
  */
 public class AsyncStartChangesListener implements ItemsPersistenceListener {
 
-  private final List<ItemStateChangesLog> changes;
+  /**
+   * The data manager.
+   */
+  private final PersistentDataManager        dataManager;
 
-  private final PersistentDataManager     dataManager;
+  /**
+   * The storage.
+   */
+  private final StartChangesLocalStorageImpl storage;
+
+  /**
+   * The storage directory.
+   */
+  private final File                         storageDir;
+
+  /**
+   * Is listener active or not.
+   */
+  private boolean                            active;
+
+  private boolean                            clear;
 
   /**
    * ChangesListener constructor.
    * 
    * @param workspaceName
+   * @throws NoSuchAlgorithmException
+   * @throws IOException
    */
   public AsyncStartChangesListener(PersistentDataManager dataManager,
-                                   AsyncReplication asyncReplication) {
-    this.changes = new ArrayList<ItemStateChangesLog>();
+                                   AsyncReplication asyncReplication,
+                                   WorkspaceFileCleanerHolder wfcleaner,
+                                   RepositoryEntry rconf,
+                                   WorkspaceEntry wconf) throws NoSuchAlgorithmException,
+      IOException {
     this.dataManager = dataManager;
     this.dataManager.addItemPersistenceListener(this);
+    this.active = true;
+
+    this.storageDir = new File(System.getProperty("java.io.tmpdir"), "startchanges"
+        + File.separator + rconf.getName() + "-" + wconf.getName() + File.separator
+        + System.currentTimeMillis());
+
+    if (!storageDir.exists())
+      storageDir.mkdirs();
+
+    int maxBufferSize = wconf.getContainer()
+                             .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                  WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+
+    this.storage = new StartChangesLocalStorageImpl(storageDir.getAbsolutePath(),
+                                                    wfcleaner.getFileCleaner(),
+                                                    maxBufferSize,
+                                                    new ReaderSpoolFileHolder());
+    this.storage.onStart(null);
+
   }
 
   /**
    * Return all changes from the start.
    * 
-   * @return List of changes.
+   * @return List of changes if present or null if changes was cleared.
+   * @throws IOException
+   * @throws ClassNotFoundException
    */
-  public List<ItemStateChangesLog> getChanges() {
-    return changes;
+  public ChangesLogsIterator<TransactionChangesLog> getChanges() throws IOException,
+                                                                ClassNotFoundException {
+    return storage.getChangesLogs(false);
+  }
+
+  /**
+   * Make the listener is not active.
+   */
+  public void stop() {
+    active = false;
   }
 
   /**
    * Clear the accumulated changes and unregister as listener.
    */
-  public void clear() {
+  public void cleanup() {
     dataManager.removeItemPersistenceListener(this);
-    changes.clear();
+    storage.onStop();
   }
 
   /**
    * {@inheritDoc}
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
-    changes.add(itemStates);
+    if (active) {
+      storage.onSaveItems(itemStates);
+    }
   }
 }

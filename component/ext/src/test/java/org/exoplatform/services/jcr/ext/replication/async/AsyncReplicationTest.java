@@ -271,21 +271,13 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     super.tearDown();
   }
 
-  public void testStartListener() throws Exception {
-    UseCase1 useCase = new UseCase1(sessionLowPriority, sessionHigePriority);
-
-    AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
-
-    asyncUseCase.initDataWithoutSync();
-
-    assertTrue(asyncUseCase.hasAddedRootNode());
-  }
-
   // conflict
   public void _testBigFile() throws Exception {
     CompexUsecaseBigFile useCase = new CompexUsecaseBigFile(sessionLowPriority, sessionHigePriority);
 
     AsyncReplicationUseCase asyncUseCase = new AsyncReplicationUseCase(useCase);
+
+    assertTrue(asyncUseCase.checkEquals());
 
     asyncUseCase.initData();
 

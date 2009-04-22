@@ -44,7 +44,7 @@
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
     <component-plugins>
-      <component-plugin>
+      <!--component-plugin>
         <name>register.listener</name>
         <set-method>addPlugin</set-method>
         <type>org.exoplatform.services.jcr.impl.RepositoryChangesListenerRegisterPlugin</type>
@@ -62,7 +62,7 @@
             <value>org.exoplatform.services.jcr.ext.replication.async.AsyncStartChangesListener</value>
           </value-param>
         </init-params>
-      </component-plugin>
+      </component-plugin-->
       <component-plugin>
         <name>add.namespaces</name>
         <set-method>addPlugin</set-method>
@@ -430,7 +430,7 @@
     </init-params>
   </component>
   
-  <component>
+  <!--component>
     <type>org.exoplatform.services.jcr.ext.replication.async.AsyncReplication</type>
     <component-plugins>
       
@@ -477,9 +477,9 @@
       </component-plugin>
       
     </component-plugins>
-  </component>
+  </component-->
   
-  <component>
+  <!--component>
     <type>org.exoplatform.services.jcr.ext.replication.async.executor.AsyncReplicationExecutor</type>
     <init-params>
       <object-param>
@@ -495,8 +495,6 @@
                   </field>
                   <field name="realmName">
                     <string>eXo REST services</string>
-                    <!-- for EXO Applications -->
-                    <!-- string>exo-domain</string --><!-- for ECM -->
                   </field>
                 </object>
               </value>
@@ -507,8 +505,6 @@
                   </field>
                   <field name="realmName">
                     <string>eXo REST services</string>
-                    <!-- for EXO Applications -->
-                    <!-- string>exo-domain</string --><!-- for ECM -->
                   </field>
                 </object>
               </value>
@@ -517,7 +513,7 @@
         </object>
       </object-param>
     </init-params>
-  </component>
+  </component-->
   
   <component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
