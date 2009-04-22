@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -35,35 +36,23 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
  */
 public class TestHead extends BaseStandaloneTest{
   
-  private String       fileName    = TestUtils.getFileName();
+  private String       path = TestUtils.getFileName();
 
-  private final String fileContent = "TEST FILE CONTENT...";
+  private String fileContent = TestUtils.getFileContent();
 
-  private final String testFile = TestUtils.getFullWorkSpacePath() + "/" + fileName;
-      
+
   @Override
   public void setUp() throws Exception {
-
     super.setUp();
-
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-    MimeTypeResolver resolver = new MimeTypeResolver();
-    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                              "/" + fileName,
-                                                                              inputStream,
-                                                                              "nt:file",
-                                                                              resolver.getMimeType(fileName),
-                                                                              null,
-                                                                              null);
-    assertEquals(HTTPStatus.CREATED, response.getStatus());
+    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
   }
 
   
 
   public void testSimpleHead() throws Exception {
-    Response response = new HeadCommand().head(session, "/" + fileName, null);    
+    ContainerResponse response = service("HEAD", getPathWS() + path, "", null,null );
     assertEquals(HTTPStatus.OK, response.getStatus());
-    assertNotNull(response.getMetadata());
   }
 
   @Override

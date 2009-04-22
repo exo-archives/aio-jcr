@@ -18,19 +18,15 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.util.ArrayList;
 
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.Range;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.ExtHttpHeaders;
+import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -38,62 +34,46 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
  */
 public class TestCopy extends BaseStandaloneTest {
   
-  
+    
   public void testeCopyForNonCollectionSingleWorkSpace () throws Exception {
     String content = TestUtils.getFileContent();
-    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
-    MimeTypeResolver resolver = new MimeTypeResolver();
     String filename = TestUtils.getFileName();
-    String destFilename = "copy_"+filename;
-    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                              "/" + filename,
-                                                                              inputStream,
-                                                                              "nt:file",
-                                                                              resolver.getMimeType(destFilename),
-                                                                              null,
-                                                                              null);
+    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    TestUtils.addContent(session, filename, inputStream, defaultFileNodeType, "");
+    String destFilename = TestUtils.getFileName();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
+    headers.add(ExtHttpHeaders.DESTINATION, getPathWS() + destFilename);
+    ContainerResponse response = service("COPY",getPathWS() + filename,"",headers,null);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
-    Response copyResponse = new CopyCommand().copy(session, "/" + filename, "/" + destFilename);
-    assertEquals(HTTPStatus.CREATED, copyResponse.getStatus());
-    Response getResponse = new GetCommand().get(session, "/" + destFilename, null, null, new ArrayList<Range>());
-    ByteArrayInputStream getContent = (ByteArrayInputStream) getResponse.getEntity();
-    Reader r = new InputStreamReader(getContent);  
-    StringWriter sw = new StringWriter();  
-    char[] buffer = new char[1024];  
-    for (int n; (n = r.read(buffer)) != -1; )  
-        sw.write(buffer, 0, n);  
-    String str = sw.toString(); 
+    ContainerResponse getResponse = service("GET", getPathWS() + destFilename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    assertEquals(content, str);
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    assertEquals(content, getContent);
+    getResponse = service("GET", getPathWS() + filename, "", null,null );
+    assertEquals(HTTPStatus.OK, getResponse.getStatus());
+    getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    assertEquals(content, getContent);
   }
   
   public void testeCopyForNonCollectionDiferentWorkSpaces() throws Exception {
     assertNotSame(session.getWorkspace().getName(), destSession.getWorkspace().getName());
     String content = TestUtils.getFileContent();
-    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
-    MimeTypeResolver resolver = new MimeTypeResolver();
     String filename = TestUtils.getFileName();
-    String destFilename = "copy_" + filename;
-    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                              "/" + filename,
-                                                                              inputStream,
-                                                                              "nt:file",
-                                                                              resolver.getMimeType(destFilename),
-                                                                              null,
-                                                                              null);
+    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    TestUtils.addContent(session, filename, inputStream, defaultFileNodeType, "");
+    String destFilename = TestUtils.getFileName();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
+    headers.add(ExtHttpHeaders.DESTINATION, getPathWS1() + destFilename);
+    ContainerResponse response = service("COPY",getPathWS() + filename,"",headers,null);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
-    Response copyResponse = new CopyCommand().copy(destSession,"ws", "/" + filename, "/" + destFilename);
-    assertEquals(HTTPStatus.CREATED, copyResponse.getStatus());
-    Response getResponse = new GetCommand().get(destSession, "/" + destFilename, null, null, new ArrayList<Range>());
-    ByteArrayInputStream getContent = (ByteArrayInputStream) getResponse.getEntity();
-    Reader r = new InputStreamReader(getContent);  
-    StringWriter sw = new StringWriter();  
-    char[] buffer = new char[1024];  
-    for (int n; (n = r.read(buffer)) != -1; )  
-        sw.write(buffer, 0, n);  
-    String str = sw.toString(); 
+    ContainerResponse getResponse = service("GET", getPathWS1() + destFilename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    assertEquals(content, str);
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    assertEquals(content, getContent);
+    getResponse = service("GET", getPathWS() + filename, "", null,null );
+    assertEquals(HTTPStatus.OK, getResponse.getStatus());
+    getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    assertEquals(content, getContent);
   }
 
 

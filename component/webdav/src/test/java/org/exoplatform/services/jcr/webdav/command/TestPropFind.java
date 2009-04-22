@@ -16,15 +16,21 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+
+import javax.jcr.RepositoryException;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.command.propfind.PropFindResponseEntity;
+import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.w3c.dom.Document;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -32,28 +38,79 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
  */
 public class TestPropFind extends BaseStandaloneTest {
   
-  private String       fileName    = TestUtils.getFileName();
+  private String propFindXML = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\">" + 
+                                "<D:prop xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\">" + 
+                                "<webdav:Author/><webdav:author/><webdave:DingALing/></D:prop></D:propfind>"; 
 
-  private final String fileContent = "TEST FILE CONTENT...";
+  private String propnameXML = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><propfind xmlns=\"DAV:\"><propname/></propfind>"; 
+    
+  private String allPropsXML = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\"><D:allprop/></D:propfind>";
 
-  private final String testFile   = TestUtils.getFullWorkSpacePath() + "/test/" + fileName;
-
-  private final String testFolder = TestUtils.getFullUri() + "/test";
-
-  @Override
-  protected String getRepositoryName() {
-    return null;
+  
+  
+  public void testSimplePropFind() throws Exception{
+    String content = TestUtils.getFileContent();
+    String file = TestUtils.getFileName();
+    TestUtils.addContent(session, file, new ByteArrayInputStream(content.getBytes()), "webdav:file", "");
+    ContainerResponse containerResponseFind = service("PROPFIND",getPathWS() + file , "", null, null);
+    assertEquals(HTTPStatus.MULTISTATUS, containerResponseFind.getStatus());
   }
-  
-  
   
   public void testPropFind() throws Exception{
     String content = TestUtils.getFileContent();
     String file = TestUtils.getFileName();
-    ContainerResponse containerResponse = service("PUT","/jcr/"+repoName+"/ws/" + file , "", null, content.getBytes());
-    assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
-    ContainerResponse containerResponseFind = service("PROPFIND","/jcr/"+repoName+"/ws/" + file , "", null, null);
-    assertEquals(HTTPStatus.MULTISTATUS, containerResponseFind.getStatus());
+    TestUtils.addContent(session, file, new ByteArrayInputStream(content.getBytes()), "webdav:file", "");
+    TestUtils.addNodeProperty(session, file, "webdav:Author", "eXoplatform");
+    ContainerResponse responseFind = service("PROPFIND",getPathWS() + file , "", null, propFindXML.getBytes());
+    assertEquals(HTTPStatus.MULTISTATUS, responseFind.getStatus());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PropFindResponseEntity entity = (PropFindResponseEntity) responseFind.getEntity();
+    entity.write(outputStream);
+    String find = outputStream.toString();
+    System.out.println("TestPropFind.testPropFind()" + find);
+    assertTrue(find.contains("webdav:Author"));
+    assertTrue(find.contains("eXoplatform"));
+  }
+  
+  
+  public void testPropNames() throws Exception{
+    String content = TestUtils.getFileContent();
+    String file = TestUtils.getFileName();
+    TestUtils.addContent(session, file, new ByteArrayInputStream(content.getBytes()), "webdav:file", "");
+    TestUtils.addNodeProperty(session, file, "webdav:Author", "eXoplatform");
+    ContainerResponse responseFind = service("PROPFIND",getPathWS() + file , "", null, propnameXML.getBytes());
+    assertEquals(HTTPStatus.MULTISTATUS, responseFind.getStatus());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PropFindResponseEntity entity = (PropFindResponseEntity) responseFind.getEntity();
+    entity.write(outputStream);
+    String find = outputStream.toString();
+    assertTrue(find.contains("webdav:Author"));
+    assertTrue(find.contains("D:getlastmodified"));
+  }
+  
+  public void testAllProps() throws Exception{
+    String content = TestUtils.getFileContent();
+    String file = TestUtils.getFileName();
+    TestUtils.addContent(session, file, new ByteArrayInputStream(content.getBytes()), "webdav:file", "");
+    TestUtils.addNodeProperty(session, file, "webdav:Author", "eXoplatform");
+    ContainerResponse responseFind = service("PROPFIND",getPathWS() + file , "", null, allPropsXML.getBytes());
+    assertEquals(HTTPStatus.MULTISTATUS, responseFind.getStatus());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PropFindResponseEntity entity = (PropFindResponseEntity) responseFind.getEntity();
+    entity.write(outputStream);
+    String find = outputStream.toString();
+    assertTrue(find.contains("D:getlastmodified"));
+    assertTrue(find.contains("webdav:Author"));
+    assertTrue(find.contains("eXoplatform"));
+  }
+
+
+
+
+
+  @Override
+  protected String getRepositoryName() {
+    return null;
   }
 
 //  protected void setUp() throws Exception {

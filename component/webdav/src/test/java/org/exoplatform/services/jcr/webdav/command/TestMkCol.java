@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -42,46 +43,24 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 public class TestMkCol extends BaseStandaloneTest {
 
   public void testSimpleMkCol() throws Exception {
-
     String folder = TestUtils.getFolderName();
-    Response response = new MkColCommand(new NullResourceLocksHolder()).mkCol(session,
-                                                                              folder,
-                                                                              "nt:folder",
-                                                                              new ArrayList<String>(),
-                                                                              new ArrayList<String>());
+    ContainerResponse response = service("MKCOL", getPathWS() + folder, "", null, null);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
   }
 
   public void testMkCol() throws Exception {
     String folder = TestUtils.getFolderName();
-    Response response = new MkColCommand(new NullResourceLocksHolder()).mkCol(session,
-                                                                              folder,
-                                                                              "nt:folder",
-                                                                              new ArrayList<String>(),
-                                                                              new ArrayList<String>());
+    ContainerResponse response = service("MKCOL", getPathWS() + folder, "", null, null);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     String file = TestUtils.getFileName();
-    String path = folder + "/" + file;
+    String path = folder + file;
     String content = TestUtils.getFileContent();
-    MimeTypeResolver resolver = new MimeTypeResolver();
-    Response putResponse = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                             path,
-                                                                             new ByteArrayInputStream(content.getBytes()),
-                                                                             "nt:file",
-                                                                             resolver.getMimeType(file),
-                                                                             null,
-                                                                             null);
-    assertEquals(HTTPStatus.CREATED, putResponse.getStatus());
-    Response getResponse = new GetCommand().get(session, path, null, null, new ArrayList<Range>());
-    ByteArrayInputStream getContent = (ByteArrayInputStream) getResponse.getEntity();
-    Reader r = new InputStreamReader(getContent);
-    StringWriter sw = new StringWriter();
-    char[] buffer = new char[1024];
-    for (int n; (n = r.read(buffer)) != -1;)
-      sw.write(buffer, 0, n);
-    String str = sw.toString();
-    assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    assertEquals(content, str);
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
+    ContainerResponse response2 = service("GET", getPathWS() + path, "", null, null);
+    assertEquals(HTTPStatus.OK, response2.getStatus());
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) response2.getEntity());
+    assertEquals(content, getContent);
   }
 
   @Override
@@ -91,11 +70,7 @@ public class TestMkCol extends BaseStandaloneTest {
 
    public void testConflict() throws Exception {
      String folder = TestUtils.getFolderName();
-     Response response = new MkColCommand(new NullResourceLocksHolder()).mkCol(session,
-                                                                               folder + folder,
-                                                                               "nt:folder",
-                                                                               new ArrayList<String>(),
-                                                                               new ArrayList<String>());
+     ContainerResponse response = service("MKCOL", getPathWS() + folder + folder, "", null, null);
      assertEquals(HTTPStatus.CONFLICT, response.getStatus());
     }
  

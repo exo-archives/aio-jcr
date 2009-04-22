@@ -50,59 +50,23 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
  */
 public class TestPut extends BaseStandaloneTest {
 
+   
   
-  
-  public void testSimplePut() throws Exception  {
-    String content = TestUtils.getFileContent();
-    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
-    MimeTypeResolver resolver = new MimeTypeResolver();
-    String filename = TestUtils.getFileName();
-    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                              "/" + filename,
-                                                                              inputStream,
-                                                                              "nt:file",
-                                                                              resolver.getMimeType(filename),
-                                                                              null,
-                                                                              null);
-    assertEquals(HTTPStatus.CREATED, response.getStatus());
-    Response getResponse = new GetCommand().get(session, "/" + filename, null, null, new ArrayList<Range>());
-    ByteArrayInputStream getContent = (ByteArrayInputStream) getResponse.getEntity();
-    Reader r = new InputStreamReader(getContent);  
-    StringWriter sw = new StringWriter();  
-    char[] buffer = new char[1024];  
-    for (int n; (n = r.read(buffer)) != -1; )  
-        sw.write(buffer, 0, n);  
-    String str = sw.toString(); 
-    assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    assertEquals(content, str);
-  }
-  
-  public void testPutPathNotFound() throws Exception  {
-    String content = TestUtils.getFileContent();
-    InputStream inputStream = new ByteArrayInputStream(content.getBytes());
-    MimeTypeResolver resolver = new MimeTypeResolver();
-    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                              "/not-found-node/somefile.txt",
-                                                                              inputStream,
-                                                                              "nt:file",
-                                                                              resolver.getMimeType("somefile.txt"),
-                                                                              null,
-                                                                              null);
-    assertEquals(HTTPStatus.CONFLICT, response.getStatus());
-  }
-  
+   
   public void testPut() throws Exception{
     String content = TestUtils.getFileContent();
-    ContainerResponse containerResponse = service("PUT","/jcr/"+repoName+"/ws/" + TestUtils.getFileName() , "", null, content.getBytes());
+    ContainerResponse containerResponse = service("PUT",getPathWS() + TestUtils.getFileName() , "", null, content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
   }
     
   
   public void testPutNotFound() throws Exception{
     String content = TestUtils.getFileContent();
-    ContainerResponse containerResponse = service("PUT","/jcr/"+repoName+"/ws/notfound/" + TestUtils.getFileName() , "", null, content.getBytes());
+    ContainerResponse containerResponse = service("PUT",getPathWS() + "/not-found"+TestUtils.getFileName() , "", null, content.getBytes());
     assertEquals(HTTPStatus.CONFLICT, containerResponse.getStatus());
   }
+  
+  
   
   @Override
   protected String getRepositoryName() {

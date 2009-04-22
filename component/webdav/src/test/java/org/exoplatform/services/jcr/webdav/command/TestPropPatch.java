@@ -16,21 +16,32 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.jcr.Property;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 
+import org.apache.commons.codec.binary.Base64;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
+import org.exoplatform.services.jcr.webdav.command.propfind.PropFindResponseEntity;
+import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -43,101 +54,68 @@ import org.w3c.dom.Node;
  */
 public class TestPropPatch extends BaseStandaloneTest {
 
-  private String       fileName    = TestUtils.getFileName();
+  private final String author = "eXoPlatform";   
+  
+  private final String patch = "<?xml version=\"1.0\"?><D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\"><D:set><D:prop><webdav:Author>" 
+                            + author + "</webdav:Author></D:prop></D:set></D:propertyupdate>";
+  
+  private final String patchNT = "<?xml version=\"1.0\"?><D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\"><D:set><D:prop><webdav:Author>" 
+    + author + "</webdav:Author></D:prop></D:set></D:propertyupdate>"; 
 
-  private final String testFile    = TestUtils.getFullWorkSpacePath() + "/" + fileName;
-
-  private final String fileContent = "TEST FILE CONTENT...";
+  private final String patchRemove = "<?xml version=\"1.0\"?><D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\"><D:remove><D:prop><webdav:Author/></D:prop></D:remove></D:propertyupdate>"; 
 
   @Override
   protected String getRepositoryName() {
     return null;
   }
   
-//  <?xml version="1.0" ?><D:multistatus xmlns:D="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/"><D:response><D:href>/jcr/db1/ws/test-file-1239956785333.txt</D:href><D:propstat><D:prop><D:getcontenttype>text/plain</D:getcontenttype><D:getlastmodified b:dt="dateTime.rfc1123">Fri, 17 Apr 2009 08:26:25 GMT</D:getlastmodified><D:getcontentlength>360</D:getcontentlength><D:displayname>test-file-1239956785333.txt</D:displayname><D:resourcetype/><D:creationdate b:dt="dateTime.tz">2009-04-17T08:26:25Z</D:creationdate></D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat></D:response></D:multistatus>
-  public void testPropPatch() throws Exception{
+  public void testPropPatchSet() throws Exception{
     String content = TestUtils.getFileContent();
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
     String file = TestUtils.getFileName();
-    ContainerResponse containerResponse = service("PUT","/jcr/"+repoName+"/ws/" + file , "", null, content.getBytes());
-    assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
-    
+    TestUtils.addContent(session, file, inputStream, "webdav:file", "");
+    ContainerResponse patchSet = service("PROPPATCH",getPathWS() + file , "", null, patch.getBytes());
+    assertEquals(HTTPStatus.MULTISTATUS, patchSet.getStatus());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PropPatchResponseEntity entity = (PropPatchResponseEntity) patchSet.getEntity();
+    entity.write(outputStream);
+    Property prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    assertNotNull(prop);
+    assertEquals(prop.getString(), author);
   }
   
+  public void testPropPatchRemove() throws Exception {
+    String content = TestUtils.getFileContent();
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    String file = TestUtils.getFileName();
+    TestUtils.addContent(session, file, inputStream, "webdav:file", "");
+    TestUtils.addNodeProperty(session, file, "webdav:Author", author);
+    Property prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    assertNotNull(prop);
+    assertEquals(prop.getString(), author);
+    ContainerResponse responceRemove = service("PROPPATCH",getPathWS() + file , "", null, patchRemove.getBytes());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PropPatchResponseEntity entity = (PropPatchResponseEntity) responceRemove.getEntity();
+    entity.write(outputStream);
+    assertEquals(HTTPStatus.MULTISTATUS, responceRemove.getStatus());
+    prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    assertNull(prop);
+  }
   
-
-//  public void testProppatchWithoutSet() throws Exception {
-//
-//    HTTPResponse response = connection.Put(testFile, fileContent);
-//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-//
-//    Map<String, List<String>> propsSet = new HashMap<String, List<String>>();
-//    List<String> propsSetValues = new ArrayList<String>();
-//    propsSetValues.add("no");
-//    propsSet.put("publish", propsSetValues);
-//
-//    List<String> propsRemove = Collections.emptyList();
-//
-//    response = connection.Proppath(testFile, propsSet, propsRemove);
-//
-//    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
-//    assertEquals(MediaType.TEXT_XML, response.getHeader(HttpHeaders.CONTENT_TYPE));
-//
-//  }
-//
-//  public void testProppatchWithoutRemove() throws Exception {
-//
-//    HTTPResponse response = connection.Put(testFile, fileContent);
-//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-//
-//    Map<String, List<String>> propsSet = Collections.emptyMap();
-//
-//    List<String> propsRemove = new ArrayList<String>();
-//    propsRemove.add("owner");
-//
-//    response = connection.Proppath(testFile, propsSet, propsRemove);
-//
-//    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
-//    assertEquals(MediaType.TEXT_XML, response.getHeader(HttpHeaders.CONTENT_TYPE));
-//
-//  }
-//
-//  public void testSimpleProppatch() throws Exception {
-//
-//    HTTPResponse response = connection.Put(testFile, fileContent);
-//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-//
-//    Map<String, List<String>> propsSet = new HashMap<String, List<String>>();
-//    List<String> propsSetValues = new ArrayList<String>();
-//    propsSetValues.add("no");
-//    propsSet.put("publish", propsSetValues);
-//
-//    List<String> propsRemove = new ArrayList<String>();
-//    propsRemove.add("owner");
-//
-//    response = connection.Proppath(testFile, propsSet, propsRemove);
-//
-//    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
-//    assertEquals(MediaType.TEXT_XML, response.getHeader(HttpHeaders.CONTENT_TYPE));
-//
-//    String responseBody = response.getText();
-//    Document xmlDoc = TestUtils.getXmlFromString(responseBody);
-//
-//    // responseNode - <D:response>
-//    Node responseNode = xmlDoc.getChildNodes().item(0).getFirstChild();
-//
-//    for (int i = 0; i < responseNode.getChildNodes().getLength(); i++) {
-//      Node n = responseNode.getChildNodes().item(i);
-//      if (n.getChildNodes().item(0).getChildNodes().getLength() != 0) {
-//
-//        String nodeContent = n.getChildNodes().item(0).getChildNodes().item(0).getNodeName();
-//        if (nodeContent.equals("D:publish")) {
-//          assertEquals("HTTP/1.1 409 Conflict", n.getTextContent());
-//        } else if (nodeContent.equals("owner")) {
-//          {
-//            assertEquals("HTTP/1.1 404 Not Found", n.getTextContent());
-//          }
-//        }
-//      }
-//    }
-//  }
+  public void testPropPatchSetWithLock() throws Exception{
+    String content = TestUtils.getFileContent();
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    String file = TestUtils.getFileName();
+    TestUtils.addContent(session, file, inputStream, "webdav:file", "");
+    TestUtils.lockNode(session, file, null);
+    ContainerResponse patchSet = service("PROPPATCH",getPathWS() + file , "", null, patch.getBytes());
+    assertEquals(HTTPStatus.MULTISTATUS, patchSet.getStatus());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PropPatchResponseEntity entity = (PropPatchResponseEntity) patchSet.getEntity();
+    entity.write(outputStream);
+    Property prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    assertNotNull(prop);
+    assertEquals(prop.getString(), author);
+  }
+    
 }

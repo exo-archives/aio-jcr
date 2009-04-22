@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
@@ -43,48 +44,35 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
  */
 public class TestGet extends BaseStandaloneTest {
 
-  private String       fileName    = TestUtils.getFileName();
+  private String       path = TestUtils.getFileName();
 
-  private final String fileContent = "TEST FILE CONTENT...";
+  private String fileContent = TestUtils.getFileContent();
 
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-    MimeTypeResolver resolver = new MimeTypeResolver();
-    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                              "/" + fileName,
-                                                                              inputStream,
-                                                                              "nt:file",
-                                                                              resolver.getMimeType(fileName),
-                                                                              null,
-                                                                              null);
-    assertEquals(HTTPStatus.CREATED, response.getStatus());
+    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
   }
 
  
   public void testSimpleGet() throws Exception {
-    Response getResponse = new GetCommand().get(session, "/" + fileName, null, null, new ArrayList<Range>());
-    ByteArrayInputStream content = (ByteArrayInputStream) getResponse.getEntity();
+    ContainerResponse response = service("GET", getPathWS() + path, "", null,null );
+    assertEquals(HTTPStatus.OK, response.getStatus());
+    ByteArrayInputStream content = (ByteArrayInputStream) response.getEntity();
     Reader r = new InputStreamReader(content);  
     StringWriter sw = new StringWriter();  
     char[] buffer = new char[1024];  
     for (int n; (n = r.read(buffer)) != -1; )  
         sw.write(buffer, 0, n);  
     String str = sw.toString(); 
-    assertEquals(HTTPStatus.OK, getResponse.getStatus());
     assertEquals(fileContent, str);
-    MultivaluedMap<String,Object> mapImpl = getResponse.getMetadata();
-    Set<String> key = mapImpl.keySet();
-    for (String string : key) {
-      System.out.println("TestGet.testSimpleGet()" + key);
-    }
   }
   
-  public void testNotFoundGet(){
-    Response getResponse = new GetCommand().get(session, "/not-found/" + fileName, null, null, new ArrayList<Range>());
-    assertEquals(HTTPStatus.NOT_FOUND, getResponse.getStatus());
+  public void testNotFoundGet() throws Exception{
+    ContainerResponse response = service("GET", getPathWS() + "/not-found" + path, "", null,null );
+    assertEquals(HTTPStatus.NOT_FOUND, response.getStatus());
   }
 
   @Override

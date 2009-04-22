@@ -30,8 +30,8 @@
     </supertypes>
 
     <propertyDefinitions>
-      <propertyDefinition name="*" 
-				  requiredType="undefined" 
+      <propertyDefinition name="webdav:Author" 
+				  requiredType="String" 
 				  autoCreated="false" 
 				  mandatory="false" 
 				  onParentVersion="COPY" 

@@ -19,6 +19,9 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.exoplatform.common.http.HTTPStatus;
@@ -26,8 +29,13 @@ import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
+import org.exoplatform.services.jcr.webdav.Depth;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
+import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.rest.ExtHttpHeaders;
+import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -36,58 +44,42 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 public class TestDelete extends BaseStandaloneTest {
 
-  private String       fileName    = TestUtils.getFileName();
-
-  private final String fileContent = "TEST FILE CONTENT...";
-
-  private final String testFile = TestUtils.getFullWorkSpacePath() + "/" + fileName;
-
-  private final String folderName  = TestUtils.getFolderName();
-  
- 
-
-  public void testDeleteForNonCollection() throws Exception {
-
-    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-    MimeTypeResolver resolver = new MimeTypeResolver();
-    Response response = new PutCommand(new NullResourceLocksHolder()).put(session,
-                                                                              "/" + fileName,
-                                                                              inputStream,
-                                                                              "nt:file",
-                                                                              resolver.getMimeType(fileName),
-                                                                              null,
-                                                                              null);
-    assertEquals(HTTPStatus.CREATED, response.getStatus());
-    
-    
-
-    response = new DeleteCommand().delete(session, "/" + fileName);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
-
-  }
-
-//  public void testDeleteForCollection() throws Exception {
-//
-//    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + folderName);
-//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-//
-//    String subFolder = TestUtils.getFullWorkSpacePath() + folderName + "/" + "subfolder";
-//    response = connection.MkCol(subFolder);
-//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-//
-//    String testFileName = TestUtils.getFileName();
-//
-//    response = connection.Put(subFolder + "/" + testFileName, fileContent.getBytes());
-//    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-//
-//    response = connection.Delete(TestUtils.getFullWorkSpacePath() + folderName);
-//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-//
-//    response = connection.Get(subFolder + "/" + testFileName);
-//    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
-//
+//  public void testDeleteForNonCollection() throws Exception {
+//    String path = TestUtils.getFileName();
+//    String fileContent = TestUtils.getFileContent();
+//    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+//    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
+//    ContainerResponse response = service("DELETE", getPathWS() + path, "", null, null);
+//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
 //  }
-
+//  
+//  public void testDeleteForCollection() throws Exception {
+//    String path = TestUtils.getFileName();
+//    String fileContent = TestUtils.getFileContent();
+//    String folderName  = TestUtils.getFolderName();
+//    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+//    TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
+//    TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
+//    ContainerResponse response = service("DELETE", getPathWS() + folderName, "", null, null);
+//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
+//  }
+  
+  public void testDeleteWithLock() throws Exception{
+    String path = TestUtils.getFileName();
+    String fileContent = TestUtils.getFileContent();
+    String folderName  = TestUtils.getFolderName();
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
+    TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
+    String lockToken = TestUtils.lockNode(session, folderName + path, null);
+    ContainerResponse response = service("DELETE", getPathWS() + folderName, "", null, null);
+    assertEquals(HTTPStatus.LOCKED, response.getStatus());
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.add(ExtHttpHeaders.LOCKTOKEN, lockToken);
+    response = service("DELETE", getPathWS() + path, "", headers, null);
+    assertEquals(HTTPStatus.LOCKED, response.getStatus());
+  }
+  
   @Override
   protected String getRepositoryName() {
     return null;

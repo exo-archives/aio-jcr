@@ -1,7 +1,10 @@
 package org.exoplatform.services.jcr.webdav;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,6 +88,9 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   protected RequestHandlerImpl requestHandler;
   
+  public  String              defaultFileNodeType             = "nt:file";
+  
+  public String                                  defaultFolderNodeType           = "nt:folder";
   public String repoName;
 
   protected class CompareStreamException extends Exception {
@@ -101,6 +107,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   public void setUp() throws Exception {
     
     String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
+    
+
+    
     String loginConf = BaseStandaloneTest.class.getResource("/login.conf").toString();
 
     StandaloneContainer.addConfigurationURL(containerConf);
@@ -135,7 +144,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     assertNotNull(resourceBinder);
     requestHandler = (RequestHandlerImpl) container.getComponentInstanceOfType(RequestHandlerImpl.class);
     assertNotNull(requestHandler);
-    ProviderBinder.setInstance(new ProviderBinder());
+//    ProviderBinder.setInstance(new ProviderBinder());
     providers = ProviderBinder.getInstance();
     ApplicationContextImpl.setCurrent(new ApplicationContextImpl(null, null, providers));
     
@@ -456,5 +465,14 @@ public abstract class BaseStandaloneTest extends TestCase {
       catch (InterruptedException e) {
       }
     }
+  }
+  
+  
+  public String getPathWS() {
+    return "/jcr/"+repoName+"/ws";
+  }
+  
+  public String getPathWS1() {
+    return "/jcr/"+repoName+"/ws1";
   }
 }
