@@ -27,6 +27,9 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeManager;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -537,8 +540,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
                         @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
-                        @HeaderParam(ExtHttpHeaders.NODETYPE) String nodeTypeHeader,
-                        @HeaderParam(ExtHttpHeaders.MIXTYPE) String mixinTypesHeader) {
+                        @HeaderParam(ExtHttpHeaders.CONTENT_NODETYPE) String nodeTypeHeader,
+                        @HeaderParam(ExtHttpHeaders.CONTENT_MIXINTYPES) String mixinTypesHeader) {
     if (log.isDebugEnabled()) {
       log.debug("MKCOL " + repoName + "/" + repoPath);
     }
@@ -548,7 +551,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), tokens);
-      String nodeType = NodeTypeUtil.getNodeType(nodeTypeHeader);
+      String nodeType = NodeTypeUtil.getFileNodeType(nodeTypeHeader);
       if (nodeType == null) {
         nodeType = defaultFolderNodeType;
       }
@@ -658,29 +661,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     if (log.isDebugEnabled()) {
       log.debug("OPTIONS " + path);
     }
-
-    // List<ResourceDescriptor> descriptors =
-    // resourceBinder.getAllDescriptors();
-    // for (int i = 0; i < descriptors.size(); i++) {
-    // ResourceDescriptor descriptor = descriptors.get(i);
-    //
-    // String acceptableMethod = descriptor.getAcceptableMethod();
-    // String uriPattern = descriptor.getURIPattern().getString();
-    //
-    // if (uriPattern.startsWith("/jcr/")) {
-    // commands.add(acceptableMethod);
-    // }
-    // }
-
-    // String allowCommands = "";
-    //
-    // for (int i = 0; i < commands.size(); i++) {
-    // String curCommand = commands.get(i);
-    // allowCommands += curCommand;
-    // if (i < (commands.size() - 1)) {
-    // allowCommands += ", ";
-    // }
-    // }
 
     String DASL_VALUE = "<DAV:basicsearch>" + "<exo:sql xmlns:exo=\"http://exoplatform.com/jcr\"/>"
         + "<exo:xpath xmlns:exo=\"http://exoplatform.com/jcr\"/>";
@@ -800,7 +780,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
                       @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
-                      @HeaderParam(ExtHttpHeaders.NODETYPE) String nodeTypeHeader,
+                      @HeaderParam(ExtHttpHeaders.FILE_NODETYPE) String fileNodeTypeHeader,
+                      @HeaderParam(ExtHttpHeaders.CONTENT_NODETYPE) String contentNodeTypeHeader,
+                      @HeaderParam(ExtHttpHeaders.CONTENT_MIXINTYPES) String mixinTypesHeader,
                       @HeaderParam(HttpHeaders.CONTENT_TYPE) String mimeType,
                       InputStream inputStream) {
 
@@ -814,10 +796,17 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), tokens);
 
-      String fileNodeType = NodeTypeUtil.getNodeType(nodeTypeHeader);
-      if (fileNodeType == null) {
+      String fileNodeType = NodeTypeUtil.getFileNodeType(fileNodeTypeHeader);
+      if(fileNodeType == null){
         fileNodeType = defaultFileNodeType;
       }
+      
+      String contentNodeType = NodeTypeUtil.getContentNodeType(contentNodeTypeHeader);
+      NodeTypeManager ntm = session.getWorkspace().getNodeTypeManager();
+      NodeType nodeType = ntm.getNodeType(contentNodeType);      
+      NodeTypeUtil.checkContentResourceType(nodeType);
+      
+      ArrayList<String> mixins = NodeTypeUtil.getMixinTypes(mixinTypesHeader);     
 
       if (mimeType == null) {
         MimeTypeResolver mimeTypeResolver = new MimeTypeResolver();
@@ -829,6 +818,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                    path(repoPath),
                                                    inputStream,
                                                    fileNodeType,
+                                                   contentNodeType,
+                                                   mixins,
                                                    mimeType,
                                                    updatePolicyType,
                                                    tokens);
@@ -837,7 +828,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
       return Response.status(HTTPStatus.NOT_FOUND).build();
 
-    } catch (Exception exc) {
+    } catch (NoSuchNodeTypeException exc) {
+      log.error("NoSuchNodeTypeException " + exc.getMessage(), exc);
+      return Response.status(HTTPStatus.BAD_REQUEST).build();
+    } 
+    catch (Exception exc) {
       log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
