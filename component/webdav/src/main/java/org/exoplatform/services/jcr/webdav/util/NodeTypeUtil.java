@@ -19,21 +19,33 @@ package org.exoplatform.services.jcr.webdav.util;
 
 import java.util.ArrayList;
 
-import org.apache.commons.codec.binary.Base64;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeType;
+
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 
 /**
- * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : Vitaly Guly
+ * <gavrik-vetal@ukr.net/mail.ru>
  * 
  * @version $Id: $
  */
 
 public class NodeTypeUtil {
 
-  public static String getNodeType(String nodeTypeHeader) {
-    if (nodeTypeHeader != null)
-      return new String(Base64.decodeBase64(nodeTypeHeader.getBytes()));
+  public static String getFileNodeType(String fileNodeTypeHeader) throws NoSuchNodeTypeException {
+    if (fileNodeTypeHeader != null && !fileNodeTypeHeader.equals(WebDavConst.NodeTypes.NT_FILE))
+      throw new NoSuchNodeTypeException("Unsupported file node type: " + fileNodeTypeHeader);
     else
+      // Default nodetype for the file.
       return null;
+  }
+
+  public static String getContentNodeType(String contentNodeTypeHeader) {
+    if (contentNodeTypeHeader != null)
+      return contentNodeTypeHeader;
+    else
+      return WebDavConst.NodeTypes.NT_RESOURCE;
   }
 
   public static ArrayList<String> getMixinTypes(String mixinTypeHeader) {
@@ -42,9 +54,7 @@ public class NodeTypeUtil {
       return mixins;
     }
 
-    String mixTypes = new String(Base64.decodeBase64(mixinTypeHeader.getBytes()));
-
-    String[] mixType = mixTypes.split(";");
+    String[] mixType = mixinTypeHeader.split(";");
 
     for (int i = 0; i < mixType.length; i++) {
       String curMixType = mixType[i];
@@ -55,6 +65,13 @@ public class NodeTypeUtil {
     }
 
     return mixins;
+  }
+
+  public static void checkContentResourceType(NodeType contentNodeType) throws NoSuchNodeTypeException {
+    if (!contentNodeType.isNodeType(WebDavConst.NodeTypes.NT_RESOURCE)) {
+      throw new NoSuchNodeTypeException("Content-Node type " + contentNodeType.getName()
+          + " must extend nt:resource.");
+    }
   }
 
 }
