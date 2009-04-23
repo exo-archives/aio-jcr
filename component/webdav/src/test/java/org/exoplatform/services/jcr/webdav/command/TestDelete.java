@@ -19,19 +19,10 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
-import org.exoplatform.services.jcr.webdav.Depth;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -44,25 +35,25 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 public class TestDelete extends BaseStandaloneTest {
 
-//  public void testDeleteForNonCollection() throws Exception {
-//    String path = TestUtils.getFileName();
-//    String fileContent = TestUtils.getFileContent();
-//    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-//    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
-//    ContainerResponse response = service("DELETE", getPathWS() + path, "", null, null);
-//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
-//  }
-//  
-//  public void testDeleteForCollection() throws Exception {
-//    String path = TestUtils.getFileName();
-//    String fileContent = TestUtils.getFileContent();
-//    String folderName  = TestUtils.getFolderName();
-//    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-//    TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
-//    TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
-//    ContainerResponse response = service("DELETE", getPathWS() + folderName, "", null, null);
-//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
-//  }
+  public void testDeleteForNonCollection() throws Exception {
+    String path = TestUtils.getFileName();
+    String fileContent = TestUtils.getFileContent();
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
+    ContainerResponse response = service("DELETE", getPathWS() + path, "", null, null);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
+  }
+  
+  public void testDeleteForCollection() throws Exception {
+    String path = TestUtils.getFileName();
+    String fileContent = TestUtils.getFileContent();
+    String folderName  = TestUtils.getFolderName();
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
+    TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
+    ContainerResponse response = service("DELETE", getPathWS() + folderName, "", null, null);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
+  }
   
   public void testDeleteWithLock() throws Exception{
     String path = TestUtils.getFileName();

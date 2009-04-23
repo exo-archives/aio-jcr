@@ -16,32 +16,10 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Calendar;
-
-import javax.jcr.Node;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Response;
-
-import org.exoplatform.common.http.HTTPMethods;
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.common.http.client.NVPair;
-import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
-import org.exoplatform.services.jcr.webdav.Range;
-import org.exoplatform.services.jcr.webdav.WebDavServiceImpl;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
-import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
@@ -51,7 +29,7 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 public class TestPut extends BaseStandaloneTest {
 
    
-  
+   
    
   public void testPut() throws Exception{
     String content = TestUtils.getFileContent();

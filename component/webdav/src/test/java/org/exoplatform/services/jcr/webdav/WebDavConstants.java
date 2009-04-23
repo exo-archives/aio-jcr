@@ -167,5 +167,20 @@ public class WebDavConstants {
 
     public static final String ORDERING_TYPE              = "ordering-type";
   }
+  
+  public class WebDAVMethods {
+    public static final String PUT = "PUT";
+    public static final String GET = "GET";
+    public static final String HEAD = "HEAD";
+    public static final String COPY = "COPY";
+    public static final String MOVE = "MOVE";
+    public static final String PROPFIND = "PROPFIND";
+    public static final String PROPPATCH = "PROPPATCH";
+    public static final String DELETE = "DELETE";
+    public static final String MKCOL = "MKCOL";
+    public static final String LOCK = "LOCK";
+    public static final String UNLOCK = "UNLOCK";
+    public static final String SEARCH = "SEARCH";
+  }
 
 }

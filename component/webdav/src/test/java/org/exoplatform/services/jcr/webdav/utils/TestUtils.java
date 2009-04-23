@@ -34,6 +34,9 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
+import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.exoplatform.common.http.client.HTTPConnection;
@@ -123,8 +126,12 @@ public class TestUtils {
     session.save();
   }
   
-  public static String stream2string(InputStream stream) throws IOException{
-    Reader r = new InputStreamReader(stream);  
+  public static String stream2string(InputStream stream, String charset) throws IOException{
+    Reader r;
+    if (charset != null)
+      r = new InputStreamReader(stream,charset);
+    else 
+      r = new InputStreamReader(stream);
     StringWriter sw = new StringWriter();  
     char[] buffer = new char[1024];  
     for (int n; (n = r.read(buffer)) != -1; )  
@@ -158,6 +165,12 @@ public class TestUtils {
     Lock lock = node.lock(false, 10000);
     session.save();
     return lock.getLockToken();
+  }
+  
+  public static void find(Session session, String queryString) throws InvalidQueryException, RepositoryException{
+    Query query = session.getWorkspace().getQueryManager().createQuery(queryString, "sql");
+    QueryResult queryResult = query.execute();
+    System.out.println("TestUtils.find()" + queryResult.getNodes().getSize());
   }
   
   

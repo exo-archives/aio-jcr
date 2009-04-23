@@ -17,22 +17,8 @@
 package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-
-import javax.ws.rs.core.Response;
-
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
-import org.exoplatform.services.jcr.webdav.Range;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
@@ -48,6 +34,7 @@ public class TestMkCol extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
   }
 
+  
   public void testMkCol() throws Exception {
     String folder = TestUtils.getFolderName();
     ContainerResponse response = service("MKCOL", getPathWS() + folder, "", null, null);
@@ -59,7 +46,7 @@ public class TestMkCol extends BaseStandaloneTest {
     TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
     ContainerResponse response2 = service("GET", getPathWS() + path, "", null, null);
     assertEquals(HTTPStatus.OK, response2.getStatus());
-    String getContent = TestUtils.stream2string((ByteArrayInputStream) response2.getEntity());
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) response2.getEntity(),null);
     assertEquals(content, getContent);
   }
 

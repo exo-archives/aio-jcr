@@ -18,19 +18,12 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.util.ArrayList;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.Range;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -55,11 +48,12 @@ public class TestMove extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     ContainerResponse getResponse = service("GET", getPathWS() + destFilename, "", null,null);
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
     getResponse = service("GET", getPathWS() + filename, "", null,null);
     assertEquals(HTTPStatus.NOT_FOUND, getResponse.getStatus());
   }
+  
   
   public void testMoveForNonCollectionDiferntWorkspaces() throws Exception {
     assertNotSame(session.getWorkspace().getName(), destSession.getWorkspace().getName());
@@ -69,12 +63,12 @@ public class TestMove extends BaseStandaloneTest {
     TestUtils.addContent(session, filename, inputStream, defaultFileNodeType, "");
     String destFilename = TestUtils.getFileName();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
-    headers.add(ExtHttpHeaders.DESTINATION, getPathWS1() + destFilename);
+    headers.add(ExtHttpHeaders.DESTINATION, getPathDestWS() + destFilename);
     ContainerResponse response = service("MOVE",getPathWS() + filename,"",headers,null);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
-    ContainerResponse getResponse = service("GET", getPathWS1() + destFilename, "", null,null );
+    ContainerResponse getResponse = service("GET", getPathDestWS() + destFilename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
     getResponse = service("GET", getPathWS() + filename, "", null,null );
     assertEquals(HTTPStatus.NOT_FOUND, getResponse.getStatus());

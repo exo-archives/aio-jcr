@@ -35,7 +35,9 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.MultivaluedMap;
 
 /**
- * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:vitaly.parfonov@gmail.com">Vitaly Parfonov</a>
  * @version $Id: $
  */
 @SuppressWarnings("unchecked")

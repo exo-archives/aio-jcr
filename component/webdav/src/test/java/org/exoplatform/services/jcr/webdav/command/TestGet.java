@@ -31,7 +31,6 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;

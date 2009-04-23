@@ -25,7 +25,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.command.propfind.PropFindResponseEntity;
 import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;

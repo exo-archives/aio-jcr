@@ -25,7 +25,6 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -47,8 +46,6 @@ public class TestHead extends BaseStandaloneTest{
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
     TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
   }
-
-  
 
   public void testSimpleHead() throws Exception {
     ContainerResponse response = service("HEAD", getPathWS() + path, "", null,null );

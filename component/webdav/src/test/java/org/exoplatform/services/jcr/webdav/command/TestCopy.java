@@ -34,6 +34,7 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
  */
 public class TestCopy extends BaseStandaloneTest {
   
+  
     
   public void testeCopyForNonCollectionSingleWorkSpace () throws Exception {
     String content = TestUtils.getFileContent();
@@ -47,11 +48,11 @@ public class TestCopy extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     ContainerResponse getResponse = service("GET", getPathWS() + destFilename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
     getResponse = service("GET", getPathWS() + filename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
   }
   
@@ -63,16 +64,16 @@ public class TestCopy extends BaseStandaloneTest {
     TestUtils.addContent(session, filename, inputStream, defaultFileNodeType, "");
     String destFilename = TestUtils.getFileName();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
-    headers.add(ExtHttpHeaders.DESTINATION, getPathWS1() + destFilename);
+    headers.add(ExtHttpHeaders.DESTINATION, getPathDestWS() + destFilename);
     ContainerResponse response = service("COPY",getPathWS() + filename,"",headers,null);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
-    ContainerResponse getResponse = service("GET", getPathWS1() + destFilename, "", null,null );
+    ContainerResponse getResponse = service("GET", getPathDestWS() + destFilename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
     getResponse = service("GET", getPathWS() + filename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
-    getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity());
+    getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
   }
 

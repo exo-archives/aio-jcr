@@ -23,10 +23,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 
+import javax.ws.rs.core.MediaType;
+
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.command.dasl.SearchResultResponseEntity;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -44,47 +44,30 @@ public class TestSearch extends BaseStandaloneTest {
 
   private final String fileContent  = "TEST FILE CONTENT...";
 
-  private final String testFile     = TestUtils.getFullWorkSpacePath() + "/" + fileName;
-
-  private final String testFolder   = TestUtils.getFullUri() + "/test";
-
-  private final String destFileName = testFolder + "/" + TestUtils.getFileName();
-
   public void testBasicSearch() throws Exception {
     
-    String body = 
-      "<D:searchrequest xmlns:D='DAV:'>" +
-        "<D:xpath>" +
-          "element(*, nt:resource)[jcr:contains(jcr:data, '*F*')]" +
-        "</D:xpath>" +
-      "</D:searchrequest>";
+//    String body = 
+//      "<D:searchrequest xmlns:D='DAV:'>" +
+//        "<D:xpath>" +
+//          "element(*, nt:resource)[jcr:contains(jcr:data, '*F*')]" +
+//        "</D:xpath>" +
+//      "</D:searchrequest>";
     
     String sql = "<D:searchrequest xmlns:D='DAV:'>" +
                  "<D:sql>" +
-                 "SELECT * FROM  nt:resource WHERE jcr:data LIKE '*F*" +
+                 "SELECT * FROM  nt:resource WHERE contains(*, 'TEST')" +
                  "</D:sql>" +
                 "</D:searchrequest>";
-    String path = TestUtils.getFileName();
+    
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
-    ContainerResponse response = service("SEARCH", getPathWS() + path, "", null, sql.getBytes());    
-    System.out.println("TestSearch.testBasicSearch()" + response.getStatus());
-    System.out.println("TestSearch.testBasicSearch()" + response.getEntity().getClass());
+    TestUtils.addContent(session, fileName, inputStream, defaultFileNodeType, MediaType.TEXT_PLAIN);
+    ContainerResponse response = service("SEARCH", getPathWS(), "", null, sql.getBytes());    
+    assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
     SearchResultResponseEntity entity = (SearchResultResponseEntity) response.getEntity();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     entity.write(outputStream);
-    System.out.println("TestSearch.testBasicSearch()" + outputStream.toString());
-    response = service("GET", getPathWS() + path, "", null,null );
-    assertEquals(HTTPStatus.OK, response.getStatus());
-    ByteArrayInputStream content = (ByteArrayInputStream) response.getEntity();
-    Reader r = new InputStreamReader(content);  
-    StringWriter sw = new StringWriter();  
-    char[] buffer = new char[1024];  
-    for (int n; (n = r.read(buffer)) != -1; )  
-        sw.write(buffer, 0, n);  
-    String str = sw.toString(); 
-    assertEquals(fileContent, str);
-    System.out.println("TestSearch.testBasicSearch()" + str);
+    String result = outputStream.toString();
+    assertTrue(result.contains(fileName));
   }
 
   @Override

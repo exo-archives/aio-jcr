@@ -19,8 +19,6 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
@@ -28,7 +26,6 @@ import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.impl.ContainerResponse;
-import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS.
