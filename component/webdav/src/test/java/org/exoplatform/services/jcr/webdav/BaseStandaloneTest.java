@@ -84,7 +84,7 @@ public abstract class BaseStandaloneTest extends TestCase {
   
 
   public void setUp() throws Exception {
-
+    
     String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml")
                                      .toString();
 

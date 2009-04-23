@@ -67,11 +67,9 @@
         <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
         <init-params>
           <values-param>
-            <name>webdav</name>
-            <description>
-              Node types configuration file for repository with name testInitNodeTypesRepositoryTest2
-            </description>
-            <value>file:src/conf/test/webdav-nodetypes.xml</value>
+            <name>autoCreatedInNewRepository</name>
+            <description>Node types configuration file for repository with name testInitNodeTypesRepositoryTest2</description>
+            <value>jar:/conf/webdav-nodetypes.xml</value>
           </values-param>
         </init-params>
       </component-plugin>
@@ -85,7 +83,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>jar:/conf/standalone/test-jcr-config.xml</value>
+        <value>file:src/test/java/conf/standalone/test-jcr-config.xml</value>
       </value-param>
       <properties-param>
         <name>working-conf</name>
