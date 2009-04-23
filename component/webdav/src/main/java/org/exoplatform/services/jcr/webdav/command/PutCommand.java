@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
  */
 
 public class PutCommand {
-  
+
   private final NullResourceLocksHolder nullResourceLocks;
 
   public PutCommand(final NullResourceLocksHolder nullResourceLocks) {
@@ -50,7 +50,9 @@ public class PutCommand {
   public Response put(Session session,
                       String path,
                       InputStream inputStream,
-                      String nodeType,
+                      String fileNodeType,
+                      String contentNodeType,
+                      List<String> mixins,
                       String mimeType,
                       String updatePolicyType,
                       List<String> tokens) {
@@ -66,18 +68,19 @@ public class PutCommand {
 
       if (node == null || "add".equals(updatePolicyType)) {
 
-        node = session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
-        node.addNode("jcr:content", "nt:resource");
-        updateContent(node, inputStream, mimeType);
+        node = session.getRootNode().addNode(TextUtil.relativizePath(path), fileNodeType);
+        
+        node.addNode("jcr:content", contentNodeType);
+        updateContent(node, inputStream, mimeType, mixins);
       } else {
         if ("add".equals(updatePolicyType)) {
-          node = session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
-          node.addNode("jcr:content", "nt:resource");
-          updateContent(node, inputStream, mimeType);
+          node = session.getRootNode().addNode(TextUtil.relativizePath(path), fileNodeType);
+          node.addNode("jcr:content", contentNodeType);
+          updateContent(node, inputStream, mimeType, mixins);
         } else if ("create-version".equals(updatePolicyType)) {
-          createVersion(node, inputStream, mimeType);
+          createVersion(node, inputStream, mimeType, mixins);
         } else {
-          updateContent(node, inputStream, mimeType);
+          updateContent(node, inputStream, mimeType, mixins);
         }
       }
 
@@ -89,14 +92,17 @@ public class PutCommand {
     } catch (AccessDeniedException e) {
       return Response.status(HTTPStatus.FORBIDDEN).build();
 
-    } catch (RepositoryException exc) {      
+    } catch (RepositoryException exc) {
       return Response.status(HTTPStatus.CONFLICT).build();
     }
 
     return Response.status(HTTPStatus.CREATED).build();
   }
 
-  private final void createVersion(Node fileNode, InputStream inputStream, String mimeType) throws RepositoryException {
+  private final void createVersion(Node fileNode,
+                                   InputStream inputStream,
+                                   String mimeType,
+                                   List<String> mixins) throws RepositoryException {
     if (!fileNode.isNodeType("mix:versionable")) {
       if (fileNode.canAddMixin("mix:versionable")) {
         fileNode.addMixin("mix:versionable");
@@ -111,17 +117,25 @@ public class PutCommand {
       fileNode.getSession().save();
     }
 
-    updateContent(fileNode, inputStream, mimeType);
+    updateContent(fileNode, inputStream, mimeType, mixins);
     fileNode.getSession().save();
     fileNode.checkin();
     fileNode.getSession().save();
   }
 
-  private final void updateContent(Node node, InputStream inputStream, String mimeType) throws RepositoryException {
+  private final void updateContent(Node node,
+                                   InputStream inputStream,
+                                   String mimeType,
+                                   List<String> mixins) throws RepositoryException {
+    
     Node content = node.getNode("jcr:content");
     content.setProperty("jcr:mimeType", mimeType);
     content.setProperty("jcr:lastModified", Calendar.getInstance());
     content.setProperty("jcr:data", inputStream);
+    
+    while(mixins.iterator().hasNext()){
+      content.addMixin(mixins.iterator().next());
+    }
   }
 
 }
