@@ -23,6 +23,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -40,7 +41,7 @@ public class TestDelete extends BaseStandaloneTest {
     String fileContent = TestUtils.getFileContent();
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
     TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
-    ContainerResponse response = service("DELETE", getPathWS() + path, "", null, null);
+    ContainerResponse response = service(WebDAVMethods.DELETE, getPathWS() + path, "", null, null);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
   }
   
@@ -51,7 +52,7 @@ public class TestDelete extends BaseStandaloneTest {
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
     TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
     TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
-    ContainerResponse response = service("DELETE", getPathWS() + folderName, "", null, null);
+    ContainerResponse response = service(WebDAVMethods.DELETE, getPathWS() + folderName, "", null, null);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
   }
   
@@ -63,11 +64,11 @@ public class TestDelete extends BaseStandaloneTest {
     TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
     TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
     String lockToken = TestUtils.lockNode(session, folderName + path, null);
-    ContainerResponse response = service("DELETE", getPathWS() + folderName, "", null, null);
+    ContainerResponse response = service(WebDAVMethods.DELETE, getPathWS() + folderName, "", null, null);
     assertEquals(HTTPStatus.LOCKED, response.getStatus());
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.LOCKTOKEN, lockToken);
-    response = service("DELETE", getPathWS() + path, "", headers, null);
+    response = service(WebDAVMethods.DELETE, getPathWS() + path, "", headers, null);
     assertEquals(HTTPStatus.LOCKED, response.getStatus());
   }
   

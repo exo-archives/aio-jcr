@@ -21,21 +21,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Set;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.Range;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
-import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -57,7 +49,7 @@ public class TestGet extends BaseStandaloneTest {
 
  
   public void testSimpleGet() throws Exception {
-    ContainerResponse response = service("GET", getPathWS() + path, "", null,null );
+    ContainerResponse response = service(WebDAVMethods.GET, getPathWS() + path, "", null,null );
     assertEquals(HTTPStatus.OK, response.getStatus());
     ByteArrayInputStream content = (ByteArrayInputStream) response.getEntity();
     Reader r = new InputStreamReader(content);  
@@ -70,7 +62,7 @@ public class TestGet extends BaseStandaloneTest {
   }
   
   public void testNotFoundGet() throws Exception{
-    ContainerResponse response = service("GET", getPathWS() + "/not-found" + path, "", null,null );
+    ContainerResponse response = service(WebDAVMethods.GET, getPathWS() + "/not-found" + path, "", null,null );
     assertEquals(HTTPStatus.NOT_FOUND, response.getStatus());
   }
 

@@ -28,6 +28,7 @@ import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.commons.utils.QName;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConst.Lock;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -59,7 +60,7 @@ public class TestLock extends BaseStandaloneTest {
   public void testLock() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add("Content-Type", MediaType.TEXT_PLAIN);
-    ContainerResponse containerResponse = service("LOCK",getPathWS() + path , "", headers, null);
+    ContainerResponse containerResponse = service(WebDAVMethods.LOCK,getPathWS() + path , "", headers, null);
     assertEquals(HTTPStatus.OK, containerResponse.getStatus());
     containerResponse = service("DELETE",getPathWS() + path , "", null, null);
     assertEquals(HTTPStatus.LOCKED, containerResponse.getStatus());

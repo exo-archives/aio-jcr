@@ -24,6 +24,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.Range;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -44,13 +45,13 @@ public class TestMove extends BaseStandaloneTest {
     String destFilename = TestUtils.getFileName();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
     headers.add(ExtHttpHeaders.DESTINATION, getPathWS() + destFilename);
-    ContainerResponse response = service("MOVE",getPathWS() + filename,"",headers,null);
+    ContainerResponse response = service(WebDAVMethods.MOVE,getPathWS() + filename,"",headers,null);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
-    ContainerResponse getResponse = service("GET", getPathWS() + destFilename, "", null,null);
+    ContainerResponse getResponse = service(WebDAVMethods.GET, getPathWS() + destFilename, "", null,null);
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
     String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
-    getResponse = service("GET", getPathWS() + filename, "", null,null);
+    getResponse = service(WebDAVMethods.GET, getPathWS() + filename, "", null,null);
     assertEquals(HTTPStatus.NOT_FOUND, getResponse.getStatus());
   }
   
@@ -64,13 +65,13 @@ public class TestMove extends BaseStandaloneTest {
     String destFilename = TestUtils.getFileName();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
     headers.add(ExtHttpHeaders.DESTINATION, getPathDestWS() + destFilename);
-    ContainerResponse response = service("MOVE",getPathWS() + filename,"",headers,null);
+    ContainerResponse response = service(WebDAVMethods.MOVE,getPathWS() + filename,"",headers,null);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
-    ContainerResponse getResponse = service("GET", getPathDestWS() + destFilename, "", null,null );
+    ContainerResponse getResponse = service(WebDAVMethods.GET, getPathDestWS() + destFilename, "", null,null );
     assertEquals(HTTPStatus.OK, getResponse.getStatus());
     String getContent = TestUtils.stream2string((ByteArrayInputStream) getResponse.getEntity(),null);
     assertEquals(content, getContent);
-    getResponse = service("GET", getPathWS() + filename, "", null,null );
+    getResponse = service(WebDAVMethods.GET, getPathWS() + filename, "", null,null );
     assertEquals(HTTPStatus.NOT_FOUND, getResponse.getStatus());
   }
   

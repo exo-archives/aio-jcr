@@ -18,31 +18,15 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.jcr.Property;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.commons.codec.binary.Base64;
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.command.propfind.PropFindResponseEntity;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
-import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
-import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * Created by The eXo Platform SAS. <br/>
@@ -55,12 +39,14 @@ public class TestPropPatch extends BaseStandaloneTest {
 
   private final String author = "eXoPlatform";   
   
+  private final String authorProp = "webdav:Author";
+  
+  private final String nt_webdave_file = "webdav:file";
+  
   private final String patch = "<?xml version=\"1.0\"?><D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\"><D:set><D:prop><webdav:Author>" 
                             + author + "</webdav:Author></D:prop></D:set></D:propertyupdate>";
   
-  private final String patchNT = "<?xml version=\"1.0\"?><D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\"><D:set><D:prop><webdav:Author>" 
-    + author + "</webdav:Author></D:prop></D:set></D:propertyupdate>"; 
-
+ 
   private final String patchRemove = "<?xml version=\"1.0\"?><D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\"><D:remove><D:prop><webdav:Author/></D:prop></D:remove></D:propertyupdate>"; 
 
   @Override
@@ -72,13 +58,13 @@ public class TestPropPatch extends BaseStandaloneTest {
     String content = TestUtils.getFileContent();
     ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
     String file = TestUtils.getFileName();
-    TestUtils.addContent(session, file, inputStream, "webdav:file", "");
-    ContainerResponse patchSet = service("PROPPATCH",getPathWS() + file , "", null, patch.getBytes());
+    TestUtils.addContent(session, file, inputStream, nt_webdave_file, "");
+    ContainerResponse patchSet = service(WebDAVMethods.PROPPATCH,getPathWS() + file , "", null, patch.getBytes());
     assertEquals(HTTPStatus.MULTISTATUS, patchSet.getStatus());
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PropPatchResponseEntity entity = (PropPatchResponseEntity) patchSet.getEntity();
     entity.write(outputStream);
-    Property prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    Property prop = TestUtils.getNodeProperty(session, file,authorProp);
     assertNotNull(prop);
     assertEquals(prop.getString(), author);
   }
@@ -87,17 +73,17 @@ public class TestPropPatch extends BaseStandaloneTest {
     String content = TestUtils.getFileContent();
     ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
     String file = TestUtils.getFileName();
-    TestUtils.addContent(session, file, inputStream, "webdav:file", "");
-    TestUtils.addNodeProperty(session, file, "webdav:Author", author);
-    Property prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    TestUtils.addContent(session, file, inputStream, nt_webdave_file, "");
+    TestUtils.addNodeProperty(session, file, authorProp, author);
+    Property prop = TestUtils.getNodeProperty(session, file,authorProp);
     assertNotNull(prop);
     assertEquals(prop.getString(), author);
-    ContainerResponse responceRemove = service("PROPPATCH",getPathWS() + file , "", null, patchRemove.getBytes());
+    ContainerResponse responceRemove = service(WebDAVMethods.PROPPATCH,getPathWS() + file , "", null, patchRemove.getBytes());
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PropPatchResponseEntity entity = (PropPatchResponseEntity) responceRemove.getEntity();
     entity.write(outputStream);
     assertEquals(HTTPStatus.MULTISTATUS, responceRemove.getStatus());
-    prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    prop = TestUtils.getNodeProperty(session, file,authorProp);
     assertNull(prop);
   }
   
@@ -105,14 +91,14 @@ public class TestPropPatch extends BaseStandaloneTest {
     String content = TestUtils.getFileContent();
     ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
     String file = TestUtils.getFileName();
-    TestUtils.addContent(session, file, inputStream, "webdav:file", "");
+    TestUtils.addContent(session, file, inputStream, nt_webdave_file, "");
     TestUtils.lockNode(session, file, null);
-    ContainerResponse patchSet = service("PROPPATCH",getPathWS() + file , "", null, patch.getBytes());
+    ContainerResponse patchSet = service(WebDAVMethods.PROPPATCH,getPathWS() + file , "", null, patch.getBytes());
     assertEquals(HTTPStatus.MULTISTATUS, patchSet.getStatus());
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PropPatchResponseEntity entity = (PropPatchResponseEntity) patchSet.getEntity();
     entity.write(outputStream);
-    Property prop = TestUtils.getNodeProperty(session, file,"webdav:Author");
+    Property prop = TestUtils.getNodeProperty(session, file,authorProp);
     assertNotNull(prop);
     assertEquals(prop.getString(), author);
   }

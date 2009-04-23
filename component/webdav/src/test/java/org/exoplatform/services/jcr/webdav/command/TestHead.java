@@ -25,6 +25,7 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -48,7 +49,7 @@ public class TestHead extends BaseStandaloneTest{
   }
 
   public void testSimpleHead() throws Exception {
-    ContainerResponse response = service("HEAD", getPathWS() + path, "", null,null );
+    ContainerResponse response = service(WebDAVMethods.HEAD, getPathWS() + path, "", null,null );
     assertEquals(HTTPStatus.OK, response.getStatus());
   }
 

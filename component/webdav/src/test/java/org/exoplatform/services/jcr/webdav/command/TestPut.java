@@ -33,14 +33,14 @@ public class TestPut extends BaseStandaloneTest {
    
   public void testPut() throws Exception{
     String content = TestUtils.getFileContent();
-    ContainerResponse containerResponse = service("PUT",getPathWS() + TestUtils.getFileName() , "", null, content.getBytes());
+    ContainerResponse containerResponse = service(WebDAVMethods.PUT,getPathWS() + TestUtils.getFileName() , "", null, content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
   }
     
   
   public void testPutNotFound() throws Exception{
     String content = TestUtils.getFileContent();
-    ContainerResponse containerResponse = service("PUT",getPathWS() + "/not-found"+TestUtils.getFileName() , "", null, content.getBytes());
+    ContainerResponse containerResponse = service(WebDAVMethods.PUT,getPathWS() + "/not-found"+TestUtils.getFileName() , "", null, content.getBytes());
     assertEquals(HTTPStatus.CONFLICT, containerResponse.getStatus());
   }
   

@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.command.dasl.SearchResultResponseEntity;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -61,7 +62,7 @@ public class TestSearch extends BaseStandaloneTest {
     
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
     TestUtils.addContent(session, fileName, inputStream, defaultFileNodeType, MediaType.TEXT_PLAIN);
-    ContainerResponse response = service("SEARCH", getPathWS(), "", null, sql.getBytes());    
+    ContainerResponse response = service(WebDAVMethods.SEARCH, getPathWS(), "", null, sql.getBytes());    
     assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
     SearchResultResponseEntity entity = (SearchResultResponseEntity) response.getEntity();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

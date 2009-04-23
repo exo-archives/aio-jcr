@@ -23,6 +23,7 @@ import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -60,13 +61,13 @@ public class TestUnLock extends BaseStandaloneTest {
 
   
   public void testUnLock() throws Exception {
-    ContainerResponse containerResponse = service("LOCK",getPathWS() + path , "", null, null);
+    ContainerResponse containerResponse = service(WebDAVMethods.LOCK,getPathWS() + path , "", null, null);
     assertEquals(HTTPStatus.OK, containerResponse.getStatus());
-    containerResponse = service("DELETE",getPathWS() + path , "", null, null);
+    containerResponse = service(WebDAVMethods.DELETE,getPathWS() + path , "", null, null);
     assertEquals(HTTPStatus.LOCKED, containerResponse.getStatus());
-    containerResponse = service("UNLOCK",getPathWS() + path , "", null, null);
+    containerResponse = service(WebDAVMethods.UNLOCK,getPathWS() + path , "", null, null);
     assertEquals(HTTPStatus.NO_CONTENT, containerResponse.getStatus());
-    containerResponse = service("DELETE",getPathWS() + path , "", null, null);
+    containerResponse = service(WebDAVMethods.DELETE,getPathWS() + path , "", null, null);
     assertEquals(HTTPStatus.NO_CONTENT, containerResponse.getStatus());
     
   }
