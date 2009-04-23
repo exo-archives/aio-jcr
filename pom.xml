@@ -320,7 +320,7 @@
       <properties>
         <org.exoplatform.kernel.version>2.1.1</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>2.2.1</org.exoplatform.core.version>
-        <org.exoplatform.ws.version>2.0.1</org.exoplatform.ws.version>
+        <org.exoplatform.ws.version>2.0.2-SNAPSHOT</org.exoplatform.ws.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>
