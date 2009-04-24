@@ -151,70 +151,26 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
     }
 
     /**
-     * Change all TransientValueData to ReplicableValueData.
-     * 
-     * @param log
-     *          local TransactionChangesLog
-     * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException
-     *           if error occurs
-     */
-    /*
-     * private TransactionChangesLog prepareChangesLog(final
-     * TransactionChangesLog log) throws IOException { final ChangesLogIterator
-     * chIt = log.getLogIterator(); final TransactionChangesLog result = new
-     * TransactionChangesLog(); result.setSystemId(EXTERNALIZATION_SYSTEM_ID); //
-     * for // PlainChangesLogImpl.writeExternal while (chIt.hasNextLog()) {
-     * PlainChangesLog plog = chIt.nextLog(); List<ItemState> destlist = new
-     * ArrayList<ItemState>(); for (ItemState item : plog.getAllStates()) { if
-     * (item.isNode()) { // use nodes states as is destlist.add(item); } else {
-     * TransientPropertyData prop = (TransientPropertyData) item.getData(); List<ValueData>
-     * srcVals = prop.getValues(); List<ValueData> nVals = new ArrayList<ValueData>();
-     * for (ValueData vd : srcVals) { if (vd.isByteArray()) { nVals.add(vd); }
-     * else { // create new dataFile if (vd instanceof TransientValueData) {
-     * File vdf = ((TransientValueData) vd).getSpoolFile(); if (vdf instanceof
-     * SpoolFile) { nVals.add(new ReplicableValueData((SpoolFile) vdf,
-     * vd.getOrderNumber(), fileCleaner)); } else { // TODO, check how it's
-     * possible with EditableValueData nVals.add(new ReplicableValueData(new
-     * SpoolFile(vdf.getCanonicalPath()), vd.getOrderNumber(), fileCleaner)); } }
-     * else throw new StorageIOException("Non transient value data " + vd); } } //
-     * rewrite values, TODO use setter TransientPropertyData nProp = new
-     * TransientPropertyData(prop.getQPath(), prop.getIdentifier(),
-     * prop.getPersistedVersion(), prop.getType(), prop.getParentIdentifier(),
-     * prop.isMultiValued()); nProp.setValues(nVals); // create new ItemState
-     * ItemState nItem = new ItemState(nProp, item.getState(),
-     * item.isEventFire(), item.getAncestorToSave(), item.isInternallyCreated(),
-     * item.isPersisted()); destlist.add(nItem); } } // create new plain changes
-     * log result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() ==
-     * null ? EXTERNALIZATION_SESSION_ID : plog.getSessionId(),
-     * plog.getEventType())); } return result; }
-     */
-
-    /**
      * Set sessionId if it null for PlainChangesLog.
      * 
-     * @param log
-     *          local TransactionChangesLog
+     * @param log local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException
-     *           if error occurs
+     * @throws IOException if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
 
       final TransactionChangesLog result = new TransactionChangesLog();
       result.setSystemId(log.getSystemId() == null ? EXTERNALIZATION_SYSTEM_ID : log.getSystemId()); // for
-      // PlainChangesLogImpl
-      // .
-      // writeExternal
 
       while (chIt.hasNextLog()) {
         PlainChangesLog plog = chIt.nextLog();
 
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(plog.getAllStates(), plog.getSessionId() == null
-            ? EXTERNALIZATION_SESSION_ID
-            : plog.getSessionId(), plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(plog.getAllStates(),
+                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                         : plog.getSessionId(),
+                                              plog.getEventType()));
       }
       return result;
     }
@@ -226,14 +182,6 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
           || !itemStates.getSystemId()
                         .equals(Constants.JCR_CORE_RESTORE_WORKSPACE_INITIALIZER_SYSTEM_ID)) {
         if (currentFile == null) {
-          long id = getNextFileId();
-          currentFile = new File(currentDir, Long.toString(id));
-          currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                                   digest));
-        } else if (currentFile.length() > MAX_FILE_SIZE) {
-          // close stream
-          closeCurrentOutput();
-
           // create new file
           long id = getNextFileId();
           currentFile = new File(currentDir, Long.toString(id));
@@ -241,13 +189,21 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
             LOG.warn("Changes file :" + currentFile.getAbsolutePath()
                 + " already exist and will be rewrited.");
           }
-
           currentOut = new ObjectWriterImpl(new DigestOutputStream(new FileOutputStream(currentFile),
                                                                    digest));
         }
 
+        // write changes log
         TransactionChangesLogWriter writer = new TransactionChangesLogWriter();
         writer.write(currentOut, itemStates);
+
+        // check changes file size
+        if (currentFile.length() > MAX_FILE_SIZE) {
+          // close stream
+          closeCurrentOutput();
+          currentFile = null;
+        }
+
       } else {
         if (currentFile != null) {
           closeCurrentOutput();
@@ -268,6 +224,7 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
 
       // keep stream opened
     }
+
   }
 
   public AbstractLocalStorage(String storagePath,
@@ -294,6 +251,12 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
     if (!currentDir.exists()) {
       currentDir.mkdirs();
     }
+
+    java.lang.Runtime.getRuntime().addShutdownHook(new Thread() {
+      public void run() {
+        flushChanges();
+      }
+    });
   }
 
   /**
@@ -348,8 +311,7 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -371,8 +333,7 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath
-   *          Path of root directory
+   * @param rootPath Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
