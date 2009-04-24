@@ -18,6 +18,7 @@ import javax.jcr.Workspace;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
@@ -25,6 +26,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -46,31 +48,33 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class BaseStandaloneTest extends TestCase {
 
-  private static final Log      log           = ExoLogger.getLogger(BaseStandaloneTest.class);
+  private static final Log        log           = ExoLogger.getLogger(BaseStandaloneTest.class);
 
-  public static final String    WS_NAME       = "ws";
+  public static final String      WS_NAME       = "ws";
 
-  protected SessionImpl         session;
+  protected SessionImpl           session;
 
-  protected RepositoryImpl      repository;
+  protected RepositoryImpl        repository;
 
-  protected CredentialsImpl     credentials;
+  protected CredentialsImpl       credentials;
 
-  protected Workspace           workspace;
+  protected Workspace             workspace;
 
-  protected RepositoryService   repositoryService;
+  protected RepositoryService     repositoryService;
 
-  protected Node                root;
+  protected Node                  root;
 
-  protected ValueFactory        valueFactory;
+  protected PersistentDataManager dataManager;
 
-  protected StandaloneContainer container;
+  protected ValueFactory          valueFactory;
 
-  public int                    maxBufferSize = 200 * 1024;
+  protected StandaloneContainer   container;
 
-  public FileCleaner            fileCleaner;
+  public int                      maxBufferSize = 200 * 1024;
 
-  public ReaderSpoolFileHolder holder;
+  public FileCleaner              fileCleaner;
+
+  public ReaderSpoolFileHolder    holder;
 
   protected class CompareStreamException extends Exception {
 
@@ -120,6 +124,9 @@ public abstract class BaseStandaloneTest extends TestCase {
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
     fileCleaner = wfcleaner.getFileCleaner();
     holder = new ReaderSpoolFileHolder();
+
+    wsc = repository.getWorkspaceContainer("ws4");
+    dataManager = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
   }
 
   protected void tearDown() throws Exception {
@@ -218,9 +225,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   /**
-   * Compare etalon stream with data stream begining from the offset in etalon
-   * and position in data. Length bytes will be readed and compared. if length
-   * is lower 0 then compare streams till one of them will be read.
+   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
+   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of
+   * them will be read.
    * 
    * @param etalon
    * @param data
