@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -58,7 +59,8 @@ public class AddAnalyzer extends AbstractAnalyzer {
                       ConflictResolver confilictResolver) throws IOException,
                                                          ClassCastException,
                                                          ClassNotFoundException,
-                                                         RepositoryException {
+                                                         RepositoryException,
+                                                         RemoteExportException {
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 

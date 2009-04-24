@@ -194,7 +194,9 @@ public class AsyncReplication implements Startable {
                                              holder);
 
       this.mergeManager = new MergeDataManager(this.exporter,
+                                               config.getPriority(),
                                                dataManager,
+                                               systemDataManager,
                                                ntManager,
                                                config.getMergeTempDir(),
                                                fileCleaner,

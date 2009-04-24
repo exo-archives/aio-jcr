@@ -196,17 +196,16 @@ public interface ChangesStorage<T extends ItemState> {
                                                 ClassNotFoundException;
 
   /**
-   * findNodeInVS.
+   * findVSChanges.
    * 
-   * @param uuid
    * @return
    * @throws IOException
    * @throws ClassCastException
    * @throws ClassNotFoundException
    */
-  public QPath findVSChanges(String uuid) throws IOException,
-                                         ClassCastException,
-                                         ClassNotFoundException;
+  public List<ItemState> findVSChanges() throws IOException,
+                                        ClassCastException,
+                                        ClassNotFoundException;
 
   /**
    * findVHProperty.
@@ -231,6 +230,6 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws ClassNotFoundException
    */
   public List<QPath> getUniquePathesByUUID(String identifier) throws IOException,
-                                                              ClassCastException,
-                                                              ClassNotFoundException;
+                                                             ClassCastException,
+                                                             ClassNotFoundException;
 }

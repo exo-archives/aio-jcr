@@ -37,15 +37,40 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: AbstractMergerManager.java 111 2008-11-11 11:11:11Z $
  */
 public abstract class AbstractMergeManager implements MergeManager {
+  /**
+   * Remote exporter.
+   */
   protected final RemoteExporter      exporter;
 
+  /**
+   * Data manager.
+   */
   protected final DataManager         dataManager;
 
+  /**
+   * System data manager.
+   */
+  protected final DataManager         systemDataManager;
+
+  /**
+   * Note type manager.
+   */
   protected final NodeTypeDataManager ntManager;
 
+  /**
+   * Resource holder.
+   */
   protected final ResourcesHolder     resHolder   = new ResourcesHolder();
 
+  /**
+   * Storage directory.
+   */
   protected final String              storageDir;
+
+  /**
+   * Local priority.
+   */
+  protected final int                 priority;
 
   /**
    * Flag allowing run of merge.
@@ -60,17 +85,18 @@ public abstract class AbstractMergeManager implements MergeManager {
   protected static final Log          LOG         = ExoLogger.getLogger("jcr.MergerManager");
 
   AbstractMergeManager(RemoteExporter exporter,
+                       int priority,
                        DataManager dataManager,
+                       DataManager systemDataManager,
                        NodeTypeDataManager ntManager,
                        String storageDir) {
 
     this.exporter = exporter;
-
     this.dataManager = dataManager;
-
+    this.systemDataManager = systemDataManager;
     this.ntManager = ntManager;
-
     this.storageDir = storageDir;
+    this.priority = priority;
   }
 
   /**

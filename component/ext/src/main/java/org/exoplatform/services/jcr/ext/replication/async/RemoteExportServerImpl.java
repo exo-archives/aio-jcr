@@ -35,7 +35,9 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
@@ -43,6 +45,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolde
 import org.exoplatform.services.jcr.ext.replication.async.storage.SimpleChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateWriter;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -144,39 +147,31 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   /**
    * Return Node traversed changes log for a given path.<br/> Used by receiver.
    * 
-   * @param nodeId
-   *          Node QPath
+   * @param itemId
+   *          Item identifier
    * @return ChangesLogFile
    * @throws RemoteExportException
    *           if IO error occurs
    * @throws RepositoryException
    *           if Repository error occurs
    */
-  protected ChangesFile getExportChanges(String nodeId) throws RepositoryException,
+  protected ChangesFile getExportChanges(String itemId) throws RepositoryException,
                                                        RemoteExportException {
 
-    NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
-    NodeData parentNode;
+    ItemData exportedItem = dataManager.getItemData(itemId);
 
     DataManager requiredDataManager;
-
-    if (exportedNode == null) {
-      exportedNode = (NodeData) systemDataManager.getItemData(nodeId);
+    if (exportedItem == null) {
+      exportedItem = systemDataManager.getItemData(itemId);
       requiredDataManager = systemDataManager;
     } else {
       requiredDataManager = dataManager;
     }
 
-    if (nodeId.equals(Constants.ROOT_UUID)) {
-      parentNode = exportedNode;
-    } else {
-      parentNode = (NodeData) requiredDataManager.getItemData(exportedNode.getParentIdentifier());
-    }
-
     ObjectWriter out = null;
     try {
       // TODO make it simplier
-      File chLogFile = File.createTempFile(FILE_PREFIX, "-" + nodeId);
+      File chLogFile = File.createTempFile(FILE_PREFIX, "-" + itemId);
       MessageDigest digest;
       try {
         digest = MessageDigest.getInstance("MD5");
@@ -187,13 +182,34 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
       DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(chLogFile), digest);
       out = new ObjectWriterImpl(dout);
 
-      // extract ItemStates
-      ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
-                                                                 parentNode,
-                                                                 ntManager,
-                                                                 requiredDataManager,
-                                                                 systemDataManager);
-      exportedNode.accept(exporter);
+      if (exportedItem != null) {
+        if (exportedItem.isNode()) {
+          NodeData parentNode;
+          if (itemId.equals(Constants.ROOT_UUID)) {
+            parentNode = (NodeData) exportedItem;
+          } else {
+            parentNode = (NodeData) requiredDataManager.getItemData(exportedItem.getParentIdentifier());
+          }
+
+          // extract ItemStates
+          ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
+                                                                     parentNode,
+                                                                     ntManager,
+                                                                     requiredDataManager,
+                                                                     systemDataManager);
+          exportedItem.accept(exporter);
+        } else {
+          try {
+            ItemStateWriter wr = new ItemStateWriter();
+            wr.write(out, new ItemState(exportedItem,
+                                        ItemState.ADDED,
+                                        false,
+                                        exportedItem.getQPath()));
+          } catch (IOException e) {
+            throw new RepositoryException(e);
+          }
+        }
+      }
 
       out.flush();
 

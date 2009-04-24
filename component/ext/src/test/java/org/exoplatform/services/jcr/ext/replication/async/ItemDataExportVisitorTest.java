@@ -333,6 +333,15 @@ public class ItemDataExportVisitorTest extends BaseStandaloneTest {
     assertEquals(p.getQPath(), elem.getData().getQPath());
   }
 
+  public void testGetUnExistedItem() throws Exception {
+    File chLogFile = File.createTempFile("chLog", "" + (suf++));
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(chLogFile));
+    out.close();
+
+    List<ItemState> list = getItemStatesFromChLog(chLogFile);
+    assertEquals(list.size(), 0);
+  }
+
   private boolean hasState(List<ItemState> changes, ItemState expected, boolean respectId) {
     for (ItemState st : changes) {
       if (st.getData().getQPath().equals(expected.getData().getQPath())

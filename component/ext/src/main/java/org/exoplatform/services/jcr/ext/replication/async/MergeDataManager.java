@@ -57,13 +57,15 @@ public class MergeDataManager extends AbstractMergeManager {
   private final ReaderSpoolFileHolder holder;
 
   MergeDataManager(RemoteExporter exporter,
+                   int priority,
                    DataManager dataManager,
+                   DataManager systemDataManager,
                    NodeTypeDataManager ntManager,
                    String storageDir,
                    FileCleaner fileCleaner,
                    int maxBufferSize,
                    ReaderSpoolFileHolder holder) {
-    super(exporter, dataManager, ntManager, storageDir);
+    super(exporter, priority, dataManager, systemDataManager, ntManager, storageDir);
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
     this.holder = holder;
@@ -130,10 +132,12 @@ public class MergeDataManager extends AbstractMergeManager {
         exporter.setRemoteMember(second.getMember().getAddress());
 
         ConflictResolver conflictResolver = new ConflictResolver(isLocalPriority,
+                                                                 second.getMember().getPriority() == priority,
                                                                  local,
                                                                  income,
                                                                  exporter,
                                                                  dataManager,
+                                                                 systemDataManager,
                                                                  ntManager);
 
         AddAnalyzer addAnalyzer = new AddAnalyzer(isLocalPriority, dataManager, ntManager);

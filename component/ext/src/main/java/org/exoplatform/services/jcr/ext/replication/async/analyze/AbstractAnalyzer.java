@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
@@ -61,6 +62,8 @@ public abstract class AbstractAnalyzer implements ChangesAnalyzer {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws RemoteExportException
    */
   public abstract void analyze(ItemState incomeChange,
                                ChangesStorage<ItemState> local,
@@ -68,7 +71,8 @@ public abstract class AbstractAnalyzer implements ChangesAnalyzer {
                                ConflictResolver confilictResolver) throws IOException,
                                                                   ClassCastException,
                                                                   ClassNotFoundException,
-                                                                  RepositoryException;
+                                                                  RepositoryException,
+                                                                  RemoteExportException;
 
   /**
    * {@inheritDoc}

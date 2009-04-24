@@ -54,21 +54,51 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ConflictResolver {
 
+  /**
+   * Local storage.
+   */
   private final MemberChangesStorage<ItemState> local;
 
+  /**
+   * Income storage.
+   */
   private final MemberChangesStorage<ItemState> income;
 
+  /**
+   * List of conflicting pathes.
+   */
   private final List<QPath>                     conflictedPathes;
 
   private final List<QPath>                     vsSkippedPathes;
 
+  /**
+   * Remote exporter.
+   */
   private final RemoteExporter                  exporter;
 
+  /**
+   * Data manager.
+   */
   private final DataManager                     dataManager;
 
+  /**
+   * System data manager.
+   */
+  private final DataManager                     systemDataManager;
+
+  /**
+   * Node type manager.
+   */
   private final NodeTypeDataManager             ntManager;
 
   private final boolean                         isLocalPriority;
+
+  /**
+   * Is member priority for export equal with local priority.
+   */
+  private final boolean                         isExporterHasLocalMemberPriority;
+
+  private List<ItemState>                       versionableUUIDItemStates;
 
   /**
    * Log.
@@ -82,10 +112,12 @@ public class ConflictResolver {
    * @param changes
    */
   public ConflictResolver(boolean isLocalPriority,
+                          boolean isExporterHasLocalMemberPriority,
                           MemberChangesStorage<ItemState> local,
                           MemberChangesStorage<ItemState> income,
                           RemoteExporter exporter,
                           DataManager dataManager,
+                          DataManager systemDataManager,
                           NodeTypeDataManager ntManager) {
     this.vsSkippedPathes = new ArrayList<QPath>();
     this.conflictedPathes = new ArrayList<QPath>();
@@ -94,7 +126,9 @@ public class ConflictResolver {
     this.exporter = exporter;
     this.isLocalPriority = isLocalPriority;
     this.dataManager = dataManager;
+    this.systemDataManager = systemDataManager;
     this.ntManager = ntManager;
+    this.isExporterHasLocalMemberPriority = isExporterHasLocalMemberPriority;
   }
 
   /**
@@ -104,13 +138,75 @@ public class ConflictResolver {
    * @throws ClassCastException
    * @throws IOException
    * @throws ClassNotFoundException
+   * @throws RemoteExportException
+   * @throws RepositoryException
    */
   public void addSkippedVSChanges(String identifier) throws ClassCastException,
                                                     IOException,
-                                                    ClassNotFoundException {
-    QPath skippedPath = income.findVSChanges(identifier);
-    if (skippedPath != null)
-      vsSkippedPathes.add(skippedPath);
+                                                    ClassNotFoundException,
+                                                    RemoteExportException,
+                                                    RepositoryException {
+    if (versionableUUIDItemStates == null) {
+      versionableUUIDItemStates = income.findVSChanges();
+
+      // obtain the missing data from exporter or locally
+      for (int i = 0; i < versionableUUIDItemStates.size(); i++) {
+        ItemState item = versionableUUIDItemStates.get(i);
+
+        if (item.getState() == ItemState.DELETED) {
+          PropertyData prop = (PropertyData) item.getData();
+
+          if (isExporterHasLocalMemberPriority) {
+            ItemData localItemData = systemDataManager.getItemData(item.getData().getIdentifier());
+            if (localItemData != null) {
+              TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                        prop.getIdentifier(),
+                                                                        prop.getPersistedVersion(),
+                                                                        prop.getType(),
+                                                                        prop.getParentIdentifier(),
+                                                                        prop.isMultiValued());
+              newProp.setValues(((PropertyData) localItemData).getValues());
+              item = new ItemState(newProp,
+                                   item.getState(),
+                                   item.isEventFire(),
+                                   item.getAncestorToSave(),
+                                   item.isInternallyCreated(),
+                                   item.isPersisted());
+              versionableUUIDItemStates.set(i, item);
+            }
+          } else {
+            Iterator<ItemState> changes = exporter.exportItem(item.getData().getIdentifier())
+                                                  .getChanges();
+            if (changes.hasNext()) {
+              TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                        prop.getIdentifier(),
+                                                                        prop.getPersistedVersion(),
+                                                                        prop.getType(),
+                                                                        prop.getParentIdentifier(),
+                                                                        prop.isMultiValued());
+              newProp.setValues(((PropertyData) changes.next().getData()).getValues());
+              item = new ItemState(newProp,
+                                   item.getState(),
+                                   item.isEventFire(),
+                                   item.getAncestorToSave(),
+                                   item.isInternallyCreated(),
+                                   item.isPersisted());
+              versionableUUIDItemStates.set(i, item);
+            }
+          }
+        }
+      }
+    }
+
+    // determine to skip or not changes
+    for (int i = 0; i < versionableUUIDItemStates.size(); i++) {
+      ItemState item = versionableUUIDItemStates.get(i);
+      PropertyData prop = (PropertyData) item.getData();
+      if (prop.getValues().size() > 0
+          && identifier.equals(new String(prop.getValues().get(0).getAsByteArray()))) {
+        vsSkippedPathes.add(item.getData().getQPath().makeParentPath());
+      }
+    }
   }
 
   /**

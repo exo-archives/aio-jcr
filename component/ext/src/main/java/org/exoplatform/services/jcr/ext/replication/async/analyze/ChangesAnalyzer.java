@@ -21,6 +21,7 @@ import java.io.IOException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
@@ -45,6 +46,7 @@ public interface ChangesAnalyzer {
                ConflictResolver confilictResolver) throws IOException,
                                                   ClassCastException,
                                                   ClassNotFoundException,
-                                                  RepositoryException;
+                                                  RepositoryException,
+                                                  RemoteExportException;
 
 }

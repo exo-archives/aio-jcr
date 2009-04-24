@@ -20,11 +20,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -50,6 +53,9 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws RepositoryException
+   * @throws RemoteExportException
    */
   @Override
   public void analyze(ItemState incomeChange,
@@ -57,7 +63,9 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                       ChangesStorage<ItemState> income,
                       ConflictResolver confilictResolver) throws IOException,
                                                          ClassCastException,
-                                                         ClassNotFoundException {
+                                                         ClassNotFoundException,
+                                                         RemoteExportException,
+                                                         RepositoryException {
     List<ItemState> incUpdateSeq = income.getUpdateSequence(incomeChange);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
