@@ -91,6 +91,7 @@
         <property name="source-name" value="jdbcjcr"/>
         <property name="dialect" value="hsqldb"/>
         <property name="persister-class-name" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister"/>
+        <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
       </properties-param>
     </init-params>
   </component>
