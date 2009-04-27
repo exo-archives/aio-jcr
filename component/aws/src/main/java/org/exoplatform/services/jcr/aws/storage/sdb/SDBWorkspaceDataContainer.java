@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import org.exoplatform.services.log.ExoLogger;
@@ -216,4 +217,12 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
     return storageVersion;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isSame(WorkspaceDataContainer another) {
+    // TODO use accessKey to ident
+    return this.equals(another);
+  }
+  
 }

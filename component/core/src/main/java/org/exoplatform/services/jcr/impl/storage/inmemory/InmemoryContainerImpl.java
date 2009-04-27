@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -44,17 +45,15 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
     log.debug("ContainerImpl() name: " + name);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getName()
+  /**
+   * {@inheritDoc}
    */
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getInfo()
+  /**
+   * {@inheritDoc}
    */
   public String getInfo() {
     String str = "Info: Inmemory (for testing only) based container \n";
@@ -62,9 +61,8 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
     return str;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#openConnection()
+  /**
+   * {@inheritDoc}
    */
   public WorkspaceStorageConnection openConnection() {
     return new InmemoryStorageConnection(name);
@@ -78,4 +76,10 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
     return "1.0";
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isSame(WorkspaceDataContainer another) {
+    return this.equals(another);
+  }
 }

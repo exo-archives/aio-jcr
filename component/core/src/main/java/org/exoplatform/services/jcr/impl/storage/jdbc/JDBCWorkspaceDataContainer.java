@@ -41,6 +41,7 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.init.OracleDBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.PgSQLDBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.update.StorageUpdateManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import org.exoplatform.services.log.ExoLogger;
@@ -683,21 +684,20 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   /**
    * {@inheritDoc}
    */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this)
+  public boolean isSame(WorkspaceDataContainer another) {
+    if (another == this)
       return true;
 
-    if (obj instanceof JDBCWorkspaceDataContainer) {
-      JDBCWorkspaceDataContainer another = (JDBCWorkspaceDataContainer) obj;
+    if (another instanceof JDBCWorkspaceDataContainer) {
+      JDBCWorkspaceDataContainer anotherJdbc = (JDBCWorkspaceDataContainer) another;
 
       if (getDbSourceName() != null)
         // by jndi ds name
-        return getDbSourceName().equals(another.getDbSourceName());
+        return getDbSourceName().equals(anotherJdbc.getDbSourceName());
 
       // by db connection params
-      return getDbDriver().equals(another.getDbDriver()) && getDbUrl().equals(another.getDbUrl())
-          && getDbUserName().equals(another.getDbUserName());
+      return getDbDriver().equals(anotherJdbc.getDbDriver()) && getDbUrl().equals(anotherJdbc.getDbUrl())
+          && getDbUserName().equals(anotherJdbc.getDbUserName());
     }
 
     return false;

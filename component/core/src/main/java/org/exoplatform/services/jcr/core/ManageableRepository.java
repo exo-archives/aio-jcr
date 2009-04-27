@@ -137,19 +137,6 @@ public interface ManageableRepository extends Repository {
   void importWorkspace(String workspaceName, InputStream xmlSource) throws RepositoryException,
                                                                    IOException;
 
-  // /**
-  // * Initializes workspace.
-  // *
-  // * Use configWorkspace/createWorkspace methods pair instead.
-  // *
-  // * @param workspaceName - name of workspace
-  // * @param rootNodeType - node type of root node
-  // * @throws RepositoryException
-  // */
-  // @Deprecated
-  // void initWorkspace(String workspaceName, String rootNodeType) throws
-  // RepositoryException;
-
   /**
    * Check if workspace is initialized.
    * 

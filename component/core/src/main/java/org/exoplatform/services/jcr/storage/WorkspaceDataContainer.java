@@ -56,6 +56,14 @@ public interface WorkspaceDataContainer extends DataContainer {
    * @return current time as for this container env
    */
   Calendar getCurrentTime();
+  
+  /**
+   * isSame.
+   *
+   * @param another
+   * @return
+   */
+  boolean isSame(WorkspaceDataContainer another);
 
   /**
    * Status of write-operations restrictions.

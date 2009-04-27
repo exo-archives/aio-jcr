@@ -55,9 +55,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
-import org.exoplatform.services.jcr.impl.storage.value.ValueDataNotFoundException;
-import org.exoplatform.services.jcr.impl.storage.value.ValueOperation;
-import org.exoplatform.services.jcr.impl.storage.value.cas.RecordNotFoundException;
+import org.exoplatform.services.jcr.impl.storage.value.ValueStorageNotFoundException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
@@ -1444,14 +1442,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *          boolean true if it's delete-add sequence (update operation)
    * @throws IOException
    *           i/O error
-   * @throws ValueDataNotFoundException
-   *           if no ValueData found for Property
    * @throws SQLException
    *           if database error occurs
+   * @throws ValueStorageNotFoundException
+   *           if no such storage found with Value storageId
    */
   private void deleteValues(String cid, PropertyData pdata, boolean update) throws IOException,
-                                                                           ValueDataNotFoundException,
-                                                                           SQLException {
+                                                                           SQLException,
+                                                                           ValueStorageNotFoundException {
 
     final ResultSet valueRecords = findValuesByPropertyId(cid);
     try {
@@ -1492,14 +1490,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @return list of ValueData
    * @throws IOException
    *           i/O error
-   * @throws ValueDataNotFoundException
-   *           if no ValueData found for Property
    * @throws SQLException
    *           if database errro occurs
+   * @throws ValueStorageNotFoundException
+   *           if no such storage found with Value storageId
    */
   private List<ValueData> readValues(String cid, PropertyData pdata) throws IOException,
-                                                                    ValueDataNotFoundException,
-                                                                    SQLException {
+                                                                    SQLException,
+                                                                    ValueStorageNotFoundException {
 
     List<ValueData> data = new ArrayList<ValueData>();
 
@@ -1533,13 +1531,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @throws SQLException
    *           database error
    * @throws IOException
-   *           i/O error
-   * @throws ValueDataNotFoundException
-   *           if no ValueData found for Property
+   *           I/O error
+   * @throws ValueStorageNotFoundException
+   *           if no such storage found with Value storageId
    */
   protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageId) throws SQLException,
                                                                                           IOException,
-                                                                                          ValueDataNotFoundException {
+                                                                                          ValueStorageNotFoundException {
     ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
     try {
       return channel.read(pdata.getIdentifier(), orderNumber, maxBufferSize);

@@ -134,19 +134,15 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
     return null;
   }
 
-  public Iterator<ValueStoragePlugin> plugins() {
-    return iterator();
-  }
-
   public void checkConsistency(WorkspaceStorageConnection dataConnection) {
-    Iterator<ValueStoragePlugin> plugins = plugins();
+    Iterator<ValueStoragePlugin> plugins = iterator();
     while (plugins.hasNext()) {
       ValueStoragePlugin plugin = plugins.next();
       plugin.checkConsistency(dataConnection);
     }
   }
 
-  public ValueIOChannel getChannel(String storageId) throws IOException, ValueDataNotFoundException {
+  public ValueIOChannel getChannel(String storageId) throws IOException, ValueStorageNotFoundException {
     Iterator<ValueStoragePlugin> plugins = iterator();
     while (plugins.hasNext()) {
       ValueStoragePlugin plugin = plugins.next();
@@ -154,6 +150,6 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
         return plugin.openIOChannel();
       }
     }
-    throw new ValueDataNotFoundException("No value storage found with id " + storageId);
+    throw new ValueStorageNotFoundException("No value storage found with id " + storageId);
   }
 }

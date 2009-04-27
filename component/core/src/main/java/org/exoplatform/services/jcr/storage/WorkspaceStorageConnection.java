@@ -43,13 +43,16 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * @author Gennady Azarenkov
  * @version $Id: WorkspaceStorageConnection.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
 public interface WorkspaceStorageConnection {
+
   /**
+   * Reads <code>ItemData</code> from the storage using item's parent and name relative the parent
+   * location.
+   * 
    * @param parentData
-   *          - the item's parent node data
+   *          - the item's parent NodeData
    * @param name
-   *          - item's path entry (qname + index)
+   *          - item's path entry (QName + index)
    * @return - stored ItemData wich has exact the same path Entry (name+index) inside the parent; or
    *         null if not such an item data found
    * @throws RepositoryException
@@ -61,12 +64,14 @@ public interface WorkspaceStorageConnection {
                                                             IllegalStateException;
 
   /**
+   * Reads <code>ItemData</code> from the storage by item identifier.
+   * 
    * @param identifier
-   *          - unique identifier
-   * @return corresponding stored ItemData or null. Basically used for Session.getNodeByUUID but not
-   *         necessarily refers to jcr:uuid property (In fact, this identifier should not necessary
-   *         be equal of referenceable node's UUID if any) thereby can return NodeData for not
-   *         referenceable node data or PropertyData.
+   *          - Item identifier
+   * @return stored ItemData or null if no item foudn with given id. Basically used for
+   *         Session.getNodeByUUID but not necessarily refers to jcr:uuid property (In fact, this
+   *         identifier should not necessary be equal of referenceable node's UUID if any) thereby
+   *         can return NodeData for not referenceable node data or PropertyData.
    * @throws RepositoryException
    *           if some exception occured
    * @throws IllegalStateException
@@ -75,36 +80,56 @@ public interface WorkspaceStorageConnection {
   ItemData getItemData(String identifier) throws RepositoryException, IllegalStateException;
 
   /**
+   * Reads <code>List</code> of <code>NodeData</code> from the storage using item's parent location.
+   * 
    * @param parent
-   *          node data
-   * @return child nodes data or empty list
+   *          NodeData
+   * @return child nodes data or empty <code>List</code>
    * @throws RepositoryException
    *           if some exception occured
    * @throws IllegalStateException
    *           if connection is closed
    */
-  List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException,
-                                                   IllegalStateException;
+  List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException, IllegalStateException;
 
   /**
+   * Reads <code>List</code> of <code>PropertyData</code> from the storage using item's parent location.
+   * 
    * @param parent
-   *          node data
-   * @return child properties data or empty list
+   *          NodeData
+   * @return child properties data or empty <code>List</code>
    * @throws RepositoryException
    *           if some exception occured
    * @throws IllegalStateException
    *           if connection is closed
    */
-  List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException,
-                                                            IllegalStateException;
-
-  List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException,
-                                                             IllegalStateException;
+  List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException;
 
   /**
+   * Reads <code>List</code> of <code>PropertyData</code> with empty <code>ValueData</code> from the storage using item's parent location.
+   * 
+   * <br/>This methiod specially dedicated for non-content modification operations (e.g. Items delete).
+   * 
+   * @param parent
+   *          NodeData
+   * @return child properties data (with empty data) or empty <code>List</code>
+   * @throws RepositoryException
+   *           if some exception occured
+   * @throws IllegalStateException
+   *           if connection is closed
+   */  
+  List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException;
+
+  /**
+   * Reads <code>List</code> of <code>PropertyData</code> from the storage using item's parent location.
+   * 
+   * <br/>It's REFERENCE type Properties referencing Node with given <code>nodeIdentifier</code>.
+   * 
+   * See more {@link javax.jcr.Node#getReferences()}
+   * 
    * @param Identifier
-   *          of referenceable node
-   * @return list of referenced property data or empty list
+   *          of referenceable Node
+   * @return list of referenced property data or empty <code>List</code>
    * @throws RepositoryException
    *           if some exception occured
    * @throws IllegalStateException
@@ -117,7 +142,7 @@ public interface WorkspaceStorageConnection {
                                                              UnsupportedOperationException;
 
   /**
-   * Adds single NodeData.
+   * Adds single <code>NodeData</code>.
    * 
    * @param data
    *          - the new data
@@ -136,7 +161,7 @@ public interface WorkspaceStorageConnection {
                          IllegalStateException;
 
   /**
-   * Adds single property data
+   * Adds single <code>PropertyData</code>.
    * 
    * @param data
    *          - the new data
@@ -155,7 +180,7 @@ public interface WorkspaceStorageConnection {
                              IllegalStateException;
 
   /**
-   * Updates NodeData.
+   * Updates <code>NodeData</code>.
    * 
    * @param data
    *          - the new data
@@ -177,7 +202,7 @@ public interface WorkspaceStorageConnection {
                             IllegalStateException;
 
   /**
-   * Updates PropertyData.
+   * Updates <code>PropertyData</code>.
    * 
    * @param data
    *          - the new data
@@ -198,13 +223,30 @@ public interface WorkspaceStorageConnection {
                                 InvalidItemStateException,
                                 IllegalStateException;
 
+  /**
+   * Renames <code>NodeData</code> using Node identifier and new name from the data.
+   * 
+   * @param data
+   *          - NodeData to be renamed
+   * @throws InvalidItemStateException
+   *           (1)if the data is already updated, i.e. persisted version value of persisted data >=
+   *           of new data's persisted version value (2) if the persisted data is not PropertyData
+   *           (i.e. it is NodeData). It means that some other proccess deleted original data and
+   *           replace it with other type of data.
+   * @throws UnsupportedOperationException
+   *           if operation is not supported (it is container for level 1)
+   * @throws RepositoryException
+   *           if some exception occured
+   * @throws IllegalStateException
+   *           if connection is closed
+   */  
   void rename(NodeData data) throws RepositoryException,
                             UnsupportedOperationException,
                             InvalidItemStateException,
                             IllegalStateException;
 
   /**
-   * Deletes node or property data.
+   * Deletes <code>NodeData</code>.
    * 
    * @param data
    *          that identifies data to be deleted
@@ -223,6 +265,21 @@ public interface WorkspaceStorageConnection {
                             InvalidItemStateException,
                             IllegalStateException;
 
+  /**
+   * Deletes <code>PropertyData</code>.
+   * 
+   * @param data
+   *          that identifies data to be deleted
+   * 
+   * @throws InvalidItemStateException
+   *           if the data is already deleted
+   * @throws UnsupportedOperationException
+   *           if operation is not supported (it is container for level 1)
+   * @throws RepositoryException
+   *           if some exception occured
+   * @throws IllegalStateException
+   *           if connection is closed
+   */  
   void delete(PropertyData data) throws RepositoryException,
                                 UnsupportedOperationException,
                                 InvalidItemStateException,

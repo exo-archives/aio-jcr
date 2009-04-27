@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.impl.storage.value.ValueDataNotFoundException;
+import org.exoplatform.services.jcr.impl.storage.value.ValueStorageNotFoundException;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 /**
@@ -32,30 +32,38 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 public interface ValueStoragePluginProvider {
 
   /**
+   * Return <code>ValueIOChannel</code> matched this <code>property</code> and
+   * <code>valueOrderNumer</code>. Null will be returned if no channel matches.
+   * 
    * @param property
+   *          PropertyData will be stored
    * @return ValueIOChannel appropriate for this property (by path, id etc) or null if no such
    *         channel found
    * @throws IOException
+   *           if error occurs
    */
   ValueIOChannel getApplicableChannel(PropertyData property, int valueOrderNumer) throws IOException;
 
   /**
-   * @param vdDesc
-   * @return ValueIOChannela ppropriate for this value data descriptor
+   * Return <code>ValueIOChannel</code> associated with given <code>storageId</code>.
+   * 
+   * @param storageId
+   *          String with storage Id (see configuration)
+   * @return ValueIOChannela associated with this storageId
    * @throws IOException
-   * @throws ValueDataNotFoundException
+   *           if error occurs
+   * @throws ValueStorageNotFoundException
+   *           if no such storage found for storageId
    */
-  ValueIOChannel getChannel(String storageId) throws IOException, ValueDataNotFoundException;
-
-  /**
-   * @return an iterator through all registered plugins
-   */
-  Iterator<ValueStoragePlugin> plugins();
+  ValueIOChannel getChannel(String storageId) throws IOException, ValueStorageNotFoundException;
 
   /**
    * Run consistency check operation on each plugin registered.
    * 
+   * TODO: NOT USED yet (empty implementations).
+   * 
    * @param dataConnection
+   *          WorkspaceStorageConnection persistent connection
    */
   void checkConsistency(WorkspaceStorageConnection dataConnection);
 
