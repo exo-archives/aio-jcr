@@ -16,10 +16,17 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.nodetype.NodeType;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.jcr.core.nodetype.PropertyTypeConversion;
+import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
@@ -124,6 +131,22 @@ public class TestPut extends BaseStandaloneTest {
       assertTrue(mixin.getName().equals("mix:wdTestMixin1") || mixin.getName().equals("mix:wdTestMixin2"));
     }
 
+  }
+  
+  public void testMimeType() throws Exception{
+    String content = TestUtils.getFileContent();
+    String path = TestUtils.getFileName();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML);
+    ContainerResponse containerResponse = service(WebDAVMethods.PUT,getPathWS() + path , "", headers, content.getBytes());
+    assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
+    assertTrue(session.getRootNode().hasNode(TextUtil.relativizePath(path)));
+    Node node =  session.getRootNode().getNode(TextUtil.relativizePath(path));
+    assertTrue(node.hasNode("jcr:content"));
+    Node node2 = node.getNode("jcr:content");
+    assertTrue(node2.hasProperty("jcr:mimeType"));
+    PropertyImpl property = (PropertyImpl) node2.getProperty("jcr:mimeType");
+    assertEquals(headers.getFirst(HttpHeaders.CONTENT_TYPE), property.getString());
   }
   
   
