@@ -42,5 +42,83 @@
     </propertyDefinitions>
 
   </nodeType>	
+  
+  <nodeType name="webdav:badres" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
+
+    <supertypes>
+      <supertype>nt:base</supertype>
+      <supertype>mix:referenceable</supertype>
+    </supertypes>
+
+    <propertyDefinitions>
+      <propertyDefinition name="*" 
+          requiredType="undefined" 
+          autoCreated="false" 
+          mandatory="false" 
+          onParentVersion="COPY" 
+          protected="false" 
+          multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>
+    </propertyDefinitions>
+
+  </nodeType>
+  
+  <nodeType name="webdav:goodres" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
+
+    <supertypes>
+      <supertype>nt:resource</supertype>
+      <supertype>mix:referenceable</supertype>
+    </supertypes>
+
+    <propertyDefinitions>
+      <propertyDefinition name="*" 
+          requiredType="undefined" 
+          autoCreated="false" 
+          mandatory="false" 
+          onParentVersion="COPY" 
+          protected="false" 
+          multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>
+    </propertyDefinitions>
+
+  </nodeType>  
+  
+  <nodeType name="mix:wdTestMixin1" isMixin="true" hasOrderableChildNodes="true" primaryItemName="">
+    
+    <propertyDefinitions>
+      <propertyDefinition name="*" 
+          requiredType="undefined" 
+          autoCreated="false" 
+          mandatory="false" 
+          onParentVersion="COPY" 
+          protected="false" 
+          multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>
+    </propertyDefinitions>
+
+  </nodeType>
+  
+  <nodeType name="mix:wdTestMixin2" isMixin="true" hasOrderableChildNodes="true" primaryItemName="">
+    
+    <propertyDefinitions>
+      <propertyDefinition name="*" 
+          requiredType="undefined" 
+          autoCreated="false" 
+          mandatory="false" 
+          onParentVersion="COPY" 
+          protected="false" 
+          multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>
+    </propertyDefinitions>
+
+  </nodeType>
+  
+  
+    
 	  
 </nodeTypes>
+
