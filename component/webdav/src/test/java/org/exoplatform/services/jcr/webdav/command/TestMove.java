@@ -23,7 +23,6 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.ExtHttpHeaders;
