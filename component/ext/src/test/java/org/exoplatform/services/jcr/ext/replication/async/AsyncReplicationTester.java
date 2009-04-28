@@ -87,15 +87,18 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     StorageKey skey = new StorageKey(repoName, workspaceName);
     LocalStorage localStorage = localStorages.get(skey);
-    
+
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
     int maxBufferSize = wconf.getContainer()
-    .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
-                         WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
-    
+                             .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                  WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+
     ReaderSpoolFileHolder holder = new ReaderSpoolFileHolder();
-    IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey), wfcleaner.getFileCleaner(), maxBufferSize, holder );
+    IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeStoragePaths.get(skey),
+                                                            wfcleaner.getFileCleaner(),
+                                                            maxBufferSize,
+                                                            holder);
 
     AsyncWorker synchWorker = new AsyncWorker(dm,
                                               sysDm,
@@ -106,7 +109,8 @@ public class AsyncReplicationTester extends AsyncReplication {
                                               awConfig,
                                               channelNameSuffix,
                                               wconf,
-                                              wfcleaner, holder);
+                                              wfcleaner,
+                                              holder);
 
     synchWorker.run();
 
@@ -179,7 +183,7 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     Iterator<ItemState> changes = sls.getLocalChanges(false).getChanges();
     ItemState item = changes.next();
-    return ItemState.isSame(item, Constants.ROOT_UUID, Constants.ROOT_PATH, ItemState.ADDED);
+    return item.isSame(Constants.ROOT_UUID, Constants.ROOT_PATH, ItemState.ADDED);
   }
 
 }

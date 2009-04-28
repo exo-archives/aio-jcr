@@ -66,12 +66,11 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
   public void setUp() throws Exception {
     super.setUp();
-    dir = new File(STORAGE_DIR);
+    dir = new File(STORAGE_DIR, "LocalStorageTest");
     dir.mkdirs();
 
-    sysDir = new File(SYSTEM_STORAGE_DIR);
+    sysDir = new File(SYSTEM_STORAGE_DIR, "LocalStorageTest");
     sysDir.mkdirs();
-
   }
 
   public void tearDown() throws Exception {

@@ -127,7 +127,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
-      if (ItemState.isSame(it.next(), identifier, path, state)) {
+      if (it.next().isSame(identifier, path, state)) {
         return true;
       }
     }
@@ -282,7 +282,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T item = it.next();
-      if (ItemState.isSame(item, identifier, path, state)) {
+      if (item.isSame(identifier, path, state)) {
         return item;
       }
     }
