@@ -16,6 +16,11 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.jcr.nodetype.NodeType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
@@ -25,6 +30,8 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
+
+import antlr.collections.List;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -50,6 +57,8 @@ public class TestPut extends BaseStandaloneTest {
   
   public void testPutFileContentTypeHeader() throws Exception {
     String content = TestUtils.getFileContent();
+    
+    
     ContainerResponse containerResponse = service(WebDAVMethods.PUT, getPathWS()
         + TestUtils.getFileName(), "", null, content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
@@ -63,28 +72,32 @@ public class TestPut extends BaseStandaloneTest {
                                 content.getBytes());
     assertEquals(HTTPStatus.BAD_REQUEST, containerResponse.getStatus());
     
+    String fileName = TestUtils.getFileName();
     headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.FILE_NODETYPE, "nt:file");
     containerResponse = service(WebDAVMethods.PUT,
-                                getPathWS() + TestUtils.getFileName(),
+                                getPathWS() + fileName,
                                 "",
                                 headers,
                                 content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
+    assertEquals("nt:file", TestUtils.getFileNodeType(session, fileName));
 
   }
 
   public void testPutContentTypeHeader() throws Exception {
     String content = TestUtils.getFileContent();
+    String fileName = TestUtils.getFileName();
+    
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.CONTENT_NODETYPE, "webdav:goodres");
     ContainerResponse containerResponse = service(WebDAVMethods.PUT,
-                                getPathWS() + TestUtils.getFileName(),
+                                getPathWS() + fileName,
                                 "",
                                 headers,
                                 content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
-    System.out.println(TestUtils.getFileNodeType(session, TestUtils.getFileName()));
+    assertEquals("webdav:goodres", TestUtils.getContentNodeType(session, fileName));
     
     headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.CONTENT_NODETYPE, "webdav:badres");
@@ -97,8 +110,25 @@ public class TestPut extends BaseStandaloneTest {
     
   }
 
-  public void testPutMixinsHeader() {
-    fail("Not yet implemented");
+  public void testPutMixinsHeader() throws Exception {
+    String content = TestUtils.getFileContent();
+    String fileName = TestUtils.getFileName();
+    
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.add(ExtHttpHeaders.CONTENT_NODETYPE, "webdav:goodres");
+    headers.add(ExtHttpHeaders.CONTENT_MIXINTYPES, "mix:wdTestMixin1; mix:wdTestMixin2");
+    ContainerResponse containerResponse = service(WebDAVMethods.PUT,
+                                getPathWS() + fileName,
+                                "",
+                                headers,
+                                content.getBytes());
+    assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
+    NodeType[] mixins = TestUtils.getContentMixins(session, fileName);
+    
+    for (NodeType mixin : mixins) {
+      assertTrue(mixin.getName().equals("mix:wdTestMixin1") || mixin.getName().equals("mix:wdTestMixin2"));
+    }
+
   }
   
   
