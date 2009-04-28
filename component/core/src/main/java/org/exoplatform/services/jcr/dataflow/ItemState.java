@@ -22,14 +22,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
+
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -38,7 +33,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: ItemState.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class ItemState implements Externalizable{
+public class ItemState implements Externalizable {
 
   private static final long   serialVersionUID  = 7967457831325761318L;
 
@@ -238,9 +233,10 @@ public class ItemState implements Externalizable{
    * @param dst
    * @return
    */
-  public static boolean isSame(ItemState src, String dstIdentifier, QPath dstPath, int dstState) {
-    return src.getData().getIdentifier().hashCode() == dstIdentifier.hashCode()
-        && src.getData().getQPath().hashCode() == dstPath.hashCode() && src.getState() == dstState;
+  public boolean isSame(String dstIdentifier, QPath dstPath, int dstState) {
+    return this.getData().getIdentifier().hashCode() == dstIdentifier.hashCode()
+        && this.getData().getQPath().hashCode() == dstPath.hashCode()
+        && this.getState() == dstState;
   }
 
   /**
@@ -358,7 +354,5 @@ public class ItemState implements Externalizable{
     eventFire = in.readBoolean();
     data = (ItemData) in.readObject();
   }
-
- 
 
 }
