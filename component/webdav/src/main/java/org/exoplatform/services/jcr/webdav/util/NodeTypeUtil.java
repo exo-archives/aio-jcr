@@ -54,13 +54,17 @@ public class NodeTypeUtil {
       return mixins;
     }
 
+    if (mixinTypeHeader.contains(" ")) {
+      
+      mixinTypeHeader = mixinTypeHeader.replace(" ", "");
+    }
     String[] mixType = mixinTypeHeader.split(";");
 
     for (int i = 0; i < mixType.length; i++) {
       String curMixType = mixType[i];
       if ("".equals(curMixType)) {
         continue;
-      }
+      }     
       mixins.add(curMixType);
     }
 
