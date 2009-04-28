@@ -84,6 +84,7 @@ public class TestPut extends BaseStandaloneTest {
                                 headers,
                                 content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
+    System.out.println(TestUtils.getFileNodeType(session, TestUtils.getFileName()));
     
     headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.CONTENT_NODETYPE, "webdav:badres");
