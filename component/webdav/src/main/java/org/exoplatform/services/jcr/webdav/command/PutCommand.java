@@ -133,9 +133,13 @@ public class PutCommand {
     content.setProperty("jcr:lastModified", Calendar.getInstance());
     content.setProperty("jcr:data", inputStream);
     
-    while(mixins.iterator().hasNext()){
-      content.addMixin(mixins.iterator().next());
+    for (String mixinName : mixins) {
+      if(content.canAddMixin(mixinName)) {
+        content.addMixin(mixinName);
+      }
+      
     }
+
   }
 
 }
