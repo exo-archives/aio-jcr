@@ -23,11 +23,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
@@ -62,6 +65,7 @@ public class TestUtils {
   public static final String ROOTID            = "root";
 
   public static final String ROOTPASS          = "exo";
+  
 
   public static HTTPConnection GetAuthConnection() {
     HTTPConnection connection = new HTTPConnection(HOST, WebDav.PORT_INT);
@@ -97,20 +101,16 @@ public class TestUtils {
     return builderFactory.newDocumentBuilder().parse(inputStream);
 
   }
-
-  public static String getFileContent() {
+  
+  public static String getFileContent(){
     String content = new String();
-    for (int i = 0; i < 10; i++) {
+    for(int i=0; i<10;i++){
       content += UUID.randomUUID().toString();
     }
     return content;
   }
-
-  public static Node addContent(Session session,
-                                String path,
-                                InputStream inputStream,
-                                String nodeType,
-                                String mimeType) throws RepositoryException {
+  
+  public static Node addContent(Session session , String path, InputStream inputStream, String nodeType, String mimeType) throws RepositoryException {
     Node node = session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
     node.addNode("jcr:content", "nt:resource");
     Node content = node.getNode("jcr:content");
@@ -120,58 +120,57 @@ public class TestUtils {
     session.save();
     return node;
   }
+  
 
-  public static void addFolder(Session session, String path, String nodeType, String mimeType) throws RepositoryException {
+  public static void addFolder(Session session , String path, String nodeType, String mimeType) throws RepositoryException {
     session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
     session.save();
   }
-
-  public static String stream2string(InputStream stream, String charset) throws IOException {
+  
+  public static String stream2string(InputStream stream, String charset) throws IOException{
     Reader r;
     if (charset != null)
-      r = new InputStreamReader(stream, charset);
-    else
+      r = new InputStreamReader(stream,charset);
+    else 
       r = new InputStreamReader(stream);
-    StringWriter sw = new StringWriter();
-    char[] buffer = new char[1024];
-    for (int n; (n = r.read(buffer)) != -1;)
-      sw.write(buffer, 0, n);
-    String str = sw.toString();
+    StringWriter sw = new StringWriter();  
+    char[] buffer = new char[1024];  
+    for (int n; (n = r.read(buffer)) != -1; )  
+        sw.write(buffer, 0, n);  
+    String str = sw.toString(); 
     return str;
   }
-
-  public static Property getNodeProperty(Session session, String path, String property) throws PathNotFoundException,
-                                                                                       RepositoryException {
+  
+  public static Property getNodeProperty(Session session , String path, String property) throws PathNotFoundException, RepositoryException {
     Node node = session.getRootNode().getNode(TextUtil.relativizePath(path));
     if (node.hasProperty(property))
       return node.getProperty(property);
-    else
+    else 
       return null;
-  }
-
-  public static void addNodeProperty(Session session, String path, String propName, String propValue) throws PathNotFoundException,
-                                                                                                     RepositoryException {
+    }
+  
+  public static void addNodeProperty(Session session , String path, String propName, String propValue) throws PathNotFoundException, RepositoryException {
     Node node = session.getRootNode().getNode(TextUtil.relativizePath(path));
     node.setProperty(propName, propValue);
     session.save();
   }
-
-  public static String lockNode(Session session, String path, String depth) throws PathNotFoundException,
-                                                                           RepositoryException {
-    NodeImpl node = (NodeImpl) session.getRootNode().getNode(TextUtil.relativizePath(path));
+  
+  public static String lockNode(Session session, String path, Boolean depth) throws PathNotFoundException, RepositoryException{
+    Node node =  session.getRootNode().getNode(TextUtil.relativizePath(path));
     if (!node.isNodeType("mix:lockable")) {
       if (node.canAddMixin("mix:lockable")) {
         node.addMixin("mix:lockable");
         session.save();
       }
     }
-    Lock lock = node.lock(false, 10000);
+    Lock lock = node.lock(depth, true);
     session.save();
-    return lock.getLockToken();
+    String tok = lock.getLockToken();
+    System.out.println("TestUtils.lockNode()" + tok);
+    return "<" + tok + ">";
   }
-
-  public static void find(Session session, String queryString) throws InvalidQueryException,
-                                                              RepositoryException {
+  
+  public static void find(Session session, String queryString) throws InvalidQueryException, RepositoryException{
     Query query = session.getWorkspace().getQueryManager().createQuery(queryString, "sql");
     QueryResult queryResult = query.execute();
     System.out.println("TestUtils.find()" + queryResult.getNodes().getSize());

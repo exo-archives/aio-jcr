@@ -70,6 +70,8 @@
             <name>autoCreatedInNewRepository</name>
             <description>Node types configuration file for repository with name testInitNodeTypesRepositoryTest2</description>
             <value>jar:/conf/webdav-nodetypes.xml</value>
+            <value>jar:/conf/organization-nodetypes.xml</value>
+            <value>jar:/conf/ext-nodetypes-config.xml</value>
           </values-param>
         </init-params>
       </component-plugin>
@@ -91,6 +93,7 @@
         <property name="source-name" value="jdbcjcr"/>
         <property name="dialect" value="hsqldb"/>
         <property name="persister-class-name" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister"/>
+        <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
       </properties-param>
     </init-params>
   </component>
@@ -334,7 +337,6 @@
         </properties-param>
       </init-params>
     </component-plugin>
-    <!-- Resource configuration for UserTransaction    use JOTM  -->
     <component-plugin>
       <name>jotm.tx</name>
       <set-method>addPlugin</set-method>
@@ -380,7 +382,6 @@
           <name>ref-addresses</name>
           <description>ref-addresses</description>
           <property name="repositoryName" value="db1"/>
-          <!-- property name="containerConfig" value="exo-configuration.xml"/ -->
         </properties-param>
       </init-params>
     </component-plugin>

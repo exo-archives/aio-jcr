@@ -19,6 +19,9 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
 
 import javax.ws.rs.core.MediaType;
 

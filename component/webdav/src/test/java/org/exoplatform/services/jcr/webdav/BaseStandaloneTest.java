@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ContainerResponseWriter;
+import org.exoplatform.services.rest.ext.provider.HierarchicalPropertyEntityProvider;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.ContainerRequest;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -51,7 +52,7 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   protected static String       WORKSPACE             = "ws";
 
-  public static final String    DEST_WORKSPACE        = "ws2";
+  public static final String    DEST_WORKSPACE        = "ws1";
 
   protected SessionImpl         session;
 
@@ -80,7 +81,6 @@ public abstract class BaseStandaloneTest extends TestCase {
   public String                 defaultFolderNodeType = "nt:folder";
 
   public String                 repoName;
-
   
 
   public void setUp() throws Exception {
@@ -119,7 +119,6 @@ public abstract class BaseStandaloneTest extends TestCase {
     assertNotNull(requestHandler);
     providers = ProviderBinder.getInstance();
     ApplicationContextImpl.setCurrent(new ApplicationContextImpl(null, null, providers));
-
   }
 
   public ContainerResponse service(String method,
@@ -197,10 +196,10 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   
   public String getPathWS() {
-    return "/jcr/" + repoName + "/ws";
+    return "/jcr/" + repoName + "/" + WORKSPACE;
   }
 
   public String getPathDestWS() {
-    return "/jcr/" + repoName + "/ws1";
+    return "/jcr/" + repoName + "/" + DEST_WORKSPACE;
   }
 }

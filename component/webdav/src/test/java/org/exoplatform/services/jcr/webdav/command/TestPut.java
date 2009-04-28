@@ -16,22 +16,17 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import javax.jcr.nodetype.NodeType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
+import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
-
-import antlr.collections.List;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -39,19 +34,19 @@ import antlr.collections.List;
  */
 public class TestPut extends BaseStandaloneTest {
 
-   
-   
-   
   public void testPut() throws Exception{
     String content = TestUtils.getFileContent();
-    ContainerResponse containerResponse = service(WebDAVMethods.PUT,getPathWS() + TestUtils.getFileName() , "", null, content.getBytes());
+    String path = TestUtils.getFileName();
+    ContainerResponse containerResponse = service(WebDAVMethods.PUT,getPathWS() + path , "", null, content.getBytes());
     assertEquals(HTTPStatus.CREATED, containerResponse.getStatus());
+    assertTrue(session.getRootNode().hasNode(TextUtil.relativizePath(path)));
   }
     
   
   public void testPutNotFound() throws Exception{
     String content = TestUtils.getFileContent();
-    ContainerResponse containerResponse = service(WebDAVMethods.PUT,getPathWS() + "/not-found"+TestUtils.getFileName() , "", null, content.getBytes());
+    String path = TestUtils.getFileName();
+    ContainerResponse containerResponse = service(WebDAVMethods.PUT,getPathWS() + "/not-found"+ path , "", null, content.getBytes());
     assertEquals(HTTPStatus.CONFLICT, containerResponse.getStatus());
   }
   

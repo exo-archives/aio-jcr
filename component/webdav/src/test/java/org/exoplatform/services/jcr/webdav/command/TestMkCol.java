@@ -17,9 +17,13 @@
 package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.ByteArrayInputStream;
+
+import javax.jcr.Node;
+
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
+import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
@@ -45,10 +49,9 @@ public class TestMkCol extends BaseStandaloneTest {
     String content = TestUtils.getFileContent();
     ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
     TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
-    ContainerResponse response2 = service(WebDAVMethods.GET, getPathWS() + path, "", null, null);
-    assertEquals(HTTPStatus.OK, response2.getStatus());
-    String getContent = TestUtils.stream2string((ByteArrayInputStream) response2.getEntity(),null);
-    assertEquals(content, getContent);
+    assertTrue(session.getRootNode().hasNode(TextUtil.relativizePath(folder)));
+    Node folderNode = session.getRootNode().getNode(TextUtil.relativizePath(folder));
+    assertTrue(folderNode.hasNode(TextUtil.relativizePath(file)));
   }
 
   @Override

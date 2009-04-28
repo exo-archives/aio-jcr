@@ -17,7 +17,8 @@
 package org.exoplatform.services.jcr.webdav;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 18, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com Aug 18, 2008
  */
 public class WebDavConstants {
 
@@ -167,20 +168,40 @@ public class WebDavConstants {
 
     public static final String ORDERING_TYPE              = "ordering-type";
   }
-  
+
   public class WebDAVMethods {
-    public static final String PUT = "PUT";
-    public static final String GET = "GET";
-    public static final String HEAD = "HEAD";
-    public static final String COPY = "COPY";
-    public static final String MOVE = "MOVE";
-    public static final String PROPFIND = "PROPFIND";
-    public static final String PROPPATCH = "PROPPATCH";
-    public static final String DELETE = "DELETE";
-    public static final String MKCOL = "MKCOL";
-    public static final String LOCK = "LOCK";
-    public static final String UNLOCK = "UNLOCK";
-    public static final String SEARCH = "SEARCH";
+    public static final String PUT        = "PUT";
+
+    public static final String GET        = "GET";
+
+    public static final String HEAD       = "HEAD";
+
+    public static final String COPY       = "COPY";
+
+    public static final String MOVE       = "MOVE";
+
+    public static final String PROPFIND   = "PROPFIND";
+
+    public static final String PROPPATCH  = "PROPPATCH";
+
+    public static final String DELETE     = "DELETE";
+
+    public static final String MKCOL      = "MKCOL";
+
+    public static final String LOCK       = "LOCK";
+
+    public static final String UNLOCK     = "UNLOCK";
+
+    public static final String SEARCH     = "SEARCH";
+
+    public static final String CHECKIN    = "CHECKIN";
+
+    public static final String CHECKOUT   = "CHECKOUT";
+
+    public static final String REPORT     = "REPORT";
+
+    public static final String ORDERPATCH = "ORDERPATCH";
+
   }
 
 }

@@ -19,13 +19,20 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import javax.jcr.Node;
+import javax.ws.rs.core.MultivaluedMap;
+
+
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
+import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -60,14 +67,15 @@ public class TestUnLock extends BaseStandaloneTest {
 
   
   public void testUnLock() throws Exception {
-    ContainerResponse containerResponse = service(WebDAVMethods.LOCK,getPathWS() + path , "", null, null);
-    assertEquals(HTTPStatus.OK, containerResponse.getStatus());
-    containerResponse = service(WebDAVMethods.DELETE,getPathWS() + path , "", null, null);
-    assertEquals(HTTPStatus.LOCKED, containerResponse.getStatus());
-    containerResponse = service(WebDAVMethods.UNLOCK,getPathWS() + path , "", null, null);
+    assertTrue(session.getRootNode().hasNode(TextUtil.relativizePath(path)));
+    Node lockNode = session.getRootNode().getNode(TextUtil.relativizePath(path));
+    String token = TestUtils.lockNode(session, path, true);
+    assertTrue(lockNode.isLocked());
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.add(ExtHttpHeaders.LOCKTOKEN, token);
+    ContainerResponse containerResponse = service(WebDAVMethods.UNLOCK,getPathWS() + path , "", headers, null);
     assertEquals(HTTPStatus.NO_CONTENT, containerResponse.getStatus());
-    containerResponse = service(WebDAVMethods.DELETE,getPathWS() + path , "", null, null);
-    assertEquals(HTTPStatus.NO_CONTENT, containerResponse.getStatus());
+    
     
   }
   

@@ -25,6 +25,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
+import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
@@ -59,7 +60,7 @@ public class TestLock extends BaseStandaloneTest {
     assertEquals(HTTPStatus.OK, containerResponse.getStatus());
     containerResponse = service("DELETE",getPathWS() + path , "", null, null);
     assertEquals(HTTPStatus.LOCKED, containerResponse.getStatus());
-    
+    assertTrue(session.getRootNode().getNode(TextUtil.relativizePath(path)).isLocked());
   }
 
 
