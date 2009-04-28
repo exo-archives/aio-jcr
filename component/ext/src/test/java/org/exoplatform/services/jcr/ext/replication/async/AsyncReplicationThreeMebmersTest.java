@@ -24,6 +24,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
@@ -41,23 +42,23 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class AsyncReplicationThreeMebmersTest extends AbstractTrasportTest {
 
-  private static Log       log = ExoLogger.getLogger("ext.AsyncReplicationThreeMebmersTest");
-  
+  private static Log            log         = ExoLogger.getLogger("ext.AsyncReplicationThreeMebmersTest");
+
   protected static final String CH_NAME     = "AsyncRepCh_AsyncReplicationThreeMebmersTest";
 
   protected static final String bindAddress = "127.0.0.1";
 
-  protected RepositoryImpl repositoryMiddlePriority;
+  protected RepositoryImpl      repositoryMiddlePriority;
 
-  protected SessionImpl    sessionMiddlePriority;
+  protected SessionImpl         sessionMiddlePriority;
 
-  protected RepositoryImpl repositoryLowPriority;
+  protected RepositoryImpl      repositoryLowPriority;
 
-  protected RepositoryImpl repositoryHigePriority;
+  protected RepositoryImpl      repositoryHigePriority;
 
-  protected SessionImpl    sessionLowPriority;
+  protected SessionImpl         sessionLowPriority;
 
-  protected SessionImpl    sessionHigePriority;
+  protected SessionImpl         sessionHigePriority;
 
   public void setUp() throws Exception {
     super.setUp();
@@ -69,40 +70,12 @@ public class AsyncReplicationThreeMebmersTest extends AbstractTrasportTest {
     sessionLowPriority = (SessionImpl) repositoryLowPriority.login(credentials, "ws3");
     repositoryHigePriority = (RepositoryImpl) repositoryService.getRepository("db1");
     sessionHigePriority = (SessionImpl) repositoryHigePriority.login(credentials, "ws4");
+
+    clearWorkspaces();
   }
 
   protected void tearDown() throws Exception {
-    List<SessionImpl> sessions = new ArrayList<SessionImpl>();
-    sessions.add(sessionMiddlePriority);
-    sessions.add(sessionLowPriority);
-    sessions.add(sessionHigePriority);
-
-    log.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
-    for (SessionImpl ses : sessions)
-      if (ses != null) {
-        try {
-          ses.refresh(false);
-          Node rootNode = ses.getRootNode();
-          if (rootNode.hasNodes()) {
-            // clean test root
-            for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
-              Node node = children.nextNode();
-              if (!node.getPath().startsWith("/jcr:system")
-                  && !node.getPath().startsWith("/exo:audit")
-                  && !node.getPath().startsWith("/exo:organization")) {
-                // log.info("DELETing ------------- "+node.getPath());
-                node.remove();
-              }
-            }
-            ses.save();
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-          log.error("===== Exception in tearDown() " + e.toString());
-        } finally {
-          ses.logout();
-        }
-      }
+    clearWorkspaces();
 
     super.tearDown();
   }
@@ -151,47 +124,53 @@ public class AsyncReplicationThreeMebmersTest extends AbstractTrasportTest {
       List<Integer> otherParticipantsPriorityMiddle = new ArrayList<Integer>();
       otherParticipantsPriorityMiddle.add(priorityHigh);
       otherParticipantsPriorityMiddle.add(priorityLow);
-      
-      InitParams paramsLow = AsyncReplicationTester.getInitParams(repositoryNamesLow.get(0), 
-                                                                  sessionLowPriority.getWorkspace().getName(), 
-                                                                  priorityLow, 
-                                                                  otherParticipantsPriorityLow, 
-                                                                  bindAddress, 
-                                                                  CH_CONFIG, 
-                                                                  CH_NAME + useCase.getClass().getName(), 
-                                                                  storageLow.getAbsolutePath(), 
+
+      InitParams paramsLow = AsyncReplicationTester.getInitParams(repositoryNamesLow.get(0),
+                                                                  sessionLowPriority.getWorkspace()
+                                                                                    .getName(),
+                                                                  priorityLow,
+                                                                  otherParticipantsPriorityLow,
+                                                                  bindAddress,
+                                                                  CH_CONFIG,
+                                                                  CH_NAME
+                                                                      + useCase.getClass()
+                                                                               .getName(),
+                                                                  storageLow.getAbsolutePath(),
                                                                   waitAllMemberTimeout);
-      
-      InitParams paramsHigh = AsyncReplicationTester.getInitParams(repositoryNamesHigh.get(0), 
-                                                                   sessionHigePriority.getWorkspace().getName(), 
-                                                                   priorityHigh, 
-                                                                   otherParticipantsPriorityHigh, 
-                                                                   bindAddress, 
-                                                                   CH_CONFIG, 
-                                                                   CH_NAME + useCase.getClass().getName(), 
-                                                                   storageHigh.getAbsolutePath(), 
+
+      InitParams paramsHigh = AsyncReplicationTester.getInitParams(repositoryNamesHigh.get(0),
+                                                                   sessionHigePriority.getWorkspace()
+                                                                                      .getName(),
+                                                                   priorityHigh,
+                                                                   otherParticipantsPriorityHigh,
+                                                                   bindAddress,
+                                                                   CH_CONFIG,
+                                                                   CH_NAME
+                                                                       + useCase.getClass()
+                                                                                .getName(),
+                                                                   storageHigh.getAbsolutePath(),
                                                                    waitAllMemberTimeout);
-      
-      InitParams paramsMiddle = AsyncReplicationTester.getInitParams(repositoryNamesMiddle.get(0), 
-                                                                     sessionMiddlePriority.getWorkspace().getName(), 
-                                                                     priorityMiddle, 
-                                                                     otherParticipantsPriorityMiddle, 
-                                                                     bindAddress, 
-                                                                     CH_CONFIG, 
-                                                                     CH_NAME + useCase.getClass().getName(), 
-                                                                     storageMiddle.getAbsolutePath(), 
+
+      InitParams paramsMiddle = AsyncReplicationTester.getInitParams(repositoryNamesMiddle.get(0),
+                                                                     sessionMiddlePriority.getWorkspace()
+                                                                                          .getName(),
+                                                                     priorityMiddle,
+                                                                     otherParticipantsPriorityMiddle,
+                                                                     bindAddress,
+                                                                     CH_CONFIG,
+                                                                     CH_NAME
+                                                                         + useCase.getClass()
+                                                                                  .getName(),
+                                                                     storageMiddle.getAbsolutePath(),
                                                                      waitAllMemberTimeout);
 
-      asyncReplicationLow = new AsyncReplicationTester(repositoryService,
-                                                       new InitParams());
+      asyncReplicationLow = new AsyncReplicationTester(repositoryService, new InitParams());
       asyncReplicationLow.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(paramsLow));
 
-      asyncReplicationHigh = new AsyncReplicationTester(repositoryService,
-                                                        new InitParams());
+      asyncReplicationHigh = new AsyncReplicationTester(repositoryService, new InitParams());
       asyncReplicationHigh.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(paramsHigh));
 
-      asyncReplicationMiddle = new AsyncReplicationTester(repositoryService,
-                                                          paramsMiddle);
+      asyncReplicationMiddle = new AsyncReplicationTester(repositoryService, paramsMiddle);
       asyncReplicationMiddle.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(paramsMiddle));
 
       asyncReplicationLow.start();
@@ -266,4 +245,33 @@ public class AsyncReplicationThreeMebmersTest extends AbstractTrasportTest {
 
     assertTrue(asyncUseCase.checkEquals());
   }
+
+  protected void clearWorkspaces() throws Exception {
+    List<SessionImpl> sessions = new ArrayList<SessionImpl>();
+    sessions.add(sessionMiddlePriority);
+    sessions.add(sessionLowPriority);
+    sessions.add(sessionHigePriority);
+
+    log.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
+    for (SessionImpl ses : sessions)
+      if (ses != null) {
+        try {
+          ses.refresh(false);
+          Node rootNode = ses.getRootNode();
+          if (rootNode.hasNodes()) {
+            // clean test root
+            for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
+              children.nextNode().remove();
+            }
+            ses.save();
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+          log.error("===== Exception in tearDown() " + e.toString());
+        } finally {
+          ses.logout();
+        }
+      }
+  }
+
 }
