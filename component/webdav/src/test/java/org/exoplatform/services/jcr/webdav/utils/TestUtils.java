@@ -31,6 +31,7 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -177,10 +178,25 @@ public class TestUtils {
   }
 
   public static String getFileNodeType(Session session, String path) throws PathNotFoundException,
-                                                                                       RepositoryException {
+                                                                    RepositoryException {
     Node node = session.getRootNode().getNode(TextUtil.relativizePath(path));
     return node.getPrimaryNodeType().getName();
-    
+
+  }
+
+  public static String getContentNodeType(Session session, String path) throws PathNotFoundException,
+                                                                       RepositoryException {
+    Node node = session.getRootNode().getNode(TextUtil.relativizePath(path));
+    Node content = node.getNode("jcr:content");
+    return content.getPrimaryNodeType().getName();
+
+  }
+
+  public static NodeType[] getContentMixins(Session session, String path) throws PathNotFoundException,
+                                                                         RepositoryException {
+    Node node = session.getRootNode().getNode(TextUtil.relativizePath(path));
+    Node content = node.getNode("jcr:content");
+    return content.getMixinNodeTypes();
   }
 
 }
