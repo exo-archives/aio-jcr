@@ -16,10 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.backup.server;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +37,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
@@ -49,7 +48,6 @@ import org.exoplatform.services.jcr.ext.backup.BackupConfigurationException;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.RestoreBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
@@ -122,7 +120,7 @@ public class HTTPBackupAgent implements ResourceContainer {
       /**
        * The current or completed backup info operations.
        */
-      public static final String CURRENT_OR_COMPLETED_BACKUP_INFO          = "/info/backup";
+      public static final String CURRENT_OR_COMPLETED_BACKUP_INFO         = "/info/backup";
 
       /**
        * The current restore info operations for specific workspace.
@@ -143,6 +141,11 @@ public class HTTPBackupAgent implements ResourceContainer {
        * The drop workspace operations.
        */
       public static final String DROP_WORKSPACE                           = "/drop-workspace";
+      
+      /**
+       * The get default workspace configuration.
+       */
+      public static final String GET_DEFAULT_WORKSPACE_CONFIG             = "/info/default-ws-config";
 
       /**
        * OperationType constructor.
@@ -159,14 +162,9 @@ public class HTTPBackupAgent implements ResourceContainer {
   }
 
   /**
-   * The 24h timeout for JobRestoresCleaner.
-   */
-  private static final int                  JOB_RESTORES_CLEANER = 24 * 60 * 60 * 1000;
-
-  /**
    * The apache logger.
    */
-  private static Log                        log                  = ExoLogger.getLogger("ext.BackupServer");
+  private static Log log = ExoLogger.getLogger("ext.HTTPBackupAgent");
 
   /**
    * The repository service.
@@ -353,43 +351,38 @@ public class HTTPBackupAgent implements ResourceContainer {
   /**
    * Restore the workspace.
    * 
-   * @param restoreBean
-   *          RestoreBeen, the restore been configuration
+   * @param wEntry
+   *          WorkspaceEntry, the configuration to restored workspace
    * @param repository
    *          String, the repository name
-   * @param workspace
-   *          String, the workspace name
+   * @param backupId
+   *          String, the identifier of backup
    * @return Response return the response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @Path("/restore/{repo}/{ws}")
-  public Response restore(RestoreBean restoreBean,
+  @Path("/restore/{repo}/{id}")
+  public Response restore(WorkspaceEntry wEntry,
                           @PathParam("repo") String repository, 
-                          @PathParam("ws") String workspace) {
+                          @PathParam("id") String backupId) {
     String failMessage;
     Response.Status status;
     Throwable exception;
     
     try {
-      validateOneRestoreInstants(repository, workspace);
+      validateOneRestoreInstants(repository, wEntry.getName());
 
-      File backupLog = getBackupLogbyId(restoreBean.getBackupId());
+      File backupLog = getBackupLogbyId(backupId);
 
       // validate backup log file
       if (backupLog == null)
-        throw new BackupLogNotFoundException("The backup log file with id " + restoreBean.getBackupId()
-            + " not exists.");
-
-      ByteArrayInputStream wEntryStream = new ByteArrayInputStream(restoreBean.getWorkspaceConfig()
-                                                                              .getBytes("UTF-8"));
+        throw new BackupLogNotFoundException("The backup log file with id " + backupId + " not exists.");
 
       JobWorkspaceRestore jobRestore = new JobWorkspaceRestore(repositoryService,
                                                                backupManager,
                                                                repository,
-                                                               workspace,
                                                                backupLog.getAbsolutePath(),
-                                                               wEntryStream);
+                                                               wEntry);
 
       validateRepositoryName(repository);
 
@@ -400,10 +393,6 @@ public class HTTPBackupAgent implements ResourceContainer {
     } catch (WorkspaceRestoreExeption e) {
       exception = e;
       status = Response.Status.FORBIDDEN;
-      failMessage = e.getMessage();
-    } catch (UnsupportedEncodingException e) {
-      exception = e;
-      status = Response.Status.NOT_FOUND;
       failMessage = e.getMessage();
     } catch (RepositoryException e) {
       exception = e;
@@ -424,13 +413,13 @@ public class HTTPBackupAgent implements ResourceContainer {
     }
     
     log.error("Can not start restore the workspace '" + "/" + repository
-              + "/" + workspace + "' from backup log with id '"
-              + restoreBean.getBackupId() + "'", exception);
+              + "/" + wEntry.getName() + "' from backup log with id '"
+              + backupId + "'", exception);
     
     return Response.status(status)
                    .entity("Can not start restore the workspace '" + "/" + repository
-                           + "/" + workspace + "' from backup log with id '"
-                           + restoreBean.getBackupId() + "' : " + failMessage)
+                           + "/" + wEntry.getName() + "' from backup log with id '"
+                           + backupId + "' : " + failMessage)
                    .type(MediaType.TEXT_PLAIN)
                    .build();
   }
@@ -735,6 +724,36 @@ public class HTTPBackupAgent implements ResourceContainer {
                      .build();
     }
   }
+  
+  /**
+   * Will be returned the default workspace configuration.
+   *
+   * @return Response
+               return the JSON to WorkspaceEntry
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/info/default-ws-config")
+  public Response getDefaultWorkspaceConfig() {
+    try {
+      String defaultWorkspaceName = repositoryService.getDefaultRepository().getConfiguration().getDefaultWorkspaceName();
+      
+      for (WorkspaceEntry wEntry : repositoryService.getDefaultRepository().getConfiguration().getWorkspaceEntries()) 
+        if (defaultWorkspaceName.equals(wEntry.getName()))
+          return  Response.ok(wEntry).build();
+      
+      return Response.status(Response.Status.NOT_FOUND)
+                     .entity("Can not get default workspace configuration.")
+                     .type(MediaType.TEXT_PLAIN)
+                     .build();
+    } catch (Throwable e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity("Can not get default workspace configuration.")
+                     .type(MediaType.TEXT_PLAIN)
+                     .build();
+    }
+  }
+
 
   /**
    * validateRepositoryName.

@@ -87,19 +87,14 @@ public class JobWorkspaceRestore extends Thread {
   private final String            repositoryName;
 
   /**
-   * The destination workspace.
-   */
-  private final String            workspaceName;
-
-  /**
    * The path to backup log.
    */
   private final String            path;
 
   /**
-   * The input stream with WorkspaceEntry.
+   * The WorkspaceEntry to restored workspace.
    */
-  private final InputStream       wEntry;
+  private final WorkspaceEntry    wEntry;
 
   /**
    * The repository service.
@@ -140,23 +135,19 @@ public class JobWorkspaceRestore extends Thread {
    *          the BackupManager
    * @param repositoryName
    *          the destination repository
-   * @param workspaceName
-   *          the destination workspace
    * @param logPath
    *          path to backup log
    * @param wEntry 
-   *          the workspace configuration
+   *          the workspace enty
    */
   public JobWorkspaceRestore(RepositoryService repositoryService,
                              BackupManager backupManager,
                              String repositoryName,
-                             String workspaceName,
                              String logPath,
-                             InputStream wEntry) {
+                             WorkspaceEntry wEntry) {
     this.repositoryService = repositoryService;
     this.backupManager = backupManager;
     this.repositoryName = repositoryName;
-    this.workspaceName = workspaceName;
     this.path = logPath;
     this.wEntry = wEntry;
     this.stateRestore = RESTORE_INITIALIZED;
@@ -194,23 +185,21 @@ public class JobWorkspaceRestore extends Thread {
 
       RepositoryEntry reEntry = repository.getConfiguration();
 
-      WorkspaceEntry wsEntry = getWorkspaceEntry(wEntry, workspaceName);
-
-      repository.configWorkspace(wsEntry);
+      repository.configWorkspace(wEntry);
 
       try {
         File backLog = new File(path);
         backupChainLog = new BackupChainLog(backLog);
-        backupManager.restore(backupChainLog, reEntry, wsEntry);
+        backupManager.restore(backupChainLog, reEntry, wEntry);
       } catch (Throwable t) {
-        removeWorkspace(repository, workspaceName);
+        removeWorkspace(repository, wEntry.getName());
         throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + "/" + repositoryName + "/"
-          + workspaceName + "' :", t);
+          + wEntry.getName() + "' :", t);
       } 
 
     } catch (Throwable t) {
       throw new WorkspaceRestoreExeption("Can not be restored the workspace  '" + "/" + repositoryName + "/"
-          + workspaceName + "' :", t);
+          + wEntry.getName() + "' :", t);
     }
   }
 
@@ -257,7 +246,7 @@ public class JobWorkspaceRestore extends Thread {
    * removeWorkspace.
    *
    * @param mr
-   *          the manageable repository
+   *          ManageableRepository, the manageable repository
    * @param workspaceName
    *          String, the workspace name
    * @throws RepositoryException
@@ -342,7 +331,7 @@ public class JobWorkspaceRestore extends Thread {
    *           the name of destination workspace
    */
   public String getWorkspaceName() {
-    return workspaceName;
+    return wEntry.getName();
   }
 
 }
