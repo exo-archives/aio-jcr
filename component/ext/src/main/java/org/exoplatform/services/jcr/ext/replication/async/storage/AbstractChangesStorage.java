@@ -105,22 +105,6 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   /**
    * {@inheritDoc}
    */
-  public boolean hasState(ItemState state) throws IOException,
-                                          ClassCastException,
-                                          ClassNotFoundException {
-    Iterator<T> it = getChanges();
-
-    while (it.hasNext()) {
-      if (it.next().isSame(state)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public List<T> getChanges(QPath rootPath) throws IOException,
                                            ClassCastException,
                                            ClassNotFoundException {

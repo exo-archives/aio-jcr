@@ -23,6 +23,7 @@ import java.util.List;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -31,7 +32,6 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -114,11 +114,15 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testStorage2WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize, holder);
+                                                                      fileCleaner,
+                                                                      maxBufferSize,
+                                                                      holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    fileCleaner, maxBufferSize, holder,
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -138,7 +142,10 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
     assertEquals(cLog.size(), 2);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < cLog.get(i).getAllStates().size(); j++) {
-        assertTrue(storage.getLocalChanges(false).hasState(cLog.get(i).getAllStates().get(j)));
+        ItemState item = cLog.get(i).getAllStates().get(j);
+        assertNotNull(storage.getLocalChanges(false).findItemState(item.getData().getIdentifier(),
+                                                                   item.getData().getQPath(),
+                                                                   item.getState()));
       }
     }
   }
@@ -147,11 +154,15 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testStorage2WSWithoutVSChanges() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize, holder);
+                                                                      fileCleaner,
+                                                                      maxBufferSize,
+                                                                      holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
-                                                    fileCleaner, maxBufferSize, holder,
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder,
                                                     systemStorage);
     dataManager.addItemPersistenceListener(storage);
 
@@ -169,7 +180,10 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
     assertEquals(cLog.size(), 1);
     for (int i = 0; i < 1; i++) {
       for (int j = 0; j < cLog.get(i).getAllStates().size(); j++) {
-        assertTrue(storage.getLocalChanges(false).hasState(cLog.get(i).getAllStates().get(j)));
+        ItemState item = cLog.get(i).getAllStates().get(j);
+        assertNotNull(storage.getLocalChanges(false).findItemState(item.getData().getIdentifier(),
+                                                                   item.getData().getQPath(),
+                                                                   item.getState()));
       }
     }
   }
@@ -178,7 +192,9 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
    */
   public void testSystemLocalStorage1WS() throws Exception {
     SystemLocalStorageImpl systemStorage = new SystemLocalStorageImpl(sysDir.getAbsolutePath(),
-                                                                      fileCleaner, maxBufferSize, holder);
+                                                                      fileCleaner,
+                                                                      maxBufferSize,
+                                                                      holder);
     systemDataManager.addItemPersistenceListener(systemStorage);
 
     NodeImpl node = (NodeImpl) root.addNode("test");
@@ -190,7 +206,11 @@ public class SystemLocalStorageTest extends BaseStandaloneTest implements ItemsP
 
     assertEquals(cLog.size(), 1);
     for (int j = 0; j < cLog.get(0).getAllStates().size(); j++) {
-      assertTrue(systemStorage.getLocalChanges(false).hasState(cLog.get(0).getAllStates().get(j)));
+      ItemState item = cLog.get(0).getAllStates().get(j);
+      assertNotNull(systemStorage.getLocalChanges(false).findItemState(item.getData()
+                                                                           .getIdentifier(),
+                                                                       item.getData().getQPath(),
+                                                                       item.getState()));
     }
   }
 

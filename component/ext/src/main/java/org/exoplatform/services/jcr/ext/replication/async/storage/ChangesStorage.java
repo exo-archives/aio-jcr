@@ -118,17 +118,6 @@ public interface ChangesStorage<T extends ItemState> {
                                                          ClassNotFoundException;
 
   /**
-   * Tell if state presents in storage.
-   * 
-   * @param state
-   *          ItemState
-   * @return boolean
-   * @throws IOException
-   *           if error
-   */
-  boolean hasState(ItemState state) throws IOException, ClassCastException, ClassNotFoundException;
-
-  /**
    * findState.
    * 
    * merger2
