@@ -219,10 +219,6 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     public boolean checkEquals() throws Exception {
       return useCase.checkEquals();
     }
-
-    public boolean hasAddedRootNode() throws Exception {
-      return asyncReplication1.hasAddedRootNodeWS3();
-    }
   }
 
   public void setUp() throws Exception {

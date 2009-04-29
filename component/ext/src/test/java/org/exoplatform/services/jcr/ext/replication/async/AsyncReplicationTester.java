@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -29,13 +28,11 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
-import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
@@ -171,19 +168,6 @@ public class AsyncReplicationTester extends AsyncReplication {
     params.addParam(pps);
 
     return params;
-  }
-
-  public boolean hasAddedRootNodeWS3() throws Exception {
-    LocalStorageImpl sls = localStorages.get(new StorageKey("db1", "ws3"));
-
-    WorkspaceContainerFacade wsc = repoService.getRepository("db1").getWorkspaceContainer("ws3");
-    PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-    dm.removeItemPersistenceListener(sls);
-    sls.onStart(null);
-
-    Iterator<ItemState> changes = sls.getLocalChanges(false).getChanges();
-    ItemState item = changes.next();
-    return item.isSame(Constants.ROOT_UUID, Constants.ROOT_PATH, ItemState.ADDED);
   }
 
 }

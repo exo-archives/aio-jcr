@@ -504,9 +504,9 @@ public class ConflictResolver {
 
           // restore deleted node
           if (!item.getData().isNode()
-              && income.hasState(item.getData().getIdentifier(),
-                                 item.getData().getQPath(),
-                                 ItemState.UPDATED)) {
+              && income.findItemState(item.getData().getIdentifier(),
+                                      item.getData().getQPath(),
+                                      ItemState.UPDATED) != null) {
             restoredItems.add(new ItemState(item.getData(), ItemState.ADDED, true, item.getData()
                                                                                        .getQPath()));
             continue;
