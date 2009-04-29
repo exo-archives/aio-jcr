@@ -410,5 +410,4 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-  <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
-</configuration>
+ </configuration>
