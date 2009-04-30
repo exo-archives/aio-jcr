@@ -47,6 +47,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupConfigurationException;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
+import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
@@ -182,11 +183,6 @@ public class HTTPBackupAgent implements ResourceContainer {
   private ThreadLocalSessionProviderService sessionProviderService;
 
   /**
-   * The list of restore job.
-   */
-  private List<JobWorkspaceRestore>         restoreJobs;
-
-  /**
    * ReplicationTestService constructor.
    * 
    * @param repoService
@@ -202,7 +198,6 @@ public class HTTPBackupAgent implements ResourceContainer {
     this.repositoryService = repoService;
     this.backupManager = backupManager;
     this.sessionProviderService = sessionProviderService;
-    this.restoreJobs = new ArrayList<JobWorkspaceRestore>();
     
     log.info("HTTPBackupAgent inited");
   }
@@ -378,17 +373,12 @@ public class HTTPBackupAgent implements ResourceContainer {
       if (backupLog == null)
         throw new BackupLogNotFoundException("The backup log file with id " + backupId + " not exists.");
 
-      JobWorkspaceRestore jobRestore = new JobWorkspaceRestore(repositoryService,
-                                                               backupManager,
-                                                               repository,
-                                                               backupLog.getAbsolutePath(),
-                                                               wEntry);
-
       validateRepositoryName(repository);
-
-      restoreJobs.add(jobRestore);
-      jobRestore.start();
-
+      
+      BackupChainLog backupChainLog = new BackupChainLog(backupLog);
+      
+      backupManager.restoreAsync(backupChainLog, repository, wEntry);
+      
       return Response.ok().build();
     } catch (WorkspaceRestoreExeption e) {
       exception = e;
@@ -689,17 +679,7 @@ public class HTTPBackupAgent implements ResourceContainer {
   public Response infoRestore(@PathParam("repo") String repository,
                               @PathParam("ws") String workspace) {
     try {
-      JobWorkspaceRestore restoreJob = null;
-
-      for (int i = restoreJobs.size() - 1; i >= 0; i--) {
-        JobWorkspaceRestore job = restoreJobs.get(i);
-        
-        if (repository.equals(job.getRepositoryName()) 
-            && workspace.equals(job.getWorkspaceName())) {
-          restoreJob = job;
-          break;
-        }
-      }
+      JobWorkspaceRestore restoreJob = backupManager.getLastRestore(repository, workspace);
 
       if (restoreJob != null) {
         DetailedInfo info = new DetailedInfo(DetailedInfo.RESTORE, 
@@ -827,7 +807,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   private void validateOneRestoreInstants(String repositoryName, String workspaceName) throws WorkspaceRestoreExeption {
 
-    for (JobWorkspaceRestore job : restoreJobs)
+    for (JobWorkspaceRestore job : backupManager.getRestores())
       if (repositoryName.equals(job.getRepositoryName())
           && workspaceName.endsWith(job.getWorkspaceName())
           && (job.getStateRestore() == JobWorkspaceRestore.RESTORE_INITIALIZED || job.getStateRestore() == JobWorkspaceRestore.RESTORE_STARTED)) {

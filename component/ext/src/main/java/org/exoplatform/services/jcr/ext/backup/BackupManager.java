@@ -17,15 +17,16 @@
 package org.exoplatform.services.jcr.ext.backup;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupMessage;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
+import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -41,6 +42,10 @@ public interface BackupManager {
   final static int FULL_AND_INCREMENTAL = 1;
 
   Set<BackupChain> getCurrentBackups();
+  
+  List<JobWorkspaceRestore> getRestores();
+  
+  JobWorkspaceRestore getLastRestore(String repositoryName, String workspaceName);
 
   BackupChainLog[] getBackupsLogs();
 
@@ -59,6 +64,8 @@ public interface BackupManager {
                                                                                              BackupConfigurationException,
                                                                                              RepositoryException,
                                                                                              RepositoryConfigurationException;
+  
+  void restoreAsync(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry);
 
   BackupScheduler getScheduler();
 

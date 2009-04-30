@@ -42,7 +42,6 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -113,6 +112,11 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private String                     incrementalBackupType;
 
   private final HashSet<BackupChain> currentBackups;
+  
+  /**
+   * The list of restore job.
+   */
+  private List<JobWorkspaceRestore>  restoreJobs;
 
   private InitParams                 initParams;
 
@@ -234,6 +238,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
     messages = new BackupMessagesLog(MESSAGES_MAXSIZE);
 
     scheduler = new BackupScheduler(this, messages);
+    
+    this.restoreJobs = new ArrayList<JobWorkspaceRestore>();
   }
 
   public Set<BackupChain> getCurrentBackups() {
@@ -785,5 +791,33 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
   public long getDefaultIncrementalJobPeriod() {
     return defaultIncrementalJobPeriod;
+  }
+
+  public List<JobWorkspaceRestore> getRestores() {
+    return restoreJobs;
+  }
+
+  public JobWorkspaceRestore getLastRestore(String repositoryName, String workspaceName) {
+    for (int i = restoreJobs.size() - 1; i >= 0; i--) {
+      JobWorkspaceRestore job = restoreJobs.get(i);
+      
+      if (repositoryName.equals(job.getRepositoryName()) 
+          && workspaceName.equals(job.getWorkspaceName())) {
+        return job;
+        
+      }
+    }
+    
+    return null;
+  }
+
+  public void restoreAsync(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) {
+    JobWorkspaceRestore jobRestore = new JobWorkspaceRestore(repoService,
+                                                             this,
+                                                             repositoryName,
+                                                             log,
+                                                             workspaceEntry);
+    restoreJobs.add(jobRestore);
+    jobRestore.start();
   }
 }

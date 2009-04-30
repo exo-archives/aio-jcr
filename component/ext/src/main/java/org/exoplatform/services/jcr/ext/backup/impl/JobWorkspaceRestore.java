@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.backup.server;
+package org.exoplatform.services.jcr.ext.backup.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +33,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.backup.BackupChainLog;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
+import org.exoplatform.services.jcr.ext.backup.server.WorkspaceRestoreExeption;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
@@ -87,11 +88,6 @@ public class JobWorkspaceRestore extends Thread {
   private final String            repositoryName;
 
   /**
-   * The path to backup log.
-   */
-  private final String            path;
-
-  /**
    * The WorkspaceEntry to restored workspace.
    */
   private final WorkspaceEntry    wEntry;
@@ -124,7 +120,7 @@ public class JobWorkspaceRestore extends Thread {
   /**
    * The BackupChainLog for restore.
    */
-  private BackupChainLog          backupChainLog;
+  private final BackupChainLog    backupChainLog;
 
   /**
    * JobWorkspaceRestore constructor.
@@ -135,20 +131,20 @@ public class JobWorkspaceRestore extends Thread {
    *          the BackupManager
    * @param repositoryName
    *          the destination repository
-   * @param logPath
-   *          path to backup log
+   * @param log
+   *          the backup chain log
    * @param wEntry 
    *          the workspace enty
    */
   public JobWorkspaceRestore(RepositoryService repositoryService,
                              BackupManager backupManager,
                              String repositoryName,
-                             String logPath,
+                             BackupChainLog log,
                              WorkspaceEntry wEntry) {
     this.repositoryService = repositoryService;
     this.backupManager = backupManager;
     this.repositoryName = repositoryName;
-    this.path = logPath;
+    this.backupChainLog = log;
     this.wEntry = wEntry;
     this.stateRestore = RESTORE_INITIALIZED;
   }
@@ -188,8 +184,6 @@ public class JobWorkspaceRestore extends Thread {
       repository.configWorkspace(wEntry);
 
       try {
-        File backLog = new File(path);
-        backupChainLog = new BackupChainLog(backLog);
         backupManager.restore(backupChainLog, reEntry.getName(), wEntry);
       } catch (Throwable t) {
         removeWorkspace(repository, wEntry.getName());
