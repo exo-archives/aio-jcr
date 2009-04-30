@@ -209,38 +209,28 @@ public class ItemState implements Externalizable {
     return false;
   }
 
-  /**
-   * Compare two item states.
-   * 
-   * @param itemState
-   *          Item state
-   * @return is two item states are same
-   */
-  public boolean isSame(ItemState itemState) {
-    if (this == itemState)
+  public boolean isSame(ItemState state) {
+    if (this == state)
       return true;
 
-    return this.getData().getIdentifier().hashCode() == itemState.getData()
-                                                                 .getIdentifier()
-                                                                 .hashCode()
-        && this.getData().getQPath().equals(itemState.getData().getQPath())
-        && this.getState() == itemState.getState();
+    return this.getData().getIdentifier().hashCode() == state.getData().getIdentifier().hashCode()
+        && this.getData().getQPath().hashCode() == state.getData().getQPath().hashCode()
+        && this.getState() == state.getState();
   }
 
   /**
-   * Compare two item states.
+   * Is two item states are same. Added for merger.
    * 
-   * @param identifier
-   *          Identifier
-   * @param path
-   *          Path
-   * @param stateValue
-   *          State
-   * @return is two item states are same
+   * isSame.
+   * 
+   * @param src
+   * @param dst
+   * @return
    */
-  public boolean isSame(String identifier, QPath path, int stateValue) {
-    return this.getData().getIdentifier().hashCode() == identifier.hashCode()
-        && this.getData().getQPath().equals(identifier) && this.getState() == stateValue;
+  public boolean isSame(String dstIdentifier, QPath dstPath, int dstState) {
+    return this.getData().getIdentifier().hashCode() == dstIdentifier.hashCode()
+        && this.getData().getQPath().hashCode() == dstPath.hashCode()
+        && this.getState() == dstState;
   }
 
   /**
