@@ -260,7 +260,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return ls;
   }
 
-  public void restore(BackupChainLog log, RepositoryEntry repository, WorkspaceEntry workspaceEntry) throws BackupOperationException,
+  public void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
                                                                                                     RepositoryException,
                                                                                                     RepositoryConfigurationException,
                                                                                                     BackupConfigurationException {
@@ -268,7 +268,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
     List<JobEntryInfo> list = log.getJobEntryInfos();
     BackupConfig config = log.getBackupConfig();
 
-    String reposytoryName = (repository == null ? config.getRepository() : repository.getName());
+    String reposytoryName = (repositoryName == null ? config.getRepository() : repositoryName);
     String workspaseName = workspaceEntry.getName();
 
     // ws should be registered not created

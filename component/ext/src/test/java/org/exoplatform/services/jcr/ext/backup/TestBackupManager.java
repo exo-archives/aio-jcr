@@ -78,7 +78,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
 
-      backup.restore(bchLog, re, ws1back);
+      backup.restore(bchLog, re.getName(), ws1back);
 
       // check
       SessionImpl back1 = null;
@@ -146,7 +146,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
-      backup.restore(bchLog, re, ws1back);
+      backup.restore(bchLog, re.getName(), ws1back);
 
       // check
       SessionImpl back1 = null;
@@ -263,7 +263,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
-      backup.restore(bchLog, re, ws1back);
+      backup.restore(bchLog, re.getName(), ws1back);
 
       // check
       SessionImpl back1 = null;
