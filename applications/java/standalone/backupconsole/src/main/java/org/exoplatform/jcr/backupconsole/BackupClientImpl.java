@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.server.HTTPBackupAgent;
-import org.exoplatform.services.jcr.ext.backup.server.JobWorkspaceRestore;
+import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.RestoreBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
