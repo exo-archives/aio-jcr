@@ -37,10 +37,10 @@ public abstract class MappedParametrizedObjectEntry {
 
   protected String           type;
 
-  protected List             parameters;
+  protected List<SimpleParameterEntry> parameters;
 
   public MappedParametrizedObjectEntry() {
-    parameters = new ArrayList();
+    parameters = new ArrayList<SimpleParameterEntry>();
   }
 
   public MappedParametrizedObjectEntry(String type, List params) {
@@ -48,7 +48,7 @@ public abstract class MappedParametrizedObjectEntry {
     this.parameters = params;
   }
 
-  public List getParameters() {
+  public List<SimpleParameterEntry> getParameters() {
     return parameters;
   }
 
@@ -241,10 +241,10 @@ public abstract class MappedParametrizedObjectEntry {
     return type;
   }
 
-  public void setParameters(List parameters) {
+  public void setParameters(List<SimpleParameterEntry> parameters) {
     this.parameters = parameters;
   }
-
+  
   public void setType(String type) {
     this.type = type;
   }

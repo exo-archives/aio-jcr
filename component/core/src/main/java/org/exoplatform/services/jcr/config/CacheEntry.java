@@ -43,6 +43,13 @@ public class CacheEntry extends MappedParametrizedObjectEntry {
   public boolean isEnabled() {
     return enabled;
   }
+  
+  /**
+   * @return Returns the enabled.
+   */
+  public boolean getEnabled() {
+    return enabled;
+  }
 
   /**
    * @param enabled

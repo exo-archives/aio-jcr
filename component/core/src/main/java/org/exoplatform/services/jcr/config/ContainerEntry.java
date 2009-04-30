@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class ContainerEntry extends MappedParametrizedObjectEntry {
 
-  private ArrayList valueStorages;
+  private ArrayList<ValueStorageEntry> valueStorages;
 
   public ContainerEntry() {
     super();
@@ -37,11 +37,11 @@ public class ContainerEntry extends MappedParametrizedObjectEntry {
     super(type, params);
   }
 
-  public ArrayList getValueStorages() {
+  public ArrayList<ValueStorageEntry> getValueStorages() {
     return valueStorages;
   }
 
-  public void setValueStorages(ArrayList valueStorages) {
+  public void setValueStorages(ArrayList<ValueStorageEntry> valueStorages) {
     this.valueStorages = valueStorages;
   }
 
