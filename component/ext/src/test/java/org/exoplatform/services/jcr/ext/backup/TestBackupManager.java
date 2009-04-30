@@ -26,6 +26,7 @@ import javax.jcr.lock.Lock;
 
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
+import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
@@ -311,6 +312,80 @@ public class TestBackupManager extends AbstractBackupTestCase {
         assertEquals("Node should be mix:referenceable and UUID should be " + id6,
                      id6,
                      ws1backTestRoot.getNode("node_4").getUUID());
+      } catch (Exception e) {
+        e.printStackTrace();
+        fail(e.getMessage());
+      } finally {
+        if (back1 != null)
+          back1.logout();
+      }
+    } else
+      fail("There are no backup files in " + backDir.getAbsolutePath());
+  }
+  
+  public void testFullBackupRestoreAsync() throws Exception {
+    SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
+    sessionWS1.getRootNode().addNode("backupTest").addNode("node_5").setProperty("exo:data", "Restored content should be same");
+    sessionWS1.save();
+    
+    // backup
+    File backDir = new File("target/backup/ws1_a");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
+
+    config.setBackupDir(backDir);
+
+    backup.startBackup(config);
+
+    BackupChain bch = backup.findBackup(repository.getName(), "ws1");
+
+    // wait till full backup will be stopped
+    while (bch.getFullBackupState() != BackupJob.FINISHED) {
+      Thread.yield();
+      Thread.sleep(50);
+    }
+
+    // stop fullBackup
+
+    if (bch != null)
+      backup.stopBackup(bch);
+    else
+      fail("Can't get fullBackup chain");
+
+    // restore
+    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back5", "jdbcjcr_backup_only_use_5");
+
+    repository.configWorkspace(ws1back);
+
+    File backLog = new File(bch.getLogFilePath());
+    if (backLog.exists()) {
+      BackupChainLog bchLog = new BackupChainLog(backLog);
+      
+      assertNotNull(bchLog.getStartedTime());
+      assertNotNull(bchLog.getFinishedTime());
+
+      backup.restore(bchLog, repository.getName(), ws1back, true);
+      
+      while (backup.getLastRestore(repository.getName(),ws1back.getName()).getStateRestore() !=  JobWorkspaceRestore.RESTORE_SUCCESSFUL 
+             && backup.getLastRestore(repository.getName(),ws1back.getName()).getStateRestore() !=  JobWorkspaceRestore.RESTORE_FAIL) {
+        Thread.sleep(50);
+      }
+      
+      if (backup.getLastRestore(repository.getName(),ws1back.getName()).getStateRestore() ==  JobWorkspaceRestore.RESTORE_FAIL)
+        throw (Exception) backup.getLastRestore(repository.getName(),ws1back.getName()).getRestoreException(); 
+      
+      // check
+      SessionImpl back1 = null;
+      try {
+        back1 = (SessionImpl) repository.login(credentials, "ws1back5");
+        Node ws1backTestRoot = back1.getRootNode().getNode("backupTest");
+        assertEquals("Restored content should be same",
+                     "property-5",
+                     ws1backTestRoot.getNode("node_5").getProperty("exo:data").getString());
       } catch (Exception e) {
         e.printStackTrace();
         fail(e.getMessage());

@@ -65,7 +65,10 @@ public interface BackupManager {
                                                                                              RepositoryException,
                                                                                              RepositoryConfigurationException;
   
-  void restoreAsync(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry);
+  void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry, boolean asynchronous) throws BackupOperationException,
+                                                                                             BackupConfigurationException,
+                                                                                             RepositoryException,
+                                                                                             RepositoryConfigurationException;
 
   BackupScheduler getScheduler();
 

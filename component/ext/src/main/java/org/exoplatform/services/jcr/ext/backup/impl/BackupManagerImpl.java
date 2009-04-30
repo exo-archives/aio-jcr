@@ -811,13 +811,20 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return null;
   }
 
-  public void restoreAsync(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) {
-    JobWorkspaceRestore jobRestore = new JobWorkspaceRestore(repoService,
-                                                             this,
-                                                             repositoryName,
-                                                             log,
-                                                             workspaceEntry);
-    restoreJobs.add(jobRestore);
-    jobRestore.start();
+  public void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry, boolean asynchronous) throws BackupOperationException,
+                                                                                                                              BackupConfigurationException,
+                                                                                                                              RepositoryException,
+                                                                                                                              RepositoryConfigurationException {
+    if (asynchronous) {
+      JobWorkspaceRestore jobRestore = new JobWorkspaceRestore(repoService,
+                                                               this,
+                                                               repositoryName,
+                                                               log,
+                                                               workspaceEntry);
+      restoreJobs.add(jobRestore);
+      jobRestore.start();
+    } else {
+      this.restore(log, repositoryName, workspaceEntry);
+    }
   }
 }

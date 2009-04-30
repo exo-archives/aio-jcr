@@ -178,10 +178,7 @@ public class JobWorkspaceRestore extends Thread {
   private void restore() throws Throwable {
     try {
       RepositoryImpl repository = (RepositoryImpl) repositoryService.getRepository(repositoryName);
-
       RepositoryEntry reEntry = repository.getConfiguration();
-
-      repository.configWorkspace(wEntry);
 
       try {
         backupManager.restore(backupChainLog, reEntry.getName(), wEntry);

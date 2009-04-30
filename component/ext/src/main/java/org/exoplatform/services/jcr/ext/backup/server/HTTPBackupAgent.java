@@ -377,7 +377,10 @@ public class HTTPBackupAgent implements ResourceContainer {
       
       BackupChainLog backupChainLog = new BackupChainLog(backupLog);
       
-      backupManager.restoreAsync(backupChainLog, repository, wEntry);
+      RepositoryImpl repositoryImpl = (RepositoryImpl) repositoryService.getRepository(repository);
+      repositoryImpl.configWorkspace(wEntry);
+      
+      backupManager.restore(backupChainLog, repository, wEntry, true);
       
       return Response.ok().build();
     } catch (WorkspaceRestoreExeption e) {
