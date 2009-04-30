@@ -166,7 +166,7 @@ public class TestUtils {
     Lock lock = node.lock(depth, true);
     session.save();
     String tok = lock.getLockToken();
-    System.out.println("TestUtils.lockNode()" + tok);
+//    System.out.println("TestUtils.lockNode()" + tok);
     return "<" + tok + ">";
   }
   
