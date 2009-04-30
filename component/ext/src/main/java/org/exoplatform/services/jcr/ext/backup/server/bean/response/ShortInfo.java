@@ -143,16 +143,9 @@ public class ShortInfo {
     // do not use
     this.state = 0;
 
-    for (JobEntryInfo info : chainLog.getJobEntryInfos()) 
-      if (info.getType() == BackupJob.FULL) {
-        DateFormat df = new SimpleDateFormat(HTTPBackupAgent.Constants.DATE_FORMAT_RFC_1123);
-        this.startedTime =  df.format(info.getDate().getTime());
-        break;
-      }
-    
-    // no applicable
-    this.finishedTime = "";
-    
+    DateFormat df = new SimpleDateFormat(HTTPBackupAgent.Constants.DATE_FORMAT_RFC_1123);
+    this.startedTime =  df.format(chainLog.getStartedTime().getTime());
+    this.finishedTime = df.format(chainLog.getFinishedTime().getTime());;
   }
   
   /**

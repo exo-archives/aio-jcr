@@ -77,6 +77,9 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
+      
+      assertNotNull(bchLog.getStartedTime());
+      assertNotNull(bchLog.getFinishedTime());
 
       backup.restore(bchLog, re.getName(), ws1back);
 
@@ -146,6 +149,10 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
+      
+      assertNotNull(bchLog.getStartedTime());
+      assertNotNull(bchLog.getFinishedTime());
+      
       backup.restore(bchLog, re.getName(), ws1back);
 
       // check
@@ -263,6 +270,10 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
+      
+      assertNotNull(bchLog.getStartedTime());
+      assertNotNull(bchLog.getFinishedTime());
+      
       backup.restore(bchLog, re.getName(), ws1back);
 
       // check

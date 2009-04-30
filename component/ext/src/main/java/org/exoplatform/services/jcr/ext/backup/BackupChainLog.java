@@ -69,6 +69,10 @@ public class BackupChainLog {
   private BackupConfig             config;
   
   private String                   backupId;
+  
+  private Calendar                 startedTime;
+  
+  private Calendar                 finishedTime;
 
   public BackupChainLog(File logDir,
                         BackupConfig config,
@@ -103,8 +107,10 @@ public class BackupChainLog {
       logReader.readLogFile();
       logReader.jobEntrysNormalize();
 
-      config = logReader.getBackupConfig();
-      jobEntries = logReader.getJobEntryInfoNormalizeList();
+      this.config = logReader.getBackupConfig();
+      this.startedTime = logReader.getBeginTime();
+      this.finishedTime = logReader.getEndTime();
+      this.jobEntries = logReader.getJobEntryInfoNormalizeList();
       
       for (JobEntryInfo info : jobEntries) {
         if (info.getType() == BackupJob.INCREMENTAL) {
@@ -171,6 +177,14 @@ public class BackupChainLog {
   public String getLogFilePath() {
     return log.getAbsolutePath();
   }
+  
+  public Calendar getStartedTime() {
+    return startedTime;
+  }
+
+  public Calendar getFinishedTime() {
+    return finishedTime;
+  }
 
   class LogReader {
     protected Log              logger = ExoLogger.getLogger("ext.LogWriter");
@@ -184,7 +198,7 @@ public class BackupChainLog {
     private List<JobEntryInfo> jobEntries;
 
     private List<JobEntryInfo> jobEntriesNormalize;
-
+    
     public LogReader(File logFile) throws FileNotFoundException,
         XMLStreamException,
         FactoryConfigurationError {
@@ -205,6 +219,14 @@ public class BackupChainLog {
 
     public List<JobEntryInfo> getJobEntryInfoNormalizeList() {
       return jobEntriesNormalize;
+    }
+
+    public Calendar getBeginTime() {
+      return jobEntries.get(0).getDate();
+    }
+
+    public Calendar getEndTime() {
+      return jobEntries.get(jobEntries.size()-1).getDate();
     }
 
     public void readLogFile() throws XMLStreamException, MalformedURLException, ValueFormatException {
