@@ -83,7 +83,7 @@ public class TestEncoding extends BaseStandaloneTest {
 
   public void testNoContentTypeHeader() throws Exception {
 
-    System.out.println("\ttestNoContentTypeHeader:");
+//    System.out.println("\ttestNoContentTypeHeader:");
 
     ContainerResponse response = service("PUT", getPathWS() + UTF_FILE, "", null, UTF_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
@@ -92,7 +92,7 @@ public class TestEncoding extends BaseStandaloneTest {
     byte[] responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
                                                      UTF_CHARSET).getBytes();
     assertTrue(Arrays.equals(UTF_CONTENT, responseContent));
-    System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent, UTF_CHARSET));
+//    System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent, UTF_CHARSET));
 
     response = service("PUT", getPathWS() + WIN_FILE, "", null, WIN_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
@@ -101,7 +101,7 @@ public class TestEncoding extends BaseStandaloneTest {
     responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
                                               WIN_CHARSET).getBytes(WIN_CHARSET);
     assertTrue(Arrays.equals(WIN_CONTENT, responseContent));
-    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
+//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
 
     response = service("PUT", getPathWS() + ISO_FILE, "", null, ISO_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
@@ -110,14 +110,14 @@ public class TestEncoding extends BaseStandaloneTest {
     responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
                                               ISO_CHARSET).getBytes(ISO_CHARSET);
     assertTrue(Arrays.equals(ISO_CONTENT, responseContent));
-    System.out.println("Content in ISO-8859-5 encoding:\t"
-        + new String(responseContent, ISO_CHARSET));
+//    System.out.println("Content in ISO-8859-5 encoding:\t"
+//        + new String(responseContent, ISO_CHARSET));
 
   }
 
   public void testContentType() throws Exception {
 
-    System.out.println("\n\ttestContentType:");
+//    System.out.println("\n\ttestContentType:");
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(HttpHeaders.CONTENT_TYPE, UTF_CONTENT_TYPE);
@@ -129,7 +129,7 @@ public class TestEncoding extends BaseStandaloneTest {
                                                      UTF_CHARSET).getBytes(UTF_CHARSET);
     assertTrue(Arrays.equals(UTF_CONTENT, responseContent));
     assertEquals(UTF_CONTENT_TYPE, response.getContentType().toString());
-    System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent, UTF_CHARSET));
+//    System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent, UTF_CHARSET));
     headers.clear();
 
     headers.add(HttpHeaders.CONTENT_TYPE, WIN_CONTENT_TYPE);
@@ -141,7 +141,7 @@ public class TestEncoding extends BaseStandaloneTest {
                                               WIN_CHARSET).getBytes(WIN_CHARSET);
     assertTrue(Arrays.equals(WIN_CONTENT, responseContent));
     assertEquals(WIN_CONTENT_TYPE, response.getContentType().toString());
-    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
+//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
     headers.clear();
 
     headers.add(HttpHeaders.CONTENT_TYPE, ISO_CONTENT_TYPE);
@@ -153,7 +153,7 @@ public class TestEncoding extends BaseStandaloneTest {
                                               ISO_CHARSET).getBytes(ISO_CHARSET);
     assertTrue(Arrays.equals(ISO_CONTENT, responseContent));
     assertEquals(ISO_CONTENT_TYPE, response.getContentType().toString());
-    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, ISO_CHARSET));
+//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, ISO_CHARSET));
     headers.clear();
   }
 
@@ -171,8 +171,8 @@ public class TestEncoding extends BaseStandaloneTest {
                                                      ISO_CHARSET).getBytes(ISO_CHARSET);
     assertTrue(Arrays.equals(ISO_CONTENT, responseContent));
     assertEquals(ISO_CONTENT_TYPE, response.getContentType().toString());
-    System.out.println("Content in ISO-8859-5 encoding:\t"
-        + new String(responseContent, ISO_CHARSET));
+//    System.out.println("Content in ISO-8859-5 encoding:\t"
+//        + new String(responseContent, ISO_CHARSET));
     headers.clear();
 
     headers.add(HttpHeaders.CONTENT_TYPE, WIN_CONTENT_TYPE);
@@ -184,7 +184,7 @@ public class TestEncoding extends BaseStandaloneTest {
                                               WIN_CHARSET).getBytes(WIN_CHARSET);
     assertTrue(Arrays.equals(WIN_CONTENT, responseContent));
     assertEquals(WIN_CONTENT_TYPE, response.getContentType().toString());
-    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
+//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
 
   }
 
