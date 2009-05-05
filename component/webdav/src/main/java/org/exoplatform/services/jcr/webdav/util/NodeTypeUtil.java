@@ -18,6 +18,7 @@
 package org.exoplatform.services.jcr.webdav.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
@@ -48,34 +49,20 @@ public class NodeTypeUtil {
       return WebDavConst.NodeTypes.NT_RESOURCE;
   }
 
-  public static ArrayList<String> getMixinTypes(String mixinTypeHeader) {
-    ArrayList<String> mixins = new ArrayList<String>();
-    if (mixinTypeHeader == null) {
-      return mixins;
-    }
-
-    if (mixinTypeHeader.contains(" ")) {
-      
-      mixinTypeHeader = mixinTypeHeader.replace(" ", "");
-    }
-    String[] mixType = mixinTypeHeader.split(";");
-
-    for (int i = 0; i < mixType.length; i++) {
-      String curMixType = mixType[i];
-      if ("".equals(curMixType)) {
-        continue;
-      }     
-      mixins.add(curMixType);
-    }
-
-    return mixins;
-  }
-
   public static void checkContentResourceType(NodeType contentNodeType) throws NoSuchNodeTypeException {
     if (!contentNodeType.isNodeType(WebDavConst.NodeTypes.NT_RESOURCE)) {
       throw new NoSuchNodeTypeException("Content-Node type " + contentNodeType.getName()
           + " must extend nt:resource.");
     }
   }
+
+  public static ArrayList<String> getMixinTypes(List<String> mixinTypes) {
+    ArrayList<String> mixins = new ArrayList<String>();
+    if (mixinTypes == null) {
+      return mixins;
+    }
+    return mixins;
+  }
+
 
 }
