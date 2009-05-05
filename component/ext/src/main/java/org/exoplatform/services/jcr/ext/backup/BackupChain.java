@@ -47,9 +47,9 @@ public interface BackupChain {
   int getState();
 
   boolean isFinished();
-
+  
   String getLogFilePath();
-
+  
   /**
    * Add listener to all existing and will be created in future jobs
    * 

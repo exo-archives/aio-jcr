@@ -72,6 +72,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
+import org.quartz.Job;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -100,6 +101,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private static final int           MESSAGES_MAXSIZE               = 5;
 
   private static final String        SERVICE_NAME                   = "BackupManager";
+  
+  private static final long          AUTO_STOPPER_TIMEOUT           = 5000;
 
   private long                       defaultIncrementalJobPeriod;
 
@@ -133,6 +136,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private final BackupMessagesLog    messages;
 
   private final MessagesListener     messagesListener;
+  
+  private final AutoStopper          stopper;
 
   class MessagesListener implements BackupJobListener {
 
@@ -217,6 +222,43 @@ public class BackupManagerImpl implements BackupManager, Startable {
       return pathname.getName().endsWith(".task");
     }
   }
+  
+  class AutoStopper extends Thread {
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void run() {
+      while (true) {
+        try {
+          Thread.sleep(AUTO_STOPPER_TIMEOUT);
+          
+          Iterator<BackupChain> it = currentBackups.iterator();
+          List<BackupChain> stopedList = new ArrayList<BackupChain>(); 
+          
+          while (it.hasNext()) {
+            BackupChain chain = it.next();
+            boolean isFinished = (chain.getBackupJobs().get(0).getState() == BackupJob.FINISHED);
+            
+            for (BackupJob job : chain.getBackupJobs()) 
+              isFinished &= (job.getState() == BackupJob.FINISHED);
+            
+            if (isFinished) {
+              stopedList.add(chain);
+            }
+          }
+          
+          // STOP backups
+          for (BackupChain chain : stopedList)
+            stopBackup(chain);
+        } catch (InterruptedException e) {
+          log.error( "The interapted this thread.", e);
+        } catch (Throwable e) {
+          log.error("The unknown error", e);
+        }
+      }
+    }
+  }
 
   public BackupManagerImpl(InitParams initParams, RepositoryService repoService) {
     this(initParams, repoService, null);
@@ -240,6 +282,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
     scheduler = new BackupScheduler(this, messages);
     
     this.restoreJobs = new ArrayList<JobWorkspaceRestore>();
+    this.stopper = new AutoStopper();
+    this.stopper.start();
   }
 
   public Set<BackupChain> getCurrentBackups() {

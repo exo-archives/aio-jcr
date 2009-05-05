@@ -396,4 +396,74 @@ public class TestBackupManager extends AbstractBackupTestCase {
     } else
       fail("There are no backup files in " + backDir.getAbsolutePath());
   }
+  
+  public void testAutoStopBackupFull() throws Exception {
+    // backup
+    File backDir = new File("target/backup/ws1_123");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
+
+    config.setBackupDir(backDir);
+
+    BackupChain bch = backup.startBackup(config);
+    
+    Thread.sleep(11000);
+    
+    for (BackupChain chain : backup.getCurrentBackups()) 
+      if (bch.getBackupId().equals(chain.getBackupId()))
+        fail("The backup with id '" + chain.getBackupId() + "' should not be active");
+  }
+  
+  public void testAutoStopBackupIncr() throws Exception {
+    // backup
+    File backDir = new File("target/backup/ws1_123_321");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
+    config.setBackupDir(backDir);
+    config.setIncrementalJobPeriod(3);
+    config.setIncrementalJobNumber(0);
+    
+    BackupChain bch = backup.startBackup(config);
+    
+    Thread.sleep(11000);
+    
+    boolean isFail = true;
+    
+    for (BackupChain chain : backup.getCurrentBackups()) 
+      if (bch.getBackupId().equals(chain.getBackupId()))
+         isFail = false;   
+    
+    if (isFail) 
+      fail("The backup with id '" + bch.getBackupId() + "' should be active");
+  }
+  
+  public void testAutoStopBackupIncrRepetion() throws Exception {
+    // backup
+    File backDir = new File("target/backup/ws1_123321");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
+    config.setBackupDir(backDir);
+    config.setIncrementalJobPeriod(4);
+    config.setIncrementalJobNumber(2);
+    
+    BackupChain bch = backup.startBackup(config);
+    
+    Thread.sleep(20000);
+    
+    for (BackupChain chain : backup.getCurrentBackups())
+      if (bch.getBackupId().equals(chain.getBackupId()))
+        fail("The backup with id '" + chain.getBackupId() + "' should not be active");
+  }
 }

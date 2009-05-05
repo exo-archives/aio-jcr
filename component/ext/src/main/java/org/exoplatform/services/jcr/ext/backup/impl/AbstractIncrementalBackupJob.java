@@ -56,7 +56,9 @@ public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob imp
    * @see org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener#onSaveItems(org.exoplatform.services.jcr.dataflow.ItemStateChangesLog)
    */
   public void onSaveItems(ItemStateChangesLog chlog) {
-    if (state == WAITING)
+    if (state == FINISHED)
+      return;
+    else if (state == WAITING)
       suspendBuffer.add(chlog);
     else if (state == WORKING)
       try {
@@ -81,7 +83,7 @@ public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob imp
   public final void suspend() {
     state = WAITING;
     id++;
-
+    
     notifyListeners();
   }
 
@@ -93,6 +95,9 @@ public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob imp
       }
       suspendBuffer.clear();
       state = WORKING;
+      
+      if ( config.getIncrementalJobNumber() != 0 && id == config.getIncrementalJobNumber() + 1)
+        state = FINISHED;
 
       notifyListeners();
     } catch (FileNotFoundException e) {
