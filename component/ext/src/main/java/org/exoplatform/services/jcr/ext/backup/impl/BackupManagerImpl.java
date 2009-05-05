@@ -255,8 +255,10 @@ public class BackupManagerImpl implements BackupManager, Startable {
     List<BackupChainLog> logs = new ArrayList<BackupChainLog>();
     for (int i = 0; i < cfs.length; i++) {
       File cf = cfs[i];
+      
       try {
-        logs.add(new BackupChainLog(cf));
+        if (!isCurrentBackup(cf))
+          logs.add(new BackupChainLog(cf));
       } catch (BackupOperationException e) {
         log.warn("Log file " + cf.getAbsolutePath() + " is bussy or corrupted. Skipped. " + e, e);
       }
@@ -264,6 +266,24 @@ public class BackupManagerImpl implements BackupManager, Startable {
     BackupChainLog[] ls = new BackupChainLog[logs.size()];
     logs.toArray(ls);
     return ls;
+  }
+
+  /**
+   * isCurrentBackup.
+   *
+   * @param log
+   *          File, the log to backup 
+   * @return boolean
+   *           return the 'true' if this log is current backup.
+   */
+  private boolean isCurrentBackup(File log) {
+    Iterator<BackupChain>  it = currentBackups.iterator();
+
+    while (it.hasNext()) 
+      if (log.getAbsolutePath().equals(it.next().getLogFilePath())) 
+        return true;
+    
+    return false;
   }
 
   public void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
