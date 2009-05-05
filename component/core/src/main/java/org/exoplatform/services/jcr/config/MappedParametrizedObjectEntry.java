@@ -79,7 +79,7 @@ public abstract class MappedParametrizedObjectEntry {
   public String getParameterValue(String name, String defaultValue) {
     String value = defaultValue;
     for (int i = 0; i < parameters.size(); i++) {
-      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      SimpleParameterEntry p = parameters.get(i);
       if (p.getName().equals(name)) {
         value = p.getValue();
         break;
@@ -99,7 +99,7 @@ public abstract class MappedParametrizedObjectEntry {
    */
   public Integer getParameterInteger(String name, Integer defaultValue) {
     for (int i = 0; i < parameters.size(); i++) {
-      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      SimpleParameterEntry p = parameters.get(i);
       if (p.getName().equals(name)) {
         try {
           return StringNumberParser.parseInt(p.getValue());
@@ -138,7 +138,7 @@ public abstract class MappedParametrizedObjectEntry {
    */
   public Long getParameterLong(String name, Long defaultValue) {
     for (int i = 0; i < parameters.size(); i++) {
-      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      SimpleParameterEntry p = parameters.get(i);
       if (p.getName().equals(name)) {
         try {
           return StringNumberParser.parseLong(p.getValue());
@@ -178,7 +178,7 @@ public abstract class MappedParametrizedObjectEntry {
    */
   public Long getParameterTime(String name, Long defaultValue) {
     for (int i = 0; i < parameters.size(); i++) {
-      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      SimpleParameterEntry p = parameters.get(i);
       if (p.getName().equals(name)) {
         try {
           return StringNumberParser.parseTime(p.getValue());
@@ -218,7 +218,7 @@ public abstract class MappedParametrizedObjectEntry {
    */
   public Boolean getParameterBoolean(String name, Boolean defaultValue) {
     for (int i = 0; i < parameters.size(); i++) {
-      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      SimpleParameterEntry p = parameters.get(i);
       if (p.getName().equals(name)) {
         return new Boolean(p.getValue());
       }
