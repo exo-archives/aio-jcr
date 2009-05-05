@@ -18,6 +18,7 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
+import java.util.List;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -78,7 +79,7 @@ public interface WebDavService {
                String ifHeader,
                String fileNodeTypeHeader,
                String contentNodeTypeHeader,
-               String mixinTypes,
+               List<String> mixinTypes,
                String mimeType,
                InputStream inputStream);
 
@@ -127,7 +128,7 @@ public interface WebDavService {
                  String lockTokenHeader,
                  String ifHeader,
                  String nodeTypeHeader,
-                 String mixinTypesHeader);
+                 List<String> mixinTypesHeader);
 
   /**
    * @param repoName

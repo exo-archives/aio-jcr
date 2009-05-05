@@ -541,7 +541,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                         @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
                         @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
                         @HeaderParam(ExtHttpHeaders.CONTENT_NODETYPE) String nodeTypeHeader,
-                        @HeaderParam(ExtHttpHeaders.CONTENT_MIXINTYPES) String mixinTypesHeader) {
+                        @HeaderParam(ExtHttpHeaders.CONTENT_MIXINTYPES) List<String> mixinTypesHeader) {
     if (log.isDebugEnabled()) {
       log.debug("MKCOL " + repoName + "/" + repoPath);
     }
@@ -782,7 +782,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                       @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
                       @HeaderParam(ExtHttpHeaders.FILE_NODETYPE) String fileNodeTypeHeader,
                       @HeaderParam(ExtHttpHeaders.CONTENT_NODETYPE) String contentNodeTypeHeader,
-                      @HeaderParam(ExtHttpHeaders.CONTENT_MIXINTYPES) String mixinTypesHeader,
+                      @HeaderParam(ExtHttpHeaders.CONTENT_MIXINTYPES) List<String> mixinTypes,
                       @HeaderParam(HttpHeaders.CONTENT_TYPE) String mimeType,
                       InputStream inputStream) {
 
@@ -805,21 +805,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       NodeTypeManager ntm = session.getWorkspace().getNodeTypeManager();
       NodeType nodeType = ntm.getNodeType(contentNodeType);      
       NodeTypeUtil.checkContentResourceType(nodeType);
-      
-      ArrayList<String> mixins = NodeTypeUtil.getMixinTypes(mixinTypesHeader);     
 
       if (mimeType == null) {
         MimeTypeResolver mimeTypeResolver = new MimeTypeResolver();
         mimeTypeResolver.setDefaultMimeType(defaultFileMimeType);
         mimeType = mimeTypeResolver.getMimeType(TextUtil.nameOnly(repoPath));
       }
-
+      
       return new PutCommand(nullResourceLocks).put(session,
                                                    path(repoPath),
                                                    inputStream,
                                                    fileNodeType,
                                                    contentNodeType,
-                                                   mixins,
+                                                   NodeTypeUtil.getMixinTypes(mixinTypes),
                                                    mimeType,
                                                    updatePolicyType,
                                                    tokens);
