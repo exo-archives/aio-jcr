@@ -55,8 +55,8 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
   protected final FileCleaner cleaner;
 
   /**
-   * S3ValueStorage  constructor.
-   *
+   * S3ValueStorage constructor.
+   * 
    */
   public S3ValueStorage() {
     this.cleaner = new FileCleaner();
@@ -93,7 +93,7 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
    * {@inheritDoc}
    */
   @Override
-  public boolean match(String storageId) {
+  public boolean isSame(String storageId) {
     return getId().equals(storageId);
   }
 

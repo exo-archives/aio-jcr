@@ -26,9 +26,8 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
  */
 public class SimpleS3ValueStorage extends S3ValueStorage {
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#openIOChannel()
+  /**
+   * {@inheritDoc}
    */
   public ValueIOChannel openIOChannel() throws IOException {
     return new SimpleS3IOChannel(bucket,
