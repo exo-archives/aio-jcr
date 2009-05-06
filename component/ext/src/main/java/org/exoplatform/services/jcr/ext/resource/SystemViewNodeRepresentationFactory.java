@@ -19,20 +19,22 @@ package org.exoplatform.services.jcr.ext.resource;
 
 import javax.jcr.Node;
 
+import org.exoplatform.services.rest.resource.ResourceContainer;
+
 /**
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
+public class SystemViewNodeRepresentationFactory implements NodeRepresentationFactory, ResourceContainer {
 
-public class SystemViewNodeRepresentationFactory implements NodeRepresentationFactory {
-
+  
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#createNodeRepresentation(javax.jcr.Node, java.lang.String)
    */
   public NodeRepresentation createNodeRepresentation(Node node, String mediaTypeHint) {
-    return new DocumentViewNodeRepresentation(node);
+    return new SystemViewNodeRepresentation(node);
   }
 
   /* (non-Javadoc)
@@ -41,5 +43,5 @@ public class SystemViewNodeRepresentationFactory implements NodeRepresentationFa
   public String getNodeType() {
     return "nt:base";
   }
-
+  
 }

@@ -28,6 +28,7 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.Value;
 
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.core.ExtendedSession;
@@ -110,7 +111,20 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
     }
 
     try {
-      String value = node.getProperty(name).getString();
+      
+      String value;
+      Property p = node.getProperty(name);
+      if(p.getDefinition().isMultiple()) {
+        if(p.getValues().length == 0)
+          value =  "";
+        else
+          value = p.getValues()[0].getString();
+      } else {
+        value = p.getString();
+      }
+      
+      //String value = node.getProperty(name).getString();
+      
       String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
                                                        .parseJCRName(name)
                                                        .getNamespace();
@@ -127,6 +141,7 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
    * org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperties(java.lang.String)
    */
   public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
+    
     ArrayList<HierarchicalProperty> props = new ArrayList<HierarchicalProperty>();
     if ("jcr:primaryType".equals(name) || "jcr:mixinTypes".equals(name))
       return null;
@@ -139,13 +154,25 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
       String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
                                                        .parseJCRName(name)
                                                        .getNamespace();
-      PropertyIterator iter = node.getProperties(name);
-      while (iter.hasNext()) {
-        Property prop = iter.nextProperty();
-        props.add(new HierarchicalProperty(name, prop.getString(), ns));
+      Property p = node.getProperty(name);
+      if(p.getDefinition().isMultiple()) {
+        Value[] v = p.getValues();
+        for(int i=0; i<v.length; i++) {
+          props.add(new HierarchicalProperty(name, v[i].getString(), ns));
+        }
+      } else {
+        props.add(new HierarchicalProperty(name, p.getString(), ns));
       }
+        
+      
+//      PropertyIterator iter = node.getProperties(name);
+//      while (iter.hasNext()) {
+//        Property prop = iter.nextProperty();
+//        props.add(new HierarchicalProperty(name, prop.getString(), ns));
+//      }
     } catch (PathNotFoundException e) {
-      return null;
+      //e.printStackTrace();
+      //return null;
     }
     return props;
   }

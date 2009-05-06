@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Collection;
 
 import javax.jcr.Node;
+import javax.ws.rs.core.Response;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentation;
@@ -91,6 +92,18 @@ public class NodeRepresentationTest extends BaseStandaloneTest {
 
     compareStream(nodeRepresentation.getInputStream(), new ByteArrayInputStream(data.getBytes()));
 
+  }
+  
+  public void testSysViewRepresentation() throws Exception {
+    XMLViewNodeRepresentationRenderer sysView = (XMLViewNodeRepresentationRenderer)
+    container.getComponentInstanceOfType(XMLViewNodeRepresentationRenderer.class);
+  
+    assertNotNull(sysView);
+    
+    Response resp = sysView.getXML(repositoryService.getDefaultRepository().getConfiguration().getName(), 
+        workspace.getName()+"/", "doc", null);
+    assertEquals(200, resp.getStatus());
+    //System.out.println(">>>>>>>>>>>>>> "+resp.getEntity().getClass()+" "++" "+resp.getEntity());
   }
 
 }
