@@ -20,17 +20,25 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Node;
+import javax.jcr.Session;
+
+import javax.ws.rs.core.Response;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.command.propfind.PropFindResponseEntity;
 import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.jcr.webdav.Depth;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.w3c.dom.Document;
+
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev
@@ -38,7 +46,10 @@ import org.w3c.dom.Document;
  */
 public class TestPropFind extends BaseStandaloneTest {
   
-private final String author = "eXoPlatform";   
+  protected Node testPropFind;
+  
+
+  private final String author = "eXoPlatform";   
   
   private final String authorProp = "webdav:Author";
   
@@ -53,6 +64,37 @@ private final String author = "eXoPlatform";
   private String allPropsXML = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\"><D:allprop/></D:propfind>";
 
   
+  
+  public void setUp() throws Exception {
+    super.setUp();
+    testPropFind = root.addNode("TestPropFind", "nt:folder");
+  }
+  
+  public void testPropfindComplexContent() throws Exception {
+    
+    String path = testPropFind.getPath()+"/testPropfindComplexContent";
+    
+    // prepare data
+    Node node = TestUtils.addContent(session, path, 
+        new ByteArrayInputStream("file content".getBytes()), "nt:file", 
+        "exo:testResource", "text/plain");
+
+    node.getNode("jcr:content").addNode("node", "nt:unstructured").setProperty("node-prop", "prop");
+    node.getNode("jcr:content").setProperty("exo:prop", "prop");
+    
+    //test
+    HierarchicalProperty body = new HierarchicalProperty("D:propfind", null, "DAV:");
+    body.addChild(new HierarchicalProperty("D:allprop", null, "DAV:"));
+    Response resp = new PropFindCommand().propfind(session, path,
+        body, Depth.INFINITY_VALUE, "http://localhost");
+    
+    
+    
+    ByteArrayOutputStream bas = new ByteArrayOutputStream();
+    ((PropFindResponseEntity)resp.getEntity()).write(bas);
+    System.out.println(">>>>>>>>>>RESSSSSSSSSSSP>>>>>>>>>>>>>>> "+new String(bas.toByteArray()));
+    
+  }  
   
   public void testSimplePropFind() throws Exception{
     String content = TestUtils.getFileContent();

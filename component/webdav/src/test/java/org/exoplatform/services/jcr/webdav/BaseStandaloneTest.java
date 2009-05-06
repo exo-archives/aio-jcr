@@ -105,7 +105,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     session = (SessionImpl) repository.login(credentials, WORKSPACE);
     destSession = (SessionImpl) repository.login(credentials, DEST_WORKSPACE);
     workspace = session.getWorkspace();
-    root = session.getRootNode();
+    //root = session.getRootNode();
     initRepository();
     SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
     assertNotNull(sessionProviderService);
@@ -119,6 +119,13 @@ public abstract class BaseStandaloneTest extends TestCase {
     assertNotNull(requestHandler);
     providers = ProviderBinder.getInstance();
     ApplicationContextImpl.setCurrent(new ApplicationContextImpl(null, null, providers));
+    
+    
+    root = session.getRootNode().addNode("webdav-test", "nt:folder");
+    
+    //session.save();
+    
+    
   }
 
   public ContainerResponse service(String method,
@@ -162,6 +169,8 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   protected void tearDown() throws Exception {
+    
+    root.remove();
 
     if (session != null) {
       try {

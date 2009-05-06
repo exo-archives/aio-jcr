@@ -117,7 +117,14 @@
 
   </nodeType>
   
-  
+  <nodeType name="exo:testResource" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
+
+    <supertypes>
+      <supertype>nt:resource</supertype>
+      <supertype>nt:unstructured</supertype>
+    </supertypes>
+    
+  </nodeType> 
     
 	  
 </nodeTypes>

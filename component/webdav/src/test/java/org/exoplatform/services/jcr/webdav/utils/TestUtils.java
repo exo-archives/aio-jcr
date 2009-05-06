@@ -111,8 +111,14 @@ public class TestUtils {
   }
   
   public static Node addContent(Session session , String path, InputStream inputStream, String nodeType, String mimeType) throws RepositoryException {
+    return addContent(session , path, inputStream, nodeType, "nt:resource", mimeType);
+  }
+  
+  
+  public static Node addContent(Session session , String path, InputStream inputStream, String nodeType, String contentType, String mimeType) 
+  throws RepositoryException {
     Node node = session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
-    node.addNode("jcr:content", "nt:resource");
+    node.addNode("jcr:content", contentType);
     Node content = node.getNode("jcr:content");
     content.setProperty("jcr:mimeType", mimeType);
     content.setProperty("jcr:lastModified", Calendar.getInstance());
@@ -120,7 +126,6 @@ public class TestUtils {
     session.save();
     return node;
   }
-  
 
   public static void addFolder(Session session , String path, String nodeType, String mimeType) throws RepositoryException {
     session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
