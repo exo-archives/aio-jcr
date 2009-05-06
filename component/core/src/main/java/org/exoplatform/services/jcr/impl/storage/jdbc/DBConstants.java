@@ -162,11 +162,6 @@ public class DBConstants {
   protected String              UPDATE_PROPERTY;
   
   /**
-   * UPDATE_VALUE.
-   */
-  protected String              UPDATE_VALUE;
-
-  /**
    * DELETE_ITEM.
    */
   protected String              DELETE_ITEM;

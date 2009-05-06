@@ -90,10 +90,12 @@ public interface WorkspaceStorageConnection {
    * @throws IllegalStateException
    *           if connection is closed
    */
-  List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException, IllegalStateException;
+  List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException,
+                                                   IllegalStateException;
 
   /**
-   * Reads <code>List</code> of <code>PropertyData</code> from the storage using item's parent location.
+   * Reads <code>List</code> of <code>PropertyData</code> from the storage using item's parent
+   * location.
    * 
    * @param parent
    *          NodeData
@@ -103,12 +105,15 @@ public interface WorkspaceStorageConnection {
    * @throws IllegalStateException
    *           if connection is closed
    */
-  List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException;
+  List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException,
+                                                            IllegalStateException;
 
   /**
-   * Reads <code>List</code> of <code>PropertyData</code> with empty <code>ValueData</code> from the storage using item's parent location.
+   * Reads <code>List</code> of <code>PropertyData</code> with empty <code>ValueData</code> from the
+   * storage using item's parent location.
    * 
-   * <br/>This methiod specially dedicated for non-content modification operations (e.g. Items delete).
+   * <br/>
+   * This methiod specially dedicated for non-content modification operations (e.g. Items delete).
    * 
    * @param parent
    *          NodeData
@@ -117,13 +122,16 @@ public interface WorkspaceStorageConnection {
    *           if some exception occured
    * @throws IllegalStateException
    *           if connection is closed
-   */  
-  List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException;
+   */
+  List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException,
+                                                             IllegalStateException;
 
   /**
-   * Reads <code>List</code> of <code>PropertyData</code> from the storage using item's parent location.
+   * Reads <code>List</code> of <code>PropertyData</code> from the storage using item's parent
+   * location.
    * 
-   * <br/>It's REFERENCE type Properties referencing Node with given <code>nodeIdentifier</code>.
+   * <br/>
+   * It's REFERENCE type Properties referencing Node with given <code>nodeIdentifier</code>.
    * 
    * See more {@link javax.jcr.Node#getReferences()}
    * 
@@ -224,7 +232,7 @@ public interface WorkspaceStorageConnection {
                                 IllegalStateException;
 
   /**
-   * Renames <code>NodeData</code> using Node identifier and new name from the data.
+   * Renames <code>NodeData</code> using Node identifier and new name and index from the data.
    * 
    * @param data
    *          - NodeData to be renamed
@@ -239,7 +247,7 @@ public interface WorkspaceStorageConnection {
    *           if some exception occured
    * @throws IllegalStateException
    *           if connection is closed
-   */  
+   */
   void rename(NodeData data) throws RepositoryException,
                             UnsupportedOperationException,
                             InvalidItemStateException,
@@ -279,15 +287,14 @@ public interface WorkspaceStorageConnection {
    *           if some exception occured
    * @throws IllegalStateException
    *           if connection is closed
-   */  
+   */
   void delete(PropertyData data) throws RepositoryException,
                                 UnsupportedOperationException,
                                 InvalidItemStateException,
                                 IllegalStateException;
 
   /**
-   * Accepts (in sense of persistent changes) connection job results and closes connection. It can
-   * be database transaction commit for instance etc.
+   * Persist changes and closes connection. It can be database transaction commit for instance etc.
    * 
    * @throws IllegalStateException
    *           if connection is already closed
@@ -297,8 +304,8 @@ public interface WorkspaceStorageConnection {
   void commit() throws IllegalStateException, RepositoryException;
 
   /**
-   * Refuses (in sense of persistent changes) connection job results and closes connection. It can
-   * be database transaction rollback for instance etc.
+   * Refuses persistent changes and closes connection. It can be database transaction rollback for
+   * instance etc.
    * 
    * @throws IllegalStateException
    *           if connection is already closed
@@ -308,7 +315,9 @@ public interface WorkspaceStorageConnection {
   void rollback() throws IllegalStateException, RepositoryException;
 
   /**
-   * @return true if connection is opened
+   * Returns true if connection can be used.
+   * 
+   * @return boolean, true if connection is open and ready, false - otherwise
    */
   boolean isOpened();
 }

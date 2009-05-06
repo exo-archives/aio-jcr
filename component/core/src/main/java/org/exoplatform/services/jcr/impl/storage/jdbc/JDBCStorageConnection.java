@@ -1666,54 +1666,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /**
-   * Update Values to Property record.
-   * 
-   * @param data
-   *          PropertyData
-   * @throws SQLException
-   *           database error
-   * @throws IOException
-   *           I/O error
-   */
-  @Deprecated
-  // DONT USE IT
-  protected void updateValues(String cid, PropertyData data) throws IOException, SQLException {
-
-    List<ValueData> vdata = data.getValues();
-
-    for (int i = 0; i < vdata.size(); i++) {
-      ValueData vd = vdata.get(i);
-      vd.setOrderNumber(i);
-      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
-      InputStream stream;
-      int streamLength;
-      String storageId;
-      if (channel == null) {
-        // prepare update of Value in database
-        if (vd.isByteArray()) {
-          byte[] dataBytes = vd.getAsByteArray();
-          stream = new ByteArrayInputStream(dataBytes);
-          streamLength = dataBytes.length;
-        } else {
-          stream = vd.getAsStream();
-          streamLength = stream.available();
-        }
-        storageId = null;
-      } else {
-        // update Value in external VS
-        channel.write(data.getIdentifier(), vd);
-        valueChanges.add(channel);
-        storageId = channel.getStorageId();
-        stream = null;
-        streamLength = 0;
-      }
-      updateValueData(cid, i, stream, streamLength, storageId);
-    }
-  }
-
-  // ---- Data access methods (query wrappers) to override in concrete
-
   protected abstract int addNodeRecord(NodeData data) throws SQLException;
 
   protected abstract int addPropertyRecord(PropertyData prop) throws SQLException;
@@ -1753,12 +1705,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                       String storageId) throws SQLException;
 
   protected abstract int deleteValueData(String cid) throws SQLException;
-
-  protected abstract int updateValueData(String cid,
-                                         int orderNumber,
-                                         InputStream stream,
-                                         int streamLength,
-                                         String storageId) throws SQLException;
 
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
 

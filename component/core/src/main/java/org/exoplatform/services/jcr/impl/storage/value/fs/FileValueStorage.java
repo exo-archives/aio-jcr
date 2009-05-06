@@ -81,7 +81,7 @@ public abstract class FileValueStorage extends ValueStoragePlugin {
    * {@inheritDoc}
    */
   @Override
-  public boolean match(String storageId) {
+  public boolean isSame(String storageId) {
     return getId().equals(storageId);
   }
 

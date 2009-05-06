@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.storage.value;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.storage.value.ValueStorageNotFoundException;

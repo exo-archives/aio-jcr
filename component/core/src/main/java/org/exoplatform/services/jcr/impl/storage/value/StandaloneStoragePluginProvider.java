@@ -146,7 +146,7 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
     Iterator<ValueStoragePlugin> plugins = iterator();
     while (plugins.hasNext()) {
       ValueStoragePlugin plugin = plugins.next();
-      if (plugin.match(storageId)) {
+      if (plugin.isSame(storageId)) {
         return plugin.openIOChannel();
       }
     }

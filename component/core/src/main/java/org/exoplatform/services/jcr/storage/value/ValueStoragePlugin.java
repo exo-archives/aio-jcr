@@ -38,7 +38,7 @@ public abstract class ValueStoragePlugin {
   protected String                  id;
 
   /**
-   * Initialize this plugin.
+   * Initialize this plugin. Used at start time.
    * 
    * @param props
    *          configuration Properties
@@ -53,9 +53,10 @@ public abstract class ValueStoragePlugin {
                                                                                 IOException;
 
   /**
-   * Open ValueIOChannel.
+   * Open ValueIOChannel. Used in {@link ValueStoragePluginProvider.getApplicableChannel(PropertyData, int)} 
+   * and {@link ValueStoragePluginProvider.getChannel(String)}.
    * 
-   * @return ValueIOChannel
+   * @return ValueIOChannel channel
    * @throws IOException
    *           if error occurs
    */
@@ -108,12 +109,12 @@ public abstract class ValueStoragePlugin {
   public abstract void checkConsistency(WorkspaceStorageConnection dataConnection);
 
   /**
-   * Check criteria match.
+   * Return true if this storage has same <code>storageId</code>.
    * 
-   * @param valueDataDescriptor
+   * @param storageId
    *          String
-   * @return boolean, tru iof match
+   * @return boolean, true if id matches
    */
-  public abstract boolean match(String valueDataDescriptor);
+  public abstract boolean isSame(String storageId);
 
 }

@@ -55,7 +55,7 @@ public interface ValueIOChannel {
   void write(String propertyId, ValueData data) throws IOException;
 
   /**
-   * Delete Property values.
+   * Delete Property all values.
    * 
    * @param propertyId
    *          - Property ID
