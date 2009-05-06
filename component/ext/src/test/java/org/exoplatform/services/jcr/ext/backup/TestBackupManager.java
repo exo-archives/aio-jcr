@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.lock.Lock;
 
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -462,8 +463,103 @@ public class TestBackupManager extends AbstractBackupTestCase {
     
     Thread.sleep(20000);
     
+    assertTrue(bch.isFinished());
+    
     for (BackupChain chain : backup.getCurrentBackups())
       if (bch.getBackupId().equals(chain.getBackupId()))
         fail("The backup with id '" + chain.getBackupId() + "' should not be active");
+  }
+  
+  
+  public void testTwoRestores() throws Exception {
+    { 
+      SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws3");
+      
+      sessionWS1.getRootNode()
+                .addNode("asdasdasda", "nt:unstructured")
+                .setProperty("data", "data_1"/*new FileInputStream(createBLOBTempFile(1024))*/);
+      sessionWS1.save();
+    
+    
+      // 1-st backup
+      File backDir = new File("target/backup/ws1_restore_1");
+      backDir.mkdirs();
+  
+      BackupConfig config = new BackupConfig();
+      config.setRepository(repository.getName());
+      config.setWorkspace("ws3");
+      config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
+      config.setBackupDir(backDir);
+      
+      BackupChain bch = backup.startBackup(config);
+      
+      
+      // wait till full backup will be stopped
+      while (!bch.isFinished()) {
+        Thread.yield();
+        Thread.sleep(50);
+      }
+      
+      
+      // 1-st restore
+      WorkspaceEntry ws1_restore_1 = makeWorkspaceEntry("ws1_restore_1", "jdbcjcr_backup_only_use_6");
+      repository.configWorkspace(ws1_restore_1);
+      
+      File backLog = new File(bch.getLogFilePath());
+      if (backLog.exists()) {
+        BackupChainLog bchLog = new BackupChainLog(backLog);
+        
+        backup.restore(bchLog, repository.getName(), ws1_restore_1);
+  
+        // check
+        SessionImpl back1 = (SessionImpl) repository.login(credentials, "ws1_restore_1");
+        assertNotNull(back1.getRootNode().getNode("asdasdasda").getProperty("data"));
+        
+        // add date to restored workspace
+        back1.getRootNode()
+             .addNode("gdfgrghfhf", "nt:unstructured")
+             .setProperty("data", "data_2"/*new FileInputStream(createBLOBTempFile(1024))*/);
+        back1.save();
+      } else
+        fail("There are no backup files in " + backDir.getAbsolutePath());
+    }
+    
+    {
+      // 2-st backup
+      File backDir = new File("target/backup/ws1_restore_2");
+      backDir.mkdirs();
+  
+      BackupConfig config = new BackupConfig();
+      config.setRepository(repository.getName());
+      config.setWorkspace("ws1_restore_1");
+      config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
+      config.setBackupDir(backDir);
+      
+      BackupChain bch = backup.startBackup(config);
+      
+      
+      // wait till full backup will be stopped
+      while (!bch.isFinished()) {
+        Thread.yield();
+        Thread.sleep(50);
+      }
+      
+      
+      // 2-st restore
+      WorkspaceEntry ws1_restore_2 = makeWorkspaceEntry("ws1_restore_2", "jdbcjcr_backup_only_use_7");
+      repository.configWorkspace(ws1_restore_2);
+      
+      File backLog = new File(bch.getLogFilePath());
+      if (backLog.exists()) {
+        BackupChainLog bchLog = new BackupChainLog(backLog);
+        
+        backup.restore(bchLog, repository.getName(), ws1_restore_2);
+  
+        // check
+        SessionImpl back2 = (SessionImpl) repository.login(credentials, "ws1_restore_2");
+        assertNotNull(back2.getRootNode().getNode("gdfgrghfhf").getProperty("data"));
+      } else
+        fail("There are no backup files in " + backDir.getAbsolutePath());    
+    }
   }
 }
