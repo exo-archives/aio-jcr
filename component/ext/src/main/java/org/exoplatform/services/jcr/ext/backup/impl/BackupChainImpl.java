@@ -179,10 +179,10 @@ public class BackupChainImpl implements BackupChain {
       state |= INCREMENTAL_WORKING;
       chainLog.addJobEntry(incrementalBackup);
       jobs.add(incrementalBackup);
+      
+      if (config.getIncrementalJobPeriod() > 0)
+        periodConroller.start();
     }
-
-    if (config.getIncrementalJobPeriod() > 0)
-      periodConroller.start();
   }
 
   public final synchronized void stopBackup() {

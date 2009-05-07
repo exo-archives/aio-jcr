@@ -580,4 +580,27 @@ public class TestBackupManager extends AbstractBackupTestCase {
         fail("There are no backup files in " + backDir.getAbsolutePath());    
     }
   }
+  
+  public void testStartFullBackupWIthJobPeriod() throws Exception {
+    // backup
+    File backDir = new File("target/backup/ws1_fwp");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
+    config.setBackupDir(backDir);
+    config.setIncrementalJobPeriod(3600);
+
+    backup.startBackup(config);
+
+    BackupChain bch = backup.findBackup(repository.getName(), "ws1");
+
+    // wait till full backup will be stopped
+    while (bch.getFullBackupState() != BackupJob.FINISHED) {
+      Thread.yield();
+      Thread.sleep(50);
+    }
+  }
 }
