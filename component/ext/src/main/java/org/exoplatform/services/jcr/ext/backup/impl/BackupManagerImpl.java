@@ -240,8 +240,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
             BackupChain chain = it.next();
             boolean isFinished = (chain.getBackupJobs().get(0).getState() == BackupJob.FINISHED);
             
-            for (BackupJob job : chain.getBackupJobs()) 
-              isFinished &= (job.getState() == BackupJob.FINISHED);
+            for (int i = 1 ; i < chain.getBackupJobs().size(); i++) 
+              isFinished &= (chain.getBackupJobs().get(i).getState() == BackupJob.FINISHED);
             
             if (isFinished) {
               stopedList.add(chain);
@@ -249,8 +249,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
           }
           
           // STOP backups
-          for (BackupChain chain : stopedList)
-            stopBackup(chain);
+            for (BackupChain chain : stopedList)
+              stopBackup(chain);  
         } catch (InterruptedException e) {
           log.error( "The interapted this thread.", e);
         } catch (Throwable e) {

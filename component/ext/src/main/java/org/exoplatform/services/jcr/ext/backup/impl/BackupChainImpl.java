@@ -209,9 +209,6 @@ public class BackupChainImpl implements BackupChain {
     incrementalBackup.suspend();
     incrementalBackup.resume();
     chainLog.addJobEntry(incrementalBackup);
-
-    // [PN] 05.02.2008 don't add same job
-    // jobs.add(incrementalBackup);
   }
 
   public BackupConfig getBackupConfig() {
@@ -239,7 +236,9 @@ public class BackupChainImpl implements BackupChain {
 
     @Override
     public void run() {
-      if (!isFirst) {
+      if (incrementalBackup.getState() == BackupJob.FINISHED) {
+        this.stop();
+      } else if (!isFirst) {
         isFirst = true;
       } else {
         Thread starter = new Thread() {

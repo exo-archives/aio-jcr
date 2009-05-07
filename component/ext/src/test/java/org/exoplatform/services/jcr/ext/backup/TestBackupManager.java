@@ -459,7 +459,25 @@ public class TestBackupManager extends AbstractBackupTestCase {
     config.setIncrementalJobPeriod(4);
     config.setIncrementalJobNumber(2);
     
-    BackupChain bch = backup.startBackup(config);
+    final BackupChain bch = backup.startBackup(config);
+    
+    /*Thread t = new Thread() {
+      @Override
+      public void run() {
+        while (true) {
+          System.out.println(bch.isFinished() + " : f-" + (bch.getBackupJobs().get(0).getState() == BackupJob.FINISHED)
+                                              + " : i-" + (bch.getBackupJobs().get(1).getState() == BackupJob.FINISHED)
+                                              + " : s-" + bch.getBackupJobs().size());
+          try {
+            Thread.sleep(50);
+          } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+        }
+      }
+    };
+    t.start();*/
     
     Thread.sleep(20000);
     
