@@ -42,7 +42,6 @@
       <scope>compile</scope>
       <excludes>
         <exclude>junit:junit</exclude>
-        <exclude>org.exoplatform.kernel:exo.kernel.container</exclude>
         <exclude>org.exoplatform.kernel:exo.kernel.commons</exclude>
         <exclude>commons-lang:commons-lang</exclude>
         <exclude>xpp3:xpp3</exclude>
@@ -55,10 +54,7 @@
         <exclude>xstream:xstream</exclude>
         <exclude>commons-beanutils:commons-beanutils</exclude>
         <exclude>commons-collections:commons-collections</exclude>
-        <exclude>org.jibx:jibx-run</exclude>
-        <exclude>org.jibx:jibx-bind</exclude>
         <exclude>bcel:bcel</exclude>
-        <exclude>org.jibx:jibx-extras</exclude>
         <exclude>javax.activation:activation</exclude>
         <exclude>jotm:jotm</exclude>
         <exclude>jotm:jotm_jrmp_stubs</exclude>
@@ -68,7 +64,6 @@
         <exclude>quartz:quartz</exclude>
         <exclude>javax.mail:mail</exclude>
         <exclude>javax.transaction:jta</exclude>
-        <exclude>com.sun.xml.stream:sjsxp</exclude>
         <exclude>stax:stax-api</exclude>
       </excludes>
  

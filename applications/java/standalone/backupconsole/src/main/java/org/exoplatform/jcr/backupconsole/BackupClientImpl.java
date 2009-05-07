@@ -17,19 +17,22 @@
 package org.exoplatform.jcr.backupconsole;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import javax.ws.rs.core.Response;
 
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
-import org.exoplatform.services.jcr.ext.backup.server.HTTPBackupAgent;
 import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
+import org.exoplatform.services.jcr.ext.backup.server.HTTPBackupAgent;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
-import org.exoplatform.services.jcr.ext.backup.server.bean.RestoreBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
@@ -42,6 +45,10 @@ import org.exoplatform.ws.frameworks.json.impl.JsonException;
 import org.exoplatform.ws.frameworks.json.impl.JsonGeneratorImpl;
 import org.exoplatform.ws.frameworks.json.impl.JsonParserImpl;
 import org.exoplatform.ws.frameworks.json.value.JsonValue;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -229,27 +236,23 @@ public class BackupClientImpl implements BackupClient {
     String sURL = HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.RESTORE +
                   "/" + repositoryName +
-                  "/" + workspaceName;
+                  "/" + backupId;
 
-    ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    byte[] b = new byte[BLOCK_SIZE];
-    int len = 0;
-    while ((len = config.read(b)) != -1) {
-      bout.write(b, 0, len);
+    
+    WorkspaceEntry wEntry = null;
+    try {
+      wEntry = getWorkspaceEntry(config, repositoryName, workspaceName);
+    } catch (Throwable e) {
+     throw new BackupExecuteException("Can not get WorkspaceEntry for workspace '" + workspaceName + "' from config.", e); 
     }
-    config.close();
-    byte[] cb = bout.toByteArray();
-    bout.close();
-
-    RestoreBean bean = new RestoreBean(backupId,
-                                       new String(cb, "UTF-8"));
+    
     JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
     JsonValue json;
     
     try {
-      json = generatorImpl.createJsonObject(bean);
+      json = generatorImpl.createJsonObject(wEntry);
     } catch (JsonException e) {
-      throw new BackupExecuteException("Can not get json from  : " + bean.getClass().toString(), e);
+      throw new BackupExecuteException("Can not get json from  : " + wEntry.getClass().toString(), e);
     }
         
     BackupAgentResponse response  = transport.executePOST(sURL, json.toString());
@@ -535,5 +538,44 @@ public class BackupClientImpl implements BackupClient {
     } catch (UnsupportedEncodingException e) {
       throw new BackupExecuteException("Can not encoded the responce : " + e.getMessage(), e);
     }
+  }
+    
+  /**
+   * getWorkspaceEntry.
+   *
+   * @param wEntryStream
+   *          InputStream, the workspace configuration
+   * @param workspaceName
+   *          String, the workspace name 
+   * @return WorkspaceEntry
+   *           return the workspace entry
+   * @throws FileNotFoundException
+   *           will be generated the FileNotFoundException 
+   * @throws JiBXException
+   *           will be generated the JiBXException 
+   * @throws RepositoryConfigurationException
+   *           will be generated the RepositoryConfigurationException 
+   */
+  private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream, String repositoryName, String workspaceName) throws FileNotFoundException,
+                                                                                          JiBXException,
+                                                                                          RepositoryConfigurationException {
+    WorkspaceEntry wsEntry = null;
+
+    IBindingFactory factory = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
+    IUnmarshallingContext uctx = factory.createUnmarshallingContext();
+    RepositoryServiceConfiguration conf = (RepositoryServiceConfiguration) uctx.unmarshalDocument(wEntryStream,
+                                                                                                  null);
+    RepositoryEntry rEntry = conf.getRepositoryConfiguration(repositoryName);
+    
+    for (WorkspaceEntry wEntry : rEntry.getWorkspaceEntries())
+      if (wEntry.getName().equals(workspaceName))
+        wsEntry = wEntry;
+    
+
+    if (wsEntry == null)
+      throw new RuntimeException("Can not find the workspace '" + workspaceName
+          + "' in configuration.");
+
+    return wsEntry;
   }
 }
