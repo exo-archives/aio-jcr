@@ -73,6 +73,8 @@ public class BackupChainLog {
   private Calendar                 startedTime;
   
   private Calendar                 finishedTime;
+  
+  private boolean                  finalized;
 
   public BackupChainLog(File logDir,
                         BackupConfig config,
@@ -80,6 +82,7 @@ public class BackupChainLog {
                         String incrementalBackupType,
                         String backupId) throws BackupOperationException {
     try {
+      this.finalized = false;
       this.log = new File(logDir.getCanonicalPath() + File.separator + (PREFIX + backupId + SUFFIX));
       this.log.createNewFile();
       this.backupId = backupId;
@@ -159,6 +162,7 @@ public class BackupChainLog {
   }
 
   public void endLog() {
+    finalized = true;
     logWriter.writeEndLog();
   }
 
@@ -345,7 +349,10 @@ public class BackupChainLog {
 
           if (name.equals("incremental-job-period"))
             conf.setIncrementalJobPeriod(Long.valueOf(readContent()).longValue());
-
+          
+          if (name.equals("incremental-job-number"))
+            conf.setIncrementalJobNumber(Integer.valueOf(readContent()).intValue());
+          
           break;
 
         case StartElement.END_ELEMENT:
@@ -444,6 +451,10 @@ public class BackupChainLog {
       writer.writeStartElement("incremental-job-period");
       writer.writeCharacters(Long.toString(config.getIncrementalJobPeriod()));
       writer.writeEndElement();
+      
+      writer.writeStartElement("incremental-job-number");
+      writer.writeCharacters(Integer.toString(config.getIncrementalJobNumber()));
+      writer.writeEndElement();
 
       writer.writeEndElement();
 
@@ -503,5 +514,9 @@ public class BackupChainLog {
 
       return sState;
     }
+  }
+
+  public boolean isFinilized() {
+    return finalized;
   }
 }

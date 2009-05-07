@@ -318,15 +318,13 @@ public class BackupManagerImpl implements BackupManager, Startable {
    * @param log
    *          File, the log to backup 
    * @return boolean
-   *           return the 'true' if this log is current backup.
+   *           return the 'true' if this log is current backup. 
    */
   private boolean isCurrentBackup(File log) {
-    Iterator<BackupChain>  it = currentBackups.iterator();
-
-    while (it.hasNext()) 
-      if (log.getAbsolutePath().equals(it.next().getLogFilePath())) 
+    for (BackupChain chain : currentBackups) 
+      if (log.getName().equals(new File(chain.getLogFilePath()).getName())) 
         return true;
-    
+
     return false;
   }
 

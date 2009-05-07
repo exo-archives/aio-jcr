@@ -186,23 +186,23 @@ public class BackupChainImpl implements BackupChain {
   }
 
   public final synchronized void stopBackup() {
-    if (fullBackup.getState() != BackupJob.FINISHED) {
+    if (!chainLog.isFinilized()) {
       fullBackup.stop();
       chainLog.addJobEntry(fullBackup);
       removeJobListeners(fullBackup);
+
+      if (incrementalBackup != null) {
+        if (config.getIncrementalJobPeriod() > 0)
+          periodConroller.stop();
+  
+        incrementalBackup.stop();
+        chainLog.addJobEntry(incrementalBackup);
+        removeJobListeners(incrementalBackup);
+      }
+
+      this.state |= FINISHED;
+      chainLog.endLog();
     }
-
-    if (incrementalBackup != null && incrementalBackup.getState() != BackupJob.FINISHED) {
-      if (config.getIncrementalJobPeriod() > 0)
-        periodConroller.stop();
-
-      incrementalBackup.stop();
-      chainLog.addJobEntry(incrementalBackup);
-      removeJobListeners(incrementalBackup);
-    }
-
-    this.state |= FINISHED;
-    chainLog.endLog();
   }
 
   public void restartIncrementalBackup() {

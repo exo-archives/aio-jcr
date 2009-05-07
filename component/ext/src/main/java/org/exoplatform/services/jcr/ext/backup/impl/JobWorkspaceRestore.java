@@ -195,45 +195,6 @@ public class JobWorkspaceRestore extends Thread {
   }
 
   /**
-   * getWorkspaceEntry.
-   *
-   * @param wEntryStream
-   *          InputStream, the workspace configuration
-   * @param workspaceName
-   *          String, the workspace name 
-   * @return WorkspaceEntry
-   *           return the workspace entry
-   * @throws FileNotFoundException
-   *           will be generated the FileNotFoundException 
-   * @throws JiBXException
-   *           will be generated the JiBXException 
-   * @throws RepositoryConfigurationException
-   *           will be generated the RepositoryConfigurationException 
-   */
-  private WorkspaceEntry getWorkspaceEntry(InputStream wEntryStream, String workspaceName) throws FileNotFoundException,
-                                                                                          JiBXException,
-                                                                                          RepositoryConfigurationException {
-    WorkspaceEntry wsEntry = null;
-
-    IBindingFactory factory = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
-    IUnmarshallingContext uctx = factory.createUnmarshallingContext();
-    RepositoryServiceConfiguration conf = (RepositoryServiceConfiguration) uctx.unmarshalDocument(wEntryStream,
-                                                                                                  null);
-
-    RepositoryEntry rEntry = conf.getRepositoryConfiguration(repositoryName);
-
-    for (WorkspaceEntry wEntry : rEntry.getWorkspaceEntries())
-      if (wEntry.getName().equals(workspaceName))
-        wsEntry = wEntry;
-
-    if (wsEntry == null)
-      throw new RuntimeException("Can not find the workspace '" + workspaceName
-          + "' in configuration.");
-
-    return wsEntry;
-  }
-
-  /**
    * removeWorkspace.
    *
    * @param mr
