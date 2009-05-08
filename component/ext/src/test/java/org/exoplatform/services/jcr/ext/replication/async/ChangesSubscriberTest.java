@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
@@ -33,7 +34,12 @@ import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
@@ -49,9 +55,13 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChang
  */
 public class ChangesSubscriberTest extends AbstractTrasportTest {
 
-  private static final String CH_NAME     = "AsyncRepCh_Test_ChangesSubscriberTest";
+  private static final String  CH_NAME     = "AsyncRepCh_Test_ChangesSubscriberTest";
 
-  private static final String bindAddress = "127.0.0.1";
+  private static final String  bindAddress = "127.0.0.1";
+
+  private SessionImpl          sessionWS1;
+
+  private CountDownLatchThread latch;
 
   public void testAcceptChanges() throws Exception {
     // generate test Data
@@ -96,7 +106,7 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
     // Initialization AsyncReplication (ChangesSubscriber).
     CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
-    SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
+    sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
 
     List<String> repositoryNames = new ArrayList<String>();
     repositoryNames.add(repository.getName());
@@ -165,5 +175,189 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
         assertEquals(srcNode.getNode("testNode_" + j + "_" + i).getName(),
                      destNode.getNode("testNode_" + j + "_" + i).getName());
 
+  }
+
+  public void testFirstChangesWaiterDoCancel() throws Exception {
+    // Initialization AsyncReplication (ChangesSubscriber).
+    CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
+    sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
+
+    List<String> repositoryNames = new ArrayList<String>();
+    repositoryNames.add(repository.getName());
+
+    int priority1 = 50;
+    int priority2 = 100;
+    int waitAllMemberTimeout = 20; // 2 seconds.
+
+    File storage = new File("target/temp/storage/" + System.currentTimeMillis());
+    storage.mkdirs();
+
+    List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
+    otherParticipantsPriority.add(priority2);
+
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0),
+                                                             sessionWS1.getWorkspace().getName(),
+                                                             priority1,
+                                                             otherParticipantsPriority,
+                                                             bindAddress,
+                                                             CH_CONFIG,
+                                                             CH_NAME,
+                                                             storage.getAbsolutePath(),
+                                                             waitAllMemberTimeout);
+
+    AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService,
+                                                                         new InitParams());
+    asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));
+
+    asyncReplication.start();
+
+    // send changes
+    String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
+
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_", 2);
+    channel.addStateListener(this);
+    CancelReceiver cancelReceiver = new CancelReceiver();
+    channel.addPacketListener(cancelReceiver);
+
+    AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority2);
+
+    // Synchronize on workspace 'ws1'.
+    asyncReplication.synchronize(repository.getName(), sessionWS1.getWorkspace().getName(), "");
+
+    Thread.sleep(5000);
+
+    latch = new CountDownLatchThread(1);
+    
+    channel.connect();
+
+    // wait receive
+    latch.await();    
+    
+    assertNotNull(cancelReceiver.cancelPacket);
+    
+    channel.disconnect();
+  }
+  
+  public void testFirstChangesWaiterNotCancel() throws Exception {
+    // Initialization AsyncReplication (ChangesSubscriber).
+    CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
+    sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
+
+    List<String> repositoryNames = new ArrayList<String>();
+    repositoryNames.add(repository.getName());
+
+    int priority1 = 50;
+    int priority2 = 100;
+    int waitAllMemberTimeout = 20; // 60 seconds.
+
+    File storage = new File("target/temp/storage/" + System.currentTimeMillis());
+    storage.mkdirs();
+
+    List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
+    otherParticipantsPriority.add(priority2);
+
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0),
+                                                             sessionWS1.getWorkspace().getName(),
+                                                             priority1,
+                                                             otherParticipantsPriority,
+                                                             bindAddress,
+                                                             CH_CONFIG,
+                                                             CH_NAME,
+                                                             storage.getAbsolutePath(),
+                                                             waitAllMemberTimeout);
+
+    AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService,
+                                                                         new InitParams());
+    asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));
+
+    asyncReplication.start();
+
+    // send changes
+    String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
+
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_", 2);
+    channel.addStateListener(this);
+    CancelReceiver cancelReceiver = new CancelReceiver();
+    channel.addPacketListener(cancelReceiver);
+
+    AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority2);
+
+    // Synchronize on workspace 'ws1'.
+    asyncReplication.synchronize(repository.getName(), sessionWS1.getWorkspace().getName(), "");
+
+    Thread.sleep(5000);
+
+    latch = new CountDownLatchThread(1);
+    
+    channel.connect();
+    
+    Thread.sleep(5000);
+    
+    ChangesPacket packet = new ChangesPacket(AsyncPacketTypes.CHANGESLOG_PACKET,
+                               priority2,
+                               10,
+                               new byte[20],
+                               1,
+                               2,
+                               0,
+                               new byte[1024]);
+    
+    
+    for (Member m : memberList)
+      channel.sendPacket(packet, new MemberAddress(m.getAddress().getAddress()));
+
+    Thread.sleep(20000);    
+    
+    assertNull(cancelReceiver.cancelPacket);
+    
+    channel.disconnect();
+  }
+
+  private class CancelReceiver implements AsyncPacketListener {
+    private CancelPacket cancelPacket;
+
+    public void onError(MemberAddress sourceAddress) {
+    }
+
+    public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
+      if (packet instanceof CancelPacket) {
+        switch (packet.getType()) {
+        case AsyncPacketTypes.SYNCHRONIZATION_CANCEL:
+
+          cancelPacket = (CancelPacket) packet;
+          latch.countDown();
+
+          break;
+        }
+      } 
+    }
+  }
+
+  protected void tearDown() throws Exception {
+
+    if (sessionWS1 != null) {
+      try {
+        sessionWS1.refresh(false);
+        Node rootNode = sessionWS1.getRootNode();
+        if (rootNode.hasNodes()) {
+          // clean test root
+          for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
+            Node node = children.nextNode();
+            if (!node.getPath().startsWith("/jcr:system")
+                && !node.getPath().startsWith("/exo:audit")
+                && !node.getPath().startsWith("/exo:organization")) {
+              node.remove();
+            }
+          }
+          sessionWS1.save();
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        sessionWS1.logout();
+      }
+    }
+
+    super.tearDown();
   }
 }

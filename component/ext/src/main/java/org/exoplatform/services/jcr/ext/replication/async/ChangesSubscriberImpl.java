@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -79,6 +80,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final int                          localPriority;
 
   protected final HashMap<Integer, Counter>    counterMap;
+  
+  protected final List<Integer>                firstChanges;
 
   // protected List<MemberAddress> mergeDoneList = new
   // ArrayList<MemberAddress>();
@@ -270,6 +273,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     this.mergeBarier = new CountDownLatch(confMembersCount);
     this.confMembersCount = confMembersCount;
     this.counterMap = new LinkedHashMap<Integer, Counter>();
+    this.firstChanges = new ArrayList<Integer>();
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
     this.holder = holder;
@@ -318,6 +322,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           mcf = new IncomeDataContext(cf, member, packet.getPacketsCount());
           incomChanges.put(getKey(packet), mcf);
         }
+        
+        if (!firstChanges.contains(packet.getTransmitterPriority()))
+          firstChanges.add(packet.getTransmitterPriority());
 
         mcf.writeData(packet.getBuffer(), packet.getOffset());
 
@@ -545,13 +552,13 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         Thread.sleep(memberWaitTimeout);
 
         if (run)
-          if ((counterMap.size() + 1) != confMembersCount) {
-            LOG.error("No changes from one of members, received " + (counterMap.size() + 1)
+          if ((firstChanges.size() + 1) != confMembersCount) {
+            LOG.error("No changes from one of members, received " + (firstChanges.size() + 1)
                 + ", expected " + confMembersCount + ".");
             doCancel();
           } else if (LOG.isDebugEnabled())
             LOG.debug("FirstChangesWaiter stopped. Changes from all members ("
-                + (counterMap.size() + 1) + ") received.");
+                + (firstChanges.size() + 1) + ") received.");
       } catch (InterruptedException e) {
         LOG.error("FirstChangesWaiter is interrupted : " + e, e);
       }
