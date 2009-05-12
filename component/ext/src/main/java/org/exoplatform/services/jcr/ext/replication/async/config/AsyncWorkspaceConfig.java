@@ -107,7 +107,7 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
    *          the InitParams from configuration.
    */
   public AsyncWorkspaceConfig(InitParams params) {
-    PropertiesParam pps = params.getPropertiesParam("async-workspca-config");
+    PropertiesParam pps = params.getPropertiesParam("async-workspace-config");
 
     if (pps == null)
       throw new RuntimeException("replication-properties not specified");

@@ -445,7 +445,7 @@
         <description>async replication config per workspace</description>
         <init-params>
           <properties-param>
-            <name>async-workspca-config</name>
+            <name>async-workspace-config</name>
             <property name="repository-name" value="db1"/>
             <property name="workspace-name" value="ws"/>
             <property name="priority" value="80"/>
@@ -460,13 +460,13 @@
       </component-plugin>
       
       <component-plugin>
-        <name>async-workspca-config</name>
+        <name>async-workspace-config</name>
         <set-method>addAsyncWorkspaceConfig</set-method>
         <type>org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig</type>
         <description>async replication config per workspace</description>
         <init-params>
           <properties-param>
-            <name>async-workspca-config</name>
+            <name>async-workspce-config</name>
             <property name="repository-name" value="db1"/>
             <property name="workspace-name" value="ws1"/>
             <property name="priority" value="80"/>

@@ -144,7 +144,7 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     PropertiesParam pps = new PropertiesParam();
 
-    pps.setName("async-workspca-config");
+    pps.setName("async-workspace-config");
 
     pps.setProperty("repository-name", repositoryName);
     pps.setProperty("workspace-name", workspaceName);
