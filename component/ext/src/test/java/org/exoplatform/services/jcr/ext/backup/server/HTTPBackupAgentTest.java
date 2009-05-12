@@ -624,7 +624,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
     Thread.sleep(2000);
     
-    // Get restores info to workspace /db6/ws3
+    // Get restore info to workspace /db6/ws3
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       ContainerRequest creq = new ContainerRequest("GET",
@@ -650,8 +650,42 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
       assertEquals(ShortInfo.RESTORE, info.getType().intValue());
       assertEquals(JobWorkspaceRestore.RESTORE_SUCCESSFUL, info.getState().intValue());
       assertEquals("db6", info.getRepositoryName());
-      assertEquals("ws2", info.getWorkspaceName());
+      assertEquals("ws3", info.getWorkspaceName());
       assertNotNull(info.getBackupConfig());
+      
+      Session sessin_ws3 = repositoryService.getRepository("db6").login(credentials, "ws3");
+      assertNotNull(sessin_ws3);
+      assertNotNull(sessin_ws3.getRootNode());
+    }
+    
+    // Get restores info
+    {
+      MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+      ContainerRequest creq = new ContainerRequest("GET",
+                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORES),
+                                                   new URI(""),
+                                                   null,
+                                                   new InputHeadersMap(headers));
+      
+      ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
+      ContainerResponse cres = new ContainerResponse(responseWriter);
+      handler.handleRequest(creq, cres);
+      
+      assertEquals(200, cres.getStatus());
+      
+      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+      assertNotNull(infoList);
+      
+      ShortInfo info = new ArrayList<ShortInfo>(infoList.getBackups()).get(0);
+      
+      assertNotNull(info);
+      assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+      assertNotNull(info.getStartedTime());
+      assertNotNull(info.getFinishedTime());
+      assertEquals(ShortInfo.RESTORE, info.getType().intValue());
+      assertEquals(JobWorkspaceRestore.RESTORE_SUCCESSFUL, info.getState().intValue());
+      assertEquals("db6", info.getRepositoryName());
+      assertEquals("ws3", info.getWorkspaceName());
       
       Session sessin_ws3 = repositoryService.getRepository("db6").login(credentials, "ws3");
       assertNotNull(sessin_ws3);

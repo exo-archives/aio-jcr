@@ -94,6 +94,37 @@ public class DetailedInfo extends ShortInfo {
     super(type, chainLog, startedTime, finishedTime, state);
     this.backupConfig = new BackupConfigBean(chainLog.getBackupConfig());
   }
+  
+  /**
+   * DetailedInfo constructor.
+   * 
+   * For restore.
+   *
+   * @param type
+   *          int, the type of DetailedInfo 
+   * @param chainLog
+   *          BackupChainLog, chain log for restore
+   * @param startedTime
+   *          Calendar, the started time of restore 
+   * @param finishedTime
+   *          Calendar, the finished time of restore
+   * @param state
+   *          int, the state of restore
+   * @param repositroryName
+   *          String, the repository name
+   * @param workspaceName
+   *          String, the workspace name           
+   */
+  public DetailedInfo(int type, 
+                      BackupChainLog chainLog,
+                      Calendar startedTime,
+                      Calendar finishedTime,
+                      int state,
+                      String repositroryName,
+                      String workspaceName) {
+    super(type, chainLog, startedTime, finishedTime, state, repositroryName, workspaceName);
+    this.backupConfig = new BackupConfigBean(chainLog.getBackupConfig());
+  }
 
   /**
    * getBackupConfig.

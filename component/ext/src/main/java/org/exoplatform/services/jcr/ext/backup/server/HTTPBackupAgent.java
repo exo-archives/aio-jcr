@@ -127,6 +127,11 @@ public class HTTPBackupAgent implements ResourceContainer {
        * The current restore info operations for specific workspace.
        */
       public static final String CURRENT_RESTORE_INFO_ON_WS               = "/info/restore";
+      
+      /**
+       * The current restores info operations.
+       */
+      public static final String CURRENT_RESTORES                         = "/info/restores";
 
       /**
        * The completed backups info operations.
@@ -689,7 +694,9 @@ public class HTTPBackupAgent implements ResourceContainer {
                                              restoreJob.getBackupChainLog(),
                                              restoreJob.getStartTime(),
                                              restoreJob.getEndTime(),
-                                             restoreJob.getStateRestore());
+                                             restoreJob.getStateRestore(),
+                                             restoreJob.getRepositoryName(),
+                                             restoreJob.getWorkspaceName());
         return Response.ok(info).build();  
       } else {
         return Response.status(Response.Status.NOT_FOUND)
@@ -703,6 +710,60 @@ public class HTTPBackupAgent implements ResourceContainer {
 
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                      .entity("Can not get information about current restore for workspace /" + repository + "/" + workspace + "' : " + e.getMessage())
+                     .type(MediaType.TEXT_PLAIN)
+                     .build();
+    }
+  }
+  
+  /**
+   * Will be returned the detailed information about last restores.
+   * 
+   * @return Response return the response
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/info/restores")
+  public Response infoRestores() {
+    try {
+      List<JobWorkspaceRestore> restoreJobs = backupManager.getRestores();
+      
+      List<JobWorkspaceRestore> jobs = new ArrayList<JobWorkspaceRestore>();
+      
+      for (int i = restoreJobs.size() - 1; i >= 0; i--) {
+        JobWorkspaceRestore job = restoreJobs.get(i);
+        boolean isUnique = true;
+        for (JobWorkspaceRestore unJob : jobs) {
+          if (unJob.getRepositoryName().equals(job.getRepositoryName())
+              && unJob.getWorkspaceName().equals(job.getWorkspaceName()))
+            isUnique = false;
+        }
+        
+        if (isUnique)
+          jobs.add(job);
+      }
+      
+      List<ShortInfo> list = new ArrayList<ShortInfo>();
+      
+      
+
+      for (JobWorkspaceRestore job : jobs) {
+        ShortInfo info = new ShortInfo(ShortInfo.RESTORE, 
+                                       job.getBackupChainLog(),
+                                       job.getStartTime(),
+                                       job.getEndTime(),
+                                       job.getStateRestore(),
+                                       job.getRepositoryName(),
+                                       job.getWorkspaceName());
+        list.add(info);
+      } 
+      
+      return Response.ok(new ShortInfoList(list)).build();
+      
+    } catch (Throwable e) {
+      log.error("Can not get information about current restores.", e);
+
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                     .entity("Can not get information about current restores : " + e.getMessage())
                      .type(MediaType.TEXT_PLAIN)
                      .build();
     }

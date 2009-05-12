@@ -187,6 +187,38 @@ public class ShortInfo {
   }
   
   /**
+   * ShortInfo constructor.
+   * 
+   * For restore.
+   *
+   * @param type
+   *          int, the tupe of short info
+   * @param chainLog
+   *          BackupChainLog, the backup chain log for completed backup. 
+   * @param startedTime
+   *          Calendar, the stated time
+   * @param finishedTime
+   *          Calendar, the finished time
+   * @param state
+   *          int, the state of restore
+   * @param repositroryName
+   *          String, the repository name
+   * @param workspaceName
+   *          String, the workspace name           
+   */
+  public ShortInfo(int type, 
+                   BackupChainLog chainLog,
+                   Calendar startedTime,
+                   Calendar finishedTime,
+                   int state,
+                   String repositroryName,
+                   String workspaceName) {
+    this(type, chainLog, startedTime, finishedTime, state);
+    this.repositoryName = repositroryName;
+    this.workspaceName = workspaceName;
+  }
+  
+  /**
    * getState.
    *
    * @return Integer
