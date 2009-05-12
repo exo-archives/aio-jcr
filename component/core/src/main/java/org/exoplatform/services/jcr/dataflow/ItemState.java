@@ -209,13 +209,13 @@ public class ItemState implements Externalizable {
     return false;
   }
 
-  public boolean isSame(ItemState state) {
-    if (this == state)
+  public boolean isSame(ItemState item) {
+    if (this == item)
       return true;
 
-    return this.getData().getIdentifier().hashCode() == state.getData().getIdentifier().hashCode()
-        && this.getData().getQPath().hashCode() == state.getData().getQPath().hashCode()
-        && this.getState() == state.getState();
+    return this.getData().getIdentifier().hashCode() == item.getData().getIdentifier().hashCode()
+        && this.getData().getQPath().hashCode() == item.getData().getQPath().hashCode()
+        && this.getState() == item.getState();
   }
 
   /**
