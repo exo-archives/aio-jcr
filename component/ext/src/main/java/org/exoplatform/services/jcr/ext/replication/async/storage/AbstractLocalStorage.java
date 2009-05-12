@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -250,6 +249,16 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
 
     if (!currentDir.exists()) {
       currentDir.mkdirs();
+    }
+
+    // set index to last file
+    File[] files = currentDir.listFiles(new ChangesFilenameFilter(false));
+    java.util.Arrays.sort(files, new ChangesFileComparator<File>());
+
+    if (files.length > 0) {
+      this.index = Long.parseLong(files[files.length - 1].getName()) + 1;
+    } else {
+      this.index = new Long(0);
     }
 
     java.lang.Runtime.getRuntime().addShutdownHook(new Thread() {
