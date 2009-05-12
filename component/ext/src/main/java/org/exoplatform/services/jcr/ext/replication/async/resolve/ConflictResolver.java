@@ -147,7 +147,7 @@ public class ConflictResolver {
                                                     RemoteExportException,
                                                     RepositoryException {
     if (versionableUUIDItemStates == null) {
-      versionableUUIDItemStates = income.findVSChanges();
+      versionableUUIDItemStates = income.getVUChanges();
 
       // obtain the missing data from exporter or locally
       for (int i = 0; i < versionableUUIDItemStates.size(); i++) {
@@ -401,7 +401,8 @@ public class ConflictResolver {
                                                                                ClassNotFoundException,
                                                                                RemoteExportException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i));
+      List<ItemState> nextLocalChanges = new ArrayList<ItemState>();
+      List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i), nextLocalChanges);
 
       // restored items from changesLog
       List<ItemState> restoredItems = new ArrayList<ItemState>();
@@ -420,7 +421,7 @@ public class ConflictResolver {
 
         if (item.getState() == ItemState.DELETED) {
 
-          ItemState nextItem = local.findNextState(item, item.getData().getIdentifier());
+          ItemState nextItem = nextLocalChanges.get(j);
           if (nextItem != null && nextItem.getState() == ItemState.UPDATED)
             continue;
 
@@ -456,21 +457,21 @@ public class ConflictResolver {
           }
 
           // restore deleted node from income rename
+          List<ItemState> nextIncomeChanges = new ArrayList<ItemState>();
           ItemState incomeChange = income.findItemState(item.getData().getIdentifier(),
                                                         item.getData().getQPath(),
-                                                        ItemState.DELETED);
+                                                        ItemState.DELETED,
+                                                        nextIncomeChanges);
           if (incomeChange != null) {
-            ItemState nextIncomeChange = income.findNextState(incomeChange,
-                                                              incomeChange.getData()
-                                                                          .getIdentifier());
-
-            if (nextIncomeChange == null || nextIncomeChange.getState() != ItemState.UPDATED) {
+            if (nextIncomeChanges.get(0) == null
+                || nextIncomeChanges.get(0).getState() != ItemState.UPDATED) {
               restoredItems.add(new ItemState(item.getData(),
                                               ItemState.ADDED,
                                               true,
                                               item.getData().getQPath()));
 
-              if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
+              if (nextIncomeChanges.get(0) != null
+                  && nextIncomeChanges.get(0).getState() == ItemState.RENAMED) {
                 if (incomeChange.getData().isNode()) {
                   NodeData node = (NodeData) incomeChange.getData();
                   TransientNodeData newNode = new TransientNodeData(node.getQPath(),
@@ -492,7 +493,7 @@ public class ConflictResolver {
                                                                             prop.getType(),
                                                                             prop.getParentIdentifier(),
                                                                             prop.isMultiValued());
-                  newProp.setValues(((PropertyData) nextIncomeChange.getData()).getValues());
+                  newProp.setValues(((PropertyData) nextIncomeChanges.get(0).getData()).getValues());
                   restoredItems.add(new ItemState(newProp, ItemState.UPDATED, true, item.getData()
                                                                                         .getQPath()));
                 }
@@ -538,14 +539,15 @@ public class ConflictResolver {
           if (incomeChange != null)
             continue;
 
+          List<ItemState> nextIncomeChanges = new ArrayList<ItemState>();
           incomeChange = income.findItemState(item.getData().getIdentifier(),
                                               item.getData().getQPath(),
-                                              ItemState.DELETED);
+                                              ItemState.DELETED,
+                                              nextIncomeChanges);
           if (incomeChange != null) {
-            ItemState nextIncomeState = income.findNextState(incomeChange,
-                                                             incomeChange.getData().getIdentifier());
-            if (nextIncomeState != null && nextIncomeState.getState() == ItemState.RENAMED) {
-              restoredItems.add(new ItemState(nextIncomeState.getData(),
+            if (nextIncomeChanges.get(0) != null
+                && nextIncomeChanges.get(0).getState() == ItemState.RENAMED) {
+              restoredItems.add(new ItemState(nextIncomeChanges.get(0).getData(),
                                               ItemState.UPDATED,
                                               true,
                                               item.getData().getQPath()));
@@ -581,7 +583,7 @@ public class ConflictResolver {
       Iterator<String> uuids = needExportItemVH.iterator();
       while (uuids.hasNext()) {
         String uuid = uuids.next();
-        String vhUuid = income.findVHProperty(uuid);
+        String vhUuid = income.getVHPropertyValue(uuid);
         if (vhUuid != null) {
           iteration.addAll(exporter.exportItem(vhUuid));
         }
@@ -605,18 +607,21 @@ public class ConflictResolver {
                                                                                   IOException,
                                                                                   ClassNotFoundException {
     for (int i = 0; i < conflictedPathes.size(); i++) {
-      List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i));
+      List<ItemState> nextlocalChanges = new ArrayList<ItemState>();
+      List<List<ItemState>> updateSeq = new ArrayList<List<ItemState>>();
+      List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i),
+                                                       nextlocalChanges,
+                                                       updateSeq);
 
       for (int j = localChanges.size() - 1; j >= 0; j--) {
         ItemState curItem = localChanges.get(j);
 
         if (curItem.getState() == ItemState.DELETED && !curItem.isPersisted()) {
-          ItemState nextItem = local.findNextState(curItem, curItem.getData().getIdentifier());
+          ItemState nextItem = nextlocalChanges.get(j);
 
           if (nextItem != null && nextItem.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(curItem);
-            for (int k = 1; k <= updateSeq.size() - 1; k++) {
-              ItemState item = updateSeq.get(k);
+            for (int k = 1; k <= updateSeq.get(j).size() - 1; k++) {
+              ItemState item = updateSeq.get(j).get(k);
               NodeData node = (NodeData) item.getData();
               if (k == 1) {
                 iteration.add(new ItemState(item.getData(),
@@ -645,13 +650,13 @@ public class ConflictResolver {
                                             item.isInternallyCreated()));
 
               }
-              if (k == updateSeq.size() - 1) {
-                item = updateSeq.get(1);
+              if (k == updateSeq.get(j).size() - 1) {
+                item = updateSeq.get(j).get(1);
                 node = (NodeData) item.getData();
 
                 QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
                                                  node.getQPath().getName(),
-                                                 updateSeq.size() - 1);
+                                                 updateSeq.get(j).size() - 1);
 
                 TransientNodeData newItem = new TransientNodeData(name,
                                                                   node.getIdentifier(),

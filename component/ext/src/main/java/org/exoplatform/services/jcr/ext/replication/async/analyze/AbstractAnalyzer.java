@@ -19,19 +19,11 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.analyze;
 
-import java.io.IOException;
-
-import javax.jcr.RepositoryException;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
-import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,7 +31,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: AbstractAnalyzer.java 111 2008-11-11 11:11:11Z $
  */
-public abstract class AbstractAnalyzer implements ChangesAnalyzer {
+public abstract class AbstractAnalyzer {
 
   protected final boolean             localPriority;
 
@@ -59,20 +51,6 @@ public abstract class AbstractAnalyzer implements ChangesAnalyzer {
     this.dataManager = dataManager;
     this.ntManager = ntManager;
   }
-
-  /**
-   * {@inheritDoc}
-   * 
-   * @throws RemoteExportException
-   */
-  public abstract void analyze(ItemState incomeChange,
-                               ChangesStorage<ItemState> local,
-                               ChangesStorage<ItemState> income,
-                               ConflictResolver confilictResolver) throws IOException,
-                                                                  ClassCastException,
-                                                                  ClassNotFoundException,
-                                                                  RepositoryException,
-                                                                  RemoteExportException;
 
   /**
    * {@inheritDoc}

@@ -20,7 +20,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -72,7 +71,7 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @return Collection
    */
-  Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException;
+  MarkableIterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * Return changes (ItemState) count.
@@ -106,102 +105,139 @@ public interface ChangesStorage<T extends ItemState> {
   // =========== custom ==============
 
   /**
-   * TODO can we rely on sequence on log?
+   * Find next item in sequence begining from current position by criteria.
    * 
-   * getNextItemState.
-   * 
-   * @param item
-   * @return
-   */
-  T findNextState(ItemState fromState, String identifier) throws IOException,
-                                                         ClassCastException,
-                                                         ClassNotFoundException;
-
-  /**
-   * findState.
-   * 
-   * merger2
-   * 
+   * @param iterator
+   *          iterator of the sequence
    * @param identifier
-   * @param path
-   * @param state
-   * @return
-   * @throws IOException
-   * @throws ClassCastException
-   * @throws ClassNotFoundException
+   *          identifier to identify the needed item
+   * @return next item in the sequence by criteria.
    */
-  public T findItemState(String identifier, QPath path, int state) throws IOException,
+  T findNextState(MarkableIterator<T> iterator, String identifier) throws IOException,
                                                                   ClassCastException,
                                                                   ClassNotFoundException;
 
   /**
-   * TODO
+   * Find item in sequence by criteria.
    * 
-   * Return changes for a given path
+   * @param identifier
+   *          identifier to identify the needed item
+   * @param qpath
+   *          qpath to identify the needed item
+   * @param state
+   *          state to identify the needed item
+   * @param nextItems
+   *          for result item will be find next item
+   * @return item in the sequence by criteria.
+   */
+  public T findItemState(String identifier, QPath path, int state, List<T> nextItems) throws IOException,
+                                                                                     ClassCastException,
+                                                                                     ClassNotFoundException;
+
+  /**
+   * Find item in sequence by criteria.
+   * 
+   * @param identifier
+   *          identifier to identify the needed item
+   * @param qpath
+   *          qpath to identify the needed item
+   * @param state
+   *          state to identify the needed item
+   * @return item in the sequence by criteria.
+   */
+  public T findItemState(String identifier, QPath qpath, int state) throws IOException,
+                                                                   ClassCastException,
+                                                                   ClassNotFoundException;
+
+  /**
+   * Returns list with changes at the rootPath and its descendants.
    * 
    * @param rootPath
-   * 
-   * @return Collection of ItemState
+   *          root path
+   * @return item state at the rootPath and its descendants
    */
   List<T> getChanges(QPath rootPath) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
-   * getUpdateSequence.
+   * Returns list with changes at the rootPath and its descendants.
    * 
-   * @param startState
-   *          ItemState
-   * @return List of ItemState
+   * @param rootPath
+   *          root path
+   * @param nextItems
+   *          for each items in results will be find next item
+   * @return item state at the rootPath and its descendants
    */
-  List<T> getUpdateSequence(ItemState firstState) throws IOException,
-                                                 ClassCastException,
-                                                 ClassNotFoundException;
+  List<T> getChanges(QPath rootPath, List<T> nextItems) throws IOException,
+                                                       ClassCastException,
+                                                       ClassNotFoundException;
 
   /**
-   * getMixinSequence.
+   * Returns list with changes at the rootPath and its descendants.
    * 
+   * @param rootPath
+   *          root path
+   * @param nextItems
+   *          for each items in results will be find next item
+   * @param updateSeq
+   *          for each items in results will be find update subsequence
+   * @return item state at the rootPath and its descendants
+   */
+  public List<T> getChanges(QPath rootPath, List<T> nextItems, List<List<T>> updateSeq) throws IOException,
+                                                                                       ClassCastException,
+                                                                                       ClassNotFoundException;
+
+  /**
+   * Get list items of update subsequence.
+   * 
+   * @param iterator
+   *          iterator of the sequence
    * @param firstState
-   * @return
-   * @throws IOException
-   * @throws ClassCastException
-   * @throws ClassNotFoundException
+   *          state from which update subsequence is begining
+   * @return list items of update subsequence
    */
-  List<T> getMixinSequence(ItemState firstState) throws IOException,
-                                                ClassCastException,
-                                                ClassNotFoundException;
+  List<T> getUpdateSequence(MarkableIterator<T> iterator, T firstState) throws IOException,
+                                                                       ClassCastException,
+                                                                       ClassNotFoundException;
 
   /**
-   * findVSChanges.
+   * Get list items of mxin subsequence.
    * 
-   * @return
-   * @throws IOException
-   * @throws ClassCastException
-   * @throws ClassNotFoundException
+   * @param iterator
+   *          iterator of the sequence
+   * @param firstState
+   *          state from which mixin subsequence is begining
+   * @return list items of mixin subsequence
    */
-  public List<ItemState> findVSChanges() throws IOException,
-                                        ClassCastException,
-                                        ClassNotFoundException;
+  List<T> getMixinSequence(MarkableIterator<T> iterator, T firstState) throws IOException,
+                                                                      ClassCastException,
+                                                                      ClassNotFoundException;
 
   /**
-   * findVHProperty.
+   * Get all items that contain changes of versionable uuid property.
+   * 
+   * @return list of items with changes of versionable uuid property.
+   */
+  public List<ItemState> getVUChanges() throws IOException,
+                                       ClassCastException,
+                                       ClassNotFoundException;
+
+  /**
+   * Get value of version history property.
    * 
    * @param uuid
-   * @return
-   * @throws IOException
-   * @throws ClassCastException
-   * @throws ClassNotFoundException
+   *          parent node uuid
+   * @return value of property or null of satisfied property does not found
    */
-  public String findVHProperty(String uuid) throws IOException,
-                                           ClassCastException,
-                                           ClassNotFoundException;
+  public String getVHPropertyValue(String uuid) throws IOException,
+                                               ClassCastException,
+                                               ClassNotFoundException;
 
   /**
-   * getUniquePathesByUUID.
+   * Get unique pathes of all items that contain changes specified items.
    * 
    * @param identifier
-   * @return
-   * @throws IOException
-   * @throws ClassCastException
-   * @throws ClassNotFoundException
+   *          item identifier
+   * @return list of pathes
    */
   public List<QPath> getUniquePathesByUUID(String identifier) throws IOException,
                                                              ClassCastException,

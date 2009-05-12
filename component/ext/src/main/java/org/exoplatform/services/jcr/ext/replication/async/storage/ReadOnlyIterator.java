@@ -16,7 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.util.Iterator;
+import java.io.IOException;
+import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 
@@ -24,30 +25,36 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 09.02.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ReadOnlyIterator.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class ReadOnlyIterator<S extends ItemState> implements Iterator<S> {
+public class ReadOnlyIterator<S extends ItemState> implements MarkableIterator<S> {
 
-  private final Iterator<S> source;
-  
-  ReadOnlyIterator(Iterator<S> source) {
+  private final List<S> source;
+
+  private int           curPosition;
+
+  private int           markedPosition;
+
+  ReadOnlyIterator(List<S> source) {
     this.source = source;
+    this.curPosition = 0;
+    this.markedPosition = -1;
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public boolean hasNext() {
-    return source.hasNext();
+    return curPosition < source.size();
   }
 
   /**
    * {@inheritDoc}
    */
   public S next() {
-    return source.next();
+    return source.get(curPosition++);
   }
 
   /**
@@ -55,6 +62,29 @@ public class ReadOnlyIterator<S extends ItemState> implements Iterator<S> {
    */
   public void remove() {
     throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void mark() throws IOException {
+    if (markedPosition >= 0) {
+      throw new IOException("Position already marked.");
+    } else {
+      markedPosition = curPosition;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void reset() throws IOException {
+    if (markedPosition >= 0) {
+      curPosition = markedPosition;
+      markedPosition = -1;
+    } else {
+      throw new IOException("Resetting to invalid mark");
+    }
   }
 
 }

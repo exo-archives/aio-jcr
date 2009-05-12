@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,9 +27,11 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
@@ -70,6 +73,193 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
       }
       file.delete();
     }
+  }
+
+  public void testMarkReset() throws Exception {
+    final int ITEMSTATE_COUNT = 20;
+
+    NodeImpl n = (NodeImpl) root.addNode("test", "nt:unstructured");
+    n.setProperty("firstone", "first");
+    root.save();
+
+    NodeData d = (NodeData) n.getData();
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    for (int i = 0; i < ITEMSTATE_COUNT; i++) {
+      ItemState is = new ItemState(d,
+                                   ItemState.ADDED,
+                                   false,
+                                   QPath.makeChildPath(d.getQPath(),
+                                                       new InternalQName(null, String.valueOf(i))));
+      expl.add(is);
+    }
+
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
+    Iterator<ItemState> it = expl.iterator();
+    while (it.hasNext()) {
+      stor.add(it.next());
+    }
+
+    MarkableIterator<ItemState> changes = stor.getChanges();
+
+    changes.next();
+    changes.mark();
+    ItemState item1 = changes.next();
+    ItemState item2 = changes.next();
+    changes.next();
+    changes.next();
+    changes.reset();
+    assertEquals(changes.next().getAncestorToSave(), item1.getAncestorToSave());
+    assertEquals(changes.next().getAncestorToSave(), item2.getAncestorToSave());
+
+    try {
+      changes.reset();
+      fail("Exception should be thrown");
+    } catch (IOException e) {
+    }
+  }
+
+  public void testTwiceMark() throws Exception {
+    final int ITEMSTATE_COUNT = 20;
+
+    NodeImpl n = (NodeImpl) root.addNode("test", "nt:unstructured");
+    n.setProperty("firstone", "first");
+    root.save();
+
+    NodeData d = (NodeData) n.getData();
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    for (int i = 0; i < ITEMSTATE_COUNT; i++) {
+      ItemState is = new ItemState(d,
+                                   ItemState.ADDED,
+                                   false,
+                                   QPath.makeChildPath(d.getQPath(),
+                                                       new InternalQName(null, String.valueOf(i))));
+      expl.add(is);
+    }
+
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
+    Iterator<ItemState> it = expl.iterator();
+    while (it.hasNext()) {
+      stor.add(it.next());
+    }
+
+    MarkableIterator<ItemState> changes = stor.getChanges();
+
+    // twice mark
+    changes.mark();
+    ItemState item1 = changes.next();
+    try {
+      changes.mark();
+      fail("Exception should be thrown");
+    } catch (IOException e) {
+    }
+  }
+
+  public void testReadAll() throws Exception {
+    final int ITEMSTATE_COUNT = 20;
+
+    NodeImpl n = (NodeImpl) root.addNode("test", "nt:unstructured");
+    n.setProperty("firstone", "first");
+    root.save();
+
+    NodeData d = (NodeData) n.getData();
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    for (int i = 0; i < ITEMSTATE_COUNT; i++) {
+      ItemState is = new ItemState(d,
+                                   ItemState.ADDED,
+                                   false,
+                                   QPath.makeChildPath(d.getQPath(),
+                                                       new InternalQName(null, String.valueOf(i))));
+      expl.add(is);
+    }
+
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
+    Iterator<ItemState> it = expl.iterator();
+    while (it.hasNext()) {
+      stor.add(it.next());
+    }
+
+    MarkableIterator<ItemState> changes = stor.getChanges();
+
+    // read all
+    changes = stor.getChanges();
+    int count = 0;
+    while (changes.hasNext()) {
+      changes.next();
+      count++;
+    }
+
+    assertEquals(count, ITEMSTATE_COUNT);
+  }
+
+  public void testResetnOnEnd() throws Exception {
+    final int ITEMSTATE_COUNT = 20;
+
+    NodeImpl n = (NodeImpl) root.addNode("test", "nt:unstructured");
+    n.setProperty("firstone", "first");
+    root.save();
+
+    NodeData d = (NodeData) n.getData();
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    for (int i = 0; i < ITEMSTATE_COUNT; i++) {
+      ItemState is = new ItemState(d,
+                                   ItemState.ADDED,
+                                   false,
+                                   QPath.makeChildPath(d.getQPath(),
+                                                       new InternalQName(null, String.valueOf(i))));
+      expl.add(is);
+    }
+
+    BufferedItemStatesStorage stor = new BufferedItemStatesStorage(dir,
+                                                                   new Member(null, 10),
+                                                                   new ResourcesHolder(),
+                                                                   fileCleaner,
+                                                                   maxBufferSize,
+                                                                   holder);
+
+    Iterator<ItemState> it = expl.iterator();
+    while (it.hasNext()) {
+      stor.add(it.next());
+    }
+
+    MarkableIterator<ItemState> changes = stor.getChanges();
+
+    changes = stor.getChanges();
+    changes.mark();
+
+    // read all
+    while (changes.hasNext()) {
+      changes.next();
+    }
+
+    changes.reset();
+
+    assertTrue(changes.hasNext());
   }
 
   public void testSimpleAddByteBuf() throws Exception {
@@ -223,7 +413,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     checkItemStatesIterator(expl.iterator(), stor.getChanges(), true, false);
   }
 
-  public void testJavaHeapSpace() throws Exception {
+  public void _testJavaHeapSpace() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf", "nt:unstructured");
     n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
     root.save();
@@ -249,7 +439,7 @@ public class BufferedItemStatesStorageTest extends BaseStandaloneTest {
     }
   }
 
-  public void testJavaHeapSpace2() throws Exception {
+  public void _testJavaHeapSpace2() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("testBuf2", "nt:unstructured");
     n.setProperty("data", new FileInputStream(createBLOBTempFile("fileH", 10000)));
     root.save();

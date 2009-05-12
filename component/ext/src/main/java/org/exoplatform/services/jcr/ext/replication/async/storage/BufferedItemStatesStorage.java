@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
@@ -49,59 +50,60 @@ import org.exoplatform.services.log.ExoLogger;
 public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T>
     implements EditableChangesStorage<T> {
 
-  private static final Log         LOG                  = ExoLogger.getLogger("ext.BufferedItemStatesStorage");
+  private static final Log            LOG                  = ExoLogger.getLogger("ext.BufferedItemStatesStorage");
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long        MAX_CHANGES_LOG_SIZE = 16 * 1024 * 1024;
+  private static final long           MAX_CHANGES_LOG_SIZE = 16 * 1024 * 1024;
 
   /**
    * ItemStates storage directory.
    */
-  protected final File             storagePath;
+  protected final File                storagePath;
 
-  protected final Member           member;
+  protected final Member              member;
 
-  protected final long             maxChangesLogSize;
+  protected final long                maxChangesLogSize;
 
-  protected final ResourcesHolder  resHolder;
+  protected final ResourcesHolder     resHolder;
 
-  private final FileCleaner        fileCleaner;
+  private final FileCleaner           fileCleaner;
 
-  private final int                maxBufferSize;
+  private final int                   maxBufferSize;
+
   private final ReaderSpoolFileHolder holder;
 
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
    */
-  private static Long              index                = new Long(0);
+  private static Long                 index                = new Long(0);
 
   /**
    * Output Stream opened on current ChangesFile or ByteArray.
    */
-  protected ObjectWriter           currentStream;
+  protected ObjectWriter              currentStream;
 
   /**
    * Current ChangesFile to store changes.
    */
-  protected EditableChangesFile    currentFile;
+  protected EditableChangesFile       currentFile;
 
   /**
    * Current byte array to store changes.
    */
-  protected BAOutputStream         currentByteArray;
+  protected BAOutputStream            currentByteArray;
 
   /**
    * Internal cache.
    */
-  protected SoftReference<List<T>> cache                = new SoftReference<List<T>>(null);
+  protected SoftReference<List<T>>    cache                = new SoftReference<List<T>>(null);
 
   /**
-   * Cache index. Used as value for cache invalidation. If the value equals -1,
-   * the cache is invalid.
+   * Cache index. Used as value for cache invalidation. If the value equals -1, the cache is
+   * invalid.
    */
-  protected int                    cacheIndex           = -1;
+  protected int                       cacheIndex           = -1;
 
   class ArrayOrFileOutputStream extends OutputStream {
 
@@ -272,17 +274,23 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * Constructor.
    * 
-   * @param storagePath storage Path.
-   * @param member Member owner.
-   * @param resHolder ResourceHolder.
-   * @param fileCleaner FileCleaner used for internal TransientValueData read.
-   * @param maxBufferSize int used for internal TransientValueData read.
+   * @param storagePath
+   *          storage Path.
+   * @param member
+   *          Member owner.
+   * @param resHolder
+   *          ResourceHolder.
+   * @param fileCleaner
+   *          FileCleaner used for internal TransientValueData read.
+   * @param maxBufferSize
+   *          int used for internal TransientValueData read.
    */
   public BufferedItemStatesStorage(File storagePath,
                                    Member member,
                                    ResourcesHolder resHolder,
                                    FileCleaner fileCleaner,
-                                   int maxBufferSize, ReaderSpoolFileHolder holder) {
+                                   int maxBufferSize,
+                                   ReaderSpoolFileHolder holder) {
     this.member = member;
     this.storagePath = storagePath;
     this.maxChangesLogSize = MAX_CHANGES_LOG_SIZE;
@@ -295,14 +303,16 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * Class constructor. FOR TESTS!
    * 
-   * @param storagePath storage Path
+   * @param storagePath
+   *          storage Path
    */
   public BufferedItemStatesStorage(File storagePath,
                                    Member member,
                                    long maxChangesLogSize,
                                    ResourcesHolder resHolder,
                                    FileCleaner fileCleaner,
-                                   int maxBufferSize, ReaderSpoolFileHolder holder) {
+                                   int maxBufferSize,
+                                   ReaderSpoolFileHolder holder) {
     this.member = member;
     this.storagePath = storagePath;
     this.maxChangesLogSize = maxChangesLogSize;
@@ -437,7 +447,9 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
   /**
    * {@inheritDoc}
    */
-  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
+  public MarkableIterator<T> getChanges() throws IOException,
+                                         ClassCastException,
+                                         ClassNotFoundException {
     if (currentStream != null)
       currentStream.flush();
 
@@ -451,7 +463,7 @@ public class BufferedItemStatesStorage<T extends ItemState> extends AbstractChan
       cache = new SoftReference<List<T>>(list);
     }
 
-    return new ReadOnlyIterator<T>(list.iterator());
+    return new ReadOnlyIterator<T>(list);
   }
 
   public Member getMember() {

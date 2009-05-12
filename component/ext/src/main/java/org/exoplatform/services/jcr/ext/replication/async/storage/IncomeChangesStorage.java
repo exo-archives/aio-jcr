@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -50,7 +51,11 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
    */
   protected final Member           member;
 
-  public IncomeChangesStorage(ChangesStorage<T> income, Member member,FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+  public IncomeChangesStorage(ChangesStorage<T> income,
+                              Member member,
+                              FileCleaner fileCleaner,
+                              int maxBufferSize,
+                              ReaderSpoolFileHolder holder) {
     super(Arrays.asList(income.getChangesFile()), fileCleaner, maxBufferSize, holder);
     this.member = member;
   }
@@ -66,7 +71,9 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
    * {@inheritDoc}
    */
   @Override
-  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
+  public MarkableIterator<T> getChanges() throws IOException,
+                                         ClassCastException,
+                                         ClassNotFoundException {
     // cache iterator, it's fixed and unchanged collection
     List<T> list = cache.get();
     if (list == null) {
@@ -77,7 +84,7 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
       cache = new SoftReference<List<T>>(list);
     }
 
-    return new ReadOnlyIterator<T>(list.iterator());
+    return new ReadOnlyIterator<T>(list);
   }
 
   /**
@@ -86,12 +93,12 @@ public class IncomeChangesStorage<T extends ItemState> extends ChangesLogStorage
   @Override
   public void delete() throws IOException {
     // TODO
-//    List<T> list = cache.get();
-//    if (list != null) {
-//      list.clear();
-//      cache.clear();
-//    }
-    
+    // List<T> list = cache.get();
+    // if (list != null) {
+    // list.clear();
+    // cache.clear();
+    // }
+
     super.delete();
   }
 

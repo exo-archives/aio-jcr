@@ -46,14 +46,14 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   protected final ResourcesHolder         resHolder;
 
   protected EditableChangesStorage<T>     current;
-  
-  private final FileCleaner fileCleaner;
-  
-  private final int maxBufferSize;
-  
-  private final ReaderSpoolFileHolder holder;
 
-  class ItemStateIterator implements Iterator<T> {
+  private final FileCleaner               fileCleaner;
+
+  private final int                       maxBufferSize;
+
+  private final ReaderSpoolFileHolder     holder;
+
+  class ItemStateIterator extends AbstractMarkableIterator<T> {
 
     Iterator<ChangesStorage<T>> csIter;
 
@@ -101,14 +101,14 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     /**
      * {@inheritDoc}
      */
-    public boolean hasNext() {
+    public boolean hasNextFromStorage() {
       return next != null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public T next() {
+    protected T nextFromStorage() {
       T res = next;
       next = readNext();
       return res;
@@ -122,7 +122,12 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
     }
   }
 
-  public CompositeItemStatesStorage(File storageDir, Member member, ResourcesHolder resHolder, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+  public CompositeItemStatesStorage(File storageDir,
+                                    Member member,
+                                    ResourcesHolder resHolder,
+                                    FileCleaner fileCleaner,
+                                    int maxBufferSize,
+                                    ReaderSpoolFileHolder holder) {
     this.member = member;
     this.storageDir = storageDir;
     this.resHolder = resHolder;
@@ -140,7 +145,12 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
 
   private EditableChangesStorage<T> current() {
     if (current == null) {
-      current = new BufferedItemStatesStorage<T>(storageDir, member, resHolder, fileCleaner, maxBufferSize, holder);
+      current = new BufferedItemStatesStorage<T>(storageDir,
+                                                 member,
+                                                 resHolder,
+                                                 fileCleaner,
+                                                 maxBufferSize,
+                                                 holder);
       storages.add(current);
     }
 
@@ -174,7 +184,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
       throw new StorageIOException("Cannot add itself to the storage");
     } else if (changes instanceof CompositeItemStatesStorage) {
       CompositeItemStatesStorage<T> c = (CompositeItemStatesStorage<T>) changes;
-      
+
       if (c.current != null && c.storages.size() == 1) {
         // only one and it's current
         // wrap current BufferedItemStatesStorage
@@ -189,7 +199,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
       } else {
         // close my current, don't use it anymore
         current = null;
-        
+
         // add all storages
         storages.addAll(c.storages);
       }
@@ -219,7 +229,9 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   /**
    * {@inheritDoc}
    */
-  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
+  public MarkableIterator<T> getChanges() throws IOException,
+                                         ClassCastException,
+                                         ClassNotFoundException {
     return new ItemStateIterator();
   }
 

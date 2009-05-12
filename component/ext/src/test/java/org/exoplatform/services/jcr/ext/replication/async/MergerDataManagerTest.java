@@ -135,7 +135,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     dm.addItemPersistenceListener(this);
   }
 
-  public void testAddDeleteUseCase() throws Exception {
+  public void _testAddDeleteUseCase() throws Exception {
 
     AddDeleteUseCase complexUseCase = new AddDeleteUseCase(session3, session4);
 

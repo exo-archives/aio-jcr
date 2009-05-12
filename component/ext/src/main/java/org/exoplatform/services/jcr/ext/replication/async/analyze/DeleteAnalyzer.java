@@ -20,7 +20,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.analyze;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -33,6 +32,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MarkableIterator;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -55,7 +55,6 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
    * @throws RepositoryException
    * @throws RemoteExportException
    */
-  @Override
   public void analyze(ItemState incomeChange,
                       ChangesStorage<ItemState> local,
                       ChangesStorage<ItemState> income,
@@ -64,7 +63,7 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
                                                          ClassNotFoundException,
                                                          RemoteExportException,
                                                          RepositoryException {
-    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+    for (MarkableIterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
       ItemData incomeData = incomeChange.getData();
@@ -128,11 +127,11 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
             for (ItemState item : updateSeq) {
               if (item.getData().getQPath().isDescendantOf(incomeData.getQPath())
                   || incomeData.getQPath().equals(item.getData().getQPath())
@@ -207,7 +206,7 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
               confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
             }
           } else {
-            List<ItemState> mixinSeq = local.getMixinSequence(localState);
+            List<ItemState> mixinSeq = local.getMixinSequence(liter, localState);
 
             for (int i = 0; i < mixinSeq.size(); i++) {
               ItemState item = mixinSeq.get(i);
@@ -266,11 +265,11 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
 
             for (ItemState item : updateSeq) {
               if (item.getData().getQPath().isDescendantOf(incomeData.getQPath())
@@ -337,7 +336,7 @@ public class DeleteAnalyzer extends AbstractAnalyzer {
               confilictResolver.add(localData.getQPath());
             }
           } else {
-            List<ItemState> mixinSeq = local.getMixinSequence(localState);
+            List<ItemState> mixinSeq = local.getMixinSequence(liter, localState);
 
             for (int i = 0; i < mixinSeq.size(); i++) {
               ItemState item = mixinSeq.get(i);

@@ -83,23 +83,71 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   /**
    * {@inheritDoc}
    */
-  public T findNextState(ItemState fromState, String identifier) throws IOException,
-                                                                ClassCastException,
-                                                                ClassNotFoundException {
-    Iterator<T> it = getChanges();
+  public T findNextState(MarkableIterator<T> iterator, String identifier) throws IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException {
 
-    while (it.hasNext()) {
-      if (it.next().isSame(fromState)) {
-        while (it.hasNext()) {
-          T inState = it.next();
-          if (inState.getData().getIdentifier().equals(identifier)) {
-            return inState;
-          }
-        }
+    iterator.mark();
+
+    while (iterator.hasNext()) {
+      T item = iterator.next();
+      if (item.getData().getIdentifier().equals(identifier)) {
+        iterator.reset();
+        return item;
       }
     }
 
+    iterator.reset();
     return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getChanges(QPath rootPath, List<T> nextItems) throws IOException,
+                                                              ClassCastException,
+                                                              ClassNotFoundException {
+
+    List<T> resultStates = new ArrayList<T>();
+
+    MarkableIterator<T> iterator = getChanges();
+
+    while (iterator.hasNext()) {
+      T item = iterator.next();
+
+      if (item.getData().getQPath().isDescendantOf(rootPath)
+          || item.getData().getQPath().equals(rootPath)) {
+        resultStates.add(item);
+        nextItems.add(findNextState(iterator, item.getData().getIdentifier()));
+      }
+    }
+
+    return resultStates;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getChanges(QPath rootPath, List<T> nextItems, List<List<T>> updateSeq) throws IOException,
+                                                                                       ClassCastException,
+                                                                                       ClassNotFoundException {
+
+    List<T> resultStates = new ArrayList<T>();
+
+    MarkableIterator<T> iterator = getChanges();
+
+    while (iterator.hasNext()) {
+      T item = iterator.next();
+
+      if (item.getData().getQPath().isDescendantOf(rootPath)
+          || item.getData().getQPath().equals(rootPath)) {
+        resultStates.add(item);
+        nextItems.add(findNextState(iterator, item.getData().getIdentifier()));
+        updateSeq.add(getUpdateSequence(iterator, item));
+      }
+    }
+
+    return resultStates;
   }
 
   /**
@@ -108,8 +156,10 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   public List<T> getChanges(QPath rootPath) throws IOException,
                                            ClassCastException,
                                            ClassNotFoundException {
+
     List<T> resultStates = new ArrayList<T>();
-    Iterator<T> it = getChanges();
+
+    MarkableIterator<T> it = getChanges();
 
     while (it.hasNext()) {
       T item = it.next();
@@ -126,62 +176,53 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   /**
    * {@inheritDoc}
    */
-  public List<T> getUpdateSequence(ItemState firstState) throws IOException,
-                                                        ClassCastException,
-                                                        ClassNotFoundException {
+  public List<T> getUpdateSequence(MarkableIterator<T> iterator, T firstState) throws IOException,
+                                                                              ClassCastException,
+                                                                              ClassNotFoundException {
     List<T> resultStates = new ArrayList<T>();
+    iterator.mark();
 
-    Iterator<T> it = getChanges();
-    while (it.hasNext()) {
-      T state = it.next();
-      if (state.isSame(firstState)) {
-        resultStates.add(state);
-
-        while (it.hasNext()) {
-          T inState = it.next();
-          if (inState.getState() == ItemState.UPDATED
-              && inState.getData().getQPath().getName().equals(firstState.getData()
-                                                                         .getQPath()
-                                                                         .getName())) {
-            resultStates.add(inState);
-          }
-        }
+    resultStates.add(firstState);
+    while (iterator.hasNext()) {
+      T item = iterator.next();
+      if (item.getState() == ItemState.UPDATED
+          && item.getData().getQPath().getName().equals(firstState.getData().getQPath().getName())) {
+        resultStates.add(item);
       }
     }
+
+    iterator.reset();
     return resultStates;
   }
 
   /**
    * {@inheritDoc}
    */
-  public List<T> getMixinSequence(ItemState firstState) throws IOException,
-                                                       ClassCastException,
-                                                       ClassNotFoundException {
+  public List<T> getMixinSequence(MarkableIterator<T> iterator, T firstState) throws IOException,
+                                                                             ClassCastException,
+                                                                             ClassNotFoundException {
     List<T> resultStates = new ArrayList<T>();
+    iterator.mark();
 
-    Iterator<T> it = getChanges();
-    while (it.hasNext()) {
-      T state = it.next();
-      if (state.isSame(firstState)) {
-        resultStates.add(state);
-
-        while (it.hasNext()) {
-          T inState = it.next();
-          if (inState.isInternallyCreated()) {
-            resultStates.add(inState);
-          }
-        }
+    resultStates.add(firstState);
+    while (iterator.hasNext()) {
+      T item = iterator.next();
+      if (item.isInternallyCreated()
+          && item.getData().getQPath().isDescendantOf(firstState.getData().getQPath())) {
+        resultStates.add(item);
       }
     }
+
+    iterator.reset();
     return resultStates;
   }
 
   /**
    * {@inheritDoc}
    */
-  public List<ItemState> findVSChanges() throws IOException,
-                                        ClassCastException,
-                                        ClassNotFoundException {
+  public List<ItemState> getVUChanges() throws IOException,
+                                       ClassCastException,
+                                       ClassNotFoundException {
     ArrayList<ItemState> versionableUUIDItemStates = new ArrayList<ItemState>();
 
     Iterator<T> itemStates = getChanges();
@@ -201,9 +242,9 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
   /**
    * {@inheritDoc}
    */
-  public String findVHProperty(String uuid) throws IOException,
-                                           ClassCastException,
-                                           ClassNotFoundException {
+  public String getVHPropertyValue(String uuid) throws IOException,
+                                               ClassCastException,
+                                               ClassNotFoundException {
 
     Iterator<T> itemStates = getChanges();
     while (itemStates.hasNext()) {
@@ -251,6 +292,24 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
     while (it.hasNext()) {
       T item = it.next();
       if (item.isSame(identifier, path, state)) {
+        return item;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public T findItemState(String identifier, QPath path, int state, List<T> nextItems) throws IOException,
+                                                                                     ClassCastException,
+                                                                                     ClassNotFoundException {
+    MarkableIterator<T> it = getChanges();
+    while (it.hasNext()) {
+      T item = it.next();
+      if (item.isSame(identifier, path, state)) {
+        nextItems.add(findNextState(it, item.getData().getIdentifier()));
         return item;
       }
     }

@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
@@ -39,26 +40,31 @@ import org.exoplatform.services.log.ExoLogger;
 public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements
     MemberChangesStorage<T> {
 
-  protected static final Log LOG = ExoLogger.getLogger("ext.ItemStatesStorage");
+  protected static final Log          LOG = ExoLogger.getLogger("ext.ItemStatesStorage");
 
-  private final ChangesFile  storage;
+  private final ChangesFile           storage;
 
-  protected final Member     member;
-  
-  private final FileCleaner fileCleaner;
-  private final int maxBufferSize;
+  protected final Member              member;
+
+  private final FileCleaner           fileCleaner;
+
+  private final int                   maxBufferSize;
+
   private final ReaderSpoolFileHolder holder;
 
-  class ItemStateIterator<S extends ItemState> implements Iterator<S> {
+  class ItemStateIterator<S extends ItemState> extends AbstractMarkableIterator<S> {
 
-    private ObjectReader in;
+    private ObjectReader      in;
 
-    private S            nextItem;
+    private S                 nextItem;
 
     private final FileCleaner fileCleaner;
-    private final int maxBufferSize;
-    
-    public ItemStateIterator(FileCleaner fileCleaner, int maxBufferSize) throws IOException, ClassCastException, ClassNotFoundException {
+
+    private final int         maxBufferSize;
+
+    public ItemStateIterator(FileCleaner fileCleaner, int maxBufferSize) throws IOException,
+        ClassCastException,
+        ClassNotFoundException {
 
       if (storage == null) {
         throw new NullPointerException("ChangesFile not exists.");
@@ -73,14 +79,14 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     /**
      * {@inheritDoc}
      */
-    public boolean hasNext() {
+    protected boolean hasNextFromStorage() {
       return nextItem != null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public S next() throws NoSuchElementException {
+    protected S nextFromStorage() throws NoSuchElementException {
       if (nextItem == null)
         throw new NoSuchElementException();
 
@@ -129,11 +135,18 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * ItemStatesStorage constructor for export.
    * 
-   * @param changes ChagesFiles
-   * @param member owner
-   * @param holder TODO
+   * @param changes
+   *          ChagesFiles
+   * @param member
+   *          owner
+   * @param holder
+   *          TODO
    */
-  public ItemStatesStorage(ChangesFile changes, Member member, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+  public ItemStatesStorage(ChangesFile changes,
+                           Member member,
+                           FileCleaner fileCleaner,
+                           int maxBufferSize,
+                           ReaderSpoolFileHolder holder) {
     this.storage = changes;
     this.member = member;
     this.fileCleaner = fileCleaner;
@@ -178,7 +191,9 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * {@inheritDoc}
    */
-  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
+  public MarkableIterator<T> getChanges() throws IOException,
+                                         ClassCastException,
+                                         ClassNotFoundException {
     return new ItemStateIterator<T>(fileCleaner, maxBufferSize);
   }
 

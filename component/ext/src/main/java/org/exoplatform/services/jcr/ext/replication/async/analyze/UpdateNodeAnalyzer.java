@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.analyze;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -30,6 +29,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MarkableIterator;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -38,16 +38,16 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: UpdateAnalyzer.java 111 2008-11-11 11:11:11Z $
  */
-public class UpdateAnalyzer extends AbstractAnalyzer {
+public class UpdateNodeAnalyzer extends AbstractAnalyzer {
 
   /**
    * UpdateAnalyzer constructor.
    * 
    * @param localPriority
    */
-  public UpdateAnalyzer(boolean localPriority,
-                        DataManager dataManager,
-                        NodeTypeDataManager ntManager) {
+  public UpdateNodeAnalyzer(boolean localPriority,
+                            DataManager dataManager,
+                            NodeTypeDataManager ntManager) {
     super(localPriority, dataManager, ntManager);
   }
 
@@ -57,8 +57,8 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
    * @throws RepositoryException
    * @throws RemoteExportException
    */
-  @Override
   public void analyze(ItemState incomeChange,
+                      List<ItemState> incUpdateSeq,
                       ChangesStorage<ItemState> local,
                       ChangesStorage<ItemState> income,
                       ConflictResolver confilictResolver) throws IOException,
@@ -66,9 +66,9 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                                                          ClassNotFoundException,
                                                          RemoteExportException,
                                                          RepositoryException {
-    List<ItemState> incUpdateSeq = income.getUpdateSequence(incomeChange);
+    // List<ItemState> incUpdateSeq = income.getUpdateSequence(incomeChange);
 
-    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+    for (MarkableIterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
       ItemData incomeData = incomeChange.getData();
@@ -113,11 +113,6 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                     confilictResolver.addSkippedVSChanges(item.getData().getIdentifier());
                   }
                 }
-              } else {
-                if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                  confilictResolver.add(incomeData.getQPath());
-                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-                }
               }
             } else {
               if (incomeData.isNode()) {
@@ -127,17 +122,12 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                     confilictResolver.addSkippedVSChanges(item.getData().getIdentifier());
                   }
                 }
-              } else {
-                if (incomeData.getQPath().equals(localData.getQPath())) {
-                  confilictResolver.add(incomeData.getQPath());
-                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-                }
               }
             }
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
@@ -159,19 +149,13 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                   confilictResolver.addSkippedVSChanges(item.getData().getIdentifier());
                 }
               }
-            } else {
-              if (incomeData.getQPath().isDescendantOf(locNodePath)) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-              }
             }
-
             break;
           }
 
           // UPDATE
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> locUpdateSeq = local.getUpdateSequence(localState);
+            List<ItemState> locUpdateSeq = local.getUpdateSequence(liter, localState);
             if (incomeData.isNode()) {
               for (ItemState locSt : locUpdateSeq) {
                 for (ItemState incSt : incUpdateSeq) {
@@ -181,13 +165,6 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                     confilictResolver.add(incSt.getData().getQPath());
                     confilictResolver.addSkippedVSChanges(incSt.getData().getIdentifier());
                   }
-                }
-              }
-            } else {
-              for (ItemState locSt : locUpdateSeq) {
-                if (incomeData.getQPath().isDescendantOf(locSt.getData().getQPath())) {
-                  confilictResolver.add(incomeData.getQPath());
-                  confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
                 }
               }
             }
@@ -202,11 +179,6 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                   confilictResolver.add(item.getData().getQPath());
                   confilictResolver.addSkippedVSChanges(item.getData().getIdentifier());
                 }
-              }
-            } else {
-              if (incomeData.getQPath().equals(localData.getQPath())) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
             }
           }
@@ -253,9 +225,6 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                     confilictResolver.add(localData.getQPath());
                   }
                 }
-              } else {
-                if (incomeData.getQPath().isDescendantOf(localData.getQPath()))
-                  confilictResolver.add(localData.getQPath());
               }
             } else {
               if (incomeData.isNode()) {
@@ -264,20 +233,16 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                     confilictResolver.add(localData.getQPath());
                   }
                 }
-              } else {
-                if (localData.getQPath().equals(incomeData.getQPath())) {
-                  confilictResolver.add(localData.getQPath());
-                }
               }
             }
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // UPDATE
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> locUpdateSeq = local.getUpdateSequence(localState);
+            List<ItemState> locUpdateSeq = local.getUpdateSequence(liter, localState);
             if (incomeData.isNode()) {
               for (ItemState locSt : locUpdateSeq) {
                 for (ItemState incSt : incUpdateSeq) {
@@ -287,11 +252,6 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                     confilictResolver.add(localData.getQPath());
                   }
                 }
-              }
-            } else {
-              for (ItemState locSt : locUpdateSeq) {
-                if (incomeData.getQPath().isDescendantOf(locSt.getData().getQPath()))
-                  confilictResolver.add(locSt.getData().getQPath());
               }
             }
             break;
@@ -318,12 +278,6 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                       : localData.getParentIdentifier()));
                 }
               }
-            } else {
-              if (incomeData.getQPath().isDescendantOf(locNodePath)) {
-                confilictResolver.addAll(local.getUniquePathesByUUID(localData.isNode()
-                    ? localData.getIdentifier()
-                    : localData.getParentIdentifier()));
-              }
             }
             break;
           }
@@ -336,10 +290,6 @@ public class UpdateAnalyzer extends AbstractAnalyzer {
                   confilictResolver.add(localData.getQPath());
                 }
               }
-            }
-          } else {
-            if (incomeData.getQPath().equals(localData.getQPath())) {
-              confilictResolver.add(localData.getQPath());
             }
           }
           break;

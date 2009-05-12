@@ -21,6 +21,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -31,11 +32,13 @@ import org.exoplatform.services.jcr.ext.replication.async.analyze.AddAnalyzer;
 import org.exoplatform.services.jcr.ext.replication.async.analyze.DeleteAnalyzer;
 import org.exoplatform.services.jcr.ext.replication.async.analyze.MixinAnalyzer;
 import org.exoplatform.services.jcr.ext.replication.async.analyze.RenameAnalyzer;
-import org.exoplatform.services.jcr.ext.replication.async.analyze.UpdateAnalyzer;
+import org.exoplatform.services.jcr.ext.replication.async.analyze.UpdateNodeAnalyzer;
+import org.exoplatform.services.jcr.ext.replication.async.analyze.UpdatePropertyAnalyzer;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.CompositeItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MarkableIterator;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -142,12 +145,17 @@ public class MergeDataManager extends AbstractMergeManager {
 
         AddAnalyzer addAnalyzer = new AddAnalyzer(isLocalPriority, dataManager, ntManager);
         RenameAnalyzer renameAnalyzer = new RenameAnalyzer(isLocalPriority, dataManager, ntManager);
-        UpdateAnalyzer updateAnalyzer = new UpdateAnalyzer(isLocalPriority, dataManager, ntManager);
+        UpdateNodeAnalyzer updateNodeAnalyzer = new UpdateNodeAnalyzer(isLocalPriority,
+                                                                       dataManager,
+                                                                       ntManager);
+        UpdatePropertyAnalyzer updatePropertyAnalyzer = new UpdatePropertyAnalyzer(isLocalPriority,
+                                                                                   dataManager,
+                                                                                   ntManager);
         MixinAnalyzer mixinAnalyzer = new MixinAnalyzer(isLocalPriority, dataManager, ntManager);
         DeleteAnalyzer deleteAnalyzer = new DeleteAnalyzer(isLocalPriority, dataManager, ntManager);
 
         if (run) {
-          Iterator<ItemState> changes = income.getChanges();
+          MarkableIterator<ItemState> changes = income.getChanges();
           if (changes.hasNext()) {
             while (changes.hasNext() && run) {
               ItemState incomeChange = changes.next();
@@ -178,16 +186,26 @@ public class MergeDataManager extends AbstractMergeManager {
                 if (incomeChange.isPersisted()) { // DELETE
                   deleteAnalyzer.analyze(incomeChange, local, income, conflictResolver);
                 } else {
-                  ItemState nextIncomeChange = income.findNextState(incomeChange,
+                  ItemState nextIncomeChange = income.findNextState(changes,
                                                                     incomeChange.getData()
                                                                                 .getIdentifier());
 
                   if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) { // RENAME
-                    renameAnalyzer.analyze(incomeChange, local, income, conflictResolver);
+                    renameAnalyzer.analyze(incomeChange,
+                                           nextIncomeChange,
+                                           local,
+                                           income,
+                                           conflictResolver);
 
                   } else if (nextIncomeChange != null
                       && nextIncomeChange.getState() == ItemState.UPDATED) { // UPDATE node
-                    updateAnalyzer.analyze(incomeChange, local, income, conflictResolver);
+                    List<ItemState> incomeUpdateSeq = income.getUpdateSequence(changes,
+                                                                               incomeChange);
+                    updateNodeAnalyzer.analyze(incomeChange,
+                                               incomeUpdateSeq,
+                                               local,
+                                               income,
+                                               conflictResolver);
 
                   } else {
                     if (LOG.isDebugEnabled())
@@ -208,7 +226,7 @@ public class MergeDataManager extends AbstractMergeManager {
                 break;
               case ItemState.UPDATED:
                 if (!incomeChange.getData().isNode()) { // UPDATE property
-                  updateAnalyzer.analyze(incomeChange, local, income, conflictResolver);
+                  updatePropertyAnalyzer.analyze(incomeChange, local, income, conflictResolver);
                 }
                 break;
               case ItemState.MIXIN_CHANGED:

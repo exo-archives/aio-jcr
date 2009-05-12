@@ -20,7 +20,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.analyze;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -35,6 +34,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MarkableIterator;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -61,7 +61,7 @@ public class AddAnalyzer extends AbstractAnalyzer {
                                                          ClassNotFoundException,
                                                          RepositoryException,
                                                          RemoteExportException {
-    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+    for (MarkableIterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
       ItemData incomeData = incomeChange.getData();
@@ -152,11 +152,11 @@ public class AddAnalyzer extends AbstractAnalyzer {
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
             for (ItemState item : updateSeq) {
               if (incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
                 confilictResolver.add(incomeData.getQPath());
@@ -264,11 +264,11 @@ public class AddAnalyzer extends AbstractAnalyzer {
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
             for (ItemState st : updateSeq) {
               if (incomeData.getQPath().isDescendantOf(st.getData().getQPath())) {
                 confilictResolver.add(st.getData().getQPath());

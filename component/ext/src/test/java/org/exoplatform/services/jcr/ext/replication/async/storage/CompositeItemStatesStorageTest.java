@@ -47,6 +47,10 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChang
  */
 public class CompositeItemStatesStorageTest extends AbstractAsyncUseCases {
 
+  public void testMark() throws Exception {
+
+  }
+
   public void testAdd() throws Exception {
     CompositeItemStatesStorage<ItemState> cs = new CompositeItemStatesStorage<ItemState>(new File("./target"),
                                                                                          null,

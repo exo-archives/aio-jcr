@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2009 eXo Platform SAS.
  *
@@ -28,6 +25,7 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -38,16 +36,18 @@ import org.exoplatform.services.jcr.impl.Constants;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id: MixinAnayler.java 111 2008-11-11 11:11:11Z $
+ * @version $Id: UpdateProperyAnalyzer.java 111 2008-11-11 11:11:11Z $
  */
-public class MixinAnalyzer extends AbstractAnalyzer {
+public class UpdatePropertyAnalyzer extends AbstractAnalyzer {
 
   /**
-   * MixinAnayler constructor.
+   * UpdateAnalyzer constructor.
    * 
    * @param localPriority
    */
-  public MixinAnalyzer(boolean localPriority, DataManager dataManager, NodeTypeDataManager ntManager) {
+  public UpdatePropertyAnalyzer(boolean localPriority,
+                                DataManager dataManager,
+                                NodeTypeDataManager ntManager) {
     super(localPriority, dataManager, ntManager);
   }
 
@@ -65,12 +65,11 @@ public class MixinAnalyzer extends AbstractAnalyzer {
                                                          ClassNotFoundException,
                                                          RemoteExportException,
                                                          RepositoryException {
-
     for (MarkableIterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
-      ItemData localData = localState.getData();
       ItemData incomeData = incomeChange.getData();
+      ItemData localData = localState.getData();
 
       // skip lock properties
       if (!localData.isNode()) {
@@ -94,34 +93,11 @@ public class MixinAnalyzer extends AbstractAnalyzer {
           if (localState.isPersisted()) {
             // DELETE
             if (localData.isNode()) {
-              if (incomeData.getQPath().equals(localData.getQPath())
-                  || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 confilictResolver.add(incomeData.getQPath());
                 confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
               }
-            }
-            break;
-          }
-
-          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
-
-          // UPDATE node
-          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
-            for (ItemState item : updateSeq) {
-              if (incomeData.getQPath().equals(item.getData().getQPath())
-                  || incomeData.getQPath().isDescendantOf(item.getData().getQPath())) {
-                confilictResolver.add(incomeData.getQPath());
-                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-                break;
-              }
-            }
-            break;
-          }
-
-          // RENAME
-          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            if (localData.isNode()) {
+            } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 confilictResolver.add(incomeData.getQPath());
                 confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
@@ -130,17 +106,47 @@ public class MixinAnalyzer extends AbstractAnalyzer {
             break;
           }
 
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
+
+          // RENAME
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
+            QPath locNodePath = localData.isNode()
+                ? localData.getQPath()
+                : localData.getQPath().makeParentPath();
+
+            if (incomeData.getQPath().isDescendantOf(locNodePath)) {
+              confilictResolver.add(incomeData.getQPath());
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+            }
+
+            break;
+          }
+
+          // UPDATE
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            List<ItemState> locUpdateSeq = local.getUpdateSequence(liter, localState);
+            for (ItemState locSt : locUpdateSeq) {
+              if (incomeData.getQPath().isDescendantOf(locSt.getData().getQPath())) {
+                confilictResolver.add(incomeData.getQPath());
+                confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+              }
+            }
+            break;
+          }
+
         case ItemState.UPDATED:
+          if (!localData.isNode()) {
+            if (incomeData.getQPath().equals(localData.getQPath())) {
+              confilictResolver.add(incomeData.getQPath());
+              confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
+            }
+          }
           break;
 
         case ItemState.RENAMED:
           break;
 
         case ItemState.MIXIN_CHANGED:
-          if (incomeData.getQPath().equals(localData.getQPath())) {
-            confilictResolver.add(incomeData.getQPath());
-            confilictResolver.addSkippedVSChanges(incomeData.getIdentifier());
-          }
           break;
         }
 
@@ -149,15 +155,14 @@ public class MixinAnalyzer extends AbstractAnalyzer {
         case ItemState.ADDED:
           break;
 
-        case ItemState.UPDATED:
-          break;
-
         case ItemState.DELETED:
           if (localState.isPersisted()) {
             // DELETE
             if (localData.isNode()) {
-              if (incomeData.getQPath().equals(localData.getQPath())
-                  || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath()))
+                confilictResolver.add(localData.getQPath());
+            } else {
+              if (localData.getQPath().equals(incomeData.getQPath())) {
                 confilictResolver.add(localData.getQPath());
               }
             }
@@ -166,40 +171,45 @@ public class MixinAnalyzer extends AbstractAnalyzer {
 
           ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
-          // UPDATE node
+          // UPDATE
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
-            for (ItemState st : updateSeq) {
-              if (incomeData.getQPath().isDescendantOf(st.getData().getQPath())
-                  || incomeData.getQPath().equals(st.getData().getQPath())) {
-                confilictResolver.add(st.getData().getQPath());
-              }
+            List<ItemState> locUpdateSeq = local.getUpdateSequence(liter, localState);
+            for (ItemState locSt : locUpdateSeq) {
+              if (incomeData.getQPath().isDescendantOf(locSt.getData().getQPath()))
+                confilictResolver.add(locSt.getData().getQPath());
             }
-
             break;
           }
 
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            if (localData.isNode()) {
-              if (localData.getQPath().equals(incomeData.getQPath())) {
-                confilictResolver.addAll(local.getUniquePathesByUUID(localData.getIdentifier()));
-              }
+            QPath locNodePath = localData.isNode()
+                ? localData.getQPath()
+                : localData.getQPath().makeParentPath();
+
+            if (incomeData.getQPath().isDescendantOf(locNodePath)) {
+              confilictResolver.addAll(local.getUniquePathesByUUID(localData.isNode()
+                  ? localData.getIdentifier()
+                  : localData.getParentIdentifier()));
             }
             break;
           }
+
+        case ItemState.UPDATED:
+          if (!localData.isNode()) {
+            if (incomeData.getQPath().equals(localData.getQPath())) {
+              confilictResolver.add(localData.getQPath());
+            }
+          }
+          break;
 
         case ItemState.RENAMED:
           break;
 
         case ItemState.MIXIN_CHANGED:
-          if (incomeData.getQPath().equals(localData.getQPath())) {
-            confilictResolver.add(localData.getQPath());
-          }
           break;
         }
       }
     }
   }
-
 }

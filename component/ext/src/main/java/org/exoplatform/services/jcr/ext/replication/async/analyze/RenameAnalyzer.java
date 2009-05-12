@@ -20,7 +20,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.analyze;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -33,6 +32,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MarkableIterator;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -55,13 +55,21 @@ public class RenameAnalyzer extends AbstractAnalyzer {
   }
 
   /**
-   * {@inheritDoc}
+   * analyze.
    * 
-   * @throws RepositoryException
+   * @param incomeChange
+   * @param nextIncomeChange
+   * @param local
+   * @param income
+   * @param confilictResolver
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
    * @throws RemoteExportException
+   * @throws RepositoryException
    */
-  @Override
   public void analyze(ItemState incomeChange,
+                      ItemState nextIncomeChange,
                       ChangesStorage<ItemState> local,
                       ChangesStorage<ItemState> income,
                       ConflictResolver confilictResolver) throws IOException,
@@ -71,18 +79,16 @@ public class RenameAnalyzer extends AbstractAnalyzer {
                                                          RepositoryException {
 
     ItemState incomeState = incomeChange;
-    ItemState nextIncomeState = income.findNextState(incomeState, incomeState.getData()
-                                                                             .getIdentifier());
 
     QPath incNodePath = incomeState.getData().isNode()
         ? incomeState.getData().getQPath()
         : incomeState.getData().getQPath().makeParentPath();
 
-    QPath nextIncNodePath = nextIncomeState.getData().isNode()
-        ? nextIncomeState.getData().getQPath()
-        : nextIncomeState.getData().getQPath().makeParentPath();
+    QPath nextIncNodePath = nextIncomeChange.getData().isNode()
+        ? nextIncomeChange.getData().getQPath()
+        : nextIncomeChange.getData().getQPath().makeParentPath();
 
-    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+    for (MarkableIterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
       ItemData incomeData = incomeState.getData();
@@ -154,11 +160,11 @@ public class RenameAnalyzer extends AbstractAnalyzer {
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
             for (ItemState item : updateSeq) {
               if (item.getData().getQPath().isDescendantOf(incNodePath)
                   || incNodePath.equals(item.getData().getQPath())
@@ -265,11 +271,11 @@ public class RenameAnalyzer extends AbstractAnalyzer {
             break;
           }
 
-          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(liter, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            List<ItemState> updateSeq = local.getUpdateSequence(localState);
+            List<ItemState> updateSeq = local.getUpdateSequence(liter, localState);
             for (ItemState st : updateSeq) {
               if (st.getData().getQPath().isDescendantOf(incNodePath)
                   || incNodePath.equals(st.getData().getQPath())
@@ -327,4 +333,5 @@ public class RenameAnalyzer extends AbstractAnalyzer {
       }
     }
   }
+
 }
