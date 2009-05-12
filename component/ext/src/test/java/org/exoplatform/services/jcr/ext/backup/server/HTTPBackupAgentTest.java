@@ -686,6 +686,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
       assertEquals(JobWorkspaceRestore.RESTORE_SUCCESSFUL, info.getState().intValue());
       assertEquals("db6", info.getRepositoryName());
       assertEquals("ws3", info.getWorkspaceName());
+      assertNotNull(info.getBackupId());
       
       Session sessin_ws3 = repositoryService.getRepository("db6").login(credentials, "ws3");
       assertNotNull(sessin_ws3);
