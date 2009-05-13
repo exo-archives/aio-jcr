@@ -18,7 +18,6 @@
 package org.exoplatform.services.jcr.webdav.command.deltav;
 
 import java.io.ByteArrayInputStream;
-import java.nio.channels.GatheringByteChannel;
 
 import javax.jcr.Node;
 import javax.ws.rs.core.MediaType;

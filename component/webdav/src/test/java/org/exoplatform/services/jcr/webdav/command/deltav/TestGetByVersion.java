@@ -18,7 +18,6 @@
 package org.exoplatform.services.jcr.webdav.command.deltav;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,25 +25,16 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
-import org.exoplatform.services.jcr.webdav.Range;
-import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
-import org.exoplatform.services.jcr.webdav.command.GetCommand;
-import org.exoplatform.services.jcr.webdav.command.PutCommand;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
-import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
  * Created by The eXo Platform SAS.
@@ -55,8 +45,6 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 public class TestGetByVersion extends BaseStandaloneTest {
   
   private Node getByVersionNode;
-
-  
     
   private void assertResponseContent(String path, String versionName, String content) throws IOException, VersionException, UnsupportedRepositoryOperationException, PathNotFoundException, RepositoryException {
     Version version = session.getRootNode().getNode(TextUtil.relativizePath(path)).getVersionHistory().getVersion(versionName);
