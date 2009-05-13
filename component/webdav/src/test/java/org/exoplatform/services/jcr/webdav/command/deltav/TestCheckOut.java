@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.webdav.command.deltav;
 
 import java.io.ByteArrayInputStream;
 
-import javax.jcr.Node;
 import javax.ws.rs.core.Response;
 
 import org.exoplatform.common.http.HTTPStatus;
