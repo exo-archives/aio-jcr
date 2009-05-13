@@ -20,11 +20,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
