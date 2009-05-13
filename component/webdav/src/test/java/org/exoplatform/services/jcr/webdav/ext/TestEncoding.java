@@ -20,12 +20,9 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.common.http.client.NVPair;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -159,7 +156,7 @@ public class TestEncoding extends BaseStandaloneTest {
 
   public void testRewriteEncodedFile() throws Exception {
 
-    System.out.println("\n\ttestRewriteEncodedFile:");
+//    System.out.println("\n\ttestRewriteEncodedFile:");
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(HttpHeaders.CONTENT_TYPE, ISO_CONTENT_TYPE);
