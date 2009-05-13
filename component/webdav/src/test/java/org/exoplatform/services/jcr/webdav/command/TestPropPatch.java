@@ -22,9 +22,7 @@ import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.Value;
-import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
 import org.exoplatform.common.http.HTTPStatus;
