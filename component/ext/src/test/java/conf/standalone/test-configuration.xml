@@ -439,7 +439,7 @@
     <component-plugins>
       
       <component-plugin>
-        <name>async-workspca-config</name>
+        <name>async-workspace-config</name>
         <set-method>addAsyncWorkspaceConfig</set-method>
         <type>org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig</type>
         <description>async replication config per workspace</description>
