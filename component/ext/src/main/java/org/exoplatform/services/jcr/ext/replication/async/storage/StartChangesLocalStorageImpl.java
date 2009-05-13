@@ -83,6 +83,33 @@ public class StartChangesLocalStorageImpl extends AbstractLocalStorage {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public void onSaveItems(ItemStateChangesLog itemStates) {
+    TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
+    ChangesLogIterator cLogs = tLog.getLogIterator();
+
+    changesQueue.add(tLog);
+
+    if (changesSpooler == null) {
+      // changesSpooler var can be nulled from ChangesSpooler.run()
+      ChangesSpooler csp = changesSpooler = new ChangesSpooler();
+      csp.start();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected void closeCurrentOutput() throws IOException {
+    if (currentOut != null) {
+      // close stream
+      currentOut.close();
+      currentOut = null;
+    }
+  }
+
+  /**
    * Get changes files.
    * 
    * @param skipInternal
@@ -119,22 +146,6 @@ public class StartChangesLocalStorageImpl extends AbstractLocalStorage {
     }
 
     return chFiles;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onSaveItems(ItemStateChangesLog itemStates) {
-    TransactionChangesLog tLog = (TransactionChangesLog) itemStates;
-    ChangesLogIterator cLogs = tLog.getLogIterator();
-
-    changesQueue.add(tLog);
-
-    if (changesSpooler == null) {
-      // changesSpooler var can be nulled from ChangesSpooler.run()
-      ChangesSpooler csp = changesSpooler = new ChangesSpooler();
-      csp.start();
-    }
   }
 
 }

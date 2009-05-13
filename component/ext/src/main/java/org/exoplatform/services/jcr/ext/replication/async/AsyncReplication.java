@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *

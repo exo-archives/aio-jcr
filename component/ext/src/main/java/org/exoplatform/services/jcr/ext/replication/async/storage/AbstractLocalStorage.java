@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -152,9 +153,11 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
     /**
      * Set sessionId if it null for PlainChangesLog.
      * 
-     * @param log local TransactionChangesLog
+     * @param log
+     *          local TransactionChangesLog
      * @return TransactionChangesLog with ValueData replaced.
-     * @throws IOException if error occurs
+     * @throws IOException
+     *           if error occurs
      */
     private TransactionChangesLog prepareChangesLog(final TransactionChangesLog log) throws IOException {
       final ChangesLogIterator chIt = log.getLogIterator();
@@ -166,10 +169,9 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
         PlainChangesLog plog = chIt.nextLog();
 
         // create new plain changes log
-        result.addLog(new PlainChangesLogImpl(plog.getAllStates(),
-                                              plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                         : plog.getSessionId(),
-                                              plog.getEventType()));
+        result.addLog(new PlainChangesLogImpl(plog.getAllStates(), plog.getSessionId() == null
+            ? EXTERNALIZATION_SESSION_ID
+            : plog.getSessionId(), plog.getEventType()));
       }
       return result;
     }
@@ -320,7 +322,8 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Throwable e) {
     try {
@@ -342,7 +345,8 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath Path of root directory
+   * @param rootPath
+   *          Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -372,6 +376,8 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
       } catch (IOException e) {
         LOG.error("Error of data streams close " + e, e);
       }
+
+      flushChanges();
 
       // delete merged content
       File[] subfiles = currentDir.listFiles();
