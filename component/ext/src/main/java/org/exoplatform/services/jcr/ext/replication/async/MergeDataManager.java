@@ -121,7 +121,7 @@ public class MergeDataManager extends AbstractMergeManager {
         }
 
         LOG.info("Merge changes (local=" + isLocalPriority + ") from "
-            + (isFirstMergeIteration ? first.getMember().getPriority() : " previous merge result ")
+            + (isFirstMergeIteration ? first.getMember().getPriority() : "previous merge result")
             + " and " + second.getMember().getPriority() + " members");
 
         EditableChangesStorage<ItemState> iteration = new CompositeItemStatesStorage<ItemState>(makePath(first.getMember(),
