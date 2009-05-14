@@ -37,16 +37,17 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/> Date: 12.05.2008 <br/>
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 12.05.2008 <br/>
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AuditVersionableTest.java 15151 2008-06-03 10:12:37Z ksm $
  */
 
 public class AuditVersionableTest extends BaseStandaloneTest {
-  
-  private static final Log      log = ExoLogger.getLogger(AuditVersionableTest.class);
-  
+
+  private static final Log     log = ExoLogger.getLogger(AuditVersionableTest.class);
+
   private Node                 testRoot;
 
   private AuditService         service;

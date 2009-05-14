@@ -20,15 +20,14 @@ import java.io.IOException;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
-
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: IncomeDataContext.java 111 2008-11-11 11:11:11Z serg $
  */
 public class IncomeDataContext {
@@ -43,9 +42,12 @@ public class IncomeDataContext {
   /**
    * Constructor.
    * 
-   * @param changesFile file to store income changes;
-   * @param member owner of income data;
-   * @param totalPackets total packets count
+   * @param changesFile
+   *          file to store income changes;
+   * @param member
+   *          owner of income data;
+   * @param totalPackets
+   *          total packets count
    */
   public IncomeDataContext(RandomChangesFile changesFile, Member member, long totalPackets) {
     this.changesFile = changesFile;

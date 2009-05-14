@@ -24,7 +24,8 @@ import java.io.InputStream;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date:
+ * <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SimpleChangesFile.java 111 2008-11-11 11:11:11Z serg $
@@ -34,15 +35,15 @@ public class SimpleChangesFile implements ChangesFile {
   /**
    * Check sum to file.
    */
-  protected final byte[] crc;
+  protected final byte[]          crc;
 
   /**
    * Time stamp to ChangesLog.
    */
-  protected final long   id;
+  protected final long            id;
 
-  protected final File   file;
-  
+  protected final File            file;
+
   protected final ResourcesHolder resHolder;
 
   public SimpleChangesFile(File file, byte[] crc, long id, ResourcesHolder resHolder) {
@@ -79,7 +80,7 @@ public class SimpleChangesFile implements ChangesFile {
   }
 
   public void validate() throws InvalidChecksumException {
-    //do nothing
+    // do nothing
   }
 
 }

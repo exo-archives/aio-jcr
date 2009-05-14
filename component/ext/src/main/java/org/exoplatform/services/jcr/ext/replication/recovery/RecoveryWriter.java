@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -34,8 +33,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.ext.replication.FixupStream;
-import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -59,7 +56,7 @@ public class RecoveryWriter extends AbstractFSAccess {
   /**
    * Definition the timeout to FileRemover.
    */
-  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;    // 2 hours
+  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;                       // 2 hours
 
   /**
    * The FileCleaner will delete the temporary files.
@@ -87,8 +84,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   private FileRemover       fileRemover;
 
   /**
-   * RecoveryWriter  constructor.
-   *
+   * RecoveryWriter constructor.
+   * 
    * @param recoveryDir
    *          the recovery directory
    * @param fileNameFactory
@@ -118,11 +115,10 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * save.
-   *
+   * 
    * @param confirmationChengesLog
    *          the PendingConfirmationChengesLog
-   * @return String
-   *           return the name of file
+   * @return String return the name of file
    * @throws IOException
    *           will be generated the IOException
    */
@@ -139,14 +135,13 @@ public class RecoveryWriter extends AbstractFSAccess {
 
       File f = new File(dir.getCanonicalPath() + File.separator + File.separator + fileName);
 
-      
       // save data
       this.save(f, (TransactionChangesLog) confirmationChengesLog.getChangesLog());
 
-      //ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
+      // ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
 
-     // writeExternal(objectOutputStream,
-     //               (TransactionChangesLog) confirmationChengesLog.getChangesLog());
+      // writeExternal(objectOutputStream,
+      // (TransactionChangesLog) confirmationChengesLog.getChangesLog());
 
       // save info
       if (log.isDebugEnabled())
@@ -158,34 +153,33 @@ public class RecoveryWriter extends AbstractFSAccess {
     }
     return null;
   }
-  
+
   /**
    * save.
-   *
+   * 
    * @param f
-   *         the file to binary data 
+   *          the file to binary data
    * @param changesLog
    *          the ChangesLog
-   * @return String
-   *           return the name of file
+   * @return String return the name of file
    * @throws IOException
    *           will be generated the IOException
    */
   public String save(File f, TransactionChangesLog changesLog) throws IOException {
-      // save data
-      ObjectWriterImpl out = new ObjectWriterImpl(new FileOutputStream(f));
-      TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
-      wr.write(out, changesLog);
-      
-      //writeExternal(objectOutputStream,  changesLog);
-      out.flush();
-      out.close();
-      return f.getName();
+    // save data
+    ObjectWriterImpl out = new ObjectWriterImpl(new FileOutputStream(f));
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
+    wr.write(out, changesLog);
+
+    // writeExternal(objectOutputStream, changesLog);
+    out.flush();
+    out.close();
+    return f.getName();
   }
 
   /**
    * writeNotConfirmationInfo.
-   *
+   * 
    * @param dataFile
    *          the file to binary ChangesLog
    * @param participantsClusterList
@@ -211,7 +205,7 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * writeExternal.
-   *
+   * 
    * @param out
    *          the ObjectOutputStream to ChangesLog
    * @param changesLog
@@ -219,56 +213,55 @@ public class RecoveryWriter extends AbstractFSAccess {
    * @throws IOException
    *           will be generated the IOException
    */
- /* private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
+  /* private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
 
-    PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
+     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
 
-    if (pendingChangesLog.getConteinerType() == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
+     if (pendingChangesLog.getConteinerType() == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
 
-      out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITH_STREAM);
-      out.writeObject(changesLog);
+       out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITH_STREAM);
+       out.writeObject(changesLog);
 
-      // Write FixupStream
-      List<FixupStream> listfs = pendingChangesLog.getFixupStreams();
-      out.writeInt(listfs.size());
+       // Write FixupStream
+       List<FixupStream> listfs = pendingChangesLog.getFixupStreams();
+       out.writeInt(listfs.size());
 
-      for (int i = 0; i < listfs.size(); i++)
-        out.writeObject(listfs.get(i));
+       for (int i = 0; i < listfs.size(); i++)
+         out.writeObject(listfs.get(i));
 
-      // write stream data
-      List<InputStream> listInputList = pendingChangesLog.getInputStreams();
+       // write stream data
+       List<InputStream> listInputList = pendingChangesLog.getInputStreams();
 
-      // write file count
-      out.writeInt(listInputList.size());
+       // write file count
+       out.writeInt(listInputList.size());
 
-      for (int i = 0; i < listInputList.size(); i++) {
-        File tempFile = getAsFile(listInputList.get(i));
-        FileInputStream fis = new FileInputStream(tempFile);
+       for (int i = 0; i < listInputList.size(); i++) {
+         File tempFile = getAsFile(listInputList.get(i));
+         FileInputStream fis = new FileInputStream(tempFile);
 
-        // write file size
-        out.writeLong(tempFile.length());
+         // write file size
+         out.writeLong(tempFile.length());
 
-        // write file content
-        writeContent(fis, out);
+         // write file content
+         writeContent(fis, out);
 
-        fis.close();
-        fileCleaner.addFile(tempFile);
-      }
+         fis.close();
+         fileCleaner.addFile(tempFile);
+       }
 
-      // restore changes log worlds
+       // restore changes log worlds
 
-    } else {
-      out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM);
-      out.writeObject(changesLog);
-    }
+     } else {
+       out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM);
+       out.writeObject(changesLog);
+     }
 
-    out.flush();
-  }*/
+     out.flush();
+   }*/
 
   /**
-   * writeContent.
-   *   Will be wrote the InputStream to ObjectOutputStream.
-   *
+   * writeContent. Will be wrote the InputStream to ObjectOutputStream.
+   * 
    * @param is
    *          the InputStream
    * @param oos
@@ -292,11 +285,11 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * removeChangesLog.
-   *
+   * 
    * @param identifier
    *          the identification string to ChangesLog
    * @param ownerName
-   *          the owner name 
+   *          the owner name
    * @throws IOException
    *           will be generated the IOException
    */
@@ -330,13 +323,12 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * removeChangesLog.
-   *
+   * 
    * @param fileNameList
    *          the list of file name
    * @param ownerName
    *          the owner name
-   * @return long
-   *           return the how many files was deleted
+   * @return long return the how many files was deleted
    * @throws IOException
    *           will be generated the IOException
    */
@@ -381,8 +373,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   /**
-   * saveRemoveChangesLog.
-   *   Save the file name for deleting.
+   * saveRemoveChangesLog. Save the file name for deleting.
+   * 
    * @param fileName
    *          the file name
    * @throws IOException
@@ -408,8 +400,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   /**
-   * saveRemoveChangesLog.
-   *   Save the file name to deleting for a specific members.
+   * saveRemoveChangesLog. Save the file name to deleting for a specific members.
+   * 
    * @param fileNameList
    *          the lost of file names
    * @param ownerName
@@ -440,10 +432,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 }
 
-
 /**
- * FileRemover.
- *   The thread will be remove ChangesLog, saved as binary file.
+ * FileRemover. The thread will be remove ChangesLog, saved as binary file.
  */
 class FileRemover extends Thread {
   /**
@@ -452,7 +442,7 @@ class FileRemover extends Thread {
   private static Log          log        = ExoLogger.getLogger("ext.FileRemover");
 
   /**
-   * Definition the constants to one second. 
+   * Definition the constants to one second.
    */
   private static final double ONE_SECOND = 1000.0;
 
@@ -473,7 +463,7 @@ class FileRemover extends Thread {
 
   /**
    * The FilesFilter to removable files.
-   *
+   * 
    */
   class RemoveFilesFilter implements FileFilter {
     /**
@@ -485,8 +475,8 @@ class FileRemover extends Thread {
   }
 
   /**
-   * FileRemover  constructor.
-   *
+   * FileRemover constructor.
+   * 
    * @param period
    *          the sleep period
    * @param recoveryDir
@@ -554,11 +544,10 @@ class FileRemover extends Thread {
 
   /**
    * getAllRemoveFileName.
-   *
+   * 
    * @param array
    *          the array of file names to deleting
-   * @return  ArrayList
-   *            the list of deleting files
+   * @return ArrayList the list of deleting files
    * @throws IOException
    *           will be generated the IOException
    */
@@ -583,9 +572,8 @@ class FileRemover extends Thread {
 
   /**
    * getAllPendingBinaryFilePath.
-   *
-   * @return HashMap
-   *           return HashMap of file names per owner.
+   * 
+   * @return HashMap return HashMap of file names per owner.
    * @throws IOException
    *           will be generated the IOException
    */
@@ -601,11 +589,10 @@ class FileRemover extends Thread {
 
   /**
    * getFilePathList.
-   *
+   * 
    * @param f
-   *         the File with removable files
-   * @return List
-   *           return the list of file path  
+   *          the File with removable files
+   * @return List return the list of file path
    * @throws IOException
    *           will be generated the IOException
    */
@@ -625,11 +612,10 @@ class FileRemover extends Thread {
 
   /**
    * getAllSavedBinaryFile.
-   *
+   * 
    * @param recoveryDataDir
    *          The recovery data directory
-   * @return List
-   *           return the list of File 
+   * @return List return the list of File
    * @throws IOException
    *           will be generated the IOException
    */
@@ -647,9 +633,8 @@ class FileRemover extends Thread {
   }
 
   /**
-   * getFiles.
-   *   The recurcive parcing the directory.
-   *   Will be added to list all files from tree. 
+   * getFiles. The recurcive parcing the directory. Will be added to list all files from tree.
+   * 
    * @param f
    *          the directory
    * @param list

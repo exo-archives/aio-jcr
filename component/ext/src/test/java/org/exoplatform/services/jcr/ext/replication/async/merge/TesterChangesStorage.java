@@ -39,7 +39,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 08.01.2009
+ * <br/>
+ * Date: 08.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -49,7 +50,10 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
 
   private final Member member;
 
-  public TesterChangesStorage(Member member, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+  public TesterChangesStorage(Member member,
+                              FileCleaner fileCleaner,
+                              int maxBufferSize,
+                              ReaderSpoolFileHolder holder) {
     super(new ArrayList<ChangesFile>(), fileCleaner, maxBufferSize, holder);
     this.member = member;
   }
@@ -60,11 +64,11 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
 
     ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(ch));
     TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
-    wr.write(out, (TransactionChangesLog)log);
+    wr.write(out, (TransactionChangesLog) log);
     out.flush();
 
     this.storage.add(new SimpleChangesFile(ch,
-                                           new byte[]{},
+                                           new byte[] {},
                                            System.currentTimeMillis(),
                                            new ResourcesHolder()));
   }

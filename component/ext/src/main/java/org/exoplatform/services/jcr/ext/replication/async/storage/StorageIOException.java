@@ -21,20 +21,21 @@ import java.io.IOException;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 28.01.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 28.01.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: CompositeIOException.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
 public class StorageIOException extends IOException {
 
   protected final Throwable cause;
-  
+
   public StorageIOException(String message) {
     super(message);
     this.cause = null;
   }
-  
+
   public StorageIOException(String message, Throwable cause) {
     super(message);
     this.cause = cause;
@@ -47,5 +48,5 @@ public class StorageIOException extends IOException {
   public Throwable getCause() {
     return cause;
   }
-  
+
 }

@@ -40,12 +40,11 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    * The definition max priority value.
    */
   public static final int            MAX_PRIORITY  = 100;
-  
+
   /**
-   * The definition timeout for information. 
+   * The definition timeout for information.
    */
   private static final int           INFORM_TIMOUT = 2000;
-
 
   /**
    * The apache logger.
@@ -88,8 +87,8 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   protected MemberListener           memberListener;
 
   /**
-   * AbstractPriorityChecker  constructor.
-   *
+   * AbstractPriorityChecker constructor.
+   * 
    * @param channelManager
    *          the ChannelManager
    * @param ownPriority
@@ -120,8 +119,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   public abstract void receive(Packet packet);
 
   /**
-   * informAll.
-   *   If was changed members in cluster, then will be called this method.  
+   * informAll. If was changed members in cluster, then will be called this method.
    */
   public void informAll() {
     try {
@@ -134,11 +132,11 @@ public abstract class AbstractPriorityChecker implements PacketListener {
                                       identifier);
       this.waitView();
       channelManager.sendPacket(pktInformer);
-      
+
       try {
         if (log.isDebugEnabled())
-         log.debug("<!-- isInterrupted == " + Thread.currentThread().isInterrupted());
-        
+          log.debug("<!-- isInterrupted == " + Thread.currentThread().isInterrupted());
+
         Thread.sleep(INFORM_TIMOUT);
       } catch (InterruptedException ie) {
         // ignored InterruptedException
@@ -146,7 +144,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
           log.debug("InterruptedException");
           log.debug("--> isInterrupted == " + Thread.currentThread().isInterrupted());
         }
-        
+
         Thread.sleep(INFORM_TIMOUT);
       }
     } catch (Exception e) {
@@ -155,8 +153,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   }
 
   /**
-   * printOnlineMembers.
-   *   Write to console the current members.
+   * printOnlineMembers. Write to console the current members.
    */
   protected void printOnlineMembers() {
     log.info(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
@@ -166,7 +163,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
   /**
    * setMemberListener.
-   *
+   * 
    * @param memberListener
    *          the MemberListener
    */
@@ -176,17 +173,15 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
   /**
    * isMaxPriority.
-   *
-   * @return boolean
-   *           if current time this is max priority then return 'true' 
+   * 
+   * @return boolean if current time this is max priority then return 'true'
    */
   public abstract boolean isMaxPriority();
 
   /**
    * isMaxOnline.
-   *
-   * @return boolean
-   *           if max priority member is online then return 'true'
+   * 
+   * @return boolean if max priority member is online then return 'true'
    */
   public boolean isMaxOnline() {
 
@@ -202,23 +197,21 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
   /**
    * isAllOnline.
-   *
-   * @return boolean
-   *           if all member is online then return 'true'
+   * 
+   * @return boolean if all member is online then return 'true'
    */
   public boolean isAllOnline() {
     return otherParticipants.size() == currentParticipants.size();
   }
-  
+
   /**
    * hasDuplicatePriority.
-   *
-   * @return boolean
-   *           when duplicate the priority then return 'true' 
+   * 
+   * @return boolean when duplicate the priority then return 'true'
    */
   public final boolean hasDuplicatePriority() {
     List<Integer> other = new ArrayList<Integer>(currentParticipants.values());
-    
+
     if (other.contains(ownPriority))
       return true;
 
@@ -233,25 +226,24 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
     return false;
   }
-  
+
   /**
    * getOtherPriorities.
-   *
-   * @return List<Integer>
-   *           the list of priorities of other participants.
+   * 
+   * @return List<Integer> the list of priorities of other participants.
    */
   public final List<Integer> getOtherPriorities() {
-    return new ArrayList<Integer>(currentParticipants.values()); 
+    return new ArrayList<Integer>(currentParticipants.values());
   }
-  
+
   /**
    * waitView.
-   *
+   * 
    * @throws InterruptedException
-   *           Will be generated the InterruptedException 
+   *           Will be generated the InterruptedException
    */
   protected final void waitView() throws InterruptedException {
-    while (channelManager.getChannel().getView() == null) 
+    while (channelManager.getChannel().getView() == null)
       Thread.sleep(100);
   }
 }

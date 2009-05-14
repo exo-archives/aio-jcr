@@ -24,9 +24,10 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.01.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 15.01.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class SynchronizerChangesLog extends TransactionChangesLog implements ReadOnlyThroughChanges {
@@ -34,9 +35,9 @@ public class SynchronizerChangesLog extends TransactionChangesLog implements Rea
   public SynchronizerChangesLog(ChangesStorage<ItemState> changes) {
     super(new ChangesStorageChangesLog(changes));
   }
-  
+
   public SynchronizerChangesLog(PlainChangesLog changesLog) {
     super(changesLog);
   }
-  
+
 }

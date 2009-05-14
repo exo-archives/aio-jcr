@@ -40,7 +40,8 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChang
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 29.01.2009
+ * <br/>
+ * Date: 29.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: CompositeItemStatesStorageTest.java 111 2008-11-11 11:11:11Z pnedonosko $

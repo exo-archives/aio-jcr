@@ -84,10 +84,14 @@ public class PendingBinaryFile {
   /**
    * addBinaryFile.
    * 
-   * @param ownerName owner name
-   * @param fileName name of file
-   * @param systemId String of system identification
-   * @throws IOException will be generated IOException
+   * @param ownerName
+   *          owner name
+   * @param fileName
+   *          name of file
+   * @param systemId
+   *          String of system identification
+   * @throws IOException
+   *           will be generated IOException
    */
   public ChangesFile addChangesFile(String ownerName,
                                     String fileName,
@@ -112,8 +116,10 @@ public class PendingBinaryFile {
   /**
    * getFileDescriptor.
    * 
-   * @param ownName owner name
-   * @param fileName name of file
+   * @param ownName
+   *          owner name
+   * @param fileName
+   *          name of file
    * @return FileDescriptor return the FileDescriptor
    */
   public ChangesFile getChangesFile(String ownName, String fileName) {
@@ -183,7 +189,8 @@ public class PendingBinaryFile {
   /**
    * setNeedTransferCounter.
    * 
-   * @param needTransferCounter set the needTransferCounter
+   * @param needTransferCounter
+   *          set the needTransferCounter
    */
   public void setNeedTransferCounter(long needTransferCounter) {
     this.needTransferCounter = needTransferCounter;
@@ -201,7 +208,8 @@ public class PendingBinaryFile {
   /**
    * setRemovedOldChangesLogCounter.
    * 
-   * @param needRemoveOldChangesLogCounter set the removedOldChangesLogCounter
+   * @param needRemoveOldChangesLogCounter
+   *          set the removedOldChangesLogCounter
    */
   public void setRemovedOldChangesLogCounter(long needRemoveOldChangesLogCounter) {
     this.removedOldChangesLogCounter = needRemoveOldChangesLogCounter;
@@ -228,7 +236,8 @@ public class PendingBinaryFile {
   /**
    * setSuccessfulTransferCounter.
    * 
-   * @param successfulTransferCounter set the successfulTransferCounter
+   * @param successfulTransferCounter
+   *          set the successfulTransferCounter
    */
   public void setSuccessfulTransferCounter(long successfulTransferCounter) {
     this.successfulTransferCounter = successfulTransferCounter;
@@ -246,7 +255,8 @@ public class PendingBinaryFile {
   /**
    * addToSuccessfulTransferCounter.
    * 
-   * @param count add the 'count' to successfulTransferCounter
+   * @param count
+   *          add the 'count' to successfulTransferCounter
    */
   public void addToSuccessfulTransferCounter(long count) {
     successfulTransferCounter += count;
@@ -266,7 +276,8 @@ public class PendingBinaryFile {
   /**
    * setSuccessfulSave.
    * 
-   * @param successfulSave set the isSuccessfulSave
+   * @param successfulSave
+   *          set the isSuccessfulSave
    */
   public void setSuccessfulSave(boolean successfulSave) {
     this.isSuccessfulSave = successfulSave;

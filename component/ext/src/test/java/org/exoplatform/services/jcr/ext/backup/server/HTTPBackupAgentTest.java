@@ -45,7 +45,6 @@ import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfoList;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.ext.registry.RESTRegistryTest.DummyContainerResponseWriter;
 import org.exoplatform.services.rest.RequestHandler;
 import org.exoplatform.services.rest.impl.ContainerRequest;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -68,19 +67,21 @@ import org.exoplatform.ws.frameworks.json.value.JsonValue;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 21.04.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 21.04.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: HTTPBackupAgentTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class HTTPBackupAgentTest extends BaseStandaloneTest {
-  
-  private String HTTP_BACKUP_AGENT_PATH = HTTPBackupAgent.Constants.BASE_URL.replaceAll("/rest", "");
+
+  private String         HTTP_BACKUP_AGENT_PATH = HTTPBackupAgent.Constants.BASE_URL.replaceAll("/rest",
+                                                                                                "");
 
   private ResourceBinder binder;
 
   private RequestHandler handler;
-  
+
   /**
    * {@inheritDoc}
    */
@@ -89,124 +90,132 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
     binder = (ResourceBinder) container.getComponentInstanceOfType(ResourceBinder.class);
     handler = (RequestHandler) container.getComponentInstanceOfType(RequestHandler.class);
-    
+
     SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
     assertNotNull(sessionProviderService);
-    sessionProviderService.setSessionProvider(null, new SessionProvider(new ConversationState(new Identity("root"))));
+    sessionProviderService.setSessionProvider(null,
+                                              new SessionProvider(new ConversationState(new Identity("root"))));
   }
-  
+
   public void testInfo() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
-    BackupServiceInfoBean info = (BackupServiceInfoBean) getObject(BackupServiceInfoBean.class, responseWriter.getBody());
+
+    BackupServiceInfoBean info = (BackupServiceInfoBean) getObject(BackupServiceInfoBean.class,
+                                                                   responseWriter.getBody());
     BackupManager backupManager = (BackupManager) container.getComponentInstanceOfType(BackupManager.class);
-    
+
     assertNotNull(info);
-    assertEquals(backupManager.getBackupDirectory().getAbsolutePath() ,info.getBackupLogDir());
+    assertEquals(backupManager.getBackupDirectory().getAbsolutePath(), info.getBackupLogDir());
     assertEquals(backupManager.getFullBackupType(), info.getFullBackupType());
     assertEquals(backupManager.getIncrementalBackupType(), info.getIncrementalBackupType());
-    assertEquals(backupManager.getDefaultIncrementalJobPeriod(), info.getDefaultIncrementalJobPeriod().longValue());
+    assertEquals(backupManager.getDefaultIncrementalJobPeriod(),
+                 info.getDefaultIncrementalJobPeriod().longValue());
   }
-  
+
   public void testDropWorkspace() throws Exception {
-    //login to workspace '/db6/ws1'
+    // login to workspace '/db6/ws1'
     Session session_db6_ws1 = repositoryService.getRepository("db6").login(credentials, "ws1");
-    
-    assertNotNull(session_db6_ws1);    
-    
+
+    assertNotNull(session_db6_ws1);
+
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.DROP_WORKSPACE +
-                                                         "/db6/ws1/true"),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.DROP_WORKSPACE
+                                                     + "/db6/ws1/true"),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
+
     try {
       Session ses_db6_ws1 = repositoryService.getRepository("db6").login(credentials, "ws1");
       fail();
     } catch (NoSuchWorkspaceException e) {
-      //ok
+      // ok
     }
   }
-  
+
   public void testStart() throws Exception {
-    //login to workspace '/db6/ws2'
+    // login to workspace '/db6/ws2'
     Session session_db6_ws2 = repositoryService.getRepository("db6").login(credentials, "ws2");
     assertNotNull(session_db6_ws2);
-    
+
     session_db6_ws2.getRootNode().addNode("NODE_NAME_TO_TEST");
     session_db6_ws2.save();
-    
-    
-    File f = new File("target/temp/backup/" + System.currentTimeMillis() );
+
+    File f = new File("target/temp/backup/" + System.currentTimeMillis());
     f.mkdirs();
-    
+
     BackupConfigBean configBean = new BackupConfigBean(BackupManager.FULL_AND_INCREMENTAL,
                                                        f.getPath(),
                                                        10000l);
-    
+
     JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
     JsonValue json = generatorImpl.createJsonObject(configBean);
-    
+
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/json; charset=UTF-8");
     ContainerRequest creq = new ContainerRequest("POST",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.START_BACKUP +
-                                                         "/db6/ws2"),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.START_BACKUP
+                                                     + "/db6/ws2"),
                                                  new URI(""),
-                                                 new ByteArrayInputStream(json.toString().getBytes("UTF-8")),
+                                                 new ByteArrayInputStream(json.toString()
+                                                                              .getBytes("UTF-8")),
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
+
     Thread.sleep(5000);
   }
-  
+
   public void testInfoBackup() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_AND_COMPLETED_BACKUPS_INFO),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.CURRENT_AND_COMPLETED_BACKUPS_INFO),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
-    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                       responseWriter.getBody());
     List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-    
+
     assertEquals(1, list.size());
-    
+
     ShortInfo info = list.get(0);
-    
+
     assertNotNull(info);
-    assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+    assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
     assertNotNull(info.getStartedTime());
     assertNotNull(info.getFinishedTime());
     assertEquals(ShortInfo.CURRENT, info.getType().intValue());
@@ -214,31 +223,29 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     assertEquals("db6", info.getRepositoryName());
     assertEquals("ws2", info.getWorkspaceName());
   }
-  
+
   public void testInfoBackupOnWorkspace() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_AND_COMPLETED_BACKUPS_INFO_ON_WS +
-                                                         "/db6/ws2"),
-                                                 new URI(""),
-                                                 null,
-                                                 new InputHeadersMap(headers));
-    
+    ContainerRequest creq = new ContainerRequest("GET", new URI(HTTP_BACKUP_AGENT_PATH
+        + HTTPBackupAgent.Constants.OperationType.CURRENT_AND_COMPLETED_BACKUPS_INFO_ON_WS
+        + "/db6/ws2"), new URI(""), null, new InputHeadersMap(headers));
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
-    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                       responseWriter.getBody());
     List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-    
+
     assertEquals(1, list.size());
-    
+
     ShortInfo info = list.get(0);
-    
+
     assertNotNull(info);
-    assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+    assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
     assertNotNull(info.getStartedTime());
     assertNotNull(info.getFinishedTime());
     assertEquals(ShortInfo.CURRENT, info.getType().intValue());
@@ -246,30 +253,32 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     assertEquals("db6", info.getRepositoryName());
     assertEquals("ws2", info.getWorkspaceName());
   }
-  
+
   public void testInfoBackupCurrent() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
-    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                       responseWriter.getBody());
     List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-    
+
     assertEquals(1, list.size());
-    
+
     ShortInfo info = list.get(0);
-    
+
     assertNotNull(info);
-    assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+    assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
     assertNotNull(info.getStartedTime());
     assertNotNull(info.getFinishedTime());
     assertEquals(ShortInfo.CURRENT, info.getType().intValue());
@@ -277,56 +286,59 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     assertEquals("db6", info.getRepositoryName());
     assertEquals("ws2", info.getWorkspaceName());
   }
-  
+
   public void testInfoBackupCurrentById() throws Exception {
     // Get backup id for backup on workspace /db6/ws2
     String id = null;
-    
+
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       ContainerRequest creq = new ContainerRequest("GET",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
+                                                   new URI(HTTP_BACKUP_AGENT_PATH
+                                                       + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
                                                    new URI(""),
                                                    null,
                                                    new InputHeadersMap(headers));
-      
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-  
+
       assertEquals(200, cres.getStatus());
-      
-      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                         responseWriter.getBody());
       List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-      
+
       assertEquals(1, list.size());
-      
+
       ShortInfo info = list.get(0);
-      
+
       assertEquals(info.getRepositoryName(), "db6");
       assertEquals(info.getWorkspaceName(), "ws2");
-      
+
       id = info.getBackupId();
     }
-    
+
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO +
-                                                         "/" + id),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO
+                                                     + "/" + id),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
+
     DetailedInfo info = (DetailedInfo) getObject(DetailedInfo.class, responseWriter.getBody());
-    
+
     assertNotNull(info);
-    assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+    assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
     assertNotNull(info.getStartedTime());
     assertNotNull(info.getFinishedTime());
     assertEquals(ShortInfo.CURRENT, info.getType().intValue());
@@ -335,76 +347,81 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     assertEquals("ws2", info.getWorkspaceName());
     assertNotNull(info.getBackupConfig());
   }
-  
+
   public void testStop() throws Exception {
     // Get backup id for backup on workspace /db6/ws2
     String id = null;
-    
+
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       ContainerRequest creq = new ContainerRequest("GET",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
+                                                   new URI(HTTP_BACKUP_AGENT_PATH
+                                                       + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
                                                    new URI(""),
                                                    null,
                                                    new InputHeadersMap(headers));
-      
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-  
+
       assertEquals(200, cres.getStatus());
-      
-      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                         responseWriter.getBody());
       List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-      
+
       assertEquals(1, list.size());
-      
+
       ShortInfo info = list.get(0);
-      
+
       assertEquals(info.getRepositoryName(), "db6");
       assertEquals(info.getWorkspaceName(), "ws2");
-      
+
       id = info.getBackupId();
     }
-    
+
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.STOP_BACKUP +
-                                                         "/" + id),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.STOP_BACKUP
+                                                     + "/" + id),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
   }
-  
+
   public void testInfoBackupCompleted() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
-    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+    ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                       responseWriter.getBody());
     List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-    
+
     assertEquals(1, list.size());
-    
+
     ShortInfo info = list.get(0);
-    
+
     assertNotNull(info);
-    assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+    assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
     assertNotNull(info.getStartedTime());
     assertNotNull(info.getFinishedTime());
     assertEquals(ShortInfo.COMPLETED, info.getType().intValue());
@@ -412,109 +429,114 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     assertEquals("db6", info.getRepositoryName());
     assertEquals("ws2", info.getWorkspaceName());
   }
-  
+
   public void testInfoBackupCompletedById() throws Exception {
     // Get backup id for backup on workspace /db6/ws2
     String id = null;
-    
+
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       ContainerRequest creq = new ContainerRequest("GET",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
+                                                   new URI(HTTP_BACKUP_AGENT_PATH
+                                                       + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
                                                    new URI(""),
                                                    null,
                                                    new InputHeadersMap(headers));
-      
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-  
+
       assertEquals(200, cres.getStatus());
-      
-      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                         responseWriter.getBody());
       List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-      
+
       assertEquals(1, list.size());
-      
+
       ShortInfo info = list.get(0);
-      
+
       assertEquals(info.getRepositoryName(), "db6");
       assertEquals(info.getWorkspaceName(), "ws2");
-      
+
       id = info.getBackupId();
     }
-    
+
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO +
-                                                         "/" + id),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO
+                                                     + "/" + id),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
+
     DetailedInfo info = (DetailedInfo) getObject(DetailedInfo.class, responseWriter.getBody());
-    
+
     assertNotNull(info);
-    assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+    assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
     assertNotNull(info.getStartedTime());
     assertNotNull(info.getFinishedTime());
     assertEquals(ShortInfo.COMPLETED, info.getType().intValue());
     assertEquals(0, info.getState().intValue());
     assertEquals("db6", info.getRepositoryName());
     assertEquals("ws2", info.getWorkspaceName());
-    
+
     assertNotNull(info.getBackupConfig());
   }
-  
+
   public void testGetDefaultWorkspaceConfig() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     ContainerRequest creq = new ContainerRequest("GET",
-                                                 new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
+                                                 new URI(HTTP_BACKUP_AGENT_PATH
+                                                     + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
                                                  new URI(""),
                                                  null,
                                                  new InputHeadersMap(headers));
-    
+
     ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
     ContainerResponse cres = new ContainerResponse(responseWriter);
     handler.handleRequest(creq, cres);
 
     assertEquals(200, cres.getStatus());
-    
-    WorkspaceEntry defEntry = (WorkspaceEntry) getObject(WorkspaceEntry.class, responseWriter.getBody());
-    
+
+    WorkspaceEntry defEntry = (WorkspaceEntry) getObject(WorkspaceEntry.class,
+                                                         responseWriter.getBody());
+
     assertEquals(repository.getConfiguration().getDefaultWorkspaceName(), defEntry.getName());
   }
-  
+
   public void testWorkspaceEntryRestore() throws Exception {
     // Getting default WorkspaceEntry
     WorkspaceEntry defEntry;
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       ContainerRequest creq = new ContainerRequest("GET",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
+                                                   new URI(HTTP_BACKUP_AGENT_PATH
+                                                       + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
                                                    new URI(""),
                                                    null,
                                                    new InputHeadersMap(headers));
-      
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-  
-      
+
       assertEquals(200, cres.getStatus());
       defEntry = (WorkspaceEntry) getObject(WorkspaceEntry.class, responseWriter.getBody());
     }
-    
+
     WorkspaceEntry wEntry = makeWorkspaceEntry(defEntry, "db6", "ws3", "jdbcjcr24");
-    
+
     // Restore
-    
+
     // Create JSON to WorkspaceEntry
     JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
     JsonValue json = generatorImpl.createJsonObject(wEntry);
@@ -523,128 +545,128 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     json.writeTo(jsonWriter);
     jsonWriter.flush();
     jsonWriter.close();
-    
-    // Create WorkspaceEntry from JSON 
+
+    // Create WorkspaceEntry from JSON
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     JsonParser jsonParser = new JsonParserImpl();
     JsonHandler jsonHandler = new JsonDefaultHandler();
 
     jsonParser.parse(in, jsonHandler);
     JsonValue jsonValue = jsonHandler.getJsonObject();
-      
-    WorkspaceEntry entry = (WorkspaceEntry) (new BeanBuilder().createObject(WorkspaceEntry.class, jsonValue));
-    
+
+    WorkspaceEntry entry = (WorkspaceEntry) (new BeanBuilder().createObject(WorkspaceEntry.class,
+                                                                            jsonValue));
+
     assertNotNull(entry);
-    
+
   }
-  
+
   public void testRestore() throws Exception {
     // Get backup id for backup on workspace /db6/ws2
     String id = null;
-    
+
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       ContainerRequest creq = new ContainerRequest("GET",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
+                                                   new URI(HTTP_BACKUP_AGENT_PATH
+                                                       + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
                                                    new URI(""),
                                                    null,
                                                    new InputHeadersMap(headers));
-      
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-  
+
       assertEquals(200, cres.getStatus());
-      
-      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class, responseWriter.getBody());
+
+      ShortInfoList infoList = (ShortInfoList) getObject(ShortInfoList.class,
+                                                         responseWriter.getBody());
       List<ShortInfo> list = new ArrayList<ShortInfo>(infoList.getBackups());
-      
+
       assertEquals(1, list.size());
-      
+
       ShortInfo info = list.get(0);
-      
+
       assertEquals(info.getRepositoryName(), "db6");
       assertEquals(info.getWorkspaceName(), "ws2");
-      
+
       id = info.getBackupId();
     }
-    
+
     // Getting default WorkspaceEntry
     WorkspaceEntry defEntry;
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       ContainerRequest creq = new ContainerRequest("GET",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
+                                                   new URI(HTTP_BACKUP_AGENT_PATH
+                                                       + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
                                                    new URI(""),
                                                    null,
                                                    new InputHeadersMap(headers));
-      
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-  
+
       assertEquals(200, cres.getStatus());
       defEntry = (WorkspaceEntry) getObject(WorkspaceEntry.class, responseWriter.getBody());
     }
-    
+
     WorkspaceEntry wEntry = makeWorkspaceEntry(defEntry, "db6", "ws3", "jdbcjcr24");
-    
+
     // Check the workspace /db6/ws3 not exists.
-    try { 
+    try {
       Session sessin_ws3 = repositoryService.getRepository("db6").login(credentials, "ws3");
       fail("The workspace /db6/ws3 should not exists.");
     } catch (Exception e) {
       // ok
     }
-    
-    
+
     // Restore
     {
       // Create JSON to WorkspaceEntry
       JsonGeneratorImpl generatorImpl = new JsonGeneratorImpl();
       JsonValue json = generatorImpl.createJsonObject(wEntry);
-      
+
       // Execute restore
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       headers.putSingle("Content-Type", "application/json; charset=UTF-8");
       ContainerRequest creq = new ContainerRequest("POST",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.RESTORE +
-                                                           "/" + "db6" +
-                                                           "/" + id),
+                                                   new URI(HTTP_BACKUP_AGENT_PATH
+                                                       + HTTPBackupAgent.Constants.OperationType.RESTORE
+                                                       + "/" + "db6" + "/" + id),
                                                    new URI(""),
-                                                   new ByteArrayInputStream(json.toString().getBytes("UTF-8")),
+                                                   new ByteArrayInputStream(json.toString()
+                                                                                .getBytes("UTF-8")),
                                                    new InputHeadersMap(headers));
-      
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-  
+
       assertEquals(200, cres.getStatus());
     }
 
     Thread.sleep(2000);
-    
+
     // Get restore info to workspace /db6/ws3
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
-                                                   new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORE_INFO_ON_WS +
-                                                           "/" + "db6" +
-                                                           "/" + "ws3"),
-                                                   new URI(""),
-                                                   null,
-                                                   new InputHeadersMap(headers));
-      
+      ContainerRequest creq = new ContainerRequest("GET", new URI(HTTP_BACKUP_AGENT_PATH
+          + HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORE_INFO_ON_WS + "/" + "db6" + "/"
+          + "ws3"), new URI(""), null, new InputHeadersMap(headers));
+
       ByteArrayContainerResponseWriter responseWriter = new ByteArrayContainerResponseWriter();
       ContainerResponse cres = new ContainerResponse(responseWriter);
       handler.handleRequest(creq, cres);
-      
+
       assertEquals(200, cres.getStatus());
-      
+
       DetailedInfo info = (DetailedInfo) getObject(DetailedInfo.class, responseWriter.getBody());
-      
+
       assertNotNull(info);
-      assertEquals(BackupManager.FULL_AND_INCREMENTAL ,info.getBackupType().intValue());
+      assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
       assertNotNull(info.getStartedTime());
       assertNotNull(info.getFinishedTime());
       assertEquals(ShortInfo.RESTORE, info.getType().intValue());
@@ -652,7 +674,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
       assertEquals("db6", info.getRepositoryName());
       assertEquals("ws3", info.getWorkspaceName());
       assertNotNull(info.getBackupConfig());
-      
+
       Session sessin_ws3 = repositoryService.getRepository("db6").login(credentials, "ws3");
       assertNotNull(sessin_ws3);
       assertNotNull(sessin_ws3.getRootNode());
@@ -693,12 +715,14 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
       assertNotNull(sessin_ws3.getRootNode());
     }
   }
-  
-  
-  protected WorkspaceEntry makeWorkspaceEntry(WorkspaceEntry defWEntry, String repoNmae, String wsName, String sourceName) {
+
+  protected WorkspaceEntry makeWorkspaceEntry(WorkspaceEntry defWEntry,
+                                              String repoNmae,
+                                              String wsName,
+                                              String sourceName) {
     WorkspaceEntry ws1back = new WorkspaceEntry();
     ws1back.setName(wsName);
-    ws1back.setUniqueName(repoNmae + "_" + wsName); 
+    ws1back.setUniqueName(repoNmae + "_" + wsName);
 
     ws1back.setAccessManager(defWEntry.getAccessManager());
     ws1back.setAutoInitializedRootNt(defWEntry.getAutoInitializedRootNt());
@@ -711,7 +735,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     qParams.add(new SimpleParameterEntry("indexDir", "target" + File.separator + wsName));
     QueryHandlerEntry qEntry = new QueryHandlerEntry(defWEntry.getQueryHandler().getType(), qParams);
 
-    ws1back.setQueryHandler(qEntry); 
+    ws1back.setQueryHandler(qEntry);
 
     ArrayList params = new ArrayList();
     for (Iterator i = defWEntry.getContainer().getParameters().iterator(); i.hasNext();) {
@@ -727,17 +751,17 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
       params.add(newp);
     }
-    
+
     ContainerEntry ce = new ContainerEntry(defWEntry.getContainer().getType(), params);
     ws1back.setContainer(ce);
 
     return ws1back;
   }
-  
+
   /**
    * Will be created the Object from JSON binary data.
-   *
-   * @param cl 
+   * 
+   * @param cl
    *          Class
    * @param data
    *          binary data (JSON)
@@ -745,7 +769,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
    * @throws Exception
    *           will be generated Exception
    */
-  private Object getObject(Class cl, byte[] data) throws Exception { 
+  private Object getObject(Class cl, byte[] data) throws Exception {
     JsonHandler jsonHandler = new JsonDefaultHandler();
     JsonParser jsonParser = new JsonParserImpl();
     InputStream inputStream = new ByteArrayInputStream(data);

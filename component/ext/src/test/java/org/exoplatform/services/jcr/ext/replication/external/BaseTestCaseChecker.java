@@ -30,7 +30,7 @@ public abstract class BaseTestCaseChecker extends TestCase {
   public final static String TEST_REALM        = "eXo REST services";
 
   // for ECM
-//   public final static String TEST_REALM = "exo-domain";
+  // public final static String TEST_REALM = "exo-domain";
 
   protected static int       MAX_RANDOM_VALUE  = 1000000;
 

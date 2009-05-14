@@ -44,9 +44,9 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class AccessContextTest extends BaseStandaloneTest {
-  
-  private static final Log      log = ExoLogger.getLogger(AccessContextTest.class);  
-  
+
+  private static final Log log                     = ExoLogger.getLogger(AccessContextTest.class);
+
   private final static int MULTI_THIARD_OPERATIONS = 100;
 
   private final static int THREAD_COUNT            = 300;

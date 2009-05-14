@@ -24,12 +24,15 @@ import org.exoplatform.services.jcr.impl.core.observation.ActionLauncher;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Filter rejects Observation <code>ActionLauncher</code> and <code>LockManager</code>.
+ * <br/>
+ * Filter rejects Observation <code>ActionLauncher</code> and <code>LockManager</code>.
  * 
- * <br/>Date: 14.01.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: OnSynchronizationWorkspaceListenersFilter.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * <br/>
+ * Date: 14.01.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: OnSynchronizationWorkspaceListenersFilter.java 111 2008-11-11 11:11:11Z pnedonosko
+ *          $
  */
 public class OnSynchronizationWorkspaceListenersFilter implements ItemsPersistenceListenerFilter {
 

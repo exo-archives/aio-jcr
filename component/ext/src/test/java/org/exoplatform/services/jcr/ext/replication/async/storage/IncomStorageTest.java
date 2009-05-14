@@ -46,7 +46,8 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.jgroups.stack.IpAddress;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: IncomStorageTest.java 111 2008-11-11 11:11:11Z serg $
@@ -79,12 +80,15 @@ public class IncomStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log = createChangesLog((NodeData) n.getData());
 
     // create storage
-    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(),
+                                                  fileCleaner,
+                                                  maxBufferSize,
+                                                  holder);
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     MessageDigest digest = MessageDigest.getInstance("MD5");
     DigestOutputStream dout = new DigestOutputStream(bytes, digest);
-    
+
     ObjectWriter out = new ObjectWriterImpl(dout);
     TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
     wr.write(out, log);
@@ -139,7 +143,10 @@ public class IncomStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
     // create storage
-    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath(),
+                                                  fileCleaner,
+                                                  maxBufferSize,
+                                                  holder);
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -148,7 +155,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     ObjectWriterImpl out = new ObjectWriterImpl(dout);
     TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
     wr.write(out, log1);
-    
+
     out.close();
 
     RandomChangesFile cf = storage.createChangesFile(digest.digest(),
@@ -168,7 +175,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     dout = new DigestOutputStream(bytes, digest);
     out = new ObjectWriterImpl(dout);
     wr.write(out, log2);
-    
+
     out.close();
 
     cf = storage.createChangesFile(digest.digest(),
@@ -241,85 +248,85 @@ public class IncomStorageTest extends BaseStandaloneTest {
   /**
    * There may be any files in storage. But only correct named must use.
    * 
-   *
+   * 
    * Test is out of date. ChangesFile stored in list, so will never search on FS.
    * 
    * @throws Exception
    */
- /* public void testWrongNamedFilesInStorage() throws Exception {
+  /* public void testWrongNamedFilesInStorage() throws Exception {
 
-    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
-    n1.setProperty("prop1", "dfdasfsdf");
-    n1.setProperty("secondProp", "ohohoh");
+     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
+     n1.setProperty("prop1", "dfdasfsdf");
+     n1.setProperty("secondProp", "ohohoh");
 
-    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
-    n2.setProperty("prop1", "dfdasfsdfSecond");
-    n2.setProperty("secondProp", "ohohohSecond");
+     NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+     n2.setProperty("prop1", "dfdasfsdfSecond");
+     n2.setProperty("secondProp", "ohohohSecond");
 
-    NodeImpl n3 = (NodeImpl) root.addNode("testNodeThird");
-    n3.setProperty("prop1", "dfdasfsdfThird");
-    n3.setProperty("secondProp", "ohohoh Third");
+     NodeImpl n3 = (NodeImpl) root.addNode("testNodeThird");
+     n3.setProperty("prop1", "dfdasfsdfThird");
+     n3.setProperty("secondProp", "ohohoh Third");
 
-    root.save();
+     root.save();
 
-    TransactionChangesLog log1 = createChangesLog((NodeData) n1.getData());
+     TransactionChangesLog log1 = createChangesLog((NodeData) n1.getData());
 
-    TransactionChangesLog log2 = createChangesLog((NodeData) n2.getData());
+     TransactionChangesLog log2 = createChangesLog((NodeData) n2.getData());
 
-    TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
+     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
-    // create storage
-    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
+     // create storage
+     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    File difFile = new File(dir, "blabla");
-    assertTrue(difFile.createNewFile());
+     File difFile = new File(dir, "blabla");
+     assertTrue(difFile.createNewFile());
 
-    RandomChangesFile cf = storage.createChangesFile(new byte[] {},
-                                                     System.currentTimeMillis(),
-                                                     new Member(null, 20));
-    ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
-    out.writeObject(log1);
-    out.close();
-    cf.finishWrite();
-    // storage.addMemberChanges(new Member(null, 20), cf);
+     RandomChangesFile cf = storage.createChangesFile(new byte[] {},
+                                                      System.currentTimeMillis(),
+                                                      new Member(null, 20));
+     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
+     out.writeObject(log1);
+     out.close();
+     cf.finishWrite();
+     // storage.addMemberChanges(new Member(null, 20), cf);
 
-    cf = storage.createChangesFile(new byte[] {}, System.currentTimeMillis(), new Member(null, 10));
-    out = new ObjectOutputStream(cf.getOutputStream());
-    out.writeObject(log2);
-    out.close();
-    cf.finishWrite();
-    // storage.addMemberChanges(new Member(null, 10), cf);
-    File subDifFile = new File(dir, "10/subfile");
-    assertTrue(subDifFile.createNewFile());
+     cf = storage.createChangesFile(new byte[] {}, System.currentTimeMillis(), new Member(null, 10));
+     out = new ObjectOutputStream(cf.getOutputStream());
+     out.writeObject(log2);
+     out.close();
+     cf.finishWrite();
+     // storage.addMemberChanges(new Member(null, 10), cf);
+     File subDifFile = new File(dir, "10/subfile");
+     assertTrue(subDifFile.createNewFile());
 
-    cf = storage.createChangesFile(new byte[] {}, System.currentTimeMillis(), new Member(null, 45));
-    out = new ObjectOutputStream(cf.getOutputStream());
-    out.writeObject(log3);
-    out.close();
-    cf.finishWrite();
-    // storage.addMemberChanges(new Member(null, 45), cf);
+     cf = storage.createChangesFile(new byte[] {}, System.currentTimeMillis(), new Member(null, 45));
+     out = new ObjectOutputStream(cf.getOutputStream());
+     out.writeObject(log3);
+     out.close();
+     cf.finishWrite();
+     // storage.addMemberChanges(new Member(null, 45), cf);
 
-    // delete storage object
-    // storage = null;
+     // delete storage object
+     // storage = null;
 
-    // create new storage object on old context
-    // storage = new IncomeStorageImpl(dir.getAbsolutePath());
-    List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
-    assertEquals(3, ch.size());
+     // create new storage object on old context
+     // storage = new IncomeStorageImpl(dir.getAbsolutePath());
+     List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
+     assertEquals(3, ch.size());
 
-    // check results
-    Iterator<ItemState> states = ch.get(0).getChanges();
-    Iterator<ItemState> expectedStates = log2.getAllStates().iterator();
-    checkIterator(expectedStates, states, true);
+     // check results
+     Iterator<ItemState> states = ch.get(0).getChanges();
+     Iterator<ItemState> expectedStates = log2.getAllStates().iterator();
+     checkIterator(expectedStates, states, true);
 
-    states = ch.get(1).getChanges();
-    expectedStates = log1.getAllStates().iterator();
-    checkIterator(expectedStates, states, true);
+     states = ch.get(1).getChanges();
+     expectedStates = log1.getAllStates().iterator();
+     checkIterator(expectedStates, states, true);
 
-    states = ch.get(2).getChanges();
-    expectedStates = log3.getAllStates().iterator();
-    checkIterator(expectedStates, states, true);
-  }*/
+     states = ch.get(2).getChanges();
+     expectedStates = log3.getAllStates().iterator();
+     checkIterator(expectedStates, states, true);
+   }*/
 
   /*public void testLogRandomSave() throws Exception {
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
@@ -393,21 +400,21 @@ public class IncomStorageTest extends BaseStandaloneTest {
     dataManager.removeItemPersistenceListener(locStorage);
   }*/
 
- /* private void copyFormLocalToIncom(ChangesFile src, RandomChangesFile dest) throws Exception {
-    InputStream in = src.getInputStream();
-    try {
-      byte[] buf = new byte[2048];
-      int length = 0;
-      int readed = 0;
-      while ((readed = in.read(buf)) != -1) {
-        dest.writeData(buf, length);
-        length += readed;
-      }
-      dest.finishWrite();
-    } finally {
-      in.close();
-    }
-  }*/
+  /* private void copyFormLocalToIncom(ChangesFile src, RandomChangesFile dest) throws Exception {
+     InputStream in = src.getInputStream();
+     try {
+       byte[] buf = new byte[2048];
+       int length = 0;
+       int readed = 0;
+       while ((readed = in.read(buf)) != -1) {
+         dest.writeData(buf, length);
+         length += readed;
+       }
+       dest.finishWrite();
+     } finally {
+       in.close();
+     }
+   }*/
 
   private void checkIterator(Iterator<ItemState> expected,
                              Iterator<ItemState> changes,

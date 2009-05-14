@@ -82,9 +82,10 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   /**
    * WorkspaceDataTransmitter constructor.
    * 
-   * @param dataManager the CacheableWorkspaceDataManager
-   * @throws RepositoryConfigurationException will be generated
-   *           RepositoryConfigurationException
+   * @param dataManager
+   *          the CacheableWorkspaceDataManager
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
    */
   public WorkspaceDataTransmitter(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
     dataManager.addItemPersistenceListener(this);
@@ -94,10 +95,14 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   /**
    * init.
    * 
-   * @param channelManager the ChannelManager
-   * @param systemId system identification string
-   * @param ownName own name
-   * @param recoveryManager the RecoveryManager
+   * @param channelManager
+   *          the ChannelManager
+   * @param systemId
+   *          system identification string
+   * @param ownName
+   *          own name
+   * @param recoveryManager
+   *          the RecoveryManager
    */
   public void init(ChannelManager channelManager,
                    String systemId,
@@ -148,9 +153,11 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   /**
    * sendAsBinaryFile.
    * 
-   * @param isChangesLog the ChangesLog
+   * @param isChangesLog
+   *          the ChangesLog
    * @return String return the identification string for PendingChangesLog
-   * @throws Exception will be generated Exception
+   * @throws Exception
+   *           will be generated Exception
    */
   private String sendAsBinaryFile(ItemStateChangesLog isChangesLog) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
@@ -190,7 +197,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   /**
    * isSessionNull.
    * 
-   * @param changesLog the ChangesLog
+   * @param changesLog
+   *          the ChangesLog
    * @return boolean return the 'false' if same 'SessionId' is null
    */
   private boolean isSessionNull(TransactionChangesLog changesLog) {

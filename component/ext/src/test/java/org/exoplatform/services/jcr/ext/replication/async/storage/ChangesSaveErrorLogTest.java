@@ -24,7 +24,8 @@ import org.exoplatform.services.jcr.ext.replication.async.ChangesSaveErrorLog;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 27.01.2009
+ * <br/>
+ * Date: 27.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ChangesSaveErrorLogTest.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -35,33 +36,32 @@ public class ChangesSaveErrorLogTest extends BaseStandaloneTest {
 
     File storage = new File("../target/temp/storage/" + System.currentTimeMillis());
     storage.mkdirs();
-    
+
     ChangesSaveErrorLog errorLog = new ChangesSaveErrorLog(storage.getAbsolutePath(),
                                                            repository.getName(),
                                                            session.getWorkspace().getName());
     Exception e1 = new Exception("Exception #1");
     Exception e2 = new Exception("Exception #2");
     Exception e3 = new Exception("Exception #3");
-    
-    
+
     errorLog.reportError(e1);
     errorLog.reportError(e2);
     errorLog.reportError(e3);
-    
-    //check
-    
+
+    // check
+
     ChangesSaveErrorLog destErrorLog = new ChangesSaveErrorLog(storage.getAbsolutePath(),
-                                                           repository.getName(),
-                                                           session.getWorkspace().getName());
-    
+                                                               repository.getName(),
+                                                               session.getWorkspace().getName());
+
     String[] errors = destErrorLog.getErrors();
-    
+
     assertEquals(3, errors.length);
-    
+
     assertEquals(e1.getMessage(), errors[0]);
     assertEquals(e2.getMessage(), errors[1]);
     assertEquals(e3.getMessage(), errors[2]);
-    
+
     assertNotNull(destErrorLog.getErrorLog());
   }
 }

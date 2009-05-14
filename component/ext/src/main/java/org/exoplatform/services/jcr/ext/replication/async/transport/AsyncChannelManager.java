@@ -40,7 +40,8 @@ import org.jgroups.blocks.RequestHandler;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 12.12.2008
+ * <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
@@ -119,11 +120,11 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * Packets queue.
      */
     private final ConcurrentLinkedQueue<MemberPacket> queue = new ConcurrentLinkedQueue<MemberPacket>();
-    
+
     /**
      * User flag.
      */
-    private MemberPacket current;
+    private MemberPacket                              current;
 
     /**
      * {@inheritDoc}
@@ -174,15 +175,17 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * 
      */
     void handle() {
-      
+
       if (current == null) {
         synchronized (lock) {
           lock.notify();
         }
-        
+
         // JCR-886: let other threads work
         Thread.yield();
-      }
+      } else
+        // TODO 
+        LOG.info("Handler already active");
     }
   }
 
@@ -442,9 +445,9 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
             // TODO run without one (few) members will not work, see LastMemberWaiter in initializer
             packetsHandler.handle();
           else
-            LOG.warn("Not all members connected to the channel " +
-                     + channel.getView().getMembers().size() + " != " + confMembersCount +
-            		", queue message " + message);
+            LOG.warn("Not all members connected to the channel "
+                + +channel.getView().getMembers().size() + " != " + confMembersCount
+                + ", queue message " + message);
         } else
           LOG.warn("No members found or channel closed, queue message " + message);
 

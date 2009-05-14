@@ -48,7 +48,8 @@ import org.xml.sax.SAXException;
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
- * Initialization will be performed via OrganizationServiceJCRInitializer. <br/>Date: 24.07.2008
+ * Initialization will be performed via OrganizationServiceJCRInitializer. <br/>
+ * Date: 24.07.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

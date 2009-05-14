@@ -26,7 +26,8 @@ import java.util.Random;
 import org.exoplatform.services.jcr.ext.replication.async.AbstractTrasportTest;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: TestChangesFile.java 111 2008-11-11 11:11:11Z serg $
@@ -157,6 +158,7 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
 
   /**
    * Out of date
+   * 
    * @throws Exception
    */
   /*public void testUppend() throws Exception {
@@ -304,7 +306,7 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
           break;
         } else {
           rf.writeData(buf, position);
-          position+=readed;
+          position += readed;
         }
       }
     } while (readed != -1);
@@ -312,23 +314,23 @@ public class RandomChangesFileTest extends AbstractTrasportTest {
     rf.finishWrite();
     in.close();
     buf = null;
-    
-    //check
+
+    // check
     InputStream inet = new FileInputStream(f);
     InputStream inch = rf.getInputStream();
     int readet = -1;
     int readch = -1;
-    
-    do{
+
+    do {
       byte[] bufet = new byte[2048];
       byte[] bufch = new byte[2048];
-      
+
       readet = inet.read(bufet);
       readch = inch.read(bufch);
-      assertEquals(readet,readch);
+      assertEquals(readet, readch);
       assertTrue(java.util.Arrays.equals(bufet, bufch));
-    }while(readet!=-1 && readch!=-1);
-    
+    } while (readet != -1 && readch != -1);
+
     inet.close();
     inch.close();
   }

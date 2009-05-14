@@ -35,7 +35,8 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileH
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SolidLocalStorageImpl.java 111 2008-11-11 11:11:11Z serg $

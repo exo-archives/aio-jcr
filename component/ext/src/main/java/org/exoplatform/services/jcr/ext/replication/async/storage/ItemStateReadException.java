@@ -16,35 +16,35 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: IteratorRuntimeException.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ItemStateReadException extends RuntimeException {
-  
-  /** Constructs a new runtime exception with <code>null</code> as its
-   * detail message.  The cause is not initialized, and may subsequently be
-   * initialized by a call to {@link #initCause}.
+
+  /**
+   * Constructs a new runtime exception with <code>null</code> as its detail message. The cause is
+   * not initialized, and may subsequently be initialized by a call to {@link #initCause}.
    */
   public ItemStateReadException() {
     super();
   }
 
-  /** Constructs a new runtime exception with the specified detail message.
-   * The cause is not initialized, and may subsequently be initialized by a
-   * call to {@link #initCause}.
-   *
-   * @param   message   the detail message. The detail message is saved for 
-   *          later retrieval by the {@link #getMessage()} method.
+  /**
+   * Constructs a new runtime exception with the specified detail message. The cause is not
+   * initialized, and may subsequently be initialized by a call to {@link #initCause}.
+   * 
+   * @param message
+   *          the detail message. The detail message is saved for later retrieval by the
+   *          {@link #getMessage()} method.
    */
   public ItemStateReadException(String message) {
     super(message);
   }
-
 
 }

@@ -31,9 +31,9 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ReplicationEditDataTest extends BaseReplicationTest {
-  
-  private static final Log      log = ExoLogger.getLogger(ReplicationEditDataTest.class);
-  
+
+  private static final Log log = ExoLogger.getLogger(ReplicationEditDataTest.class);
+
   public void testAddNode() throws Exception {
 
     Node test = root.addNode("cms3").addNode("test");

@@ -26,7 +26,6 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.async.ConnectionListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
@@ -99,28 +98,28 @@ public class ChannelManager implements RequestHandler {
    * channelListener. The listener to JChannel when channel-state changed.
    */
   private ChannelListener      channelListener;
-  
+
   /**
    * Packets handler.
    */
-  private final PacketHandler            packetsHandler;
+  private final PacketHandler  packetsHandler;
 
   class PacketHandler extends Thread {
 
     /**
      * Wait lock.
      */
-    private final Object                              lock  = new Object();
+    private final Object                        lock  = new Object();
 
     /**
      * Packets queue.
      */
     private final ConcurrentLinkedQueue<Packet> queue = new ConcurrentLinkedQueue<Packet>();
-    
+
     /**
      * User flag.
      */
-    private Packet current;
+    private Packet                              current;
 
     /**
      * {@inheritDoc}
@@ -169,7 +168,7 @@ public class ChannelManager implements RequestHandler {
      * 
      */
     void handle() {
-      
+
       if (current == null)
         synchronized (lock) {
           lock.notify();
@@ -177,12 +176,13 @@ public class ChannelManager implements RequestHandler {
     }
   }
 
-
   /**
    * ChannelManager constructor.
    * 
-   * @param channelConfig channel configuration
-   * @param channelName name of channel
+   * @param channelConfig
+   *          channel configuration
+   * @param channelName
+   *          name of channel
    */
   public ChannelManager(String channelConfig, String channelName) {
     this.channelConfig = channelConfig;
@@ -195,7 +195,8 @@ public class ChannelManager implements RequestHandler {
   /**
    * init. Will be initialized JChannel and MessageDispatcher.
    * 
-   * @throws ReplicationException Will be generated the ReplicationException.
+   * @throws ReplicationException
+   *           Will be generated the ReplicationException.
    */
   public synchronized void init() throws ReplicationException {
     try {
@@ -226,7 +227,8 @@ public class ChannelManager implements RequestHandler {
   /**
    * connect. Connect to channel.
    * 
-   * @throws ReplicationException Will be generated the ReplicationException.
+   * @throws ReplicationException
+   *           Will be generated the ReplicationException.
    */
   public synchronized void connect() throws ReplicationException {
 
@@ -257,33 +259,34 @@ public class ChannelManager implements RequestHandler {
 
       if (log.isDebugEnabled())
         log.debug("dispatcher stopped");
-        try {
-          Thread.sleep(3000);
-        } catch (InterruptedException e) {
-          log.error("The interapted on disconnect : " + e, e);
-        }
+      try {
+        Thread.sleep(3000);
+      } catch (InterruptedException e) {
+        log.error("The interapted on disconnect : " + e, e);
+      }
+    }
+
+    if (channel != null) {
+      channel.disconnect();
+
+      if (log.isDebugEnabled())
+        log.debug("channel disconnected");
+      try {
+        Thread.sleep(5000);
+      } catch (InterruptedException e) {
+        log.error("The interapted on disconnect : " + e, e);
       }
 
-      if (channel != null) {
-        channel.disconnect();
-
-        if (log.isDebugEnabled())
-          log.debug("channel disconnected");
-        try {
-          Thread.sleep(5000);
-        } catch (InterruptedException e) {
-          log.error("The interapted on disconnect : " + e, e);
-        }
-
-        channel.close();
-        channel = null;
-      }
+      channel.close();
+      channel = null;
+    }
   }
 
   /**
    * setMembershipListener.
    * 
-   * @param membershipListener set the MembershipListener
+   * @param membershipListener
+   *          set the MembershipListener
    */
   public void setMembershipListener(MembershipListener membershipListener) {
     this.membershipListener = membershipListener;
@@ -292,7 +295,8 @@ public class ChannelManager implements RequestHandler {
   /**
    * setMessageListener.
    * 
-   * @param messageListener set the MessageListener
+   * @param messageListener
+   *          set the MessageListener
    */
   public void setMessageListener(MessageListener messageListener) {
     this.messageListener = messageListener;
@@ -301,7 +305,8 @@ public class ChannelManager implements RequestHandler {
   /**
    * addPacketListener.
    * 
-   * @param packetListener add the PacketListener
+   * @param packetListener
+   *          add the PacketListener
    */
   public void addPacketListener(PacketListener packetListener) {
     this.packetListeners.add(packetListener);
@@ -310,7 +315,8 @@ public class ChannelManager implements RequestHandler {
   /**
    * setChannelListener.
    * 
-   * @param channelListener set the ChannelListener
+   * @param channelListener
+   *          set the ChannelListener
    */
   public void setChannelListener(ChannelListener channelListener) {
     this.channelListener = channelListener;
@@ -328,30 +334,34 @@ public class ChannelManager implements RequestHandler {
   /**
    * sendPacket.
    * 
-   * @param packet the Packet with content
-   * @throws Exception will be generated Exception
+   * @param packet
+   *          the Packet with content
+   * @throws Exception
+   *           will be generated Exception
    */
   public void sendPacket(Packet packet) throws Exception {
     byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    
+
     Vector<Address> addr = new Vector<Address>(channel.getView().getMembers());
     addr.remove(channel.getLocalAddress());
     dispatcher.castMessage(addr, msg, GroupRequest.GET_NONE, 0);
   }
-  
+
   /**
    * sendPacketToAll.
    * 
-   * @param packet the Packet with content
-   * @throws Exception will be generated Exception
+   * @param packet
+   *          the Packet with content
+   * @throws Exception
+   *           will be generated Exception
    */
   public void sendPacketToAll(Packet packet) throws Exception {
     byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    
+
     dispatcher.castMessage(null, msg, GroupRequest.GET_NONE, 0);
   }
 
@@ -367,7 +377,8 @@ public class ChannelManager implements RequestHandler {
   /**
    * send.
    * 
-   * @param buffer the binary data
+   * @param buffer
+   *          the binary data
    */
   public synchronized void send(byte[] buffer) {
     Message msg = new Message(null, null, buffer);
@@ -377,9 +388,12 @@ public class ChannelManager implements RequestHandler {
   /**
    * sendBigPacket.
    * 
-   * @param data the binary data
-   * @param packet the Packet
-   * @throws Exception will be generated Exception
+   * @param data
+   *          the binary data
+   * @param packet
+   *          the Packet
+   * @throws Exception
+   *           will be generated Exception
    */
   public synchronized void sendBigPacket(byte[] data, Packet packet) throws Exception {
 
@@ -411,12 +425,18 @@ public class ChannelManager implements RequestHandler {
   /**
    * sendBinaryFile.
    * 
-   * @param filePath full path to file
-   * @param ownerName owner name
-   * @param identifier the identifier String
-   * @param systemId system identifications ID
-   * @param packetType the packet type for first packet
-   * @throws Exception will be generated the Exception
+   * @param filePath
+   *          full path to file
+   * @param ownerName
+   *          owner name
+   * @param identifier
+   *          the identifier String
+   * @param systemId
+   *          system identifications ID
+   * @param packetType
+   *          the packet type for first packet
+   * @throws Exception
+   *           will be generated the Exception
    */
   public synchronized void sendBinaryFile(String filePath,
                                           String ownerName,
@@ -434,7 +454,7 @@ public class ChannelManager implements RequestHandler {
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
-    
+
     // Send first packet in all cases. If InputStream is empty too.
     len = in.read(buf);
     if (len < Packet.MAX_PACKET_SIZE) {
@@ -454,7 +474,7 @@ public class ChannelManager implements RequestHandler {
                                buf);
 
     sendPacket(packet);
-    offset+= len;
+    offset += len;
     if (log.isDebugEnabled())
       log.debug("Send packet type [" + packetType + "] --> " + offset);
 
@@ -476,11 +496,11 @@ public class ChannelManager implements RequestHandler {
 
       sendPacket(packet);
       offset += len;
-      
+
       if (log.isDebugEnabled())
         log.debug("Send packet type [" + packetType + "] --> " + offset);
 
-     // Thread.sleep(1);
+      // Thread.sleep(1);
     }
     in.close();
   }
@@ -492,8 +512,8 @@ public class ChannelManager implements RequestHandler {
     try {
       Packet packet = Packet.getAsPacket(message.getBuffer());
       packetsHandler.add(packet);
-      
-      if (channel != null || channel.getView() != null ) {
+
+      if (channel != null || channel.getView() != null) {
         packetsHandler.handle();
       } else
         log.warn("No members found or channel closed, queue message " + message);
@@ -509,7 +529,8 @@ public class ChannelManager implements RequestHandler {
   /**
    * setAllowConnect.
    * 
-   * @param allowConnect allow connection state(true or false)
+   * @param allowConnect
+   *          allow connection state(true or false)
    */
   public void setAllowConnect(boolean allowConnect) {
     if (!allowConnect)
@@ -521,8 +542,10 @@ public class ChannelManager implements RequestHandler {
   /**
    * setAllowConnect.
    * 
-   * @param allowConnect allow connection state(true or false)
-   * @param id channel id
+   * @param allowConnect
+   *          allow connection state(true or false)
+   * @param id
+   *          channel id
    */
   public void setAllowConnect(boolean allowConnect, int id) {
     if (!allowConnect)

@@ -24,14 +24,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id$

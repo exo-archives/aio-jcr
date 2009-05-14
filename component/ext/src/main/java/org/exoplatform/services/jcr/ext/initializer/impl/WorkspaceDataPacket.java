@@ -25,38 +25,38 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPack
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 17.03.2009
+ * <br/>
+ * Date: 17.03.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: WorkspaceDataPacket.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class WorkspaceDataPacket extends AbstractPacket {
-  
+
   /**
-   * WORKSPACE_DATA_PACKET. 
-   *   the pocket type for workspace data
+   * WORKSPACE_DATA_PACKET. the pocket type for workspace data
    */
-  public static final int WORKSPACE_DATA_PACKET      = 100;
-  
+  public static final int WORKSPACE_DATA_PACKET = 100;
+
   /**
    * CRC.
    */
-  private byte[] crc;
+  private byte[]          crc;
 
   /**
    * Count of packets ChangesLog separated to.
    */
-  private long   totalPacketsCount;
+  private long            totalPacketsCount;
 
   /**
    * Current data position in total data byte array.
    */
-  private long   offset;
+  private long            offset;
 
   /**
    * Current data.
    */
-  private byte[] buffer;
+  private byte[]          buffer;
 
   /**
    * Constructor.
@@ -66,16 +66,16 @@ public class WorkspaceDataPacket extends AbstractPacket {
    * @param totalPacketsCount
    *          the total pocket in file
    * @param checksum
-   *          the checksum of file 
+   *          the checksum of file
    * @param offset
    *          the offset
    * @param buffer
    *          the binary data
    */
-  public WorkspaceDataPacket(int type, 
-                             long totalPacketsCount, 
+  public WorkspaceDataPacket(int type,
+                             long totalPacketsCount,
                              byte[] checksum,
-                             long offset, 
+                             long offset,
                              byte[] buffer) {
     super(type, -1);
     this.totalPacketsCount = totalPacketsCount;
@@ -90,12 +90,11 @@ public class WorkspaceDataPacket extends AbstractPacket {
   public WorkspaceDataPacket() {
     super();
   }
-  
+
   /**
    * getCRC.
-   *
-   * @return byte[]
-   *           return the checksum
+   * 
+   * @return byte[] return the checksum
    */
   public byte[] getCRC() {
     return this.crc;
@@ -103,9 +102,8 @@ public class WorkspaceDataPacket extends AbstractPacket {
 
   /**
    * getPacketsCount.
-   *
-   * @return long
-   *           return total packet count
+   * 
+   * @return long return total packet count
    */
   public long getPacketsCount() {
     return this.totalPacketsCount;
@@ -113,9 +111,8 @@ public class WorkspaceDataPacket extends AbstractPacket {
 
   /**
    * getOffset.
-   *
-   * @return long
-   *           the offset
+   * 
+   * @return long the offset
    */
   public long getOffset() {
     return this.offset;
@@ -123,9 +120,8 @@ public class WorkspaceDataPacket extends AbstractPacket {
 
   /**
    * getBuffer.
-   *
-   * @return byte[]
-   *           the binary data
+   * 
+   * @return byte[] the binary data
    */
   public byte[] getBuffer() {
     return this.buffer;
@@ -136,7 +132,7 @@ public class WorkspaceDataPacket extends AbstractPacket {
    */
   public void writeExternal(ObjectOutput out) throws IOException {
     super.writeExternal(out);
-    
+
     out.writeInt(crc.length);
     out.write(crc);
 
@@ -152,7 +148,7 @@ public class WorkspaceDataPacket extends AbstractPacket {
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     super.readExternal(in);
-    
+
     crc = new byte[in.readInt()];
     in.readFully(crc);
 

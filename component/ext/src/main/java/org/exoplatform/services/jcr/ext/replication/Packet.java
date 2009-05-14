@@ -54,8 +54,7 @@ public class Packet implements Externalizable {
     public static final int CHANGESLOG                           = 1;
 
     /**
-     * FIRST_CHANGESLOG_WITH_STREAM. the pocket type for first packet of
-     * ChangesLog with stream
+     * FIRST_CHANGESLOG_WITH_STREAM. the pocket type for first packet of ChangesLog with stream
      */
     public static final int FIRST_CHANGESLOG_WITH_STREAM         = 2;
 
@@ -75,44 +74,40 @@ public class Packet implements Externalizable {
     public static final int LAST_PACKET_OF_STREAM                = 5;
 
     /**
-     * LAST_CHANGESLOG_WITH_STREAM. the pocket type for last packet of
-     * ChangesLog with stream
+     * LAST_CHANGESLOG_WITH_STREAM. the pocket type for last packet of ChangesLog with stream
      */
     public static final int LAST_CHANGESLOG_WITH_STREAM          = 6;
 
     /**
-     * CHANGESLOG_FIRST_PACKET. the pocket type for first packet of ChangesLog
-     * without stream
+     * CHANGESLOG_FIRST_PACKET. the pocket type for first packet of ChangesLog without stream
      */
     public static final int CHANGESLOG_FIRST_PACKET              = 7;
 
     /**
-     * CHANGESLOG_MIDDLE_PACKET. the pocket type for middle packet of ChangesLog
-     * without stream
+     * CHANGESLOG_MIDDLE_PACKET. the pocket type for middle packet of ChangesLog without stream
      */
     public static final int CHANGESLOG_MIDDLE_PACKET             = 8;
 
     /**
-     * CHANGESLOG_LAST_PACKET. the pocket type for last packet of ChangesLog
-     * without stream
+     * CHANGESLOG_LAST_PACKET. the pocket type for last packet of ChangesLog without stream
      */
     public static final int CHANGESLOG_LAST_PACKET               = 9;
 
     /**
-     * CHANGESLOG_WITH_STREAM_FIRST_PACKET. the pocket type for first packet of
-     * ChangesLog with stream (MAX_PACKET_SIZE < ChangesLog only)
+     * CHANGESLOG_WITH_STREAM_FIRST_PACKET. the pocket type for first packet of ChangesLog with
+     * stream (MAX_PACKET_SIZE < ChangesLog only)
      */
     public static final int CHANGESLOG_WITH_STREAM_FIRST_PACKET  = 10;
 
     /**
-     * CHANGESLOG_WITH_STREAM_MIDDLE_PACKET. the pocket type for middle packet
-     * of ChangesLog with stream (MAX_PACKET_SIZE < ChangesLog only)
+     * CHANGESLOG_WITH_STREAM_MIDDLE_PACKET. the pocket type for middle packet of ChangesLog with
+     * stream (MAX_PACKET_SIZE < ChangesLog only)
      */
     public static final int CHANGESLOG_WITH_STREAM_MIDDLE_PACKET = 11;
 
     /**
-     * CHANGESLOG_WITH_STREAM_LAST_PACKET. the pocket type for last packet of
-     * ChangesLog with stream (MAX_PACKET_SIZE < ChangesLog only)
+     * CHANGESLOG_WITH_STREAM_LAST_PACKET. the pocket type for last packet of ChangesLog with stream
+     * (MAX_PACKET_SIZE < ChangesLog only)
      */
     public static final int CHANGESLOG_WITH_STREAM_LAST_PACKET   = 12;
 
@@ -122,8 +117,7 @@ public class Packet implements Externalizable {
     public static final int ADD_OK                               = 13;
 
     /**
-     * GET_CHANGESLOG_UP_TO_DATE. the pocket type for initialize synchronization
-     * mechanism
+     * GET_CHANGESLOG_UP_TO_DATE. the pocket type for initialize synchronization mechanism
      */
     public static final int GET_CHANGESLOG_UP_TO_DATE            = 14;
 
@@ -133,14 +127,12 @@ public class Packet implements Externalizable {
     public static final int BINARY_FILE_PACKET                   = 15;
 
     /**
-     * ALL_BINARY_FILE_TRANSFERRED_OK. the pocket type for information of all
-     * files was transferred
+     * ALL_BINARY_FILE_TRANSFERRED_OK. the pocket type for information of all files was transferred
      */
     public static final int ALL_BINARY_FILE_TRANSFERRED_OK       = 18;
 
     /**
-     * ALL_CHANGESLOG_SAVED_OK. the pocket type for information of all
-     * ChangesLogs was saved
+     * ALL_CHANGESLOG_SAVED_OK. the pocket type for information of all ChangesLogs was saved
      */
     public static final int ALL_CHANGESLOG_SAVED_OK              = 19;
 
@@ -150,32 +142,29 @@ public class Packet implements Externalizable {
     public static final int SYNCHRONIZED_OK                      = 20;
 
     /**
-     * INITED_IN_CLUSTER. the pocket type for information of member was
-     * initialized
+     * INITED_IN_CLUSTER. the pocket type for information of member was initialized
      */
     public static final int INITED_IN_CLUSTER                    = 21;
 
     /**
-     * ALL_INITED. the pocket type for information of all members was
-     * initialized
+     * ALL_INITED. the pocket type for information of all members was initialized
      */
     public static final int ALL_INITED                           = 22;
 
     /**
-     * OLD_CHANGESLOG_REMOVED_OK. the pocket type for information of old
-     * ChangesLogs was removed
+     * OLD_CHANGESLOG_REMOVED_OK. the pocket type for information of old ChangesLogs was removed
      */
     public static final int OLD_CHANGESLOG_REMOVED_OK            = 23;
 
     /**
-     * NEED_TRANSFER_COUNTER. the pocket type for information of how much
-     * ChangesLogs will be transfered
+     * NEED_TRANSFER_COUNTER. the pocket type for information of how much ChangesLogs will be
+     * transfered
      */
     public static final int NEED_TRANSFER_COUNTER                = 24;
 
     /**
-     * REMOVED_OLD_CHANGESLOG_COUNTER. the pocket type for information of how
-     * much ChangesLogs will be removed
+     * REMOVED_OLD_CHANGESLOG_COUNTER. the pocket type for information of how much ChangesLogs will
+     * be removed
      */
     public static final int REMOVED_OLD_CHANGESLOG_COUNTER       = 25;
 
@@ -185,16 +174,14 @@ public class Packet implements Externalizable {
     public static final int MEMBER_STARTED                       = 26;
 
     /**
-     * BIG_PACKET. the pocket type for packet to binary Changeslog (using for
-     * recovery)
+     * BIG_PACKET. the pocket type for packet to binary Changeslog (using for recovery)
      */
     public static final int BIG_PACKET                           = 27;
 
     /**
-     * BIG_PACKET_FIRST. the pocket type for first packet to binary Changeslog
-     * (using for recovery)
+     * BIG_PACKET_FIRST. the pocket type for first packet to binary Changeslog (using for recovery)
      */
-    
+
     /**
      * GET_ALL_PRIORITY. the pocket type for request to other their priorities
      */
@@ -283,12 +270,18 @@ public class Packet implements Externalizable {
   /**
    * Packet constructor.
    * 
-   * @param type packet type
-   * @param identifier packet identifier
-   * @param totalPacketCount toral packets count
-   * @param size size value
-   * @param offset offset to data
-   * @param buf binary data
+   * @param type
+   *          packet type
+   * @param identifier
+   *          packet identifier
+   * @param totalPacketCount
+   *          toral packets count
+   * @param size
+   *          size value
+   * @param offset
+   *          offset to data
+   * @param buf
+   *          binary data
    */
   public Packet(int type,
                 String identifier,
@@ -308,8 +301,10 @@ public class Packet implements Externalizable {
   /**
    * Packet constructor.
    * 
-   * @param type packet type
-   * @param identifier packet identifier
+   * @param type
+   *          packet type
+   * @param identifier
+   *          packet identifier
    */
   public Packet(int type, String identifier) {
     this.type = type;
@@ -320,9 +315,12 @@ public class Packet implements Externalizable {
   /**
    * Packet constructor.
    * 
-   * @param type packet type
-   * @param identifier packet identifier
-   * @param ownName owner name
+   * @param type
+   *          packet type
+   * @param identifier
+   *          packet identifier
+   * @param ownName
+   *          owner name
    */
   public Packet(int type, String identifier, String ownName) {
     this.type = type;
@@ -334,11 +332,15 @@ public class Packet implements Externalizable {
   /**
    * Packet constructor.
    * 
-   * @param type packet type
+   * @param type
+   *          packet type
    * @param systemId
-   * @param identifier packet identifier
-   * @param ownName owner name
-   * @param fileName file name
+   * @param identifier
+   *          packet identifier
+   * @param ownName
+   *          owner name
+   * @param fileName
+   *          file name
    * @param totalPacketCount
    * @param offset
    * @param data
@@ -362,10 +364,14 @@ public class Packet implements Externalizable {
   /**
    * Packet constructor.
    * 
-   * @param type packet type
-   * @param identifier packet identifier
-   * @param ownName owner name
-   * @param fileNameList the list with files name
+   * @param type
+   *          packet type
+   * @param identifier
+   *          packet identifier
+   * @param ownName
+   *          owner name
+   * @param fileNameList
+   *          the list with files name
    */
   public Packet(int type, String identifier, String ownName, List<String> fileNameList) {
     this(type, identifier, ownName);
@@ -375,10 +381,14 @@ public class Packet implements Externalizable {
   /**
    * Packet constructor.
    * 
-   * @param type packet type
-   * @param identifier packet identifier
-   * @param ownName owner name
-   * @param timeStamp the Calendar object with "time"
+   * @param type
+   *          packet type
+   * @param identifier
+   *          packet identifier
+   * @param ownName
+   *          owner name
+   * @param timeStamp
+   *          the Calendar object with "time"
    */
   public Packet(int type, String identifier, String ownName, Calendar timeStamp) {
     this(type, identifier, ownName);
@@ -388,10 +398,14 @@ public class Packet implements Externalizable {
   /**
    * Packet constructor.
    * 
-   * @param type packet type
-   * @param ownName owner name
-   * @param size the size value
-   * @param identifier packet identifier
+   * @param type
+   *          packet type
+   * @param ownName
+   *          owner name
+   * @param size
+   *          the size value
+   * @param identifier
+   *          packet identifier
    */
   public Packet(int type, String ownName, long size, String identifier) {
     this(type, identifier, ownName);
@@ -500,7 +514,8 @@ public class Packet implements Externalizable {
   /**
    * setSize.
    * 
-   * @param size size value
+   * @param size
+   *          size value
    */
   public void setSize(long size) {
     this.size = size;
@@ -536,9 +551,11 @@ public class Packet implements Externalizable {
   /**
    * getAsByteArray.
    * 
-   * @param packet Packet object
+   * @param packet
+   *          Packet object
    * @return byte[] the binary value
-   * @throws IOException generate the IOExaption
+   * @throws IOException
+   *           generate the IOExaption
    */
   public static byte[] getAsByteArray(Packet packet) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -552,10 +569,13 @@ public class Packet implements Externalizable {
   /**
    * getAsPacket.
    * 
-   * @param byteArray binary data
+   * @param byteArray
+   *          binary data
    * @return Packet the Packet object from bytes
-   * @throws IOException generate the IOExeption
-   * @throws ClassNotFoundException generate the ClassNotFoundException
+   * @throws IOException
+   *           generate the IOExeption
+   * @throws ClassNotFoundException
+   *           generate the ClassNotFoundException
    */
   public static Packet getAsPacket(byte[] byteArray) throws IOException, ClassNotFoundException {
     ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
@@ -577,7 +597,8 @@ public class Packet implements Externalizable {
   /**
    * setOwnName.
    * 
-   * @param ownName owner name
+   * @param ownName
+   *          owner name
    */
   public void setOwnName(String ownName) {
     this.ownName = ownName;
@@ -595,7 +616,8 @@ public class Packet implements Externalizable {
   /**
    * setTimeStamp.
    * 
-   * @param timeStamp set the timeStamp (Calendar)
+   * @param timeStamp
+   *          set the timeStamp (Calendar)
    */
   public void setTimeStamp(Calendar timeStamp) {
     this.timeStamp = timeStamp;
@@ -613,7 +635,8 @@ public class Packet implements Externalizable {
   /**
    * setFileName.
    * 
-   * @param fileName the file name
+   * @param fileName
+   *          the file name
    */
   public void setFileName(String fileName) {
     this.fileName = fileName;
@@ -640,7 +663,8 @@ public class Packet implements Externalizable {
   /**
    * setSystemId.
    * 
-   * @param systemId the systemId
+   * @param systemId
+   *          the systemId
    */
   public void setSystemId(String systemId) {
     this.systemId = systemId;

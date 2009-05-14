@@ -21,42 +21,43 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 12.12.2008
+ * <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class RemoteExportResponce {
 
-  //public static final int FIRST  = 0;
+  // public static final int FIRST = 0;
 
-  //public static final int MIDDLE = 1;
+  // public static final int MIDDLE = 1;
 
-  //public static final int LAST   = 2;
+  // public static final int LAST = 2;
 
-  //private final int       type;
+  // private final int type;
 
-  private final byte[]    buffer;
+  private final byte[] buffer;
 
-  private final long      offset;
+  private final long   offset;
 
-  private final byte[]    crc;
+  private final byte[] crc;
 
-  private final long      timeStamp;
+  private final long   timeStamp;
 
-  private final Member    member;
+  private final Member member;
 
-  private final long packetsCount;
-  
+  private final long   packetsCount;
+
   RemoteExportResponce(Member member,
-                       //int type,
+  // int type,
                        long packetsCount,
                        byte[] crc,
                        long timeStamp,
                        byte[] buffer,
                        long offset) {
     this.member = member;
-   // this.type = type;
+    // this.type = type;
     this.crc = crc;
     this.timeStamp = timeStamp;
     this.buffer = buffer;
@@ -71,9 +72,9 @@ public class RemoteExportResponce {
     return member;
   }
 
-  //public int getType() {
-  //  return type;
-  //}
+  // public int getType() {
+  // return type;
+  // }
 
   public byte[] getCRC() {
     return crc;
@@ -90,9 +91,9 @@ public class RemoteExportResponce {
   public long getOffset() {
     return offset;
   }
-  
+
   public long getPacketsCount() {
     return this.packetsCount;
   }
-  
+
 }

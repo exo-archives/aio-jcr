@@ -19,9 +19,10 @@ package org.exoplatform.services.jcr.ext.initializer;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 17.03.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 17.03.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteWorkspaceInitializerException.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RemoteWorkspaceInitializationException extends Exception {

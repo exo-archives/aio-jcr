@@ -41,8 +41,7 @@ public class LockCheckerTest extends BaseTestCaseChecker {
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
-          + "/" + relPath + "/"
-          + ReplicationTestService.Constants.OperationType.SET_LOCK;
+          + "/" + relPath + "/" + ReplicationTestService.Constants.OperationType.SET_LOCK;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember, 500);
       String result = client.execute(url);

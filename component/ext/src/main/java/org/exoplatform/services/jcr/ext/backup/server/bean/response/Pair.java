@@ -19,33 +19,34 @@ package org.exoplatform.services.jcr.ext.backup.server.bean.response;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 14.04.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 14.04.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Pair.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class Pair {
- 
+
   /**
    * The name of parameter.
    */
   private String name;
-  
+
   /**
    * The value.
    */
   private String value;
-  
+
   /**
-   * Pair  constructor.
-   *
+   * Pair constructor.
+   * 
    */
   private Pair() {
   }
-  
+
   /**
-   * Pair  constructor.
-   *
+   * Pair constructor.
+   * 
    * @param name
    *          String, name of parameter
    * @param value
@@ -58,9 +59,8 @@ public class Pair {
 
   /**
    * getName.
-   *
-   * @return String
-   *           return the name of parameter
+   * 
+   * @return String return the name of parameter
    */
   public String getName() {
     return name;
@@ -68,7 +68,7 @@ public class Pair {
 
   /**
    * setName.
-   *
+   * 
    * @param name
    *          String, the name of parameter
    */
@@ -78,9 +78,8 @@ public class Pair {
 
   /**
    * getValue.
-   *
-   * @return String
-   *           return the value of parameter
+   * 
+   * @return String return the value of parameter
    */
   public String getValue() {
     return value;
@@ -88,12 +87,12 @@ public class Pair {
 
   /**
    * setValue.
-   *
+   * 
    * @param value
    *          String, the value of parameter
    */
   public void setValue(String value) {
     this.value = value;
   }
-  
+
 }

@@ -20,28 +20,29 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: MemoryChangesFile.java 111 2008-11-11 11:11:11Z serg $
  */
 public class MemoryChangesFile implements ChangesFile {
 
-  private byte[] buf; 
-  
+  private byte[] buf;
+
   private byte[] crc;
-  
-  private long id;
-  MemoryChangesFile(byte[] crc, long id, byte[]buf){
+
+  private long   id;
+
+  MemoryChangesFile(byte[] crc, long id, byte[] buf) {
     this.buf = buf;
     this.crc = crc;
     this.id = id;
   }
-  
+
   public boolean delete() throws IOException {
     buf = null;
     return true;
@@ -64,7 +65,7 @@ public class MemoryChangesFile implements ChangesFile {
   }
 
   public void validate() throws InvalidChecksumException {
-    //do nothing
+    // do nothing
   }
 
 }

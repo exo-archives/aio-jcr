@@ -86,10 +86,8 @@ public final class ArtifactDescriptor implements Descriptor {
     DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     Document doc = docBuilder.parse(pomfile);
 
-    
     NodeList groupIdList = doc.getElementsByTagName("groupId");
     String groupId = groupIdList.item(0).getTextContent().trim();
-
 
     NodeList artifactIdList = doc.getElementsByTagName("artifactId");
     // String artifactId = artifactIdList.item(0).getTextContent();
@@ -98,7 +96,6 @@ public final class ArtifactDescriptor implements Descriptor {
       if (artifactIdList.item(i).getParentNode().getNodeName().equals("project"))
         artifactId = artifactIdList.item(i).getTextContent().trim();
     }
-    
 
     NodeList versionList = doc.getElementsByTagName("version");
     String versionId = validMavenVersion(versionList.item(0).getTextContent().trim());
@@ -108,11 +105,11 @@ public final class ArtifactDescriptor implements Descriptor {
 
   private static String validMavenVersion(String version) {
     // Not necessary checking, -SNAPSHOT will be ignoreg if uncomment;
-//    CharSet charSet = CharSet.getInstance("A-Za-z");
-//    int pos = version.indexOf("-");
-//    char next_ch = version.charAt(pos + 1);
-//    if ((pos > 0) && (charSet.contains(next_ch)))
-//      version = version.substring(0, pos);
+    // CharSet charSet = CharSet.getInstance("A-Za-z");
+    // int pos = version.indexOf("-");
+    // char next_ch = version.charAt(pos + 1);
+    // if ((pos > 0) && (charSet.contains(next_ch)))
+    // version = version.substring(0, pos);
 
     return version;
   }

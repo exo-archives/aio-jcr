@@ -27,10 +27,7 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -54,9 +51,11 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

@@ -25,7 +25,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 12.12.2008
+ * <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -40,10 +41,10 @@ public interface AsyncTransmitter {
    * @throws IOException
    */
   void sendChanges(ChangesFile[] changes, List<MemberAddress> subscribers) throws IOException;
-  
+
   /**
    * Send changes file.
-   *
+   * 
    * @param changes
    * @param subscribers
    * @throws IOException
@@ -70,23 +71,23 @@ public interface AsyncTransmitter {
 
   /**
    * sendError.
-   *
+   * 
    * @param error
    * @param address
    * @throws IOException
    */
   void sendError(String error, MemberAddress address) throws IOException;
-  
+
   /**
    * send 'Done'.
-   *
+   * 
    * @throws IOException
    */
   void sendMerge() throws IOException;
-  
+
   /**
    * send 'Cancel'.
-   *
+   * 
    * @throws IOException
    */
   void sendCancel() throws IOException;

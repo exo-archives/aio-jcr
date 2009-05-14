@@ -36,8 +36,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ReplicationStreamTest extends BaseReplicationTest {
-  
-  private static final Log      log = ExoLogger.getLogger(ReplicationStreamTest.class);
+
+  private static final Log log = ExoLogger.getLogger(ReplicationStreamTest.class);
 
   public void testAddNode() throws Exception {
     long start, end;

@@ -61,7 +61,8 @@ public class ChangesPacket extends AbstractPacket {
   /**
    * Constructor.
    * 
-   * @param type see AsyncPacketTypes
+   * @param type
+   *          see AsyncPacketTypes
    * @param priority
    * @param crc
    * @param id

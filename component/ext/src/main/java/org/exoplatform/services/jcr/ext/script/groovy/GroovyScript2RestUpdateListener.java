@@ -59,10 +59,14 @@ public class GroovyScript2RestUpdateListener implements EventListener {
   private final Session                 session;
 
   /**
-   * @param repository repository name
-   * @param workspace workspace name
-   * @param groovyScript2RestLoader See {@link GroovyScript2RestLoader}
-   * @param session JCR session
+   * @param repository
+   *          repository name
+   * @param workspace
+   *          workspace name
+   * @param groovyScript2RestLoader
+   *          See {@link GroovyScript2RestLoader}
+   * @param session
+   *          JCR session
    */
   public GroovyScript2RestUpdateListener(String repository,
                                          String workspace,
@@ -105,22 +109,28 @@ public class GroovyScript2RestUpdateListener implements EventListener {
   /**
    * Load script form supplied node.
    * 
-   * @param node JCR node
-   * @throws Exception if any error occurs
+   * @param node
+   *          JCR node
+   * @throws Exception
+   *           if any error occurs
    */
   private void loadScript(Node node) throws Exception {
     String unifiedNodePath = new UnifiedNodeReference(repository, workspace, node.getPath()).getURL()
                                                                                             .toString();
     if (groovyScript2RestLoader.isLoaded(unifiedNodePath))
       groovyScript2RestLoader.unloadScript(unifiedNodePath);
-    groovyScript2RestLoader.loadScript(unifiedNodePath, node.getPath(), node.getProperty("jcr:data").getStream());
+    groovyScript2RestLoader.loadScript(unifiedNodePath,
+                                       node.getPath(),
+                                       node.getProperty("jcr:data").getStream());
   }
 
   /**
    * Unload script.
    * 
-   * @param path unified JCR node path
-   * @throws Exception if any error occurs
+   * @param path
+   *          unified JCR node path
+   * @throws Exception
+   *           if any error occurs
    */
   private void unloadScript(String path) throws Exception {
     String unifiedNodePath = new UnifiedNodeReference(repository, workspace, path).getURL()

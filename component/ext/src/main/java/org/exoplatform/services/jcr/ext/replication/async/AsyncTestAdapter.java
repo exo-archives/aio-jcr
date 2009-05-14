@@ -24,14 +24,13 @@ import javax.jcr.Workspace;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import org.picocontainer.Startable;
-
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS.

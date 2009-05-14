@@ -42,9 +42,9 @@ public interface BackupManager {
   final static int FULL_AND_INCREMENTAL = 1;
 
   Set<BackupChain> getCurrentBackups();
-  
+
   List<JobWorkspaceRestore> getRestores();
-  
+
   JobWorkspaceRestore getLastRestore(String repositoryName, String workspaceName);
 
   BackupChainLog[] getBackupsLogs();
@@ -57,18 +57,21 @@ public interface BackupManager {
   void stopBackup(BackupChain backup);
 
   BackupChain findBackup(String reposytore, String workspace);
-  
+
   BackupChain findBackup(String backupId);
 
   void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
-                                                                                             BackupConfigurationException,
-                                                                                             RepositoryException,
-                                                                                             RepositoryConfigurationException;
-  
-  void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry, boolean asynchronous) throws BackupOperationException,
-                                                                                             BackupConfigurationException,
-                                                                                             RepositoryException,
-                                                                                             RepositoryConfigurationException;
+                                                                                        BackupConfigurationException,
+                                                                                        RepositoryException,
+                                                                                        RepositoryConfigurationException;
+
+  void restore(BackupChainLog log,
+               String repositoryName,
+               WorkspaceEntry workspaceEntry,
+               boolean asynchronous) throws BackupOperationException,
+                                    BackupConfigurationException,
+                                    RepositoryException,
+                                    RepositoryConfigurationException;
 
   BackupScheduler getScheduler();
 
@@ -79,6 +82,6 @@ public interface BackupManager {
   String getFullBackupType();
 
   String getIncrementalBackupType();
-  
+
   long getDefaultIncrementalJobPeriod();
 }

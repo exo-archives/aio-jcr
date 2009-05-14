@@ -57,7 +57,8 @@ public class XMLGroovyScript2Rest {
   }
 
   /**
-   * @param name the name to set
+   * @param name
+   *          the name to set
    */
   public void setName(String name) {
     this.name = name;
@@ -71,7 +72,8 @@ public class XMLGroovyScript2Rest {
   }
 
   /**
-   * @param path the path to set
+   * @param path
+   *          the path to set
    */
   public void setPath(String path) {
     this.path = path;
@@ -85,7 +87,8 @@ public class XMLGroovyScript2Rest {
   }
 
   /**
-   * @param autoload the autoload to set
+   * @param autoload
+   *          the autoload to set
    */
   public void setAutoload(boolean autoload) {
     this.autoload = autoload;

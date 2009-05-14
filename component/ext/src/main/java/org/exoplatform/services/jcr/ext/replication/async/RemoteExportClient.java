@@ -16,20 +16,21 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Listens for results of remote export.
+ * <br/>
+ * Listens for results of remote export.
  * 
- * <br/>Date: 12.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 12.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface RemoteExportClient {
 
   void onRemoteExport(RemoteExportResponce event);
-  
+
   void onRemoteError(RemoteExportError event);
 }

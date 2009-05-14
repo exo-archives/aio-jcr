@@ -36,7 +36,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -130,14 +131,22 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * sendBinaryFile.
    * 
-   * @param destinstionAddress the destination address.
-   * @param clFile the ChangesLogFile owner name
-   * @param transmitterPriority the value of transmitter priority
-   * @param totalFiles the how many the ChangesLogFiles will be sent
-   * @param firstPacketType the packet type for first packet
-   * @param middlePocketType the packet type for middle packets
-   * @param lastPocketType the packet type for last packet
-   * @throws Exception will be generated the Exception
+   * @param destinstionAddress
+   *          the destination address.
+   * @param clFile
+   *          the ChangesLogFile owner name
+   * @param transmitterPriority
+   *          the value of transmitter priority
+   * @param totalFiles
+   *          the how many the ChangesLogFiles will be sent
+   * @param firstPacketType
+   *          the packet type for first packet
+   * @param middlePocketType
+   *          the packet type for middle packets
+   * @param lastPocketType
+   *          the packet type for last packet
+   * @throws Exception
+   *           will be generated the Exception
    */
   protected void sendChangesLogFile(MemberAddress destinationAddress,
                                     ChangesFile clFile,
@@ -157,8 +166,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       LOG.debug("Begin send : " + clFile.getId());
 
     InputStream in = clFile.getInputStream();
-    long totalPacketCount = getPacketCount(clFile.getLength() , AbstractPacket.MAX_PACKET_SIZE);
-    
+    long totalPacketCount = getPacketCount(clFile.getLength(), AbstractPacket.MAX_PACKET_SIZE);
+
     try {
       byte[] buff = new byte[AbstractPacket.MAX_PACKET_SIZE];
       int len;
@@ -183,7 +192,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                  offset,
                                  buff);
 
-      channel.sendPacket(packet, destinationAddresses.toArray(new MemberAddress[destinationAddresses.size()]));
+      channel.sendPacket(packet,
+                         destinationAddresses.toArray(new MemberAddress[destinationAddresses.size()]));
 
       offset += len;
       if (LOG.isDebugEnabled())
@@ -207,7 +217,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                    offset,
                                    buff);
 
-        channel.sendPacket(packet, destinationAddresses.toArray(new MemberAddress[destinationAddresses.size()]));
+        channel.sendPacket(packet,
+                           destinationAddresses.toArray(new MemberAddress[destinationAddresses.size()]));
 
         offset += len;
         if (LOG.isDebugEnabled())
@@ -240,7 +251,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     if (LOG.isDebugEnabled())
       LOG.debug("Begin send : " + clFile.getChecksum());
 
-    long totalPacketCount = getPacketCount(clFile.getLength() , AbstractPacket.MAX_PACKET_SIZE);
+    long totalPacketCount = getPacketCount(clFile.getLength(), AbstractPacket.MAX_PACKET_SIZE);
 
     InputStream in = clFile.getInputStream();
 
@@ -249,7 +260,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       int len;
       long offset = 0;
       AbstractPacket packet;
-      
+
       // Send first packet in all cases. If InputStream is empty too.
       len = in.read(buf);
       if (len < AbstractPacket.MAX_PACKET_SIZE) {
@@ -299,7 +310,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
           LOG.debug("Send PacType [EXPORT_CHANGES_PACKET] --> " + offset);
       }
 
-     } finally {
+    } finally {
       try {
         in.close();
       } catch (IOException e) {

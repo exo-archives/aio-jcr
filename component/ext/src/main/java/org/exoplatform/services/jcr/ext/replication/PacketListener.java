@@ -25,9 +25,8 @@ package org.exoplatform.services.jcr.ext.replication;
 
 public interface PacketListener {
   /**
-   * receive.
-   *   Will be called this method when receive the Packet.
-   *
+   * receive. Will be called this method when receive the Packet.
+   * 
    * @param packet
    *          the Packet object.
    */

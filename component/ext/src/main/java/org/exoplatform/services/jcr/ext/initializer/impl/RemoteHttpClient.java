@@ -32,27 +32,27 @@ import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializatio
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 20.03.2009
+ * <br/>
+ * Date: 20.03.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteHTTPClient.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RemoteHttpClient {
-  
+
   /**
-   * HTTP_OK.
-   *   The http response 200.
+   * HTTP_OK. The http response 200.
    */
   private static final int HTTP_OK = 200;
 
   /**
    * Url to remote data source.
    */
-  private final String dataSourceUrl;
+  private final String     dataSourceUrl;
 
   /**
-   * RemoteHttpClient  constructor.
-   *
+   * RemoteHttpClient constructor.
+   * 
    * @param dataSourceUrl
    *          the data source url
    */
@@ -62,15 +62,14 @@ public class RemoteHttpClient {
 
   /**
    * execute.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
    *          the workspace name
    * @param id
-   *          the channel id 
-   * @return String 
-   *          the response 
+   *          the channel id
+   * @return String the response
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
@@ -79,12 +78,9 @@ public class RemoteHttpClient {
 
     try {
       // execute the GET
-      
-      
-      String complURL = dataSourceUrl 
-          + RemoteWorkspaceInitializationService.Constants.BASE_URL + "/" + repositoryName + "/"
-          + workspaceName + "/"
-          + id + "/"
+
+      String complURL = dataSourceUrl + RemoteWorkspaceInitializationService.Constants.BASE_URL
+          + "/" + repositoryName + "/" + workspaceName + "/" + id + "/"
           + RemoteWorkspaceInitializationService.Constants.OperationType.GET_WORKSPACE;
 
       URL url = new URL(complURL);
@@ -106,12 +102,12 @@ public class RemoteHttpClient {
       HTTPResponse resp = connection.Get(url.getFile());
 
       result = resp.getText();
-      
+
       AuthorizationInfo.removeAuthorization(url.getHost(), url.getPort(), "Basic", realmName);
-      
+
       if (resp.getStatusCode() != HTTP_OK)
         throw new RemoteWorkspaceInitializationException("Fail remote initializetion : " + result);
-        
+
     } catch (ModuleException e) {
       throw new RemoteWorkspaceInitializationException(e.getMessage(), e);
     } catch (ParseException e) {

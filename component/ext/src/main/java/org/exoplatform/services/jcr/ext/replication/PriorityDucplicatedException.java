@@ -19,13 +19,14 @@ package org.exoplatform.services.jcr.ext.replication;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 18.02.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 18.02.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: PriorityDucplicatedException.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class PriorityDucplicatedException extends Exception {
-  
+
   /**
    * PriorityDucplicatedException constructor.
    * 

@@ -27,12 +27,11 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
-
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 17.03.2009
+ * <br/>
+ * Date: 17.03.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteTransmitter.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -49,8 +48,8 @@ public class RemoteTransmitter {
   private final AsyncChannelManager channelManager;
 
   /**
-   * RemoteTransmitter  constructor.
-   *
+   * RemoteTransmitter constructor.
+   * 
    * @param channelManager
    *          the AsyncChannelManager.
    */
@@ -61,7 +60,7 @@ public class RemoteTransmitter {
 
   /**
    * sendChangesLogFile.
-   *
+   * 
    * @param destinationAddress
    *          MemberAddress, the destination address
    * @param file
@@ -134,13 +133,12 @@ public class RemoteTransmitter {
 
   /**
    * getPacketCount.
-   *
+   * 
    * @param contentLength
    *          long, content length
    * @param packetSize
    *          long, the packet size
-   * @return long
-   *           how many packets needs for content
+   * @return long how many packets needs for content
    */
   private long getPacketCount(long contentLength, long packetSize) {
     long count = contentLength / packetSize;

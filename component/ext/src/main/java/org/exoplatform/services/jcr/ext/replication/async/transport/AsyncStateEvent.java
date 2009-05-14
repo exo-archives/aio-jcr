@@ -21,17 +21,18 @@ import java.util.List;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 25.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 25.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AsyncStateEvent.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
 public class AsyncStateEvent {
-  
+
   private final List<MemberAddress> members;
-  
-  private final MemberAddress localMember;
-  
+
+  private final MemberAddress       localMember;
+
   /**
    * @return the members
    */
@@ -47,8 +48,8 @@ public class AsyncStateEvent {
   public MemberAddress getLocalMember() {
     return localMember;
   }
-  
-  public boolean isCoordinator () {
+
+  public boolean isCoordinator() {
     return members.get(0).getAddress().equals(localMember.getAddress());
   }
 }

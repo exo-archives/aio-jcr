@@ -67,7 +67,7 @@ public class BasicAuthenticationHttpClient {
       URL url = new URL(sURL);
       connection = new HTTPConnection(url);
       connection.removeModule(CookieModule.class);
-      
+
       connection.addBasicAuthorization(BaseTestCaseChecker.TEST_REALM, login, password);
 
       HTTPResponse resp = connection.Get(url.getFile());

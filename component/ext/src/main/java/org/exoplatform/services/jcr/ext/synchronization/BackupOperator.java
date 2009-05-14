@@ -38,7 +38,8 @@ import org.exoplatform.services.log.ExoLogger;
  * 
  * Backup service API helper.
  * 
- * <br/>Date: 18.08.2008
+ * <br/>
+ * Date: 18.08.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupOperator.java 111 2008-11-11 11:11:11Z peterit $

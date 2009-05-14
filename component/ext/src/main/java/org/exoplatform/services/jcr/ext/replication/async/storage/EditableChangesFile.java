@@ -22,7 +22,8 @@ import java.io.OutputStream;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 03.02.2009
+ * <br/>
+ * Date: 03.02.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

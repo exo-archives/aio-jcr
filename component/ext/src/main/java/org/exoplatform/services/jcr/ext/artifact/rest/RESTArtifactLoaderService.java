@@ -106,13 +106,17 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private RepositoryService                 repositoryService;
 
   /**
-   * @param initParams the initialized parameters. Set repository name,
-   *          workspace name, root node for Maven repository, username(optional)
-   *          and password (optional).
-   * @param sessionProviderService the ThreadLocalSessionProviderService.
-   * @param repositoryService the RepositoryService.
-   * @param nodeRepresentationService the NodeRepresentationService.
-   * @throws Exception if any errors occur or not valid configuration.
+   * @param initParams
+   *          the initialized parameters. Set repository name, workspace name, root node for Maven
+   *          repository, username(optional) and password (optional).
+   * @param sessionProviderService
+   *          the ThreadLocalSessionProviderService.
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param nodeRepresentationService
+   *          the NodeRepresentationService.
+   * @throws Exception
+   *           if any errors occur or not valid configuration.
    */
   public RESTArtifactLoaderService(InitParams initParams,
                                    ThreadLocalSessionProviderService sessionProviderService,
@@ -140,11 +144,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   }
 
   /**
-   * Return Response with Maven artifact if it is file or HTML page for browsing
-   * if requested URL is folder.
+   * Return Response with Maven artifact if it is file or HTML page for browsing if requested URL is
+   * folder.
    * 
-   * @param mavenPath the relative part of requested URL.
-   * @param base the base URL.
+   * @param mavenPath
+   *          the relative part of requested URL.
+   * @param base
+   *          the base URL.
    * @return @see {@link Response}.
    */
   @GET
@@ -159,7 +165,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
         + mavenPath + ".sha1";
 
     mavenPath = uriInfo.getBaseUriBuilder().path(getClass()).path(mavenPath).build().toString();
-    
+
     Session ses = null;
 
     try {
@@ -213,7 +219,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Browsing of root node of Maven repository.
    * 
-   * @param base the base URL.
+   * @param base
+   *          the base URL.
    * @return @see {@link Response}.
    */
   @GET
@@ -226,9 +233,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Check is node represents file.
    * 
-   * @param node the node.
+   * @param node
+   *          the node.
    * @return true if node represents file false otherwise.
-   * @throws RepositoryException in JCR errors occur.
+   * @throws RepositoryException
+   *           in JCR errors occur.
    */
   private static boolean isFile(Node node) throws RepositoryException {
     if (!node.isNodeType("nt:file")) {
@@ -243,10 +252,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Create response for browsing Maven repository.
    * 
-   * @param node the root node for browsing.
-   * @param mavenPath the Maven path, used for creating &lt;a&gt; element.
+   * @param node
+   *          the root node for browsing.
+   * @param mavenPath
+   *          the Maven path, used for creating &lt;a&gt; element.
    * @return @see {@link Response}.
-   * @throws IOException if i/o error occurs.
+   * @throws IOException
+   *           if i/o error occurs.
    */
   private Response browseRepository(final Node node, final String mavenPath, final String gadget) throws IOException {
 
@@ -335,7 +347,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           xsw.writeEmptyElement("td");
           xsw.writeEmptyElement("td");
 
-//          NodeIterator nodes = node.getNodes();
+          // NodeIterator nodes = node.getNodes();
           EntityCollection nodes = (EntityCollection) node.getNodes();
           Collections.sort(nodes.getList(), NODE_COMPARATOR);
           while (nodes.hasNext()) {
@@ -353,10 +365,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
               xsw.writeStartElement("td");
               xsw.writeAttribute("style", "font-style: italic;");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href",
-                                 (mavenPath.endsWith("/") ? mavenPath + node.getName() : mavenPath
-                                     + "/" + node.getName())
-                                     + "?view=true&gadget=" + gadget);
+              xsw.writeAttribute("href", (mavenPath.endsWith("/")
+                  ? mavenPath + node.getName()
+                  : mavenPath + "/" + node.getName())
+                  + "?view=true&gadget=" + gadget);
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -378,10 +390,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
               xsw.writeEndElement();// td
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href",
-                                 (mavenPath.endsWith("/") ? mavenPath + node.getName() : mavenPath
-                                     + "/" + node.getName())
-                                     + "?view=true&gadget=" + gadget);
+              xsw.writeAttribute("href", (mavenPath.endsWith("/")
+                  ? mavenPath + node.getName()
+                  : mavenPath + "/" + node.getName())
+                  + "?view=true&gadget=" + gadget);
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -435,9 +447,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Get content of JCR node.
    * 
-   * @param node the node.
+   * @param node
+   *          the node.
    * @return @see {@link Response}.
-   * @throws Exception if any errors occurs.
+   * @throws Exception
+   *           if any errors occurs.
    */
   private Response downloadArtifact(Node node) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
@@ -462,9 +476,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Get JCR node information.
    * 
-   * @param node the node.
+   * @param node
+   *          the node.
    * @return @see {@link Response}.
-   * @throws Exception if any errors occurs.
+   * @throws Exception
+   *           if any errors occurs.
    */
   private Response getArtifactInfo(Node node,
                                    final String mavenPath,
@@ -527,9 +543,9 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       xsw.writeEmptyElement("br");
       xsw.writeCharacters("Download:  ");
       xsw.writeStartElement("a");
-      xsw.writeAttribute("href",
-                         mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length() - 1)
-                                                : mavenPath);
+      xsw.writeAttribute("href", mavenPath.endsWith("/")
+          ? mavenPath.substring(0, mavenPath.length() - 1)
+          : mavenPath);
       xsw.writeCharacters("Link");
       xsw.writeEndElement(); // a
 
@@ -546,13 +562,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
       xsw.writeEmptyElement("br");
       xsw.writeStartElement("a");
-      xsw.writeAttribute("href",
-                         (mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length() - 1)
-                                                             .substring(0,
-                                                                        mavenPath.lastIndexOf("/"))
-                                                 : mavenPath.substring(0,
-                                                                       mavenPath.lastIndexOf("/")))
-                             + "?view=true&gadget=" + gadget);
+      xsw.writeAttribute("href", (mavenPath.endsWith("/")
+          ? mavenPath.substring(0, mavenPath.length() - 1).substring(0, mavenPath.lastIndexOf("/"))
+          : mavenPath.substring(0, mavenPath.lastIndexOf("/")))
+          + "?view=true&gadget=" + gadget);
       xsw.writeCharacters("Back to browsing");
       xsw.writeEndElement(); // a
 
@@ -580,9 +593,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   }
 
   /**
-   * @param stream stream
+   * @param stream
+   *          stream
    * @return string representation of stream
-   * @throws IOException if any i/o errors occurs
+   * @throws IOException
+   *           if any i/o errors occurs
    */
   protected String getStreamAsString(InputStream stream) throws IOException {
     byte[] buff = new byte[stream.available()];
@@ -592,16 +607,16 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
   /**
    * Node type comparator.
+   * 
    * @see NodeComparator
    */
   private static final Comparator<Node> NODE_COMPARATOR = new NodeComparator();
-  
+
   /**
-   * It is needs to display artifact in alphabetical order and display folders
-   * before files.
+   * It is needs to display artifact in alphabetical order and display folders before files.
    */
   private static class NodeComparator implements Comparator<Node> {
-    
+
     /**
      * {@inheritDoc}
      */
@@ -619,5 +634,5 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     }
 
   }
-  
+
 }

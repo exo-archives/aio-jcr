@@ -24,28 +24,31 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 03.02.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 03.02.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ResourcesHolder.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
 public class ResourcesHolder {
 
-  private final Queue<Closeable> resources = new ConcurrentLinkedQueue<Closeable>(); 
+  private final Queue<Closeable> resources = new ConcurrentLinkedQueue<Closeable>();
 
   /**
    * Add <code>Closeable</code> resource to the holder.
-   *
-   * @param closeable Closeable
+   * 
+   * @param closeable
+   *          Closeable
    */
   public void add(Closeable closeable) {
     resources.add(closeable);
   }
-  
+
   /**
    * Close <code>Closeable</code> resource and remove it from the holder.
-   *
-   * @throws IOException if close error occurs
+   * 
+   * @throws IOException
+   *           if close error occurs
    */
   public void close() throws IOException {
     Closeable c = resources.poll();
@@ -54,5 +57,5 @@ public class ResourcesHolder {
       c = resources.poll();
     }
   }
-  
+
 }

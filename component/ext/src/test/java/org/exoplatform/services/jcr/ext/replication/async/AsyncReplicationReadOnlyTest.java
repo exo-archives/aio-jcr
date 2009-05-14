@@ -30,21 +30,22 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 27.01.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 27.01.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncReplicationReadOnlyTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class AsyncReplicationReadOnlyTest extends AbstractTrasportTest {
 
   private static Log          log         = ExoLogger.getLogger("ext.AsyncReplicationReadOnlyTest");
-  
+
   private static final String CH_NAME     = "AsyncRepCh_AsyncReplicationReadOnlyTest";
 
   private static final String bindAddress = "127.0.0.1";
-  
+
   public void testCheckReadOnly() throws Exception {
-    
+
     List<String> repositoryNames = new ArrayList<String>();
     repositoryNames.add(repository.getName());
 
@@ -58,35 +59,34 @@ public class AsyncReplicationReadOnlyTest extends AbstractTrasportTest {
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
     otherParticipantsPriority.add(priority2);
 
-    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0), 
-                                                             session.getWorkspace().getName(), 
-                                                             priority1, 
-                                                             otherParticipantsPriority, 
-                                                             bindAddress, 
-                                                             CH_CONFIG, 
-                                                             CH_NAME, 
-                                                             storage1.getAbsolutePath(), 
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0),
+                                                             session.getWorkspace().getName(),
+                                                             priority1,
+                                                             otherParticipantsPriority,
+                                                             bindAddress,
+                                                             CH_CONFIG,
+                                                             CH_NAME,
+                                                             storage1.getAbsolutePath(),
                                                              waitAllMemberTimeout);
-    
+
     AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService,
                                                                          new InitParams());
     asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));
-    
 
     asyncReplication.start();
-    
+
     asyncReplication.synchronize(repository.getName(),
-                                  session.getWorkspace().getName(),
-                                  "cName_suffix");
-    
-    
-    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace().getName());
+                                 session.getWorkspace().getName(),
+                                 "cName_suffix");
+
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
+                                                                           .getName());
     WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
-    
+
     assertTrue(dc.isReadOnly());
-    
+
     Thread.sleep(20000);
-    
+
     assertFalse(dc.isReadOnly());
   }
 }

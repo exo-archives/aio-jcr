@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;

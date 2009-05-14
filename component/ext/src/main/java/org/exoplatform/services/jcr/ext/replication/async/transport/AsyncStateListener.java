@@ -16,22 +16,23 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 25.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 25.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface AsyncStateListener {
 
   /**
    * Members connected state.
-   *
-   * @param event List of Member
+   * 
+   * @param event
+   *          List of Member
    */
   void onStateChanged(AsyncStateEvent event);
-  
+
 }

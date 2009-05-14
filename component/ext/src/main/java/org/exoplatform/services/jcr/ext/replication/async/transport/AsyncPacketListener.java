@@ -16,29 +16,28 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.12.2008
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 15.12.2008
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncPacketListener.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public interface AsyncPacketListener {
 
   /**
-   * receive.
-   *   Will be called this method when receive the Packet.
-   *
+   * receive. Will be called this method when receive the Packet.
+   * 
    * @param packet
    *          the Packet object.
    */
   void receive(AbstractPacket packet, MemberAddress sourceAddress);
-  
+
   /**
    * onError.
-   *
+   * 
    * @param sourceAddress
    */
   void onError(MemberAddress sourceAddress);

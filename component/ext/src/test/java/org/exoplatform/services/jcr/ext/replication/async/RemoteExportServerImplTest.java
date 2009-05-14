@@ -21,10 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import org.jgroups.stack.IpAddress;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -37,11 +34,13 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 26.01.2009
+ * <br/>
+ * Date: 26.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: RemoteExportServerImplTest.java 111 2008-11-11 11:11:11Z pnedonosko $
@@ -160,9 +159,9 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
     Thread.sleep(5000);
 
     ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
-    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize, holder);
+    ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
     ItemState itemState = rdr.read(in);
-    
+
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()
                                                                                   .getIdentifier());
   }
@@ -181,7 +180,7 @@ public class RemoteExportServerImplTest extends BaseStandaloneTest {
     exportServer.onCancel();
 
     ObjectReader in = new ObjectReaderImpl(transmitter.changes.getInputStream());
-    ItemStateReader rdr = new ItemStateReader( fileCleaner, maxBufferSize, holder);
+    ItemStateReader rdr = new ItemStateReader(fileCleaner, maxBufferSize, holder);
     ItemState itemState = rdr.read(in);
 
     assertEquals("IDs should be same", testRoot.getInternalIdentifier(), itemState.getData()

@@ -34,8 +34,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: AbstractWorkspaceDataReceiver.java 30384 2009-03-31 15:06:32Z
- *          serg $
+ * @version $Id$
  */
 
 public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
@@ -113,8 +112,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * AbstractWorkspaceDataReceiver constructor.
    * 
-   * @throws RepositoryConfigurationException will be generated the
-   *           RepositoryConfigurationException
+   * @throws RepositoryConfigurationException
+   *           will be generated the RepositoryConfigurationException
    */
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
     this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
@@ -127,10 +126,14 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * init.
    * 
-   * @param channelManager the ChannelManager
-   * @param systemId system identification string
-   * @param ownName own name
-   * @param recoveryManager the RecoveryManager
+   * @param channelManager
+   *          the ChannelManager
+   * @param systemId
+   *          system identification string
+   * @param ownName
+   *          own name
+   * @param recoveryManager
+   *          the RecoveryManager
    */
   public void init(ChannelManager channelManager,
                    String systemId,
@@ -170,10 +173,12 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * receive.
    * 
-   * @param itemStatechangesLog the received ChangesLog
-   * @param identifier the PandingChangeLog or PendingBinaryFile identifier
-   *          string
-   * @throws Exception will be generated the Exception
+   * @param itemStatechangesLog
+   *          the received ChangesLog
+   * @param identifier
+   *          the PandingChangeLog or PendingBinaryFile identifier string
+   * @throws Exception
+   *           will be generated the Exception
    */
   public void receive(ItemStateChangesLog itemStatechangesLog, String identifier) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) itemStatechangesLog;
@@ -272,9 +277,12 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * saveChangesLog.
    * 
-   * @param fileDescriptor the FileDescriptor
-   * @param identifire the PendingBinaryFile identification string
-   * @throws Exception will be generated the Exception
+   * @param fileDescriptor
+   *          the FileDescriptor
+   * @param identifire
+   *          the PendingBinaryFile identification string
+   * @throws Exception
+   *           will be generated the Exception
    */
   private void saveChangesLog(ChangesFile fileDescriptor, String identifire) throws Exception {
     TransactionChangesLog transactionChangesLog = recoveryManager.getRecoveryReader()

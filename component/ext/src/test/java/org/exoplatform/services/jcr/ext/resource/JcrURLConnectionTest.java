@@ -33,14 +33,14 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class JcrURLConnectionTest extends BaseStandaloneTest {
-  
-  private static final Log      log = ExoLogger.getLogger(JcrURLConnectionTest.class);
 
-  private String fname;
+  private static final Log log = ExoLogger.getLogger(JcrURLConnectionTest.class);
 
-  private String data;
+  private String           fname;
 
-  private Node   testRoot;
+  private String           data;
+
+  private Node             testRoot;
 
   public void setUp() throws Exception {
     super.setUp();

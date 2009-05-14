@@ -22,116 +22,113 @@ import java.util.Calendar;
 
 import org.exoplatform.services.jcr.ext.backup.BackupChain;
 import org.exoplatform.services.jcr.ext.backup.BackupChainLog;
-import org.exoplatform.services.jcr.ext.backup.BackupJob;
-import org.exoplatform.services.jcr.ext.backup.JobEntryInfo;
 import org.exoplatform.services.jcr.ext.backup.server.HTTPBackupAgent;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 13.04.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 13.04.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ShortInfo.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ShortInfo {
-  
+
   /**
    * The type for current backup.
    */
-  public static final int  CURRENT   = -1;
+  public static final int CURRENT   = -1;
 
   /**
    * The type for completed backup.
    */
-  public static final int  COMPLETED = 0;
+  public static final int COMPLETED = 0;
 
   /**
    * The type for current restore.
    */
-  public static final int  RESTORE   = 1;
+  public static final int RESTORE   = 1;
 
   /**
    * The type of ShortInfo (current, completed, restore).
    */
-  private Integer          type;
-  
+  private Integer         type;
+
   /**
    * The backup identifier.
    */
-  private String backupId;
-  
+  private String          backupId;
+
   /**
    * The backup type (full or full+incremental).
    */
   private Integer         backupType;
-  
+
   /**
    * The repository name.
    */
-  private String  repositoryName;
+  private String          repositoryName;
 
   /**
    * The workspace name.
    */
-  private String  workspaceName;
-  
+  private String          workspaceName;
+
   /**
    * The state of backup or restore.
    */
-  private Integer state;
-  
+  private Integer         state;
+
   /**
-   * The started time of backup or restore.
-   * The date in format RFC 1123.
+   * The started time of backup or restore. The date in format RFC 1123.
    */
-  private String startedTime;
-  
+  private String          startedTime;
+
   /**
-   * The finished time of backup or restore.
-   * The date in format RFC 1123.
+   * The finished time of backup or restore. The date in format RFC 1123.
    */
-  private String finishedTime;
-  
+  private String          finishedTime;
+
   /**
    * ShortInfo.
    * 
    * Empty constructor.
-   *
+   * 
    */
   public ShortInfo() {
   }
-  
+
   /**
    * ShortInfo constructor.
-   *
+   * 
    * @param type
-   *          int, the tupe of short info 
+   *          int, the tupe of short info
    * @param chain
-   *          BackupChain, the backup chain for current backup.  
+   *          BackupChain, the backup chain for current backup.
    */
-  public ShortInfo(int type , BackupChain chain) {
+  public ShortInfo(int type, BackupChain chain) {
     this.type = type;
     this.backupType = chain.getBackupConfig().getBackupType();
     this.backupId = chain.getBackupId();
     this.repositoryName = chain.getBackupConfig().getRepository();
     this.workspaceName = chain.getBackupConfig().getWorkspace();
     this.state = chain.getFullBackupState();
-    
-    DateFormat df = new  SimpleDateFormat(HTTPBackupAgent.Constants.DATE_FORMAT_RFC_1123);
+
+    DateFormat df = new SimpleDateFormat(HTTPBackupAgent.Constants.DATE_FORMAT_RFC_1123);
     this.startedTime = df.format(chain.getStartedTime().getTime());
-    
+
     // no applicable
     this.finishedTime = "";
   }
-  
+
   /**
    * ShortInfo constructor.
-   *
+   * 
    * @param type
    *          int, the tupe of short info
    * @param chainLog
-   *          BackupChainLog, the backup chain log for completed backup.  
+   *          BackupChainLog, the backup chain log for completed backup.
    */
   public ShortInfo(int type, BackupChainLog chainLog) {
     this.type = type;
@@ -139,32 +136,33 @@ public class ShortInfo {
     this.backupId = chainLog.getBackupId();
     this.repositoryName = chainLog.getBackupConfig().getRepository();
     this.workspaceName = chainLog.getBackupConfig().getWorkspace();
-    
+
     // do not use
     this.state = 0;
 
     DateFormat df = new SimpleDateFormat(HTTPBackupAgent.Constants.DATE_FORMAT_RFC_1123);
-    this.startedTime =  df.format(chainLog.getStartedTime().getTime());
-    this.finishedTime = df.format(chainLog.getFinishedTime().getTime());;
+    this.startedTime = df.format(chainLog.getStartedTime().getTime());
+    this.finishedTime = df.format(chainLog.getFinishedTime().getTime());
+    ;
   }
-  
+
   /**
    * ShortInfo constructor.
    * 
    * For restore.
-   *
+   * 
    * @param type
    *          int, the tupe of short info
    * @param chainLog
-   *          BackupChainLog, the backup chain log for completed backup. 
+   *          BackupChainLog, the backup chain log for completed backup.
    * @param startedTime
    *          Calendar, the stated time
    * @param finishedTime
    *          Calendar, the finished time
    * @param state
-   *          int, the state of restore           
+   *          int, the state of restore
    */
-  public ShortInfo(int type, 
+  public ShortInfo(int type,
                    BackupChainLog chainLog,
                    Calendar startedTime,
                    Calendar finishedTime,
@@ -174,18 +172,18 @@ public class ShortInfo {
     this.backupId = chainLog.getBackupId();
     this.repositoryName = chainLog.getBackupConfig().getRepository();
     this.workspaceName = chainLog.getBackupConfig().getWorkspace();
-    
+
     this.state = state;
 
     DateFormat df = new SimpleDateFormat(HTTPBackupAgent.Constants.DATE_FORMAT_RFC_1123);
-    this.startedTime =  df.format(startedTime.getTime());
-    
+    this.startedTime = df.format(startedTime.getTime());
+
     if (finishedTime != null)
       this.finishedTime = df.format(finishedTime.getTime());
     else
       this.finishedTime = "";
   }
-  
+
   /**
    * ShortInfo constructor.
    * 
@@ -220,9 +218,8 @@ public class ShortInfo {
   
   /**
    * getState.
-   *
-   * @return Integer
-   *           the state of backup or restore 
+   * 
+   * @return Integer the state of backup or restore
    */
   public Integer getState() {
     return state;
@@ -230,7 +227,7 @@ public class ShortInfo {
 
   /**
    * setState.
-   *
+   * 
    * @param state
    *          Integer, the state of backup or restore
    */
@@ -240,9 +237,8 @@ public class ShortInfo {
 
   /**
    * getBackupId.
-   *
-   * @return String
-   *           return the backup identifier
+   * 
+   * @return String return the backup identifier
    */
   public String getBackupId() {
     return backupId;
@@ -250,19 +246,18 @@ public class ShortInfo {
 
   /**
    * setBackupId.
-   *
+   * 
    * @param backupId
    *          the backup identifier
    */
   public void setBackupId(String backupId) {
     this.backupId = backupId;
   }
-  
+
   /**
    * getRepositoryName.
-   *
-   * @return String
-   *           return the repository name
+   * 
+   * @return String return the repository name
    */
   public String getRepositoryName() {
     return repositoryName;
@@ -270,7 +265,7 @@ public class ShortInfo {
 
   /**
    * setRepositoryName.
-   *
+   * 
    * @param repositoryName
    *          String, repository name
    */
@@ -280,9 +275,8 @@ public class ShortInfo {
 
   /**
    * getWorkspaceName.
-   *
-   * @return String
-   *          return the workspace name
+   * 
+   * @return String return the workspace name
    */
   public String getWorkspaceName() {
     return workspaceName;
@@ -290,7 +284,7 @@ public class ShortInfo {
 
   /**
    * setWorkspaceName.
-   *
+   * 
    * @param workspaceName
    *          String, the workspace name
    */
@@ -300,9 +294,8 @@ public class ShortInfo {
 
   /**
    * getStartedTime.
-   *
-   * @return String
-   *           return the started time of backup or restore
+   * 
+   * @return String return the started time of backup or restore
    */
   public String getStartedTime() {
     return startedTime;
@@ -310,7 +303,7 @@ public class ShortInfo {
 
   /**
    * setStartedTime.
-   *
+   * 
    * @param startedTime
    *          String, the started time of backup or restore
    */
@@ -320,9 +313,8 @@ public class ShortInfo {
 
   /**
    * getFinishedTime.
-   *
-   * @return String
-   *           return the finished time of backup or restore
+   * 
+   * @return String return the finished time of backup or restore
    */
   public String getFinishedTime() {
     return finishedTime;
@@ -330,7 +322,7 @@ public class ShortInfo {
 
   /**
    * setFinishedTime.
-   *
+   * 
    * @param finishedTime
    *          String, the finished time of backup or restore
    */
@@ -340,9 +332,8 @@ public class ShortInfo {
 
   /**
    * getType.
-   *
-   * @return Integer
-   *           return the type of ShortInfo
+   * 
+   * @return Integer return the type of ShortInfo
    */
   public Integer getType() {
     return type;
@@ -350,14 +341,14 @@ public class ShortInfo {
 
   /**
    * setType.
-   *
+   * 
    * @param type
    *          Integer, the type of ShortInfo
    */
   public void setType(Integer type) {
     this.type = type;
   }
-  
+
   /**
    * getBackupType.
    * 

@@ -25,9 +25,10 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.01.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 15.01.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class ChangesStorageChangesLog implements PlainChangesLog {

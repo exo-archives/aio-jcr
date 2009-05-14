@@ -19,20 +19,21 @@ package org.exoplatform.services.jcr.ext.replication.async.executor;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 28.01.2009
+ * <br/>
+ * Date: 28.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Member.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class Member {
-  
+
   private String url;
 
   private String realmName;
-  
+
   public Member() {
   }
-  
+
   public String getRealmName() {
     return realmName;
   }
@@ -48,8 +49,8 @@ public class Member {
   public void setUrl(String url) {
     this.url = url;
   }
-  
+
   public String toString() {
-   return url; 
+    return url;
   }
 }

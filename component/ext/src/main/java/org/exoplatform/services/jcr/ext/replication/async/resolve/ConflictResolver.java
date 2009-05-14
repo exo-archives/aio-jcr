@@ -26,7 +26,6 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;

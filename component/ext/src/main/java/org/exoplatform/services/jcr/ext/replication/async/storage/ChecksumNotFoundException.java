@@ -16,13 +16,13 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChecksumNotFoundException.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ChecksumNotFoundException extends StorageIOException {

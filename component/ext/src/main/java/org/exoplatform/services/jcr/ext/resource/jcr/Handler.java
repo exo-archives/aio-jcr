@@ -50,9 +50,8 @@ public class Handler extends URLStreamHandler implements Startable {
    */
 
   /**
-   * It specifies the package prefix name with should be added in System
-   * property java.protocol.handler.pkgs. Protocol handlers will be in a class
-   * called <tt>jcr</tt>.Handler.
+   * It specifies the package prefix name with should be added in System property
+   * java.protocol.handler.pkgs. Protocol handlers will be in a class called <tt>jcr</tt>.Handler.
    */
   private static final String                      protocolPathPkg = "org.exoplatform.services.jcr.ext.resource";
 
@@ -90,7 +89,7 @@ public class Handler extends URLStreamHandler implements Startable {
   }
 
   // URLStreamHandler
-  
+
   /**
    * {@inheritDoc}
    */
@@ -99,8 +98,8 @@ public class Handler extends URLStreamHandler implements Startable {
     try {
       UnifiedNodeReference nodeReference = new UnifiedNodeReference(url);
 
-      // First try use user specified session provider, e.g. 
-      // ThreadLocalSessionProvider or System SessionProvider 
+      // First try use user specified session provider, e.g.
+      // ThreadLocalSessionProvider or System SessionProvider
       SessionProvider sessionProvider = threadLocalSessionProviderService.getSessionProvider(null);
 
       if (sessionProvider == null && ConversationState.getCurrent() != null)
@@ -110,8 +109,7 @@ public class Handler extends URLStreamHandler implements Startable {
       // if still not set use anonymous session provider
       if (sessionProvider == null)
         sessionProvider = SessionProvider.createAnonimProvider();
-      
-      
+
       ManageableRepository repository;
       String repositoryName = nodeReference.getRepository();
       if (repositoryName == null || repositoryName.length() == 0)
@@ -134,7 +132,7 @@ public class Handler extends URLStreamHandler implements Startable {
   }
 
   // Startable
-  
+
   /**
    * {@inheritDoc}
    */

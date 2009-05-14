@@ -24,7 +24,8 @@ import java.io.OutputStream;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date:
+ * <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id$

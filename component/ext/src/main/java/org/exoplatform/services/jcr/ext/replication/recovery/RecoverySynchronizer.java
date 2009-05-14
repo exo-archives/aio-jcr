@@ -53,7 +53,7 @@ public class RecoverySynchronizer {
   /**
    * The apache logger.
    */
-  private static Log                         log = ExoLogger.getLogger("ext.RecoverySynchronizer");
+  private static Log                         log                  = ExoLogger.getLogger("ext.RecoverySynchronizer");
 
   /**
    * Definition the folder to ChangesLog.
@@ -113,7 +113,7 @@ public class RecoverySynchronizer {
    * The list of names other participants who was Synchronized successful.
    */
   private List<String>                       successfulSynchronizedList;
-  
+
   /**
    * The flag for local synchronization.
    */
@@ -122,14 +122,22 @@ public class RecoverySynchronizer {
   /**
    * RecoverySynchronizer constructor.
    * 
-   * @param recoveryDir the recovery dir
-   * @param fileNameFactory the FileNameFactory
-   * @param fileCleaner the FileCleaner
-   * @param channelManager the ChannelManager
-   * @param ownName the own name
-   * @param recoveryWriter the RecoveryWriter
-   * @param recoveryReader the RecoveryReader
-   * @param systemId the system identification string
+   * @param recoveryDir
+   *          the recovery dir
+   * @param fileNameFactory
+   *          the FileNameFactory
+   * @param fileCleaner
+   *          the FileCleaner
+   * @param channelManager
+   *          the ChannelManager
+   * @param ownName
+   *          the own name
+   * @param recoveryWriter
+   *          the RecoveryWriter
+   * @param recoveryReader
+   *          the RecoveryReader
+   * @param systemId
+   *          the system identification string
    */
   public RecoverySynchronizer(File recoveryDir,
                               FileNameFactory fileNameFactory,
@@ -167,18 +175,20 @@ public class RecoverySynchronizer {
                                    ownName,
                                    Calendar.getInstance());
         channelManager.sendPacket(packet);
-      } 
+      }
     } catch (Exception e) {
       log.error("Synchronization error", e);
     }
-    
+
   }
 
   /**
    * send.
    * 
-   * @param packet the Packet
-   * @throws Exception will be generated the Exception
+   * @param packet
+   *          the Packet
+   * @throws Exception
+   *           will be generated the Exception
    */
   private void send(Packet packet) throws Exception {
     byte[] buffer = Packet.getAsByteArray(packet);
@@ -192,10 +202,13 @@ public class RecoverySynchronizer {
   /**
    * processingPacket.
    * 
-   * @param packet the Packet
-   * @param status before status
+   * @param packet
+   *          the Packet
+   * @param status
+   *          before status
    * @return int after status
-   * @throws Exception will be generated the Exception
+   * @throws Exception
+   *           will be generated the Exception
    */
   public int processingPacket(Packet packet, int status) throws Exception {
 
@@ -254,7 +267,7 @@ public class RecoverySynchronizer {
 
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
             List<String> failList = new ArrayList<String>();
-            
+
             for (ChangesFile fileDescriptor : fileDescriptorList) {
               try {
                 TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
@@ -296,8 +309,8 @@ public class RecoverySynchronizer {
 
             // Send file name list
             List<String> fileNameList = new ArrayList<String>(mapPendingBinaryFile.get(packet.getIdentifier())
-                                                            .getFileNameList());
-            if (failList.size() != 0) 
+                                                                                  .getFileNameList());
+            if (failList.size() != 0)
               fileNameList.removeAll(failList);
 
             Packet packetFileNameList = new Packet(Packet.PacketType.ALL_CHANGESLOG_SAVED_OK,
@@ -306,7 +319,8 @@ public class RecoverySynchronizer {
                                                    fileNameList);
             send(packetFileNameList);
 
-            log.info("The " + fileDescriptorList.size() + " changeslogs were received and " + fileNameList.size() + " saved");
+            log.info("The " + fileDescriptorList.size() + " changeslogs were received and "
+                + fileNameList.size() + " saved");
 
           } else if (log.isDebugEnabled()) {
             log.debug("Do not start save : " + fileDescriptorList.size() + " of "
@@ -372,7 +386,7 @@ public class RecoverySynchronizer {
 
       if (successfulSynchronizedList.size() == initedParticipantsClusterList.size()) {
         stat = AbstractWorkspaceDataReceiver.NORMAL_MODE;
-        
+
         localSynchronization = false;
       }
       break;
@@ -386,9 +400,12 @@ public class RecoverySynchronizer {
   /**
    * sendChangesLogUpDate.
    * 
-   * @param timeStamp the update to this date
-   * @param ownerName the member name who initialize synchronization
-   * @param identifier the operation identifier
+   * @param timeStamp
+   *          the update to this date
+   * @param ownerName
+   *          the member name who initialize synchronization
+   * @param identifier
+   *          the operation identifier
    */
   private void sendChangesLogUpDate(Calendar timeStamp, String ownerName, String identifier) {
     try {
@@ -397,7 +414,7 @@ public class RecoverySynchronizer {
             + Calendar.getInstance().getTime().toGMTString());
 
       List<String> filePathList = recoveryReader.getFilePathList(timeStamp, ownerName);
-      
+
       Packet needTransferCounter = new Packet(Packet.PacketType.NEED_TRANSFER_COUNTER,
                                               identifier,
                                               ownName);
@@ -433,7 +450,8 @@ public class RecoverySynchronizer {
   /**
    * setDataKeeper.
    * 
-   * @param dataKeeper the ItemDataKeeper
+   * @param dataKeeper
+   *          the ItemDataKeeper
    */
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
     this.dataKeeper = dataKeeper;
@@ -442,15 +460,16 @@ public class RecoverySynchronizer {
   /**
    * updateInitedParticipantsClusterList.
    * 
-   * @param list the list of initialized members
+   * @param list
+   *          the list of initialized members
    */
   public void updateInitedParticipantsClusterList(Collection<? extends String> list) {
     initedParticipantsClusterList = new ArrayList<String>(list);
   }
-  
+
   /**
    * localSynchronization.
-   *
+   * 
    */
   public void localSynchronization() {
     localSynchronization = true;
@@ -459,10 +478,14 @@ public class RecoverySynchronizer {
   /**
    * saveChangesLog.
    * 
-   * @param dataManager the ItemDataKeeper
-   * @param changesLog the ChangesLog with data
-   * @param cLogTime the date of ChangesLog
-   * @throws ReplicationException will be generated the ReplicationException
+   * @param dataManager
+   *          the ItemDataKeeper
+   * @param changesLog
+   *          the ChangesLog with data
+   * @param cLogTime
+   *          the date of ChangesLog
+   * @throws ReplicationException
+   *           will be generated the ReplicationException
    */
   private void saveChangesLog(ItemDataKeeper dataManager,
                               TransactionChangesLog changesLog,

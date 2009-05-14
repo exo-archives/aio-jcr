@@ -245,7 +245,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     assertEquals(200, cres.getStatus());
     assertEquals("Hello from groovy to >>>>> test", cres.getEntity());
   }
-  
+
   public void testValidate() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "script/groovy");
@@ -259,14 +259,14 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     handler.handleRequest(creq, cres);
     assertEquals(400, cres.getStatus());
     System.out.println(cres.getEntity());
-    
-//    cres.setResponse(null); //reset response
+
+    // cres.setResponse(null); //reset response
     script = "public class Test { def a = 0\ndef b = 1\n }\n";
     creq = new ContainerRequest("POST",
-                                                 new URI("/script/groovy/validate/%5Bno-name%5D"),
-                                                 new URI(""),
-                                                 new ByteArrayInputStream(script.getBytes()),
-                                                 new InputHeadersMap(headers));
+                                new URI("/script/groovy/validate/%5Bno-name%5D"),
+                                new URI(""),
+                                new ByteArrayInputStream(script.getBytes()),
+                                new InputHeadersMap(headers));
     handler.handleRequest(creq, cres);
     assertEquals(200, cres.getStatus());
   }
@@ -284,14 +284,14 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     handler.handleRequest(creq, cres);
     assertEquals(400, cres.getStatus());
     System.out.println(cres.getEntity());
-    
-//    cres.setResponse(null); //reset response
+
+    // cres.setResponse(null); //reset response
     script = "public class Test { def a = 0\ndef b = 1\n }\n";
     creq = new ContainerRequest("POST",
-                                                 new URI("/script/groovy/validate/"),
-                                                 new URI(""),
-                                                 new ByteArrayInputStream(script.getBytes()),
-                                                 new InputHeadersMap(headers));
+                                new URI("/script/groovy/validate/"),
+                                new URI(""),
+                                new ByteArrayInputStream(script.getBytes()),
+                                new InputHeadersMap(headers));
     handler.handleRequest(creq, cres);
     assertEquals(200, cres.getStatus());
   }

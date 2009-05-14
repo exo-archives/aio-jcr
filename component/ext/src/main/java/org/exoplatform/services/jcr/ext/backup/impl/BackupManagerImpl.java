@@ -72,7 +72,6 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
-import org.quartz.Job;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -115,7 +114,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private String                     incrementalBackupType;
 
   private final HashSet<BackupChain> currentBackups;
-  
+
   /**
    * The list of restore job.
    */
@@ -280,7 +279,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
     messages = new BackupMessagesLog(MESSAGES_MAXSIZE);
 
     scheduler = new BackupScheduler(this, messages);
-    
+
     this.restoreJobs = new ArrayList<JobWorkspaceRestore>();
     this.stopper = new AutoStopper();
     this.stopper.start();
@@ -329,9 +328,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
   }
 
   public void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
-                                                                                                    RepositoryException,
-                                                                                                    RepositoryConfigurationException,
-                                                                                                    BackupConfigurationException {
+                                                                                               RepositoryException,
+                                                                                               RepositoryConfigurationException,
+                                                                                               BackupConfigurationException {
 
     List<JobEntryInfo> list = log.getJobEntryInfos();
     BackupConfig config = log.getBackupConfig();
@@ -815,7 +814,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
     }
     return null;
   }
-  
+
   public BackupChain findBackup(String backupId) {
     Iterator<BackupChain> it = currentBackups.iterator();
     while (it.hasNext()) {
@@ -862,21 +861,24 @@ public class BackupManagerImpl implements BackupManager, Startable {
   public JobWorkspaceRestore getLastRestore(String repositoryName, String workspaceName) {
     for (int i = restoreJobs.size() - 1; i >= 0; i--) {
       JobWorkspaceRestore job = restoreJobs.get(i);
-      
-      if (repositoryName.equals(job.getRepositoryName()) 
+
+      if (repositoryName.equals(job.getRepositoryName())
           && workspaceName.equals(job.getWorkspaceName())) {
         return job;
-        
+
       }
     }
-    
+
     return null;
   }
 
-  public void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry, boolean asynchronous) throws BackupOperationException,
-                                                                                                                              BackupConfigurationException,
-                                                                                                                              RepositoryException,
-                                                                                                                              RepositoryConfigurationException {
+  public void restore(BackupChainLog log,
+                      String repositoryName,
+                      WorkspaceEntry workspaceEntry,
+                      boolean asynchronous) throws BackupOperationException,
+                                           BackupConfigurationException,
+                                           RepositoryException,
+                                           RepositoryConfigurationException {
     if (asynchronous) {
       JobWorkspaceRestore jobRestore = new JobWorkspaceRestore(repoService,
                                                                this,

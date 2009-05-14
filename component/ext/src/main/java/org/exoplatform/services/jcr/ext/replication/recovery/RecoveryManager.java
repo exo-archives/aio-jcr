@@ -46,7 +46,7 @@ import org.exoplatform.services.log.ExoLogger;
 public class RecoveryManager {
 
   /**
-   * The apache logger. 
+   * The apache logger.
    */
   private static Log                                              log = ExoLogger.getLogger("ext.RecoveryManager");
 
@@ -96,15 +96,14 @@ public class RecoveryManager {
   private volatile HashMap<String, PendingConfirmationChengesLog> mapPendingConfirmation;
 
   /**
-   * The RecoverySynchronizer will be  initialized the recovery.
+   * The RecoverySynchronizer will be initialized the recovery.
    */
   private RecoverySynchronizer                                    recoverySynchronizer;
 
   /**
    * The ItemDataKeeper will be saved the ChangesLog to JCR.
    */
-//  private ItemDataKeeper                                          dataKeeper;
-
+  // private ItemDataKeeper dataKeeper;
   /**
    * The ChannalManager will be transmitted or receive the Packets.
    */
@@ -126,8 +125,8 @@ public class RecoveryManager {
   private boolean                                                 isAllInited;
 
   /**
-   * RecoveryManager  constructor.
-   *
+   * RecoveryManager constructor.
+   * 
    * @param recoveryDir
    *          the recovery dir
    * @param ownName
@@ -137,7 +136,7 @@ public class RecoveryManager {
    * @param participantsClusterList
    *          the other participants
    * @param waitConformation
-   *          the timeout to confirmation  
+   *          the timeout to confirmation
    * @param repoName
    *          the repository name
    * @param wsName
@@ -154,8 +153,11 @@ public class RecoveryManager {
                          long waitConformation,
                          String repoName,
                          String wsName,
-                         ChannelManager channelManager, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) throws IOException {
-    
+                         ChannelManager channelManager,
+                         FileCleaner fileCleaner,
+                         int maxBufferSize,
+                         ReaderSpoolFileHolder holder) throws IOException {
+
     this.ownName = ownName;
     this.participantsClusterList = new ArrayList<String>(participantsClusterList);
 
@@ -186,7 +188,7 @@ public class RecoveryManager {
 
   /**
    * save.
-   *
+   * 
    * @param cangesLog
    *          the ChangesLog with data
    * @param identifier
@@ -211,7 +213,7 @@ public class RecoveryManager {
 
   /**
    * confirmationChengesLogSave.
-   *
+   * 
    * @param packet
    *          the Packet with confirmation
    */
@@ -244,7 +246,7 @@ public class RecoveryManager {
 
   /**
    * removeChangesLog.
-   *
+   * 
    * @param identifier
    *          the identifier to ChangesLog
    * @param ownerName
@@ -258,11 +260,10 @@ public class RecoveryManager {
 
   /**
    * save.
-   *
+   * 
    * @param identifier
    *          the identifier of ChangesLog
-   * @return String
-   *           return the name of file
+   * @return String return the name of file
    * @throws IOException
    *           will be generated the IOException
    */
@@ -276,7 +277,7 @@ public class RecoveryManager {
 
   /**
    * saveRemovableChangesLog.
-   *
+   * 
    * @param fileName
    *          the name of file
    * @throws IOException
@@ -288,7 +289,7 @@ public class RecoveryManager {
 
   /**
    * remove.
-   *
+   * 
    * @param identifier
    *          the identifier to ChangesLog
    */
@@ -298,11 +299,10 @@ public class RecoveryManager {
 
   /**
    * getPendingConfirmationChengesLogById.
-   *
+   * 
    * @param identifier
    *          the identifier to ChangesLog
-   * @return PendingConfirmationChengesLog
-   *           return the PendingConfirmationChengesLog
+   * @return PendingConfirmationChengesLog return the PendingConfirmationChengesLog
    * @throws Exception
    *           will be generated the Exception
    */
@@ -316,13 +316,12 @@ public class RecoveryManager {
 
   /**
    * processing.
-   *
+   * 
    * @param packet
    *          the Packet with data
    * @param stat
-   *         before state
-   * @return int
-   *           after state
+   *          before state
+   * @return int after state
    * @throws Exception
    *           will be generated the Exception
    */
@@ -345,11 +344,10 @@ public class RecoveryManager {
         recoverySynchronizer.processingPacket(packet, state);
       break;
 
-      
     case Packet.PacketType.BINARY_FILE_PACKET:
-    if (ownName.equals(packet.getOwnerName()) == true)
-      recoverySynchronizer.processingPacket(packet, state);
-    break;
+      if (ownName.equals(packet.getOwnerName()) == true)
+        recoverySynchronizer.processingPacket(packet, state);
+      break;
 
     case Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK:
       if (ownName.equals(packet.getOwnerName()) == true)
@@ -429,9 +427,9 @@ public class RecoveryManager {
 
   /**
    * setDataKeeper.
-   *
+   * 
    * @param dataKeeper
-   *         the ItemDataKeeper
+   *          the ItemDataKeeper
    */
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
     recoverySynchronizer.setDataKeeper(dataKeeper);
@@ -439,9 +437,8 @@ public class RecoveryManager {
 
   /**
    * getParticipantsClusterList.
-   *
-   * @return List
-   *           return the other participants 
+   * 
+   * @return List return the other participants
    */
   public List<String> getParticipantsClusterList() {
     return participantsClusterList;
@@ -473,21 +470,20 @@ public class RecoveryManager {
 
   /**
    * Will be initialized the recovery.
-   *
+   * 
    */
   public void startRecovery() {
     if (log.isDebugEnabled())
       log.debug("RecoveryManager.startRecovery() : " + repoName + "@" + wsName);
-    
+
     recoverySynchronizer.localSynchronization();
     recoverySynchronizer.synchronizRepository();
   }
 
   /**
    * getRecoveryWriter.
-   *
-   * @return RecoveryWriter
-   *           return the RecoveryWriter           
+   * 
+   * @return RecoveryWriter return the RecoveryWriter
    */
   public RecoveryWriter getRecoveryWriter() {
     return recoveryWriter;
@@ -495,9 +491,8 @@ public class RecoveryManager {
 
   /**
    * getRecoveryReader.
-   *
-   * @return RecoveryReader
-   *           return the RecoveryReader
+   * 
+   * @return RecoveryReader return the RecoveryReader
    */
   public RecoveryReader getRecoveryReader() {
     return recoveryReader;

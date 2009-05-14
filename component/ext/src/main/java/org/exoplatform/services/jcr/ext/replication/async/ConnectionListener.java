@@ -19,19 +19,21 @@ package org.exoplatform.services.jcr.ext.replication.async;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Inform about channel state.
+ * <br/>
+ * Inform about channel state.
  * 
- * <br/>Date: 15.01.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 15.01.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface ConnectionListener {
 
   /**
    * On channel disconnect event.
-   *
+   * 
    */
   void onDisconnect();
-  
+
 }

@@ -34,10 +34,11 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * ChangesSaveErrorLog will be saved the errors when saving changes from the other
- * members. ChangesSaveErrorLog will be used in ChangesSubscriberImpl.
+ * ChangesSaveErrorLog will be saved the errors when saving changes from the other members.
+ * ChangesSaveErrorLog will be used in ChangesSubscriberImpl.
  * 
- * <br/>Date: 27.01.2009
+ * <br/>
+ * Date: 27.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: SaveErrorLog.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -88,8 +89,7 @@ public class ChangesSaveErrorLog {
   public String getErrorLog() {
     return new File(serviceDir, getErrorFileName()).getAbsolutePath();
   }
-  
-  
+
   /**
    * Add exception in exception storage.
    * 

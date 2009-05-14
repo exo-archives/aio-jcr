@@ -21,7 +21,8 @@ import junit.framework.TestCase;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.01.2009
+ * <br/>
+ * Date: 15.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ObjectWaitTest.java 111 2008-11-11 11:11:11Z pnedonosko $

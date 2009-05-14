@@ -18,21 +18,21 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 12.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 12.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class RemoteExportRequest {
 
   private final MemberAddress address;
-  
-  private final String nodeId;
-  
+
+  private final String        nodeId;
+
   RemoteExportRequest(String nodeId, MemberAddress address) {
     this.address = address;
     this.nodeId = nodeId;
@@ -51,5 +51,5 @@ public class RemoteExportRequest {
   public String getNodeId() {
     return nodeId;
   }
-  
+
 }

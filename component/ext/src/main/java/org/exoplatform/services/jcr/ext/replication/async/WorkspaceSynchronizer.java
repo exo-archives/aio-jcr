@@ -28,29 +28,33 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.Synchronizatio
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 24.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 24.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: WorkspaceSynchronizer.java 25715 2008-12-24 11:40:47Z pnedonosko $
  */
 public interface WorkspaceSynchronizer {
 
   /**
    * Get Local changes.
-   *
+   * 
    * @return ChangesStorage
-   * @throws IOException 
+   * @throws IOException
    */
   ChangesStorage<ItemState> getLocalChanges() throws IOException;
-  
+
   /**
    * Save synchronized changes to a local workspace.
    * 
-   * @throws SynchronizationException 
-   * @throws RepositoryException 
-   * @throws UnsupportedOperationException 
-   * @throws InvalidItemStateException 
+   * @throws SynchronizationException
+   * @throws RepositoryException
+   * @throws UnsupportedOperationException
+   * @throws InvalidItemStateException
    */
-  void save(ChangesStorage<ItemState> synchronizedChanges) throws InvalidItemStateException, UnsupportedOperationException, RepositoryException, SynchronizationException;
+  void save(ChangesStorage<ItemState> synchronizedChanges) throws InvalidItemStateException,
+                                                          UnsupportedOperationException,
+                                                          RepositoryException,
+                                                          SynchronizationException;
 
 }

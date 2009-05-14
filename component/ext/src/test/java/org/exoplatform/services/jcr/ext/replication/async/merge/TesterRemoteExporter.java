@@ -38,7 +38,8 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 11.12.2008
+ * <br/>
+ * Date: 11.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -81,7 +82,7 @@ public class TesterRemoteExporter implements RemoteExporter {
       }
       File file = File.createTempFile("exportStor", Long.toString(timestamp));
 
-      byte[] crc = new byte[]{}; // crc is ignored
+      byte[] crc = new byte[] {}; // crc is ignored
       SimpleOutputChangesFile chfile = new SimpleOutputChangesFile(file,
                                                                    crc,
                                                                    timestamp,
@@ -94,11 +95,11 @@ public class TesterRemoteExporter implements RemoteExporter {
       ItemStateWriter wr = new ItemStateWriter();
       while (it.hasNext()) {
         wr.write(out, it.next());
-        
+
       }
       out.close();
 
-      chs = new ItemStatesStorage<ItemState>(chfile, null, null, 200*1024, null); // TODO member
+      chs = new ItemStatesStorage<ItemState>(chfile, null, null, 200 * 1024, null); // TODO member
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }

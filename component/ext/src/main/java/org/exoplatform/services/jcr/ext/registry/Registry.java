@@ -25,10 +25,11 @@ import org.exoplatform.services.jcr.ext.common.NodeWrapper;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
- * Created by The eXo Platform SAS .<br/> JCR based Services Registry abstraction. As interchange
- * object all the methods use Nodes' wrappers to not to let using an arbitrary Type of Node. There
- * is 2 phase modification of RegistryEntry (1) get or create RegistryEntry retrieves or creates new
- * object in memory and (2) register/unregister stores the object permanently
+ * Created by The eXo Platform SAS .<br/>
+ * JCR based Services Registry abstraction. As interchange object all the methods use Nodes'
+ * wrappers to not to let using an arbitrary Type of Node. There is 2 phase modification of
+ * RegistryEntry (1) get or create RegistryEntry retrieves or creates new object in memory and (2)
+ * register/unregister stores the object permanently
  * 
  * @author Gennady Azarenkov
  * @version $Id: $

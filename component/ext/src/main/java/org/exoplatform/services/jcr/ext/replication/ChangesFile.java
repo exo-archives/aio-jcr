@@ -56,8 +56,10 @@ public class ChangesFile implements Comparable<ChangesFile> {
   /**
    * FileDescriptor constructor.
    * 
-   * @param f the File object
-   * @param systemId The system identification String
+   * @param f
+   *          the File object
+   * @param systemId
+   *          The system identification String
    */
   public ChangesFile(File f, String systemId, long totalPacketCount) {
     this.file = f;
@@ -93,9 +95,12 @@ public class ChangesFile implements Comparable<ChangesFile> {
   /**
    * Write data to file by offset.
    * 
-   * @param offset - offset in file to store data.
-   * @param data - byte[].
-   * @throws IOException if IO exception occurs.
+   * @param offset
+   *          - offset in file to store data.
+   * @param data
+   *          - byte[].
+   * @throws IOException
+   *           if IO exception occurs.
    */
   public synchronized void write(long offset, byte[] data) throws IOException {
     if (randomAccessFile == null) {

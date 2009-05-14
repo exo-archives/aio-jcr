@@ -28,7 +28,8 @@ import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 18.03.2009
+ * <br/>
+ * Date: 18.03.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncWorkspaceConfig.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -39,7 +40,7 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
    * The constants for 1 second in milliseconds.
    */
   private static final int      ONE_SECOND = 1000;
-  
+
   /**
    * The local priority value.
    */
@@ -81,7 +82,7 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
   protected final String        storageDir;
 
   /**
-   *  Folder for local storage.
+   * Folder for local storage.
    */
   protected final String        localStorageDir;
 
@@ -101,8 +102,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
   protected final String        workspaceName;
 
   /**
-   * AsyncWorkspaceConfig  constructor.
-   *
+   * AsyncWorkspaceConfig constructor.
+   * 
    * @param params
    *          the InitParams from configuration.
    */
@@ -116,11 +117,11 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
     repositoryName = pps.getProperty("repository-name");
     if (repositoryName == null)
       throw new RuntimeException("repository-name not specified");
-    
+
     workspaceName = pps.getProperty("workspace-name");
     if (workspaceName == null)
       throw new RuntimeException("workspace-name not specified");
-    
+
     if (pps.getProperty("priority") == null)
       throw new RuntimeException("priority not specified");
 
@@ -175,16 +176,15 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
 
   }
-  
+
   /**
    * Will be checked the priority value duplication.
-   *
+   * 
    * @param other
    *          list of priority value for other participants.
    * @param ownPriority
    *          own priority
-   * @return boolean
-   *           will be returned 'true' when priority value was duplicated.  
+   * @return boolean will be returned 'true' when priority value was duplicated.
    */
   private boolean hasDuplicatePriority(List<Integer> other, int ownPriority) {
     if (other.contains(ownPriority))
@@ -204,9 +204,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getPriority.
-   *
-   * @return int
-   *           local priority
+   * 
+   * @return int local priority
    */
   public int getPriority() {
     return priority;
@@ -214,9 +213,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getOtherParticipantsPriority.
-   *
-   * @return List
-   *           list of priority value for other participants.
+   * 
+   * @return List list of priority value for other participants.
    */
   public List<Integer> getOtherParticipantsPriority() {
     return otherParticipantsPriority;
@@ -224,9 +222,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getBindIPAddress.
-   *
-   * @return String
-   *           local IP address
+   * 
+   * @return String local IP address
    */
   public String getBindIPAddress() {
     return bindIPAddress;
@@ -234,9 +231,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getChannelConfig.
-   *
-   * @return String
-   *           channel config
+   * 
+   * @return String channel config
    */
   public String getChannelConfig() {
     return channelConfig;
@@ -244,9 +240,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getChannelName.
-   *
-   * @return String
-   *           channel name
+   * 
+   * @return String channel name
    */
   public String getChannelName() {
     return channelName;
@@ -254,9 +249,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getWaitAllMembersTimeout.
-   *
-   * @return int
-   *            the wait member timeout
+   * 
+   * @return int the wait member timeout
    */
   public int getWaitAllMembersTimeout() {
     return waitAllMembersTimeout;
@@ -264,9 +258,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getMergeTempDir.
-   *
-   * @return String
-   *           the merge folder
+   * 
+   * @return String the merge folder
    */
   public String getMergeTempDir() {
     return mergeTempDir;
@@ -274,9 +267,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getStorageDir.
-   *
-   * @return String
-   *           the storage folder
+   * 
+   * @return String the storage folder
    */
   public String getStorageDir() {
     return storageDir;
@@ -284,9 +276,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getLocalStorageDir.
-   *
-   * @return String
-   *           the local storage folder 
+   * 
+   * @return String the local storage folder
    */
   public String getLocalStorageDir() {
     return localStorageDir;
@@ -294,9 +285,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getIncomeStorageDir.
-   *
-   * @return String
-   *           the income storage folder
+   * 
+   * @return String the income storage folder
    */
   public String getIncomeStorageDir() {
     return incomeStorageDir;
@@ -304,9 +294,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getRepositoryName.
-   *
-   * @return String
-   *           the repository name
+   * 
+   * @return String the repository name
    */
   public String getRepositoryName() {
     return repositoryName;
@@ -314,9 +303,8 @@ public class AsyncWorkspaceConfig extends BaseComponentPlugin {
 
   /**
    * getWorkspaceName.
-   *
-   * @return String
-   *           the workspace name
+   * 
+   * @return String the workspace name
    */
   public String getWorkspaceName() {
     return workspaceName;

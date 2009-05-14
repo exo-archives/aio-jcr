@@ -21,9 +21,9 @@ import java.util.HashMap;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
- * Created by The eXo Platform SAS .<br/> SessionProviderService implementation where
- * SessionProviders are stored as key-value pairs. where key is any object, for instance user's
- * credentials
+ * Created by The eXo Platform SAS .<br/>
+ * SessionProviderService implementation where SessionProviders are stored as key-value pairs. where
+ * key is any object, for instance user's credentials
  * 
  * @author Gennady Azarenkov
  * @version $Id: MapStoredSessionProviderService.java 13869 2008-05-05 08:40:10Z pnedonosko $

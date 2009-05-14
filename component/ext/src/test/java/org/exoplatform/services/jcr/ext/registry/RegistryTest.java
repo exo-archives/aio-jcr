@@ -23,13 +23,12 @@ import javax.jcr.RepositoryException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.w3c.dom.Document;
-
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.security.ConversationState;
+import org.w3c.dom.Document;
 
 public class RegistryTest extends BaseStandaloneTest {
 
@@ -239,9 +238,10 @@ public class RegistryTest extends BaseStandaloneTest {
                            new RegistryEntry(document));
     // Re-creates entry continuous
     // FIXME Wrong test, Session should be dedicated to the Thread, see JCR-765
-    //    for (int i = 0; i < 20; i++) {
-    //      new Thread(new Recreater(container, sessionProviderService.getSessionProvider(null), document)).start();
-    //    }
+    // for (int i = 0; i < 20; i++) {
+    // new Thread(new Recreater(container, sessionProviderService.getSessionProvider(null),
+    // document)).start();
+    // }
   }
 
   static public class Recreater implements Runnable {

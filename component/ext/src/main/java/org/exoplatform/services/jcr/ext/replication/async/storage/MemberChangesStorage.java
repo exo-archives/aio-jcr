@@ -24,9 +24,11 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Actually ChangesLog impl. But without getAllStates().
+ * <br/>
+ * Actually ChangesLog impl. But without getAllStates().
  * 
- * <br/>Date: 16.12.2008
+ * <br/>
+ * Date: 16.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

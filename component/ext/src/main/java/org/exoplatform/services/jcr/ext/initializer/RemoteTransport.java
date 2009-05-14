@@ -21,32 +21,33 @@ import java.io.File;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 17.03.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 17.03.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteTransport.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public interface RemoteTransport {
-  
+
   /**
    * Will be initialized the transport.
-   *
+   * 
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
   void init() throws RemoteWorkspaceInitializationException;
-  
+
   /**
    * Will be closed the transport.
-   *
+   * 
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
   void close() throws RemoteWorkspaceInitializationException;
-  
+
   /**
    * sendWorkspaceData.
-   *
+   * 
    * @param workspaceData
    *          the File with workspace data
    * @throws RemoteWorkspaceInitializationException
@@ -54,34 +55,34 @@ public interface RemoteTransport {
    * @throws NoMemberToSendException
    *           will be generated the NoMemberToSendException
    */
-  void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
-  
-  
+  void sendWorkspaceData(File workspaceData) throws RemoteWorkspaceInitializationException,
+                                            NoMemberToSendException;
+
   /**
    * getWorkspaceData.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
    *          the workspace name
    * @param id
-   *          the channel id 
-   * @return File 
-   *          with workspace data 
+   *          the channel id
+   * @return File with workspace data
    * @throws RemoteWorkspaceInitializationException
    *           will be generated the RemoteWorkspaceInitializerException
    */
   File getWorkspaceData(String repositoryName, String workspaceName, String id) throws RemoteWorkspaceInitializationException;
-  
+
   /**
    * sendError.
-   *
+   * 
    * @param message
    *          the error message
    * @throws RemoteWorkspaceInitializationException
-   *           will be generated the RemoteWorkspaceInitializerException 
+   *           will be generated the RemoteWorkspaceInitializerException
    * @throws NoMemberToSendException
    *           will be generated the NoMemberToSendException
    */
-  void sendError(String message) throws RemoteWorkspaceInitializationException, NoMemberToSendException;
+  void sendError(String message) throws RemoteWorkspaceInitializationException,
+                                NoMemberToSendException;
 }

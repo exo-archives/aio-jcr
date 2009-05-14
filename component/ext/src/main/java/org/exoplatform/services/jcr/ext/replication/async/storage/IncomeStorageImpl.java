@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
@@ -40,7 +39,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 26.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 26.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

@@ -19,38 +19,38 @@ package org.exoplatform.services.jcr.ext.replication.async;
 /**
  * Created by The eXo Platform SAS.
  * 
- * SynchronizationStop will be used for detection 'CANCEL' event.
- * <br/>Date: 14.01.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * SynchronizationStop will be used for detection 'CANCEL' event. <br/>
+ * Date: 14.01.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: SynchronizationStop.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public abstract class SynchronizationLifeCycle {
-  
+
   public static final int INITIALIZED = 0;
-  
-  public static final int STARTED = 1;
-  
-  public static final int STOPPED = 2;
-  
-  private volatile int state = INITIALIZED;
-  
+
+  public static final int STARTED     = 1;
+
+  public static final int STOPPED     = 2;
+
+  private volatile int    state       = INITIALIZED;
+
   public boolean isInitialized() {
     return state == INITIALIZED;
   }
-  
+
   public boolean isStopped() {
     return state == STOPPED;
   }
-  
+
   public boolean isStarted() {
     return state == STARTED;
   }
-  
+
   public void doStop() {
     state = STOPPED;
   }
-  
+
   public void doStart() {
     state = STARTED;
   }

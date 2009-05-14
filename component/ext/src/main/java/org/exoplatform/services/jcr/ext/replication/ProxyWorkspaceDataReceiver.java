@@ -31,8 +31,8 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 
   /**
-   * ProxyWorkspaceDataReceiver  constructor.
-   *
+   * ProxyWorkspaceDataReceiver constructor.
+   * 
    * @param dataManager
    *          the CacheableWorkspaceDataManager
    * @param lockManager
@@ -46,8 +46,8 @@ public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
   }
 
   /**
-   * ProxyWorkspaceDataReceiver  constructor.
-   *
+   * ProxyWorkspaceDataReceiver constructor.
+   * 
    * @param dataManager
    *          the CacheableWorkspaceDataManager
    * @param searchManager
@@ -61,8 +61,8 @@ public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
   }
 
   /**
-   * ProxyWorkspaceDataReceiver  constructor.
-   *
+   * ProxyWorkspaceDataReceiver constructor.
+   * 
    * @param dataManager
    *          the CacheableWorkspaceDataManager
    * @throws RepositoryConfigurationException
@@ -73,8 +73,8 @@ public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
   }
 
   /**
-   * ProxyWorkspaceDataReceiver  constructor.
-   *
+   * ProxyWorkspaceDataReceiver constructor.
+   * 
    * @param dataManager
    *          the CacheableWorkspaceDataManager
    * @param searchManager

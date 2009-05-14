@@ -67,11 +67,11 @@ public class BackupChainLog {
   private LogReader                logReader;
 
   private BackupConfig             config;
-  
+
   private String                   backupId;
-  
+
   private Calendar                 startedTime;
-  
+
   private Calendar                 finishedTime;
   
   private boolean                  finalized;
@@ -103,7 +103,7 @@ public class BackupChainLog {
 
   public BackupChainLog(File log) throws BackupOperationException {
     this.log = log;
-    this.backupId = log.getName().replaceAll(PREFIX, "").replaceAll(SUFFIX, ""); 
+    this.backupId = log.getName().replaceAll(PREFIX, "").replaceAll(SUFFIX, "");
 
     try {
       logReader = new LogReader(log);
@@ -114,7 +114,7 @@ public class BackupChainLog {
       this.startedTime = logReader.getBeginTime();
       this.finishedTime = logReader.getEndTime();
       this.jobEntries = logReader.getJobEntryInfoNormalizeList();
-      
+
       for (JobEntryInfo info : jobEntries) {
         if (info.getType() == BackupJob.INCREMENTAL) {
           config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
@@ -148,7 +148,7 @@ public class BackupChainLog {
       logger.error("Can't add job", e);
     }
   }
-  
+
   public String getBackupId() {
     return backupId;
   }
@@ -181,7 +181,7 @@ public class BackupChainLog {
   public String getLogFilePath() {
     return log.getAbsolutePath();
   }
-  
+
   public Calendar getStartedTime() {
     return startedTime;
   }
@@ -202,7 +202,7 @@ public class BackupChainLog {
     private List<JobEntryInfo> jobEntries;
 
     private List<JobEntryInfo> jobEntriesNormalize;
-    
+
     public LogReader(File logFile) throws FileNotFoundException,
         XMLStreamException,
         FactoryConfigurationError {
@@ -230,10 +230,12 @@ public class BackupChainLog {
     }
 
     public Calendar getEndTime() {
-      return jobEntries.get(jobEntries.size()-1).getDate();
+      return jobEntries.get(jobEntries.size() - 1).getDate();
     }
 
-    public void readLogFile() throws XMLStreamException, MalformedURLException, ValueFormatException {
+    public void readLogFile() throws XMLStreamException,
+                             MalformedURLException,
+                             ValueFormatException {
       boolean endDocument = false;
 
       while (!endDocument) {
@@ -258,7 +260,9 @@ public class BackupChainLog {
       }
     }
 
-    private JobEntryInfo readJobEntryInfo() throws XMLStreamException, MalformedURLException, ValueFormatException {
+    private JobEntryInfo readJobEntryInfo() throws XMLStreamException,
+                                           MalformedURLException,
+                                           ValueFormatException {
       JobEntryInfo info = new JobEntryInfo();
 
       boolean endJobEntryInfo = false;
@@ -278,7 +282,7 @@ public class BackupChainLog {
 
           if (name.equals("url"))
             info.setURL(new URL(readContent()));
-          
+
           if (name.equals("date"))
             info.setDate(JCRDateFormat.parse(readContent()));
 

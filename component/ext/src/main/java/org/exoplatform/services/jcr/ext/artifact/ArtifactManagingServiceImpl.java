@@ -118,7 +118,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   private Map<String, String> mimeMap           = new Hashtable<String, String>();
 
-  private List<String> listErrorPom = new ArrayList<String>();
+  private List<String>        listErrorPom      = new ArrayList<String>();
+
   /**
    * @param params
    * @param repositoryService
@@ -440,13 +441,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
         if (jarfile.exists()) {
           // get descripting from pom file
           try {
-          ArtifactDescriptor artifact = ArtifactDescriptor.createFromPomfile(file);
-          InputStream jarIStream = new FileInputStream(jarfile);
-          InputStream pomIStream = new FileInputStream(file);
+            ArtifactDescriptor artifact = ArtifactDescriptor.createFromPomfile(file);
+            InputStream jarIStream = new FileInputStream(jarfile);
+            InputStream pomIStream = new FileInputStream(file);
 
-          addArtifact(sp, artifact, jarIStream, pomIStream);
+            addArtifact(sp, artifact, jarIStream, pomIStream);
           } catch (org.xml.sax.SAXParseException e) {
-//            throw new ArtifactDescriptorException(FilenameUtils.getName(file.getAbsolutePath()));
+            // throw new ArtifactDescriptorException(FilenameUtils.getName(file.getAbsolutePath()));
             this.listErrorPom.add(FilenameUtils.getName(file.getAbsolutePath()));
             continue;
           }
@@ -468,13 +469,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     String pathToRemove = "";
 
-    if (rootNodePath.length() > 1) { 
- if (rootNodePath.endsWith("/"))
-         pathToRemove = rootNodePath + artifact.getAsPath();
-      else 
-      pathToRemove = rootNodePath + "/" + artifact.getAsPath();
+    if (rootNodePath.length() > 1) {
+      if (rootNodePath.endsWith("/"))
+        pathToRemove = rootNodePath + artifact.getAsPath();
+      else
+        pathToRemove = rootNodePath + "/" + artifact.getAsPath();
     } else {
-      pathToRemove = "/" + artifact.getAsPath(); 
+      pathToRemove = "/" + artifact.getAsPath();
     }
 
     if (log.isDebugEnabled()) {
@@ -483,17 +484,16 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     Node rmNode = (Node) session.getItem(pathToRemove);
 
-//    while (rmNode != root) {
-//      Node parent = rmNode.getParent();
-      rmNode.remove();
-//      if (!parent.hasNodes())
-//        rmNode = parent;
-//      else
-//        break;
-//    }
+    // while (rmNode != root) {
+    // Node parent = rmNode.getParent();
+    rmNode.remove();
+    // if (!parent.hasNodes())
+    // rmNode = parent;
+    // else
+    // break;
+    // }
     session.save();
   }
-
 
   public List getPermission(SessionProvider sp, Descriptor artifact) throws RepositoryException {
 
@@ -514,8 +514,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     List<AccessControlEntry> list = rmNode.getACL().getPermissionEntries();
     return list;
   }
-  
-  
+
   public void changePermission(SessionProvider sp,
                                Descriptor artifact,
                                String identity,
@@ -562,7 +561,6 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     session.save();
   }
 
-
   /*
    * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#searchArtifacts
@@ -578,10 +576,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     String param = criteria.getContainsExpr();
     String pathConstraint = "";
     if (rootNodePath.length() > 1) { // artifact root is some real node
- if (rootNodePath.endsWith("/"))
-      pathConstraint = rootNodePath + "%/" + param + "[%]";
-    else
-      pathConstraint = rootNodePath + "/%/" + param + "[%]";
+      if (rootNodePath.endsWith("/"))
+        pathConstraint = rootNodePath + "%/" + param + "[%]";
+      else
+        pathConstraint = rootNodePath + "/%/" + param + "[%]";
     } else {
       pathConstraint = "/%/" + param + "[%]"; // artifact root is workspace root
     }
@@ -733,7 +731,6 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     return currentVersion;
   }
-
 
   // this method used for writing to repo jars, poms and their checksums
   private void importResource(Node parentNode,
@@ -1066,9 +1063,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     log.info("RootNode from configuration file: " + rootNodePath);
   }
 
-public List getListErrors () {
+  public List getListErrors() {
     return listErrorPom;
   }
-  
 
 }

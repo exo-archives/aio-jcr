@@ -19,7 +19,8 @@ package org.exoplatform.services.jcr.ext.backup.server.bean.response;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 27.03.2009
+ * <br/>
+ * Date: 27.03.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: BackupServiceInfoBeen.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -40,11 +41,11 @@ public class BackupServiceInfoBean {
    * The path to backup log folder.
    */
   private String backupLogDir;
-  
+
   /**
    * The default incremental job period.
    */
-  private Long defaultIncrementalJobPeriod;
+  private Long   defaultIncrementalJobPeriod;
 
   /**
    * BackupServiceInfoBeen constructor.
@@ -54,8 +55,8 @@ public class BackupServiceInfoBean {
   }
 
   /**
-   * BackupServiceInfoBean  constructor.
-   *
+   * BackupServiceInfoBean constructor.
+   * 
    * @param fullBackupType
    *          String, the type of full backup
    * @param incrementalBackupType
@@ -135,9 +136,8 @@ public class BackupServiceInfoBean {
 
   /**
    * getDefaultIncrementalJobPeriod.
-   *
-   * @return Long
-   *           return the default incremental job period
+   * 
+   * @return Long return the default incremental job period
    */
   public Long getDefaultIncrementalJobPeriod() {
     return defaultIncrementalJobPeriod;
@@ -145,7 +145,7 @@ public class BackupServiceInfoBean {
 
   /**
    * setDefaultIncrementalJobPeriod.
-   *
+   * 
    * @param defaultIncrementalJobPeriod
    *          Long, the default incremental job period
    */

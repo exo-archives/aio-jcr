@@ -28,6 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:vitaly.parfonov@gmail.com">Vitaly Parfonov</a>
  * @version $Id: $
  */
@@ -35,14 +36,14 @@ public class RegistryInitializationEntryPlugin extends BaseComponentPlugin {
   /**
    * Class logger.
    */
-  private final Log log = ExoLogger.getLogger(RegistryInitializationEntryPlugin.class);
-  
+  private final Log               log              = ExoLogger.getLogger(RegistryInitializationEntryPlugin.class);
+
   private HashMap<String, String> appConfiguration = new HashMap<String, String>();
-  
-  private String location; 
-  
+
+  private String                  location;
+
   public RegistryInitializationEntryPlugin(InitParams initParams) {
-    
+
     if (initParams != null) {
       PropertiesParam properties = initParams.getPropertiesParam("locations");
       if (properties != null)
@@ -56,13 +57,13 @@ public class RegistryInitializationEntryPlugin extends BaseComponentPlugin {
       }
     }
   }
-  
+
   public HashMap<String, String> getAppConfiguration() {
     return appConfiguration;
   }
-  
+
   public String getLocation() {
     return location;
   }
-  
+
 }

@@ -56,8 +56,8 @@ public class PendingConfirmationChengesLog {
   private String              identifier;
 
   /**
-   * PendingConfirmationChengesLog  constructor.
-   *
+   * PendingConfirmationChengesLog constructor.
+   * 
    * @param changesLog
    *          the ChangesLog with data
    * @param timeStamp
@@ -76,9 +76,8 @@ public class PendingConfirmationChengesLog {
 
   /**
    * getConfirmationList.
-   *
-   * @return List
-   *           return the list of members who has not been saved successfully
+   * 
+   * @return List return the list of members who has not been saved successfully
    */
   public List<String> getConfirmationList() {
     return confirmationList;
@@ -86,7 +85,7 @@ public class PendingConfirmationChengesLog {
 
   /**
    * setConfirmationList.
-   *
+   * 
    * @param confirmationList
    *          the list of members who has been saved successfully
    */
@@ -96,9 +95,8 @@ public class PendingConfirmationChengesLog {
 
   /**
    * getChangesLog.
-   *
-   * @return ItemStateChangesLog 
-   *           return the ChangesLog
+   * 
+   * @return ItemStateChangesLog return the ChangesLog
    */
   public ItemStateChangesLog getChangesLog() {
     return changesLog;
@@ -106,7 +104,7 @@ public class PendingConfirmationChengesLog {
 
   /**
    * setChangesLog.
-   *
+   * 
    * @param changesLog
    *          the ChangesLog
    */
@@ -116,9 +114,8 @@ public class PendingConfirmationChengesLog {
 
   /**
    * getTimeStamp.
-   *
-   * @return Calendar
-   *           return the date of ChangesLog
+   * 
+   * @return Calendar return the date of ChangesLog
    */
   public Calendar getTimeStamp() {
     return timeStamp;
@@ -126,7 +123,7 @@ public class PendingConfirmationChengesLog {
 
   /**
    * setTimeStamp.
-   *
+   * 
    * @param timeStamp
    *          the Calendar
    */
@@ -136,9 +133,8 @@ public class PendingConfirmationChengesLog {
 
   /**
    * getIdentifier.
-   *
-   * @return String
-   *           return the identification string
+   * 
+   * @return String return the identification string
    */
   public String getIdentifier() {
     return identifier;
@@ -146,7 +142,7 @@ public class PendingConfirmationChengesLog {
 
   /**
    * setIdentifier.
-   *
+   * 
    * @param identifier
    *          the identification string
    */
@@ -156,9 +152,8 @@ public class PendingConfirmationChengesLog {
 
   /**
    * getNotConfirmationList.
-   *
-   * @return List
-   *           return the list of members who has not been saved successfully
+   * 
+   * @return List return the list of members who has not been saved successfully
    */
   public List<String> getNotConfirmationList() {
     return notConfirmationList;
@@ -166,7 +161,7 @@ public class PendingConfirmationChengesLog {
 
   /**
    * setNotConfirmationList.
-   *
+   * 
    * @param notConfirmationList
    *          the list of members who has not been saved successfully
    */

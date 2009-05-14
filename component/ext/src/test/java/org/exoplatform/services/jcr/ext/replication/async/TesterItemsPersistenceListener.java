@@ -29,7 +29,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 10.01.2009
+ * <br/>
+ * Date: 10.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -56,7 +57,7 @@ public class TesterItemsPersistenceListener implements ItemsPersistenceListener 
 
   /**
    * Unregister the listener and return collected changes.
-   *
+   * 
    * @return List of TransactionChangesLog
    */
   public List<TransactionChangesLog> pushChanges() {
@@ -68,7 +69,6 @@ public class TesterItemsPersistenceListener implements ItemsPersistenceListener 
     return logsList;
   }
 
-  
   /**
    * {@inheritDoc}
    */

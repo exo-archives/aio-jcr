@@ -42,8 +42,8 @@ import org.exoplatform.services.rest.impl.ResourceBinder;
 import org.exoplatform.services.security.ConversationState;
 
 public class RESTRegistryTest extends BaseStandaloneTest {
-  
-  private static final Log      log = ExoLogger.getLogger(RESTRegistryTest.class);
+
+  private static final Log                  log         = ExoLogger.getLogger(RESTRegistryTest.class);
 
   private ThreadLocalSessionProviderService sessionProviderService;
 
@@ -77,9 +77,9 @@ public class RESTRegistryTest extends BaseStandaloneTest {
     assertNotNull(binder);
     assertNotNull(handler);
 
-//    List<ResourceClass> list = binder.getRootResources();
-//    assertEquals(1, list.size());
-//    assertEquals(3, list.get(0).getResourceMethods().size());
+    // List<ResourceClass> list = binder.getRootResources();
+    // assertEquals(1, list.size());
+    // assertEquals(3, list.get(0).getResourceMethods().size());
 
     log.info("-----REST-----");
 

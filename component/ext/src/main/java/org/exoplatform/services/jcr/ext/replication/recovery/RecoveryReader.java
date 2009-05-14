@@ -51,8 +51,7 @@ public class RecoveryReader extends AbstractFSAccess {
   private static Log            log = ExoLogger.getLogger("ext.RecoveryReader");
 
   /**
-   * The FileCleaner for delete the temporary files and correct
-   * TransientValueData deserialization.
+   * The FileCleaner for delete the temporary files and correct TransientValueData deserialization.
    */
   private FileCleaner           fileCleaner;
 
@@ -74,8 +73,10 @@ public class RecoveryReader extends AbstractFSAccess {
   /**
    * RecoveryReader constructor.
    * 
-   * @param fileCleaner the FileCleaner
-   * @param recoveryDir the recoveryDir
+   * @param fileCleaner
+   *          the FileCleaner
+   * @param recoveryDir
+   *          the recoveryDir
    */
   public RecoveryReader(FileCleaner fileCleaner,
                         File recoveryDir,
@@ -90,10 +91,13 @@ public class RecoveryReader extends AbstractFSAccess {
   /**
    * getChangesLog.
    * 
-   * @param filePath full path to binary ChangesLog
+   * @param filePath
+   *          full path to binary ChangesLog
    * @return TransactionChangesLog return the TransactionChangesLog
-   * @throws IOException will be generated the IOException
-   * @throws ClassNotFoundException will be generated the ClassNotFoundException
+   * @throws IOException
+   *           will be generated the IOException
+   * @throws ClassNotFoundException
+   *           will be generated the ClassNotFoundException
    */
   public TransactionChangesLog getChangesLog(String filePath) throws IOException,
                                                              ClassNotFoundException {
@@ -116,10 +120,13 @@ public class RecoveryReader extends AbstractFSAccess {
   /**
    * getFilePathList.
    * 
-   * @param timeStamp up to date
-   * @param ownName owner name
+   * @param timeStamp
+   *          up to date
+   * @param ownName
+   *          owner name
    * @return List list of binary changes log up to date
-   * @throws IOException will be generated IOException if fail.
+   * @throws IOException
+   *           will be generated IOException if fail.
    */
   public List<String> getFilePathList(Calendar timeStamp, String ownName) throws IOException {
     File dataInfo = new File(recoveryDir.getAbsolutePath() + File.separator + ownName);
@@ -153,7 +160,8 @@ public class RecoveryReader extends AbstractFSAccess {
   /**
    * getTimeStamp.
    * 
-   * @param fileName name of file
+   * @param fileName
+   *          name of file
    * @return Calendar TimeStamp from file name
    */
   private Calendar getTimeStamp(String fileName) {

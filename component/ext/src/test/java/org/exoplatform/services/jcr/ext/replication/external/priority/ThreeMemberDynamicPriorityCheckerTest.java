@@ -45,10 +45,10 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
     relPathArray = new String[filesSize.length];
     fileNameArray = new String[filesSize.length];
-    
+
     Thread.sleep(15000);
   }
-  
+
   public void testDisconnectMaxAndMinPriority() throws Exception {
     MemberInfo maxPriorityMember = getMaxPriorityMember();
 
@@ -71,7 +71,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(25000);
 
     // check is read-only max priority member
@@ -128,7 +128,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(25000);
 
     // check is read-only min priority member
@@ -248,7 +248,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       }
     }
   }
-  
+
   public void testDisconnectMinPriority() throws Exception {
     List<MemberInfo> otherMember = new ArrayList<MemberInfo>();
     otherMember.add(getMiddlePriorityMember());
@@ -271,7 +271,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
     }
 
     Thread.sleep(35000);
-    
+
     // check is read-only min priority member
     {
       String disconnectUrl = "http://" + getMinPriorityMember().getIpAddress() + ":"
@@ -378,7 +378,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
     }
 
     Thread.sleep(35000);
-    
+
     // check is read-only max priority member
     {
       String disconnectUrl = "http://" + getMaxPriorityMember().getIpAddress() + ":"
@@ -481,7 +481,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(35000);
 
     // check is read-only middle priority member

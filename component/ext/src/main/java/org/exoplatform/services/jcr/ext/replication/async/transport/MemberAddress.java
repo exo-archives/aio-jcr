@@ -26,9 +26,11 @@ import org.jgroups.Address;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Wrapper around JGroups Address (To have clean API).
+ * <br/>
+ * Wrapper around JGroups Address (To have clean API).
  * 
- * <br/>Date: 25.12.2008
+ * <br/>
+ * Date: 25.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Member.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -87,5 +89,5 @@ public class MemberAddress implements Externalizable {
    */
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeObject(address);
-  }  
+  }
 }

@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +38,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.picocontainer.Startable;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
@@ -56,24 +50,24 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
- * Created by The eXo Platform SAS . <br/> Centralized collector for JCR based entities (services,
- * apps, users) It contains info about the whole system, i.e. for all repositories used by system.
- * All operations performed in context of "current" repository, i.e.
- * RepositoryService.getCurrentRepository() Each repository has own Registry storage which is placed
- * in workspace configured in "locations" entry like: <properties-param> <name>locations</name>
- * <description>registry locations</description> <property name="repository1" value="workspace1"/>
- * <property name="repository2" value="workspace2"/> The implementation hides storage details from
- * end user
+ * Created by The eXo Platform SAS . <br/>
+ * 
+ * Centralized collector for JCR based entities (services, apps, users) It contains info about the
+ * whole system, i.e. for all repositories used by system. All operations performed in context of
+ * "current" repository, i.e. RepositoryService.getCurrentRepository() Each repository has own
+ * Registry storage which is placed in workspace configured in "locations" entry like:
+ * <properties-param> <name>locations</name> <description>registry locations</description> <property
+ * name="repository1" value="workspace1"/> <property name="repository2" value="workspace2"/> The
+ * implementation hides storage details from end user
  * 
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
- */
-
-/**
- * @author vetal
+ * @version $Id$
  */
 public class RegistryService extends Registry implements Startable {
 
@@ -111,7 +105,8 @@ public class RegistryService extends Registry implements Startable {
   protected boolean                   started              = false;
 
   /**
-   * @param params accepts "locations" properties param
+   * @param params
+   *          accepts "locations" properties param
    * @param repositoryService
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
@@ -210,7 +205,7 @@ public class RegistryService extends Registry implements Startable {
       Session session = session(sessionProvider, repositoryService.getCurrentRepository());
 
       // Don't care about concurrency, Session should be dedicated to the Thread, see JCR-765
-      //synchronized (session) {
+      // synchronized (session) {
       Node node = session.getRootNode().getNode(entryRelPath);
 
       // delete existing entry...
@@ -223,7 +218,7 @@ public class RegistryService extends Registry implements Startable {
 
       // save recreated changes
       session.save();
-      //}
+      // }
     } catch (IOException ioe) {
       throw new RepositoryException("Item " + parentFullPath + "can't be created " + ioe);
     } catch (TransformerException te) {
@@ -392,7 +387,8 @@ public class RegistryService extends Registry implements Startable {
   /**
    * Get value of force-xml-configuration param.
    * 
-   * @param initParams The InitParams
+   * @param initParams
+   *          The InitParams
    * @return force-xml-configuration value if present and false in other case
    */
   public boolean getForceXMLConfigurationValue(InitParams initParams) {

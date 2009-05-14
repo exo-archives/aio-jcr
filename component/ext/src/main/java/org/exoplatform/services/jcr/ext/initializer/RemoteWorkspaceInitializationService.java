@@ -48,7 +48,8 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 16.03.2009
+ * <br/>
+ * Date: 16.03.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteWorkspaceInitializerService.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -206,7 +207,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
   public File getWorkspaceData(String repository, String workspace) throws RemoteWorkspaceInitializationException {
 
     String id = IdGenerator.generate();
-    
+
     AsyncChannelManager channelManager = new AsyncChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
                                                                                           bindIpAddress),
                                                                  channelName + "_" + repository
@@ -236,12 +237,12 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
    * @param workspaceName
    *          the workspace name
    * @param id
-   *         the unique identifier for channel 
+   *          the unique identifier for channel
    * @return Response return the response
    */
   @GET
   @Path("/{repositoryName}/{workspaceName}/{id}/getWorkspaceData")
-  public Response startFullBackup(@PathParam("repositoryName") String repositoryName, 
+  public Response startFullBackup(@PathParam("repositoryName") String repositoryName,
                                   @PathParam("workspaceName") String workspaceName,
                                   @PathParam("id") String id) {
     String result = "OK";
@@ -250,7 +251,8 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
     AsyncChannelManager channelManager = new AsyncChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
                                                                                           bindIpAddress),
                                                                  channelName + "_" + repositoryName
-                                                                     + "_" + workspaceName + "_" + id,
+                                                                     + "_" + workspaceName + "_"
+                                                                     + id,
                                                                  2);
     RemoteTransport remoteTransport = new RemoteTransportImpl(channelManager,
                                                               tempDir,
@@ -270,7 +272,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
         validateRepositoryName(repositoryName);
         validateWorkspaceName(repositoryName, workspaceName);
         BackupChain backupChain = backupManager.startBackup(config);
-        
+
         WorkspaceDataPublisher publisher = new WorkspaceDataPublisher(backupChain, remoteTransport);
         publisher.start();
 
@@ -332,29 +334,28 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
 
   /**
    * The WorkspaceDataPublisher will be published the workspace data.
-   *
+   * 
    */
   class WorkspaceDataPublisher extends Thread {
-    
+
     /**
-     * BACKUP_WAIT_INTERVAL.
-     *   the constants for backup wait interval. 
+     * BACKUP_WAIT_INTERVAL. the constants for backup wait interval.
      */
     private static final int BACKUP_WAIT_INTERVAL = 50;
-    
+
     /**
      * The BackupChain for current backup.
      */
-    private BackupChain     backupChain;
+    private BackupChain      backupChain;
 
     /**
      * The RemoteTransport will be send workspace data .
      */
-    private RemoteTransport transport;
+    private RemoteTransport  transport;
 
     /**
-     * WorkspaceDataPublisher  constructor.
-     *
+     * WorkspaceDataPublisher constructor.
+     * 
      * @param chain
      *          the BackupChain for current backup
      * @param transport
@@ -376,16 +377,16 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
             Thread.yield();
             Thread.sleep(BACKUP_WAIT_INTERVAL);
           }
-         
-         // get path to file with full backup 
-         String path = backupChain.getBackupJobs().get(0).getStorageURL().getPath();
-         
-         // stop backup
-         backupManager.stopBackup(backupChain);
-          
-         // send data 
-         transport.sendWorkspaceData(new File(path));
-         Thread.sleep(BACKUP_WAIT_INTERVAL * 20 * 30);
+
+          // get path to file with full backup
+          String path = backupChain.getBackupJobs().get(0).getStorageURL().getPath();
+
+          // stop backup
+          backupManager.stopBackup(backupChain);
+
+          // send data
+          transport.sendWorkspaceData(new File(path));
+          Thread.sleep(BACKUP_WAIT_INTERVAL * 20 * 30);
         } catch (RemoteWorkspaceInitializationException e) {
           try {
             transport.sendError("Can not send the workspace data : " + e.getMessage());

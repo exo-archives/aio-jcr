@@ -22,7 +22,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesFileValidator.java 111 2008-11-11 11:11:11Z serg $
@@ -31,10 +32,14 @@ public class ChangesFileValidator {
 
   /**
    * Check is ChangesFile's content checksum equals its checksum property.
-   * @param file ChangesFile
+   * 
+   * @param file
+   *          ChangesFile
    * @return <code>true</code> if equals, <code>false</code> in other case.
-   * @throws NoSuchAlgorithmException if the <code>MD5</code> algorithm is not available in the caller's environment.
-   * @throws IOException if exception occurs on file content read.
+   * @throws NoSuchAlgorithmException
+   *           if the <code>MD5</code> algorithm is not available in the caller's environment.
+   * @throws IOException
+   *           if exception occurs on file content read.
    */
   public boolean validate(ChangesFile file) throws NoSuchAlgorithmException, IOException {
 

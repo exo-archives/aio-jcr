@@ -21,16 +21,17 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 25.12.2008
+ * <br/>
+ * Date: 25.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Member.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class Member {
 
-  private final MemberAddress       address;
+  private final MemberAddress address;
 
-  private final int                 priority;
+  private final int           priority;
 
   /**
    * Member constructor for <code>Subscriber</code>.
@@ -46,8 +47,8 @@ public class Member {
   }
 
   /**
-   * Get member name in format "priority. address". <br/>For information purpose only. Use address
-   * and priority in comparisons.
+   * Get member name in format "priority. address". <br/>
+   * For information purpose only. Use address and priority in comparisons.
    * 
    * @return String
    * 
@@ -94,14 +95,14 @@ public class Member {
   }
 
   // TODO
-//  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//    priority = in.readInt();
-//    address = (MemberAddress) in.readObject();
-//  }
-//
-//  public void writeExternal(ObjectOutput out) throws IOException {
-//    out.writeInt(priority);
-//    out.writeObject(address);
-//  }
+  // public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+  // priority = in.readInt();
+  // address = (MemberAddress) in.readObject();
+  // }
+  //
+  // public void writeExternal(ObjectOutput out) throws IOException {
+  // out.writeInt(priority);
+  // out.writeObject(address);
+  // }
 
 }

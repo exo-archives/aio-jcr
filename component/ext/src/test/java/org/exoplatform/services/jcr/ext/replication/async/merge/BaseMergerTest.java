@@ -24,8 +24,6 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PropertyType;
 
-import org.jgroups.stack.IpAddress;
-
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -47,6 +45,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
+import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -614,7 +613,7 @@ public class BaseMergerTest extends AbstractAsyncUseCases {
     // TODO priority is dumy here
     localMember = new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 1);
     local = new TesterChangesStorage<ItemState>(localMember, fileCleaner, maxBufferSize, holder); // TODO
-                                                                                                  // member
+    // member
     income = new TesterChangesStorage<ItemState>(localMember, fileCleaner, maxBufferSize, holder);
   }
 

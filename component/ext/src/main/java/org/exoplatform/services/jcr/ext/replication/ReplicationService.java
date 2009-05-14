@@ -147,20 +147,17 @@ public class ReplicationService implements Startable, ManagementAware {
   private String              channelConfig;
 
   /**
-   * The list of repositories. Fore this repositories will be worked
-   * replication.
+   * The list of repositories. Fore this repositories will be worked replication.
    */
   private List<String>        repoNamesList;
 
   /**
-   * If ChangesLog was not delivered, then ChangesLog will be saved in this
-   * folder.
+   * If ChangesLog was not delivered, then ChangesLog will be saved in this folder.
    */
   private File                recoveryDir;
 
   /**
-   * If ChangesLog was not delivered, then ChangesLog will be saved in this
-   * folder.
+   * If ChangesLog was not delivered, then ChangesLog will be saved in this folder.
    */
   private String              recDir;
 
@@ -180,14 +177,12 @@ public class ReplicationService implements Startable, ManagementAware {
   private String              participantsCluster;
 
   /**
-   * The definition timeout, how many time will be waited for successful save
-   * the Changeslog.
+   * The definition timeout, how many time will be waited for successful save the Changeslog.
    */
   private long                waitConfirmation;
 
   /**
-   * The definition timeout, how many time will be waited for successful save
-   * the Changeslog.
+   * The definition timeout, how many time will be waited for successful save the Changeslog.
    */
   private String              sWaitConfirmation;
 
@@ -212,14 +207,14 @@ public class ReplicationService implements Startable, ManagementAware {
   private String              sBackupDir;
 
   /**
-   * The definition of backup delay. Will be waited 'backupDelayTime'
-   * milliseconds before start full backup.
+   * The definition of backup delay. Will be waited 'backupDelayTime' milliseconds before start full
+   * backup.
    */
   private long                backupDelayTime       = 0;
 
   /**
-   * The definition of backup delay. Will be waited 'backupDelayTime'
-   * milliseconds before start full backup.
+   * The definition of backup delay. Will be waited 'backupDelayTime' milliseconds before start full
+   * backup.
    */
   private String              sDelayTime;
 
@@ -234,8 +229,7 @@ public class ReplicationService implements Startable, ManagementAware {
   private boolean             started;
 
   /**
-   * The definition of priority type. (PRIORITY_STATIC_TYPE or
-   * PRIORITY_DYNAMIC_TYPE)
+   * The definition of priority type. (PRIORITY_STATIC_TYPE or PRIORITY_DYNAMIC_TYPE)
    */
   private String              priprityType;
 
@@ -257,10 +251,12 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * ReplicationService constructor.
    * 
-   * @param repoService the RepositoryService
-   * @param params the configuration parameters
-   * @throws RepositoryConfigurationException will be generated
-   *           RepositoryConfigurationException
+   * @param repoService
+   *          the RepositoryService
+   * @param params
+   *          the configuration parameters
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
    */
   public ReplicationService(RepositoryService repoService, InitParams params) throws RepositoryConfigurationException {
     this(repoService, params, null);
@@ -269,11 +265,14 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * ReplicationService constructor.
    * 
-   * @param repoService the RepositoryService
-   * @param params the configuration parameters
-   * @param registryService the RegistryService
-   * @throws RepositoryConfigurationException will be generated
-   *           RepositoryConfigurationException
+   * @param repoService
+   *          the RepositoryService
+   * @param params
+   *          the configuration parameters
+   * @param registryService
+   *          the RegistryService
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
    */
   public ReplicationService(RepositoryService repoService,
                             InitParams params,
@@ -345,7 +344,7 @@ public class ReplicationService implements Startable, ManagementAware {
 
               String uniqueNoame = jcrRepository.getName() + "_" + workspaces[wIndex];
               if (testMode != null && "true".equals(testMode))
-                uniqueNoame = "Test_Channel234" ;
+                uniqueNoame = "Test_Channel234";
 
               ChannelManager channelManager = new ChannelManager(props, uniqueNoame);
 
@@ -433,12 +432,15 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * initWorkspaceBackup. Will be initialized BackupCreator.
    * 
-   * @param repositoryName the name of repository
-   * @param workspaceName the name of workspace
+   * @param repositoryName
+   *          the name of repository
+   * @param workspaceName
+   *          the name of workspace
    * @return BackupCreator return the BackupCreator
-   * @throws RepositoryException will be generated RepositoryException
-   * @throws RepositoryConfigurationException will be generated
-   *           RepositoryConfigurationException
+   * @throws RepositoryException
+   *           will be generated RepositoryException
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
    */
   private BackupCreator initWorkspaceBackup(String repositoryName, String workspaceName) throws RepositoryException,
                                                                                         RepositoryConfigurationException {
@@ -581,8 +583,10 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * Get attribute value.
    * 
-   * @param element The element to get attribute value
-   * @param attr The attribute name
+   * @param element
+   *          The element to get attribute value
+   * @param attr
+   *          The attribute name
    * @return Value of attribute if present and null in other case
    */
   private String getAttributeSmart(Element element, String attr) {
@@ -592,9 +596,12 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * Set attribute value. If value is null the attribute will be removed.
    * 
-   * @param element The element to set attribute value
-   * @param attr The attribute name
-   * @param value The value of attribute
+   * @param element
+   *          The element to set attribute value
+   * @param attr
+   *          The attribute name
+   * @param value
+   *          The value of attribute
    */
   private void setAttributeSmart(Element element, String attr, String value) {
     if (value == null) {

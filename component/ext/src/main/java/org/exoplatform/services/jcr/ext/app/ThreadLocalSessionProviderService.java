@@ -19,9 +19,9 @@ package org.exoplatform.services.jcr.ext.app;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
- * Created by The eXo Platform SAS .<br/> SessionProviderService implementation where
- * SessionProviders are stored in Thread Local. In this implementation the KEY make no sense, null
- * value can be passed as a key.
+ * Created by The eXo Platform SAS .<br/>
+ * SessionProviderService implementation where SessionProviders are stored in Thread Local. In this
+ * implementation the KEY make no sense, null value can be passed as a key.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ThreadLocalSessionProviderService.java 13869 2008-05-05 08:40:10Z pnedonosko $
@@ -34,8 +34,8 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
   private static ThreadLocal<SessionProvider> systemSessionProviderKeeper;
 
   /**
-   * ThreadLocalSessionProviderService  constructor.
-   *
+   * ThreadLocalSessionProviderService constructor.
+   * 
    */
   public ThreadLocalSessionProviderService() {
     sessionProviderKeeper = new ThreadLocal<SessionProvider>();

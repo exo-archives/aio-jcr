@@ -37,10 +37,8 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex
- *         Reshetnyak</a>
- * @version $Id: ReplicationTestService.java 23164 2008-11-14 14:16:11Z dkatayev
- *          $
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
 
 @Path("/replication-test/")
@@ -54,7 +52,7 @@ public class ReplicationTestService implements ResourceContainer {
     /**
      * The base path to this service.
      */
-    public static final String BASE_URL         = "/rest/replication-test";
+    public static final String BASE_URL = "/rest/replication-test";
 
     /**
      * Definition the operation types.
@@ -233,10 +231,14 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * ReplicationTestService constructor.
    * 
-   * @param repoService the RepositoryService
-   * @param replicationService the ReplicationService
-   * @param backupManager the BackupManager
-   * @param params the configuration parameters
+   * @param repoService
+   *          the RepositoryService
+   * @param replicationService
+   *          the ReplicationService
+   * @param backupManager
+   *          the BackupManager
+   * @param params
+   *          the configuration parameters
    */
   public ReplicationTestService(RepositoryService repoService,
                                 ReplicationService replicationService,
@@ -251,9 +253,12 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * ReplicationTestService constructor.
    * 
-   * @param repoService the RepositoryService
-   * @param backupManager the BackupManager
-   * @param params the configuration parameters
+   * @param repoService
+   *          the RepositoryService
+   * @param backupManager
+   *          the BackupManager
+   * @param params
+   *          the configuration parameters
    */
   public ReplicationTestService(RepositoryService repoService,
                                 BackupManager backupManager,
@@ -264,13 +269,20 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * addNTFile.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param fileName the file name
-   * @param fileSize the file size
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param fileName
+   *          the file name
+   * @param fileSize
+   *          the file size
    * @return Response return the response
    */
   @GET
@@ -295,13 +307,20 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * checkNTFile.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param fileName the file name
-   * @param fileSize the file size
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param fileName
+   *          the file name
+   * @param fileSize
+   *          the file size
    * @return Response return the response
    */
   @GET
@@ -326,11 +345,16 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * startBackup.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param incementalPeriod the period for incremental backup (seconds)
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param incementalPeriod
+   *          the period for incremental backup (seconds)
    * @return Response return the response
    */
   @GET
@@ -362,11 +386,16 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * lock.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
    * @return Response return the response
    */
   @GET
@@ -389,11 +418,16 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * checkLock.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
    * @return Response return the response
    */
   @GET
@@ -416,12 +450,18 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * addVersionNode.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param value value to versionable node
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param value
+   *          value to versionable node
    * @return Response return the response
    */
   @GET
@@ -445,12 +485,18 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * checkVersionNode.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param checkedValue checking value to versionable node
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param checkedValue
+   *          checking value to versionable node
    * @return Response return the response
    */
   @GET
@@ -474,12 +520,18 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * addNewVersion.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param newValue new value to versionable node
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param newValue
+   *          new value to versionable node
    * @return Response return the response
    */
   @GET
@@ -503,11 +555,16 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * restorePreviousVersion.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
    * @return Response return the response
    */
   @GET
@@ -530,11 +587,16 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * restoreBaseVersion.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
    * @return Response return the response
    */
   @GET
@@ -557,12 +619,18 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * delete.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param nodeName the name of deleting node
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the name of deleting node
    * @return Response return the response
    */
   @GET
@@ -586,12 +654,18 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * checkDelete.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param nodeName the name of deleted node
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the name of deleted node
    * @return Response return the response
    */
   @GET
@@ -615,14 +689,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * workspaceCopy.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param srcRepoPath the source repository path
-   * @param nodeName the source node name
-   * @param destNodeName the destination node name
-   * @param contentSize the content size
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name
+   * @param destNodeName
+   *          the destination node name
+   * @param contentSize
+   *          the content size
    * @return Response return the response
    */
   @GET
@@ -651,14 +733,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * workspaceMove.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param srcRepoPath the source repository path
-   * @param nodeName the source node name
-   * @param destNodeName the destination node name
-   * @param contentSize the content size
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name
+   * @param destNodeName
+   *          the destination node name
+   * @param contentSize
+   *          the content size
    * @return Response return the response
    */
   @GET
@@ -687,14 +777,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * sessionMove.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param srcRepoPath the source repository path
-   * @param nodeName the source node name
-   * @param destNodeName the destination node name
-   * @param contentSize the content size
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name
+   * @param destNodeName
+   *          the destination node name
+   * @param contentSize
+   *          the content size
    * @return Response return the response
    */
   @GET
@@ -720,14 +818,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * checkCopyMoveNode.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param srcRepoPath the source repository path
-   * @param nodeName the source node name
-   * @param destNodeName the destination node name
-   * @param contentSize the content size
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name
+   * @param destNodeName
+   *          the destination node name
+   * @param contentSize
+   *          the content size
    * @return Response return the response
    */
   @GET
@@ -756,10 +862,14 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * disconnectClusterNode.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
    * @return Response return the response
    */
   @GET
@@ -781,11 +891,16 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * disconnectClusterNodeById.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param id the id
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param id
+   *          the id
    * @return Response return the response
    */
   @GET
@@ -808,10 +923,14 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * allowConnect.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
    * @return Response return the response
    */
   @GET
@@ -833,10 +952,14 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * allowConnectForced.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
    * @return Response return the response
    */
   @GET
@@ -858,10 +981,14 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * workspaceIsReadOnly.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
    * @return Response return the response
    */
   @GET
@@ -883,14 +1010,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * createContent.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param fileName the file name
-   * @param iterations how many iterations for simple content
-   * @param simpleContent the simple content
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param fileName
+   *          the file name
+   * @param iterations
+   *          how many iterations for simple content
+   * @param simpleContent
+   *          the simple content
    * @return Response return the response
    */
   @GET
@@ -919,14 +1054,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * compareData.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param srcRepoPath the source repository path
-   * @param srcFileName the source file name
-   * @param destRepoPath the destination repository path
-   * @param destFileName the destination file name
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param srcFileName
+   *          the source file name
+   * @param destRepoPath
+   *          the destination repository path
+   * @param destFileName
+   *          the destination file name
    * @return Response return the response
    */
   @GET
@@ -955,15 +1098,24 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * startThreadUpdater.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param srcRepoPath the source repository path
-   * @param srcFileName the source file name
-   * @param destRepoPath the destination repository path
-   * @param destFileName the destination file name
-   * @param iterations how many iterations the thread
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param srcFileName
+   *          the source file name
+   * @param destRepoPath
+   *          the destination repository path
+   * @param destFileName
+   *          the destination file name
+   * @param iterations
+   *          how many iterations the thread
    * @return Response return the response
    */
   @GET
@@ -994,12 +1146,18 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * createBaseNode.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param nodeName the node name
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
    * @return Response return the response
    */
   @GET
@@ -1023,13 +1181,20 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * addEmptyNode.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param nodeName the node name
-   * @param iterations how many adding the empty node
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
+   * @param iterations
+   *          how many adding the empty node
    * @return Response return the response
    */
   @GET
@@ -1054,14 +1219,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * addStringPropertyOnly.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param nodeName the node name
-   * @param size the size of string property
-   * @param iterations how many adding the string property
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
+   * @param size
+   *          the size of string property
+   * @param iterations
+   *          how many adding the string property
    * @return Response return the response
    */
   @GET
@@ -1090,14 +1263,22 @@ public class ReplicationTestService implements ResourceContainer {
   /**
    * addBinaryPropertyOnly.
    * 
-   * @param repositoryName the repository name
-   * @param workspaceName the workspace name
-   * @param userName the user name
-   * @param password the password
-   * @param repoPath the repository path
-   * @param nodeName the node name
-   * @param size the size of binary property
-   * @param iterations how many adding the binary property
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
+   * @param size
+   *          the size of binary property
+   * @param iterations
+   *          how many adding the binary property
    * @return Response return the response
    */
   @GET

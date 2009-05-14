@@ -35,10 +35,10 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: LocalStorageMultithreadTest.java 111 2008-11-11 11:11:11Z serg $
@@ -46,8 +46,9 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
   final int subnodesCount = 100;
-  final int threadCount = 10;
-  
+
+  final int threadCount   = 10;
+
   public class NodeWorker extends Thread {
 
     String  threadName;
@@ -62,7 +63,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     public void run() {
       try {
         Node root = sess.getRootNode();
-      //  System.out.println(threadName + " ADDED");
+        // System.out.println(threadName + " ADDED");
         Node n = root.addNode(threadName);
 
         root.save();
@@ -71,7 +72,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         for (int i = 0; i < subnodesCount; i++) {
           Node sn = n.addNode("subnode" + i);
           sn.setProperty("prop" + i, "blahblah");
-        //  System.out.println(threadName + " " + sn.getName() + " ADDED");
+          // System.out.println(threadName + " " + sn.getName() + " ADDED");
           root.save();
         }
 
@@ -83,7 +84,6 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
   public void testMultithread() throws Exception {
 
-    
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
     PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
@@ -92,9 +92,12 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
     File dir = new File("target/LocalStorageMultiThread");
     dir.mkdirs();
-    
+
     // storage created and listen for a JCR changes
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), fileCleaner, maxBufferSize, holder);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),
+                                                    fileCleaner,
+                                                    maxBufferSize,
+                                                    holder);
     dataManager.addItemPersistenceListener(storage);
 
     // concurent work in JCR
@@ -125,22 +128,22 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     Iterator<TransactionChangesLog> it = logs.iterator();
 
     Iterator<ItemState> ch = storage.getLocalChanges(false).getChanges();
-   /* int c = 0;
-    while (it.hasNext()) {
-      TransactionChangesLog tlog = it.next();
-      System.out.println(c + ":  " + tlog.dump());
-      c++;
-    }
+    /* int c = 0;
+     while (it.hasNext()) {
+       TransactionChangesLog tlog = it.next();
+       System.out.println(c + ":  " + tlog.dump());
+       c++;
+     }
 
-    it = logs.iterator();*/
+     it = logs.iterator();*/
 
-  /* while (it.hasNext()) {
-      TransactionChangesLog tlog = it.next();
+    /* while (it.hasNext()) {
+        TransactionChangesLog tlog = it.next();
 
-      checkIteratorSecond(tlog.getAllStates().iterator(), ch, false);
-    }
+        checkIteratorSecond(tlog.getAllStates().iterator(), ch, false);
+      }
 
-    System.out.println(" FAILS -- " + fails);*/
+      System.out.println(" FAILS -- " + fails);*/
 
     checkLocalStorage(storage);
 
@@ -195,30 +198,31 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
   }
 
   static int fails = 0;
-/*
-  private void checkIteratorSecond(Iterator<ItemState> expected,
-                                   Iterator<ItemState> changes,
-                                   boolean checkSize) throws Exception {
 
-    while (expected.hasNext()) {
+  /*
+    private void checkIteratorSecond(Iterator<ItemState> expected,
+                                     Iterator<ItemState> changes,
+                                     boolean checkSize) throws Exception {
 
-      assertTrue(changes.hasNext());
-      ItemState expect = expected.next();
-      ItemState elem = changes.next();
+      while (expected.hasNext()) {
 
-      assertEquals(expect.getState(), elem.getState());
-      // assertEquals(expect.getAncestorToSave(), elem.getAncestorToSave());
-      ItemData expData = expect.getData();
-      ItemData elemData = elem.getData();
-      if (!expData.getQPath().equals(elemData.getQPath()))
-        fails++;
+        assertTrue(changes.hasNext());
+        ItemState expect = expected.next();
+        ItemState elem = changes.next();
 
+        assertEquals(expect.getState(), elem.getState());
+        // assertEquals(expect.getAncestorToSave(), elem.getAncestorToSave());
+        ItemData expData = expect.getData();
+        ItemData elemData = elem.getData();
+        if (!expData.getQPath().equals(elemData.getQPath()))
+          fails++;
+
+      }
     }
-  }
-*/
+  */
   private void checkLocalStorage(LocalStorageImpl storage) throws Exception {
 
-    final int size = (threadCount*(subnodesCount*3+2));
+    final int size = (threadCount * (subnodesCount * 3 + 2));
     Iterator<ItemState> it = storage.getLocalChanges(false).getChanges();
 
     // store it as array
@@ -239,21 +243,21 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         List<ItemState> subnodes = new ArrayList<ItemState>();
         // find all subnodes
         for (int j = i; j < size; j++) {
-          //System.out.println(items[j].getData().getQPath().getAsString());
+          // System.out.println(items[j].getData().getQPath().getAsString());
           if (items[j].getData().getParentIdentifier().equals(state.getIdentifier())) {
             subnodes.add(items[j]);
-            //System.out.print(" ADDED");  
+            // System.out.print(" ADDED");
           }
         }
 
         // check size (+1 primary type)
-        assertEquals(subnodesCount+1, subnodes.size());
-        
-        //check order
-        for(int j=1;j<(subnodesCount+1); j++){
+        assertEquals(subnodesCount + 1, subnodes.size());
+
+        // check order
+        for (int j = 1; j < (subnodesCount + 1); j++) {
           String secondname = subnodes.get(j).getData().getQPath().getName().getName();
-          int ind = Integer.parseInt(secondname.substring(7)); 
-          assertEquals(j-1,ind);
+          int ind = Integer.parseInt(secondname.substring(7));
+          assertEquals(j - 1, ind);
         }
         dirscount++;
       }

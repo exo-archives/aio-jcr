@@ -22,7 +22,8 @@ import java.util.Collection;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 13.04.2009
+ * <br/>
+ * Date: 13.04.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: BackupJobConfig.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -32,40 +33,37 @@ public class BackupJobConfig {
    * The FQN (Fully qualified name) to BackupJob class .
    */
   private String           backupJob;
-  
+
   /**
    * The parameters to BackupJob.
    */
   private Collection<Pair> parameters;
-  
+
   /**
-   * BackupJobConfig  constructor.
-   * The empty constructor.
+   * BackupJobConfig constructor. The empty constructor.
    */
   public BackupJobConfig() {
     backupJob = "";
     parameters = new ArrayList<Pair>();
   }
-  
+
   /**
-   * BackupJobConfig  constructor.
-   *
+   * BackupJobConfig constructor.
+   * 
    * @param backupJob
    *          String, the FQN (Fully qualified name) to BackupJob class .
    * @param parameters
    *          Collection, the list of parameters
    */
-  public BackupJobConfig(String backupJob,
-                         Collection<Pair> parameters) {
+  public BackupJobConfig(String backupJob, Collection<Pair> parameters) {
     this.backupJob = backupJob;
     this.parameters = parameters;
   }
 
   /**
    * getBackupJob.
-   *
-   * @return String
-   *           return the FQN to BackupJob  
+   * 
+   * @return String return the FQN to BackupJob
    */
   public String getBackupJob() {
     return backupJob;
@@ -73,9 +71,9 @@ public class BackupJobConfig {
 
   /**
    * setBackupJob.
-   *
+   * 
    * @param backupJob
-   *          String, the FQN to BackupJob 
+   *          String, the FQN to BackupJob
    */
   public void setBackupJob(String backupJob) {
     this.backupJob = backupJob;
@@ -83,9 +81,8 @@ public class BackupJobConfig {
 
   /**
    * getParameters.
-   *
-   * @return Collection
-   *           the parameters to BAckupJob 
+   * 
+   * @return Collection the parameters to BAckupJob
    */
   public Collection<Pair> getParameters() {
     return parameters;
@@ -93,7 +90,7 @@ public class BackupJobConfig {
 
   /**
    * setParameters.
-   *
+   * 
    * @param parameters
    *          Collection, the parameters to BAckupJob
    */

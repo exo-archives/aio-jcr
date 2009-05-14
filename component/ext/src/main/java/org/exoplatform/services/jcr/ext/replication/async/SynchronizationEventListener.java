@@ -23,7 +23,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 14.01.2009
+ * <br/>
+ * Date: 14.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -31,7 +32,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 public interface SynchronizationEventListener {
 
   /**
-   * On sycnhronization Start event action. <br/> operations.
+   * On sycnhronization Start event action. <br/>
+   * operations.
    * <ul>
    * <li>Publisher will start send changes.</li>
    * <li>Subscriber will prepare the storage for memebers changes.</li>
@@ -41,7 +43,8 @@ public interface SynchronizationEventListener {
   void onStart(List<MemberAddress> members);
 
   /**
-   * On sycnhronization Cancel event action. <br/> operations.
+   * On sycnhronization Cancel event action. <br/>
+   * operations.
    * <ul>
    * <li>Publisher will not send more changes.</li>
    * <li>Subscriber will stops changes receive process or stops the merge of received changes. Then

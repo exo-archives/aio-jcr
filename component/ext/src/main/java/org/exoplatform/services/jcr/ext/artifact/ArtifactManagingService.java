@@ -127,7 +127,7 @@ public interface ArtifactManagingService {
   void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, File folder) throws RepositoryException,
                                                                                       FileNotFoundException;
 
- /**
+  /**
    * Returns acess control list for the specified artifact
    * 
    * @param sp
@@ -136,7 +136,7 @@ public interface ArtifactManagingService {
    *          the artifact which ACL we need to get
    * @throws RepositoryException
    */
-  List getPermission (SessionProvider sp, Descriptor artifact) throws RepositoryException;
+  List getPermission(SessionProvider sp, Descriptor artifact) throws RepositoryException;
 
   /**
    * Changes acess permissions for the specified artifact ang given identity
@@ -145,15 +145,19 @@ public interface ArtifactManagingService {
    *          the session provider
    * @param artifact
    *          the artifact which will be changed
-   *  @param identity
-   *          identity for addin/removing permissions 
-   *  @param permissions
+   * @param identity
+   *          identity for addin/removing permissions
+   * @param permissions
    *          array of permissions to set/remove
-   *  @param delete
-   *                    
+   * @param delete
+   * 
    * @throws RepositoryException
    */
-  void changePermission (SessionProvider sp, Descriptor artifact, String identity, String[] permissions, boolean delete ) throws RepositoryException;
-  
-   List getListErrors ();
+  void changePermission(SessionProvider sp,
+                        Descriptor artifact,
+                        String identity,
+                        String[] permissions,
+                        boolean delete) throws RepositoryException;
+
+  List getListErrors();
 }

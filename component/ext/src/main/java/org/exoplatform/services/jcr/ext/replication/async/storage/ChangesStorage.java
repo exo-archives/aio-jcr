@@ -30,9 +30,11 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Actually ChangesLog impl. But without getAllStates().
+ * <br/>
+ * Actually ChangesLog impl. But without getAllStates().
  * 
- * <br/>Date: 16.12.2008
+ * <br/>
+ * Date: 16.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -42,8 +44,9 @@ public interface ChangesStorage<T extends ItemState> {
   /**
    * Return this storage backed ChangesFile(s).
    * 
-   * <br/>WARN! Be careful using this method. Each ChangesStorage impl uses different formats of
-   * content stored in ChangesFile.
+   * <br/>
+   * WARN! Be careful using this method. Each ChangesStorage impl uses different formats of content
+   * stored in ChangesFile.
    * 
    * @return array of ChangesFile
    */

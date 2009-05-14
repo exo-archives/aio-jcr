@@ -19,24 +19,27 @@ package org.exoplatform.services.jcr.ext.replication.async;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 29.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 29.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface LocalEventProducer {
-  
+
   /**
    * Add SynchronizationEventListener.
-   *
-   * @param listener LocalEventListener
+   * 
+   * @param listener
+   *          LocalEventListener
    */
   void addLocalListener(LocalEventListener listener);
 
   /**
    * Remove SynchronizationEventListener.
-   *
-   * @param listener LocalEventListener
+   * 
+   * @param listener
+   *          LocalEventListener
    */
-  void removeLocalListener(LocalEventListener listener); 
+  void removeLocalListener(LocalEventListener listener);
 }

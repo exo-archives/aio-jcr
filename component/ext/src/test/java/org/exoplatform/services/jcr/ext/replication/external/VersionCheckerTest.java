@@ -182,7 +182,8 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
-          + "/" + relPathArray[i] + "/" + ReplicationTestService.Constants.OperationType.RESTORE_RPEVIOUS_VERSION;
+          + "/" + relPathArray[i] + "/"
+          + ReplicationTestService.Constants.OperationType.RESTORE_RPEVIOUS_VERSION;
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
       String result = client.execute(url);
       System.out.println(url);
@@ -223,7 +224,8 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
-          + "/" + relPathArray[i] + "/" + ReplicationTestService.Constants.OperationType.RESTORE_BASE_VERSION;
+          + "/" + relPathArray[i] + "/"
+          + ReplicationTestService.Constants.OperationType.RESTORE_BASE_VERSION;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
       String result = client.execute(url);

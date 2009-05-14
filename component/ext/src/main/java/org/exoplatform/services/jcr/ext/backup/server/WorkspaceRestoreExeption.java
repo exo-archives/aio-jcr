@@ -19,16 +19,17 @@ package org.exoplatform.services.jcr.ext.backup.server;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 24.02.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 24.02.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: WorkspaceRestoreExeption.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class WorkspaceRestoreExeption extends Exception {
 
   /**
-   * WorkspaceRestoreExeption  constructor.
-   *
+   * WorkspaceRestoreExeption constructor.
+   * 
    * @param message
    *          String, the exception message
    */
@@ -37,20 +38,20 @@ public class WorkspaceRestoreExeption extends Exception {
   }
 
   /**
-   * WorkspaceRestoreExeption  constructor.
-   *
+   * WorkspaceRestoreExeption constructor.
+   * 
    * @param message
    *          String, the exception message
    * @param e
-   *          the cause exception 
+   *          the cause exception
    */
   public WorkspaceRestoreExeption(String message, Throwable e) {
     super(message, e);
   }
 
   /**
-   * WorkspaceRestoreExeption  constructor.
-   *
+   * WorkspaceRestoreExeption constructor.
+   * 
    * @param e
    *          the cause exception
    */

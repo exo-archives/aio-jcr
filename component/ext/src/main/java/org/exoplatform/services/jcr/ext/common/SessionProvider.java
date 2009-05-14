@@ -34,9 +34,9 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 
 /**
- * Created by The eXo Platform SAS .<br/> Provides JCR Session for client program. Usually it is per
- * client thread object Session creates with Repository.login(..) method and then can be stored in
- * some cache if neccessary.
+ * Created by The eXo Platform SAS .<br/>
+ * Provides JCR Session for client program. Usually it is per client thread object Session creates
+ * with Repository.login(..) method and then can be stored in some cache if neccessary.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id$
@@ -63,7 +63,7 @@ public class SessionProvider implements SessionLifecycleListener {
 
   private String                             currentWorkspace;
 
-  private boolean closed;
+  private boolean                            closed;
 
   /**
    * Creates SessionProvider for certain identity.

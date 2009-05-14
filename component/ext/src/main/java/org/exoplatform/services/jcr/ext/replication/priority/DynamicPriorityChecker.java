@@ -48,8 +48,8 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
   private int        previousMaxPriority;
 
   /**
-   * DynamicPriorityChecker  constructor.
-   *
+   * DynamicPriorityChecker constructor.
+   * 
    * @param channelManager
    *          the ChannelManager
    * @param ownPriority
@@ -57,7 +57,7 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
    * @param ownName
    *          the own name
    * @param otherParticipants
-   *          the list of names to other participants  
+   *          the list of names to other participants
    */
   public DynamicPriorityChecker(ChannelManager channelManager,
                                 int ownPriority,
@@ -122,9 +122,8 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
 
   /**
    * getCurrentMaxPriority.
-   *
-   * @return int
-   *           return the current max value
+   * 
+   * @return int return the current max value
    */
   private int getCurrentMaxPriority() {
     int max = Integer.MIN_VALUE;

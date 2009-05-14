@@ -19,7 +19,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
@@ -27,10 +26,12 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Handles remote item export request. Returns item copy from a remote host. Remote item will
- * be returned as list of <code>ItemState</code>.
+ * <br/>
+ * Handles remote item export request. Returns item copy from a remote host. Remote item will be
+ * returned as list of <code>ItemState</code>.
  * 
- * <br/>Date: 11.12.2008
+ * <br/>
+ * Date: 11.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -54,10 +55,10 @@ public interface RemoteExporter {
    * @throws RemoteExportException
    */
   ChangesStorage<ItemState> exportItem(String nodeId) throws RemoteExportException;
-  
+
   /**
    * Release resources (streams close).
-   *
+   * 
    */
   void cleanup();
 

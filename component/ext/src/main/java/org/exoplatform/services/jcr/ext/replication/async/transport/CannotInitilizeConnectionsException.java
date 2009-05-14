@@ -19,15 +19,16 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 16.12.2008
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 16.12.2008
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: CannotInitilizeConnectionsException.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class CannotInitilizeConnectionsException extends Exception {
   /**
-   * CannotInitilizeConnectionsException  constructor.
-   *
+   * CannotInitilizeConnectionsException constructor.
+   * 
    * @param message
    *          description of CannotInitilizeConnectionsException
    */
@@ -36,8 +37,8 @@ public class CannotInitilizeConnectionsException extends Exception {
   }
 
   /**
-   * CannotInitilizeConnectionsException  constructor.
-   *
+   * CannotInitilizeConnectionsException constructor.
+   * 
    * @param message
    *          description of CannotInitilizeConnectionsException
    * @param e
@@ -48,10 +49,10 @@ public class CannotInitilizeConnectionsException extends Exception {
   }
 
   /**
-   * CannotInitilizeConnectionsException  constructor.
-   *
+   * CannotInitilizeConnectionsException constructor.
+   * 
    * @param e
-   *          the Throwable object       
+   *          the Throwable object
    */
   public CannotInitilizeConnectionsException(Throwable e) {
     super(e.getMessage(), e);

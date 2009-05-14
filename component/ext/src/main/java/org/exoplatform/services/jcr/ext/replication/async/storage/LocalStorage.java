@@ -24,9 +24,11 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Stores changes from local workspace. Used by <code>WorkspaceSynchronizer</code>.
+ * <br/>
+ * Stores changes from local workspace. Used by <code>WorkspaceSynchronizer</code>.
  * 
- * <br/>Date: 24.12.2008
+ * <br/>
+ * Date: 24.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

@@ -57,7 +57,7 @@ public class BackupChainImpl implements BackupChain {
   private AbstractIncrementalBackupJob incrementalBackup;
 
   private final BackupChainLog         chainLog;
-  
+
   private final String                 backupId;
 
   private int                          state;
@@ -79,7 +79,11 @@ public class BackupChainImpl implements BackupChain {
       BackupConfigurationException {
     this.config = config;
     this.jobs = new ArrayList<BackupJob>();
-    this.chainLog = new BackupChainLog(logDirectory, config, fullBackupType, incrementalBackupType, backupId);
+    this.chainLog = new BackupChainLog(logDirectory,
+                                       config,
+                                       fullBackupType,
+                                       incrementalBackupType,
+                                       backupId);
     this.timeStamp = Calendar.getInstance();
     this.backupId = backupId;
 

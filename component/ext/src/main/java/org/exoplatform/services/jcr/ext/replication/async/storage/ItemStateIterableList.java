@@ -27,7 +27,8 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.01.2009
+ * <br/>
+ * Date: 15.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -88,7 +89,7 @@ public class ItemStateIterableList<T extends ItemState> implements List<ItemStat
       else
         i++;
     }
-    
+
     throw new IndexOutOfBoundsException("ItemState at index " + index + " not found.");
   }
 

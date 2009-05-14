@@ -202,7 +202,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
     Node userAppNode = null;
     try {
       userAppNode = userNode.getNode(getJcrPath(USER_APPLICATION));
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       userAppNode = userNode.addNode(getJcrPath(USER_APPLICATION));
       userNode.save();
     }
@@ -229,7 +229,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
     Node userNode = null;
     try {
       userNode = usersNode.getNode(userName);
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       userNode = usersNode.addNode(userName);
       usersNode.save();
     }

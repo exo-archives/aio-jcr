@@ -34,46 +34,48 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 31.12.2008
+ * <br/>
+ * Date: 31.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestTransmitterChanges.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class TransmitterChangesTest extends AbstractTrasportTest {
-  
-  private static Log                  log       = ExoLogger.getLogger("ext.TestTransmitterChanges");
-  
-  private static final String         CH_NAME   = "AsyncRepCh";
 
-  private static final int            priority  = 50;
-  
-  private static final String         bindAddress = "127.0.0.1"; 
-  
+  private static Log          log         = ExoLogger.getLogger("ext.TestTransmitterChanges");
+
+  private static final String CH_NAME     = "AsyncRepCh";
+
+  private static final int    priority    = 50;
+
+  private static final String bindAddress = "127.0.0.1";
+
   public void tearDown() throws Exception {
     super.tearDown();
   }
 
   /**
    * testGetExport.
-   *
+   * 
    * @throws Exception
    */
   public void testSendChanges() throws Exception {
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
-    
+
     // create node
     for (int i = 0; i < 10; i++)
       root.addNode("testNode_" + i, "nt:unstructured");
-    
+
     root.save();
 
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
     TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
-    
+
     for (TransactionChangesLog tcl : pl.pushChanges()) {
-      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(), Calendar.getInstance()
-                                                                     .getTimeInMillis());
+      TesterRandomChangesFile cf = new TesterRandomChangesFile("ajgdjagsdjksasdasd".getBytes(),
+                                                               Calendar.getInstance()
+                                                                       .getTimeInMillis());
 
       ObjectWriter oos = new ObjectWriterImpl(cf.getOutputStream());
       wr.write(oos, tcl);
@@ -81,22 +83,22 @@ public class TransmitterChangesTest extends AbstractTrasportTest {
 
       cfList.add(cf);
     }
-    
+
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
-    
+
     AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME, 1);
     channel.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority);
 
     channel.connect();
-    
+
     List<MemberAddress> sa = new ArrayList<MemberAddress>();
-    for (Member m: memberList) 
+    for (Member m : memberList)
       sa.add(m.getAddress());
-    
+
     transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), sa);
-    
+
     transmitter.sendMerge();
   }
 

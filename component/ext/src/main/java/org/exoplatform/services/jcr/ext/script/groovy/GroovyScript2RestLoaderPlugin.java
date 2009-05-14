@@ -36,12 +36,12 @@ public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
   /**
    * Logger.
    */
-  private static final Log           LOG                       = ExoLogger.getLogger(GroovyScript2RestLoaderPlugin.class.getName());
+  private static final Log           LOG = ExoLogger.getLogger(GroovyScript2RestLoaderPlugin.class.getName());
 
   /**
    * Configurations for scripts what were got from XML.
    */
-  private List<XMLGroovyScript2Rest> l                         = new ArrayList<XMLGroovyScript2Rest>();
+  private List<XMLGroovyScript2Rest> l   = new ArrayList<XMLGroovyScript2Rest>();
 
   /**
    * Repository.

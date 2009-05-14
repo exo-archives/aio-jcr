@@ -32,7 +32,6 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -52,9 +51,11 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Handles request on remote export.
+ * <br/>
+ * Handles request on remote export.
  * 
- * <br/>Date: 12.12.2008
+ * <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -145,7 +146,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   }
 
   /**
-   * Return Node traversed changes log for a given path.<br/> Used by receiver.
+   * Return Node traversed changes log for a given path.<br/>
+   * Used by receiver.
    * 
    * @param itemId
    *          Item identifier

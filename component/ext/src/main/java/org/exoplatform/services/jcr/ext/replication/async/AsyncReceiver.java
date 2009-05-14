@@ -18,11 +18,11 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 12.12.2008
+ * <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -31,20 +31,21 @@ public interface AsyncReceiver extends AsyncPacketListener {
 
   /**
    * Set RemoteChangesListener for export.
-   *
-   * @param listener RemoteChangesListener.
+   * 
+   * @param listener
+   *          RemoteChangesListener.
    */
   void setRemoteExportListener(RemoteExportClient listener);
-  
+
   /**
    * Remove RemoteChangesListener for export.
-   *
+   * 
    */
   void removeRemoteExportListener();
-  
+
   /**
    * setChangesSubscriberListener.
-   *
+   * 
    * @param subscriber
    */
   void setChangesSubscriber(ChangesSubscriber subscriber);

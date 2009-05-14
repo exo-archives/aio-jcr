@@ -203,7 +203,7 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
 
     // add 128B string property (10*100 == 1000)
     for (int i = 0; i < baseNodesCount; i++) {
-      //Thread.sleep(300);
+      // Thread.sleep(300);
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()

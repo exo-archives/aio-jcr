@@ -19,7 +19,8 @@ package org.exoplatform.services.jcr.ext.replication.async.executor;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 29.01.2009
+ * <br/>
+ * Date: 29.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AsyncReplicationExecutorException.java 111 2008-11-11 11:11:11Z pnedonosko $

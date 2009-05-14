@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.lock.Lock;
 
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -79,7 +78,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
-      
+
       assertNotNull(bchLog.getStartedTime());
       assertNotNull(bchLog.getFinishedTime());
 
@@ -151,10 +150,10 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
-      
+
       assertNotNull(bchLog.getStartedTime());
       assertNotNull(bchLog.getFinishedTime());
-      
+
       backup.restore(bchLog, re.getName(), ws1back);
 
       // check
@@ -272,10 +271,10 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
-      
+
       assertNotNull(bchLog.getStartedTime());
       assertNotNull(bchLog.getFinishedTime());
-      
+
       backup.restore(bchLog, re.getName(), ws1back);
 
       // check
@@ -323,12 +322,15 @@ public class TestBackupManager extends AbstractBackupTestCase {
     } else
       fail("There are no backup files in " + backDir.getAbsolutePath());
   }
-  
+
   public void testFullBackupRestoreAsync() throws Exception {
     SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
-    sessionWS1.getRootNode().addNode("backupTest").addNode("node_5").setProperty("exo:data", "Restored content should be same");
+    sessionWS1.getRootNode()
+              .addNode("backupTest")
+              .addNode("node_5")
+              .setProperty("exo:data", "Restored content should be same");
     sessionWS1.save();
-    
+
     // backup
     File backDir = new File("target/backup/ws1_a");
     backDir.mkdirs();
@@ -365,20 +367,21 @@ public class TestBackupManager extends AbstractBackupTestCase {
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
-      
+
       assertNotNull(bchLog.getStartedTime());
       assertNotNull(bchLog.getFinishedTime());
 
       backup.restore(bchLog, repository.getName(), ws1back, true);
-      
-      while (backup.getLastRestore(repository.getName(),ws1back.getName()).getStateRestore() !=  JobWorkspaceRestore.RESTORE_SUCCESSFUL 
-             && backup.getLastRestore(repository.getName(),ws1back.getName()).getStateRestore() !=  JobWorkspaceRestore.RESTORE_FAIL) {
+
+      while (backup.getLastRestore(repository.getName(), ws1back.getName()).getStateRestore() != JobWorkspaceRestore.RESTORE_SUCCESSFUL
+          && backup.getLastRestore(repository.getName(), ws1back.getName()).getStateRestore() != JobWorkspaceRestore.RESTORE_FAIL) {
         Thread.sleep(50);
       }
-      
-      if (backup.getLastRestore(repository.getName(),ws1back.getName()).getStateRestore() ==  JobWorkspaceRestore.RESTORE_FAIL)
-        throw (Exception) backup.getLastRestore(repository.getName(),ws1back.getName()).getRestoreException(); 
-      
+
+      if (backup.getLastRestore(repository.getName(), ws1back.getName()).getStateRestore() == JobWorkspaceRestore.RESTORE_FAIL)
+        throw (Exception) backup.getLastRestore(repository.getName(), ws1back.getName())
+                                .getRestoreException();
+
       // check
       SessionImpl back1 = null;
       try {

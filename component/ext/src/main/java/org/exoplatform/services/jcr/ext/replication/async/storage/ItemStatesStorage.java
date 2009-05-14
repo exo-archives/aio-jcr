@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
@@ -32,7 +31,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

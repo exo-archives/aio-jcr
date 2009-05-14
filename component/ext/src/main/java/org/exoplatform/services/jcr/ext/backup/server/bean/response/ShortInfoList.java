@@ -21,9 +21,10 @@ import java.util.Collection;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 13.04.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 13.04.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ShortInfoList.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ShortInfoList {
@@ -32,29 +33,28 @@ public class ShortInfoList {
    * The list of ShortInfo for current and completed backups.
    */
   private Collection<ShortInfo> backups;
-  
+
   /**
-   * ShortInfoList  constructor.
-   *
+   * ShortInfoList constructor.
+   * 
    */
   public ShortInfoList() {
   }
-  
+
   /**
-   * ShortInfoList  constructor.
-   *
+   * ShortInfoList constructor.
+   * 
    * @param backups
    *          Collection, the collection with ShortInfo for current and completed backups
    */
   public ShortInfoList(Collection<ShortInfo> backups) {
-    this.backups = backups; 
+    this.backups = backups;
   }
 
   /**
    * getBackups.
-   *
-   * @return Collection
-   *           return the list of ShortInfo for current backups
+   * 
+   * @return Collection return the list of ShortInfo for current backups
    */
   public Collection<ShortInfo> getBackups() {
     return backups;
@@ -62,12 +62,12 @@ public class ShortInfoList {
 
   /**
    * setBackups.
-   *
+   * 
    * @param backups
    *          Collection, the list of ShortInfo for current and completed backups
    */
   public void setBackups(Collection<ShortInfo> backups) {
     this.backups = backups;
   }
-  
+
 }

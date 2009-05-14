@@ -28,34 +28,30 @@ import java.util.Random;
 
 import org.exoplatform.services.jcr.ext.replication.async.AbstractTrasportTest;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: CheckSumTest.java 111 2008-11-11 11:11:11Z serg $
  */
-public class CheckSumTest extends AbstractTrasportTest{
+public class CheckSumTest extends AbstractTrasportTest {
 
   public void testChecksum() throws Exception {
     MessageDigest digest;
-    
-    
+
     digest = MessageDigest.getInstance("MD5");
-    
-    
-    
+
     final int filesize = 50 * 1024;
 
     File f = this.createBLOBTempFile(filesize);
 
-    
-    File chLogFile = File.createTempFile("crctest","SUF");
-    DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(chLogFile), digest);   
+    File chLogFile = File.createTempFile("crctest", "SUF");
+    DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(chLogFile), digest);
     InputStream in = new FileInputStream(f);
-   
+
     Random random = new Random();
     long position = 0;
     byte[] buf;
@@ -64,7 +60,7 @@ public class CheckSumTest extends AbstractTrasportTest{
       buf = new byte[random.nextInt(1024) + 1];
       readed = in.read(buf);
       if (readed != -1) {
-        dout.write(buf,0,readed);
+        dout.write(buf, 0, readed);
       }
     } while (readed != -1);
 
@@ -72,45 +68,44 @@ public class CheckSumTest extends AbstractTrasportTest{
     in.close();
     buf = null;
     byte[] digestwrite = digest.digest();
-    
-    //Read from changesfile
+
+    // Read from changesfile
     digest = MessageDigest.getInstance("MD5");
-    DigestInputStream din = new DigestInputStream(new FileInputStream (chLogFile),digest);
-    
-    //check
+    DigestInputStream din = new DigestInputStream(new FileInputStream(chLogFile), digest);
+
+    // check
     in = new FileInputStream(f);
-   
+
     int readet = -1;
     int readch = -1;
-    
-    do{
+
+    do {
       byte[] bufet = new byte[2048];
       byte[] bufch = new byte[2048];
-      
+
       readet = in.read(bufet);
       readch = din.read(bufch);
-      assertEquals(readet,readch);
+      assertEquals(readet, readch);
       assertTrue(java.util.Arrays.equals(bufet, bufch));
-    }while(readet!=-1 && readch!=-1);
-    
+    } while (readet != -1 && readch != -1);
+
     in.close();
     din.close();
-    
+
     byte[] digestRead = digest.digest();
-    
+
     assertTrue(java.util.Arrays.equals(digestwrite, digestRead));
-    
-    String wr = new String(digestwrite,"UTF-8");
-    String rd = new String(digestRead,"UTF-8");
-    assertEquals(wr,rd); 
+
+    String wr = new String(digestwrite, "UTF-8");
+    String rd = new String(digestRead, "UTF-8");
+    assertEquals(wr, rd);
   }
-  
-  
+
   protected byte[] createBLOBTempData(int size) throws IOException {
     byte[] data = new byte[size]; // 1Kb
     Random random = new Random();
     random.nextBytes(data);
     return data;
   }
-  
+
 }

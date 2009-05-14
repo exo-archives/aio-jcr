@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;

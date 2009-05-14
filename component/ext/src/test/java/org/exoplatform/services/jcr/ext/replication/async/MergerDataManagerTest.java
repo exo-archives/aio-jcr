@@ -28,10 +28,7 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.jgroups.stack.IpAddress;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -59,6 +56,7 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.ItemStateReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.

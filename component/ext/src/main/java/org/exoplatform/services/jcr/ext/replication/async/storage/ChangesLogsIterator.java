@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectReaderImpl;
@@ -34,7 +33,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Iterator that goes throw all files in storage and returns TransactionChangesLog objects. Created
- * by The eXo Platform SAS. <br/>Date:
+ * by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesLogsIterator.java 111 2008-11-11 11:11:11Z serg $

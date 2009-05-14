@@ -24,7 +24,8 @@ import java.io.ObjectOutput;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.12.2008
+ * <br/>
+ * Date: 15.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncPacket.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -54,12 +55,12 @@ public abstract class AbstractPacket implements Externalizable {
   /**
    * Packet type.
    */
-  protected int                type;
+  protected int              type;
 
   /**
    * The priority of transmitter.
    */
-  protected int                priority;
+  protected int              priority;
 
   /**
    * Packet constructor.
@@ -75,7 +76,7 @@ public abstract class AbstractPacket implements Externalizable {
     this.type = type;
     this.priority = priority;
   }
-  
+
   public AbstractPacket() {
     this.type = -1;
     this.priority = 0;

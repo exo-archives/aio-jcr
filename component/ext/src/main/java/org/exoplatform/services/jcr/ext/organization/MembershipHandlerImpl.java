@@ -30,7 +30,6 @@ import javax.jcr.query.QueryResult;
 import javax.naming.InvalidNameException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;

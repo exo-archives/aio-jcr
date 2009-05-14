@@ -45,7 +45,8 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 28.01.2009
+ * <br/>
+ * Date: 28.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncReplicationExecutorService.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -59,26 +60,26 @@ public class AsyncReplicationExecutor implements ResourceContainer {
    * Definition the constants to ReplicationTestService.
    */
   public static final class Constants {
-    
+
     /**
      * The start timeout.
      */
-    public static final int START_TIMEOUT  = 2000;
-    
+    public static final int    START_TIMEOUT = 2000;
+
     /**
      * The base path to this service.
      */
-    public static final String BASE_URL    = "/rest/async-replication-executor";
+    public static final String BASE_URL      = "/rest/async-replication-executor";
 
     /**
      * Ok result.
      */
-    public static final String OK_RESULT   = "ok";
+    public static final String OK_RESULT     = "ok";
 
     /**
      * Fail result.
      */
-    public static final String FAIL_RESULT = "fail";
+    public static final String FAIL_RESULT   = "fail";
 
     /**
      * Definition the operation types.
@@ -204,10 +205,10 @@ public class AsyncReplicationExecutor implements ResourceContainer {
                                                         e);
           } catch (InterruptedException e) {
             throw new AsyncReplicationExecutorException("Can't execute remote synchronization. Member : "
-                                                        + member,
-                                                    e);
-      }
-           
+                                                            + member,
+                                                        e);
+          }
+
         }
 
         return true;

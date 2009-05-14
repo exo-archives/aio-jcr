@@ -34,23 +34,20 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizerChangesLog;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -61,9 +58,9 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
   protected final LocalStorage               storage;
 
-  protected final PersistentDataManager     workspace;
-  
-  protected final PersistentDataManager systemWorkspace;
+  protected final PersistentDataManager      workspace;
+
+  protected final PersistentDataManager      systemWorkspace;
 
   protected final File                       tempDirectory;
 
@@ -79,7 +76,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     this.storage = storage;
     this.workspace = workspace;
     this.systemWorkspace = systemWorkspace;
-    
+
     this.maxBufferSize = workspaceConfig.getContainer()
                                         .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
                                                              WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
@@ -88,7 +85,9 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
   }
 
   /**
-   * Return local changes.<br/> 1. to a merger<br/> 2. to a receiver
+   * Return local changes.<br/>
+   * 1. to a merger<br/>
+   * 2. to a receiver
    * 
    * @return ChangesStorage
    */
@@ -146,12 +145,12 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    * @throws InvalidItemStateException
    */
   private void saveChangesLog(final ChangesStorage<ItemState> changes) throws IOException,
-                                                                                        ClassCastException,
-                                                                                        IllegalStateException,
-                                                                                        ClassNotFoundException,
-                                                                                        InvalidItemStateException,
-                                                                                        UnsupportedOperationException,
-                                                                                        RepositoryException {
+                                                                      ClassCastException,
+                                                                      IllegalStateException,
+                                                                      ClassNotFoundException,
+                                                                      InvalidItemStateException,
+                                                                      UnsupportedOperationException,
+                                                                      RepositoryException {
     List<ItemState> states = new ArrayList<ItemState>();
     List<ItemState> sysStates = new ArrayList<ItemState>();
 
@@ -212,7 +211,8 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     // create new changes logs
-    systemWorkspace.save(new SynchronizerChangesLog(new PlainChangesLogImpl(sysStates,IdGenerator.generate())));
+    systemWorkspace.save(new SynchronizerChangesLog(new PlainChangesLogImpl(sysStates,
+                                                                            IdGenerator.generate())));
 
     workspace.save(new SynchronizerChangesLog(new PlainChangesLogImpl(states,
                                                                       IdGenerator.generate())));

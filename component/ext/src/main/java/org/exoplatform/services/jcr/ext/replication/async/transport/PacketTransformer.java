@@ -25,19 +25,16 @@ import java.io.ObjectOutputStream;
 /**
  * This class helps read AsyncPackets from byte array and write it in byte array.
  * 
- * Created by The eXo Platform SAS
- * Author : Karpenko Sergiy
- *          karpenko.sergiy@gmail.com
+ * Created by The eXo Platform SAS Author : Karpenko Sergiy karpenko.sergiy@gmail.com
  */
 public class PacketTransformer {
-  
+
   /**
    * Returns byte array representation of AsyncPacket.
-   *
+   * 
    * @param packet
-   *          Packet object 
-   * @return byte[]
-   *           the binary value
+   *          Packet object
+   * @return byte[] the binary value
    * @throws IOException
    *           generate the IOExaption
    */
@@ -49,24 +46,24 @@ public class PacketTransformer {
     byte[] bArray = os.toByteArray();
     return bArray;
   }
-  
+
   /**
    * Returns AsyncPacket read from byte array.
-   *
+   * 
    * @param byteArray
    *          binary data
-   * @return Packet
-   *           the Packet object from bytes
+   * @return Packet the Packet object from bytes
    * @throws IOException
    *           generate the IOExeption
    * @throws ClassNotFoundException
-   *           generate the ClassNotFoundException 
+   *           generate the ClassNotFoundException
    */
-  public static AbstractPacket getAsPacket(byte[] byteArray) throws IOException, ClassNotFoundException {
+  public static AbstractPacket getAsPacket(byte[] byteArray) throws IOException,
+                                                            ClassNotFoundException {
     ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
     ObjectInputStream ois = new ObjectInputStream(is);
     AbstractPacket objRead = (AbstractPacket) ois.readObject();
-    
+
     return objRead;
   }
 }

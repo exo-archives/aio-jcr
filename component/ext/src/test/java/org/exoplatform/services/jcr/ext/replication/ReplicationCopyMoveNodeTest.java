@@ -27,8 +27,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 28.02.2007 10:59:36
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 28.02.2007 10:59:36
  * 
  * @version $Id: TestReplicationCopyNode.java 28.02.2007 10:59:36 rainfox
  */

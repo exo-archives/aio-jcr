@@ -21,15 +21,16 @@ import junit.framework.TestCase;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.12.2008
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 15.12.2008
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncPacketTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class AsyncPacketTest extends TestCase {
 
   public void testAsyncPacket() throws Exception {
-    //create content
+    // create content
     /*
     
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
@@ -75,7 +76,7 @@ public class AsyncPacketTest extends TestCase {
     compareAsyncPacket(srcPacket, destAsyncPacketFromFile);
     */
   }
-  
+
   /*private void compareAsyncPacket(AbstractPacket srcPacket, AbstractPacket destPacket) {
     assertEquals(destPacket.getOffset(), srcPacket.getOffset());
     assertEquals(destPacket.getOffset(), 245852);

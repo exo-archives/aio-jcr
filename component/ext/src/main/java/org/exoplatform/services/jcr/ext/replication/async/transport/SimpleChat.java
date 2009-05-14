@@ -27,7 +27,8 @@ import org.jgroups.View;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 21.01.2009
+ * <br/>
+ * Date: 21.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SimpleChat.java 111 2008-11-11 11:11:11Z pnedonosko $
@@ -36,7 +37,7 @@ public class SimpleChat extends ReceiverAdapter {
   JChannel     channel;
 
   final String userName;
-  
+
   final String config;
 
   public static void main(String[] args) throws Exception {

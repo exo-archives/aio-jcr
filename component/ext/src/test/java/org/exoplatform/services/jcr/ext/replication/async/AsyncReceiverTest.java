@@ -31,7 +31,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPac
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 08.01.2009
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 08.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestAsyncReceiver.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -130,13 +131,13 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       buf[i] = (byte) i;
 
     ExportChangesPacket packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_PACKET,
-                                                              priority,
-                                                              1,
-                                                              "idufifjxkhjfapudasdf".getBytes(),
-                                                              System.currentTimeMillis(),
-                                                              1,
-                                                              16420,
-                                                              buf);
+                                                         priority,
+                                                         1,
+                                                         "idufifjxkhjfapudasdf".getBytes(),
+                                                         System.currentTimeMillis(),
+                                                         1,
+                                                         16420,
+                                                         buf);
 
     String errorMessage = "Cannot send export data. Internal error ossurs.";
     ErrorPacket packetError = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, errorMessage, priority);
@@ -273,7 +274,8 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
       assertEquals(packetMiddle.getBuffer()[i], changesReceiver.list.get(1).getBuffer()[i]);
 
     // compare last
-    assertEquals(packetLast.getTransmitterPriority(), changesReceiver.list.get(2).getTransmitterPriority());
+    assertEquals(packetLast.getTransmitterPriority(), changesReceiver.list.get(2)
+                                                                          .getTransmitterPriority());
     assertEquals(packetLast.getOffset(), changesReceiver.list.get(2).getOffset());
     assertEquals(packetLast.getTimeStamp(), changesReceiver.list.get(2).getTimeStamp());
     assertEquals(packetLast.getFileCount(), changesReceiver.list.get(2).getFileCount());
@@ -293,7 +295,8 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
   private class ExportReceiver implements RemoteExportClient {
     public List<RemoteExportResponce> list = new ArrayList<RemoteExportResponce>();
-    private RemoteExportError    remoteError;
+
+    private RemoteExportError         remoteError;
 
     public void onRemoteError(RemoteExportError event) {
       this.remoteError = event;

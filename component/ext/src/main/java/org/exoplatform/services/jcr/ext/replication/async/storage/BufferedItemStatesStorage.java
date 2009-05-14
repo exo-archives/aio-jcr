@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
@@ -42,7 +41,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 30.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 30.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableItemStatesStorage.java 27527 2009-01-28 08:32:30Z serg $

@@ -38,8 +38,8 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
   private static Log log = ExoLogger.getLogger("ext.StaticPriorityChecker");
 
   /**
-   * StaticPriorityChecker  constructor.
-   *
+   * StaticPriorityChecker constructor.
+   * 
    * @param channelManager
    *          the ChannelManager
    * @param ownPriority
@@ -47,7 +47,7 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
    * @param ownName
    *          the own name
    * @param otherParticipants
-   *          the list of names to other participants  
+   *          the list of names to other participants
    */
   public StaticPriorityChecker(ChannelManager channelManager,
                                int ownPriority,

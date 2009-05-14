@@ -23,7 +23,8 @@ import java.io.ObjectOutput;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * This packet contains Created by The eXo Platform SAS. <br/>Date:
+ * This packet contains Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ErrorPacket.java 111 2008-11-11 11:11:11Z serg $

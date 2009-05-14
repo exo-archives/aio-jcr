@@ -19,9 +19,10 @@ package org.exoplatform.services.jcr.ext.backup.server.bean;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 26.03.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 26.03.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RestoreBeen.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RestoreBean {
@@ -30,38 +31,36 @@ public class RestoreBean {
    * The backup identifier.
    */
   String backupId;
-  
+
   /**
    * The workspace configuration.
    */
   String workspaceConfig;
-  
+
   /**
-   * RestoreBeen  constructor.
-   *
+   * RestoreBeen constructor.
+   * 
    */
   public RestoreBean() {
   }
-  
+
   /**
-   * RestoreBeen  constructor.
-   *
+   * RestoreBeen constructor.
+   * 
    * @param backupId
    *          String, the backup identifier
    * @param workspaceConfig
-   *           the workspace configuration
+   *          the workspace configuration
    */
-  public RestoreBean(String backupId,
-                     String workspaceConfig) {
+  public RestoreBean(String backupId, String workspaceConfig) {
     this.backupId = backupId;
     this.workspaceConfig = workspaceConfig;
   }
-  
+
   /**
    * getBackupId.
-   *
-   * @return String
-   *           return the backup identifier  
+   * 
+   * @return String return the backup identifier
    */
   public String getBackupId() {
     return backupId;
@@ -69,7 +68,7 @@ public class RestoreBean {
 
   /**
    * setBackupId.
-   *
+   * 
    * @param backupId
    *          String, the backup identifier
    */
@@ -79,9 +78,8 @@ public class RestoreBean {
 
   /**
    * getWorkspaceConfig.
-   *
-   * @return String
-   *           return the workspace configuration
+   * 
+   * @return String return the workspace configuration
    */
   public String getWorkspaceConfig() {
     return workspaceConfig;
@@ -89,7 +87,7 @@ public class RestoreBean {
 
   /**
    * setWorkspaceConfig.
-   *
+   * 
    * @param workspaceConfig
    *          String, the workspace configuration
    */

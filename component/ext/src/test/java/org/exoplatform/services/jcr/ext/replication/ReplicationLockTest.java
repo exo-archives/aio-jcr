@@ -31,8 +31,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ReplicationLockTest extends BaseReplicationTest {
-  
-  private static final Log      log = ExoLogger.getLogger(ReplicationLockTest.class);
+
+  private static final Log log = ExoLogger.getLogger(ReplicationLockTest.class);
 
   public void testLock() throws Exception {
     Node nodeLocked = root.addNode("Node Locked");
@@ -89,7 +89,7 @@ public class ReplicationLockTest extends BaseReplicationTest {
     for (int i = 0; i < 10; i++) {
       log.info("Lock node #" + i + " ...");
       String lockName = "Node Locked";
-      
+
       Node nodeLocked = root.addNode(lockName + i);
       nodeLocked.setProperty("jcr:data", "node data");
       nodeLocked.addMixin("mix:lockable");

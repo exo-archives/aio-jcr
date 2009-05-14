@@ -26,31 +26,32 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 09.01.2009
+ * <br/>
+ * Date: 09.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncInitializerTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class AsyncInitializerTest extends AbstractTrasportTest {
 
-  private static final String CH_NAME     = "AsyncRepCh_Test";
+  private static final String  CH_NAME     = "AsyncRepCh_Test";
 
-  private static final String bindAddress = "127.0.0.1";
+  private static final String  bindAddress = "127.0.0.1";
 
   private CountDownLatchThread latch;
 
-  AsyncChannelManager         channel1;
+  AsyncChannelManager          channel1;
 
-  AsyncChannelManager         channel2;
+  AsyncChannelManager          channel2;
 
-  AsyncChannelManager         channel3;
+  AsyncChannelManager          channel3;
 
   public void testTwoMembers() throws Exception {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     String cName = CH_NAME + "_testTwoMembers";
-    
+
     channel1 = new AsyncChannelManager(chConfig, cName, 2);
     channel2 = new AsyncChannelManager(chConfig, cName, 2);
 
@@ -81,39 +82,39 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     channel1.addStateListener(initializer1);
     channel2.addStateListener(initializer2);
-    
+
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(false);
     initializer1.addRemoteListener(startEventSubscriber1);
-    
+
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
     initializer2.addRemoteListener(startEventSubscriber2);
-    
+
     latch = new CountDownLatchThread(1);
-    
+
     // connect to channel
     channel1.connect();
     channel2.connect();
 
     latch.await();
-    
+
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
-    
+
     assertNotNull(startEventSubscriber1.members);
     assertEquals(1, startEventSubscriber1.members.size());
     assertNull(startEventSubscriber2.members);
-    
+
     // disconnect from channel
     channel1.disconnect();
     channel2.disconnect();
   }
-  
+
   public void testThreeMembers() throws Exception {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     String cName = CH_NAME + "_testThreeMembers";
-    
+
     channel1 = new AsyncChannelManager(chConfig, cName, 3);
     channel2 = new AsyncChannelManager(chConfig, cName, 3);
     channel3 = new AsyncChannelManager(chConfig, cName, 3);
@@ -129,7 +130,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     List<Integer> otherParticipantsPriority_2 = new ArrayList<Integer>();
     otherParticipantsPriority_2.add(50);
     otherParticipantsPriority_2.add(30);
-    
+
     // third member parameters
     int memberPriority_3 = 30;
     List<Integer> otherParticipantsPriority_3 = new ArrayList<Integer>();
@@ -150,7 +151,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
                                                          otherParticipantsPriority_2,
                                                          memberWaitTimeout,
                                                          cancelMemberNotConnected);
-    
+
     AsyncInitializer initializer3 = new AsyncInitializer(channel3,
                                                          memberPriority_3,
                                                          otherParticipantsPriority_3,
@@ -160,47 +161,47 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel1.addStateListener(initializer1);
     channel2.addStateListener(initializer2);
     channel3.addStateListener(initializer3);
-    
+
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
     initializer1.addRemoteListener(startEventSubscriber1);
-    
+
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
     initializer2.addRemoteListener(startEventSubscriber2);
-    
+
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(false);
     initializer3.addRemoteListener(startEventSubscriber3);
-    
+
     latch = new CountDownLatchThread(1);
-    
+
     // connect to channel
     channel3.connect();
     channel1.connect();
     channel2.connect();
 
     latch.await();
-    
+
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
     startEventSubscriber3.checkFail();
-    
+
     assertNotNull(startEventSubscriber3.members);
     assertEquals(2, startEventSubscriber3.members.size());
-    
+
     assertNull(startEventSubscriber1.members);
     assertNull(startEventSubscriber2.members);
-    
+
     // disconnect from channel
     channel1.disconnect();
     channel2.disconnect();
     channel3.disconnect();
   }
-  
+
   public void testTwoMembers_one_NotConnected() throws Exception {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     String cName = CH_NAME + "_testTwoMembers_one_NotConnected";
-    
+
     channel1 = new AsyncChannelManager(chConfig, cName, 2);
 
     // first member parameters
@@ -218,29 +219,29 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
                                                          cancelMemberNotConnected);
 
     channel1.addStateListener(initializer1);
-    
+
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
     initializer1.addRemoteListener(startEventSubscriber1);
-    
+
     // connect to channel
     channel1.connect();
 
     // wait timeout
     Thread.sleep(memberWaitTimeout + 20000);
-    
+
     startEventSubscriber1.checkFail();
-    
+
     assertNull(startEventSubscriber1.members);
-    
+
     assertNull(channel1.getChannel());
   }
 
   public void testThreeMembers_one_NotConnected() throws Exception {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
-    
+
     String cName = CH_NAME + "_testThreeMembers_one_NotConnected";
-    
+
     channel1 = new AsyncChannelManager(chConfig, cName, 3);
     channel2 = new AsyncChannelManager(chConfig, cName, 3);
 
@@ -273,7 +274,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     channel1.addStateListener(initializer1);
     channel2.addStateListener(initializer2);
-    
+
     channel1.addPacketListener(initializer1);
     channel2.addPacketListener(initializer2);
 
@@ -289,17 +290,16 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     // wait timeout
     Thread.sleep(memberWaitTimeout + 20000);
-    
+
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
 
     assertNull(startEventSubscriber1.members);
     assertNull(startEventSubscriber2.members);
 
-    
     System.out.println("Test : C2 @" + channel2.getChannel());
     System.out.println("Test : C1 @" + channel1.getChannel());
-    
+
     assertNull(channel2.getChannel());
     assertNull(channel1.getChannel());
 
@@ -310,7 +310,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
     String cName = CH_NAME + "_testFourMembers_one_NotConnected";
-    
+
     channel1 = new AsyncChannelManager(chConfig, cName, 4);
     channel2 = new AsyncChannelManager(chConfig, cName, 4);
     channel3 = new AsyncChannelManager(chConfig, cName, 4);
@@ -360,7 +360,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel1.addStateListener(initializer1);
     channel2.addStateListener(initializer2);
     channel3.addStateListener(initializer3);
-    
+
     channel1.addPacketListener(initializer1);
     channel2.addPacketListener(initializer2);
     channel3.addPacketListener(initializer3);
@@ -381,7 +381,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     // wait timeout
     Thread.sleep(memberWaitTimeout + 20000);
-    
+
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
     startEventSubscriber3.checkFail();
@@ -398,7 +398,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
   public void testThreeMembers_one_NotConnected_NotCancel() throws Exception {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
-    
+
     String cName = CH_NAME + "_testThreeMembers_one_NotConnected_NotCancel";
 
     channel1 = new AsyncChannelManager(chConfig, cName, 3);
@@ -415,7 +415,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     List<Integer> otherParticipantsPriority_2 = new ArrayList<Integer>();
     otherParticipantsPriority_2.add(50);
     otherParticipantsPriority_2.add(30);
-    
+
     int memberWaitTimeout = 10000; // 10 sec.
     boolean cancelMemberNotConnected = false;
 
@@ -430,35 +430,35 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
                                                          otherParticipantsPriority_2,
                                                          memberWaitTimeout,
                                                          cancelMemberNotConnected);
-    
+
     channel1.addStateListener(initializer1);
     channel2.addStateListener(initializer2);
-    
+
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
     initializer1.addRemoteListener(startEventSubscriber1);
-    
+
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(false);
     initializer2.addRemoteListener(startEventSubscriber2);
-    
+
     latch = new CountDownLatchThread(1);
-    
+
     // connect to channel
     channel2.connect();
     channel1.connect();
-    
+
     // wait timeout
-    latch.await(); 
-    
+    latch.await();
+
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
 
     assertNull(startEventSubscriber1.members);
     assertNotNull(startEventSubscriber2.members);
     assertEquals(1, startEventSubscriber2.members.size());
-    
+
     // disconnect from channel
     channel1.disconnect();
-    
+
     Thread.sleep(memberWaitTimeout);
     assertNull(channel2.getChannel());
   }
@@ -647,7 +647,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     // wait timeout
     latch.await();
-    
+
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
     startEventSubscriber3.checkFail();
@@ -659,7 +659,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     // disconnect from channel
     channel2.disconnect();
-    
+
     Thread.sleep(10000);
     assertNull(channel1.getChannel());
   }
@@ -743,7 +743,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel1.disconnect();
     channel2.disconnect();
     channel3.disconnect();
-    
+
     startEventSubscriber1.checkFail();
     startEventSubscriber2.checkFail();
     startEventSubscriber3.checkFail();
@@ -756,11 +756,11 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
   }
 
   private class StartEventSubscriber implements RemoteEventListener {
-    List<MemberAddress>    members;
+    List<MemberAddress> members;
 
-    String          sFail = null;
+    String              sFail = null;
 
-    private boolean onStartEvenfail;
+    private boolean     onStartEvenfail;
 
     public StartEventSubscriber(boolean onStartEvenfail) {
       this.onStartEvenfail = onStartEvenfail;

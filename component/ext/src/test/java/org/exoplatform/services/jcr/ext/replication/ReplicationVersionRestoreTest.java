@@ -35,8 +35,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ReplicationVersionRestoreTest extends BaseReplicationTest {
-  
-  private static final Log      log = ExoLogger.getLogger(ReplicationVersionRestoreTest.class);
+
+  private static final Log log = ExoLogger.getLogger(ReplicationVersionRestoreTest.class);
 
   public void testRestore() throws Exception {
     Node srcVersionNode = root.addNode("Version node 1");
@@ -131,14 +131,14 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     srcVersionNode.addMixin("mix:versionable");
 
     session.save();
-    
+
     log.info("SAVED");
 
     Node srcVersion = root.getNode("nt_file_node");
     log.info("GET");
-    
-    long time = 10*1000;
-    
+
+    long time = 10 * 1000;
+
     Thread.sleep(time);
 
     Node destVersionNode = root2.getNode("nt_file_node").getNode("jcr:content");
@@ -190,7 +190,7 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     Version[] predesessors = baseVersion1.getPredecessors();
     Version restoreToBaseVersion = predesessors[0];
 
-    srcVersion.restore(restoreToBaseVersion, true); //HERE
+    srcVersion.restore(restoreToBaseVersion, true); // HERE
     session.save();
 
     Thread.sleep(time);

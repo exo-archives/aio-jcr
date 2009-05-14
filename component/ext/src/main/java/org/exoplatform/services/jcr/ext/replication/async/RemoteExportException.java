@@ -22,9 +22,10 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 25.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>
+ * Date: 25.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class RemoteExportException extends Exception {
@@ -32,27 +33,27 @@ public class RemoteExportException extends Exception {
   RemoteExportException(String message) {
     super(message);
   }
-  
+
   public RemoteExportException(IOException ioError) {
     super(ioError);
   }
-  
+
   public RemoteExportException(NoSuchAlgorithmException error) {
     super(error);
   }
-  
+
   RemoteExportException(InterruptedException error) {
     super(error);
   }
-  
+
   public RemoteExportException(ClassNotFoundException error) {
     super(error);
   }
-  
+
   public RemoteExportException(ClassCastException error) {
     super(error);
   }
-  
+
   public RemoteExportException(RemoteExportException error) {
     super(error);
   }

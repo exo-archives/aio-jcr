@@ -34,54 +34,60 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 11.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 11.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
-  public static final String       FILE_PREFIX  = "exporter";
+  public static final String            FILE_PREFIX = "exporter";
 
   /**
    * Logger.
    */
-  private static final Log         LOG          = ExoLogger.getLogger("ext.RemoteExporterImpl");
+  private static final Log              LOG         = ExoLogger.getLogger("ext.RemoteExporterImpl");
 
-  protected final AsyncTransmitter transmitter;
+  protected final AsyncTransmitter      transmitter;
 
-  protected final AsyncReceiver    receiver;
+  protected final AsyncReceiver         receiver;
 
-  protected final ResourcesHolder  resHolder    = new ResourcesHolder();
+  protected final ResourcesHolder       resHolder   = new ResourcesHolder();
 
-  protected final File             tempDir;
-  protected final ReaderSpoolFileHolder             holder;
+  protected final File                  tempDir;
+
+  protected final ReaderSpoolFileHolder holder;
 
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each members pair merge.
    */
-  protected MemberAddress          remoteMember;
+  protected MemberAddress               remoteMember;
 
   /**
    * Current changesFile owner.
    */
-  //protected Member                 changesOwner = null;
-
+  // protected Member changesOwner = null;
   /**
    * Changes file.
    */
-  //private RandomChangesFile        changesFile  = null;
-  
-  private IncomeDataContext        context; 
+  // private RandomChangesFile changesFile = null;
+  private IncomeDataContext             context;
 
-  private CountDownLatch           latch;
+  private CountDownLatch                latch;
 
-  private RemoteExportException    exception    = null;
+  private RemoteExportException         exception   = null;
 
-  protected final FileCleaner fileCleaner;
-  protected final int maxBufferSize;
-  
-  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver, String tempDir, FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+  protected final FileCleaner           fileCleaner;
+
+  protected final int                   maxBufferSize;
+
+  RemoteExporterImpl(AsyncTransmitter transmitter,
+                     AsyncReceiver receiver,
+                     String tempDir,
+                     FileCleaner fileCleaner,
+                     int maxBufferSize,
+                     ReaderSpoolFileHolder holder) {
     this.transmitter = transmitter;
     this.receiver = receiver;
     this.tempDir = new File(tempDir);
@@ -94,9 +100,9 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
    * {@inheritDoc}
    */
   public ChangesStorage<ItemState> exportItem(String nodeId) throws RemoteExportException {
-    
+
     LOG.info("Remote EXPORT from member " + remoteMember + ", node " + nodeId);
-    
+
     receiver.setRemoteExportListener(this);
 
     // send request
@@ -123,22 +129,26 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     }
 
     LOG.info("Remote EXPORT DONE from member " + remoteMember + ", node " + nodeId);
-    
+
     // check checksums
     try {
-      
-      ChangesFile changesFile = context.getChangesFile();     
+
+      ChangesFile changesFile = context.getChangesFile();
       changesFile.validate();
 
       if (context.getMember() == null)
         throw new RemoteExportException("Changes owner (member) is not set");
 
       // return Iterator based on ChangesFile
-      return new ItemStatesStorage<ItemState>(changesFile, context.getMember(), fileCleaner, maxBufferSize, holder);
+      return new ItemStatesStorage<ItemState>(changesFile,
+                                              context.getMember(),
+                                              fileCleaner,
+                                              maxBufferSize,
+                                              holder);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } finally {
-       context = null;// TODO
+      context = null;// TODO
     }
   }
 
@@ -158,21 +168,19 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       if (context == null) {
         RandomChangesFile changesFile;
         try {
-          changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + event.getTimeStamp()),
-                                              event.getCRC(),
-                                              event.getTimeStamp(),
-                                              resHolder);
+          changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-"
+              + event.getTimeStamp()), event.getCRC(), event.getTimeStamp(), resHolder);
         } catch (NoSuchAlgorithmException e) {
-          throw new IOException (e.getMessage());
+          throw new IOException(e.getMessage());
         }
-        
+
         context = new IncomeDataContext(changesFile, event.getMember(), event.getPacketsCount());
-        
+
       }
-      
+
       context.writeData(event.getBuffer(), event.getOffset());
-      
-      if(context.isFinished()){
+
+      if (context.isFinished()) {
         latch.countDown();
       }
 
@@ -195,20 +203,20 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     latch.countDown();
   }
 
- /* private void initChangesFile(byte[] crc, long timeStamp) throws IOException {
-    if (this.changesFile == null) {
-      
-      try {
-        changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + timeStamp),
-                                            crc,
-                                            timeStamp,
-                                            resHolder);
-      } catch (NoSuchAlgorithmException e) {
-        throw new IOException (e.getMessage());
-      }
-      
-    }
-  }*/
+  /* private void initChangesFile(byte[] crc, long timeStamp) throws IOException {
+     if (this.changesFile == null) {
+       
+       try {
+         changesFile = new RandomChangesFile(File.createTempFile(FILE_PREFIX, "-" + timeStamp),
+                                             crc,
+                                             timeStamp,
+                                             resHolder);
+       } catch (NoSuchAlgorithmException e) {
+         throw new IOException (e.getMessage());
+       }
+       
+     }
+   }*/
 
   /**
    * {@inheritDoc}

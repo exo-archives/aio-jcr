@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 19.12.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 19.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$

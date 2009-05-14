@@ -46,7 +46,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
     relPathArray = new String[filesSize.length];
     fileNameArray = new String[filesSize.length];
-    
+
     Thread.sleep(5000);
   }
 
@@ -72,7 +72,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(10000);
 
     // check is read-only min and middle member
@@ -176,7 +176,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(10000);
 
     // check is read-only middle member

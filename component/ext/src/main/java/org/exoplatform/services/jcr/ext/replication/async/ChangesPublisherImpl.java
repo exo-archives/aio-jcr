@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
@@ -33,7 +32,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 29.12.2008
+ * <br/>
+ * Date: 29.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ChangesPublisherImpl.java 111 2008-11-11 11:11:11Z pnedonosko $

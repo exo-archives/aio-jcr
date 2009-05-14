@@ -16,15 +16,15 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-
 /**
  * 
- * This exception throws in synchronization process exception causes.
- * Created by The eXo Platform SAS.
+ * This exception throws in synchronization process exception causes. Created by The eXo Platform
+ * SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: SynchronizationException.java 111 2008-11-11 11:11:11Z serg $
  */
 public class SynchronizationException extends Exception {
@@ -55,6 +55,6 @@ public class SynchronizationException extends Exception {
    * {@inheritDoc}
    */
   public SynchronizationException(Throwable cause) {
-      super(cause);
+    super(cause);
   }
 }

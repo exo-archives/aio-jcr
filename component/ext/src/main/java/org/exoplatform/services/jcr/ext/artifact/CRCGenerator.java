@@ -36,10 +36,12 @@ public class CRCGenerator {
   /**
    * Generates checksum for the InputStream.
    * 
-   * @param in stream to generate CheckSum
-   * @param algo algorithm name according to the <a href=
-   *          "http://java.sun.com/j2se/1.4.2/docs/guide/security/CryptoSpec.html#AppA"
-   *          >Java Cryptography Architecture API Specification & Reference</a>
+   * @param in
+   *          stream to generate CheckSum
+   * @param algo
+   *          algorithm name according to the <a href=
+   *          "http://java.sun.com/j2se/1.4.2/docs/guide/security/CryptoSpec.html#AppA" >Java
+   *          Cryptography Architecture API Specification & Reference</a>
    * @return hexadecimal string checksun representation
    * @throws NoSuchAlgorithmException
    * @throws IOException
@@ -63,7 +65,8 @@ public class CRCGenerator {
   /**
    * Converts the array of bytes into a HEX string.
    * 
-   * @param bytes byte array
+   * @param bytes
+   *          byte array
    * @return HEX string
    */
   private static String generateString(byte[] bytes) {

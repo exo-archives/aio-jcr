@@ -23,7 +23,8 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 29.12.2008
+ * <br/>
+ * Date: 29.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableChangesStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
@@ -45,7 +46,5 @@ public interface EditableChangesStorage<T extends ItemState> extends MemberChang
    *          Iterator of ItemState
    */
   void addAll(ChangesStorage<T> changes) throws IOException;
-  
-  
 
 }

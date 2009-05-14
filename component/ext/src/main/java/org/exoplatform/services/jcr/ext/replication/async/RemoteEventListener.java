@@ -24,7 +24,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 25.12.2008
+ * <br/>
+ * Date: 25.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -38,7 +39,8 @@ public interface RemoteEventListener extends SynchronizationEventListener {
    * <li>Subscriber will start the merge of received changes on last active member done.</li>
    * </ul>
    * 
-   * @param member Member 
+   * @param member
+   *          Member
    */
   void onMerge(MemberAddress member);
 
@@ -54,5 +56,5 @@ public interface RemoteEventListener extends SynchronizationEventListener {
    * 
    */
   void onDisconnectMembers(List<Member> member);
-  
+
 }

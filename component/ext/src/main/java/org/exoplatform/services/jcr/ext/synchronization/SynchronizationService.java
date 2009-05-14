@@ -32,7 +32,8 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 18.08.2008
+ * <br/>
+ * Date: 18.08.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SynchronizationService.java 111 2008-11-11 11:11:11Z peterit $

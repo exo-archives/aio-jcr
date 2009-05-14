@@ -44,7 +44,8 @@ public class ObservationListenerConfiguration {
   }
 
   /**
-   * @param repository repository name
+   * @param repository
+   *          repository name
    */
   public void setRepository(String repository) {
     this.repository = repository;
@@ -58,7 +59,8 @@ public class ObservationListenerConfiguration {
   }
 
   /**
-   * @param workspaces list of workspaces
+   * @param workspaces
+   *          list of workspaces
    */
   public void setWorkspaces(List<String> workspaces) {
     this.workspaces = workspaces;

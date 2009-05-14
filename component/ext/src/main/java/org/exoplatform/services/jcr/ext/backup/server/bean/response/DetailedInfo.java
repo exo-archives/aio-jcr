@@ -25,7 +25,8 @@ import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 13.04.2009
+ * <br/>
+ * Date: 13.04.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: DetailedInfo.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -38,15 +39,15 @@ public class DetailedInfo extends ShortInfo {
   private BackupConfigBean backupConfig;
 
   /**
-   * DetailedInfo  constructor.
-   *
+   * DetailedInfo constructor.
+   * 
    */
   public DetailedInfo() {
   }
-  
+
   /**
-   * DetailedInfo  constructor.
-   *
+   * DetailedInfo constructor.
+   * 
    * @param type
    *          int, the type of detailed info (current or completed)
    * @param chain
@@ -58,8 +59,8 @@ public class DetailedInfo extends ShortInfo {
   }
 
   /**
-   * DetailedInfo  constructor.
-   *
+   * DetailedInfo constructor.
+   * 
    * @param type
    *          int, the type of detailed info (current or completed)
    * @param chainLog
@@ -69,24 +70,24 @@ public class DetailedInfo extends ShortInfo {
     super(type, chainLog);
     this.backupConfig = new BackupConfigBean(chainLog.getBackupConfig());
   }
-  
+
   /**
-   * DetailedInfo  constructor.
+   * DetailedInfo constructor.
    * 
    * For current restore.
-   *
+   * 
    * @param type
-   *          int, the type of DetailedInfo 
+   *          int, the type of DetailedInfo
    * @param chainLog
    *          BackupChainLog, chain log for restore
    * @param startedTime
-   *          Calendar, the started time of restore 
+   *          Calendar, the started time of restore
    * @param finishedTime
    *          Calendar, the finished time of restore
    * @param state
    *          int, the state of restore
    */
-  public DetailedInfo(int type, 
+  public DetailedInfo(int type,
                       BackupChainLog chainLog,
                       Calendar startedTime,
                       Calendar finishedTime,
@@ -128,9 +129,8 @@ public class DetailedInfo extends ShortInfo {
 
   /**
    * getBackupConfig.
-   *
-   * @return BackupConfigBean
-   *           return the bean to backup config
+   * 
+   * @return BackupConfigBean return the bean to backup config
    */
   public BackupConfigBean getBackupConfig() {
     return backupConfig;
@@ -138,7 +138,7 @@ public class DetailedInfo extends ShortInfo {
 
   /**
    * setBackupConfig.
-   *
+   * 
    * @param backupConfig
    *          BackupConfigBean, the backup config bean
    */

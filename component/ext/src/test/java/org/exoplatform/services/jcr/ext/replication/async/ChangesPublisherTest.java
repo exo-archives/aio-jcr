@@ -41,7 +41,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.01.2009
+ * <br/>
+ * Date: 15.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ChangesPublisherTest.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -53,8 +54,8 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
   private static final String CH_NAME     = "AsyncRepCh_Test_ChangesSubscriberTest";
 
   private static final String bindAddress = "127.0.0.1";
-  
-  public void tearDown() throws Exception { 
+
+  public void tearDown() throws Exception {
     Thread.sleep(10000);
     super.tearDown();
   }
@@ -74,19 +75,20 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
     otherParticipantsPriority.add(priority2);
-    
-    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0), 
-                                                              session.getWorkspace().getName(), 
-                                                              priority1, 
-                                                              otherParticipantsPriority, 
-                                                              bindAddress, 
-                                                              CH_CONFIG, 
-                                                              CH_NAME, 
-                                                              storage.getAbsolutePath(), 
-                                                              waitAllMemberTimeout);
 
-    AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService, new InitParams());
-    asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));    
+    InitParams params = AsyncReplicationTester.getInitParams(repositoryNames.get(0),
+                                                             session.getWorkspace().getName(),
+                                                             priority1,
+                                                             otherParticipantsPriority,
+                                                             bindAddress,
+                                                             CH_CONFIG,
+                                                             CH_NAME,
+                                                             storage.getAbsolutePath(),
+                                                             waitAllMemberTimeout);
+
+    AsyncReplicationTester asyncReplication = new AsyncReplicationTester(repositoryService,
+                                                                         new InitParams());
+    asyncReplication.addAsyncWorkspaceConfig(new AsyncWorkspaceConfig(params));
 
     asyncReplication.start();
 
@@ -129,15 +131,18 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
     // get received data
     List<ChangesFile> destCfList = packetReceiver.getChangesFiles();
-    
+
     // deserialize
     List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
-      ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(destCfList, fileCleaner, maxBufferSize, holder);
-      while (it.hasNext()) 
+      ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(destCfList,
+                                                                                                     fileCleaner,
+                                                                                                     maxBufferSize,
+                                                                                                     holder);
+      while (it.hasNext())
         destChangesLogList.add(it.next());
     }
-    
+
     // compare ChangesLog
     assertEquals(srcChangesLogList.size(), destChangesLogList.size());
 
@@ -162,27 +167,28 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
     private LinkedHashMap<Long, IncomeDataContext> map = new LinkedHashMap<Long, IncomeDataContext>();
 
-    private long                             totalFiles;
+    private long                                   totalFiles;
 
     public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ChangesPacket) {
-        
+
         ChangesPacket packet = (ChangesPacket) p;
 
-        try{
+        try {
           IncomeDataContext cont = map.get(packet.getTimeStamp());
-          
-          if(cont==null){
-            TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(), packet.getTimeStamp());
-            cont = new IncomeDataContext(cf, null ,packet.getPacketsCount());
-            map.put(packet.getTimeStamp(), cont);         
+
+          if (cont == null) {
+            TesterRandomChangesFile cf = new TesterRandomChangesFile(packet.getCRC(),
+                                                                     packet.getTimeStamp());
+            cont = new IncomeDataContext(cf, null, packet.getPacketsCount());
+            map.put(packet.getTimeStamp(), cont);
           }
-          
+
           cont.writeData(packet.getBuffer(), packet.getOffset());
         } catch (IOException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
-        }catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
           log.error("Cannot save changes " + e, e);
           fail("Cannot save changes " + e);
         }
@@ -194,15 +200,15 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
     }
 
     protected List<ChangesFile> getChangesFiles() {
-      
+
       List<ChangesFile> list = new ArrayList<ChangesFile>();
-      
+
       Iterator<IncomeDataContext> vals = map.values().iterator();
-      
-      while(vals.hasNext()){
+
+      while (vals.hasNext()) {
         list.add(vals.next().getChangesFile());
       }
-      
+
       // do we need to clean map?
       return list;
     }

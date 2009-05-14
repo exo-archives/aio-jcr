@@ -18,16 +18,16 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import org.exoplatform.services.jcr.dataflow.PairChangesLog;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: VersionLogHolder.java 111 2008-11-11 11:11:11Z serg $
  */
 public interface VersionLogHolder {
-  
+
   public PairChangesLog getPairLog(String pairId);
 }

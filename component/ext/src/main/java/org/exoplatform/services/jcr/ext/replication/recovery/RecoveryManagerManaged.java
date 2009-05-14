@@ -16,16 +16,16 @@
  */
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.exoplatform.management.annotations.Managed;
 import org.exoplatform.management.annotations.ManagedDescription;
 import org.exoplatform.management.jmx.annotations.NameTemplate;
 import org.exoplatform.management.jmx.annotations.Property;
+import org.jgroups.Address;
 import org.jgroups.JChannel;
 import org.jgroups.View;
-import org.jgroups.Address;
-
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
@@ -33,10 +33,8 @@ import java.util.ArrayList;
  */
 @Managed
 @ManagedDescription("JCR cluster recovery manager")
-@NameTemplate({
-  @Property(key="service", value="replication"),
-  @Property(key="workspace", value="{WorkspaceName}")
-})
+@NameTemplate( { @Property(key = "service", value = "replication"),
+    @Property(key = "workspace", value = "{WorkspaceName}") })
 public class RecoveryManagerManaged {
 
   /** . */

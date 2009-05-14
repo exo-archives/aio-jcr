@@ -16,18 +16,13 @@
  */
 package org.exoplatform.services.jcr.ext.backup.impl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
@@ -37,10 +32,6 @@ import org.exoplatform.services.jcr.ext.backup.server.WorkspaceRestoreExeption;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS.

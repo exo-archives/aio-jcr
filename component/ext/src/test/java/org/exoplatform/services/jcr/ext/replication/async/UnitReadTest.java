@@ -32,7 +32,8 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChang
 import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: UnitReadTest.java 111 2008-11-11 11:11:11Z serg $
@@ -61,7 +62,7 @@ public class UnitReadTest extends BaseStandaloneTest {
 
     session.move(n1.getPath(), "/testNodeRenamed");
     root.save();
-    TransactionChangesLogWriter wr = new TransactionChangesLogWriter(); 
+    TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
 
     wr.write(out, pl.pushChanges().get(0));
     wr.write(out, pl.pushChanges().get(1));
@@ -71,7 +72,9 @@ public class UnitReadTest extends BaseStandaloneTest {
 
     ObjectReader in = new ObjectReaderImpl(new FileInputStream(f));
 
-    TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner, maxBufferSize, holder);
+    TransactionChangesLogReader rdr = new TransactionChangesLogReader(fileCleaner,
+                                                                      maxBufferSize,
+                                                                      holder);
     do {
       try {
         curLog = rdr.read(in);

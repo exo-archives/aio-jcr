@@ -25,7 +25,6 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
@@ -36,7 +35,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.01.2009
+ * <br/>
+ * Date: 15.01.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncReplicationTest.java 111 2008-11-11 11:11:11Z rainf0x $
