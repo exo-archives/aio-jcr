@@ -80,6 +80,11 @@ public abstract class AbstractMergeManager implements MergeManager {
   protected Member                    localMember = null;
 
   /**
+   * Helper.
+   */
+  protected final AsyncHelper         asyncHelper;
+
+  /**
    * Log.
    */
   protected static final Log          LOG         = ExoLogger.getLogger("jcr.MergerManager");
@@ -97,6 +102,7 @@ public abstract class AbstractMergeManager implements MergeManager {
     this.ntManager = ntManager;
     this.storageDir = storageDir;
     this.priority = priority;
+    this.asyncHelper = new AsyncHelper();
   }
 
   /**

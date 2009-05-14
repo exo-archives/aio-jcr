@@ -24,6 +24,7 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncHelper;
 
 /**
  * Created by The eXo Platform SAS.
@@ -40,6 +41,11 @@ public abstract class AbstractAnalyzer {
   protected final NodeTypeDataManager ntManager;
 
   /**
+   * Helper.
+   */
+  protected final AsyncHelper         asyncHelper;
+
+  /**
    * AbstractAnalyzer constructor.
    * 
    * @param localPriority
@@ -50,6 +56,7 @@ public abstract class AbstractAnalyzer {
     this.localPriority = localPriority;
     this.dataManager = dataManager;
     this.ntManager = ntManager;
+    this.asyncHelper = new AsyncHelper();
   }
 
   /**

@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncHelper;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -117,6 +118,11 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
   protected final int                                          maxBufferSize;
 
   protected final ReaderSpoolFileHolder                        holder;
+
+  /**
+   * Helper.
+   */
+  protected final AsyncHelper                                  asyncHelper;
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -238,6 +244,7 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
     this.maxBufferSize = maxBufferSize;
     this.holder = holder;
     this.digest = MessageDigest.getInstance("MD5");
+    this.asyncHelper = new AsyncHelper();
 
     // find last index of storage
     String[] dirs = getSubStorageNames(storagePath);
@@ -258,11 +265,12 @@ public abstract class AbstractLocalStorage extends SynchronizationLifeCycle impl
     java.util.Arrays.sort(files, new ChangesFileComparator<File>());
 
     if (files.length > 0) {
-      this.index = Long.parseLong(files[files.length - 1].getName()) + 1;
+      this.index = Long.parseLong(asyncHelper.removeInternalTag(files[files.length - 1].getName())) + 1;
     } else {
       this.index = new Long(0);
     }
 
+    // add shutdown hook
     java.lang.Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         flushChanges();

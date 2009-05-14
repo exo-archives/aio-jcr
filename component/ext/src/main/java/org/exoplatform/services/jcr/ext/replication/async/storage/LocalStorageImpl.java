@@ -147,15 +147,10 @@ public class LocalStorageImpl extends AbstractLocalStorage implements LocalStora
             din.read(crc);
             din.close();
 
-            String curFileName = curFile.getName()
-                                        .endsWith(LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG)
-                ? curFile.getName()
-                         .substring(0,
-                                    curFile.getName().length()
-                                        - LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG.length())
-                : curFile.getName();
-
-            chFiles.add(new SimpleChangesFile(curFile, crc, Long.parseLong(curFileName), resHolder));
+            chFiles.add(new SimpleChangesFile(curFile,
+                                              crc,
+                                              Long.parseLong(asyncHelper.removeInternalTag(curFile.getName())),
+                                              resHolder));
 
           }
         } catch (NumberFormatException e) {

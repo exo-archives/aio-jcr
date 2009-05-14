@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncHelper;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -101,6 +102,11 @@ public class ConflictResolver {
   private List<ItemState>                       versionableUUIDItemStates;
 
   /**
+   * Helper.
+   */
+  private final AsyncHelper                     asyncHelper;
+
+  /**
    * Log.
    */
   private static final Log                      LOG = ExoLogger.getLogger("jcr.ConflictResolver");
@@ -129,6 +135,7 @@ public class ConflictResolver {
     this.systemDataManager = systemDataManager;
     this.ntManager = ntManager;
     this.isExporterHasLocalMemberPriority = isExporterHasLocalMemberPriority;
+    this.asyncHelper = new AsyncHelper();
   }
 
   /**
@@ -287,12 +294,11 @@ public class ConflictResolver {
       while (itemStates.hasNext()) {
         ItemState item = itemStates.next();
 
-        if (item.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
-            || item.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+        if (asyncHelper.isLockProperty(item.getData().getQPath().getName())) {
           continue;
         }
 
-        if (item.getData().getIdentifier().equals(Constants.ROOT_UUID)) {
+        if (asyncHelper.isFixedIdentifier(item.getData().getIdentifier())) {
           continue;
         }
 
@@ -314,12 +320,11 @@ public class ConflictResolver {
       while (itemStates.hasNext()) {
         ItemState item = itemStates.next();
 
-        if (item.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
-            || item.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+        if (asyncHelper.isLockProperty(item.getData().getQPath().getName())) {
           continue;
         }
 
-        if (item.getData().getIdentifier().equals(Constants.ROOT_UUID)) {
+        if (asyncHelper.isFixedIdentifier(item.getData().getIdentifier())) {
           continue;
         }
 
@@ -610,8 +615,8 @@ public class ConflictResolver {
       List<ItemState> nextlocalChanges = new ArrayList<ItemState>();
       List<List<ItemState>> updateSeq = new ArrayList<List<ItemState>>();
       List<ItemState> localChanges = local.getChanges(conflictedPathes.get(i),
-                                                       nextlocalChanges,
-                                                       updateSeq);
+                                                      nextlocalChanges,
+                                                      updateSeq);
 
       for (int j = localChanges.size() - 1; j >= 0; j--) {
         ItemState curItem = localChanges.get(j);

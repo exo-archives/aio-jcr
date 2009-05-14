@@ -41,7 +41,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChange
 import org.exoplatform.services.jcr.ext.replication.async.storage.MarkableIterator;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.StorageRuntimeException;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
@@ -82,6 +81,8 @@ public class MergeDataManager extends AbstractMergeManager {
                                                                                                   MergeDataManagerException,
                                                                                                   StorageRuntimeException {
     try {
+      boolean isFirstMergeIteration = true;
+
       MemberChangesStorage<ItemState> first = membersChanges.next();
 
       EditableChangesStorage<ItemState> accumulated = new CompositeItemStatesStorage<ItemState>(makePath("accumulated-"
@@ -120,9 +121,8 @@ public class MergeDataManager extends AbstractMergeManager {
         }
 
         LOG.info("Merge changes (local=" + isLocalPriority + ") from "
-            + first.getMember().getPriority() + " (" + first.getMember().getAddress() + ") and "
-            + second.getMember().getPriority() + " (" + second.getMember().getAddress()
-            + ") members");
+            + (isFirstMergeIteration ? first.getMember().getPriority() : " previous merge result ")
+            + " and " + second.getMember().getPriority() + " members");
 
         EditableChangesStorage<ItemState> iteration = new CompositeItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                                          second.getMember()),
@@ -165,16 +165,11 @@ public class MergeDataManager extends AbstractMergeManager {
                     + ItemState.nameFromValue(incomeChange.getState()) + " "
                     + incomeChange.getData().getQPath().getAsString());
 
-              // skip lock properties
-              if (!incomeChange.getData().isNode()) {
-                if (incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
-                    || incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
-                  continue;
-                }
+              if (asyncHelper.isLockProperty(incomeChange.getData().getQPath().getName())) {
+                continue;
               }
 
-              // skip root node
-              if (incomeChange.getData().getIdentifier().equals(Constants.ROOT_UUID)) {
+              if (asyncHelper.isFixedIdentifier(incomeChange.getData().getIdentifier())) {
                 continue;
               }
 
@@ -263,6 +258,8 @@ public class MergeDataManager extends AbstractMergeManager {
 
           first = accumulated;
         }
+
+        isFirstMergeIteration = false;
       }
 
       // if success

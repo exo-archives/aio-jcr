@@ -19,6 +19,8 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.File;
 import java.util.Comparator;
 
+import org.exoplatform.services.jcr.ext.replication.async.AsyncHelper;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -29,30 +31,19 @@ import java.util.Comparator;
  */
 public class ChangesFileComparator<F extends File> implements Comparator<F> {
 
+  /**
+   * Helper.
+   */
+  private final AsyncHelper asyncHelper;
+
+  /**
+   * ChangesFileComparator constructor.
+   */
+  public ChangesFileComparator() {
+    this.asyncHelper = new AsyncHelper();
+  }
+
   public int compare(F o1, F o2) {
-
-    // long first = Long.parseLong(o1.getName());
-    // long second = Long.parseLong(o2.getName());
-    // if (first < second) {
-    // return -1;
-    // } else if (first == second) {
-    // return 0;
-    // } else {
-    // return 1;
-    // }
-
-    String fileName1 = o1.getName().endsWith(LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG)
-        ? o1.getName().substring(0,
-                                 o1.getName().length()
-                                     - LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG.length())
-        : o1.getName();
-
-    String fileName2 = o2.getName().endsWith(LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG)
-        ? o2.getName().substring(0,
-                                 o2.getName().length()
-                                     - LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG.length())
-        : o2.getName();
-
-    return (int) (Long.parseLong(fileName1) - Long.parseLong(fileName2));
+    return (int) (Long.parseLong(asyncHelper.removeInternalTag(o1.getName())) - Long.parseLong(asyncHelper.removeInternalTag(o2.getName())));
   }
 }

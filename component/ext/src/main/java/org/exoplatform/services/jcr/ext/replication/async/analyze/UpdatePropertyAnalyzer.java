@@ -30,7 +30,6 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.resolve.ConflictResolver;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.MarkableIterator;
-import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -71,16 +70,11 @@ public class UpdatePropertyAnalyzer extends AbstractAnalyzer {
       ItemData incomeData = incomeChange.getData();
       ItemData localData = localState.getData();
 
-      // skip lock properties
-      if (!localData.isNode()) {
-        if (localData.getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
-            || localData.getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
-          continue;
-        }
+      if (asyncHelper.isLockProperty(localData.getQPath().getName())) {
+        continue;
       }
 
-      // skip root node
-      if (localData.getIdentifier().equals(Constants.ROOT_UUID)) {
+      if (asyncHelper.isFixedIdentifier(localData.getIdentifier())) {
         continue;
       }
 

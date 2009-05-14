@@ -128,17 +128,10 @@ public class StartChangesLocalStorageImpl extends AbstractLocalStorage {
       try {
         File curFile = files[j];
 
-        String curFileName = curFile.getName().endsWith(LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG)
-            ? curFile.getName()
-                     .substring(0,
-                                curFile.getName().length()
-                                    - LocalStorageImpl.INTERNAL_CHANGES_FILE_TAG.length())
-            : curFile.getName();
-
         // crc does not calculate
         chFiles.add(new SimpleChangesFile(curFile,
                                           new byte[0],
-                                          Long.parseLong(curFileName),
+                                          Long.parseLong(asyncHelper.removeInternalTag(curFile.getName())),
                                           resHolder));
       } catch (NumberFormatException e) {
         throw new IOException(e.getMessage());
