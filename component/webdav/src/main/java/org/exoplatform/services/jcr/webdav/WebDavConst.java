@@ -400,17 +400,6 @@ public class WebDavConst {
   }
 
   /**
-   * Webdav extension namespaces.
-   * 
-   * @author visor
-   */
-  public class ExtNamespaces {
-    
-    public static final String SUBPROP = "webdav:subprop";
-    
-  }
-
-  /**
    * Contains HTTP/1.1 status description.
    */
   private static Hashtable<Integer, String> statusDescriptions = new Hashtable<Integer, String>();
