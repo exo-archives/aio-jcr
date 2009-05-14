@@ -1,0 +1,188 @@
+/*
+ * Copyright (C) 2003-2009 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.webdav.ext;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Calendar;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.ws.rs.core.MediaType;
+
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
+import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
+import org.exoplatform.services.rest.impl.ContainerResponse;
+
+/**
+ * Created by The eXo Platform SAS
+ * 
+ * @author <a href="work.visor.ck@gmail.com">Dmytro Katayev</a> May 7, 2009
+ */
+public class TestPropPatchContent extends BaseStandaloneTest {
+
+  @Override
+  protected String getRepositoryName() {
+    return null;
+  }
+
+  public void testProppatchSetContentProp() throws Exception {
+
+      Node node = session.getRootNode().addNode("propPatchContentNode", "nt:file");
+      
+      Node content = node.addNode("jcr:content", "exo:testContentResource");
+      
+      content.setProperty("jcr:mimeType", MediaType.TEXT_XML);
+      content.setProperty("jcr:lastModified", Calendar.getInstance());
+      content.setProperty("jcr:data", "testData");
+      
+      String propName1 = "webdav:prop1";
+      String propName2 = "webdav:prop2";
+      
+      content.setProperty(propName1, "value1");
+      content.setProperty(propName2, "value2");
+      session.save();
+      
+      String xml = "" +
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+      "<D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\" xmlns:jcr=\"jcr:\">" +
+        "<D:set>" +
+          "<D:prop>" +
+            "<webdav:Author>Author</webdav:Author>" +
+            "<jcr:content>" +
+              "<webdav:prop1>testValue1</webdav:prop1>" +
+              "<webdav:prop2>testValue2</webdav:prop2>" +
+            "</jcr:content>" +
+          "</D:prop>" +
+        "</D:set>" +      
+      "</D:propertyupdate>";
+      
+      String path = node.getPath();
+      ContainerResponse response = service(WebDAVMethods.PROPPATCH, getPathWS() + path, "", null, xml.getBytes());
+      assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
+      
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      PropPatchResponseEntity entity = (PropPatchResponseEntity) response.getEntity();
+      entity.write(outputStream);
+      
+      content = getContentNode(node);
+
+      assertEquals("testValue1", content.getProperty(propName1).getValue().getString());
+      assertEquals("testValue2", content.getProperty(propName2).getValue().getString());
+      
+  }
+  
+  public void testProppatchRemoveContentProp() throws Exception {
+
+    Node node = session.getRootNode().addNode("propPatchContentNode", "nt:file");
+    
+    Node content = node.addNode("jcr:content", "exo:testContentResource");
+    
+    content.setProperty("jcr:mimeType", MediaType.TEXT_XML);
+    content.setProperty("jcr:lastModified", Calendar.getInstance());
+    content.setProperty("jcr:data", "testData");
+    
+    String propName1 = "webdav:prop1";
+    
+    content.setProperty(propName1, "value1");
+    session.save();
+    
+    String xml = "" +
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    "<D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\" xmlns:jcr=\"jcr:\">" +
+      "<D:remove>" +
+        "<D:prop>" +
+          "<webdav:Author>Author</webdav:Author>" +
+          "<jcr:content>" +
+            "<webdav:prop1/>" +
+          "</jcr:content>" +
+        "</D:prop>" +
+      "</D:remove>" +      
+    "</D:propertyupdate>";
+    
+    String path = node.getPath();
+    ContainerResponse response = service(WebDAVMethods.PROPPATCH, getPathWS() + path, "", null, xml.getBytes());
+    assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PropPatchResponseEntity entity = (PropPatchResponseEntity) response.getEntity();
+    entity.write(outputStream);
+    
+    content = getContentNode(node);
+
+    try {
+      content.getProperty(propName1);
+      fail();
+    } catch (Exception e) {
+      // Success there is no such property.
+    }    
+    
+  }
+  
+  public void testProppatchResponseBody() throws Exception {
+
+    Node node = session.getRootNode().addNode("propPatchContentNode", "nt:file");
+    
+    Node content = node.addNode("jcr:content", "exo:testContentResource");
+    
+    content.setProperty("jcr:mimeType", MediaType.TEXT_XML);
+    content.setProperty("jcr:lastModified", Calendar.getInstance());
+    content.setProperty("jcr:data", "testData");
+    
+    String propName1 = "webdav:prop1";
+    
+    content.setProperty(propName1, "value1");
+    session.save();
+    
+    String xml = "" +
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    "<D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\" xmlns:jcr=\"jcr:\">" +
+      "<D:set>" +
+        "<D:prop>" +
+        "<webdav:Author>Author</webdav:Author>" +
+          "<jcr:content>" +
+            "<webdav:prop1>testValue</webdav:prop1>" +
+          "</jcr:content>" +
+          "<webdav:testprop>Author</webdav:testprop>" +
+        "</D:prop>" +
+      "</D:set>" +      
+      "<D:remove>" +
+        "<D:prop>" +
+          "<webdav:Author>Author</webdav:Author>" +
+          "<jcr:content>" +
+            "<webdav:prop1/>" +
+          "</jcr:content>" +
+          "<webdav:testprop>Author</webdav:testprop>" +
+          "</D:prop>" +
+    "</D:remove>" +
+    "</D:propertyupdate>";
+    
+    String path = node.getPath();
+    ContainerResponse response = service(WebDAVMethods.PROPPATCH, getPathWS() + path, "", null, xml.getBytes());
+    assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
+    
+    ByteArrayOutputStream bas = new ByteArrayOutputStream();
+    ((PropPatchResponseEntity) response.getEntity()).write(bas);
+    System.out.println(new String(bas.toByteArray()));
+    
+  }
+  
+  
+  public static Node getContentNode(Node node) throws RepositoryException {
+    return node.getNode("jcr:content");
+  }
+}
