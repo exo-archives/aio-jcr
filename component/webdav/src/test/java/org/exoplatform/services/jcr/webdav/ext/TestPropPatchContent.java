@@ -132,55 +132,7 @@ public class TestPropPatchContent extends BaseStandaloneTest {
     }    
     
   }
-  
-  public void testProppatchResponseBody() throws Exception {
-
-    Node node = session.getRootNode().addNode("propPatchContentNode", "nt:file");
-    
-    Node content = node.addNode("jcr:content", "exo:testContentResource");
-    
-    content.setProperty("jcr:mimeType", MediaType.TEXT_XML);
-    content.setProperty("jcr:lastModified", Calendar.getInstance());
-    content.setProperty("jcr:data", "testData");
-    
-    String propName1 = "webdav:prop1";
-    
-    content.setProperty(propName1, "value1");
-    session.save();
-    
-    String xml = "" +
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-    "<D:propertyupdate xmlns:D=\"DAV:\" xmlns:b=\"urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882\" xmlns:webdav=\"http://www.exoplatform.org/jcr/webdav\" xmlns:jcr=\"jcr:\">" +
-      "<D:set>" +
-        "<D:prop>" +
-        "<webdav:Author>Author</webdav:Author>" +
-          "<jcr:content>" +
-            "<webdav:prop1>testValue</webdav:prop1>" +
-          "</jcr:content>" +
-          "<webdav:testprop>Author</webdav:testprop>" +
-        "</D:prop>" +
-      "</D:set>" +      
-      "<D:remove>" +
-        "<D:prop>" +
-          "<webdav:Author>Author</webdav:Author>" +
-          "<jcr:content>" +
-            "<webdav:prop1/>" +
-          "</jcr:content>" +
-          "<webdav:testprop>Author</webdav:testprop>" +
-          "</D:prop>" +
-    "</D:remove>" +
-    "</D:propertyupdate>";
-    
-    String path = node.getPath();
-    ContainerResponse response = service(WebDAVMethods.PROPPATCH, getPathWS() + path, "", null, xml.getBytes());
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
-    
-    ByteArrayOutputStream bas = new ByteArrayOutputStream();
-    ((PropPatchResponseEntity) response.getEntity()).write(bas);
-    System.out.println(new String(bas.toByteArray()));
-    
-  }
-  
+ 
   
   public static Node getContentNode(Node node) throws RepositoryException {
     return node.getNode("jcr:content");
