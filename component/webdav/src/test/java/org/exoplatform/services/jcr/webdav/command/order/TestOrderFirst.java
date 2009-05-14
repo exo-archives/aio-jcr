@@ -28,7 +28,6 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;
-import org.exoplatform.services.jcr.webdav.command.OrderPatchCommand;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.rest.ext.provider.HierarchicalPropertyEntityProvider;
 import org.exoplatform.services.rest.impl.ContainerResponse;
