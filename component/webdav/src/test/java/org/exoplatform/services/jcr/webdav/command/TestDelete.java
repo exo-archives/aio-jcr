@@ -37,27 +37,27 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 public class TestDelete extends BaseStandaloneTest {
 
-//  public void testDeleteForNonCollection() throws Exception {
-//    String path = TestUtils.getFileName();
-//    String fileContent = TestUtils.getFileContent();
-//    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-//    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
-//    ContainerResponse response = service(WebDAVMethods.DELETE, getPathWS() + path, "", null, null);
-//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
-//    assertFalse(session.getRootNode().hasNode(TextUtil.relativizePath(path)));
-//  }
-//  
-//  public void testDeleteForCollection() throws Exception {
-//    String path = TestUtils.getFileName();
-//    String fileContent = TestUtils.getFileContent();
-//    String folderName  = TestUtils.getFolderName();
-//    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
-//    TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
-//    TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
-//    ContainerResponse response = service(WebDAVMethods.DELETE, getPathWS() + folderName, "", null, null);
-//    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
-//    assertFalse(session.getRootNode().hasNode(TextUtil.relativizePath(folderName)));
-//  }
+  public void testDeleteForNonCollection() throws Exception {
+    String path = TestUtils.getFileName();
+    String fileContent = TestUtils.getFileContent();
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
+    ContainerResponse response = service(WebDAVMethods.DELETE, getPathWS() + path, "", null, null);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
+    assertFalse(session.getRootNode().hasNode(TextUtil.relativizePath(path)));
+  }
+  
+  public void testDeleteForCollection() throws Exception {
+    String path = TestUtils.getFileName();
+    String fileContent = TestUtils.getFileContent();
+    String folderName  = TestUtils.getFolderName();
+    InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
+    TestUtils.addFolder(session, folderName, defaultFolderNodeType, "");
+    TestUtils.addContent(session, folderName + path, inputStream, defaultFileNodeType, "");
+    ContainerResponse response = service(WebDAVMethods.DELETE, getPathWS() + folderName, "", null, null);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
+    assertFalse(session.getRootNode().hasNode(TextUtil.relativizePath(folderName)));
+  }
   
   public void testDeleteWithLock() throws Exception{
     String path = TestUtils.getFileName();
