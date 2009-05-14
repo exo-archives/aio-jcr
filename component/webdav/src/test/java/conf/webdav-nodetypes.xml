@@ -125,6 +125,38 @@
     </supertypes>
     
   </nodeType> 
+  
+  <nodeType name="exo:testContentResource" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
+
+    <supertypes>
+      <supertype>nt:resource</supertype>
+    </supertypes>
+    
+    <propertyDefinitions>
+      <propertyDefinition name="webdav:prop1" 
+          requiredType="undefined" 
+          autoCreated="false" 
+          mandatory="false" 
+          onParentVersion="COPY" 
+          protected="false" 
+          multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>
+      <propertyDefinition name="webdav:prop2" 
+          requiredType="undefined" 
+          autoCreated="false" 
+          mandatory="false" 
+          onParentVersion="COPY" 
+          protected="false" 
+          multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>
+    </propertyDefinitions>
+    
+    
+  </nodeType> 
+  
+  
     
 	  
 </nodeTypes>
