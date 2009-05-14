@@ -34,13 +34,22 @@ import org.exoplatform.common.http.HTTPStatus;
 
 public class DeleteCommand {
 
-  public Response delete(Session session, String path) {
+  public Response delete(Session session, String path, String lockTokenHeader) {
     try {
+      if(lockTokenHeader == null){
+        lockTokenHeader = "";
+      }
+      
       Item item = session.getItem(path);
       if (item.isNode()) {
         Node node = (Node) item;
         if(node.isLocked()){
-          return Response.status(HTTPStatus.LOCKED).build();
+          
+          String nodeLockToken = node.getLock().getLockToken();
+          
+          if( (nodeLockToken == null) || (!nodeLockToken.equals(lockTokenHeader))) {
+            return Response.status(HTTPStatus.LOCKED).build();
+          }
         }        
       }
       item.remove();

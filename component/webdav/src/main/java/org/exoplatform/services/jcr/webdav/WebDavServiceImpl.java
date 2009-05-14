@@ -362,7 +362,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
-      return new DeleteCommand().delete(session, path(repoPath));
+      if(lockTokenHeader != null){
+        lockTokenHeader = lockTokenHeader.substring(1, lockTokenHeader.length() - 1);
+      }
+      return new DeleteCommand().delete(session, path(repoPath), lockTokenHeader);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
       return Response.status(HTTPStatus.NOT_FOUND).build();
