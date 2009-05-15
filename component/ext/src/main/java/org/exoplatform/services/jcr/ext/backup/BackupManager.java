@@ -60,11 +60,12 @@ public interface BackupManager {
 
   BackupChain findBackup(String backupId);
 
+  @Deprecated
   void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
                                                                                         BackupConfigurationException,
                                                                                         RepositoryException,
                                                                                         RepositoryConfigurationException;
-
+  
   void restore(BackupChainLog log,
                String repositoryName,
                WorkspaceEntry workspaceEntry,

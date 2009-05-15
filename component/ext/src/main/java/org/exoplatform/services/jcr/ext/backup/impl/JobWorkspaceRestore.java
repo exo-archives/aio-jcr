@@ -172,7 +172,7 @@ public class JobWorkspaceRestore extends Thread {
       RepositoryEntry reEntry = repository.getConfiguration();
 
       try {
-        backupManager.restore(backupChainLog, reEntry.getName(), wEntry);
+        backupManager.restore(backupChainLog, reEntry.getName(), wEntry, false);
       } catch (Throwable t) {
         removeWorkspace(repository, wEntry.getName());
         throw new WorkspaceRestoreExeption("Can not be restored the workspace '" + "/" + repositoryName + "/"

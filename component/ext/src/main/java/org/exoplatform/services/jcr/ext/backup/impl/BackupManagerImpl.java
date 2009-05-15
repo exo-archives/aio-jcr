@@ -42,7 +42,9 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
+import org.exoplatform.services.jcr.config.WorkspaceInitializerEntry;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -65,6 +67,7 @@ import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.SysViewWorkspaceInitializer;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -100,7 +103,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private static final int           MESSAGES_MAXSIZE               = 5;
 
   private static final String        SERVICE_NAME                   = "BackupManager";
-  
+
   private static final long          AUTO_STOPPER_TIMEOUT           = 5000;
 
   private long                       defaultIncrementalJobPeriod;
@@ -135,7 +138,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private final BackupMessagesLog    messages;
 
   private final MessagesListener     messagesListener;
-  
+
   private final AutoStopper          stopper;
 
   class MessagesListener implements BackupJobListener {
@@ -221,9 +224,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
       return pathname.getName().endsWith(".task");
     }
   }
-  
+
   class AutoStopper extends Thread {
-    
+
     /**
      * {@inheritDoc}
      */
@@ -231,27 +234,27 @@ public class BackupManagerImpl implements BackupManager, Startable {
       while (true) {
         try {
           Thread.sleep(AUTO_STOPPER_TIMEOUT);
-          
+
           Iterator<BackupChain> it = currentBackups.iterator();
-          List<BackupChain> stopedList = new ArrayList<BackupChain>(); 
-          
+          List<BackupChain> stopedList = new ArrayList<BackupChain>();
+
           while (it.hasNext()) {
             BackupChain chain = it.next();
             boolean isFinished = (chain.getBackupJobs().get(0).getState() == BackupJob.FINISHED);
-            
-            for (int i = 1 ; i < chain.getBackupJobs().size(); i++) 
+
+            for (int i = 1; i < chain.getBackupJobs().size(); i++)
               isFinished &= (chain.getBackupJobs().get(i).getState() == BackupJob.FINISHED);
-            
+
             if (isFinished) {
               stopedList.add(chain);
             }
           }
-          
+
           // STOP backups
-            for (BackupChain chain : stopedList)
-              stopBackup(chain);  
+          for (BackupChain chain : stopedList)
+            stopBackup(chain);
         } catch (InterruptedException e) {
-          log.error( "The interapted this thread.", e);
+          log.error("The interapted this thread.", e);
         } catch (Throwable e) {
           log.error("The unknown error", e);
         }
@@ -298,7 +301,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
     List<BackupChainLog> logs = new ArrayList<BackupChainLog>();
     for (int i = 0; i < cfs.length; i++) {
       File cf = cfs[i];
-      
+
       try {
         if (!isCurrentBackup(cf))
           logs.add(new BackupChainLog(cf));
@@ -313,24 +316,24 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
   /**
    * isCurrentBackup.
-   *
+   * 
    * @param log
-   *          File, the log to backup 
-   * @return boolean
-   *           return the 'true' if this log is current backup. 
+   *          File, the log to backup
+   * @return boolean return the 'true' if this log is current backup.
    */
   private boolean isCurrentBackup(File log) {
-    for (BackupChain chain : currentBackups) 
-      if (log.getName().equals(new File(chain.getLogFilePath()).getName())) 
+    for (BackupChain chain : currentBackups)
+      if (log.getName().equals(new File(chain.getLogFilePath()).getName()))
         return true;
 
     return false;
   }
 
+  @Deprecated
   public void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
-                                                                                               RepositoryException,
-                                                                                               RepositoryConfigurationException,
-                                                                                               BackupConfigurationException {
+                                                                                                RepositoryException,
+                                                                                                RepositoryConfigurationException,
+                                                                                                BackupConfigurationException {
 
     List<JobEntryInfo> list = log.getJobEntryInfos();
     BackupConfig config = log.getBackupConfig();
@@ -347,6 +350,50 @@ public class BackupManagerImpl implements BackupManager, Startable {
             fullRestore(list.get(i).getURL().getPath(),
                         reposytoryName,
                         workspaseName,
+                        workspaceEntry);
+          } catch (FileNotFoundException e) {
+            throw new BackupOperationException("Restore of full backup file error " + e, e);
+          } catch (IOException e) {
+            throw new BackupOperationException("Restore of full backup file I/O error " + e, e);
+          }
+        } else {
+          // TODO do we not restoring same content few times, i.e. on STARTING, WAITIG, FINISHED
+          // events which are logged in chan log one after another
+          try {
+            incrementalRestore(list.get(i).getURL().getPath(), reposytoryName, workspaseName);
+          } catch (FileNotFoundException e) {
+            throw new BackupOperationException("Restore of incremental backup file error " + e, e);
+          } catch (IOException e) {
+            throw new BackupOperationException("Restore of incremental backup file I/O error " + e,
+                                               e);
+          } catch (ClassNotFoundException e) {
+            throw new BackupOperationException("Restore of incremental backup error " + e, e);
+          }
+        }
+      }
+    } else
+      throw new BackupConfigurationException("Workspace should exists " + workspaseName);
+  }
+
+  protected void restoreOverInitializer(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
+                                                                                               RepositoryException,
+                                                                                               RepositoryConfigurationException,
+                                                                                               BackupConfigurationException {
+
+    List<JobEntryInfo> list = log.getJobEntryInfos();
+    BackupConfig config = log.getBackupConfig();
+
+    String reposytoryName = (repositoryName == null ? config.getRepository() : repositoryName);
+    String workspaseName = workspaceEntry.getName();
+
+    // ws should be registered not created
+    if (!workspaceAlreadyExist(reposytoryName, workspaseName)) {
+
+      for (int i = 0; i < list.size(); i++) {
+        if (i == 0) {
+          try {
+            fullRestoreOverInitializer(list.get(i).getURL().getPath(),
+                        reposytoryName,
                         workspaceEntry);
           } catch (FileNotFoundException e) {
             throw new BackupOperationException("Restore of full backup file error " + e, e);
@@ -482,6 +529,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
     // scheduler = null;
   }
 
+  @Deprecated
   private void fullRestore(String pathBackupFile,
                            String repositoryName,
                            String workspaceName,
@@ -493,6 +541,31 @@ public class BackupManagerImpl implements BackupManager, Startable {
     RepositoryImpl defRep = (RepositoryImpl) repoService.getRepository(repositoryName);
 
     defRep.importWorkspace(workspaceEntry.getName(), new FileInputStream(pathBackupFile));
+  }
+  
+  private void fullRestoreOverInitializer(String pathBackupFile,
+                           String repositoryName,
+                           WorkspaceEntry workspaceEntry) throws FileNotFoundException,
+                                                         IOException,
+                                                         RepositoryException,
+                                                         RepositoryConfigurationException {
+
+    RepositoryImpl defRep = (RepositoryImpl) repoService.getRepository(repositoryName);
+    
+    // set the initializer SysViewWorkspaceInitializer
+    WorkspaceInitializerEntry wiEntry = new WorkspaceInitializerEntry();
+    wiEntry.setType(SysViewWorkspaceInitializer.class.getCanonicalName());
+    
+    List<SimpleParameterEntry> wieParams = new ArrayList<SimpleParameterEntry>();
+    wieParams.add(new SimpleParameterEntry(SysViewWorkspaceInitializer.RESTORE_PATH_PARAMETER, pathBackupFile));
+    
+    wiEntry.setParameters(wieParams);
+    
+    workspaceEntry.setInitializer(wiEntry);
+
+    //restore
+    defRep.configWorkspace(workspaceEntry);
+    defRep.createWorkspace(workspaceEntry.getName());
   }
 
   private void incrementalRestore(String pathBackupFile, String repositoryName, String workspaceName) throws RepositoryException,
@@ -888,7 +961,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
       restoreJobs.add(jobRestore);
       jobRestore.start();
     } else {
-      this.restore(log, repositoryName, workspaceEntry);
+      this.restoreOverInitializer(log, repositoryName, workspaceEntry);
     }
   }
 }

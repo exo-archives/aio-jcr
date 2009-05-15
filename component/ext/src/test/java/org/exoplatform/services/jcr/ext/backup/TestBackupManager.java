@@ -72,8 +72,6 @@ public class TestBackupManager extends AbstractBackupTestCase {
                                                      .getComponentInstanceOfType(RepositoryEntry.class);
     WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back", "jdbcjcr_backup_only_use_1");
 
-    repository.configWorkspace(ws1back);
-
     // BackupChainLog bchLog = new BackupChainLog(backDir, rconfig);
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
@@ -82,7 +80,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
       assertNotNull(bchLog.getStartedTime());
       assertNotNull(bchLog.getFinishedTime());
 
-      backup.restore(bchLog, re.getName(), ws1back);
+      backup.restore(bchLog, re.getName(), ws1back, false);
 
       // check
       SessionImpl back1 = null;
@@ -145,8 +143,6 @@ public class TestBackupManager extends AbstractBackupTestCase {
                                                      .getComponentInstanceOfType(RepositoryEntry.class);
     WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr", "jdbcjcr_backup_only_use_2");
 
-    repository.configWorkspace(ws1back);
-
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
@@ -154,7 +150,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
       assertNotNull(bchLog.getStartedTime());
       assertNotNull(bchLog.getFinishedTime());
 
-      backup.restore(bchLog, re.getName(), ws1back);
+      backup.restore(bchLog, re.getName(), ws1back, false);
 
       // check
       SessionImpl back1 = null;
@@ -266,8 +262,6 @@ public class TestBackupManager extends AbstractBackupTestCase {
                                                      .getComponentInstanceOfType(RepositoryEntry.class);
     WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr2", "jdbcjcr_backup_only_use_3");
 
-    repository.configWorkspace(ws1back);
-
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
       BackupChainLog bchLog = new BackupChainLog(backLog);
@@ -275,7 +269,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
       assertNotNull(bchLog.getStartedTime());
       assertNotNull(bchLog.getFinishedTime());
 
-      backup.restore(bchLog, re.getName(), ws1back);
+      backup.restore(bchLog, re.getName(), ws1back, false);
 
       // check
       SessionImpl back1 = null;
@@ -361,8 +355,6 @@ public class TestBackupManager extends AbstractBackupTestCase {
 
     // restore
     WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back5", "jdbcjcr_backup_only_use_5");
-
-    repository.configWorkspace(ws1back);
 
     File backLog = new File(bch.getLogFilePath());
     if (backLog.exists()) {
@@ -464,24 +456,6 @@ public class TestBackupManager extends AbstractBackupTestCase {
     
     final BackupChain bch = backup.startBackup(config);
     
-    /*Thread t = new Thread() {
-      @Override
-      public void run() {
-        while (true) {
-          System.out.println(bch.isFinished() + " : f-" + (bch.getBackupJobs().get(0).getState() == BackupJob.FINISHED)
-                                              + " : i-" + (bch.getBackupJobs().get(1).getState() == BackupJob.FINISHED)
-                                              + " : s-" + bch.getBackupJobs().size());
-          try {
-            Thread.sleep(50);
-          } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-        }
-      }
-    };
-    t.start();*/
-    
     Thread.sleep(20000);
     
     assertTrue(bch.isFinished());
@@ -524,13 +498,12 @@ public class TestBackupManager extends AbstractBackupTestCase {
       
       // 1-st restore
       WorkspaceEntry ws1_restore_1 = makeWorkspaceEntry("ws1_restore_1", "jdbcjcr_backup_only_use_6");
-      repository.configWorkspace(ws1_restore_1);
       
       File backLog = new File(bch.getLogFilePath());
       if (backLog.exists()) {
         BackupChainLog bchLog = new BackupChainLog(backLog);
         
-        backup.restore(bchLog, repository.getName(), ws1_restore_1);
+        backup.restore(bchLog, repository.getName(), ws1_restore_1, false);
   
         // check
         SessionImpl back1 = (SessionImpl) repository.login(credentials, "ws1_restore_1");
@@ -568,13 +541,12 @@ public class TestBackupManager extends AbstractBackupTestCase {
       
       // 2-st restore
       WorkspaceEntry ws1_restore_2 = makeWorkspaceEntry("ws1_restore_2", "jdbcjcr_backup_only_use_7");
-      repository.configWorkspace(ws1_restore_2);
       
       File backLog = new File(bch.getLogFilePath());
       if (backLog.exists()) {
         BackupChainLog bchLog = new BackupChainLog(backLog);
         
-        backup.restore(bchLog, repository.getName(), ws1_restore_2);
+        backup.restore(bchLog, repository.getName(), ws1_restore_2, false);
   
         // check
         SessionImpl back2 = (SessionImpl) repository.login(credentials, "ws1_restore_2");
