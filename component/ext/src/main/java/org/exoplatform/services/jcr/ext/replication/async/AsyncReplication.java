@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,7 +28,10 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
+import org.picocontainer.Startable;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -51,11 +55,9 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SAS. <br/>
- * Date: 10.12.2008
+ * Created by The eXo Platform SAS. <br/> Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -540,29 +542,20 @@ public class AsyncReplication implements Startable {
    * {@inheritDoc}
    */
   public void stop() {
-    // TODO stop after the JCR Repo stopped
+    Iterator<AsyncWorker> asyncWorkers = currentWorkers.iterator();
+    while (asyncWorkers.hasNext()) {
+      AsyncWorker asyncWorker = asyncWorkers.next();
 
-    // Possible implementation
-    /*
-     * try { for (String repositoryName : repositoryNames) {
-     * ManageableRepository repository =
-     * repoService.getRepository(repositoryName); String wsNames[] =
-     * repository.getWorkspaceNames(); for (String wsName : wsNames) {
-     * WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-     * PersistentDataManager dm = (PersistentDataManager)
-     * wsc.getComponent(PersistentDataManager.class); StorageKey key = new
-     * StorageKey(repositoryName, wsName); // Look in LocalStorages
-     * LocalStorageImpl ls = localStorages.remove(key); if (ls != null) { //
-     * force stop if (!ls.isStopped()) { ls.onStop(); } // remove listener
-     * dm.removeItemPersistenceListener(ls); } // Look in IncomeStorages String
-     * path = incomeStoragePaths.remove(key); //delete income storage // Look in
-     * null workspace listeners WorkspaceNullListener wl =
-     * this.nullWorkspaces.remove(key); if (wl != null) { // remove listener
-     * dm.removeItemPersistenceListener(wl); } } } } catch (RepositoryException
-     * e) { LOG.error("Asynchronous replication stop fails" + e, e); } catch
-     * (RepositoryConfigurationException e) { LOG.error("Asynchronous
-     * replication stop fails" + e, e); }
-     */
+      // TODO order
+      /*      asyncWorker.publisher.onStop();
+            asyncWorker.subscriber.onStop();
+            asyncWorker.initializer.onStop();
+            asyncWorker.incomeStorage.onStop();*/
+    }
+
+    // Task:
+    // Add service stop behaviour. Each part of the service should be stopped (see
+    // SynchronizationLifeCycle).
   }
 
   private boolean hasLocalSorageError(AsyncWorkspaceConfig config) throws RepositoryConfigurationException,
