@@ -26,6 +26,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.jcr.RepositoryException;
+
+import org.picocontainer.Startable;
+
+import org.apache.commons.logging.Log;
+
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
@@ -47,13 +54,12 @@ import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileH
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>
- * Date: 10.12.2008
+ * Created by The eXo Platform SAS. <br/> Date: 10.12.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class AsyncReplication implements Startable {
@@ -378,8 +384,7 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process. Process will use the service
-   * configuration.
+   * Initialize synchronization process. Process will use the service configuration.
    * 
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
@@ -405,10 +410,11 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process on specific repository. Process will use
-   * the service configuration.
+   * Initialize synchronization process on specific repository. Process will use the service
+   * configuration.
    * 
-   * @param repoName String repository name
+   * @param repoName
+   *          String repository name
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -541,12 +547,15 @@ public class AsyncReplication implements Startable {
       AsyncWorker asyncWorker = asyncWorkers.next();
 
       // TODO order
-      // Add service stop behaviour. Each part of the service should be stopped
-      asyncWorker.publisher.onStop();
-      asyncWorker.subscriber.onStop();
-      asyncWorker.initializer.onStop();
-      asyncWorker.incomeStorage.onStop();
+      /*      asyncWorker.publisher.onStop();
+            asyncWorker.subscriber.onStop();
+            asyncWorker.initializer.onStop();
+            asyncWorker.incomeStorage.onStop();*/
     }
+
+    // Task:
+    // Add service stop behaviour. Each part of the service should be stopped (see
+    // SynchronizationLifeCycle).
   }
 
   private boolean hasLocalSorageError(AsyncWorkspaceConfig config) throws RepositoryConfigurationException,
@@ -672,10 +681,10 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Returns <code>true</code> if workspace is replicable, <code>false</code> if
-   * not.
+   * Returns <code>true</code> if workspace is replicable, <code>false</code> if not.
    * 
-   * @param wsName - String workspace name.
+   * @param wsName
+   *          - String workspace name.
    * @return boolean.
    */
   private boolean isReplicableWorkspace(String repoName, String wsName) {
@@ -689,10 +698,14 @@ public class AsyncReplication implements Startable {
   /**
    * Create and register WorkspaceNullListener.
    * 
-   * @param repository - ManageableRepository.
-   * @param repositoryName - repository name.
-   * @param wsName - workspace name.
-   * @param systemWSName - syetme workspace name.
+   * @param repository
+   *          - ManageableRepository.
+   * @param repositoryName
+   *          - repository name.
+   * @param wsName
+   *          - workspace name.
+   * @param systemWSName
+   *          - syetme workspace name.
    * @throws ClassNotFoundException
    * @throws IOException
    */
