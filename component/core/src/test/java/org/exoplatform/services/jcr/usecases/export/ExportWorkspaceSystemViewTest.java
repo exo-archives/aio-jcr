@@ -21,13 +21,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.exoplatform.services.jcr.config.ContainerEntry;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
+import org.exoplatform.services.jcr.config.WorkspaceInitializerEntry;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.SysViewWorkspaceInitializer;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
@@ -55,11 +58,10 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
       sessionWS1.exportWorkspaceSystemView(new FileOutputStream(f1), false, false);
 
       // 1-st import
-      WorkspaceEntry ws1_restore_1 = makeWorkspaceEntry("ws1_restore_1", "jdbcjcr2export1");
+      WorkspaceEntry ws1_restore_1 = makeWorkspaceEntry("ws1_restore_1", "jdbcjcr2export1", f1);
       repository.configWorkspace(ws1_restore_1);
+      repository.createWorkspace(ws1_restore_1.getName());
       
-      repository.importWorkspace(ws1_restore_1.getName(), new FileInputStream(f1));
-  
         // check
         SessionImpl back1 = (SessionImpl) repository.login(credentials, "ws1_restore_1");
         assertNotNull(back1.getRootNode().getNode("asdasdasda").getProperty("data"));
@@ -78,10 +80,9 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
       back1.exportWorkspaceSystemView(new FileOutputStream(f2), false, false);
 
       // 2-st import
-      WorkspaceEntry ws1_restore_2 = makeWorkspaceEntry("ws1_restore_2", "jdbcjcr2export2");
+      WorkspaceEntry ws1_restore_2 = makeWorkspaceEntry("ws1_restore_2", "jdbcjcr2export2", f2);
       repository.configWorkspace(ws1_restore_2);
-      
-      repository.importWorkspace(ws1_restore_2.getName(), new FileInputStream(f2));
+      repository.createWorkspace(ws1_restore_2.getName());
       
       // check
         SessionImpl back2 = (SessionImpl) repository.login(credentials, "ws1_restore_2");
@@ -89,7 +90,7 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
     }
   }
   
-  private WorkspaceEntry makeWorkspaceEntry(String name, String sourceName) {
+  private WorkspaceEntry makeWorkspaceEntry(String name, String sourceName, File sysViewFile) {
     WorkspaceEntry ws1e = (WorkspaceEntry) session.getContainer()
                                                      .getComponentInstanceOfType(WorkspaceEntry.class);
 
@@ -104,6 +105,17 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
     ws1back.setCache(ws1e.getCache());
     ws1back.setContainer(ws1e.getContainer());
     ws1back.setLockManager(ws1e.getLockManager());
+   
+    // Initializer
+    WorkspaceInitializerEntry wiEntry = new WorkspaceInitializerEntry();
+    wiEntry.setType(SysViewWorkspaceInitializer.class.getCanonicalName());
+    
+    List<SimpleParameterEntry> wieParams = new ArrayList<SimpleParameterEntry>();
+    wieParams.add(new SimpleParameterEntry(SysViewWorkspaceInitializer.RESTORE_PATH_PARAMETER, sysViewFile.getPath()));
+    
+    wiEntry.setParameters(wieParams);
+    
+    ws1back.setInitializer(wiEntry);
 
     // Indexer
     ArrayList qParams = new ArrayList();
