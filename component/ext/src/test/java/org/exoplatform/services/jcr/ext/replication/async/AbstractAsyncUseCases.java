@@ -307,6 +307,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
 
     @Override
+    /*
+     * *
+     */
     public void useCaseHighPriority() throws Exception {
       Node node = sessionHighPriority.getRootNode().getNode("item1");
       node.restore("1", false);
@@ -1303,16 +1306,11 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Add node1, rename node to node2 on server 1
-   * 
-   * 2. Add node1, rename node to node2 on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
+  /*
+   * * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority) 1.
+   * Add node1, rename node to node2 on server 1 2. Add node1, rename node to
+   * node2 on server 2 3. Initialize synchronization on server 1 4. Initialize
+   * synchronization on server 2
    */
   public class ComplexUseCase1 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase1(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1344,9 +1342,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
-   * 
+  /*
+   * * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
    * Update property with size = 200kb
    */
   public class ComplexUseCase2 extends BaseTwoMembersMergeUseCase {
@@ -1378,8 +1375,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Complex UseCase1 3 (server 1 - high priority, server 2 -low priority)
+  /*
+   * * Complex UseCase1 3 (server 1 - high priority, server 2 -low priority)
    */
   public class ComplexUseCase3 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase3(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1413,10 +1410,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Complex UseCase4 (server 1 - high priority, server 2 -low priority)
-   * 
-   * With complex node type (nt:file + mixin dc:elementSet)
+  /*
+   * * Complex UseCase4 (server 1 - high priority, server 2 -low priority) With
+   * complex node type (nt:file + mixin dc:elementSet)
    */
   public class ComplexUseCase4 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase4(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1520,10 +1516,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
   }
 
-  /**
-   * Complex UseCase4 (server 1 - high priority, server 2 -low priority)
-   * 
-   * With complex node type (nt:file + mixin dc:elementSet)
+  /*
+   * * Complex UseCase4 (server 1 - high priority, server 2 -low priority) With
+   * complex node type (nt:file + mixin dc:elementSet)
    */
   public class CompexUsecaseBigFile extends BaseTwoMembersMergeUseCase {
     public CompexUsecaseBigFile(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1599,10 +1594,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Complex UseCase5 (server 1 - high priority, server 2 -low priority)
-   * 
-   * With complex node type (nt:file + mixin dc:elementSet)
+  /*
+   * * Complex UseCase5 (server 1 - high priority, server 2 -low priority) With
+   * complex node type (nt:file + mixin dc:elementSet)
    */
   public class ComplexUseCase5 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase5(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1639,9 +1633,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
 
   }
 
-  /**
-   * Complex UseCase6 Add node and twice move it
-   * 
+  /*
+   * * Complex UseCase6 Add node and twice move it
    */
   public class ComplexUseCase6 extends BaseTwoMembersMergeUseCase {
     public ComplexUseCase6(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1887,18 +1880,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Add text file /fileA.txt on server 1
-   * 
-   * 2. Add text file /fileB.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if files exist, if content of files same as original.
+  /*
+   * * Demo usecase 1 (server 1 - high priority, server 2 -low priority) 1. Add
+   * text file /fileA.txt on server 1 2. Add text file /fileB.txt on server 2 3.
+   * Initialize synchronization on server 1 4. Initialize synchronization on
+   * server 2 5. After synchronization ends check if files exist, if content of
+   * files same as original.
    */
   public class UseCase1 extends BaseTwoMembersMergeUseCase {
     public UseCase1(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1928,19 +1915,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 2 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Add text file /fileA.txt on server 1
-   * 
-   * 2. Add text file /fileA.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt exists only, if /fileA.txt content equals to
-   * server1
+  /*
+   * * Demo usecase 2 (server 1 - high priority, server 2 -low priority) 1. Add
+   * text file /fileA.txt on server 1 2. Add text file /fileA.txt on server 2 3.
+   * Initialize synchronization on server 1 4. Initialize synchronization on
+   * server 2 5. After synchronization ends check if /fileA.txt exists only, if
+   * /fileA.txt content equals to server1
    */
   public class UseCase2 extends BaseTwoMembersMergeUseCase {
     public UseCase2(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -1971,20 +1951,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 3 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for files /fileA.txt, /fileB.txt on both servers
-   * 
-   * 2. Remove file /fileA.txt on server 1
-   * 
-   * 3. Remove file /fileB.txt on server 2
-   * 
-   * 4. Initialize synchronization on server 1
-   * 
-   * 5. Initialize synchronization on server 2
-   * 
-   * 6. After synchronization ends check if no files exists on both servers
+  /*
+   * * Demo usecase 3 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for files /fileA.txt, /fileB.txt on both servers 2. Remove file
+   * /fileA.txt on server 1 3. Remove file /fileB.txt on server 2 4. Initialize
+   * synchronization on server 1 5. Initialize synchronization on server 2 6.
+   * After synchronization ends check if no files exists on both servers
    */
   public class UseCase3 extends BaseTwoMembersMergeUseCase {
     public UseCase3(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2016,20 +1988,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 4 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Remove file /fileA.txt on server 1
-   * 
-   * 3. Edit file /fileA.txt on server 2
-   * 
-   * 4. Initialize synchronization on server 1
-   * 
-   * 5. Initialize synchronization on server 2
-   * 
-   * 6. After synchronization ends check if /fileA.txt deleted both servers
+  /*
+   * * Demo usecase 4 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Remove file /fileA.txt
+   * on server 1 3. Edit file /fileA.txt on server 2 4. Initialize
+   * synchronization on server 1 5. Initialize synchronization on server 2 6.
+   * After synchronization ends check if /fileA.txt deleted both servers
    */
   public class UseCase4 extends BaseTwoMembersMergeUseCase {
     public UseCase4(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2060,21 +2024,13 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 5 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Edit file /fileA.txt on server 1
-   * 
-   * 3. Remove file /fileA.txt on server 2
-   * 
-   * 4. Initialize synchronization on server 1
-   * 
-   * 5. Initialize synchronization on server 2
-   * 
-   * 6. After synchronization ends check if /fileA.txt exists on both servers, if /fileA.txt content
-   * equals to edited on server 1
+  /*
+   * * Demo usecase 5 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Edit file /fileA.txt on
+   * server 1 3. Remove file /fileA.txt on server 2 4. Initialize
+   * synchronization on server 1 5. Initialize synchronization on server 2 6.
+   * After synchronization ends check if /fileA.txt exists on both servers, if
+   * /fileA.txt content equals to edited on server 1
    */
   public class UseCase5 extends BaseTwoMembersMergeUseCase {
     public UseCase5(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2105,21 +2061,13 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 8 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Rename /fileA.txt to /fileZZ.txt on server 1
-   * 
-   * 3. Edit /fileA.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if file /fileZZ.txt only exists on both servers with
-   * content from server 1
+  /*
+   * * Demo usecase 8 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Rename /fileA.txt to
+   * /fileZZ.txt on server 1 3. Edit /fileA.txt on server 2 3. Initialize
+   * synchronization on server 1 4. Initialize synchronization on server 2 5.
+   * After synchronization ends check if file /fileZZ.txt only exists on both
+   * servers with content from server 1
    */
   public class UseCase8 extends BaseTwoMembersMergeUseCase {
     public UseCase8(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2150,21 +2098,13 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 9 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Edit /fileA.txt on server 1
-   * 
-   * 3. Rename /fileA.txt to /fileZZ.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if file /fileA.txt only exist son both servers with content
-   * from server 1 (edited)
+  /*
+   * * Demo usecase 9 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Edit /fileA.txt on
+   * server 1 3. Rename /fileA.txt to /fileZZ.txt on server 2 3. Initialize
+   * synchronization on server 1 4. Initialize synchronization on server 2 5.
+   * After synchronization ends check if file /fileA.txt only exist son both
+   * servers with content from server 1 (edited)
    */
   public class UseCase9 extends BaseTwoMembersMergeUseCase {
     public UseCase9(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2195,19 +2135,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 12 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Edit text file /fileA.txt on server 1
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
-   * servers
+  /*
+   * * Demo usecase 12 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Edit text file
+   * /fileA.txt on server 1 3. Initialize synchronization on server 1 4.
+   * Initialize synchronization on server 2 5. After synchronization ends check
+   * if /fileA.txt content equals to edited to edited on both servers
    */
   public class UseCase12 extends BaseTwoMembersMergeUseCase {
     public UseCase12(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2236,19 +2169,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 13 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Edit text file /fileA.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
-   * servers
+  /*
+   * * Demo usecase 13 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Edit text file
+   * /fileA.txt on server 2 3. Initialize synchronization on server 1 4.
+   * Initialize synchronization on server 2 5. After synchronization ends check
+   * if /fileA.txt content equals to edited to edited on both servers
    */
   public class UseCase13 extends BaseTwoMembersMergeUseCase {
     public UseCase13(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2277,21 +2203,13 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 14 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Edit text file /fileA.txt on server 1
-   * 
-   * 3. Edit text file /fileA.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt content equals to edited on server 1 on both
-   * servers
+  /*
+   * * Demo usecase 14 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Edit text file
+   * /fileA.txt on server 1 3. Edit text file /fileA.txt on server 2 3.
+   * Initialize synchronization on server 1 4. Initialize synchronization on
+   * server 2 5. After synchronization ends check if /fileA.txt content equals
+   * to edited on server 1 on both servers
    */
   public class UseCase14 extends BaseTwoMembersMergeUseCase {
     public UseCase14(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2322,20 +2240,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 15 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Delete file /fileA.txt on server 1
-   * 
-   * 3. Edit text file /fileA.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt not exists on both server
+  /*
+   * * Demo usecase 15 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Delete file /fileA.txt
+   * on server 1 3. Edit text file /fileA.txt on server 2 3. Initialize
+   * synchronization on server 1 4. Initialize synchronization on server 2 5.
+   * After synchronization ends check if /fileA.txt not exists on both server
    */
   public class UseCase15 extends BaseTwoMembersMergeUseCase {
     public UseCase15(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2366,20 +2276,12 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 16 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt on both servers
-   * 
-   * 2. Delete file /fileA.txt on server 2
-   * 
-   * 3. Edit text file /fileA.txt on server 1
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt not exists on both server
+  /*
+   * * Demo usecase 16 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt on both servers 2. Delete file /fileA.txt
+   * on server 2 3. Edit text file /fileA.txt on server 1 3. Initialize
+   * synchronization on server 1 4. Initialize synchronization on server 2 5.
+   * After synchronization ends check if /fileA.txt not exists on both server
    */
   public class UseCase16 extends BaseTwoMembersMergeUseCase {
     public UseCase16(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2411,21 +2313,13 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 17 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt and folder /folder1 on both servers
-   * 
-   * 2. Edit text file /fileA.txt on server 1
-   * 
-   * 3. Move file /fileA.txt to /folder1/fileAA.txt on server 2
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
-   * edited
+  /*
+   * * Demo usecase 17 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt and folder /folder1 on both servers 2. Edit
+   * text file /fileA.txt on server 1 3. Move file /fileA.txt to
+   * /folder1/fileAA.txt on server 2 3. Initialize synchronization on server 1
+   * 4. Initialize synchronization on server 2 5. After synchronization ends
+   * check if /fileA.txt exists on both server and content equals to edited
    */
   public class UseCase17 extends BaseTwoMembersMergeUseCase {
     public UseCase17(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2456,21 +2350,13 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Demo usecase 18 (server 1 - high priority, server 2 -low priority)
-   * 
-   * 1. Synchronize for file /fileA.txt and folder /folder1 on both servers
-   * 
-   * 2. Edit text file /fileA.txt on server 2
-   * 
-   * 3. Move file /fileA.txt to /folder1/fileAA.txt on server 1
-   * 
-   * 3. Initialize synchronization on server 1
-   * 
-   * 4. Initialize synchronization on server 2
-   * 
-   * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
-   * edited
+  /*
+   * * Demo usecase 18 (server 1 - high priority, server 2 -low priority) 1.
+   * Synchronize for file /fileA.txt and folder /folder1 on both servers 2. Edit
+   * text file /fileA.txt on server 2 3. Move file /fileA.txt to
+   * /folder1/fileAA.txt on server 1 3. Initialize synchronization on server 1
+   * 4. Initialize synchronization on server 2 5. After synchronization ends
+   * check if /fileA.txt exists on both server and content equals to edited
    */
   public class UseCase18 extends BaseTwoMembersMergeUseCase {
     public UseCase18(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2501,8 +2387,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * 
+  /*
+   * *
    */
   public class MoveUseCase extends BaseTwoMembersMergeUseCase {
     public MoveUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2534,8 +2420,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Test add/delete sequence.
+  /*
+   * * Test add/delete sequence.
    */
   public class AddDeleteUseCase extends BaseTwoMembersMergeUseCase {
     public AddDeleteUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2564,8 +2450,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * * Test update/delete/add sequence.
+  /*
+   * * * Test update/delete/add sequence.
    */
   public class UpdateRenameUseCase extends BaseTwoMembersMergeUseCase {
     public UpdateRenameUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2599,8 +2485,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Test update/delete/add sequence.
+  /*
+   * * Test update/delete/add sequence.
    */
   public class UpdateDeleteAddUseCase extends BaseTwoMembersMergeUseCase {
     public UpdateDeleteAddUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2635,8 +2521,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Add tree of nodes item on low priority, already added on high priority.
+  /*
+   * * Add tree of nodes item on low priority, already added on high priority.
    */
   public class AddSameTreeUseCase extends BaseTwoMembersMergeUseCase {
     public AddSameTreeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2671,8 +2557,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Add tree of nodes item on low priority, already added on high priority.
+  /*
+   * * Add tree of nodes item on low priority, already added on high priority.
    */
   public class AddDiffTreeUseCase extends BaseTwoMembersMergeUseCase {
     public AddDiffTreeUseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2707,8 +2593,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * 1. Add item on low priority, no high priority changes.
+  /*
+   * * 1. Add item on low priority, no high priority changes.
    */
   public class Add1_1_UseCase extends BaseTwoMembersMergeUseCase {
     public Add1_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2737,8 +2623,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * 1. Add item on high priority, no low priority changes.
+  /*
+   * * 1. Add item on high priority, no low priority changes.
    */
   public class Add1_2_UseCase extends BaseTwoMembersMergeUseCase {
     public Add1_2_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2767,8 +2653,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * 2. Add item on low priority, already added on high priority.
+  /*
+   * * 2. Add item on low priority, already added on high priority.
    */
   public class Add2_x_UseCase extends BaseTwoMembersMergeUseCase {
     public Add2_x_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2801,8 +2687,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * 3. Add item on low priority already added and deleted on high priority.
+  /*
+   * * 3. Add item on low priority already added and deleted on high priority.
    */
   public class Add3_1_UseCase extends BaseTwoMembersMergeUseCase {
     public Add3_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2834,8 +2720,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * 3. Add item on high priority already added and deleted on low priority.
+  /*
+   * * 3. Add item on high priority already added and deleted on low priority.
    */
   public class Add3_2_UseCase extends BaseTwoMembersMergeUseCase {
     public Add3_2_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -2865,8 +2751,9 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * 4. Add Item on high priority to a deleted parent on low priority (conflict)
+  /*
+   * * 4. Add Item on high priority to a deleted parent on low priority
+   * (conflict)
    */
   public class Add4_1_UseCase extends BaseTwoMembersMergeUseCase {
     public Add4_1_UseCase(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
@@ -3099,9 +2986,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     }
   }
 
-  /**
-   * Compare two nodes.
-   * 
+  /*
+   * * Compare two nodes.
    * @param src
    * @param dst
    * @return
@@ -3212,9 +3098,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     return res1 || res2;
   }
 
-  /**
-   * Compare two nodes.
-   * 
+  /*
+   * * Compare two nodes.
    * @param src
    * @param dst
    * @return
@@ -3314,9 +3199,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     return true;
   }
 
-  /**
-   * Save resulted changes into workspace
-   * 
+  /*
+   * * Save resulted changes into workspace
    * @param res
    * @throws RepositoryException
    * @throws UnsupportedOperationException
@@ -3329,8 +3213,8 @@ public abstract class AbstractAsyncUseCases extends BaseStandaloneTest implement
     dm.save(log);
   }
 
-  /**
-   * {@inheritDoc}
+  /*
+   * * {@inheritDoc}
    */
   @Override
   protected void tearDown() throws Exception {
