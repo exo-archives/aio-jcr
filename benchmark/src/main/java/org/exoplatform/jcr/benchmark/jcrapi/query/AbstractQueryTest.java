@@ -41,7 +41,7 @@ public abstract class AbstractQueryTest extends JCRTestBase {
 
   protected QueryManager        queryManager;
 
-  protected final String        SQL_QUERY_STATEMENT = "select * from nt:resource where jcr:data like '%merge%'";
+  protected final String        SQL_QUERY_STATEMENT = "select * from nt:unstructured where jcr:data like '%merge%'";
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
@@ -63,13 +63,18 @@ public abstract class AbstractQueryTest extends JCRTestBase {
     node.addMixin("mix:referenceable");
     context.getSession().save();
 
+    
     for (int i = 0; i < CONTENT.length; i++) {
+      Node cont = node.addNode("content" + i, "nt:unstructured");
+      cont.setProperty("data", CONTENT[i]);
+    }
+  /*  for (int i = 0; i < CONTENT.length; i++) {
       Node ntfile = node.addNode(context.generateUniqueName("ntfile"), "nt:file");
       Node jctContent = ntfile.addNode("jcr:content", "nt:resource");
       jctContent.setProperty("jcr:data", CONTENT[i]);
       jctContent.setProperty("jcr:mimeType", "text/plain");
       jctContent.setProperty("jcr:lastModified", Calendar.getInstance());
-    }
+    }*/
 
     root.save();
   }
