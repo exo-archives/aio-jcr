@@ -518,7 +518,6 @@
                 <exclude>**/impl/**/Base*.java</exclude>
                 <exclude>**/impl/**/TestJCRSerializationStream.java</exclude>
                 <exclude>**/impl/**/TestJCRSerializationVersionRestore.java</exclude>
-                <ecxluse>**/impl/**/TestDuplicateProperties.java</ecxluse>
                 <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
                 <exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
