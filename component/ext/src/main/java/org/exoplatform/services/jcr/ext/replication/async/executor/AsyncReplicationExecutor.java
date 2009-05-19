@@ -38,7 +38,6 @@ import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
-import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
@@ -105,7 +104,7 @@ public class AsyncReplicationExecutor implements ResourceContainer {
   /**
    * The apache logger.
    */
-  private static Log              log = ExoLogger.getLogger(ReplicationTestService.class);
+  private static Log              log = ExoLogger.getLogger("ext.AsyncReplicationExecutor");
 
   /**
    * The repository service.
