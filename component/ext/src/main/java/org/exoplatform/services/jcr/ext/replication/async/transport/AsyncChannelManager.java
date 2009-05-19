@@ -47,11 +47,31 @@ import org.jgroups.blocks.RequestHandler;
  * @version $Id$
  */
 public class AsyncChannelManager implements RequestHandler, MembershipListener {
+  
+  /**
+   * The initialized state.
+   */
+  public static final int                INITIALIZED  = 1;
+
+  /**
+   * The connected state.
+   */
+  public static final int                CONNECTED    = 2;
+
+  /**
+   * The disconnected state.
+   */
+  public static final int                DISCONNECTED = 3;
 
   /**
    * log. the apache logger.
    */
   private static final Log               LOG = ExoLogger.getLogger("ext.AsyncChannelManager");
+  
+  /**
+   * State of async channel manager {INITIALIZED, CONNECTED, DISCONNECTED}.
+   */
+  private        int                     state;
 
   /**
    * channel. The JChanel object of JGroups.
@@ -198,6 +218,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *          name of channel
    */
   public AsyncChannelManager(String channelConfig, String channelName, int confMembersCount) {
+    this.state = INITIALIZED;
     this.channelConfig = channelConfig;
     this.channelName = channelName;
     this.confMembersCount = confMembersCount;
@@ -247,6 +268,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
     try {
       channel.connect(channelName);
+      this.state = CONNECTED;
     } catch (ChannelException e) {
       throw new ReplicationException("Can't connect to JGroups channel", e);
     }
@@ -256,6 +278,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * closeChannel. Close the channel.
    */
   public void disconnect() {
+    this.state = DISCONNECTED;
 
     if (dispatcher != null) {
       dispatcher.setRequestHandler(null);
@@ -368,7 +391,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
     return members;
   }
-
+  
   /**
    * sendPacket.
    * 
@@ -380,11 +403,16 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet, MemberAddress... destinations) throws IOException {
-    Vector<Address> dest = new Vector<Address>();
-    for (MemberAddress address : destinations)
-      dest.add(address.getAddress());
-
-    sendPacket(packet, dest);
+    if (state == CONNECTED) {
+      Vector<Address> dest = new Vector<Address>();
+      for (MemberAddress address : destinations)
+        dest.add(address.getAddress());
+  
+      sendPacket(packet, dest);
+    } else if (state == INITIALIZED)
+      throw new ChannelNotConnectedException("The channel is not connected.");
+      else
+        throw new ChannelWasDisconnectedException("The channel was disconnected.");
   }
 
   /**
@@ -414,10 +442,15 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {
-    Vector<Address> dest = new Vector<Address>(channel.getView().getMembers());
-    dest.remove(channel.getLocalAddress());
-
-    sendPacket(packet, dest);
+    if (state == CONNECTED) {
+      Vector<Address> dest = new Vector<Address>(channel.getView().getMembers());
+      dest.remove(channel.getLocalAddress());
+  
+      sendPacket(packet, dest);
+    } else if (state == INITIALIZED)
+      throw new ChannelNotConnectedException("The channel is not connected.");
+      else
+        throw new ChannelWasDisconnectedException("The channel was disconnected.");
   }
 
   /**

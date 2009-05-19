@@ -26,6 +26,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChannelNotConnectedException;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChannelWasDisconnectedException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -85,6 +87,11 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
             else
               return;
         }
+      } catch (ChannelWasDisconnectedException e) {
+        // The channel was disconnected -->> stop send changes.
+      } catch (ChannelNotConnectedException e) {
+        LOG.error("Cannot send changes " + e, e);
+        doCancel();
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
         doCancel();
