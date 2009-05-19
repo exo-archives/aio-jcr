@@ -28,39 +28,45 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="work.visor.ck@gmail.com">Dmytro Katayev</a>
- *
- * May 14, 2009  
+ * 
+ *         May 14, 2009
  */
 public class TestDuplicateProperties extends JcrImplBaseTest {
-  
-  // Reproduces the issue described in http://jira.exoplatform.org/browse/JCR-953 
+
+  // Reproduces the issue described in http://jira.exoplatform.org/browse/JCR-953
   public void testDuplicateProperties() throws Exception {
-    
+
     String nodeName = "testDuplNod";
     String propName = "jcr:mimeType";
-    
+    String transientValue = "text/xml";
+
     root.addNode(nodeName);
     root.save();
-    
+
     Session session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
     Session session2 = repository.login(new CredentialsImpl("exo2", "exo2".toCharArray()));
-    
+
     Node node1 = session1.getRootNode().getNode(nodeName);
-    node1.setProperty(propName, "text/xml");
-    
+    node1.setProperty(propName, transientValue);
+
     Node node2 = session2.getRootNode().getNode(nodeName);
     node2.setProperty(propName, "text/html");
     node2.save();
-    
-    PropertyIterator iter = node1.getProperties();
+
     int propCount = 0;
-    while(iter.hasNext()){
+    Property neededProp = null;
+
+    PropertyIterator iter = node1.getProperties();
+    while (iter.hasNext()) {
       Property prop = (Property) iter.next();
-      if(prop.getName().equals(propName)){
+      if (prop.getName().equals(propName)) {
+        neededProp = prop;
         propCount++;
       }
     }
+
     assertEquals(1, propCount);
+    assertEquals(transientValue, neededProp.getValue().getString());
   }
 
 }
