@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.async.config.AsyncWorkspaceConfig;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
@@ -81,12 +82,12 @@ public class AsyncReplicationReadOnlyTest extends AbstractTrasportTest {
 
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
                                                                            .getName());
-    WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
+    PersistentDataManager dataManager = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
-    assertTrue(dc.isReadOnly());
+    assertTrue(dataManager.isReadOnly());
 
     Thread.sleep(20000);
 
-    assertFalse(dc.isReadOnly());
+    assertFalse(dataManager.isReadOnly());
   }
 }

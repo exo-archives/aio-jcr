@@ -39,6 +39,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.jcr.ext.registry.RegistryService;
@@ -371,15 +372,16 @@ public class ReplicationService implements Startable, ManagementAware {
                                                                     maxBufferSize,
                                                                     new ReaderSpoolFileHolder());
 
-              WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
+              PersistentDataManager dataManager = (PersistentDataManager) wsFacade.getComponent(PersistentDataManager.class);
 
               ConnectionFailDetector failDetector = new ConnectionFailDetector(channelManager,
-                                                                               dataContainer,
+                                                                               dataManager,
                                                                                recoveryManager,
                                                                                ownPriority,
                                                                                participantsClusterList,
                                                                                ownName,
-                                                                               priprityType);
+                                                                               priprityType,
+                                                                               workspaces[wIndex]);
               channelManager.setMembershipListener(failDetector);
 
               // add data transmitter

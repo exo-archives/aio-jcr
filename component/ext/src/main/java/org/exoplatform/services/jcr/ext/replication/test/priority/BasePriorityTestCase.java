@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.test.priority;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.WorkspaceDataTransmitter;
 import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase;
@@ -182,8 +183,9 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
       WorkspaceContainerFacade wsFacade = ((RepositoryImpl) repository).getWorkspaceContainer(workspaceName);
       WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
+      PersistentDataManager dataManager = (PersistentDataManager) wsFacade.getComponent(PersistentDataManager.class);
 
-      if (!dataContainer.isReadOnly())
+      if (!dataManager.isReadOnly())
         throw new Exception("The workspace '" + dataContainer.getName() + "' was not read-only");
 
       sb.append("ok");

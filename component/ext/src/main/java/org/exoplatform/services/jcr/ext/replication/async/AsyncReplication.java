@@ -123,8 +123,6 @@ public class AsyncReplication implements Startable {
 
     protected final PersistentDataManager     systemDataManager;
 
-    protected final WorkspaceDataContainer    dataContainer;
-
     protected final NodeTypeDataManager       ntManager;
 
     protected final LocalStorageImpl          localStorage;
@@ -134,7 +132,6 @@ public class AsyncReplication implements Startable {
     AsyncWorker(PersistentDataManager dataManager,
                 PersistentDataManager systemDataManager,
                 NodeTypeDataManager ntManager,
-                WorkspaceDataContainer dataContainer,
                 LocalStorageImpl localStorage,
                 IncomeStorageImpl incomeStorage,
                 AsyncWorkspaceConfig config,
@@ -157,8 +154,6 @@ public class AsyncReplication implements Startable {
       this.systemDataManager = systemDataManager;
 
       this.ntManager = ntManager;
-
-      this.dataContainer = dataContainer;
 
       this.localStorage = localStorage;
 
@@ -294,7 +289,7 @@ public class AsyncReplication implements Startable {
       currentWorkers.remove(this); // remove itself
 
       // set read-write state
-      this.dataContainer.setReadOnly(false);
+      this.dataManager.setReadOnly(false);
 
       LOG.info("Synchronization done.");
     }
@@ -305,7 +300,7 @@ public class AsyncReplication implements Startable {
     public void run() {
       try {
         // set read-only state
-        this.dataContainer.setReadOnly(true);
+        this.dataManager.setReadOnly(true);
 
         this.channel.connect();
       } catch (ReplicationException e) {
@@ -448,7 +443,6 @@ public class AsyncReplication implements Startable {
 
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-    WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
 
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
 
@@ -470,7 +464,6 @@ public class AsyncReplication implements Startable {
     AsyncWorker synchWorker = new AsyncWorker(dm,
                                               sysdm,
                                               ntm,
-                                              dc,
                                               localStorage,
                                               incomeStorage,
                                               config,

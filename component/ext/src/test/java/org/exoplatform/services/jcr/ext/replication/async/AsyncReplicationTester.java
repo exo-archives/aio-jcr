@@ -78,7 +78,6 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-    WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
 
     WorkspaceContainerFacade sysWsc = repository.getWorkspaceContainer(((RepositoryImpl) repository).getSystemWorkspaceName());
     PersistentDataManager sysDm = (PersistentDataManager) sysWsc.getComponent(PersistentDataManager.class);
@@ -101,7 +100,6 @@ public class AsyncReplicationTester extends AsyncReplication {
     AsyncWorker synchWorker = new AsyncWorker(dm,
                                               sysDm,
                                               ntm,
-                                              dc,
                                               (LocalStorageImpl) localStorage,
                                               (IncomeStorageImpl) incomeStorage,
                                               awConfig,

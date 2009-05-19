@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.PriorityDucplicatedException;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
@@ -28,7 +29,6 @@ import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChe
 import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.MemberListener;
 import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
-import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
@@ -78,6 +78,11 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * The ChannalManager will be transmitted or receive the Packets.
    */
   private final ChannelManager          channelManager;
+  
+  /**
+   * The name of workspace.
+   */
+  private final String                  workspaceName;
 
   /**
    * The channel name.
@@ -100,9 +105,9 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   private boolean                       allInited     = false;
 
   /**
-   * The WorkspaceDataContainer will be used to workspace for set state 'read-only'.
+   * The PersistentDataManager will be used to workspace for set state 'read-only'.
    */
-  private final WorkspaceDataContainer  dataContainer;
+  private final PersistentDataManager  dataManager;
 
   /**
    * The RecoveryManager will be initialized cluster node synchronization.
@@ -144,8 +149,8 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * 
    * @param channelManager
    *          the ChannelManager
-   * @param dataContainer
-   *          the WorkspaceData
+   * @param dataManager
+   *          the PersistentDataManager
    * @param recoveryManager
    *          the RecoveryManager
    * @param ownPriority
@@ -156,18 +161,22 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    *          the own name in cluster
    * @param priprityType
    *          the priority type (dynamic or static)s
+   * @param workspaceName
+   *          String, the name of workspace         
    */
   public ConnectionFailDetector(ChannelManager channelManager,
-                                WorkspaceDataContainer dataContainer,
+                                PersistentDataManager dataManager,
                                 RecoveryManager recoveryManager,
                                 int ownPriority,
                                 List<String> otherParticipants,
                                 String ownName,
-                                String priprityType) {
+                                String priprityType,
+                                String workspaceName) {
     this.channelManager = channelManager;
     this.channelManager.setChannelListener(this);
 
-    this.dataContainer = dataContainer;
+    this.dataManager = dataManager;
+    this.workspaceName = workspaceName;
     this.recoveryManager = recoveryManager;
 
     this.ownPriority = ownPriority;
@@ -263,8 +272,8 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     Thread.sleep(INFORM_TIMOUT);
 
     if (priorityChecker.hasDuplicatePriority()) {
-      log.info(dataContainer.getName() + " set read-only");
-      dataContainer.setReadOnly(true);
+      log.info(workspaceName + " set read-only");
+      dataManager.setReadOnly(true);
 
       throw new PriorityDucplicatedException("The priority was duplicated :  own priority = "
           + ownPriority + ", other priority = " + priorityChecker.getOtherPriorities());
@@ -441,10 +450,10 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * {@inheritDoc}
    */
   public void memberRejoin() {
-    log.info(dataContainer.getName() + " set not read-only");
-    dataContainer.setReadOnly(false);
+    log.info(workspaceName + " set not read-only");
+    dataManager.setReadOnly(false);
 
-    log.info(dataContainer.getName() + " recovery start ...");
+    log.info(workspaceName + " recovery start ...");
     recoveryManager.startRecovery();
   }
 
@@ -453,7 +462,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * 
    */
   public void memberSuspect() {
-    log.info(dataContainer.getName() + " set read-only");
-    dataContainer.setReadOnly(true);
+    log.info(workspaceName + " set read-only");
+    dataManager.setReadOnly(true);
   }
 }
