@@ -398,7 +398,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * otherwise returns false.
    * 
    * @param path to the node item
-   * @return
+   * @return boolean
    */
   public boolean hasPendingChanges(QPath path) {
     return changesLog.getDescendantsChanges(path).size() > 0;
@@ -412,7 +412,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * storage (because the transaction has not yet been committed).
    * 
    * @param identifier of the item
-   * @return
+   * @return boolean
    */
   public boolean isNew(String identifier) {
 
@@ -438,8 +438,8 @@ public class SessionDataManager implements ItemDataConsumer {
    * question is not in persistent storage (because the transaction has not yet
    * been committed).
    * 
-   * @param item
-   * @return
+   * @param item ItemData
+   * @return boolean
    */
   public boolean isModified(ItemData item) {
 
@@ -462,7 +462,11 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Returns saved only references (allowed by specs)
+   * Returns saved only references (allowed by specs).
+   * 
+   * @param identifier String
+   * @return List of PropertyImpl 
+   * @throws RepositoryException if error
    * 
    * @see javax.jcr.Node#getReferences
    */
@@ -494,13 +498,13 @@ public class SessionDataManager implements ItemDataConsumer {
 
   /**
    * Return list with properties, for the parent node, for which user have
-   * access permeations
+   * access permeations.
    * 
-   * @param parent
-   * @param pool
-   * @return
-   * @throws RepositoryException
-   * @throws AccessDeniedException
+   * @param parent NodeData
+   * @param pool boolean, if true list of childs will be refreshed in Items pool
+   * @return List of NodeImpl
+   * @throws RepositoryException if error occurs
+   * @throws AccessDeniedException if it's no permissions for childs listing
    */
   public List<NodeImpl> getChildNodes(NodeData parent, boolean pool) throws RepositoryException,
                                                                     AccessDeniedException {
@@ -537,13 +541,13 @@ public class SessionDataManager implements ItemDataConsumer {
 
   /**
    * Return list with properties, for the parent node, for which user have
-   * access permeations
+   * access permeations.
    * 
-   * @param parent
-   * @param pool
-   * @return
-   * @throws RepositoryException
-   * @throws AccessDeniedException
+   * @param parent NodeData
+   * @param pool boolean, if true list of childs will be refreshed in Items pool
+   * @return List of PropertyImpl
+   * @throws RepositoryException if error occurs
+   * @throws AccessDeniedException if it's no permissions for childs listing
    */
   public List<PropertyImpl> getChildProperties(NodeData parent, boolean pool) throws RepositoryException,
                                                                              AccessDeniedException {
@@ -573,11 +577,8 @@ public class SessionDataManager implements ItemDataConsumer {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData
-   * (org.exoplatform.services .jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
     long start = System.currentTimeMillis();
@@ -593,11 +594,8 @@ public class SessionDataManager implements ItemDataConsumer {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData
-   * (org.exoplatform .services.jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     long start = 0;
@@ -615,6 +613,9 @@ public class SessionDataManager implements ItemDataConsumer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException {
     long start = 0;
     if (log.isDebugEnabled()) {
