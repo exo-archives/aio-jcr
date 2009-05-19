@@ -60,21 +60,20 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS. <br/>
  * Date: 10.12.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class AsyncReplication implements Startable {
 
   private static final Log                                         LOG                 = ExoLogger.getLogger("ext.AsyncReplication");
 
-  /*
-   * * The template for ip-address in configuration.
+  /**
+   * The template for ip-address in configuration.
    */
   public static final String                                       IP_ADRESS_TEMPLATE  = "[$]bind-ip-address";
 
-  /*
-   * * Service file cleaner period.
+  /**
+   * Service file cleaner period.
    */
   public final int                                                 FILE_CLEANER_PERIOD = 150000;
 
@@ -88,8 +87,8 @@ public class AsyncReplication implements Startable {
 
   protected Set<AsyncWorker>                                       currentWorkers;
 
-  /*
-   * * Internal FileCleaner used by local storage.
+  /**
+   * Internal FileCleaner used by local storage.
    */
   // protected final FileCleaner fileCleaner;
   protected final LinkedHashMap<StorageKey, WorkspaceNullListener> nullWorkspaces;
@@ -256,8 +255,8 @@ public class AsyncReplication implements Startable {
       this.subscriber.addLocalListener(this.initializer);
     }
 
-    /*
-     * * {@inheritDoc}
+    /**
+     * {@inheritDoc}
      */
     public void onDisconnect() {
       doFinalyze();
@@ -301,7 +300,7 @@ public class AsyncReplication implements Startable {
     }
 
     /*
-     * * {@inheritDoc}
+     * {@inheritDoc}
      */
     public void run() {
       try {
@@ -316,8 +315,8 @@ public class AsyncReplication implements Startable {
     }
   }
 
-  /*
-   * * Will be used as key for mapLocalStorages.
+  /**
+   * Will be used as key for mapLocalStorages.
    */
   protected class StorageKey {
     private final String repositoryName;
@@ -329,8 +328,8 @@ public class AsyncReplication implements Startable {
       this.workspaceName = workspaceName;
     }
 
-    /*
-     * * {@inheritDoc}
+    /**
+     * {@inheritDoc}
      */
     public boolean equals(Object o) {
       StorageKey k = (StorageKey) o;
@@ -338,8 +337,8 @@ public class AsyncReplication implements Startable {
       return repositoryName.equals(k.repositoryName) && workspaceName.equals(k.workspaceName);
     }
 
-    /*
-     * * {@inheritDoc}
+    /**
+     * {@inheritDoc}
      */
     public int hashCode() {
       return repositoryName.hashCode() ^ workspaceName.hashCode();
@@ -359,8 +358,8 @@ public class AsyncReplication implements Startable {
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
   }
 
-  /*
-   * * AsyncReplication constructor for TESTS!.
+  /**
+   * AsyncReplication constructor for TESTS!.
    */
   AsyncReplication(RepositoryService repoService, List<AsyncWorkspaceConfig> configs) throws RepositoryException,
       RepositoryConfigurationException {
@@ -376,17 +375,18 @@ public class AsyncReplication implements Startable {
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
   }
 
-  /*
-   * * Tell if synchronization process active.
+  /**
+   * Tell if synchronization process active.
+   * 
    * @return boolean, true if synchronization process active
    */
   public boolean isActive() {
     return currentWorkers.size() > 0;
   }
 
-  /*
-   * * Initialize synchronization process. Process will use the service
-   * configuration.
+  /**
+   * Initialize synchronization process. Process will use the service configuration.
+   * 
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -410,10 +410,12 @@ public class AsyncReplication implements Startable {
     }
   }
 
-  /*
-   * * Initialize synchronization process on specific repository. Process will
-   * use the service configuration.
-   * @param repoName String repository name
+  /**
+   * Initialize synchronization process on specific repository. Process will use the service
+   * configuration.
+   * 
+   * @param repoName
+   *          String repository name
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -482,8 +484,8 @@ public class AsyncReplication implements Startable {
     currentWorkers.add(synchWorker);
   }
 
-  /*
-   * * {@inheritDoc}
+  /**
+   * {@inheritDoc}
    */
   public void start() {
 
@@ -537,8 +539,8 @@ public class AsyncReplication implements Startable {
     }
   }
 
-  /*
-   * * {@inheritDoc}
+  /**
+   * {@inheritDoc}
    */
   public void stop() {
     Iterator<AsyncWorker> asyncWorkers = currentWorkers.iterator();
@@ -574,8 +576,9 @@ public class AsyncReplication implements Startable {
     return hasLocalSorageError;
   }
 
-  /*
-   * * hasDuplicatePriority.
+  /**
+   * hasDuplicatePriority.
+   * 
    * @return boolean when duplicate the priority then return 'true'
    */
   private boolean hasChangesSaveError(AsyncWorkspaceConfig config) throws RepositoryConfigurationException,
@@ -675,10 +678,11 @@ public class AsyncReplication implements Startable {
 
   }
 
-  /*
-   * * Returns <code>true</code> if workspace is replicable, <code>false</code>
-   * if not.
-   * @param wsName - String workspace name.
+  /**
+   * Returns <code>true</code> if workspace is replicable, <code>false</code> if not.
+   * 
+   * @param wsName
+   *          - String workspace name.
    * @return boolean.
    */
   private boolean isReplicableWorkspace(String repoName, String wsName) {
@@ -689,12 +693,17 @@ public class AsyncReplication implements Startable {
     return false;
   }
 
-  /*
-   * * Create and register WorkspaceNullListener.
-   * @param repository - ManageableRepository.
-   * @param repositoryName - repository name.
-   * @param wsName - workspace name.
-   * @param systemWSName - syetme workspace name.
+  /**
+   * Create and register WorkspaceNullListener.
+   * 
+   * @param repository
+   *          - ManageableRepository.
+   * @param repositoryName
+   *          - repository name.
+   * @param wsName
+   *          - workspace name.
+   * @param systemWSName
+   *          - syetme workspace name.
    * @throws ClassNotFoundException
    * @throws IOException
    */
