@@ -37,4 +37,29 @@ public interface PersistentDataManager extends DataManager {
   
   void removeItemPersistenceListenerFilter(ItemsPersistenceListenerFilter filter);
   
+  /**
+   * Status of write-operations restrictions.
+   * 
+   * Read-only status is descriptive within the container, i.e. will not prevent any write
+   * operation.
+   * 
+   * Used in DataManager implementations.
+   * 
+   * @return true - if write-operations allowed, false - otherwise.
+   */
+  boolean isReadOnly();
+
+  /**
+   * Set status of write-operations restrictions.
+   * 
+   * Read-only status is descriptive within the container, i.e. will not prevent any write
+   * operation.
+   * 
+   * Used in DataManager implementations.
+   * 
+   * @param status
+   *          , true - if write-operations allowed, false - otherwise.
+   */
+  void setReadOnly(boolean status);
+  
 }

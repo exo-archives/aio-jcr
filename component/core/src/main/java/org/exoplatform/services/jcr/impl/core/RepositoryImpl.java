@@ -549,8 +549,8 @@ public class RepositoryImpl implements ManageableRepository {
     WorkspaceContainerFacade wsFacade;
     for (String workspaceName : getWorkspaceNames()) {
       wsFacade = getWorkspaceContainer(workspaceName);
-      WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
-      dataContainer.setReadOnly(wsStatus);
+      PersistentDataManager dataManager = (PersistentDataManager) wsFacade.getComponent(PersistentDataManager.class);
+      dataManager.setReadOnly(wsStatus);
     }
   }
 

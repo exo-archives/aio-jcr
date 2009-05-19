@@ -86,6 +86,11 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
    * Persistent level liesteners filters.
    */
   protected final List<ItemsPersistenceListenerFilter>    liestenerFilters;
+  
+  /**
+   * Read-only status.
+   */
+  protected boolean readOnly = false;
 
   /**
    * WorkspacePersistentDataManager constructor.
@@ -110,7 +115,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
   public void save(final ItemStateChangesLog changesLog) throws RepositoryException {
 
     // check if this workspace container is not read-only
-    if (dataContainer.isReadOnly() && !(changesLog instanceof ReadOnlyThroughChanges))
+    if (readOnly && !(changesLog instanceof ReadOnlyThroughChanges))
       throw new ReadOnlyWorkspaceException("Workspace container '" + dataContainer.getName()
           + "' is read-only.");
 
@@ -512,6 +517,20 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     } finally {
       con.rollback();
     }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setReadOnly(boolean status) {
+    this.readOnly = status;
   }
 
 }

@@ -30,11 +30,6 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 abstract public class WorkspaceDataContainerBase implements WorkspaceDataContainer {
 
   /**
-   * Read-only status.
-   */
-  protected boolean readOnly = false;
-
-  /**
    * {@inheritDoc}
    */
   public Calendar getCurrentTime() {
@@ -42,18 +37,5 @@ abstract public class WorkspaceDataContainerBase implements WorkspaceDataContain
     cal.setTime(new Date());
     return cal;
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isReadOnly() {
-    return readOnly;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setReadOnly(boolean status) {
-    this.readOnly = status;
-  }
+  
 }

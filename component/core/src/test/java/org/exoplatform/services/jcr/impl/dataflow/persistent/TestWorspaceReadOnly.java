@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
@@ -33,32 +34,32 @@ public class TestWorspaceReadOnly extends JcrImplBaseTest {
 
   private WorkspaceContainerFacade wsFacade;
 
-  private WorkspaceDataContainer   dataContainer;
+  private PersistentDataManager dataManager;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
 
     wsFacade = repository.getWorkspaceContainer(session.getWorkspace().getName());
-    dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
+    dataManager = (PersistentDataManager) wsFacade.getComponent(PersistentDataManager.class);
   }
 
   @Override
   protected void tearDown() throws Exception {
-    dataContainer.setReadOnly(false);
+    dataManager.setReadOnly(false);
     super.tearDown();
   }
 
   public void testWorkspaceDataContainerStatus() {
 
-    dataContainer.setReadOnly(true);
+    dataManager.setReadOnly(true);
 
-    assertTrue(dataContainer.isReadOnly());
+    assertTrue(dataManager.isReadOnly());
   }
 
   public void testWorkspaceDataManager() throws Exception {
 
-    dataContainer.setReadOnly(true);
+    dataManager.setReadOnly(true);
 
     WorkspacePersistentDataManager dm = (WorkspacePersistentDataManager) wsFacade.getComponent(WorkspacePersistentDataManager.class);
 
