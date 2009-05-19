@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,19 +140,26 @@ public class PropPatchResponseEntity implements StreamingOutput {
 
         if (setProperty.getStringName().equals(WebDavConst.NodeTypes.JCR_CONTENT)) {
           for (HierarchicalProperty child : setProperty.getChildren()) {
-            Node content = getContentNode();
-            statname = setProperty(content, child);
 
-            if (!propStats.containsKey(statname)) {
-              propStats.put(statname, new HashSet<HierarchicalProperty>());
+            if (child.getChildren().isEmpty()) {
+
+              Node content = getContentNode();
+              statname = setProperty(content, child);
+
+              if (!propStats.containsKey(statname)) {
+                propStats.put(statname, new HashSet<HierarchicalProperty>());
+              }
+
+              Set<HierarchicalProperty> propSet = propStats.get(statname);
+
+              HierarchicalProperty jcrContentProp = new HierarchicalProperty(new QName(WebDavConst.NodeTypes.JCR_CONTENT));
+              jcrContentProp.addChild(new HierarchicalProperty(child.getName()));
+
+              propSet.add(jcrContentProp);
+
+            } else {
+              
             }
-
-            Set<HierarchicalProperty> propSet = propStats.get(statname);
-
-            HierarchicalProperty jcrContentProp = new HierarchicalProperty(new QName(WebDavConst.NodeTypes.JCR_CONTENT));
-            jcrContentProp.addChild(new HierarchicalProperty(child.getName()));
-
-            propSet.add(jcrContentProp);
 
           }
         } else {
