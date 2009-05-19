@@ -29,7 +29,6 @@ import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ReplicableValueData;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -405,10 +404,10 @@ public abstract class BaseStandaloneTest extends TestCase {
           assertTrue(java.util.Arrays.equals(expValDat.get(j).getAsByteArray(),
                                              elemValDat.get(j).getAsByteArray()));
 
-          if (isRepValDat) {
+          /*if (isRepValDat) {
             // check is received property values ReplicableValueData
             assertTrue(elemValDat.get(j) instanceof ReplicableValueData);
-          }
+          }*/
         }
       }
     }
