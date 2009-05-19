@@ -1352,7 +1352,13 @@ public class SessionDataManager implements ItemDataConsumer {
 
     // 2 get ALL persisted descendants
     Map<String, ItemData> descendants = new LinkedHashMap<String, ItemData>();
-    traverseStoredDescendants(rootData, dataManager, false, action, descendants, false);
+    traverseStoredDescendants(rootData,
+                              dataManager,
+                              false,
+                              action,
+                              descendants,
+                              false,
+                              transientDescendants);
 
     // merge data
     for (ItemState state : transientDescendants) {
@@ -1395,7 +1401,13 @@ public class SessionDataManager implements ItemDataConsumer {
 
     // 2 get ALL persisted descendants
     Map<String, ItemData> descendants = new LinkedHashMap<String, ItemData>();
-    traverseStoredDescendants(rootData, dataManager, false, action, descendants, true);
+    traverseStoredDescendants(rootData,
+                              dataManager,
+                              false,
+                              action,
+                              descendants,
+                              true,
+                              transientDescendants);
 
     // merge data
     for (ItemState state : transientDescendants) {
@@ -1431,7 +1443,8 @@ public class SessionDataManager implements ItemDataConsumer {
                                          boolean deep,
                                          int action,
                                          Map<String, ItemData> ret,
-                                         boolean listOnly) throws RepositoryException {
+                                         boolean listOnly,
+                                         List<ItemState> transientDescendants) throws RepositoryException {
 
     if (parent.isNode()) {
       if (action != MERGE_PROPS) {
@@ -1444,14 +1457,30 @@ public class SessionDataManager implements ItemDataConsumer {
 
           // TODO [PN] Not used
           if (deep)
-            traverseStoredDescendants(childNode, dataManager, deep, action, ret, listOnly);
+            traverseStoredDescendants(childNode,
+                                      dataManager,
+                                      deep,
+                                      action,
+                                      ret,
+                                      listOnly,
+                                      transientDescendants);
         }
       }
       if (action != MERGE_NODES) {
         List<PropertyData> childProps = listOnly
             ? dataManager.listChildPropertiesData((NodeData) parent)
             : dataManager.getChildPropertiesData((NodeData) parent);
-        for (PropertyData childProp : childProps) {
+        outer: for (PropertyData childProp : childProps) {
+          for (ItemState transientState : transientDescendants) {
+            if (!transientState.isNode()
+                && !transientState.isDeleted()
+                && transientState.getData().getQPath().getDepth() == childProp.getQPath()
+                                                                              .getDepth()
+                && transientState.getData().getQPath().getName().equals(childProp.getQPath()
+                                                                                 .getName())) {
+              continue outer;
+            }
+          }
           ret.put(childProp.getIdentifier(), childProp);
 
           if (log.isDebugEnabled())
