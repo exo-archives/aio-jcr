@@ -72,7 +72,7 @@ public class ValueFactoryImpl implements ValueFactory {
 
     // TODO we use WorkspaceDataContainer constants but is it ok?
     this.maxBufferSize = workspaceConfig.getContainer()
-                                        .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                        .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE_PROP,
                                                              WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
   }
 

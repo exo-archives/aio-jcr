@@ -363,7 +363,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
 
     this.fileCleaner = new FileCleaner(false); // cleaner should be started!
     this.maxBufferSize = config.getContainer()
-                               .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                               .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE_PROP,
                                                     WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
 
     this.restorePath = config.getInitializer()
@@ -418,7 +418,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
 
     this.fileCleaner = new FileCleaner(false); // cleaner should be started!
     this.maxBufferSize = config.getContainer()
-                               .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                               .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE_PROP,
                                                     WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
     this.restorePath = restorePath;
   }

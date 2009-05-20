@@ -58,6 +58,14 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
   protected static final Log                 LOG         = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
 
+  //configuration params
+
+  public final static String SOURCE_NAME       = "source-name";
+
+  public final static String MULTIDB           = "multi-db";
+
+  public final static String SINGLEDB          = "single-db";
+
   /**
    * Describe which type of RDBMS will be used (DB creation metadata etc.)
    */
@@ -243,13 +251,13 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
     // ------------- Values swap config ------------------
     try {
-      this.maxBufferSize = wsConfig.getContainer().getParameterInteger(MAXBUFFERSIZE);
+      this.maxBufferSize = wsConfig.getContainer().getParameterInteger(MAXBUFFERSIZE_PROP);
     } catch (RepositoryConfigurationException e) {
       this.maxBufferSize = DEF_MAXBUFFERSIZE;
     }
 
     try {
-      String sdParam = wsConfig.getContainer().getParameterValue(SWAPDIR);
+      String sdParam = wsConfig.getContainer().getParameterValue(SWAPDIR_PROP);
       this.swapDirectory = new File(sdParam);
     } catch (RepositoryConfigurationException e1) {
       this.swapDirectory = new File(DEF_SWAPDIR);

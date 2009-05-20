@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
+import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.ConfigurationHelper;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
@@ -133,7 +133,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     WorkspaceEntry workspaceEntry = helper.getNewWs("ws4TestCreateRepository",
                                                     isDefaultWsMultiDb,
                                                     wsEntry.getContainer()
-                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                           .getParameterValue(JDBCWorkspaceDataContainer.SOURCE_NAME),
                                                     "target/temp/values/" + IdGenerator.generate(),
                                                     wsEntry.getContainer());
 
@@ -256,7 +256,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
                                               isDefaultWsMultiDb,
                                               isDefaultWsMultiDb ? null
                                                                 : wsEntry.getContainer()
-                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                                         .getParameterValue(JDBCWorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
     // WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false,
@@ -452,7 +452,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
                                               isDefaultWsMultiDb,
                                               isDefaultWsMultiDb ? null
                                                                 : wsEntry.getContainer()
-                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                                         .getParameterValue(JDBCWorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
     repositoryEntry.addWorkspace(secondWs);
@@ -489,7 +489,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
                                               isDefaultWsMultiDb,
                                               isDefaultWsMultiDb ? null
                                                                 : wsEntry.getContainer()
-                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                                         .getParameterValue(JDBCWorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
 

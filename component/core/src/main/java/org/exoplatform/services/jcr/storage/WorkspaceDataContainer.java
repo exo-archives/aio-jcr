@@ -34,21 +34,15 @@ public interface WorkspaceDataContainer extends DataContainer {
 
   // configuration params
 
-  public final static String CONTAINER_NAME    = "containerName";
+  public final static String CONTAINER_NAME         = "containerName";
 
-  public final static String SOURCE_NAME       = "source-name";
+  public final static String MAXBUFFERSIZE_PROP     = "max-buffer-size";
 
-  public final static String MULTIDB           = "multi-db";
+  public final static String SWAPDIR_PROP           = "swap-directory";
 
-  public final static String SINGLEDB          = "single-db";
+  public final static int    DEF_MAXBUFFERSIZE      = 1024 * 200;  // 200k
 
-  public final static String MAXBUFFERSIZE     = "max-buffer-size";
-
-  public final static String SWAPDIR           = "swap-directory";
-
-  public final static int    DEF_MAXBUFFERSIZE = 1024 * 200;                          // 200k
-
-  public final static String DEF_SWAPDIR       = System.getProperty("java.io.tmpdir");
+  public final static String DEF_SWAPDIR            = System.getProperty("java.io.tmpdir");
 
   /**
    * [G.A] do we need it here or in WorkspaceDataManager better??
