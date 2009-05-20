@@ -353,7 +353,7 @@ public class ReplicationService implements Startable, ManagementAware {
               WorkspaceEntry wconf = (WorkspaceEntry) wsFacade.getComponent(WorkspaceEntry.class);
 
               int maxBufferSize = wconf.getContainer()
-                                       .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                       .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE_PROP,
                                                             WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
 
               WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsFacade.getComponent(WorkspaceFileCleanerHolder.class);

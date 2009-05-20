@@ -116,7 +116,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     WorkspaceEntry wconf = (WorkspaceEntry) wsc.getComponent(WorkspaceEntry.class);
 
     maxBufferSize = wconf.getContainer()
-                         .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                         .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE_PROP,
                                               WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
 
     WorkspaceFileCleanerHolder wfcleaner = (WorkspaceFileCleanerHolder) wsc.getComponent(WorkspaceFileCleanerHolder.class);
