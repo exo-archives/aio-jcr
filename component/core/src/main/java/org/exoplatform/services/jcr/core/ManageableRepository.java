@@ -29,7 +29,6 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
-import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
@@ -107,12 +106,6 @@ public interface ManageableRepository extends Repository {
    * @return the node type manager
    */
   ExtendedNodeTypeManager getNodeTypeManager();
-
-  /**
-   * @return
-   * @throws RepositoryException
-   */
-  NodeTypeDataManager getNodeTypesHolder() throws RepositoryException;
 
   /**
    * @param workspaceName - name of workspace

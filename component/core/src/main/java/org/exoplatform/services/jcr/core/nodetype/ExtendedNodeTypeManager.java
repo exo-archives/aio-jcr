@@ -63,6 +63,12 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    * @throws RepositoryException
    */
   NodeTypeIterator registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
+  
+  /**
+   * @return
+   * @throws RepositoryException
+   */
+  NodeTypeDataManager getNodeTypesHolder() throws RepositoryException;
 
   // ------ JCR 2 related features methods ------
 

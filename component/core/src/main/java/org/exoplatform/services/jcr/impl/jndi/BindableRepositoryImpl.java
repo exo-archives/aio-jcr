@@ -225,8 +225,4 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
     delegatee.setState(state);
   }
 
-  public NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
-    return delegatee.getNodeTypesHolder();
-  }
-
 }

@@ -554,8 +554,4 @@ public class RepositoryImpl implements ManageableRepository {
     }
   }
 
-  public NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
-    return (NodeTypeDataManager) repositoryContainer.getComponentInstanceOfType(NodeTypeDataManager.class);
-
-  }
 }

@@ -52,8 +52,7 @@ public class SessionActionCatalog extends ActionCatalog {
 
     RepositoryImpl rep = (RepositoryImpl) repService.getCurrentRepository();
     this.locFactory = rep.getLocationFactory();
-    this.typeDataManager = rep.getNodeTypesHolder();
-
+    this.typeDataManager = rep.getNodeTypeManager().getNodeTypesHolder();
   }
 
   public void addPlugin(ComponentPlugin plugin) {

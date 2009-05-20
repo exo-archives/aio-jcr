@@ -352,4 +352,11 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
+    return typesManager;
+  }
+
 }
