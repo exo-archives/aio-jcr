@@ -150,7 +150,7 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
 
     int maxbs;
     try {
-      maxbs = wsConfig.getContainer().getParameterInteger(MAXBUFFERSIZE);
+      maxbs = wsConfig.getContainer().getParameterInteger(MAXBUFFERSIZE_PROP);
     } catch (RepositoryConfigurationException e) {
       maxbs = DEF_MAXBUFFERSIZE;
     }
