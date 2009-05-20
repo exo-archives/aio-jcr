@@ -196,14 +196,23 @@ public class JobWorkspaceRestore extends Thread {
    *           will be generated the RepositoryException
    */
   private void removeWorkspace(ManageableRepository mr, String workspaceName) throws RepositoryException {
+    
+    boolean isExists = false;
+    for(String wsName : mr.getWorkspaceNames()) 
+      if (workspaceName.equals(wsName)) {
+        isExists = true;
+        break;
+      }
 
-    if (!mr.canRemoveWorkspace(workspaceName)) {
-      WorkspaceContainerFacade wc = mr.getWorkspaceContainer(workspaceName);
-      SessionRegistry sessionRegistry = (SessionRegistry) wc.getComponent(SessionRegistry.class);
-      sessionRegistry.closeSessions(workspaceName);
+    if (isExists) {
+      if (!mr.canRemoveWorkspace(workspaceName)) {
+        WorkspaceContainerFacade wc = mr.getWorkspaceContainer(workspaceName);
+        SessionRegistry sessionRegistry = (SessionRegistry) wc.getComponent(SessionRegistry.class);
+        sessionRegistry.closeSessions(workspaceName);
+      }
+  
+      mr.removeWorkspace(workspaceName);
     }
-
-    mr.removeWorkspace(workspaceName);
   }
 
   /**
