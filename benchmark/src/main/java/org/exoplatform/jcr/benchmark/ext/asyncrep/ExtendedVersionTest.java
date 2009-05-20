@@ -22,7 +22,7 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.Session;
 
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+//import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 
 import com.sun.japex.TestCase;
 
@@ -44,7 +44,8 @@ public class ExtendedVersionTest extends AsyncTestBase {
   public void doPrepare(TestCase tc, AsyncTestContext context) throws Exception {
     super.doPrepare(tc, context);
     
-    AsyncReplication rep = context.getReplicationServer();
+    //TODO
+    /*AsyncReplication rep = context.getReplicationServer();
     rep.synchronize();
     log.info("Previous synchronization started.");
 
@@ -57,12 +58,13 @@ public class ExtendedVersionTest extends AsyncTestBase {
     Session s = context.getSession();
     root = s.getRootNode().addNode(FOLDER_NAME);
     root.addMixin("mix:versionable");
-    s.save();
+    s.save();*/
   }
 
   @Override
   public void doRun(final TestCase tc, AsyncTestContext context) throws Exception {
-    Session s = context.getSession();
+    //TODO
+    /*Session s = context.getSession();
 
     for (int i = 0; i < sc; i++) {
       for (int j = 0; j < fc; j++) {
@@ -125,7 +127,7 @@ public class ExtendedVersionTest extends AsyncTestBase {
       Thread.sleep(3000);
     }
     
-    log.info("Synchronization ADD  done.");
+    log.info("Synchronization ADD  done.");*/
      }
 
   @Override

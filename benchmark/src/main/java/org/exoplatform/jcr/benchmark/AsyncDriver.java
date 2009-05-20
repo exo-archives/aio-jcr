@@ -27,7 +27,7 @@ import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.jcr.benchmark.ext.asyncrep.AsyncTestBase;
 import org.exoplatform.jcr.benchmark.ext.asyncrep.AsyncTestContext;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+//import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 
 import com.sun.japex.JapexDriverBase;
 import com.sun.japex.Params;
@@ -47,7 +47,8 @@ public class AsyncDriver extends JapexDriverBase {
 
   protected Repository     repository;
 
-  protected AsyncReplication replication;
+  //TODO
+//  protected AsyncReplication replication;
   
   protected Session        oneSession;
 
@@ -146,7 +147,8 @@ public class AsyncDriver extends JapexDriverBase {
   private synchronized AsyncTestContext initContext(TestCase tc, AsyncTestContext context) {
     // context.setSession(oneSession);
 
-    if (!hasParam("jcr.sessionPolicy"))
+    // TODO
+    /*if (!hasParam("jcr.sessionPolicy"))
       throw new RuntimeException("<jcr.sessionPolicy> parameter required");
     String sessionPolicy = getParam("jcr.sessionPolicy");
     if (sessionPolicy.equalsIgnoreCase("single")) {
@@ -165,13 +167,14 @@ public class AsyncDriver extends JapexDriverBase {
       }
     else
       throw new RuntimeException("<sessionPolicy> parameter expects 'single' or 'multiple' values. Found "
-          + sessionPolicy);
+          + sessionPolicy);*/
 
     return context;
   }
   
   private void initialize(Params params) {
-    if (!params.hasParam("exo.jaasConf"))
+    //TODO
+    /*if (!params.hasParam("exo.jaasConf"))
       throw new RuntimeException("<exo.jaasConf> parameter required");
 
     if (!params.hasParam("exo.containerConf"))
@@ -199,6 +202,6 @@ public class AsyncDriver extends JapexDriverBase {
       System.out.println("REPLICATION -"+replication.toString());
     } catch (Exception e) {
       e.printStackTrace();
-    }
+    }*/
   }
 }

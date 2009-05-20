@@ -21,7 +21,7 @@ import java.util.HashMap;
 import javax.jcr.Credentials;
 import javax.jcr.Session;
 
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+//import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 
 
 /**
@@ -61,13 +61,14 @@ public class AsyncTestContext extends HashMap<String, Object> {
     return (Session) get(SESSION);
   }
   
-  public void setReplicationServer(AsyncReplication rep) {
+  //TODO
+  /*public void setReplicationServer(AsyncReplication rep) {
     put(REPLICATION, rep);
   }
 
   public AsyncReplication getReplicationServer() {
     return (AsyncReplication) get(REPLICATION);
-  }
+  }*/
   
 
   public void setCredentials(Credentials credentials) {

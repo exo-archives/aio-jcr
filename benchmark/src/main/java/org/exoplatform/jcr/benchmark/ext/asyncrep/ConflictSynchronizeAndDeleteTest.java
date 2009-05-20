@@ -22,7 +22,7 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.Session;
 
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+//import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 
 import com.sun.japex.TestCase;
 
@@ -38,7 +38,7 @@ public class ConflictSynchronizeAndDeleteTest extends ConflictSynchronizeTest {
   @Override
   public void doRun(final TestCase tc, AsyncTestContext context) throws Exception {
 
-    super.doRun(tc, context);
+    /*super.doRun(tc, context);
 
     Session s = context.getSession();
     log.info("Start Delete");
@@ -77,7 +77,7 @@ public class ConflictSynchronizeAndDeleteTest extends ConflictSynchronizeTest {
     while (rep.isActive()) {
       Thread.sleep(3000);
     }
-    log.info("Synchronization DELETE done");
+    log.info("Synchronization DELETE done");*/
   }
 
   @Override

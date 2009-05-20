@@ -23,7 +23,7 @@ import javax.jcr.Node;
 import javax.jcr.Session;
 import javax.jcr.version.Version;
 
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+//import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 
 import com.sun.japex.TestCase;
 
@@ -40,7 +40,8 @@ public class SimpleVersionTest extends AsyncTestBase {
 
   @Override
   public void doPrepare(TestCase tc, AsyncTestContext context) throws Exception {
-    super.doPrepare(tc, context);
+    //TODO
+    /*super.doPrepare(tc, context);
 
     AsyncReplication rep = context.getReplicationServer();
     rep.synchronize();
@@ -55,12 +56,13 @@ public class SimpleVersionTest extends AsyncTestBase {
     Session s = context.getSession();
     root = s.getRootNode().addNode(FOLDER_NAME);
     root.addMixin("mix:versionable");
-    s.save();
+    s.save();*/
   }
 
   @Override
   public void doRun(final TestCase tc, AsyncTestContext context) throws Exception {
-    Session s = context.getSession();
+    //TODO
+    /*Session s = context.getSession();
 
     for (int i = 0; i < sc; i++) {
       for (int j = 0; j < fc; j++) {
@@ -141,7 +143,7 @@ public class SimpleVersionTest extends AsyncTestBase {
     while (rep.isActive()) {
       Thread.sleep(3000);
     }
-    log.info("Synchronization RESTORE  done.");
+    log.info("Synchronization RESTORE  done.");*/
     
   }
 

@@ -27,7 +27,7 @@ import javax.jcr.Node;
 import javax.jcr.Session;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
+//import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication;
 
 import com.sun.japex.TestCase;
 
@@ -53,7 +53,8 @@ public class LoadFilesAndSynchronizeTest extends AsyncTestBase {
 
   @Override
   public void doRun(final TestCase tc, AsyncTestContext context) throws Exception {
-    Session s = context.getSession();
+    //TODO
+    /*Session s = context.getSession();
 
     for (int i = 0; i < sc; i++) {
       for (int j = 0; j < fc; j++) {
@@ -92,7 +93,7 @@ public class LoadFilesAndSynchronizeTest extends AsyncTestBase {
       } else {
         log.info("OK : opponent files is added.");
       }
-    }
+    }*/
   }
 
   @Override
