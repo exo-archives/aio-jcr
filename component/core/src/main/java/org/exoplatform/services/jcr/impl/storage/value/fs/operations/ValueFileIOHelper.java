@@ -23,21 +23,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
-
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 03.04.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: ReadValue.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * <br/>
+ * Date: 03.04.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
 public class ValueFileIOHelper {
+
   /**
    * Read value from file.
    * 
@@ -50,23 +53,25 @@ public class ValueFileIOHelper {
    * @param temp
    *          - temporary file flag
    * @return ValueData
-   * @throws IOException if error
+   * @throws IOException
+   *           if error
    */
   protected ValueData readValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
-    
+
     FileInputStream is = new FileInputStream(file);
     try {
-      int size = (int) file.length();
+      long fileSize = file.length();
 
-      if (size > maxBufferSize) {
+      if (fileSize > maxBufferSize) {
         return new FileStreamPersistedValueData(file, orderNum, temp);
       } else {
-        byte[] res = new byte[size];
+        int buffSize = (int) fileSize;
+        byte[] res = new byte[buffSize];
         int rpos = 0;
         int r = -1;
-        byte[] buff = new byte[FileIOChannel.IOBUFFER_SIZE > size
+        byte[] buff = new byte[FileIOChannel.IOBUFFER_SIZE > buffSize
             ? FileIOChannel.IOBUFFER_SIZE
-            : size];
+            : buffSize];
         while ((r = is.read(buff)) >= 0) {
           System.arraycopy(buff, 0, res, rpos, r);
           rpos += r;
@@ -117,12 +122,13 @@ public class ValueFileIOHelper {
       byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE];
       int len;
       InputStream in = value.getAsStream();
-      while ((len = in.read(buffer)) > 0)
-        out.write(buffer, 0, len);
-      in.close();
+      try {
+        while ((len = in.read(buffer)) > 0)
+          out.write(buffer, 0, len);
+      } finally {
+        in.close();
+      }
     }
-  }  
-  
-
+  }
 
 }
