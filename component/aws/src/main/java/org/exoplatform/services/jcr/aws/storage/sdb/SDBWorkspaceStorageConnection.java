@@ -2489,35 +2489,36 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   public void commit() throws IllegalStateException, RepositoryException {
     try {
       // TODO cleanup
-//      int sdbi = 0;
-//      try {
-//        // execute SimpleDB changes operations
-//        for (; sdbi < changes.size(); sdbi++)
-//          changes.get(sdbi).execute();
-//      } catch (Throwable e) {
-//        // SDB error, rollback executed SDB
-//        try {
-//          for (; sdbi >= 0; sdbi--)
-//            changes.get(sdbi).rollback();
-//        } catch (Throwable re) {
-//          LOG.error("Error of changes rollback on SimpleDB commit error", re);
-//        }
-//
-//        try {
-//          // rollback VS
-//          for (int p = valueChanges.size() - 1; p >= 0; p--)
-//            valueChanges.get(p).rollback();
-//        } catch (IOException ioe) {
-//          LOG.error("Error of Externally stored Values changes rollback on SimpleDB commit error", ioe);
-//        }
-//
-//        throw new RepositoryException("Commit error", e);
-//      }
+      // int sdbi = 0;
+      // try {
+      // // execute SimpleDB changes operations
+      // for (; sdbi < changes.size(); sdbi++)
+      // changes.get(sdbi).execute();
+      // } catch (Throwable e) {
+      // // SDB error, rollback executed SDB
+      // try {
+      // for (; sdbi >= 0; sdbi--)
+      // changes.get(sdbi).rollback();
+      // } catch (Throwable re) {
+      // LOG.error("Error of changes rollback on SimpleDB commit error", re);
+      // }
+      //
+      // try {
+      // // rollback VS
+      // for (int p = valueChanges.size() - 1; p >= 0; p--)
+      // valueChanges.get(p).rollback();
+      // } catch (IOException ioe) {
+      // LOG.error("Error of Externally stored Values changes rollback on SimpleDB commit error",
+      // ioe);
+      // }
+      //
+      // throw new RepositoryException("Commit error", e);
+      // }
 
       // execute SimpleDB changes operations
       for (WriteOperation wo : changes)
-        wo.execute();      
-      
+        wo.execute();
+
       // commit VS changes operations
       for (ValueIOChannel vo : valueChanges)
         vo.commit();
@@ -2567,6 +2568,13 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         valueChanges.clear();
       }
     }
+  }
+
+  /**
+   * Same as roolback() method.
+   */
+  public void close() throws IllegalStateException, RepositoryException {
+    rollback();
   }
 
   /**
