@@ -198,6 +198,9 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
   public void rollback() throws IllegalStateException, RepositoryException {
   }
 
+  public void close() throws IllegalStateException, RepositoryException {
+  }
+
   public boolean isOpened() {
     return false;
   }

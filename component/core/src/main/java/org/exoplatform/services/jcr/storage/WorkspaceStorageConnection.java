@@ -315,6 +315,16 @@ public interface WorkspaceStorageConnection {
   void rollback() throws IllegalStateException, RepositoryException;
 
   /**
+   * Close connection.
+   * 
+   * @throws IllegalStateException
+   *           if connection is already closed
+   * @throws RepositoryException
+   *           if some exception occured
+   */
+  void close() throws IllegalStateException, RepositoryException;
+
+  /**
    * Returns true if connection can be used.
    * 
    * @return boolean, true if connection is open and ready, false - otherwise

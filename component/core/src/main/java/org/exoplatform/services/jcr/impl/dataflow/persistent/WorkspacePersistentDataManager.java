@@ -59,7 +59,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
   /**
    * Logger.
    */
-  protected static final Log                              LOG = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
+  protected static final Log                              LOG      = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
 
   /**
    * Workspace data container (persistent storage).
@@ -86,11 +86,11 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
    * Persistent level liesteners filters.
    */
   protected final List<ItemsPersistenceListenerFilter>    liestenerFilters;
-  
+
   /**
    * Read-only status.
    */
-  protected boolean readOnly = false;
+  protected boolean                                       readOnly = false;
 
   /**
    * WorkspacePersistentDataManager constructor.
@@ -218,7 +218,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     try {
       return con.getItemData(identifier);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -241,7 +241,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
       }
       return refProps;
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -254,7 +254,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     try {
       return con.getChildNodesData(nodeData);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -266,7 +266,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     try {
       return con.getChildPropertiesData(nodeData);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -278,7 +278,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     try {
       return con.listChildPropertiesData(nodeData);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -515,12 +515,12 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     try {
       return con.getItemData(parentData, name);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
-  
+
   /**
-   * {@inheritDoc}
+   * {@inheritDoc}true
    */
   public boolean isReadOnly() {
     return readOnly;
