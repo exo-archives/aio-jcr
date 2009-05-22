@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,31 +14,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.transport;
+package org.exoplatform.services.jcr.ext.replication.storage;
+
+import java.io.IOException;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>
- * Date: 15.12.2008
+ * Date: 28.01.2009
  * 
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: AsyncPacketListener.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: CompositeIOException.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public interface AsyncPacketListener {
+public class StorageIOException extends IOException {
+
+  protected final Throwable cause;
+
+  public StorageIOException(String message) {
+    super(message);
+    this.cause = null;
+  }
+
+  public StorageIOException(String message, Throwable cause) {
+    super(message);
+    this.cause = cause;
+  }
 
   /**
-   * receive. Will be called this method when receive the Packet.
-   * 
-   * @param packet
-   *          the Packet object.
+   * {@inheritDoc}
    */
-  void receive(AbstractPacket packet, MemberAddress sourceAddress);
+  @Override
+  public Throwable getCause() {
+    return cause;
+  }
 
-  /**
-   * onError.
-   * 
-   * @param sourceAddress
-   */
-  void onError(MemberAddress sourceAddress);
 }

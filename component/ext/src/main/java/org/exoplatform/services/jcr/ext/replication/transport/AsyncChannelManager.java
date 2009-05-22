@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.transport;
+package org.exoplatform.services.jcr.ext.replication.transport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
-import org.exoplatform.services.jcr.ext.replication.async.ConnectionListener;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
@@ -44,7 +43,7 @@ import org.jgroups.blocks.RequestHandler;
  * Date: 12.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id$
+ * @version $Id: AsyncChannelManager.java 31925 2009-05-19 07:40:04Z rainf0x $
  */
 public class AsyncChannelManager implements RequestHandler, MembershipListener {
   

@@ -14,27 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.transport;
-
-import java.io.IOException;
+package org.exoplatform.services.jcr.ext.replication.transport;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 18.05.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: ChannelNotConnectedException.java 111 2008-11-11 11:11:11Z rainf0x $
+ * <br/>
+ * Inform about channel state.
+ * 
+ * <br/>
+ * Date: 15.01.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: ConnectionListener.java 31768 2009-05-14 09:35:43Z pnedonosko $
  */
-public class ChannelNotConnectedException extends IOException {
+public interface ConnectionListener {
 
   /**
-   * ChannelNotConnectedException  constructor.
-   *
-   * @param message
-   *          String, the message.
+   * On channel disconnect event.
+   * 
    */
-  public ChannelNotConnectedException(final String message) {
-    super(message);
-  }
+  void onDisconnect();
+
 }

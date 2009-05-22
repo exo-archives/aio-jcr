@@ -23,15 +23,15 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
-import org.exoplatform.services.jcr.ext.replication.async.IncomeDataContext;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
-import org.exoplatform.services.jcr.ext.replication.async.storage.RandomChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ResourcesHolder;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.ext.replication.storage.IncomeDataContext;
+import org.exoplatform.services.jcr.ext.replication.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.storage.RandomChangesFile;
+import org.exoplatform.services.jcr.ext.replication.storage.ResourcesHolder;
+import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.replication.transport.AsyncStateEvent;
+import org.exoplatform.services.jcr.ext.replication.transport.AsyncStateListener;
+import org.exoplatform.services.jcr.ext.replication.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

@@ -26,7 +26,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;

@@ -28,8 +28,8 @@ import org.exoplatform.services.jcr.ext.initializer.NoMemberToSendException;
 import org.exoplatform.services.jcr.ext.initializer.RemoteTransport;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
-import org.exoplatform.services.jcr.ext.replication.async.storage.InvalidChecksumException;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.storage.InvalidChecksumException;
+import org.exoplatform.services.jcr.ext.replication.transport.AsyncChannelManager;
 
 /**
  * Created by The eXo Platform SAS.

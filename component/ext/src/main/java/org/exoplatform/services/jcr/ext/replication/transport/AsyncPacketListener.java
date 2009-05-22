@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2009 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,28 +14,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.transport;
-
-import java.io.IOException;
+package org.exoplatform.services.jcr.ext.replication.transport;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 19.05.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: ChannelWasDisconnected.java 111 2008-11-11 11:11:11Z rainf0x $
+ * <br/>
+ * Date: 15.12.2008
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id: AsyncPacketListener.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class ChannelWasDisconnectedException extends IOException {
-  
-  /**
-   * ChannelWasDisconnectedException  constructor.
-   *
-   * @param message
-   *          String, the message.
-   */
-  public ChannelWasDisconnectedException(final String message) {
-    super(message);
-  }
+public interface AsyncPacketListener {
 
+  /**
+   * receive. Will be called this method when receive the Packet.
+   * 
+   * @param packet
+   *          the Packet object.
+   */
+  void receive(AbstractPacket packet, MemberAddress sourceAddress);
+
+  /**
+   * onError.
+   * 
+   * @param sourceAddress
+   */
+  void onError(MemberAddress sourceAddress);
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.storage;
+package org.exoplatform.services.jcr.ext.replication.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ import java.io.InputStream;
  * Date: 19.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id$
+ * @version $Id: ChangesFile.java 31768 2009-05-14 09:35:43Z pnedonosko $
  */
 public interface ChangesFile {
 

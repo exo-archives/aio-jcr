@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.storage;
+package org.exoplatform.services.jcr.ext.replication.storage;
 
-import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.ext.replication.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.

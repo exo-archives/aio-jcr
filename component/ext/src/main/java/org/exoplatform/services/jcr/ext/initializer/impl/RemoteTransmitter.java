@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
+import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

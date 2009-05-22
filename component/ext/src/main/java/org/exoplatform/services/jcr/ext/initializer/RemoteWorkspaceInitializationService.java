@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.ext.initializer.impl.RemoteTransportImpl;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
