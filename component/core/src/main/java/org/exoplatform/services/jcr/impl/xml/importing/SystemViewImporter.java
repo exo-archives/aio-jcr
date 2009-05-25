@@ -62,7 +62,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: SystemViewImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public class SystemViewImporter extends BaseXmlImporter {
   /**
@@ -479,9 +479,7 @@ public class SystemViewImporter extends BaseXmlImporter {
           TransientValueData binaryValue = new TransientValueData(vStream);
           binaryValue.setMaxBufferSize(valueFactory.getMaxBufferSize());
           binaryValue.setFileCleaner(valueFactory.getFileCleaner());
-          // Call to spool file into tmp
-          binaryValue.getAsStream();
-          vStream.close();
+
           propertyInfo.getValues().get(k).remove();
           values.add(binaryValue);
 
@@ -502,10 +500,11 @@ public class SystemViewImporter extends BaseXmlImporter {
   /**
    * Returns the value of the named XML attribute.
    * 
-   * @param attributes set of XML attributes
-   * @param name attribute name
-   * @return attribute value, or <code>null</code> if the named attribute is not
-   *         found
+   * @param attributes
+   *          set of XML attributes
+   * @param name
+   *          attribute name
+   * @return attribute value, or <code>null</code> if the named attribute is not found
    * @throws RepositoryException
    */
 
