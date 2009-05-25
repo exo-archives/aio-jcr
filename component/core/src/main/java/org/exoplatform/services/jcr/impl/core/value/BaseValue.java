@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 
  * @author Gennady Azarenkov
  * 
- * @version $Id: BaseValue.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
 
@@ -280,7 +280,7 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
         bytes = idata.getAsByteArray();
         stream = null;
       } else {
-        stream = idata.getAsStream();
+        stream = idata.getAsStream(true);
         bytes = null;
       }
       length = idata.getLength();

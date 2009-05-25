@@ -56,40 +56,40 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Created by The eXo Platform SAS.<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: TransientValueData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
-public class TransientValueData extends AbstractValueData implements Externalizable{
+public class TransientValueData extends AbstractValueData implements Externalizable {
 
-  private static final long   serialVersionUID                 = -5280857006905550884L;
+  private static final long  serialVersionUID                 = -5280857006905550884L;
 
   public static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "_JCRVDtemp";
 
-  private static final int    BYTE_ARRAY_DATA                  = 1;
+  private static final int   BYTE_ARRAY_DATA                  = 1;
 
-  private static final int    STREAM_DATA                      = 2;
+  private static final int   STREAM_DATA                      = 2;
 
-  protected byte[]            data;
+  protected byte[]           data;
 
-  protected InputStream       tmpStream;
+  protected InputStream      tmpStream;
 
-  protected File              spoolFile;
+  protected File             spoolFile;
 
-  protected final boolean     closeTmpStream;
+  protected final boolean    closeTmpStream;
 
   /**
    * User for read(...) method
    */
-  protected FileChannel       spoolChannel;
+  protected FileChannel      spoolChannel;
 
-  protected FileCleaner       fileCleaner;
+  protected FileCleaner      fileCleaner;
 
-  protected int               maxBufferSize;
+  protected int              maxBufferSize;
 
-  protected File              tempDirectory;
+  protected File             tempDirectory;
 
-  protected boolean           spooled                          = false;
+  protected boolean          spooled                          = false;
 
-  private final boolean       deleteSpoolFile;
+  private final boolean      deleteSpoolFile;
 
   /**
    * will be used for optimization unserialization mechanism.
@@ -118,8 +118,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * creates TransientValueData with incoming input stream. the stream will be
-   * lazily spooled to file or byte array depending on maxBufferSize
+   * creates TransientValueData with incoming input stream. the stream will be lazily spooled to
+   * file or byte array depending on maxBufferSize
    * 
    * @param orderNumber
    */
@@ -263,20 +263,52 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
+  /**
+   * Get input stream.
+   * 
+   * @param needSpool
+   *          spool input stream if need
+   * @return input stream
+   * @throws IOException
+   *           if any Exception is occurred
+   */
+  public InputStream getAsStream(boolean needSpool) throws IOException {
+    if (data != null) {
+      return new ByteArrayInputStream(data); // from bytes
+    } else if (spoolFile != null) {
+      return new FileInputStream(spoolFile); // from spool file if
+      // initialized
+    } else {
+      if (needSpool) {
+        spoolInputStream();
+
+        if (data != null) {
+          return new ByteArrayInputStream(data); // from bytes
+        } else if (spoolFile != null) {
+          return new FileInputStream(spoolFile); // from spool file if
+          // initialized
+        } else {
+          throw new NullPointerException("Null Stream data ");
+        }
+      } else { // return stream without spooling
+        if (tmpStream == null) {
+          throw new NullPointerException("Stream already consumed ");
+        } else {
+          InputStream res = tmpStream;
+          tmpStream = null;
+          return res;
+        }
+      }
+    }
+  }
+
   /*
    * (non-Javadoc)
    * 
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
-    spoolInputStream();
-    if (data != null) {
-      return new ByteArrayInputStream(data); // from bytes
-    } else if (spoolFile != null) {
-      return new FileInputStream(spoolFile); // from spool file if
-      // initialized
-    } else
-      throw new NullPointerException("Null Stream data ");
+    return getAsStream(false);
   }
 
   /*
@@ -288,10 +320,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     spoolInputStream();
 
     if (data == null) {
-      log.debug("getLength spoolFile : " + spoolFile.length());
+      if (log.isDebugEnabled())
+        log.debug("getLength spoolFile : " + spoolFile.length());
       return spoolFile.length();
     } else {
-      log.debug("getLength data : " + data.length);
+      if (log.isDebugEnabled())
+        log.debug("getLength data : " + data.length);
       return data.length;
     }
   }
@@ -368,15 +402,16 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * Read <code>length</code> bytes from the binary value at
-   * <code>position</code> to the <code>stream</code>.
+   * Read <code>length</code> bytes from the binary value at <code>position</code> to the
+   * <code>stream</code>.
    * 
-   * @param stream - destenation OutputStream
-   * @param length - data length to be read
-   * @param position - position in value data from which the read will be
-   *          performed
-   * @return - The number of bytes, possibly zero, that were actually
-   *         transferred
+   * @param stream
+   *          - destenation OutputStream
+   * @param length
+   *          - data length to be read
+   * @param position
+   *          - position in value data from which the read will be performed
+   * @return - The number of bytes, possibly zero, that were actually transferred
    * @throws IOException
    * @throws RepositoryException
    */
@@ -594,8 +629,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * try to convert stream to byte array WARNING: Potential lack of memory due
-   * to call getAsByteArray() on stream data
+   * try to convert stream to byte array WARNING: Potential lack of memory due to call
+   * getAsByteArray() on stream data
    * 
    * @return byte array
    */
