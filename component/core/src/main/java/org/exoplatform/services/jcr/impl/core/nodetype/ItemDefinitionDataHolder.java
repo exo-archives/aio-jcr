@@ -29,11 +29,11 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/> Per-repository component holding all
- * Child Nodes and Properties Definitions as flat Map For ex definition for
- * jcr:primaryType will be repeated as many times as many primary nodetypes is
- * registered (as each primary nodetype extends nt:base directly or indirectly)
- * and so on.
+ * Created by The eXo Platform SAS. <br/>
+ * Per-repository component holding all Child Nodes and Properties Definitions
+ * as flat Map For ex definition for jcr:primaryType will be repeated as many
+ * times as many primary nodetypes is registered (as each primary nodetype
+ * extends nt:base directly or indirectly) and so on.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ItemDefinitionDataHolder.java 11907 2008-03-13 15:36:21Z ksm $
@@ -72,19 +72,6 @@ public class ItemDefinitionDataHolder {
     return def;
   }
 
-  private NodeDefinitionData getNodeDefinitionFromThisOrSupertypes(InternalQName parentNodeType,
-                                                                   InternalQName childName,
-                                                                   InternalQName childNodeType) {
-
-    NodeDefinitionData def = nodeDefinitions.get(new ChildNodeDefKey(parentNodeType,
-                                                                     childName,
-                                                                     childNodeType));
-    if (def != null)
-      return def;
-
-    return def;
-  }
-
   /**
    * @param pr name of parent node types
    * @param childName name of child node
@@ -109,6 +96,29 @@ public class ItemDefinitionDataHolder {
     }
 
     return null;
+  }
+
+  /**
+   * @param parentNodeType name of parent node type
+   * @param childName name of child property
+   * @param multiValued
+   * @return Child PropertyDefinition or null if not found
+   */
+  public PropertyDefinitionData getPropertyDefinition(InternalQName childName,
+                                                      boolean multiValued,
+                                                      InternalQName parentNodeType) {
+
+    PropertyDefKey key = new PropertyDefKey(parentNodeType, childName, multiValued);
+    PropertyDefinitionData def = propertyDefinitions.get(key);
+
+    // try residual def
+    if (def == null) {
+      return propertyDefinitions.get(new PropertyDefKey(parentNodeType,
+                                                        Constants.JCR_ANY_NAME,
+                                                        multiValued));
+    }
+
+    return def;
   }
 
   /**
@@ -140,29 +150,6 @@ public class ItemDefinitionDataHolder {
     }
 
     return pdefs.getAnyDefinition() != null ? pdefs : null;
-  }
-
-  /**
-   * @param parentNodeType name of parent node type
-   * @param childName name of child property
-   * @param multiValued
-   * @return Child PropertyDefinition or null if not found
-   */
-  public PropertyDefinitionData getPropertyDefinition(InternalQName childName,
-                                                      boolean multiValued,
-                                                      InternalQName parentNodeType) {
-
-    PropertyDefKey key = new PropertyDefKey(parentNodeType, childName, multiValued);
-    PropertyDefinitionData def = propertyDefinitions.get(key);
-
-    // try residual def
-    if (def == null) {
-      return propertyDefinitions.get(new PropertyDefKey(parentNodeType,
-                                                        Constants.JCR_ANY_NAME,
-                                                        multiValued));
-    }
-
-    return def;
   }
 
   /**
@@ -253,44 +240,85 @@ public class ItemDefinitionDataHolder {
     }
   }
 
-  /**
-   * @see about hash code generation:
-   *      http://www.geocities.com/technofundo/tech/java/equalhash.html
-   */
-  private abstract class ItemDefKey {
-    protected int hashCode;
+  private NodeDefinitionData getNodeDefinitionFromThisOrSupertypes(InternalQName parentNodeType,
+                                                                   InternalQName childName,
+                                                                   InternalQName childNodeType) {
 
-    protected ItemDefKey(InternalQName parentNodeType, InternalQName childName) {
-      hashCode = 7;
-      hashCode = 31 * hashCode + (null == parentNodeType ? 0 : parentNodeType.hashCode());
-      hashCode = 31 * hashCode + (null == childName ? 0 : childName.hashCode());
-    }
+    NodeDefinitionData def = nodeDefinitions.get(new ChildNodeDefKey(parentNodeType,
+                                                                     childName,
+                                                                     childNodeType));
+    if (def != null)
+      return def;
 
-    @Override
-    public int hashCode() {
-      return hashCode;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (obj == this)
-        return true;
-      if ((obj == null) || (obj.getClass() != this.getClass()))
-        return false;
-      ItemDefKey test = (ItemDefKey) obj;
-      return hashCode == test.hashCode();
-    }
-
+    return def;
   }
 
   private class ChildNodeDefKey extends ItemDefKey {
+
+    private final InternalQName childNodeType;
 
     private ChildNodeDefKey(InternalQName parentNodeType,
                             InternalQName childName,
                             InternalQName childNodeType) {
       super(parentNodeType, childName);
-      hashCode = 31 * hashCode + (null == childNodeType ? 0 : childNodeType.hashCode());
+      this.childNodeType = childNodeType;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!super.equals(obj)) {
+        return false;
+      }
+      if (!(obj instanceof ChildNodeDefKey)) {
+        return false;
+      }
+      ChildNodeDefKey other = (ChildNodeDefKey) obj;
+      if (!getOuterType().equals(other.getOuterType())) {
+        return false;
+      }
+      if (childNodeType == null) {
+        if (other.childNodeType != null) {
+          return false;
+        }
+      } else if (!childNodeType.equals(other.childNodeType)) {
+        return false;
+      }
+      return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result + getOuterType().hashCode();
+      result = prime * result + ((childNodeType == null) ? 0 : childNodeType.hashCode());
+      return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+      String result = super.toString();
+      result += ((childNodeType == null) ? "" : childNodeType.getAsString());
+
+      return result;
+    }
+
+    private ItemDefinitionDataHolder getOuterType() {
+      return ItemDefinitionDataHolder.this;
+    }
+
   }
 
   private class DefaultNodeDefKey extends ItemDefKey {
@@ -300,13 +328,144 @@ public class ItemDefinitionDataHolder {
     }
   }
 
+  /**
+   * @see about hash code generation:
+   *      http://www.geocities.com/technofundo/tech/java/equalhash.html
+   */
+  private abstract class ItemDefKey {
+
+    private final InternalQName parentNodeType;
+
+    private final InternalQName childName;
+
+    protected ItemDefKey(InternalQName parentNodeType, InternalQName childName) {
+      this.parentNodeType = parentNodeType;
+      this.childName = childName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null) {
+        return false;
+      }
+      if (!(obj instanceof ItemDefKey)) {
+        return false;
+      }
+      ItemDefKey other = (ItemDefKey) obj;
+      if (!getOuterType().equals(other.getOuterType())) {
+        return false;
+      }
+      if (childName == null) {
+        if (other.childName != null) {
+          return false;
+        }
+      } else if (!childName.equals(other.childName)) {
+        return false;
+      }
+      if (parentNodeType == null) {
+        if (other.parentNodeType != null) {
+          return false;
+        }
+      } else if (!parentNodeType.equals(other.parentNodeType)) {
+        return false;
+      }
+      return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + getOuterType().hashCode();
+      result = prime * result + ((childName == null) ? 0 : childName.hashCode());
+      result = prime * result + ((parentNodeType == null) ? 0 : parentNodeType.hashCode());
+      return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+      String result = "";
+      result += ((childName == null) ? 0 : childName.getAsString());
+      result += ((parentNodeType == null) ? 0 : parentNodeType.getAsString());
+      return result;
+    }
+
+    private ItemDefinitionDataHolder getOuterType() {
+      return ItemDefinitionDataHolder.this;
+    }
+  }
+
   private class PropertyDefKey extends ItemDefKey {
+
+    private final boolean multiValued;
 
     private PropertyDefKey(InternalQName parentNodeType,
                            InternalQName childName,
                            boolean multiValued) {
       super(parentNodeType, childName);
-      hashCode = 31 * hashCode + (multiValued ? 1 : 0);
+      this.multiValued = multiValued;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!super.equals(obj)) {
+        return false;
+      }
+      if (!(obj instanceof PropertyDefKey)) {
+        return false;
+      }
+      PropertyDefKey other = (PropertyDefKey) obj;
+      if (!getOuterType().equals(other.getOuterType())) {
+        return false;
+      }
+      if (multiValued != other.multiValued) {
+        return false;
+      }
+      return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result + getOuterType().hashCode();
+      result = prime * result + (multiValued ? 1231 : 1237);
+      return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+      String result = super.toString();
+      result += " multiValued=" + multiValued;
+      return result;
+    }
+
+    private ItemDefinitionDataHolder getOuterType() {
+      return ItemDefinitionDataHolder.this;
     }
   }
 
