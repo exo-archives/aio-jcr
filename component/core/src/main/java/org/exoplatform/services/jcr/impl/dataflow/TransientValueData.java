@@ -342,6 +342,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
+    spoolInputStream();
+
     if (isByteArray()) {
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
@@ -368,6 +370,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   public EditableValueData createEditableCopy() throws RepositoryException {
+    spoolInputStream();
+
     if (isByteArray()) {
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
