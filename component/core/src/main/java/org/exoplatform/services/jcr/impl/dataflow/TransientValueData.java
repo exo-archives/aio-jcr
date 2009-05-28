@@ -314,15 +314,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public long getLength() {
     if (data == null) {
       spoolInputStream();
-      if (data != null) {
-        if (log.isDebugEnabled())
-          log.debug("getLength data : " + data.length);
-        return data.length;
-      } else {
-        if (log.isDebugEnabled())
-          log.debug("getLength spoolFile : " + spoolFile.length());
-        return spoolFile.length();
-      }
+      if (log.isDebugEnabled())
+        log.debug("getLength spoolFile : " + spoolFile.length());
+      return spoolFile.length();
     } else {
       if (log.isDebugEnabled())
         log.debug("getLength data : " + data.length);
@@ -342,8 +336,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
-    spoolInputStream();
-
     if (isByteArray()) {
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
@@ -370,8 +362,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   public EditableValueData createEditableCopy() throws RepositoryException {
-    spoolInputStream();
-
     if (isByteArray()) {
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
@@ -572,43 +562,23 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     if (spooled || tmpStream == null) // already spooled
       return;
 
-    byte[] buffer = new byte[0];
     byte[] tmpBuff = new byte[2048];
-    int read = 0;
-    int len = 0;
-    SpoolFile sf = null;
     OutputStream sfout = null;
+    int read = 0;
 
     try {
+      SpoolFile sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
+      sf.acquire(this);
+      sfout = new FileOutputStream(sf);
+
       while ((read = tmpStream.read(tmpBuff)) >= 0) {
-        if (sfout != null) {
-          // spool to temp file
-          sfout.write(tmpBuff, 0, read);
-          len += read;
-        } else {
-          // if have a fileCleaner create temp file and spool buffer contents.
-          sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
-          sf.acquire(this);
-
-          sfout = new FileOutputStream(sf);
-          sfout.write(tmpBuff, 0, read);
-          len += read;
-
-          buffer = null;
-        }
+        sfout.write(tmpBuff, 0, read);
       }
 
-      if (sf != null) {
-        // spooled to file
-        this.spoolFile = sf;
-        this.data = null;
-      } else {
-        // ...bytes
-        this.spoolFile = null;
-        this.data = buffer;
-      }
-
+      this.spoolFile = sf;
+      this.data = null;
       this.spooled = true;
+
     } catch (IOException e) {
       throw new IllegalStateException(e);
     } finally {

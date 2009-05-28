@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: TestValueImpl.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class TestValueImpl extends TestCase {
@@ -67,6 +67,8 @@ public class TestValueImpl extends TestCase {
     assertEquals(str1, val.getStream());
 
     // another one value using the same string
+    fs1 = new FileInputStream(file); // [AB]
+
     BinaryValue val2 = new BinaryValue(fs1, new FileCleaner(), tempDirectory, maxFufferSize);
     InputStream str2 = val2.getStream();
 
