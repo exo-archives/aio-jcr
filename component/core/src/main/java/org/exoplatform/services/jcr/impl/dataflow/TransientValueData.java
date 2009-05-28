@@ -297,19 +297,15 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsStream()
+  /**
+   * {@inheritDoc}
    */
   public InputStream getAsStream() throws IOException {
     return getAsStream(false);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
+  /**
+   * {@inheritDoc}
    */
   public long getLength() {
     if (data == null) {
@@ -324,16 +320,16 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
-  /*
-   * returns true if this data is spooled to byte array, false otherwise (to
-   * file)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ValueData#isByteArray()
+  /**
+   * {@inheritDoc}
    */
   public boolean isByteArray() {
     return data != null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
     if (isByteArray()) {
@@ -361,6 +357,13 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
+  /**
+   * Create editable ValueData copy.
+   * 
+   * @return EditableValueData
+   * @throws RepositoryException
+   *           if error occurs
+   */
   public EditableValueData createEditableCopy() throws RepositoryException {
     if (isByteArray()) {
       // bytes, make a copy of real data
@@ -452,7 +455,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * @return spool file if any
+   * Return spool file. Actual for BLOBs only.
+   * 
+   * @return File spool file or null
    */
   public File getSpoolFile() {
     spoolInputStream();
@@ -460,6 +465,13 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     return spoolFile;
   }
 
+  /**
+   * Set spool file. It's means ValueData has its data somewhere spooled to a file system. And it's
+   * a file with the content.
+   * 
+   * @param spoolFile
+   *          File
+   */
   public void setSpoolFile(File spoolFile) {
     this.spoolFile = spoolFile;
     this.deleteSpoolFile = false;
@@ -467,10 +479,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * helper method to simplify operations that requires stringified data
+   * Helper method to simplify operations that requires stringified data.
    * 
-   * @return
-   * @throws IOException
+   * @return String 
+   * @throws IOException if read error
    */
   public String getString() throws IOException {
     if (log.isDebugEnabled())
@@ -481,9 +493,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   // ///////////////////////////////////
   /**
-   * make sense for stream storage only
-   * 
-   * @param cleaner
+   * Make sense for stream storage only.
+   *  
+   * @param cleaner FileCleaner
    */
   public void setFileCleaner(FileCleaner cleaner) {
     this.fileCleaner = cleaner;
