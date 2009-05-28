@@ -314,9 +314,15 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public long getLength() {
     if (data == null) {
       spoolInputStream();
-      if (log.isDebugEnabled())
-        log.debug("getLength spoolFile : " + spoolFile.length());
-      return spoolFile.length();
+      if (data != null) {
+        if (log.isDebugEnabled())
+          log.debug("getLength data : " + data.length);
+        return data.length;
+      } else {
+        if (log.isDebugEnabled())
+          log.debug("getLength spoolFile : " + spoolFile.length());
+        return spoolFile.length();
+      }
     } else {
       if (log.isDebugEnabled())
         log.debug("getLength data : " + data.length);
