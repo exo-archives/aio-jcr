@@ -25,7 +25,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TesterTransientValueData;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
@@ -33,16 +33,18 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: TestFileIOChannel.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class TestFileIOChannel extends TestCase {
 
-  private File rootDir;
+  private File                     rootDir;
 
-  private FileCleaner             cleaner   = new FileCleaner(2000);
+  private FileCleaner              cleaner                  = new FileCleaner(2000);
 
-  private ValueDataResourceHolder resources = new ValueDataResourceHolder();
+  private ValueDataResourceHolder  resources                = new ValueDataResourceHolder();
+
+  private TesterTransientValueData testerTransientValueData = new TesterTransientValueData();
 
   /**
    * {@inheritDoc}
@@ -53,9 +55,9 @@ public class TestFileIOChannel extends TestCase {
 
     rootDir = new File(new File("target"), "vs1");
     rootDir.mkdirs();
-    
+
     new File(rootDir, FileValueStorage.TEMP_DIR_NAME).mkdirs();
-    
+
     if (!rootDir.exists())
       throw new Exception("Folder does not exist " + rootDir.getAbsolutePath());
 
@@ -114,9 +116,9 @@ public class TestFileIOChannel extends TestCase {
 
     byte[] buf = "0123456789".getBytes();
     List<ValueData> values = new ArrayList<ValueData>();
-    values.add(new ByteArrayPersistedValueData(buf, 0));
-    values.add(new ByteArrayPersistedValueData(buf, 1));
-    values.add(new ByteArrayPersistedValueData(buf, 2));
+    values.add(testerTransientValueData.getTransientValueData(buf, 0));
+    values.add(testerTransientValueData.getTransientValueData(buf, 1));
+    values.add(testerTransientValueData.getTransientValueData(buf, 2));
 
     for (ValueData valueData : values) {
       channel.write("testWriteToIOChannel", valueData);
@@ -135,11 +137,11 @@ public class TestFileIOChannel extends TestCase {
     // values = channel.read("testWriteToIOChannel", 5);
     // assertEquals(3, values.size());
   }
-  
+
   protected void writeUpdate(FileIOChannel channel) throws Exception {
-    
+
     byte[] buf = "0123456789".getBytes();
-    channel.write("testWriteUpdate", new ByteArrayPersistedValueData(buf, 0));    
+    channel.write("testWriteUpdate", testerTransientValueData.getTransientValueData(buf, 0));
     channel.commit();
 
     File f = channel.getFile("testWriteUpdate", 0);
@@ -147,22 +149,22 @@ public class TestFileIOChannel extends TestCase {
     assertEquals(10, f.length());
 
     byte[] buf1 = "qwerty".getBytes();
-    channel.write("testWriteUpdate", new ByteArrayPersistedValueData(buf1, 0));    
+    channel.write("testWriteUpdate", testerTransientValueData.getTransientValueData(buf1, 0));
     channel.commit();
-    
+
     f = channel.getFile("testWriteUpdate", 0);
     assertTrue(f.exists());
     assertEquals(6, f.length());
-    
+
     channel.delete("testWriteUpdate");
     channel.commit();
   }
-  
+
   public void testWriteUpdate() throws Exception {
     FileIOChannel channel = new SimpleFileIOChannel(rootDir, cleaner, "#1", resources);
 
     writeUpdate(channel);
-    
+
     channel = new TreeFileIOChannel(rootDir, cleaner, "#1", resources);
 
     writeUpdate(channel);
@@ -173,9 +175,9 @@ public class TestFileIOChannel extends TestCase {
 
     byte[] buf = "0123456789".getBytes();
     List<ValueData> values = new ArrayList<ValueData>();
-    values.add(new ByteArrayPersistedValueData(buf, 0));
-    values.add(new ByteArrayPersistedValueData(buf, 1));
-    values.add(new ByteArrayPersistedValueData(buf, 2));
+    values.add(testerTransientValueData.getTransientValueData(buf, 0));
+    values.add(testerTransientValueData.getTransientValueData(buf, 1));
+    values.add(testerTransientValueData.getTransientValueData(buf, 2));
 
     for (ValueData valueData : values) {
       channel.write("testDeleteFromIOChannel", valueData);
@@ -211,7 +213,7 @@ public class TestFileIOChannel extends TestCase {
     }
 
     // approx. 10Kb file
-    values.add(new ByteArrayPersistedValueData(buf, 0));
+    values.add(testerTransientValueData.getTransientValueData(buf, 0));
     for (ValueData valueData : values) {
       channel.write("testConcurrentReadFromIOChannel", valueData);
     }
@@ -251,7 +253,7 @@ public class TestFileIOChannel extends TestCase {
     }
 
     // approx. 1Mb file
-    values.add(new ByteArrayPersistedValueData(buf, 0));
+    values.add(testerTransientValueData.getTransientValueData(buf, 0));
     for (ValueData valueData : values) {
       channel.write("testDeleteLockedFileFromIOChannel", valueData);
     }
