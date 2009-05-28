@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Date: 03.04.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: CASableWriteValue.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id$
  */
 public class CASableWriteValue extends WriteValue {
 
@@ -174,8 +174,7 @@ public class CASableWriteValue extends WriteValue {
         } // else - CASed Value already exists
 
         // set new spool file
-        if (value instanceof TransientValueData)
-          ((TransientValueData) value).setSpoolFile(vcasFile);
+        ((TransientValueData) value).setSpoolFile(vcasFile);
 
       } finally {
         // remove temp file

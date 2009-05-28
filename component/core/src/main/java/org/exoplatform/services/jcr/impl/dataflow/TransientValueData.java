@@ -89,7 +89,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   protected boolean          spooled                          = false;
 
-  private final boolean      deleteSpoolFile;
+  private boolean            deleteSpoolFile;
 
   /**
    * will be used for optimization unserialization mechanism.
@@ -462,6 +462,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   public void setSpoolFile(File spoolFile) {
     this.spoolFile = spoolFile;
+    this.deleteSpoolFile = false;
     this.spooled = true;
   }
 

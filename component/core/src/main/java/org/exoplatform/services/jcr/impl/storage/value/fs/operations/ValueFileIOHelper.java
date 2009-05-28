@@ -101,8 +101,7 @@ public class ValueFileIOHelper {
       writeOutput(out, value);
 
       // set spool file
-      if (value instanceof TransientValueData)
-        ((TransientValueData) value).setSpoolFile(file);
+      ((TransientValueData) value).setSpoolFile(file);
 
     } finally {
       out.close();
