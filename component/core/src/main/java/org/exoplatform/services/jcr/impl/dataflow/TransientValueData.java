@@ -39,10 +39,6 @@ import java.util.Calendar;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -50,7 +46,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
-import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SAS.<br/>
@@ -63,10 +58,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   private static final long  serialVersionUID                 = -5280857006905550884L;
 
   public static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "_JCRVDtemp";
-
-  private static final int   BYTE_ARRAY_DATA                  = 1;
-
-  private static final int   STREAM_DATA                      = 2;
 
   protected byte[]           data;
 
@@ -92,9 +83,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   private boolean            deleteSpoolFile;
 
   /**
-   * will be used for optimization unserialization mechanism.
+   * Convert String into bytes array using default encoding.
    */
-  // private String parentPropertyDataId;
   static protected byte[] stringToBytes(final String value) {
     try {
       return value.getBytes(Constants.DEFAULT_ENCODING);
@@ -105,10 +95,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * creates TransientValueData with incoming byte array
+   * Creates TransientValueData with incoming byte array.
    * 
-   * @param value
-   * @param orderNumber
+   * @param value byte[]
+   * @param orderNumber int
    */
   protected TransientValueData(byte[] value, int orderNumber) {
     super(orderNumber);
@@ -118,10 +108,13 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * creates TransientValueData with incoming input stream. the stream will be lazily spooled to
-   * file or byte array depending on maxBufferSize
+   * Creates TransientValueData with incoming input stream. the stream will be lazily spooled to
+   * file or byte array depending on maxBufferSize.
    * 
+   * @param stream
+   *          InputStream
    * @param orderNumber
+   *          int
    */
   protected TransientValueData(InputStream stream, int orderNumber) {
     super(orderNumber);
@@ -130,6 +123,28 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.closeTmpStream = false;
   }
 
+  /**
+   * TransientValueData constructor.
+   * 
+   * @param orderNumber
+   *          int
+   * @param bytes
+   *          byte[]
+   * @param stream
+   *          InputStream
+   * @param spoolFile
+   *          File
+   * @param fileCleaner
+   *          FileCleaner
+   * @param maxBufferSize
+   *          int
+   * @param tempDirectory
+   *          File
+   * @param deleteSpoolFile
+   *          boolean
+   * @throws IOException
+   *           if read error
+   */
   public TransientValueData(int orderNumber,
                             byte[] bytes,
                             InputStream stream,
@@ -162,95 +177,108 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
+  /**
+   * TransientValueData constructor.
+   * 
+   * @param stream
+   *          InputStream
+   */
   public TransientValueData(InputStream stream) {
     this(stream, 0);
   }
 
   /**
-   * Constructor for String value data
+   * Constructor for String value data.
    * 
    * @param value
+   *          String
    */
   public TransientValueData(String value) {
     this(stringToBytes(value), 0);
   }
 
   /**
-   * Constructor for boolean value data
+   * Constructor for boolean value data.
    * 
    * @param value
+   *          boolean
    */
   public TransientValueData(boolean value) {
     this(Boolean.valueOf(value).toString().getBytes(), 0);
   }
 
   /**
-   * Constructor for Calendar value data
+   * Constructor for Calendar value data.
    * 
    * @param value
+   *          Calendar
    */
   public TransientValueData(Calendar value) {
     this(new JCRDateFormat().serialize(value), 0);
   }
 
   /**
-   * Constructor for double value data
+   * Constructor for double value data.
    * 
    * @param value
+   *          double
    */
   public TransientValueData(double value) {
     this(Double.valueOf(value).toString().getBytes(), 0);
   }
 
   /**
-   * Constructor for long value data
+   * Constructor for long value data.
    * 
    * @param value
+   *          long
    */
   public TransientValueData(long value) {
     this(Long.valueOf(value).toString().getBytes(), 0);
   }
 
   /**
-   * Constructor for Name value data
+   * Constructor for Name value data.
    * 
    * @param value
+   *          InternalQName
    */
   public TransientValueData(InternalQName value) {
     this(stringToBytes(value.getAsString()), 0);
   }
 
   /**
-   * Constructor for Path value data
+   * Constructor for Path value data.
    * 
    * @param value
+   *          QPath
    */
   public TransientValueData(QPath value) {
     this(stringToBytes(value.getAsString()), 0);
   }
 
   /**
-   * Constructor for Reference value data
+   * Constructor for Reference value data.
    * 
    * @param value
+   *          Identifier
    */
   public TransientValueData(Identifier value) {
     this(value.getString().getBytes(), 0);
   }
 
   /**
-   * Constructor for Permission value data
+   * Constructor for Permission value data.
    * 
    * @param value
+   *          AccessControlEntry
    */
   public TransientValueData(AccessControlEntry value) {
     this(stringToBytes(value.getAsString()), 0);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
+  /**
+   * {@inheritDoc}
    */
   public byte[] getAsByteArray() throws IOException {
     if (data != null) {
@@ -481,8 +509,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   /**
    * Helper method to simplify operations that requires stringified data.
    * 
-   * @return String 
-   * @throws IOException if read error
+   * @return String
+   * @throws IOException
+   *           if read error
    */
   public String getString() throws IOException {
     if (log.isDebugEnabled())
@@ -494,8 +523,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   // ///////////////////////////////////
   /**
    * Make sense for stream storage only.
-   *  
-   * @param cleaner FileCleaner
+   * 
+   * @param cleaner
+   *          FileCleaner
    */
   public void setFileCleaner(FileCleaner cleaner) {
     this.fileCleaner = cleaner;
@@ -539,10 +569,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
+  /**
+   * {@inheritDoc}
    */
   public boolean equals(Object obj) {
 
@@ -570,6 +598,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   // ///////////////////////////////////
 
+  /**
+   * Spool ValueData temp InputStream to a temp File.
+   * 
+   */
   private void spoolInputStream() {
 
     if (spooled || tmpStream == null) // already spooled
@@ -612,6 +644,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
+  @Deprecated
   private void spoolInputStreamOld() {
 
     if (spooled || tmpStream == null) // already spooled
