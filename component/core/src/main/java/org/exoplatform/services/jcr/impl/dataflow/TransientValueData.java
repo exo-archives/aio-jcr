@@ -253,12 +253,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IOException {
-    spoolInputStream();
     if (data != null) {
       byte[] bytes = new byte[data.length];
       System.arraycopy(data, 0, bytes, 0, data.length);
       return bytes;
     } else {
+      spoolInputStream();
       return fileToByteArray();
     }
   }
@@ -273,31 +273,26 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    *           if any Exception is occurred
    */
   public InputStream getAsStream(boolean needSpool) throws IOException {
-    if (data != null) {
-      return new ByteArrayInputStream(data); // from bytes
-    } else if (spoolFile != null) {
-      return new FileInputStream(spoolFile); // from spool file if
-      // initialized
-    } else {
-      if (needSpool) {
+    if (needSpool) {
+      if (data != null) {
+        return new ByteArrayInputStream(data); // from bytes
+      } else {
         spoolInputStream();
-
-        if (data != null) {
-          return new ByteArrayInputStream(data); // from bytes
-        } else if (spoolFile != null) {
+        if (spoolFile != null) {
           return new FileInputStream(spoolFile); // from spool file if
-          // initialized
         } else {
-          throw new NullPointerException("Null Stream data ");
+          throw new NullPointerException("Stream already consumed");
         }
-      } else { // return stream without spooling
-        if (tmpStream == null) {
-          throw new NullPointerException("Stream already consumed ");
-        } else {
-          InputStream res = tmpStream;
-          tmpStream = null;
-          return res;
-        }
+      }
+    } else {
+      if (data != null) {
+        return new ByteArrayInputStream(data); // from bytes
+      } else if (spoolFile != null) {
+        return new FileInputStream(spoolFile); // from spool file if initialized
+      } else if (tmpStream != null) {
+        return tmpStream;
+      } else {
+        throw new NullPointerException("Null Stream data ");
       }
     }
   }
@@ -317,9 +312,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
-    spoolInputStream();
-
     if (data == null) {
+      spoolInputStream();
       if (log.isDebugEnabled())
         log.debug("getLength spoolFile : " + spoolFile.length());
       return spoolFile.length();
@@ -337,8 +331,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @see org.exoplatform.services.jcr.datamodel.ValueData#isByteArray()
    */
   public boolean isByteArray() {
-    spoolInputStream();
-
     return data != null;
   }
 
@@ -386,6 +378,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       }
     } else {
       // edited BLOB file, make a copy
+      spoolInputStream();
+
       try {
         EditableValueData copy = new EditableValueData(spoolFile,
                                                        orderNumber,
@@ -464,6 +458,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     spoolInputStream();
 
     return spoolFile;
+  }
+
+  public void setSpoolFile(File spoolFile) {
+    this.spoolFile = spoolFile;
+    this.spooled = true;
   }
 
   /**
@@ -559,6 +558,68 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   // ///////////////////////////////////
 
   private void spoolInputStream() {
+
+    if (spooled || tmpStream == null) // already spooled
+      return;
+
+    byte[] buffer = new byte[0];
+    byte[] tmpBuff = new byte[2048];
+    int read = 0;
+    int len = 0;
+    SpoolFile sf = null;
+    OutputStream sfout = null;
+
+    try {
+      while ((read = tmpStream.read(tmpBuff)) >= 0) {
+        if (sfout != null) {
+          // spool to temp file
+          sfout.write(tmpBuff, 0, read);
+          len += read;
+        } else {
+          // if have a fileCleaner create temp file and spool buffer contents.
+          sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
+          sf.acquire(this);
+
+          sfout = new FileOutputStream(sf);
+          sfout.write(tmpBuff, 0, read);
+          len += read;
+
+          buffer = null;
+        }
+      }
+
+      if (sf != null) {
+        // spooled to file
+        this.spoolFile = sf;
+        this.data = null;
+      } else {
+        // ...bytes
+        this.spoolFile = null;
+        this.data = buffer;
+      }
+
+      this.spooled = true;
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    } finally {
+      try {
+        if (sfout != null)
+          sfout.close();
+      } catch (IOException e) {
+        log.error("Error of spool output close.", e);
+      }
+
+      if (this.closeTmpStream)
+        try {
+          this.tmpStream.close();
+        } catch (IOException e) {
+          log.error("Error of source input close.", e);
+        }
+      this.tmpStream = null;
+    }
+  }
+
+  private void spoolInputStreamOld() {
 
     if (spooled || tmpStream == null) // already spooled
       return;

@@ -41,13 +41,12 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Responsible for: *redirecting repository
- * operations if item is descendant of /jcr:system/jcr:versionStorage *adding
- * version history for newly added/assigned mix:versionable
+ * Created by The eXo Platform SAS. Responsible for: *redirecting repository operations if item is
+ * descendant of /jcr:system/jcr:versionStorage *adding version history for newly added/assigned
+ * mix:versionable
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: VersionableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z
- *          ksm $
+ * @version $Id: VersionableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWorkspaceDataManager {
@@ -173,24 +172,16 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
       }
 
       if (vstates.size() > 0) {
-        versionLog.addLog((pairId != null) ? new PairChangesLog(vstates,
-                                                                changes.getSessionId(),
-                                                                changes.getEventType(),
-                                                                pairId)
-                                          : new PlainChangesLogImpl(vstates,
-                                                                    changes.getSessionId(),
-                                                                    changes.getEventType()));
+        versionLog.addLog((pairId != null)
+            ? new PairChangesLog(vstates, changes.getSessionId(), changes.getEventType(), pairId)
+            : new PlainChangesLogImpl(vstates, changes.getSessionId(), changes.getEventType()));
         saveVersions = true;
       }
 
       if (nvstates.size() > 0) {
-        nonVersionLog.addLog((pairId != null) ? new PairChangesLog(nvstates,
-                                                                   changes.getSessionId(),
-                                                                   changes.getEventType(),
-                                                                   pairId)
-                                             : new PlainChangesLogImpl(nvstates,
-                                                                       changes.getSessionId(),
-                                                                       changes.getEventType()));
+        nonVersionLog.addLog((pairId != null)
+            ? new PairChangesLog(nvstates, changes.getSessionId(), changes.getEventType(), pairId)
+            : new PlainChangesLogImpl(nvstates, changes.getSessionId(), changes.getEventType()));
 
         saveNonVersions = true;
       }

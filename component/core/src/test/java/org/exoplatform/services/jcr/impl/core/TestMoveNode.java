@@ -191,16 +191,18 @@ public class TestMoveNode extends JcrImplBaseTest {
     List<String> filesList = new ArrayList<String>();
     Random random = new Random();
     String TEST_FILE = "";
+
+    InputStream is[] = new InputStream[FILES_COUNT];
+
     for (int i = 0; i < FILES_COUNT; i++) {
       TEST_FILE = createBLOBTempFile("testMove", random.nextInt(1024)).getAbsolutePath();
       filesList.add(TEST_FILE);
       Node localBigFile = testLocalBigFiles.addNode("bigFile" + i, "nt:file");
       Node contentNode = localBigFile.addNode("jcr:content", "nt:resource");
       // contentNode.setProperty("jcr:encoding", "UTF-8");
-      InputStream is = new FileInputStream(TEST_FILE);
-      contentNode.setProperty("jcr:data", is);
+      is[i] = new FileInputStream(TEST_FILE);
+      contentNode.setProperty("jcr:data", is[i]);
       contentNode.setProperty("jcr:mimeType", "application/octet-stream ");
-      is.close();
       log.info("Data is set: " + TEST_FILE);
       // contentNode.setProperty("jcr:mimeType", "video/avi");
       contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
@@ -208,6 +210,12 @@ public class TestMoveNode extends JcrImplBaseTest {
 
     log.info("Saving: " + TEST_FILE + " " + Runtime.getRuntime().freeMemory());
     session.save();
+
+    // close streams
+    for (int i = 0; i < FILES_COUNT; i++) {
+      is[i].close();
+    }
+
     log.info("Saved: " + TEST_FILE + " " + Runtime.getRuntime().freeMemory());
     endTime = System.currentTimeMillis();
     log.info("Execution time after adding and saving (local big):" + ((endTime - startTime) / 1000)

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.storage.value.cas.RecordAlreadyExistsException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.VCASException;
@@ -171,6 +172,11 @@ public class CASableWriteValue extends WriteValue {
             throw new VCASException("File " + tempFile.getAbsolutePath()
                 + " can't be renamed to VCAS-named " + vcasFile.getAbsolutePath());
         } // else - CASed Value already exists
+
+        // set new spool file
+        if (value instanceof TransientValueData)
+          ((TransientValueData) value).setSpoolFile(vcasFile);
+
       } finally {
         // remove temp file
         tempFile.delete(); // should be ok without file cleaner

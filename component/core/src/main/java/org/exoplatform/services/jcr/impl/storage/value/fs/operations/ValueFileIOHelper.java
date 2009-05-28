@@ -25,6 +25,7 @@ import java.io.OutputStream;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
@@ -98,6 +99,11 @@ public class ValueFileIOHelper {
     OutputStream out = new FileOutputStream(file);
     try {
       writeOutput(out, value);
+
+      // set spool file
+      if (value instanceof TransientValueData)
+        ((TransientValueData) value).setSpoolFile(file);
+
     } finally {
       out.close();
     }

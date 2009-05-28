@@ -52,6 +52,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
@@ -1663,7 +1664,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
           stream = new ByteArrayInputStream(dataBytes);
           streamLength = dataBytes.length;
         } else {
-          stream = vd.getAsStream();
+          stream = ((TransientValueData) vd).getAsStream(true);
           streamLength = stream.available();
         }
         storageId = null;
