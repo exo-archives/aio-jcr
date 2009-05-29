@@ -97,8 +97,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   /**
    * Creates TransientValueData with incoming byte array.
    * 
-   * @param value byte[]
-   * @param orderNumber int
+   * @param value
+   *          byte[]
+   * @param orderNumber
+   *          int
    */
   protected TransientValueData(byte[] value, int orderNumber) {
     super(orderNumber);
@@ -416,7 +418,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
                                                        orderNumber,
                                                        fileCleaner,
                                                        maxBufferSize,
-                                                       tempDirectory);
+                                                       tempDirectory,
+                                                       deleteSpoolFile);
         return copy;
       } catch (FileNotFoundException e) {
         throw new RepositoryException("Create transient copy error. " + e, e);

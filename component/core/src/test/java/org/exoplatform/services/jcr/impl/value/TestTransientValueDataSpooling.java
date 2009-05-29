@@ -28,6 +28,10 @@ import javax.jcr.Value;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.dataflow.EditableValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TesterTransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 
 import junit.framework.TestCase;
 
@@ -48,6 +52,11 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
     super.tearDown();
   }
 
+  /**
+   * Write data from stream direct to the storage without spooling.
+   * 
+   * @throws Exception
+   */
   public void testNotSpooling() throws Exception {
     File tmpFile = createBLOBTempFile(4048);
 
@@ -70,6 +79,11 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
     assertEquals(countBefore, countAfter);
   }
 
+  /**
+   * Spool steam on get operation.
+   * 
+   * @throws Exception
+   */
   public void testSpooling() throws Exception {
     File tmpFile = createBLOBTempFile(4048);
 
@@ -98,4 +112,5 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
     // TODO Auto-generated method stub
     return null;
   }
+
 }
