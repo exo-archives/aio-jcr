@@ -418,8 +418,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
                                                        orderNumber,
                                                        fileCleaner,
                                                        maxBufferSize,
-                                                       tempDirectory,
-                                                       deleteSpoolFile);
+                                                       tempDirectory);
         return copy;
       } catch (FileNotFoundException e) {
         throw new RepositoryException("Create transient copy error. " + e, e);

@@ -38,11 +38,10 @@ public class EditableValueData extends TransientValueData {
                            int orderNumber,
                            FileCleaner fileCleaner,
                            int maxBufferSize,
-                           File tempDirectory,
-                           boolean deleteSpoolFile) throws IOException {
+                           File tempDirectory) throws IOException {
 
     // don't send any data there (no stream, no bytes)
-    super(orderNumber, null, null, null, fileCleaner, maxBufferSize, tempDirectory, deleteSpoolFile);
+    super(orderNumber, null, null, null, fileCleaner, maxBufferSize, tempDirectory, true);
 
     this.maxIOBuffSize = calcMaxIOSize();
 
