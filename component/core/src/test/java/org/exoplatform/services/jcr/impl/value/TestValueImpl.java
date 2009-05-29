@@ -67,8 +67,6 @@ public class TestValueImpl extends TestCase {
     assertEquals(str1, val.getStream());
 
     // another one value using the same string
-    fs1 = new FileInputStream(file); // [AB]
-
     BinaryValue val2 = new BinaryValue(fs1, new FileCleaner(), tempDirectory, maxFufferSize);
     InputStream str2 = val2.getStream();
 
