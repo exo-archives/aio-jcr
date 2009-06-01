@@ -25,6 +25,7 @@ import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
 import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChecker;
+import org.exoplatform.services.jcr.ext.replication.priority.GenericPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.MemberListener;
 import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
@@ -56,7 +57,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   /**
    * The definition timeout for information. 
    */
-  private static final int           INFORM_TIMOUT = 5000;
+  private static final int              INFORM_TIMOUT = 5000;
   
   /**
    * Definition the BEFORE_CHECK timeout.
@@ -179,12 +180,16 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
                                                   ownPriority,
                                                   ownName,
                                                   otherParticipants);
-    else
+    else if (priprityType.equals(ReplicationService.PRIORITY_DYNAMIC_TYPE))
       priorityChecker = new DynamicPriorityChecker(channelManager,
                                                    ownPriority,
                                                    ownName,
                                                    otherParticipants);
-
+    else 
+      priorityChecker = new GenericPriorityChecker(channelManager,
+                                                   ownPriority,
+                                                   ownName,
+                                                   otherParticipants);
     priorityChecker.setMemberListener(this);
     
     viewChecker = new ViewChecker();
@@ -262,6 +267,11 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     Thread.sleep(INFORM_TIMOUT);
     
     if (priorityChecker.isAllOnline()) {
+      if (reconectTtread != null) {
+        reconectTtread.setStop(false);
+        reconectTtread = null;
+      }
+      
       memberRejoin();
       return;
     }
@@ -271,8 +281,13 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
 
     if (allInited == true)
       lastViewSize = viewSise;
-
-    if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {
+    
+    if (priorityChecker instanceof GenericPriorityChecker) {
+      if ( lastViewSize == 1 && (reconectTtread == null || reconectTtread.isStoped() == true)) {
+        reconectTtread = new ReconectTtread(true);
+        reconectTtread.start();
+      }
+    } else if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {
 
       if (log.isDebugEnabled()) {
         log.debug("lastViewSize == 1 && !priorityChecker.isMaxPriority() == "
@@ -309,7 +324,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
         reconectTtread.setStop(false);
         reconectTtread = null;
       }
-    }
+    }  
   }
   
   /**
@@ -427,8 +442,10 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * {@inheritDoc}
    */
   public void memberRejoin() {
-    log.info(dataContainer.getName() + " set not read-only");
-    dataContainer.setReadOnly(false);
+    if (!(priorityChecker instanceof GenericPriorityChecker)) {
+      log.info(dataContainer.getName() + " set not read-only");
+      dataContainer.setReadOnly(false);
+    }
     
     log.info(dataContainer.getName() + " recovery start ...");
     recoveryManager.startRecovery();
@@ -439,7 +456,9 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * 
    */
   public void memberSuspect() {
-    log.info(dataContainer.getName() + " set read-only");
-    dataContainer.setReadOnly(true);
+    if (!(priorityChecker instanceof GenericPriorityChecker)) {
+      log.info(dataContainer.getName() + " set read-only");
+      dataContainer.setReadOnly(true);
+    }
   }
 }
