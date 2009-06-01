@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.impl.value;
+package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -25,8 +25,6 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.dataflow.TesterTransientValueData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
@@ -36,12 +34,10 @@ import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id$
+ * @version $Id: TestFileValueIO.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class TestFileValueIO extends TestCase {
-
-  public TesterTransientValueData testerTransientValueData = new TesterTransientValueData();
 
   static class FileValueIOUtil extends FileIOChannel {
 
@@ -127,7 +123,7 @@ public class TestFileValueIO extends TestCase {
     if (file.exists())
       file.delete();
 
-    TransientValueData vd = testerTransientValueData.getTransientValueData(buf, 0);
+    ByteArrayPersistedValueData vd = new ByteArrayPersistedValueData(buf, 0);
 
     FileValueIOUtil.testWriteValue(file, vd);
 

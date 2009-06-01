@@ -38,11 +38,16 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id$
  */
-
 public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIOChannel {
 
+  /**
+   * Logger.
+   */
   private static Log                      LOG           = ExoLogger.getLogger("jcr.FileIOChannel");
 
+  /**
+   * I/O buffer size for internal VS operations (32K).
+   */
   public static final int                 IOBUFFER_SIZE = 32 * 1024;                               // 32K
 
   /**
@@ -50,14 +55,29 @@ public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIO
    */
   protected final File                    tempDir;
 
+  /**
+   * Storage root dir.
+   */
   protected final File                    rootDir;
 
+  /**
+   * File cleaner used to clean swapped files.
+   */
   protected final FileCleaner             cleaner;
 
+  /**
+   * Concurrent access support for VS files.
+   */
   protected final ValueDataResourceHolder resources;
 
+  /**
+   * Storage Id.
+   */
   protected final String                  storageId;
 
+  /**
+   * Changes to be saved on commit or rolled back on rollback.
+   */
   protected final List<ValueOperation>    changes       = new ArrayList<ValueOperation>();
 
   /**
@@ -79,7 +99,6 @@ public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIO
     this.storageId = storageId;
     this.resources = resources;
 
-    // internal temp dir
     this.tempDir = new File(rootDir, FileValueStorage.TEMP_DIR_NAME);
   }
 
@@ -146,7 +165,9 @@ public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIO
    * Makes storage file path by propertyId and order number.<br/>
    * 
    * @param propertyId
+   *          String
    * @param orderNumber
+   *          int
    * @return String with path
    */
   protected abstract String makeFilePath(String propertyId, int orderNumber);
@@ -157,7 +178,9 @@ public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIO
    * File used for read/write operations.
    * 
    * @param propertyId
+   *          String
    * @param orderNumber
+   *          int
    * @return actual file on file system related to given parameters
    */
   protected abstract File getFile(String propertyId, int orderNumber) throws IOException;
@@ -168,6 +191,7 @@ public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIO
    * NOTE: Files list used for <strong>delete</strong> operation.
    * 
    * @param propertyId
+   *          String
    * @return actual files on file system related to given propertyId
    */
   protected abstract File[] getFiles(String propertyId) throws IOException;
