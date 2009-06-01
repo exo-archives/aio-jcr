@@ -77,8 +77,7 @@ public class AddMetadataAction implements Action {
       mimeType = property.getString();
       try {
         PropertyImpl propertyImpl = (PropertyImpl) parent.getProperty("jcr:data");
-        data = ((TransientValueData) ((TransientPropertyData) propertyImpl.getData()).getValues()
-                                                                                     .get(0)).getAsStream(true);
+        data = ((TransientPropertyData) propertyImpl.getData()).getValues().get(0).getAsStream();
         // data = parent.getProperty("jcr:data").getStream();
       } catch (PathNotFoundException e) {
         return false;

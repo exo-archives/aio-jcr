@@ -128,7 +128,7 @@ public class ValueFileIOHelper {
         }
       } else {
         // not spooled, use InputStream
-        copyClose(tvalue.getAsStream(), new FileOutputStream(file));
+        copyClose(tvalue.getAsStream(false), new FileOutputStream(file));
       }
     }
     ((TransientValueData) value).setSpoolFile(file);
@@ -149,7 +149,7 @@ public class ValueFileIOHelper {
       byte[] buff = value.getAsByteArray();
       out.write(buff);
     } else {
-      InputStream in = value.getAsStream();
+      InputStream in = ((TransientValueData) value).getAsStream(false);
       try {
         copy(in, out);
       } finally {
@@ -205,8 +205,8 @@ public class ValueFileIOHelper {
           ? ((FileOutputStream) out).getChannel()
           : Channels.newChannel(out);
 
-      // TODO buffers show same perfomance as bytes copy via Input/Output streams    
-      // NIO buffers article http://www.odi.ch/weblog/posting.php?posting=371          
+      // TODO buffers show same perfomance as bytes copy via Input/Output streams
+      // NIO buffers article http://www.odi.ch/weblog/posting.php?posting=371
       long size = 0;
       int r = 0;
       ByteBuffer buff = ByteBuffer.allocate(FileIOChannel.IOBUFFER_SIZE);
@@ -218,7 +218,7 @@ public class ValueFileIOHelper {
         do {
           outch.write(buff);
         } while (buff.hasRemaining());
-        
+
         buff.clear();
         size += r;
       }

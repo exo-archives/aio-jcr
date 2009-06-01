@@ -76,7 +76,7 @@ public class TestTransientValueData extends TestCase {
     // spool to file
     vd.setMaxBufferSize(5);
     vd.setFileCleaner(new FileCleaner());
-    InputStream fs2 = vd.getAsStream(true);
+    InputStream fs2 = vd.getAsStream();
     assertEquals(10, vd.getLength());
     assertTrue(fs2 instanceof FileInputStream);
 

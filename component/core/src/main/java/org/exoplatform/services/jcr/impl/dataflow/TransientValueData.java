@@ -331,7 +331,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * {@inheritDoc}
    */
   public InputStream getAsStream() throws IOException {
-    return getAsStream(false);
+    return getAsStream(true);
   }
 
   /**
@@ -490,8 +490,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @return File spool file or null
    */
   public File getSpoolFile() {
-    spoolInputStream();
-
     return spoolFile;
   }
 

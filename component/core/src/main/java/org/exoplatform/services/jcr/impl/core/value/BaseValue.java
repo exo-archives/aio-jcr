@@ -280,7 +280,7 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
         bytes = idata.getAsByteArray();
         stream = null;
       } else {
-        stream = idata.getAsStream(true);
+        stream = idata.getAsStream();
         bytes = null;
       }
       length = idata.getLength();
