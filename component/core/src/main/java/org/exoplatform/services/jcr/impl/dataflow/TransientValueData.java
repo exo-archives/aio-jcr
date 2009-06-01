@@ -602,7 +602,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * Spool ValueData temp InputStream to a temp File.
    * 
    */
-  private void spoolInputStream() {
+  protected void spoolInputStream() {
 
     if (spooled || tmpStream == null) // already spooled
       return;

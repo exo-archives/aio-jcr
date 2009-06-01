@@ -111,7 +111,7 @@ public class EditableValueData extends TransientValueData {
                                                          maxBufferSize,
                                                          tempDirectory,
                                                          true);
-        copy.getSpoolFile(); // read now, till the source isn't changed
+        copy.spoolInputStream(); // force spool - read now, till the source isn't changed
         thisStream.close();
 
         return copy;

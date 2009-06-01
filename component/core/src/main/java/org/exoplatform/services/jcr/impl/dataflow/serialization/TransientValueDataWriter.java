@@ -62,10 +62,9 @@ public class TransientValueDataWriter {
 
       // write file content
       // TODO optimize it, use channels
-      File sf = vd.getSpoolFile();
-      long length = sf.length();
-      out.writeLong(length);
-      InputStream in = new FileInputStream(vd.getSpoolFile());
+      InputStream in = vd.getAsStream();
+      out.writeLong(vd.getSpoolFile().length());
+      //InputStream in = new FileInputStream(vd.getSpoolFile());
       try {
         byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
         int l = 0;
