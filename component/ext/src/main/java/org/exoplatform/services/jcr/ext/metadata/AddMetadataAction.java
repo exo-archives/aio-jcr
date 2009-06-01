@@ -43,7 +43,6 @@ import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -63,69 +62,74 @@ public class AddMetadataAction implements Action {
     NodeImpl parent = (NodeImpl) property.getParent();
     if (!parent.isNodeType("nt:resource"))
       throw new Exception("incoming node is not nt:resource type");
+
     InputStream data = null;
-    String mimeType = null;
+    String mimeType;
 
-    if (property.getInternalName().equals(Constants.JCR_DATA)) {
-      data = ((TransientPropertyData) property.getData()).getValues().get(0).getAsStream();
-      try {
-        mimeType = parent.getProperty("jcr:mimeType").getString();
-      } catch (PathNotFoundException e) {
-        return false;
-      }
-    } else if (property.getInternalName().equals(Constants.JCR_MIMETYPE)) {
-      mimeType = property.getString();
-      try {
-        PropertyImpl propertyImpl = (PropertyImpl) parent.getProperty("jcr:data");
-        data = ((TransientPropertyData) propertyImpl.getData()).getValues().get(0).getAsStream();
-        // data = parent.getProperty("jcr:data").getStream();
-      } catch (PathNotFoundException e) {
-        return false;
-      }
-
-    } else {
-      return false;
-    }
-
-    if (!parent.isNodeType("dc:elementSet"))
-      parent.addMixin("dc:elementSet");
-
-    DocumentReaderService readerService = (DocumentReaderService) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(DocumentReaderService.class);
-    if (readerService == null)
-      throw new NullPointerException("No DocumentReaderService configured for current container");
-
-    Properties props = new Properties();
     try {
-      props = readerService.getDocumentReader(mimeType).getProperties(data);
-    } catch (HandlerNotFoundException e) {
-      log.debug(e.getMessage());
-    }
-    Iterator entries = props.entrySet().iterator();
-    while (entries.hasNext()) {
-      Entry entry = (Entry) entries.next();
-      QName qname = (QName) entry.getKey();
-      JCRName jcrName = property.getSession()
-                                .getLocationFactory()
-                                .createJCRName(new InternalQName(qname.getNamespace(),
-                                                                 qname.getName()));
-
-      PropertyDefinitionDatas pds = parent.getSession()
-                                          .getWorkspace()
-                                          .getNodeTypesHolder()
-                                          .findPropertyDefinitions(jcrName.getInternalName(),
-                                                                   ((NodeData) parent.getData()).getPrimaryTypeName(),
-                                                                   ((NodeData) parent.getData()).getMixinTypeNames());
-      if (pds.getDefinition(true) != null) {
-        Value[] values = { createValue(entry.getValue(), property.getSession().getValueFactory()) };
-        parent.setProperty(jcrName.getAsString(), values);
+      if (property.getInternalName().equals(Constants.JCR_DATA)) {
+        data = ((TransientPropertyData) property.getData()).getValues().get(0).getAsStream();
+        try {
+          mimeType = parent.getProperty("jcr:mimeType").getString();
+        } catch (PathNotFoundException e) {
+          return false;
+        }
+      } else if (property.getInternalName().equals(Constants.JCR_MIMETYPE)) {
+        mimeType = property.getString();
+        try {
+          PropertyImpl propertyImpl = (PropertyImpl) parent.getProperty("jcr:data");
+          data = ((TransientPropertyData) propertyImpl.getData()).getValues().get(0).getAsStream();
+        } catch (PathNotFoundException e) {
+          return false;
+        }
       } else {
-        parent.setProperty(jcrName.getAsString(), createValue(entry.getValue(),
-                                                              property.getSession()
-                                                                      .getValueFactory()));
+        return false;
       }
-    }
 
-    return false;
+      if (!parent.isNodeType("dc:elementSet"))
+        parent.addMixin("dc:elementSet");
+
+      DocumentReaderService readerService = (DocumentReaderService) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(DocumentReaderService.class);
+      if (readerService == null)
+        throw new NullPointerException("No DocumentReaderService configured for current container");
+
+      Properties props = new Properties();
+      try {
+        props = readerService.getDocumentReader(mimeType).getProperties(data);
+      } catch (HandlerNotFoundException e) {
+        log.debug(e.getMessage());
+      }
+      
+      Iterator entries = props.entrySet().iterator();
+      while (entries.hasNext()) {
+        Entry entry = (Entry) entries.next();
+        QName qname = (QName) entry.getKey();
+        JCRName jcrName = property.getSession()
+                                  .getLocationFactory()
+                                  .createJCRName(new InternalQName(qname.getNamespace(),
+                                                                   qname.getName()));
+
+        PropertyDefinitionDatas pds = parent.getSession()
+                                            .getWorkspace()
+                                            .getNodeTypesHolder()
+                                            .findPropertyDefinitions(jcrName.getInternalName(),
+                                                                     ((NodeData) parent.getData()).getPrimaryTypeName(),
+                                                                     ((NodeData) parent.getData()).getMixinTypeNames());
+        if (pds.getDefinition(true) != null) {
+          Value[] values = { createValue(entry.getValue(), property.getSession().getValueFactory()) };
+          parent.setProperty(jcrName.getAsString(), values);
+        } else {
+          parent.setProperty(jcrName.getAsString(), createValue(entry.getValue(),
+                                                                property.getSession()
+                                                                        .getValueFactory()));
+        }
+      }
+
+      return false;
+    } finally {
+      if (data != null)
+        data.close();
+    }
   }
 
   private Value createValue(Object obj, ValueFactory factory) throws ValueFormatException {
