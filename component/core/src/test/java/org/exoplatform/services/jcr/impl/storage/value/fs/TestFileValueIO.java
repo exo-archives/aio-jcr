@@ -25,10 +25,10 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
-import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
 
 /**
  * Created by The eXo Platform SAS.
@@ -123,7 +123,7 @@ public class TestFileValueIO extends TestCase {
     if (file.exists())
       file.delete();
 
-    ByteArrayPersistedValueData vd = new ByteArrayPersistedValueData(buf, 0);
+    TransientValueData vd = new TransientValueData(0, buf, null, null, null, 1024, null, false);
 
     FileValueIOUtil.testWriteValue(file, vd);
 
