@@ -43,13 +43,14 @@ import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: AddMetadataAction.java 12539 2007-02-04 19:15:49Z brice $
+ * @version $Id$
  */
 
 public class AddMetadataAction implements Action {
@@ -76,7 +77,8 @@ public class AddMetadataAction implements Action {
       mimeType = property.getString();
       try {
         PropertyImpl propertyImpl = (PropertyImpl) parent.getProperty("jcr:data");
-        data = ((TransientPropertyData) propertyImpl.getData()).getValues().get(0).getAsStream();
+        data = ((TransientValueData) ((TransientPropertyData) propertyImpl.getData()).getValues()
+                                                                                     .get(0)).getAsStream(true);
         // data = parent.getProperty("jcr:data").getStream();
       } catch (PathNotFoundException e) {
         return false;
