@@ -266,6 +266,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     
     Thread.sleep(INFORM_TIMOUT);
     
+    if (viewSise > 1)
+      allInited = true;
+
+    if (allInited == true)
+      lastViewSize = viewSise;
+    
     if (priorityChecker.isAllOnline()) {
       if (reconectTtread != null) {
         reconectTtread.setStop(false);
@@ -276,12 +282,6 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       return;
     }
 
-    if (viewSise > 1)
-      allInited = true;
-
-    if (allInited == true)
-      lastViewSize = viewSise;
-    
     if (priorityChecker instanceof GenericPriorityChecker) {
       if ( lastViewSize == 1 && (reconectTtread == null || reconectTtread.isStoped() == true)) {
         reconectTtread = new ReconectTtread(true);

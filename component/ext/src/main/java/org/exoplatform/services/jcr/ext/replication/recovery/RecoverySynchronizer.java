@@ -115,6 +115,11 @@ public class RecoverySynchronizer {
    * The list of names other participants who was Synchronized successful.
    */
   private List<String>                       successfulSynchronizedList;
+  
+  /**
+   * The flag for local synchronization.
+   */
+  private volatile boolean                   localSynchronization = false;
 
   /**
    * RecoverySynchronizer  constructor.
@@ -167,11 +172,14 @@ public class RecoverySynchronizer {
    */
   public void synchronizRepository() {
     try {
-      Packet packet = new Packet(Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE,
-                                 IdGenerator.generate(),
-                                 ownName,
-                                 Calendar.getInstance());
-      channelManager.sendPacket(packet);
+      if (localSynchronization) {
+        log.info("Synchronization init...");
+        Packet packet = new Packet(Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE,
+                                   IdGenerator.generate(),
+                                   ownName,
+                                   Calendar.getInstance());
+        channelManager.sendPacket(packet);
+      }
     } catch (Exception e) {
       log.error("Synchronization error", e);
     }
@@ -398,9 +406,10 @@ public class RecoverySynchronizer {
       if (successfulSynchronizedList.contains(packet.getOwnerName()) == false)
         successfulSynchronizedList.add(packet.getOwnerName());
 
-      if (successfulSynchronizedList.size() == initedParticipantsClusterList.size()) {
+      if (successfulSynchronizedList.size() == initedParticipantsClusterList.size()) 
         stat = AbstractWorkspaceDataReceiver.NORMAL_MODE;
-      }
+      
+      localSynchronization = false;
       break;
     default:
       break;
@@ -553,6 +562,14 @@ public class RecoverySynchronizer {
     }
 
     return null;
+  }
+  
+  /**
+   * localSynchronization.
+   * 
+   */
+  public void localSynchronization() {
+    localSynchronization = true;
   }
 }
 
