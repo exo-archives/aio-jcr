@@ -717,9 +717,9 @@ public class ReplicationService implements Startable, ManagementAware {
         List<String> initialHosts = getInitialHosts();
         
         if (participantsCluster != null)
-          log.warn("The perameter 'other-participants' not use for TCPPING");
+          log.warn("The perameter 'other-participants' not use for TCPPING.");
         if (ownName != null)
-          log.warn("The perameter 'node-name' not use for TCPPING");
+          log.warn("The perameter 'node-name' not use for TCPPING.");
         
         for (String host : initialHosts)
           if (!host.equals(bindIPAddress))
@@ -765,21 +765,20 @@ public class ReplicationService implements Startable, ManagementAware {
         throw new RuntimeException("Own Priority not specified");
       ownPriority = Integer.valueOf(ownValue);
     } else {
-      if (priprityType == null || priprityType.equals(PRIORITY_GENERIC_TYPE))
-        priprityType = PRIORITY_GENERIC_TYPE;
-      else {
-        if (!priprityType.equals(PRIORITY_STATIC_TYPE)
-            && !priprityType.equals(PRIORITY_DYNAMIC_TYPE))
-          throw new RuntimeException("Parameter 'priority-type' (static|dynamic) required for replication configuration");
-
-        if (ownValue == null)
-          throw new RuntimeException("Own Priority not specified");
-        ownPriority = Integer.valueOf(ownValue);
-      }
+       if (priprityType == null || !priprityType.equals(PRIORITY_GENERIC_TYPE))
+         log.warn("The parameters 'replication-priority-properties' not use for proxy replication.");
+        
+       priprityType = PRIORITY_GENERIC_TYPE;
     }
     
   }
 
+  /**
+   * getInitialHosts.
+   *
+   * @return List<String>
+   *           return list of initial hosts.
+   */
   private List<String> getInitialHosts() {
     JChannel jChannel = null;
     try {
@@ -808,14 +807,29 @@ public class ReplicationService implements Startable, ManagementAware {
     return initialHosts;
   }
 
+  /**
+   * isTCPPingConfigured.
+   *
+   * @return boolean
+   *           return 'true' if configured TCPPING. 
+   */
   private boolean isTCPPingConfigured() {
     return channelConfig.contains("TCPPING");
   }
 
+  /**
+   * isMPingConfigured.
+   *
+   * @return boolean
+   *           return 'true' if configured MPING.
+   */
   private boolean isMPingConfigured() {
     return channelConfig.contains("MPING");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void setContext(ManagementContext context) {
     this.managementContext = context;
   }
