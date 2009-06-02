@@ -400,7 +400,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
             curruntOnlin = channelManager.getChannel().getView().size();
           }
 
-          if (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline())) {
+          if (isStop && (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline()))) {
             channelManager.closeChannel();
 
             Thread.sleep(BEFORE_INIT);
