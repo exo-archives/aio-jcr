@@ -1664,7 +1664,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
           stream = new ByteArrayInputStream(dataBytes);
           streamLength = dataBytes.length;
         } else {
-          stream = ((TransientValueData) vd).getAsStream(false);
+          stream = ((TransientValueData) vd).getAsStream(true);
           streamLength = stream.available();
         }
         storageId = null;
