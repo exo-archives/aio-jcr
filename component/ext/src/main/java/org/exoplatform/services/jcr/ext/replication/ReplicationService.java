@@ -765,8 +765,8 @@ public class ReplicationService implements Startable, ManagementAware {
         throw new RuntimeException("Own Priority not specified");
       ownPriority = Integer.valueOf(ownValue);
     } else {
-       if (priprityType != null || !priprityType.equals(PRIORITY_GENERIC_TYPE))
-         log.warn("The parameters 'replication-priority-properties' not use for proxy replication.");
+       if (priprityType != null && !priprityType.equals(PRIORITY_GENERIC_TYPE))
+         log.warn("The parameter 'replication-priority-properties' not use for proxy replication.");
         
        priprityType = PRIORITY_GENERIC_TYPE;
     }
