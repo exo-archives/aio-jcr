@@ -209,7 +209,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    * 
    * @return boolean when duplicate the priority then return 'true'
    */
-  public final boolean hasDuplicatePriority() {
+  public boolean hasDuplicatePriority() {
     List<Integer> other = new ArrayList<Integer>(currentParticipants.values());
 
     if (other.contains(ownPriority))

@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.ext.replication.PriorityDucplicatedException
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
 import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChecker;
+import org.exoplatform.services.jcr.ext.replication.priority.GenericPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.MemberListener;
 import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
 import org.exoplatform.services.log.ExoLogger;
@@ -189,8 +190,13 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
                                                   ownPriority,
                                                   ownName,
                                                   otherParticipants);
-    else
+    else if (priprityType.equals(ReplicationService.PRIORITY_DYNAMIC_TYPE))
       priorityChecker = new DynamicPriorityChecker(channelManager,
+                                                   ownPriority,
+                                                   ownName,
+                                                   otherParticipants);
+    else 
+      priorityChecker = new GenericPriorityChecker(channelManager,
                                                    ownPriority,
                                                    ownName,
                                                    otherParticipants);
@@ -270,6 +276,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     priorityChecker.informAll();
 
     Thread.sleep(INFORM_TIMOUT);
+    
+    if (viewSise > 1)
+      allInited = true;
+
+    if (allInited == true)
+      lastViewSize = viewSise;
 
     if (priorityChecker.hasDuplicatePriority()) {
       log.info(workspaceName + " set read-only");
@@ -289,13 +301,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       return;
     }
 
-    if (viewSise > 1)
-      allInited = true;
-
-    if (allInited == true)
-      lastViewSize = viewSise;
-
-    if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {
+    if (priorityChecker instanceof GenericPriorityChecker) {
+      if ( lastViewSize == 1 && (reconectTtread == null || reconectTtread.isStoped() == true)) {
+        reconectTtread = new ReconectTtread(true);
+        reconectTtread.start();
+      }
+    } else if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {
 
       if (log.isDebugEnabled()) {
         log.debug("lastViewSize == 1 && !priorityChecker.isMaxPriority() == "
@@ -409,7 +420,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
             curruntOnlin = channelManager.getChannel().getView().size();
           }
 
-          if (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline())) {
+          if (isStop && (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline()))) {
             channelManager.closeChannel();
 
             Thread.sleep(BEFORE_INIT);
@@ -450,8 +461,10 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * {@inheritDoc}
    */
   public void memberRejoin() {
-    log.info(workspaceName + " set not read-only");
-    dataManager.setReadOnly(false);
+    if (!(priorityChecker instanceof GenericPriorityChecker)) {
+      log.info(workspaceName + " set not read-only");
+      dataManager.setReadOnly(false);
+    }
 
     log.info(workspaceName + " recovery start ...");
     recoveryManager.startRecovery();
@@ -462,7 +475,9 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * 
    */
   public void memberSuspect() {
-    log.info(workspaceName + " set read-only");
-    dataManager.setReadOnly(true);
+    if (!(priorityChecker instanceof GenericPriorityChecker)) {
+      log.info(workspaceName + " set read-only");
+      dataManager.setReadOnly(true);
+    }
   }
 }

@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.jcr.RepositoryException;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,7 +55,9 @@ import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.jgroups.ChannelException;
 import org.jgroups.JChannel;
+import org.jgroups.stack.Protocol;
 import org.picocontainer.Startable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -101,6 +104,11 @@ public class ReplicationService implements Startable, ManagementAware {
    * Definition the dynamic type for priority mechanism.
    */
   public static final String  PRIORITY_DYNAMIC_TYPE = "dynamic";
+  
+  /**
+   * Definition the generic type for priority mechanism.
+   */
+  public static final String  PRIORITY_GENERIC_TYPE  = "generic";
 
   /**
    * Definition the timeout to FileCLeaner.
@@ -652,11 +660,10 @@ public class ReplicationService implements Startable, ManagementAware {
     // initialize priority params;
     PropertiesParam priorityParams = initParams.getPropertiesParam("replication-priority-properties");
 
-    if (priorityParams == null)
-      throw new RuntimeException("Priority properties not specified");
-
-    priprityType = priorityParams.getProperty("priority-type");
-    ownValue = priorityParams.getProperty("node-priority");
+    if (priorityParams != null) {
+      priprityType = priorityParams.getProperty("priority-type");
+      ownValue = priorityParams.getProperty("node-priority");
+    }
 
     log.info("Params is read from configuration file");
 
@@ -691,17 +698,57 @@ public class ReplicationService implements Startable, ManagementAware {
     if (!recoveryDir.exists())
       recoveryDir.mkdirs();
 
-    if (ownName == null)
-      throw new RuntimeException("Node name not specified");
+    if (mode.equals(PERSISTENT_MODE)) {
+      if (ownName == null)
+        throw new RuntimeException("Node name not specified");
 
-    if (participantsCluster == null)
-      throw new RuntimeException("Other participants not specified");
+      if (participantsCluster == null)
+        throw new RuntimeException("Other participants not specified");
+      
+      participantsClusterList = new ArrayList<String>();
+      String[] pc = participantsCluster.split(";");
+      for (int i = 0; i < pc.length; i++)
+        if (!pc[i].equals(""))
+          participantsClusterList.add(pc[i]);
+    } else {
+      // for PROXY mode :
+      boolean isMPing = isMPingConfigured();
+      boolean isTCPPing = isTCPPingConfigured();
+      
+      if (!(isMPing | isTCPPing))
+        throw new RuntimeException("The discovery protocol should be configured MPING or TCPPING protocol.");
+        
+      if (ownName == null && isMPing)
+        throw new RuntimeException("Node name not specified");
 
-    participantsClusterList = new ArrayList<String>();
-    String[] pc = participantsCluster.split(";");
-    for (int i = 0; i < pc.length; i++)
-      if (!pc[i].equals(""))
-        participantsClusterList.add(pc[i]);
+      if (participantsCluster == null && isMPing)
+        throw new RuntimeException("Other participants not specified");
+
+      participantsClusterList = new ArrayList<String>();
+
+      if (isMPing) {
+        String[] pc = participantsCluster.split(";");
+        for (int i = 0; i < pc.length; i++)
+          if (!pc[i].equals(""))
+            participantsClusterList.add(pc[i]);
+      } else {
+        // node-name == binf-ip-address
+        // other-participants == initial_hosts
+        
+        List<String> initialHosts = getInitialHosts();
+        
+        if (participantsCluster != null)
+          log.warn("The perameter 'other-participants' not use for TCPPING.");
+        if (ownName != null)
+          log.warn("The perameter 'node-name' not use for TCPPING.");
+        
+        for (String host : initialHosts)
+          if (!host.equals(bindIPAddress))
+            participantsClusterList.add(host);
+        
+        ownName = bindIPAddress;
+      }  
+    }
 
     if (sWaitConfirmation == null)
       throw new RuntimeException("Wait confirmation not specified");
@@ -728,18 +775,82 @@ public class ReplicationService implements Startable, ManagementAware {
     }
 
     // priority params;
-    if (priprityType == null)
-      throw new RuntimeException("Priority type not specified");
-    else if (!priprityType.equals(PRIORITY_STATIC_TYPE)
-        && !priprityType.equals(PRIORITY_DYNAMIC_TYPE))
-      throw new RuntimeException("Parameter 'priority-type' (static|dynamic) required for replication configuration");
+    if (mode.equals(PERSISTENT_MODE)) {
+      if (priprityType == null)
+        throw new RuntimeException("Priority type not specified");
+      else if (!priprityType.equals(PRIORITY_STATIC_TYPE)
+          && !priprityType.equals(PRIORITY_DYNAMIC_TYPE))
+        throw new RuntimeException("Parameter 'priority-type' (static|dynamic) required for replication configuration");
 
-    if (ownValue == null)
-      throw new RuntimeException("Own Priority not specified");
-    ownPriority = Integer.valueOf(ownValue);
+      if (ownValue == null)
+        throw new RuntimeException("Own Priority not specified");
+      ownPriority = Integer.valueOf(ownValue);
+    } else {
+       if (priprityType != null && !priprityType.equals(PRIORITY_GENERIC_TYPE))
+         log.warn("The parameter 'replication-priority-properties' not use for proxy replication.");
+      
+       priprityType = PRIORITY_GENERIC_TYPE;
+    }
 
   }
+    
+  /**
+   * getInitialHosts.
+   *
+   * @return List<String>
+   *           return list of initial hosts.
+   */
+  private List<String> getInitialHosts() {
+    JChannel jChannel = null;
+    try {
+      jChannel = new JChannel(channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress));
+    } catch (ChannelException e) {
+      throw new RuntimeException("Can not initialize the JChannel form 'channel-config'.", e);
+    }
+    
+    String initial_hosts = null;
+    
+    for ( Protocol p : jChannel.getProtocolStack().getProtocols()) {
+      if (p.getName().equals("TCPPING")) {
+        Properties props = p.getProperties();
+        initial_hosts =  props.getProperty("initial_hosts");
+      }
+    }
+    
+    if (initial_hosts == null) 
+      throw new RuntimeException("The propery 'initial_hosts' not specified in TCPPING ");
+    
+    List<String> initialHosts = new ArrayList<String>();
+    
+    for (String host : initial_hosts.split(","))
+      initialHosts.add(host.substring(0, host.indexOf("[")));
+    
+    return initialHosts;
+  }
+  
+  /**
+   * isTCPPingConfigured.
+   *
+   * @return boolean
+   *           return 'true' if configured TCPPING. 
+   */
+  private boolean isTCPPingConfigured() {
+    return channelConfig.contains("TCPPING");
+  }
 
+  /**
+   * isMPingConfigured.
+   *
+   * @return boolean
+   *           return 'true' if configured MPING.
+   */
+  private boolean isMPingConfigured() {
+    return channelConfig.contains("MPING");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public void setContext(ManagementContext context) {
     this.managementContext = context;
   }
