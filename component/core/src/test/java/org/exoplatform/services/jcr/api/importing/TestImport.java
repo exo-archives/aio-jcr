@@ -16,15 +16,22 @@
  */
 package org.exoplatform.services.jcr.api.importing;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Calendar;
 import java.util.Random;
 
+import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.util.VersionHistoryImporter;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -312,4 +319,80 @@ public class TestImport extends AbstractImportTest {
 
   }
 
+  /**
+   * Test import of the history of versuions.
+   * 
+   * @throws Exception
+   */
+  public void testImportVersionHistory() throws Exception {
+
+    Node testRootNode = root.addNode("testRoot");
+    Node testRoot = testRootNode.addNode("testImportVersionable");
+    session.save();
+    testRoot.addMixin("mix:versionable");
+    testRootNode.save();
+
+    testRoot.checkin();
+    testRoot.checkout();
+
+    testRoot.addNode("node1");
+    testRoot.addNode("node2").setProperty("prop1", "a property #1");
+    testRoot.save();
+
+    testRoot.checkin();
+    testRoot.checkout();
+
+    testRoot.getNode("node1").remove();
+    testRoot.save();
+
+    assertEquals(3, testRoot.getVersionHistory().getAllVersions().getSize());
+
+    String baseVersionUuid = testRoot.getBaseVersion().getUUID();
+
+    Value[] values = testRoot.getProperty("jcr:predecessors").getValues();
+    String[] predecessors = new String[values.length];
+    for (int i = 0; i < values.length; i++) {
+      predecessors[i] = values[i].getString();
+    }
+    String versionHistory = testRoot.getVersionHistory().getUUID();
+
+    File versionableNodeContent = File.createTempFile("versionableNodeContent", "tmp");
+    File vhNodeContent = File.createTempFile("vhNodeContent", "tmp");
+    versionableNodeContent.deleteOnExit();
+    vhNodeContent.deleteOnExit();
+    serialize(testRoot, false, true, versionableNodeContent);
+    serialize(testRoot.getVersionHistory(), false, true, vhNodeContent);
+
+    testRoot.remove();
+    session.save();
+
+    deserialize(testRootNode,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+                new BufferedInputStream(new FileInputStream(versionableNodeContent)));
+    session.save();
+    testRoot = testRootNode.getNode("testImportVersionable");
+    assertTrue(testRoot.isNodeType("mix:versionable"));
+
+    assertEquals(1, testRoot.getVersionHistory().getAllVersions().getSize());
+
+    VersionHistoryImporter historyImporter = new VersionHistoryImporter((NodeImpl) testRoot,
+                                                                        new BufferedInputStream(new FileInputStream(vhNodeContent)),
+                                                                        baseVersionUuid,
+                                                                        predecessors,
+                                                                        versionHistory);
+    historyImporter.doImport();
+    session.save();
+
+    assertEquals(3, testRoot.getVersionHistory().getAllVersions().getSize());
+
+    testRoot.addNode("node3");
+    testRoot.addNode("node4").setProperty("prop1", "a property #1");
+    testRoot.save();
+
+    testRoot.checkin();
+    testRoot.checkout();
+    assertEquals(4, testRoot.getVersionHistory().getAllVersions().getSize());
+  }
 }
