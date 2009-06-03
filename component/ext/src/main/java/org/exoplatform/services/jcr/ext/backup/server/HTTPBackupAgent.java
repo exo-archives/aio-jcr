@@ -21,6 +21,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
@@ -223,6 +224,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators") 
   @Path("/start/{repo}/{ws}")
   public Response start(BackupConfigBean bConfigBeen,
                         @PathParam("repo") String repository,
@@ -306,6 +308,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    * @return Response return the response
    */
   @GET
+  @RolesAllowed("administrators")
   @Path("/drop-workspace/{repo}/{ws}/{force-session-close}")
   public Response dropWorkspace(@PathParam("repo") String repository,
                                 @PathParam("ws") String workspace,
@@ -360,6 +363,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/restore/{repo}/{id}")
   public Response restore(WorkspaceEntry wEntry,
                           @PathParam("repo") String repository,
@@ -423,6 +427,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    * @return Response return the response
    */
   @GET
+  @RolesAllowed("administrators")
   @Path("/stop/{id}")
   public Response stop(@PathParam("id") String backupId) {
     String failMessage;
@@ -463,6 +468,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info")
   public Response info() {
     try {
@@ -490,6 +496,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/backup")
   public Response infoBackup() {
     try {
@@ -525,6 +532,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/backup/{id}")
   public Response infoBackupId(@PathParam("id") String id) {
     try {
@@ -568,6 +576,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/backup/current")
   public Response infoBackupCurrent() {
     try {
@@ -596,6 +605,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/backup/completed")
   public Response infoBackupCompleted() {
     try {
@@ -631,6 +641,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/backup/{repo}/{ws}")
   public Response infoBackupByWorkspase(@PathParam("repo") String repository,
                                         @PathParam("ws") String workspace) {
@@ -678,6 +689,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/restore/{repo}/{ws}")
   public Response infoRestore(@PathParam("repo") String repository,
                               @PathParam("ws") String workspace) {
@@ -724,6 +736,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/restores")
   public Response infoRestores() {
     try {
@@ -778,6 +791,7 @@ public class HTTPBackupAgent implements ResourceContainer {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
   @Path("/info/default-ws-config")
   public Response getDefaultWorkspaceConfig() {
     try {
