@@ -79,9 +79,9 @@ public class GenericPriorityChecker extends AbstractPriorityChecker {
             currentParticipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
 
             if (log.isDebugEnabled()) {
-              log.info(channelManager.getChannel().getClusterName() + " : " + identifier
+              log.debug(channelManager.getChannel().getClusterName() + " : " + identifier
                   + " : added member :");
-              log.info("   +" + packet.getOwnerName() + ":"
+              log.debug("   +" + packet.getOwnerName() + ":"
                   + currentParticipants.get(packet.getOwnerName()));
             }
 

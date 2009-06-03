@@ -137,7 +137,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    *   Write to console the current members.
    */
   protected void printOnlineMembers() {
-    log.info(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
+    log.debug(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
     for (String memberName : currentParticipants.keySet())
       log.debug("    " + memberName + ":" + currentParticipants.get(memberName));
   }
