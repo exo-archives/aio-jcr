@@ -125,7 +125,7 @@ public class JobWorkspaceRestore extends Thread {
    * @param log
    *          the backup chain log
    * @param wEntry 
-   *          the workspace enty
+   *          the workspace entry
    */
   public JobWorkspaceRestore(RepositoryService repositoryService,
                              BackupManager backupManager,
@@ -274,16 +274,21 @@ public class JobWorkspaceRestore extends Thread {
   /**
    * getWorkspaceName.
    *
-   * @return
-   */
-  /**
-   * getWorkspaceName.
-   *
    * @return String
    *           the name of destination workspace
    */
   public String getWorkspaceName() {
     return wEntry.getName();
+  }
+  
+  /**
+   * getWorkspaceEntry
+   * 
+   * @return WorkspaceEntry
+   * 
+   */
+  public WorkspaceEntry getWorkspaceEntry() {
+  	return wEntry;
   }
 
 }
