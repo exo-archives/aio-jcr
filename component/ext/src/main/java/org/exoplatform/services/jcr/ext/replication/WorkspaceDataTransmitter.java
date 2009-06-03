@@ -132,15 +132,15 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
           ChangesLogIterator logIterator = changesLog.getLogIterator();
           while (logIterator.hasNextLog()) {
             PlainChangesLog pcl = logIterator.nextLog();
-            log.info(pcl.dump());
+            log.debug(pcl.dump());
           }
         }
         
         String identifier = this.sendAsBinaryFile(changesLog);
 
         if (log.isDebugEnabled()) {
-          log.info("After send message: the owner systemId --> " + changesLog.getSystemId());
-          log.info("After send message: --> " + systemId);
+          log.debug("After send message: the owner systemId --> " + changesLog.getSystemId());
+          log.debug("After send message: --> " + systemId);
         }
       } catch (Exception e) {
         log.error("Can not sent ChangesLog ...", e);
