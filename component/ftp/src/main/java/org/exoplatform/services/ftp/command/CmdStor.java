@@ -40,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class CmdStor extends FtpCommandImpl {
@@ -173,6 +173,8 @@ public class CmdStor extends FtpCommandImpl {
 
       resourceNode.setProperty(FtpConst.NodeTypes.JCR_DATA, inputStream);
 
+      curSession.save();
+
       clientSession().closeDataTransiver();
 
       try {
@@ -186,8 +188,6 @@ public class CmdStor extends FtpCommandImpl {
         cacheFile.delete();
       }
 
-      curSession.save();
-
       if (isNeedCheckIn) {
         resourceNode.getParent().checkin();
       }
@@ -196,6 +196,7 @@ public class CmdStor extends FtpCommandImpl {
       return;
     } catch (RepositoryException rexc) {
     } catch (Exception exc) {
+      exc.printStackTrace();
       log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
 
