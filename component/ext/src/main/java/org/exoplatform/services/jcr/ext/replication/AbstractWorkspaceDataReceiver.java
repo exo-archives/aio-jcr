@@ -194,7 +194,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           ChangesLogIterator logIterator = changesLog.getLogIterator();
           while (logIterator.hasNextLog()) {
             PlainChangesLog pcl = logIterator.nextLog();
-            log.info(pcl.dump());
+            log.debug(pcl.dump());
           }
         }
 
@@ -204,8 +204,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         channelManager.sendPacket(packet);
 
         if (log.isDebugEnabled()) {
-          log.info("After save message: the owner systemId --> " + changesLog.getSystemId());
-          log.info("After save message: --> " + systemId);
+          log.debug("After save message: the owner systemId --> " + changesLog.getSystemId());
+          log.debug("After save message: --> " + systemId);
         }
       }
     }
@@ -438,7 +438,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
           if (randomAccessFile != null) {
             if (log.isDebugEnabled())
-              log.info("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
+              log.debug("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
 
             randomAccessFile.seek(packet.getOffset());
             randomAccessFile.write(packet.getByteArray());
@@ -457,7 +457,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
           if (randomAccessFile != null) {
             if (log.isDebugEnabled())
-              log.info("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
+              log.debug("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
 
             randomAccessFile.seek(packet.getOffset());
             randomAccessFile.write(packet.getByteArray());

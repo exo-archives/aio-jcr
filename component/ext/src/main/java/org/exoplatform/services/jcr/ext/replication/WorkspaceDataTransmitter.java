@@ -372,7 +372,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     channelManager.sendPacket(firsPacket);
 
     if (log.isDebugEnabled())
-      log.info("Send of damp --> " + firsPacket.getByteArray().length);
+      log.debug("Send of damp --> " + firsPacket.getByteArray().length);
 
     offset += tempBuffer.length;
 
@@ -387,7 +387,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       channelManager.sendPacket(middlePacket);
 
       if (log.isDebugEnabled())
-        log.info("Send of damp --> " + middlePacket.getByteArray().length);
+        log.debug("Send of damp --> " + middlePacket.getByteArray().length);
 
       offset += tempBuffer.length;
     }
@@ -403,7 +403,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     channelManager.sendPacket(lastPacket);
 
     if (log.isDebugEnabled())
-      log.info("Send of damp --> " + lastPacket.getByteArray().length);
+      log.debug("Send of damp --> " + lastPacket.getByteArray().length);
   }
 
   /**
@@ -430,7 +430,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     channelManager.sendPacket(firsPacket);
 
     if (log.isDebugEnabled())
-      log.info("Send of damp --> " + firsPacket.getByteArray().length);
+      log.debug("Send of damp --> " + firsPacket.getByteArray().length);
 
     offset += tempBuffer.length;
 
@@ -445,7 +445,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       channelManager.sendPacket(middlePacket);
 
       if (log.isDebugEnabled())
-        log.info("Send of damp --> " + middlePacket.getByteArray().length);
+        log.debug("Send of damp --> " + middlePacket.getByteArray().length);
 
       offset += tempBuffer.length;
     }
@@ -461,7 +461,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     channelManager.sendPacket(lastPacket);
 
     if (log.isDebugEnabled())
-      log.info("Send of damp --> " + lastPacket.getByteArray().length);
+      log.debug("Send of damp --> " + lastPacket.getByteArray().length);
   }
 
   /**

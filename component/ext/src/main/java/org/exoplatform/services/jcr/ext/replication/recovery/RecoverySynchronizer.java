@@ -244,7 +244,7 @@ public class RecoverySynchronizer {
 
         if (randomAccessFile != null) {
           if (log.isDebugEnabled())
-            log.info("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
+            log.debug("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
 
           randomAccessFile.seek(packet.getOffset());
           randomAccessFile.write(packet.getByteArray());
@@ -263,7 +263,7 @@ public class RecoverySynchronizer {
 
         if (randomAccessFile != null) {
           if (log.isDebugEnabled())
-            log.info("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
+            log.debug("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
 
           randomAccessFile.seek(packet.getOffset());
           randomAccessFile.write(packet.getByteArray());
@@ -290,7 +290,7 @@ public class RecoverySynchronizer {
           List<FileDescriptor> fileDescriptorList = pbf.getSortedFilesDescriptorList();
 
           if (log.isDebugEnabled())
-            log.info("fileDescriptorList.size() == pbf.getNeedTransferCounter() : "
+            log.debug("fileDescriptorList.size() == pbf.getNeedTransferCounter() : "
                 + fileDescriptorList.size() + "== " + pbf.getNeedTransferCounter());
 
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
