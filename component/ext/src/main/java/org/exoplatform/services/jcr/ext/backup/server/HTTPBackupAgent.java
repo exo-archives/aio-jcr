@@ -51,6 +51,7 @@ import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfoEx;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfoList;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
@@ -680,18 +681,23 @@ public class HTTPBackupAgent implements ResourceContainer {
   @Path("/info/restore/{repo}/{ws}")
   public Response infoRestore(@PathParam("repo") String repository,
                               @PathParam("ws") String workspace) {
-    try {
+  	try {
       JobWorkspaceRestore restoreJob = backupManager.getLastRestore(repository, workspace);
 
       if (restoreJob != null) {
-        DetailedInfo info = new DetailedInfo(DetailedInfo.RESTORE,
-                                             restoreJob.getBackupChainLog(),
-                                             restoreJob.getStartTime(),
-                                             restoreJob.getEndTime(),
-                                             restoreJob.getStateRestore(),
-                                             restoreJob.getRepositoryName(),
-                                             restoreJob.getWorkspaceName());
-        return Response.ok(info).build();
+        DetailedInfoEx info = new DetailedInfoEx(DetailedInfo.RESTORE,
+            restoreJob.getBackupChainLog(),
+            restoreJob.getStartTime(),
+            restoreJob.getEndTime(),
+            restoreJob.getStateRestore(),
+            restoreJob.getRepositoryName(),
+            restoreJob.getWorkspaceName(),
+            
+            restoreJob.getWorkspaceEntry(),
+            restoreJob.getRestoreException() == null ? "" : restoreJob.getRestoreException().getMessage()
+        );
+      	
+      	return Response.ok(info).build();
       } else {
         return Response.status(Response.Status.NOT_FOUND).entity("No resrore for workspace /"
             + repository + "/" + workspace + "'").type(MediaType.TEXT_PLAIN).build();
@@ -707,7 +713,9 @@ public class HTTPBackupAgent implements ResourceContainer {
                      .type(MediaType.TEXT_PLAIN)
                      .build();
     }
+    
   }
+  
 
   /**
    * Will be returned the detailed information about last restores.
