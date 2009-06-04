@@ -27,7 +27,8 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: TransientValueDataWriter.java 111 2008-11-11 11:11:11Z serg $
@@ -37,8 +38,10 @@ public class TransientValueDataWriter {
   /**
    * Write to stream all necessary object data.
    * 
-   * @param out SerializationOutputStream.
-   * @throws IOException If an I/O error has occurred.
+   * @param out
+   *          SerializationOutputStream.
+   * @throws IOException
+   *           If an I/O error has occurred.
    */
   public void write(ObjectWriter out, TransientValueData vd) throws IOException {
     // write id
@@ -56,22 +59,28 @@ public class TransientValueDataWriter {
       out.write(data);
     } else {
 
-      // write property id - used for reread data optimization
-      String id = IdGenerator.generate();
-      out.writeString(id);
-
       // write file content
       // TODO optimize it, use channels
       InputStream in = vd.getAsStream();
-      out.writeLong(vd.getSpoolFile().length());
-      //InputStream in = new FileInputStream(vd.getSpoolFile());
-      try {
-        byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
-        int l = 0;
-        while ((l = in.read(buf)) >= 0) 
-          out.write(buf, 0, l);
-      } finally {
-        in.close();
+      if (vd.getSpoolFile() instanceof SerializationSpoolFile) {
+        SerializationSpoolFile ssf = (SerializationSpoolFile) vd.getSpoolFile();
+        out.writeString(ssf.getId());
+        out.writeLong(0);
+      } else {
+        // write property id - used for reread data optimization
+        String id = IdGenerator.generate();
+        out.writeString(id);
+
+        out.writeLong(vd.getSpoolFile().length());
+        // InputStream in = new FileInputStream(vd.getSpoolFile());
+        try {
+          byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
+          int l = 0;
+          while ((l = in.read(buf)) >= 0)
+            out.write(buf, 0, l);
+        } finally {
+          in.close();
+        }
       }
     }
   }

@@ -28,7 +28,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: TransientValueDataReader.java 111 2008-11-11 11:11:11Z serg $
@@ -67,11 +68,13 @@ public class TransientValueDataReader {
   /**
    * Read and set TransientValueData object data.
    * 
-   * @param in ObjectReader.
+   * @param in
+   *          ObjectReader.
    * @return TransientValueData object.
-   * @throws UnknownClassIdException If read Class ID is not expected or do not
-   *           exist.
-   * @throws IOException If an I/O error has occurred.
+   * @throws UnknownClassIdException
+   *           If read Class ID is not expected or do not exist.
+   * @throws IOException
+   *           If an I/O error has occurred.
    */
   public TransientValueData read(ObjectReader in) throws UnknownClassIdException, IOException {
     File tempDirectory = new File(System.getProperty("java.io.tmpdir") + "/"
@@ -106,9 +109,9 @@ public class TransientValueDataReader {
       // read file length
       long length = in.readLong();
 
-      ReadedSpoolFile sf = holder.get(id);
+      SerializationSpoolFile sf = holder.get(id);
       if (sf == null) {
-        sf = new ReadedSpoolFile(tempDirectory, id, holder);
+        sf = new SerializationSpoolFile(tempDirectory, id, holder);
         // TODO optimize writeToFile - use channels or streams
         writeToFile(in, sf, length);
         holder.put(id, sf);

@@ -18,33 +18,33 @@ package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ReaderSpoolFileHolder.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ReaderSpoolFileHolder {
 
-  private final ConcurrentHashMap<String, ReadedSpoolFile> map;
-  
-  public ReaderSpoolFileHolder(){
-    map = new ConcurrentHashMap<String, ReadedSpoolFile>();
+  private final ConcurrentHashMap<String, SerializationSpoolFile> map;
+
+  public ReaderSpoolFileHolder() {
+    map = new ConcurrentHashMap<String, SerializationSpoolFile>();
   }
-  
-  public ReadedSpoolFile get(String key){
+
+  public SerializationSpoolFile get(String key) {
     return map.get(key);
   }
-  
-  public void put(String key, ReadedSpoolFile file){
+
+  public void put(String key, SerializationSpoolFile file) {
     map.put(key, file);
   }
-  
-  public void remove(String key){
+
+  public void remove(String key) {
     map.remove(key);
   }
-  
+
 }
