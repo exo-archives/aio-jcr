@@ -17,11 +17,11 @@
 package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
@@ -30,15 +30,13 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev
- * work.visor.ck@gmail.com Aug 13, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
  */
 public class TestGet extends BaseStandaloneTest {
 
-  private String       path = TestUtils.getFileName();
+  private String path        = TestUtils.getFileName();
 
   private String fileContent = TestUtils.getFileContent();
-
 
   @Override
   public void setUp() throws Exception {
@@ -47,22 +45,25 @@ public class TestGet extends BaseStandaloneTest {
     TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
   }
 
- 
   public void testSimpleGet() throws Exception {
-    ContainerResponse response = service(WebDAVMethods.GET, getPathWS() + path, "", null,null );
+    ContainerResponse response = service(WebDAVMethods.GET, getPathWS() + path, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    ByteArrayInputStream content = (ByteArrayInputStream) response.getEntity();
-    Reader r = new InputStreamReader(content);  
-    StringWriter sw = new StringWriter();  
-    char[] buffer = new char[1024];  
-    for (int n; (n = r.read(buffer)) != -1; )  
-        sw.write(buffer, 0, n);  
-    String str = sw.toString(); 
+    FileInputStream content = (FileInputStream) response.getEntity();
+    Reader r = new InputStreamReader(content);
+    StringWriter sw = new StringWriter();
+    char[] buffer = new char[1024];
+    for (int n; (n = r.read(buffer)) != -1;)
+      sw.write(buffer, 0, n);
+    String str = sw.toString();
     assertEquals(fileContent, str);
   }
-  
-  public void testNotFoundGet() throws Exception{
-    ContainerResponse response = service(WebDAVMethods.GET, getPathWS() + "/not-found" + path, "", null,null );
+
+  public void testNotFoundGet() throws Exception {
+    ContainerResponse response = service(WebDAVMethods.GET,
+                                         getPathWS() + "/not-found" + path,
+                                         "",
+                                         null,
+                                         null);
     assertEquals(HTTPStatus.NOT_FOUND, response.getStatus());
   }
 

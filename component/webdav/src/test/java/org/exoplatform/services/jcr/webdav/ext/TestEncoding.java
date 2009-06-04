@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.webdav.ext;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.util.Arrays;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -80,41 +81,43 @@ public class TestEncoding extends BaseStandaloneTest {
 
   public void testNoContentTypeHeader() throws Exception {
 
-//    System.out.println("\ttestNoContentTypeHeader:");
+    // System.out.println("\ttestNoContentTypeHeader:");
 
     ContainerResponse response = service("PUT", getPathWS() + UTF_FILE, "", null, UTF_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + UTF_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    byte[] responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
+    byte[] responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(),
                                                      UTF_CHARSET).getBytes();
     assertTrue(Arrays.equals(UTF_CONTENT, responseContent));
-//    System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent, UTF_CHARSET));
+    // System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent,
+    // UTF_CHARSET));
 
     response = service("PUT", getPathWS() + WIN_FILE, "", null, WIN_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + WIN_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
-                                              WIN_CHARSET).getBytes(WIN_CHARSET);
+    responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(), WIN_CHARSET)
+                               .getBytes(WIN_CHARSET);
     assertTrue(Arrays.equals(WIN_CONTENT, responseContent));
-//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
+    // System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent,
+    // WIN_CHARSET));
 
     response = service("PUT", getPathWS() + ISO_FILE, "", null, ISO_CONTENT);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + ISO_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
-                                              ISO_CHARSET).getBytes(ISO_CHARSET);
+    responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(), ISO_CHARSET)
+                               .getBytes(ISO_CHARSET);
     assertTrue(Arrays.equals(ISO_CONTENT, responseContent));
-//    System.out.println("Content in ISO-8859-5 encoding:\t"
-//        + new String(responseContent, ISO_CHARSET));
+    // System.out.println("Content in ISO-8859-5 encoding:\t"
+    // + new String(responseContent, ISO_CHARSET));
 
   }
 
   public void testContentType() throws Exception {
 
-//    System.out.println("\n\ttestContentType:");
+    // System.out.println("\n\ttestContentType:");
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(HttpHeaders.CONTENT_TYPE, UTF_CONTENT_TYPE);
@@ -122,11 +125,12 @@ public class TestEncoding extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + UTF_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    byte[] responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
+    byte[] responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(),
                                                      UTF_CHARSET).getBytes(UTF_CHARSET);
     assertTrue(Arrays.equals(UTF_CONTENT, responseContent));
     assertEquals(UTF_CONTENT_TYPE, response.getContentType().toString());
-//    System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent, UTF_CHARSET));
+    // System.out.println("Content in UTF-8 encoding:\t" + new String(responseContent,
+    // UTF_CHARSET));
     headers.clear();
 
     headers.add(HttpHeaders.CONTENT_TYPE, WIN_CONTENT_TYPE);
@@ -134,11 +138,12 @@ public class TestEncoding extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + WIN_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
-                                              WIN_CHARSET).getBytes(WIN_CHARSET);
+    responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(), WIN_CHARSET)
+                               .getBytes(WIN_CHARSET);
     assertTrue(Arrays.equals(WIN_CONTENT, responseContent));
     assertEquals(WIN_CONTENT_TYPE, response.getContentType().toString());
-//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
+    // System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent,
+    // WIN_CHARSET));
     headers.clear();
 
     headers.add(HttpHeaders.CONTENT_TYPE, ISO_CONTENT_TYPE);
@@ -146,17 +151,18 @@ public class TestEncoding extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + ISO_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
-                                              ISO_CHARSET).getBytes(ISO_CHARSET);
+    responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(), ISO_CHARSET)
+                               .getBytes(ISO_CHARSET);
     assertTrue(Arrays.equals(ISO_CONTENT, responseContent));
     assertEquals(ISO_CONTENT_TYPE, response.getContentType().toString());
-//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, ISO_CHARSET));
+    // System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent,
+    // ISO_CHARSET));
     headers.clear();
   }
 
   public void testRewriteEncodedFile() throws Exception {
 
-//    System.out.println("\n\ttestRewriteEncodedFile:");
+    // System.out.println("\n\ttestRewriteEncodedFile:");
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(HttpHeaders.CONTENT_TYPE, ISO_CONTENT_TYPE);
@@ -164,12 +170,12 @@ public class TestEncoding extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + ISO_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    byte[] responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
+    byte[] responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(),
                                                      ISO_CHARSET).getBytes(ISO_CHARSET);
     assertTrue(Arrays.equals(ISO_CONTENT, responseContent));
     assertEquals(ISO_CONTENT_TYPE, response.getContentType().toString());
-//    System.out.println("Content in ISO-8859-5 encoding:\t"
-//        + new String(responseContent, ISO_CHARSET));
+    // System.out.println("Content in ISO-8859-5 encoding:\t"
+    // + new String(responseContent, ISO_CHARSET));
     headers.clear();
 
     headers.add(HttpHeaders.CONTENT_TYPE, WIN_CONTENT_TYPE);
@@ -177,11 +183,12 @@ public class TestEncoding extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     response = service("GET", getPathWS() + ISO_FILE, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    responseContent = TestUtils.stream2string((ByteArrayInputStream) response.getEntity(),
-                                              WIN_CHARSET).getBytes(WIN_CHARSET);
+    responseContent = TestUtils.stream2string((FileInputStream) response.getEntity(), WIN_CHARSET)
+                               .getBytes(WIN_CHARSET);
     assertTrue(Arrays.equals(WIN_CONTENT, responseContent));
     assertEquals(WIN_CONTENT_TYPE, response.getContentType().toString());
-//    System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent, WIN_CHARSET));
+    // System.out.println("Content in Cp1251 encoding:\t" + new String(responseContent,
+    // WIN_CHARSET));
 
   }
 
