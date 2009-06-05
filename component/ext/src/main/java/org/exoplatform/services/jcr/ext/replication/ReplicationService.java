@@ -352,7 +352,7 @@ public class ReplicationService implements Startable, ManagementAware {
               if (testMode != null && "true".equals(testMode))
                 uniqueNoame = "Test_Channel";
 
-              ChannelManager channelManager = new ChannelManager(props, channelName + "_" + uniqueNoame);
+              ChannelManager channelManager = new ChannelManager(props, channelName + (channelName.equals("") ? "" : "_") + uniqueNoame);
 
               // create the RecoveryManager
               RecoveryManager recoveryManager = new RecoveryManager(dir,
