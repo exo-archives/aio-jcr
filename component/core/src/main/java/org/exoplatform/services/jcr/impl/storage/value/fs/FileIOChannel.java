@@ -139,22 +139,27 @@ public abstract class FileIOChannel implements ValueIOChannel {
    */
   protected ValueData readValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
     FileInputStream is = new FileInputStream(file);
-    FileChannel channel = is.getChannel();
     try {
-      int size = (int) channel.size();
+      long fileSize = file.length();
 
-      if (size > maxBufferSize) {
-        return new FileStreamPersistedValueData(file, orderNum, temp);
+      if (fileSize > maxBufferSize) {
+        return new FileStreamPersistedValueData(file, orderNum, temp);        
       } else {
-        ByteBuffer buf = ByteBuffer.allocate(size);
-        int numRead = channel.read(buf);
-        byte[] arr = new byte[numRead];
-        buf.rewind();
-        buf.get(arr);
-        return new ByteArrayPersistedValueData(arr, orderNum);
+        int buffSize = (int) fileSize;
+        byte[] res = new byte[buffSize];
+        int rpos = 0;
+        int r = -1;
+        byte[] buff = new byte[FileIOChannel.IOBUFFER_SIZE > buffSize
+            ? FileIOChannel.IOBUFFER_SIZE
+            : buffSize];
+        while ((r = is.read(buff)) >= 0) {
+          System.arraycopy(buff, 0, res, rpos, r);
+          rpos += r;
+        }
+
+        return new ByteArrayPersistedValueData(res, orderNum);
       }
     } finally {
-      channel.close();
       is.close();
     }
   }
@@ -167,10 +172,8 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @throws IOException
    */
   protected void writeValue(File file, ValueData value) throws IOException {
-    // OutputStream out = openOutput(file);//TODO
     OutputStream out = new FileOutputStream(file);
     writeOutput(out, value);
-    // closeOutput(out);
     out.close();
   }
 
@@ -189,35 +192,16 @@ public abstract class FileIOChannel implements ValueIOChannel {
       byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE];
       int len;
       InputStream in = value.getAsStream();
-      while ((len = in.read(buffer)) > 0)
-        out.write(buffer, 0, len);
+      try {
+        while ((len = in.read(buffer)) > 0)
+          out.write(buffer, 0, len);
+      } finally {
+        in.close();
+      }
     }
   }
 
   public String getStorageId() {
     return storageId;
   }
-
-  // /**
-  // * Prepare OutputStream to write operation. <br/>
-  // *
-  // * @param file - destenation File
-  // * @return OutputStream
-  // * @throws IOException
-  // */
-  // protected OutputStream openOutput(File file) throws IOException {
-  // return new FileOutputStream(file);
-  // }
-  //  
-  // /**
-  // * Perform post-write operations.<br/>
-  // * In most cases just close OutputStream after a write operation. <br/>
-  // *
-  // * @param out
-  // * @throws IOException
-  // */
-  // protected void closeOutput(OutputStream out) throws IOException {
-  // out.close();
-  // }
-
 }
