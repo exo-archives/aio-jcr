@@ -76,9 +76,8 @@
 
   <mapping name="property" class="org.exoplatform.services.jcr.config.SimpleParameterEntry">
     <value name="name" field="name" style="attribute" />
-    <value name="value" field="value" style="attribute" />
+    <value name="value" field="value" style="attribute" deserializer="org.exoplatform.container.xml.Deserializer.resolveString" />
   </mapping>
-
 
   <mapping name="value-storage" class="org.exoplatform.services.jcr.config.ValueStorageEntry">
     <value name="class" field="type" style="attribute" />
