@@ -154,6 +154,11 @@ public class ReplicationService implements Startable, ManagementAware {
    * The channel configuration.
    */
   private String              channelConfig;
+  
+  /**
+   * The channel name.
+   */
+  private String              channelName;
 
   /**
    * The list of repositories. Fore this repositories will be worked replication.
@@ -355,7 +360,7 @@ public class ReplicationService implements Startable, ManagementAware {
               if (testMode != null && "true".equals(testMode))
                 uniqueNoame = "Test_Channel234";
 
-              ChannelManager channelManager = new ChannelManager(props, uniqueNoame);
+              ChannelManager channelManager = new ChannelManager(props, channelName + (channelName.equals("") ? "" : "_") + uniqueNoame);
 
               WorkspaceContainerFacade wsFacade = jcrRepository.getWorkspaceContainer(workspaces[wIndex]);
               WorkspaceEntry wconf = (WorkspaceEntry) wsFacade.getComponent(WorkspaceEntry.class);
@@ -504,6 +509,7 @@ public class ReplicationService implements Startable, ManagementAware {
     setAttributeSmart(element, "mode", mode);
     setAttributeSmart(element, "bind-ip-address", bindIPAddress);
     setAttributeSmart(element, "channel-config", channelConfig);
+    setAttributeSmart(element, "channel-name", channelName);
     setAttributeSmart(element, "recovery-dir", recDir);
     setAttributeSmart(element, "node-name", ownName);
     setAttributeSmart(element, "other-participants", participantsCluster);
@@ -559,6 +565,7 @@ public class ReplicationService implements Startable, ManagementAware {
     mode = getAttributeSmart(element, "mode");
     bindIPAddress = getAttributeSmart(element, "bind-ip-address");
     channelConfig = getAttributeSmart(element, "channel-config");
+    channelName = getAttributeSmart(element, "channel-name");
     recDir = getAttributeSmart(element, "recovery-dir");
     ownName = getAttributeSmart(element, "node-name");
     participantsCluster = getAttributeSmart(element, "other-participants");
@@ -635,6 +642,7 @@ public class ReplicationService implements Startable, ManagementAware {
     mode = pps.getProperty("mode");
     bindIPAddress = pps.getProperty("bind-ip-address");
     channelConfig = pps.getProperty("channel-config");
+    channelName = pps.getProperty("channel-name");
     recDir = pps.getProperty("recovery-dir");
     ownName = pps.getProperty("node-name");
     participantsCluster = pps.getProperty("other-participants");
@@ -690,6 +698,12 @@ public class ReplicationService implements Startable, ManagementAware {
 
     if (channelConfig == null)
       throw new RuntimeException("channel-config not specified");
+    
+    if (channelName == null)
+      channelName = "";
+    
+    if (testMode != null && "true".equals(testMode))
+      channelName = IdGenerator.generate();
 
     if (recDir == null)
       throw new RuntimeException("Recovery dir not specified");
