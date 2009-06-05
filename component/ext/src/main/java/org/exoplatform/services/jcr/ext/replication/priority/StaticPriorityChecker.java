@@ -75,6 +75,7 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
                                             ownName,
                                             (long) ownPriority,
                                             packet.getIdentifier());
+          super.waitView();
           channelManager.sendPacket(pktMyPriority);
           break;
 

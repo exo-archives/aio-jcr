@@ -294,6 +294,8 @@ public class RecoverySynchronizer {
                 + fileDescriptorList.size() + "== " + pbf.getNeedTransferCounter());
 
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
+            List<String> failList = new ArrayList<String>();
+            
             for (FileDescriptor fileDescriptor : fileDescriptorList) {
               try {
                 TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
@@ -328,13 +330,17 @@ public class RecoverySynchronizer {
                 }
 
               } catch (Exception e) {
+                failList.add(fileDescriptor.getFile().getName());
                 log.error("Can't save to JCR ", e);
               }
             }
 
             // Send file name list
-            List<String> fileNameList = mapPendingBinaryFile.get(packet.getIdentifier())
-                                                            .getFileNameList();
+            List<String> fileNameList = new ArrayList<String>(mapPendingBinaryFile.get(packet.getIdentifier())
+                                                            .getFileNameList());
+            
+            if (failList.size() != 0) 
+              fileNameList.removeAll(failList);
 
             Packet packetFileNameList = new Packet(Packet.PacketType.ALL_CHANGESLOG_SAVED_OK,
                                                    packet.getIdentifier(),
@@ -342,7 +348,7 @@ public class RecoverySynchronizer {
                                                    fileNameList);
             send(packetFileNameList);
 
-            log.info("The " + fileDescriptorList.size() + " changeslogs were received and saved");
+            log.info("The " + fileDescriptorList.size() + " changeslogs were received and " + fileNameList.size() + " saved");
 
           } else if (log.isDebugEnabled()) {
             log.debug("Do not start save : " + fileDescriptorList.size() + " of "

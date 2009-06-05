@@ -46,7 +46,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
     relPathArray = new String[filesSize.length];
     fileNameArray = new String[filesSize.length];
-    
+
     Thread.sleep(5000);
   }
 
@@ -62,7 +62,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
-          + channelNameId + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
+          + channelNameId + "/"
           + ReplicationTestService.Constants.OperationType.DISCONNECT_CLUSTER_NODE_BY_ID;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
@@ -72,7 +72,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(10000);
 
     // check is read-only min and middle member
@@ -80,7 +80,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.WORKSPACE_IS_READ_ONLY;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
@@ -102,8 +101,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + maxPriorityMember.getLogin() + "/"
           + maxPriorityMember.getPassword() + "/" + relPath + "/" + fileNameArray[i] + "/" + fSize
-          + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-          + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
+          + "/" + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
       String result = client.execute(url);
@@ -120,7 +118,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.ALLOW_CONNECT;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
@@ -146,7 +143,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
             + relPath + "/" + fileNameArray[i] + "/" + fSize + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member, 4000);
@@ -170,7 +166,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
-          + channelNameId + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
+          + channelNameId + "/"
           + ReplicationTestService.Constants.OperationType.DISCONNECT_CLUSTER_NODE_BY_ID;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
@@ -180,7 +176,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(10000);
 
     // check is read-only middle member
@@ -188,7 +184,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.WORKSPACE_IS_READ_ONLY;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
@@ -210,8 +205,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + maxPriorityMember.getLogin() + "/"
           + maxPriorityMember.getPassword() + "/" + relPath + "/" + fileNameArray[i] + "/" + fSize
-          + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-          + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
+          + "/" + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
       String result = client.execute(url);
@@ -228,7 +222,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.ALLOW_CONNECT;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
@@ -254,7 +247,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
             + relPath + "/" + fileNameArray[i] + "/" + fSize + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member, 4000);
@@ -284,7 +276,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
             + getMaxPriorityMember().getPort() + ReplicationTestService.Constants.BASE_URL + "/"
             + workingRepository + "/" + workingWorkspace + "/" + getMaxPriorityMember().getLogin()
             + "/" + getMaxPriorityMember().getPassword() + "/" + channelNameId + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.DISCONNECT_CLUSTER_NODE_BY_ID;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(getMaxPriorityMember());
@@ -302,7 +293,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
         String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.WORKSPACE_IS_READ_ONLY;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
@@ -324,8 +314,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
             + maxPriorityMember.getPort() + ReplicationTestService.Constants.BASE_URL + "/"
             + workingRepository + "/" + workingWorkspace + "/" + maxPriorityMember.getLogin() + "/"
             + maxPriorityMember.getPassword() + "/" + relPath + "/" + fileNameArray[i] + "/"
-            + fSize + "/" + ReplicationTestService.Constants.OPERATION_PREFIX
-            + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
+            + fSize + "/" + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
         String result = client.execute(url);
@@ -343,7 +332,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
             + getMaxPriorityMember().getPort() + ReplicationTestService.Constants.BASE_URL + "/"
             + workingRepository + "/" + workingWorkspace + "/" + getMaxPriorityMember().getLogin()
             + "/" + getMaxPriorityMember().getPassword() + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.ALLOW_CONNECT_FORCED;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(getMaxPriorityMember());
@@ -369,7 +357,6 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
               + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
               + workingWorkspace + "/" + member.getLogin() + "/" + member.getPassword() + "/"
               + relPath + "/" + fileNameArray[i] + "/" + fSize + "/"
-              + ReplicationTestService.Constants.OPERATION_PREFIX
               + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
 
           BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member, 4000);

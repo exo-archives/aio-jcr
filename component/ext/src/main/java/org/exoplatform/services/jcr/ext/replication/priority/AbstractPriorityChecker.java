@@ -40,6 +40,11 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    * The definition max priority value.
    */
   public static final int            MAX_PRIORITY  = 100;
+  
+  /**
+   * The definition timeout for information. 
+   */
+  private static final int           INFORM_TIMOUT = 2000;
 
   /**
    * The apache logger.
@@ -126,7 +131,23 @@ public abstract class AbstractPriorityChecker implements PacketListener {
                                       ownName,
                                       (long) ownPriority,
                                       identifier);
+      this.waitView();
       channelManager.sendPacket(pktInformer);
+      
+      try {
+        if (log.isDebugEnabled())
+         log.debug("<!-- isInterrupted == " + Thread.currentThread().isInterrupted());
+        
+        Thread.sleep(INFORM_TIMOUT);
+      } catch (InterruptedException ie) {
+        // ignored InterruptedException
+        if (log.isDebugEnabled()) {
+          log.debug("InterruptedException");
+          log.debug("--> isInterrupted == " + Thread.currentThread().isInterrupted());
+        }
+        
+        Thread.sleep(INFORM_TIMOUT);
+      }
     } catch (Exception e) {
       log.error("Can not informed the other participants", e);
     }
@@ -186,5 +207,16 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    */
   public boolean isAllOnline() {
     return otherParticipants.size() == currentParticipants.size();
+  }
+  
+  /**
+   * waitView.
+   * 
+   * @throws InterruptedException
+   *           Will be generated the InterruptedException
+   */
+  protected final void waitView() throws InterruptedException {
+    while (channelManager.getChannel().getView() == null)
+      Thread.sleep(100);
   }
 }

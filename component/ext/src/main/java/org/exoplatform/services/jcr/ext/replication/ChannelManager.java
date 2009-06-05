@@ -182,8 +182,35 @@ public class ChannelManager implements RequestHandler {
    *   Close the channel.
    */
   public void closeChannel() {
-    channel.close();
-    channel = null;
+    if (dispatcher != null) {
+      dispatcher.setRequestHandler(null);
+      dispatcher.setMembershipListener(null);
+      dispatcher.stop();
+      dispatcher = null;
+
+      if (log.isDebugEnabled())
+        log.debug("dispatcher stopped");
+        try {
+          Thread.sleep(3000);
+        } catch (InterruptedException e) {
+          log.error("The interapted on disconnect : " + e, e);
+        }
+      }
+
+      if (channel != null) {
+        channel.disconnect();
+
+        if (log.isDebugEnabled())
+          log.debug("channel disconnected");
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException e) {
+          log.error("The interapted on disconnect : " + e, e);
+        }
+
+        channel.close();
+        channel = null;
+      }
   }
 
   /**

@@ -82,6 +82,7 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
                                             ownName,
                                             (long) ownPriority,
                                             packet.getIdentifier());
+          super.waitView();
           channelManager.sendPacket(pktMyPriority);
           break;
 
