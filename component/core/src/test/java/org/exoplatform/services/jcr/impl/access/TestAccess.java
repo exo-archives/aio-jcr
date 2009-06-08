@@ -20,12 +20,12 @@ import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
-import javax.jcr.AccessDeniedException;
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
+import javax.jcr.*;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
@@ -947,6 +947,40 @@ public class TestAccess extends BaseStandaloneTest {
     Node testNodeAdmin = session.getRootNode().getNode("testNode");
     testNodeAdmin.remove();
 
+  }
+
+ /**
+  * Check permission after import
+  *
+  * @throws Exception
+  */
+  public void testPermissionAfterImport() throws Exception {
+    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()));
+    InputStream importStream = BaseStandaloneTest.class.getResourceAsStream("/import-export/testPermdocview.xml");
+    session1.importXML("/", importStream, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+    session1.save();
+    session1.logout();
+    // After import
+    Session session2 = repository.login(new CredentialsImpl("root", "exo".toCharArray()));
+    ExtendedNode testNode = (ExtendedNode) session2.getItem("/a");
+    List<AccessControlEntry> permsList = testNode.getACL().getPermissionEntries();
+    int permsListTotal = 0;
+    for (AccessControlEntry ace : permsList) {
+      String id = ace.getIdentity();
+      String permission = ace.getPermission();
+      if (id.equals("*:/platform/administrators") || id.equals("root")) {
+        assertTrue(permission.equals(PermissionType.READ) ||
+                   permission.equals(PermissionType.REMOVE) ||
+                   permission.equals(PermissionType.SET_PROPERTY) ||
+                   permission.equals(PermissionType.ADD_NODE));
+        permsListTotal++;
+      } else if (id.equals("validator:/platform/users")) {
+          assertTrue(permission.equals(PermissionType.READ) ||
+                     permission.equals(PermissionType.SET_PROPERTY));
+          permsListTotal++;          
+      }
+    }
+    assertEquals(10, permsListTotal);
   }
 
   private void showPermissions(String path) throws RepositoryException {
