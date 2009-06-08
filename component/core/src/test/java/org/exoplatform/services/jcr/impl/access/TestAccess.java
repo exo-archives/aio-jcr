@@ -959,10 +959,8 @@ public class TestAccess extends BaseStandaloneTest {
     InputStream importStream = BaseStandaloneTest.class.getResourceAsStream("/import-export/testPermdocview.xml");
     session1.importXML("/", importStream, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
     session1.save();
-    session1.logout();
     // After import
-    Session session2 = repository.login(new CredentialsImpl("root", "exo".toCharArray()));
-    ExtendedNode testNode = (ExtendedNode) session2.getItem("/a");
+    ExtendedNode testNode = (ExtendedNode) session1.getItem("/a");
     List<AccessControlEntry> permsList = testNode.getACL().getPermissionEntries();
     int permsListTotal = 0;
     for (AccessControlEntry ace : permsList) {
