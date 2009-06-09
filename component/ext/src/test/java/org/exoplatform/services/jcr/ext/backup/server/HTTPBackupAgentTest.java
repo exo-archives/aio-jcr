@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
+import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfoEx;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfoList;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -663,7 +664,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
       assertEquals(200, cres.getStatus());
 
-      DetailedInfo info = (DetailedInfo) getObject(DetailedInfo.class, responseWriter.getBody());
+      DetailedInfoEx info = (DetailedInfoEx) getObject(DetailedInfoEx.class, responseWriter.getBody());
 
       assertNotNull(info);
       assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
