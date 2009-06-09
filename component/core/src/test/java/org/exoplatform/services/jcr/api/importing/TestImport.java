@@ -20,19 +20,31 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.BaseStandaloneTest;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.util.VersionHistoryImporter;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.Identity;
 
 /**
  * Created by The eXo Platform SAS.
@@ -320,6 +332,116 @@ public class TestImport extends AbstractImportTest {
   }
 
   /**
+   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * 
+   * @throws Exception
+   */
+  public void testAclImportDocumentView() throws Exception {
+    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+
+    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
+
+    testRoot.addMixin("exo:owneable");
+    testRoot.addMixin("exo:privilegeable");
+    testRoot.setProperty("exo:title", "test");
+
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+
+    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
+    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
+    testRoot.removePermission(SystemIdentity.ANY);
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+    assertFalse(accessManager.hasPermission(testRoot.getACL(),
+                                            PermissionType.READ,
+                                            new Identity("exo")));
+
+    File tmp = File.createTempFile("testAclImpormt", "tmp");
+    tmp.deleteOnExit();
+    serialize(testRoot, false, true, tmp);
+    testRoot.remove();
+    session.save();
+
+    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+
+    deserialize(importRoot,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+                new BufferedInputStream(new FileInputStream(tmp)));
+    session.save();
+    Node n1 = importRoot.getNode("TestRoot");
+    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                        PermissionType.SET_PROPERTY,
+                                                        new Identity("exo")));
+    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                         PermissionType.READ,
+                                                         new Identity("exo")));
+    importRoot.remove();
+    session.save();
+  }
+
+  /**
+   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * 
+   * @throws Exception
+   */
+  public void testAclImportSystemView() throws Exception {
+    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+
+    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
+
+    testRoot.addMixin("exo:owneable");
+    testRoot.addMixin("exo:privilegeable");
+    testRoot.setProperty("exo:title", "test");
+
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+
+    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
+    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
+    testRoot.removePermission(SystemIdentity.ANY);
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+    assertFalse(accessManager.hasPermission(testRoot.getACL(),
+                                            PermissionType.READ,
+                                            new Identity("exo")));
+
+    File tmp = File.createTempFile("testAclImpormt", "tmp");
+    tmp.deleteOnExit();
+    serialize(testRoot, true, true, tmp);
+    testRoot.remove();
+    session.save();
+
+    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+
+    deserialize(importRoot,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+                new BufferedInputStream(new FileInputStream(tmp)));
+    session.save();
+    Node n1 = importRoot.getNode("TestRoot");
+    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                        PermissionType.SET_PROPERTY,
+                                                        new Identity("exo")));
+    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                         PermissionType.READ,
+                                                         new Identity("exo")));
+    importRoot.remove();
+    session.save();
+  }
+
+  /**
    * Test import of the history of versuions.
    * 
    * @throws Exception
@@ -394,5 +516,35 @@ public class TestImport extends AbstractImportTest {
     testRoot.checkin();
     testRoot.checkout();
     assertEquals(4, testRoot.getVersionHistory().getAllVersions().getSize());
+  }
+
+  public void testPermissionAfterImport() throws Exception {
+    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()));
+    InputStream importStream = BaseStandaloneTest.class.getResourceAsStream("/import-export/testPermdocview.xml");
+    session1.importXML("/", importStream, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+    session1.save();
+    // After import
+    ExtendedNode testNode = (ExtendedNode) session1.getItem("/a");
+    List<AccessControlEntry> permsList = testNode.getACL().getPermissionEntries();
+    int permsListTotal = 0;
+    for (AccessControlEntry ace : permsList) {
+      String id = ace.getIdentity();
+      String permission = ace.getPermission();
+      if (id.equals("*:/platform/administrators") || id.equals("root")) {
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.REMOVE)
+            || permission.equals(PermissionType.SET_PROPERTY)
+            || permission.equals(PermissionType.ADD_NODE));
+        permsListTotal++;
+      } else if (id.equals("validator:/platform/users")) {
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.SET_PROPERTY));
+        permsListTotal++;
+      }
+    }
+    assertEquals(10, permsListTotal);
+    testNode.remove();
+    session1.save();
+
   }
 }

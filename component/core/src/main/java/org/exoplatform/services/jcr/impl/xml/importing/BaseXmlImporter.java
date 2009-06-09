@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.ItemExistsException;
@@ -38,6 +39,8 @@ import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
@@ -45,6 +48,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.IllegalACLException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -152,7 +156,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.ContentImporter#getChanges()
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.ContentImporter#getChanges
+   * ()
    */
   public PlainChangesLog getChanges() {
 
@@ -279,8 +285,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.xml.importing.Importer#registerNamespace(java.lang.String,
-   * java.lang.String)
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#registerNamespace
+   * (java.lang.String, java.lang.String)
    */
   public void registerNamespace(String prefix, String uri) {
     try {
@@ -394,7 +400,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Check if parentNodeType and parentMixinNames allowed nodeTypeName as nodetype of subnode.
+   * Check if parentNodeType and parentMixinNames allowed nodeTypeName as
+   * nodetype of subnode.
    * 
    * @param parentNodeType
    * @param parentMixinNames
@@ -500,14 +507,87 @@ public abstract class BaseXmlImporter implements ContentImporter {
     currentNodeInfo.setIdentifier(identifier);
   }
 
+  protected AccessControlList initAcl(AccessControlList parentACL,
+                                      boolean isOwneable,
+                                      boolean isPrivilegeable,
+                                      String owner,
+                                      List<String> exoPermissions) {
+    AccessControlList acl;
+    if (isOwneable) {
+      // has own owner
+      if (isPrivilegeable) {
+        // and permissions
+        acl = new AccessControlList(owner, readACLPermisions(exoPermissions));
+      } else if (parentACL != null) {
+        // use permissions from existed parent
+        acl = new AccessControlList(owner,
+                                    parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                              : null);
+      } else {
+        // have to search nearest ancestor permissions in ACL manager
+        // acl = new AccessControlList(owner,
+        // traverseACLPermissions(cpid));
+        acl = new AccessControlList(owner, null);
+      }
+    } else if (isPrivilegeable) {
+      // has own permissions
+      if (isOwneable) {
+        // and owner
+        acl = new AccessControlList(owner, readACLPermisions(exoPermissions));
+      } else if (parentACL != null) {
+        // use owner from existed parent
+        acl = new AccessControlList(parentACL.getOwner(), readACLPermisions(exoPermissions));
+      } else {
+        // have to search nearest ancestor owner in ACL manager
+        // acl = new AccessControlList(traverseACLOwner(cpid),
+        // readACLPermisions(cid));
+        acl = new AccessControlList(null, readACLPermisions(exoPermissions));
+      }
+    } else {
+      if (parentACL != null)
+        // construct ACL from existed parent ACL
+        acl = new AccessControlList(parentACL.getOwner(),
+                                    parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                              : null);
+      else
+        // have to search nearest ancestor owner and permissions in ACL manager
+        // acl = traverseACL(cpid);
+        acl = null;
+    }
+    return acl;
+  }
+
   /**
-   * Check if item with uuid=identifier exists. If no item exist return same identifier. If same
-   * uuid item exist and depend on uuidBehavior do:
+   * Return permission values or throw an exception. We assume the node is
+   * mix:privilegeable.
+   * 
+   * @param cid Node id
+   * @return list of ACL entries
+   * @throws IllegalACLException if property exo:permissions is not found for
+   *           node
+   */
+  protected List<AccessControlEntry> readACLPermisions(List<String> exoPermissions) {
+    List<AccessControlEntry> naPermissions = new ArrayList<AccessControlEntry>();
+
+    for (String perm : exoPermissions) {
+
+      StringTokenizer parser = new StringTokenizer(perm, AccessControlEntry.DELIMITER);
+      naPermissions.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
+
+    }
+    return naPermissions;
+  }
+
+  /**
+   * Check if item with uuid=identifier exists. If no item exist return same
+   * identifier. If same uuid item exist and depend on uuidBehavior do:
    * <ol>
-   * <li>IMPORT_UUID_CREATE_NEW - return null. Caller will create new identifier.</li>
-   * <li>IMPORT_UUID_COLLISION_REMOVE_EXISTING - Remove same uuid item and his subtree. Also if item
-   * MIX_VERSIONABLE, remove version history</li>
-   * <li>IMPORT_UUID_COLLISION_REPLACE_EXISTING - Remove same uuid item and his subtree.</li>
+   * <li>IMPORT_UUID_CREATE_NEW - return null. Caller will create new
+   * identifier.</li>
+   * <li>IMPORT_UUID_COLLISION_REMOVE_EXISTING - Remove same uuid item and his
+   * subtree. Also if item MIX_VERSIONABLE, remove version history</li>
+   * <li>IMPORT_UUID_COLLISION_REPLACE_EXISTING - Remove same uuid item and his
+   * subtree.</li>
    * <li>IMPORT_UUID_COLLISION_THROW - throw new ItemExistsException</li>
    * </ol>
    * 
@@ -568,14 +648,10 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Return list of changes for item.
    * 
-   * @param parentData
-   *          - parent item
-   * @param name
-   *          - item name
-   * @param state
-   *          - state
-   * @param skipIdentifier
-   *          - skipped identifier.
+   * @param parentData - parent item
+   * @param name - item name
+   * @param state - state
+   * @param skipIdentifier - skipped identifier.
    * @return
    */
   private List<ItemState> getItemStatesList(NodeData parentData,
@@ -616,10 +692,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Check if item <b>parent</b> is parent item of item <b>data</b>.
    * 
-   * @param data
-   *          - Possible child ItemData.
-   * @param parent
-   *          - Possible parent ItemData.
+   * @param data - Possible child ItemData.
+   * @param parent - Possible parent ItemData.
    * @return True if parent of both ItemData the same.
    */
   private boolean isParent(ItemData data, ItemData parent) {
@@ -683,8 +757,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Remove version history of versionable node.
    * 
-   * @param mixVersionableNode
-   *          - node
+   * @param mixVersionableNode - node
    * @throws RepositoryException
    * @throws ConstraintViolationException
    * @throws VersionException
@@ -718,7 +791,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Class helps sort ItemStates list. After sorting the delete states has to be on top of the list
+   * Class helps sort ItemStates list. After sorting the delete states has to be
+   * on top of the list
    */
   private class PathSorter implements Comparator<ItemState> {
     /*

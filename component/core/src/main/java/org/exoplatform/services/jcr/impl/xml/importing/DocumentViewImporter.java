@@ -40,6 +40,7 @@ import org.apache.ws.commons.util.Base64;
 import org.apache.ws.commons.util.Base64.DecodingException;
 
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
@@ -92,12 +93,10 @@ public class DocumentViewImporter extends BaseXmlImporter {
   /**
    * Document view importer.
    * 
-   * @param parent
-   *          - parent node
+   * @param parent - parent node
    * @param uuidBehavior
    * @param saveType
-   * @param respectPropertyDefinitionsConstraints
-   *          sdf;gkjwpeoirjtg
+   * @param respectPropertyDefinitionsConstraints sdf;gkjwpeoirjtg
    */
   public DocumentViewImporter(NodeData parent,
                               QPath ancestorToSave,
@@ -131,7 +130,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
+   * int, int)
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
 
@@ -186,8 +187,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   * java.lang.String, java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java
+   * .lang.String, java.lang.String, java.lang.String)
    */
   public void endElement(String uri, String localName, String qName) throws RepositoryException {
     tree.pop();
@@ -297,14 +299,20 @@ public class DocumentViewImporter extends BaseXmlImporter {
               continue;
             }
 
-            Value value = valueFactory.createValue(StringConverter.denormalizeString(propertiesMap.get(propName)),
-                                                   pType);
+            String denormalizeString = StringConverter.denormalizeString(propertiesMap.get(propName));
+            Value value = valueFactory.createValue(denormalizeString, pType);
             values.add(((BaseValue) value).getInternalData());
+            if (Constants.EXO_OWNER.equals(propName)) {
+              nodeData.setExoOwner(denormalizeString);
+            }
           } else {
+            List<String> denormalizeStrings = new ArrayList<String>();
+
             while (spaceTokenizer.hasMoreTokens()) {
               String elem = spaceTokenizer.nextToken();
-
-              Value value = valueFactory.createValue(StringConverter.denormalizeString(elem), pType);
+              String denormalizeString = StringConverter.denormalizeString(elem);
+              denormalizeStrings.add(denormalizeString);
+              Value value = valueFactory.createValue(denormalizeString, pType);
               if (log.isDebugEnabled()) {
                 String valueAsString = null;
                 try {
@@ -317,6 +325,12 @@ public class DocumentViewImporter extends BaseXmlImporter {
                     + valueAsString);
               }
               values.add(((BaseValue) value).getInternalData());
+
+            }
+            if (pType == ExtendedPropertyType.PERMISSION) {
+              nodeData.setExoPrivileges(denormalizeStrings);
+            } else if (Constants.EXO_OWNER.equals(propName)) {
+              nodeData.setExoOwner(denormalizeStrings.get(0));
             }
           }
 
@@ -345,6 +359,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
           if (nodeData.isMixVersionable()) {
             endVersionable(nodeData, values, propName);
           }
+
         }
       }
       // skip versionable
@@ -354,6 +369,13 @@ public class DocumentViewImporter extends BaseXmlImporter {
         changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, getAncestorToSave()));
       }
     }
+
+    nodeData.setACL(initAcl(parentNodeData.getACL(),
+                               nodeData.isExoOwneable(),
+                               nodeData.isExoPrivilegeable(),
+                               nodeData.getExoOwner(),
+                               nodeData.getExoPrivileges()));
+
     if (nodeData.isMixVersionable()) {
       createVersionHistory(nodeData);
     }
@@ -375,14 +397,15 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                     InternalQName jcrName) throws PathNotFoundException,
                                                           IllegalPathException,
                                                           RepositoryException {
-    ImportNodeData nodeData = new ImportNodeData(getParent(), jcrName, getNodeIndex(getParent(),
-                                                                                    jcrName,
-                                                                                    null));
+    NodeData parent = getParent();
+    ImportNodeData nodeData = new ImportNodeData(parent, jcrName, getNodeIndex(parent,
+                                                                               jcrName,
+                                                                               null));
 
     nodeData.setPrimaryTypeName(locationFactory.parseJCRName(propertiesMap.get(Constants.JCR_PRIMARYTYPE))
                                                .getInternalName());
 
-    nodeData.setOrderNumber(getNextChildOrderNum(getParent()));
+    nodeData.setOrderNumber(getNextChildOrderNum(parent));
     nodeData.setMixinTypeNames(mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
     nodeData.setMixReferenceable(isNodeType(Constants.MIX_REFERENCEABLE, nodeTypes));
     nodeData.setIdentifier(IdGenerator.generate());

@@ -16,16 +16,18 @@
  */
 package org.exoplatform.services.jcr.impl.access;
 
+import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
-import javax.jcr.*;
+import javax.jcr.AccessDeniedException;
+import javax.jcr.ImportUUIDBehavior;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
@@ -40,7 +42,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.security.Identity;
 
 /**
- * Created by The eXo Platform SAS.<br/> Prerequisite: enable access control i.e.
+ * Created by The eXo Platform SAS.<br/>
+ * Prerequisite: enable access control i.e.
  * <access-control>optional</access-control>
  * 
  * @author Gennady Azarenkov
@@ -343,7 +346,7 @@ public class TestAccess extends BaseStandaloneTest {
     // READ permissions for exo2
 
     // [PN] 19.06.07 owner it's by whom session was open
-    //assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
+    // assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
     assertEquals(credentials.getUserID(),
                  ((ExtendedNode) accessTestRoot.getNode("testAddNode")).getACL().getOwner());
 
@@ -569,8 +572,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the setPermission(String identity, String[] permission) completely replace permissions
-   * of the identity.
+   * check if the setPermission(String identity, String[] permission) completely
+   * replace permissions of the identity.
    * 
    * @throws Exception
    */
@@ -594,8 +597,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the removePermission(String identity, String permission) remove specified permissions
-   * of the identity.
+   * check if the removePermission(String identity, String permission) remove
+   * specified permissions of the identity.
    * 
    * @throws Exception
    */
@@ -949,11 +952,11 @@ public class TestAccess extends BaseStandaloneTest {
 
   }
 
- /**
-  * Check permission after import
-  *
-  * @throws Exception
-  */
+  /**
+   * Check permission after import
+   * 
+   * @throws Exception
+   */
   public void testPermissionAfterImport() throws Exception {
     Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()));
     InputStream importStream = BaseStandaloneTest.class.getResourceAsStream("/import-export/testPermdocview.xml");
@@ -967,18 +970,20 @@ public class TestAccess extends BaseStandaloneTest {
       String id = ace.getIdentity();
       String permission = ace.getPermission();
       if (id.equals("*:/platform/administrators") || id.equals("root")) {
-        assertTrue(permission.equals(PermissionType.READ) ||
-                   permission.equals(PermissionType.REMOVE) ||
-                   permission.equals(PermissionType.SET_PROPERTY) ||
-                   permission.equals(PermissionType.ADD_NODE));
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.REMOVE)
+            || permission.equals(PermissionType.SET_PROPERTY)
+            || permission.equals(PermissionType.ADD_NODE));
         permsListTotal++;
       } else if (id.equals("validator:/platform/users")) {
-          assertTrue(permission.equals(PermissionType.READ) ||
-                     permission.equals(PermissionType.SET_PROPERTY));
-          permsListTotal++;          
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.SET_PROPERTY));
+        permsListTotal++;
       }
     }
     assertEquals(10, permsListTotal);
+    testNode.remove();
+    session1.save();
   }
 
   private void showPermissions(String path) throws RepositoryException {

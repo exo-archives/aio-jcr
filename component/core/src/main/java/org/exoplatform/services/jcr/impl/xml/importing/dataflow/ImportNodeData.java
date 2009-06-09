@@ -76,6 +76,16 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   private String                       versionHistoryIdentifier;
 
   /**
+   * 
+   */
+  private String                       exoOwner;
+
+  /**
+   * 
+   */
+  private List<String>                 exoPrivileges;
+
+  /**
    * @param parent
    * @param name
    * @param index
@@ -135,9 +145,25 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     return nodeTypes;
   }
 
+  /**
+   * @return the exoOwner
+   */
+  public String getExoOwner() {
+    return exoOwner;
+  }
+
+  /**
+   * @return the exoPrivileges
+   */
+  public List<String> getExoPrivileges() {
+    return exoPrivileges;
+  }
+
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.dataflow.TransientNodeData#getMixinTypeNames()
+   * @see
+   * org.exoplatform.services.jcr.impl.dataflow.TransientNodeData#getMixinTypeNames
+   * ()
    */
   @Override
   public InternalQName[] getMixinTypeNames() {
@@ -191,19 +217,42 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param baseVersionIdentifier
-   *          the baseVersionIdentifier to set
+   * @param baseVersionIdentifier the baseVersionIdentifier to set
    */
   public void setBaseVersionIdentifier(String baseVersionIdentifier) {
     this.baseVersionIdentifier = baseVersionIdentifier;
   }
 
   /**
-   * @param isContainsVersionhistory
-   *          the isContainsVersionhistory to set
+   * @param isContainsVersionhistory the isContainsVersionhistory to set
    */
   public void setContainsVersionhistory(boolean isContainsVersionhistory) {
     this.isContainsVersionhistory = isContainsVersionhistory;
+  }
+
+  /**
+   * @param exoOwner the exoOwner to set
+   */
+  public void setExoOwner(String exoOwner) {
+    this.exoOwner = exoOwner;
+  }
+
+  /**
+   * @return
+   */
+  public boolean isExoOwneable() {
+    return exoOwner != null;
+  }
+
+  /**
+   * @param exoPrivileges the exoPrivileges to set
+   */
+  public void setExoPrivileges(List<String> exoPrivileges) {
+    this.exoPrivileges = exoPrivileges;
+  }
+
+  public boolean isExoPrivilegeable() {
+    return exoPrivileges != null;
   }
 
   public void setIsNewIdentifer(boolean newIdentifer) {
@@ -211,16 +260,14 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param isMixReferenceable
-   *          the isMixReferenceable to set
+   * @param isMixReferenceable the isMixReferenceable to set
    */
   public void setMixReferenceable(boolean isMixReferenceable) {
     this.isMixReferenceable = isMixReferenceable;
   }
 
   /**
-   * @param isMixVersionable
-   *          the isMixVersionable to set
+   * @param isMixVersionable the isMixVersionable to set
    */
   public void setMixVersionable(boolean isMixVersionable) {
     this.isMixVersionable = isMixVersionable;
@@ -253,8 +300,7 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param versionHistoryIdentifier
-   *          the versionHistoryIdentifier to set
+   * @param versionHistoryIdentifier the versionHistoryIdentifier to set
    */
   public void setVersionHistoryIdentifier(String versionHistoryIdentifier) {
     this.versionHistoryIdentifier = versionHistoryIdentifier;

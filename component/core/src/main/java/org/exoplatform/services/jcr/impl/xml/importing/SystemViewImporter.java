@@ -113,7 +113,9 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
+   * int, int)
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
     // property values
@@ -137,8 +139,9 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   * java.lang.String, java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java
+   * .lang.String, java.lang.String, java.lang.String)
    */
   public void endElement(String uri, String localName, String name) throws RepositoryException {
     InternalQName elementName = locationFactory.parseJCRName(name).getInternalName();
@@ -161,8 +164,9 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java.lang.String,
-   * java.lang.String, java.lang.String, java.util.Map)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java
+   * .lang.String, java.lang.String, java.lang.String, java.util.Map)
    */
   public void startElement(String namespaceURI,
                            String localName,
@@ -192,6 +196,8 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       int nodeIndex = getNodeIndex(parentData, currentNodeName, null);
       ImportNodeData newNodeData = new ImportNodeData(parentData, currentNodeName, nodeIndex);
+      // preset of ACL
+      newNodeData.setACL(parentData.getACL());
       newNodeData.setOrderNumber(getNextChildOrderNum(parentData));
       newNodeData.setIdentifier(IdGenerator.generate());
 
@@ -278,6 +284,11 @@ public class SystemViewImporter extends BaseXmlImporter {
       createVersionHistory(currentNodeInfo);
     }
 
+    currentNodeInfo.setACL(initAcl(currentNodeInfo.getACL(),
+                                      currentNodeInfo.isExoOwneable(),
+                                      currentNodeInfo.isExoPrivilegeable(),
+                                      currentNodeInfo.getExoOwner(),
+                                      currentNodeInfo.getExoPrivileges()));
   }
 
   /**
@@ -468,6 +479,7 @@ public class SystemViewImporter extends BaseXmlImporter {
    */
   private List<ValueData> parseValues() throws RepositoryException {
     List<ValueData> values = new ArrayList<ValueData>(propertyInfo.getValuesSize());
+    List<String> stringValues = new ArrayList<String>();
     for (int k = 0; k < propertyInfo.getValuesSize(); k++) {
 
       if (propertyInfo.getType() == PropertyType.BINARY) {
@@ -489,10 +501,19 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       } else {
         String val = new String(propertyInfo.getValues().get(k).toString());
+        stringValues.add(val);
         values.add(((BaseValue) valueFactory.createValue(val, propertyInfo.getType())).getInternalData());
       }
+
     }
 
+    if (propertyInfo.getType() == ExtendedPropertyType.PERMISSION) {
+      ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
+      currentNodeInfo.setExoPrivileges(stringValues);
+    } else if (Constants.EXO_OWNER.equals(propertyInfo.getName())) {
+      ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
+      currentNodeInfo.setExoOwner(stringValues.get(0));
+    }
     return values;
 
   }
@@ -500,11 +521,10 @@ public class SystemViewImporter extends BaseXmlImporter {
   /**
    * Returns the value of the named XML attribute.
    * 
-   * @param attributes
-   *          set of XML attributes
-   * @param name
-   *          attribute name
-   * @return attribute value, or <code>null</code> if the named attribute is not found
+   * @param attributes set of XML attributes
+   * @param name attribute name
+   * @return attribute value, or <code>null</code> if the named attribute is not
+   *         found
    * @throws RepositoryException
    */
 
