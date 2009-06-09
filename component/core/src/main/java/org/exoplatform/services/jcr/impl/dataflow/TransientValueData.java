@@ -439,8 +439,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param position
    *          - position in value data from which the read will be performed
    * @return - The number of bytes, possibly zero, that were actually transferred
-   * @throws IOException
-   * @throws RepositoryException
+   * @throws IOException if read/write error occurs
    */
   public long read(OutputStream stream, long length, long position) throws IOException {
 
@@ -449,8 +448,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
     if (length < 0)
       throw new IOException("Length must be higher or equals 0. But given " + length);
-
-    spoolInputStream();
 
     if (isByteArray()) {
       // validation
@@ -464,6 +461,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       return length;
     } else {
+      spoolInputStream();
+      
       if (spoolChannel == null)
         spoolChannel = new FileInputStream(spoolFile).getChannel();
 
@@ -476,7 +475,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       MappedByteBuffer bb = spoolChannel.map(FileChannel.MapMode.READ_ONLY, position, length);
 
-      WritableByteChannel ch = Channels.newChannel(stream);
+      WritableByteChannel ch = Channels.newChannel(stream); // TODO don't use Channels.newChannel 
       ch.write(bb);
       ch.close();
 
