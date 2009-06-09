@@ -47,13 +47,6 @@
     
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
-      <artifactId>exo.kernel.commons</artifactId>
-      <version>${org.exoplatform.kernel.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.container</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
       <scope>provided</scope>
@@ -87,24 +80,6 @@
       <artifactId>exo.core.component.organization.api</artifactId>
       <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.container</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.command</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.cache</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     
     <dependency>
@@ -112,24 +87,6 @@
       <artifactId>exo.core.component.document</artifactId>
       <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.container</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.command</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.cache</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     
     <dependency>
@@ -137,24 +94,6 @@
       <artifactId>exo.core.component.security.core</artifactId>
       <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.container</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.command</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.cache</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     
     <dependency>
@@ -162,24 +101,6 @@
       <artifactId>exo.core.component.database</artifactId>
       <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.container</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.command</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.component.cache</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     
     <!-- DEPRECATED: Third party dependencies (eXo JCR API) -->

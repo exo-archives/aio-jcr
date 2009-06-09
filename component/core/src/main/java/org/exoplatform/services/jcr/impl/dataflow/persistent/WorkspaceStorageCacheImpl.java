@@ -35,7 +35,6 @@ import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.CachedObjectSelector;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.cache.ObjectCacheInfo;
-import org.exoplatform.services.cache.CacheListenerContext;
 import org.exoplatform.services.jcr.config.CacheEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
@@ -957,7 +956,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    */
   protected class ExpiredListener implements CacheListener {
 
-    public void onExpire(CacheListenerContext context, Serializable key, Object obj) throws Exception {
+    public void onExpire(ExoCache cache, Serializable key, Object obj) throws Exception {
       if (obj == null)
         return;
 
@@ -985,20 +984,16 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       }
     }
 
-    public void onRemove(CacheListenerContext context, Serializable key, Object obj) throws Exception {
-      //To change body of implemented methods use File | Settings | File Templates.
+    public void onClearCache(ExoCache cache) throws Exception {
     }
 
-    public void onPut(CacheListenerContext context, Serializable key, Object obj) throws Exception {
-      //To change body of implemented methods use File | Settings | File Templates.
+    public void onGet(ExoCache cache, Serializable key, Object obj) throws Exception {
     }
 
-    public void onGet(CacheListenerContext context, Serializable key, Object obj) throws Exception {
-      //To change body of implemented methods use File | Settings | File Templates.
+    public void onPut(ExoCache cache, Serializable key, Object obj) throws Exception {
     }
 
-    public void onClearCache(CacheListenerContext context) throws Exception {
-      //To change body of implemented methods use File | Settings | File Templates.
+    public void onRemove(ExoCache cache, Serializable key, Object obj) throws Exception {
     }
   }
 }
