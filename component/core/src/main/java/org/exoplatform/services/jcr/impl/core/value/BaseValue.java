@@ -56,12 +56,22 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
 
   /**
    * Package-private default constructor.
+   *
+   * @param type int 
+   * @param data TransientValueData
    */
-  BaseValue(int type, TransientValueData data) throws IOException {
+  BaseValue(int type, TransientValueData data) {
     this.type = type;
     this.internalData = data;
   }
 
+  /**
+   * Return Session scope ValueData.
+   *
+   * @param asStream boolean 
+   * @return LocalTransientValueData
+   * @throws IOException if error
+   */
   protected LocalTransientValueData getLocalData(boolean asStream) throws IOException {
     if (data == null)
       data = new LocalTransientValueData(asStream);
@@ -72,7 +82,7 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
   /**
    * Returns the internal string representation of this value without modifying the value state.
    * 
-   * @return the internal string representation
+   * @return String the internal string representation
    * @throws ValueFormatException
    *           if the value can not be represented as a <code>String</code> or if the value is
    *           <code>null</code>.
@@ -91,9 +101,13 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
   }
 
   /**
-   * @return the internal calendar
+   * Return the internal calendar.
+   * 
+   * @return Calendar
    * @throws ValueFormatException
+   *           if formatter error
    * @throws RepositoryException
+   *           if other error
    */
   protected Calendar getInternalCalendar() throws ValueFormatException, RepositoryException {
     try {
@@ -111,17 +125,15 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Value#getType()
+  /**
+   * {@inheritDoc}
    */
   public final int getType() {
     return type;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Value#getDate()
+  /**
+   * {@inheritDoc}
    */
   public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
     Calendar cal = getInternalCalendar();
@@ -133,9 +145,8 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Value#getLong()
+  /**
+   * {@inheritDoc}
    */
   public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
     try {
@@ -145,9 +156,8 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Value#getBoolean()
+  /**
+   * {@inheritDoc}
    */
   public boolean getBoolean() throws ValueFormatException,
                              IllegalStateException,
@@ -155,9 +165,8 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     return Boolean.valueOf(getInternalString()).booleanValue();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Value#getDouble()
+  /**
+   * {@inheritDoc}
    */
   public double getDouble() throws ValueFormatException, IllegalStateException, RepositoryException {
     try {
@@ -167,9 +176,8 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Value#getStream()
+  /**
+   * {@inheritDoc}
    */
   public InputStream getStream() throws ValueFormatException, RepositoryException {
     try {
@@ -179,19 +187,15 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Value#getString()
+  /**
+   * {@inheritDoc}
    */
   public String getString() throws ValueFormatException, IllegalStateException, RepositoryException {
     return getInternalString();
   }
 
   /**
-   * @return
-   * @throws ValueFormatException
-   * @throws IllegalStateException
-   * @throws RepositoryException
+   * {@inheritDoc}
    */
   public String getReference() throws ValueFormatException,
                               IllegalStateException,
@@ -201,17 +205,14 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
   }
 
   /**
-   * @return Returns the data.
+   * @return Returns the data TransientValueData.
    */
   public TransientValueData getInternalData() {
     return internalData;
   }
 
   /**
-   * Returns the length of the value in bytes if the value is a PropertyType.BINARY, otherwise it
-   * returns the number of characters needed to display the value in its string form as defined in
-   * 6.2.6 Property Type Conversion. Returns if the implementation cannot determine the length of
-   * the value..
+   * {@inheritDoc}
    */
   public long getLength() {
     try {
@@ -221,9 +222,8 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
+  /**
+   * {@inheritDoc}
    */
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -238,6 +238,9 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int getOrderNumber() {
     try {
       return getLocalData(type == PropertyType.BINARY).getOrderNumber();
@@ -246,6 +249,9 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void setOrderNumber(int order) {
     try {
       getLocalData(type == PropertyType.BINARY).setOrderNumber(order);
@@ -254,11 +260,17 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public long read(OutputStream stream, long length, long position) throws IOException,
                                                                    RepositoryException {
     return getInternalData().read(stream, length, position);
   }
 
+  /**
+   * Session scope ValueData.
+   */
   protected class LocalTransientValueData extends AbstractValueData {
 
     protected InputStream stream;
@@ -268,10 +280,12 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
     protected final long  length;
 
     /**
-     * constructor creates brand new stream or brand new byte array copying shared data
+     * Create new Value data.
      * 
-     * @param data
+     * @param asStream
+     *          boolean
      * @throws IOException
+     *           if error
      */
     public LocalTransientValueData(boolean asStream) throws IOException {
       super(getInternalData().getOrderNumber());
@@ -286,22 +300,34 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
       length = idata.getLength();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public byte[] getAsByteArray() throws IllegalStateException, IOException {
       if (streamConsumed())
         throw new IllegalStateException("stream value has already been consumed");
       return bytes;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public InputStream getAsStream() throws IOException, IllegalStateException {
       if (bytesConsumed())
         throw new IllegalStateException("non-stream value has already been consumed");
       return stream;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public long getLength() {
       return length;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isByteArray() {
       return bytes != null;
     }
@@ -314,6 +340,9 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
       return bytes != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TransientValueData createTransientCopy() {
       throw new RuntimeException("LocalTransientValueData.createTransientCopy()");
