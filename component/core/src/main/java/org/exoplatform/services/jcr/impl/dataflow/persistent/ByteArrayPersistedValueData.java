@@ -31,48 +31,54 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * @author Gennady Azarenkov
  * @version $Id: ByteArrayPersistedValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
 public class ByteArrayPersistedValueData extends AbstractValueData {
 
   protected byte[] data;
 
+  /**
+   * ByteArrayPersistedValueData constructor.
+   * 
+   * @param data
+   *          byte[]
+   * @param orderNumber
+   *          int
+   */
   public ByteArrayPersistedValueData(byte[] data, int orderNumber) {
     super(orderNumber);
     this.data = data;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsStream()
+  /**
+   * {@inheritDoc}
    */
   public InputStream getAsStream() throws IOException {
     return new ByteArrayInputStream(data);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsByteArray()
+  /**
+   * {@inheritDoc}
    */
   public byte[] getAsByteArray() throws IllegalStateException {
     return data;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getLength()
+  /**
+   * {@inheritDoc}
    */
   public long getLength() {
     return data.length;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#isByteArray()
+  /**
+   * {@inheritDoc}
    */
   public boolean isByteArray() {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
