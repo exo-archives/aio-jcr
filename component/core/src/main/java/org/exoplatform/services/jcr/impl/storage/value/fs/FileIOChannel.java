@@ -46,11 +46,6 @@ public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIO
   private static Log                      LOG           = ExoLogger.getLogger("jcr.FileIOChannel");
 
   /**
-   * I/O buffer size for internal VS operations (32K).
-   */
-  public static final int                 IOBUFFER_SIZE = 32 * 1024;                               // 32K
-
-  /**
    * Temporary directory. Used for I/O transaction operations and locks.
    */
   protected final File                    tempDir;

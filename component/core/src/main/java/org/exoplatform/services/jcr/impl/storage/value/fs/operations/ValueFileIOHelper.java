@@ -48,9 +48,14 @@ import org.exoplatform.services.log.ExoLogger;
 public class ValueFileIOHelper {
 
   /**
+   * I/O buffer size for internal VS operations (32K).
+   */
+  public static final int    IOBUFFER_SIZE = 32 * 1024;                                   // 32K
+
+  /**
    * Helper logger.
    */
-  protected static final Log LOG = ExoLogger.getLogger("jcr.ValueFileIOHelper");
+  protected static final Log LOG           = ExoLogger.getLogger("jcr.ValueFileIOHelper");
 
   /**
    * Read value from file.
@@ -80,9 +85,7 @@ public class ValueFileIOHelper {
         byte[] res = new byte[buffSize];
         int rpos = 0;
         int r = -1;
-        byte[] buff = new byte[FileIOChannel.IOBUFFER_SIZE > buffSize
-            ? FileIOChannel.IOBUFFER_SIZE
-            : buffSize];
+        byte[] buff = new byte[IOBUFFER_SIZE > buffSize ? IOBUFFER_SIZE : buffSize];
         while ((r = is.read(buff)) >= 0) {
           System.arraycopy(buff, 0, res, rpos, r);
           rpos += r;
@@ -209,7 +212,7 @@ public class ValueFileIOHelper {
       // NIO buffers article http://www.odi.ch/weblog/posting.php?posting=371
       long size = 0;
       int r = 0;
-      ByteBuffer buff = ByteBuffer.allocate(FileIOChannel.IOBUFFER_SIZE);
+      ByteBuffer buff = ByteBuffer.allocate(IOBUFFER_SIZE);
       buff.clear();
       while ((r = inch.read(buff)) >= 0) {
         buff.flip();
