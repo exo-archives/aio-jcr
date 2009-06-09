@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2009 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,28 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.transport;
+package org.exoplatform.services.jcr.ext.initializer.impl;
 
-import java.io.IOException;
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 19.05.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: ChannelWasDisconnected.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
+ * @version $Id: MessagePacket.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ChannelWasDisconnectedException extends IOException {
-  
+public abstract class MessagePacket extends AbstractPacket {
+
+  public MessagePacket(int type, int priority) {
+    super(type, priority);
+  }
+
   /**
-   * ChannelWasDisconnectedException  constructor.
-   *
-   * @param message
-   *          String, the message.
+   * MessagePacket constructor.
+   * 
    */
-  public ChannelWasDisconnectedException(final String message) {
-    super(message);
+  public MessagePacket() {
+    super();
   }
 
 }

@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.initializer.impl;
 
-import org.exoplatform.services.jcr.ext.replication.transport.ErrorPacket;
 
 /**
  * Created by The eXo Platform SAS.

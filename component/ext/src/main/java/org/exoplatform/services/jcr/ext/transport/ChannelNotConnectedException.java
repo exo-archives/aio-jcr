@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,29 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.transport;
+package org.exoplatform.services.jcr.ext.transport;
+
+import java.io.IOException;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>
- * Date: 26.12.2008
- * 
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: CancelPacket.java 111 2008-11-11 11:11:11Z rainf0x $
+ * <br/>Date: 18.05.2009
+ *
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: ChannelNotConnectedException.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class CancelPacket extends MessagePacket {
-
-  public CancelPacket(int type, int transmitterPriority) {
-    super(type, transmitterPriority);
-  }
+public class ChannelNotConnectedException extends IOException {
 
   /**
-   * CancelPacket constructor.
-   * 
+   * ChannelNotConnectedException  constructor.
+   *
+   * @param message
+   *          String, the message.
    */
-  public CancelPacket() {
-    super();
+  public ChannelNotConnectedException(final String message) {
+    super(message);
   }
-
 }

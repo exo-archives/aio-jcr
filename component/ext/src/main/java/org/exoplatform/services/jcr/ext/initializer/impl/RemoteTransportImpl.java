@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.ext.initializer.RemoteTransport;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.storage.InvalidChecksumException;
-import org.exoplatform.services.jcr.ext.replication.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
 
 /**
  * Created by The eXo Platform SAS.

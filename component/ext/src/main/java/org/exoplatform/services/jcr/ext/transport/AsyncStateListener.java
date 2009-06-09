@@ -14,31 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.transport;
+package org.exoplatform.services.jcr.ext.transport;
+
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>
- * Date: 15.12.2008
+ * Date: 25.12.2008
  * 
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: AsyncPacketListener.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: AsyncStateListener.java 31768 2009-05-14 09:35:43Z pnedonosko $
  */
-public interface AsyncPacketListener {
+public interface AsyncStateListener {
 
   /**
-   * receive. Will be called this method when receive the Packet.
+   * Members connected state.
    * 
-   * @param packet
-   *          the Packet object.
+   * @param event
+   *          List of Member
    */
-  void receive(AbstractPacket packet, MemberAddress sourceAddress);
+  void onStateChanged(AsyncStateEvent event);
 
-  /**
-   * onError.
-   * 
-   * @param sourceAddress
-   */
-  void onError(MemberAddress sourceAddress);
 }

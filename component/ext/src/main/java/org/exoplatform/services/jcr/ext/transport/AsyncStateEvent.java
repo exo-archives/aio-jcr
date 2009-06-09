@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.transport;
+package org.exoplatform.services.jcr.ext.transport;
 
 import java.util.List;
+
 
 /**
  * Created by The eXo Platform SAS.

@@ -14,27 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.transport;
+package org.exoplatform.services.jcr.ext.transport;
 
 import java.io.IOException;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 18.05.2009
+ * <br/>Date: 19.05.2009
  *
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: ChannelNotConnectedException.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id: ChannelWasDisconnected.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class ChannelNotConnectedException extends IOException {
-
+public class ChannelWasDisconnectedException extends IOException {
+  
   /**
-   * ChannelNotConnectedException  constructor.
+   * ChannelWasDisconnectedException  constructor.
    *
    * @param message
    *          String, the message.
    */
-  public ChannelNotConnectedException(final String message) {
+  public ChannelWasDisconnectedException(final String message) {
     super(message);
   }
+
 }

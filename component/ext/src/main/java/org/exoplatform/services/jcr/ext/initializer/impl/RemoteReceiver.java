@@ -27,11 +27,11 @@ import org.exoplatform.services.jcr.ext.replication.storage.IncomeDataContext;
 import org.exoplatform.services.jcr.ext.replication.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.storage.ResourcesHolder;
-import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.replication.transport.AsyncPacketListener;
-import org.exoplatform.services.jcr.ext.replication.transport.AsyncStateEvent;
-import org.exoplatform.services.jcr.ext.replication.transport.AsyncStateListener;
-import org.exoplatform.services.jcr.ext.replication.transport.MemberAddress;
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.transport.AsyncStateEvent;
+import org.exoplatform.services.jcr.ext.transport.AsyncStateListener;
+import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

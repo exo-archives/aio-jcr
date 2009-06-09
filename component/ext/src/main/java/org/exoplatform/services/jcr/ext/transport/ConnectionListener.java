@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,26 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.transport;
+package org.exoplatform.services.jcr.ext.transport;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id: MessagePacket.java 111 2008-11-11 11:11:11Z serg $
+ * <br/>
+ * Inform about channel state.
+ * 
+ * <br/>
+ * Date: 15.01.2009
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: ConnectionListener.java 31768 2009-05-14 09:35:43Z pnedonosko $
  */
-public abstract class MessagePacket extends AbstractPacket {
-
-  public MessagePacket(int type, int priority) {
-    super(type, priority);
-  }
+public interface ConnectionListener {
 
   /**
-   * MessagePacket constructor.
+   * On channel disconnect event.
    * 
    */
-  public MessagePacket() {
-    super();
-  }
+  void onDisconnect();
 
 }
