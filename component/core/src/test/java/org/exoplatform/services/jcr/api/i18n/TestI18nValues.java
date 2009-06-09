@@ -33,7 +33,8 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: TestI18nValues.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestI18nValues extends JcrAPIBaseTest {
@@ -90,7 +91,8 @@ public class TestI18nValues extends JcrAPIBaseTest {
 
   public void setString(String source) throws RepositoryException {
 
-    log.info("String as string value: '" + source + "'");
+    if (log.isDebugEnabled())
+      log.debug("String as string value: '" + source + "'");
 
     try {
       testNode.setProperty(TEST_I18N_PROP, source);
@@ -111,12 +113,13 @@ public class TestI18nValues extends JcrAPIBaseTest {
   }
 
   /**
-   * Tests property values with I18n content stored in BINARY values using Node.setProperty(String,
-   * String, int) method
+   * Tests property values with I18n content stored in BINARY values using
+   * Node.setProperty(String, String, int) method
    */
   public void setBinaryAsString(String source) throws RepositoryException {
 
-    log.info("Binnary string as string value: '" + source + "'");
+    if (log.isDebugEnabled())
+      log.debug("Binnary string as string value: '" + source + "'");
 
     try {
       testNode.setProperty(TEST_I18N_PROP, source, PropertyType.BINARY);
@@ -157,8 +160,8 @@ public class TestI18nValues extends JcrAPIBaseTest {
   }
 
   /**
-   * Tests property values with I18n content stored in BINARY values using Node.setProperty(String,
-   * InputStream) method
+   * Tests property values with I18n content stored in BINARY values using
+   * Node.setProperty(String, InputStream) method
    */
   public void setBinaryAsStream(String source) throws RepositoryException {
 
@@ -206,129 +209,154 @@ public class TestI18nValues extends JcrAPIBaseTest {
 
   // ------ Cyrillic ------
   public void testSetStringCYR() throws RepositoryException {
-    log.info("Testing Cyrillic STRING as STRING");
+
+    if (log.isDebugEnabled())
+      log.debug("Testing Cyrillic STRING as STRING");
     setString(TEST_I18N_CONTENT_CYR);
   }
 
   public void testSetBinaryAsStringCYR() throws RepositoryException {
-    log.info("Testing Cyrillic BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Cyrillic BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_CYR);
   }
 
   public void testSetBinaryAsStreamCYR() throws RepositoryException {
-    log.info("Testing Cyrillic BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing Cyrillic BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_CYR);
   }
 
   // ------ Latin ------
   public void testSetStringLAT() throws RepositoryException {
-    log.info("Testing Latin STRING as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Latin STRING as STRING");
     setString(TEST_I18N_CONTENT_LAT);
   }
 
   public void testSetBinaryAsStringLAT() throws RepositoryException {
-    log.info("Testing Latin BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Latin BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_LAT);
   }
 
   public void testSetBinaryAsStreamLAT() throws RepositoryException {
-    log.info("Testing Latin BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing Latin BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_LAT);
   }
 
   // ------ Japan ------
   public void testSetStringJP() throws RepositoryException {
-    log.info("Testing Japan STRING as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Japan STRING as STRING");
     setString(TEST_I18N_CONTENT_JP);
   }
 
   public void testSetBinaryAsStringJP() throws RepositoryException {
-    log.info("Testing Japan BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Japan BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_JP);
   }
 
   public void testSetBinaryAsStreamJP() throws RepositoryException {
-    log.info("Testing Japan BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing Japan BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_JP);
   }
 
   // ------ Chines ------
   public void testSetStringCH() throws RepositoryException {
-    log.info("Testing Chines STRING as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Chines STRING as STRING");
     setString(TEST_I18N_CONTENT_CH);
   }
 
   public void testSetBinaryAsStringCH() throws RepositoryException {
-    log.info("Testing Chines BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Chines BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_CH);
   }
 
   public void testSetBinaryAsStreamCH() throws RepositoryException {
-    log.info("Testing Chines BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing Chines BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_CH);
   }
 
   // ------ Arabic ------
   public void testSetStringARAB() throws RepositoryException {
-    log.info("Testing Arabic STRING as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Arabic STRING as STRING");
     setString(TEST_I18N_CONTENT_ARAB);
   }
 
   public void testSetBinaryAsStringARAB() throws RepositoryException {
-    log.info("Testing Arabic BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Arabic BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_ARAB);
   }
 
   public void testSetBinaryAsStreamARAB() throws RepositoryException {
-    log.info("Testing Arabic BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing Arabic BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_ARAB);
   }
 
   // ------ Hebrew ------
   public void testSetStringIL() throws RepositoryException {
-    log.info("Testing Hebrew STRING as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Hebrew STRING as STRING");
     setString(TEST_I18N_CONTENT_IL);
   }
 
   public void testSetBinaryAsStringIL() throws RepositoryException {
-    log.info("Testing Hebrew BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Hebrew BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_IL);
   }
 
   public void testSetBinaryAsStreamIL() throws RepositoryException {
-    log.info("Testing Hebrew BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing Hebrew BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_IL);
   }
 
   // ------ Indian ------
   public void testSetStringINDIA() throws RepositoryException {
-    log.info("Testing Indian STRING as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Indian STRING as STRING");
     setString(TEST_I18N_CONTENT_INDIA);
   }
 
   public void testSetBinaryAsStringINDIA() throws RepositoryException {
-    log.info("Testing Indian BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing Indian BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_INDIA);
   }
 
   public void testSetBinaryAsStreamINDIA() throws RepositoryException {
-    log.info("Testing Indian BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing Indian BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_INDIA);
   }
 
   // ------ African ------
   public void testSetStringAFR() throws RepositoryException {
-    log.info("Testing African STRING as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing African STRING as STRING");
     setString(TEST_I18N_CONTENT_AFR);
   }
 
   public void testSetBinaryAsStringAFR() throws RepositoryException {
-    log.info("Testing African BINARY string as STRING");
+    if (log.isDebugEnabled())
+      log.debug("Testing African BINARY string as STRING");
     setBinaryAsString(TEST_I18N_CONTENT_AFR);
   }
 
   public void testSetBinaryAsStreamAFR() throws RepositoryException {
-    log.info("Testing African BINARY string as STREAM");
+    if (log.isDebugEnabled())
+      log.debug("Testing African BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_AFR);
   }
 

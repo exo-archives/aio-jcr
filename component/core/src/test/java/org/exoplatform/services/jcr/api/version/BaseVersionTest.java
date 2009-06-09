@@ -33,8 +33,8 @@ import javax.jcr.version.VersionHistory;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
- * 24.02.2006
+ * Created by The eXo Platform SAS Author : Peter Nedonosko
+ * peter.nedonosko@exoplatform.com.ua 24.02.2006
  */
 public class BaseVersionTest extends JcrAPIBaseTest {
 
@@ -124,12 +124,15 @@ public class BaseVersionTest extends JcrAPIBaseTest {
       Node doc = versionableNode.getNode(nodeRelPath);
       // PropertyIterator pi = doc1.getProperties();
       // NodeIterator ni = doc1.getNodes();
-      log.info("Node '" + nodeRelPath + "' found in versionable node: " + versionableNode.getPath());
+      if (log.isDebugEnabled())
+        log.debug("Node '" + nodeRelPath + "' found in versionable node: "
+            + versionableNode.getPath());
       if (properties != null) {
         for (String p : properties) {
           try {
             String pValue = doc.getProperty(p).getString();
-            log.info("Node '" + nodeRelPath + "' property " + p + ": " + pValue);
+            if (log.isDebugEnabled())
+              log.debug("Node '" + nodeRelPath + "' property " + p + ": " + pValue);
           } catch (PathNotFoundException e) {
             fail("A child node's '" + nodeRelPath + "' property '" + p + "' must be found");
           }
@@ -153,9 +156,11 @@ public class BaseVersionTest extends JcrAPIBaseTest {
 
     VersionHistory vHistory = versionable.getVersionHistory();
     Version rootVersion = vHistory.getRootVersion();
-    log.info("rootVersion " + rootVersion.getPath());
+    if (log.isDebugEnabled())
+      log.debug("rootVersion " + rootVersion.getPath());
     Version baseVersion = versionable.getBaseVersion();
-    log.info("baseVersion " + baseVersion.getPath());
+    if (log.isDebugEnabled())
+      log.debug("baseVersion " + baseVersion.getPath());
 
     BaseVersionFinder baseVersionFinder = new BaseVersionFinder(baseVersion);
 
@@ -216,8 +221,9 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     } catch (PathNotFoundException e) {
     }
 
-    log.info("versionable " + versionable.getPath() + "\n  jcr:baseVersion "
-        + baseVersion.getPath() + vinfo);
+    if (log.isDebugEnabled())
+      log.debug("versionable " + versionable.getPath() + "\n  jcr:baseVersion "
+          + baseVersion.getPath() + vinfo);
   }
 
   protected List<Value> traverseVersionSubTree(Version ver,
@@ -237,7 +243,8 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     } else {
       vlInfo = (vlInfo.length() > 0 ? " [" + vlInfo + "]" : "");
     }
-    log.info(outPrefix + " " + ver.getName() + vlInfo);
+    if (log.isDebugEnabled())
+      log.debug(outPrefix + " " + ver.getName() + vlInfo);
     Value[] versionSuccessors = getSucessors(ver);
     if (versionSuccessors != null) {
       for (Value sv : versionSuccessors) {
@@ -264,7 +271,8 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     try {
       Value[] refs = getSucessors(ver);
       for (Value ref : refs) {
-        log.info(vp + " sucessor: " + ref.getString());
+        if (log.isDebugEnabled())
+          log.debug(vp + " sucessor: " + ref.getString());
       }
       return refs;
     } catch (PathNotFoundException e) {

@@ -15,7 +15,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestInitializingVersionHistory.java 11908 2008-03-13 16:00:12Z ksm $
+ * @version $Id: TestInitializingVersionHistory.java 11908 2008-03-13 16:00:12Z
+ *          ksm $
  */
 
 public class TestInitializingVersionHistory extends JcrAPIBaseTest {
@@ -59,7 +60,8 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     assertTrue(node.isNodeType("mix:versionable"));
 
     VersionHistory vh = node.getVersionHistory();
-    System.out.println(" node " + node.getUUID() + " " + vh.getProperties().getSize());
+    if (log.isDebugEnabled())
+      log.debug(" node " + node.getUUID() + " " + vh.getProperties().getSize());
     assertEquals(vh.getUUID(), vhRef);
     assertNotNull(vh.getVersionableUUID());
     assertNotNull(vh.getNode("jcr:rootVersion"));
@@ -94,7 +96,8 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     // node.accept(v);
     // log.debug("X "+node.getProperty("jcr:baseVersion"));
     // log.debug("XYYY >>> "+v.getDump());
-    // log.debug("XYYYYYYYYYYYYYYYY "+session1.getTransientNodesManager().dump());
+    //log.debug("XYYYYYYYYYYYYYYYY "+session1.getTransientNodesManager().dump())
+    // ;
 
     root1.save();
 

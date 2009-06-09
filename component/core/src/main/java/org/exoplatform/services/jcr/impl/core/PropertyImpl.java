@@ -1,18 +1,13 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Affero General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ * Copyright (C) 2003-2007 eXo Platform SAS. This program is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU Affero
+ * General Public License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version. This program
+ * is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details. You
+ * should have received a copy of the GNU General Public License along with this
+ * program; if not, see<http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.services.jcr.impl.core;
 
@@ -270,17 +265,7 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   private void initDefinitions(boolean multiple) throws RepositoryException,
                                                 ConstraintViolationException {
-    //
-    // PropertyDefinitions definitions = null;
-    // 
-    // for (ExtendedNodeType nt : getParentNodeTypes()) {
-    // PropertyDefinitions defs = nt.getPropertyDefinitions(pname);
-    // if (defs.getAnyDefinition() != null) { // includes residual set
-    // definitions = defs;
-    // if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
-    // break;
-    // }
-    // }
+
     NodeData parent = parentData();
     InternalQName pname = getData().getQPath().getName();
     PropertyDefinitionDatas definitions = session.getWorkspace()

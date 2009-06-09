@@ -153,9 +153,9 @@ public final class SessionRegistry implements Startable {
       setPriority(Thread.MIN_PRIORITY);
       setDaemon(true);
       start();
-
-      log.info("SessionCleaner instantiated name= " + getName() + " workTime= " + workTime
-          + " sessionTimeOut=" + sessionTimeOut);
+      if (log.isDebugEnabled())
+        log.debug("SessionCleaner instantiated name= " + getName() + " workTime= " + workTime
+            + " sessionTimeOut=" + sessionTimeOut);
     }
 
     @Override

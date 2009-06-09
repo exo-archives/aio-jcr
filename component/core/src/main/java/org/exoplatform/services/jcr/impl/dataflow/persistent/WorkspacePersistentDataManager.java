@@ -436,8 +436,8 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
       mandatoryListeners.add((MandatoryItemsPersistenceListener) listener);
     else
       listeners.add(listener);
-
-    LOG.info("Workspace '" + this.dataContainer.getName() + "' listener registered: " + listener);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Workspace '" + this.dataContainer.getName() + "' listener registered: " + listener);
   }
 
   public void removeItemPersistenceListener(ItemsPersistenceListener listener) {
@@ -446,7 +446,9 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     else
       listeners.remove(listener);
 
-    LOG.info("Workspace '" + this.dataContainer.getName() + "' listener unregistered: " + listener);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Workspace '" + this.dataContainer.getName() + "' listener unregistered: "
+          + listener);
   }
 
   /**

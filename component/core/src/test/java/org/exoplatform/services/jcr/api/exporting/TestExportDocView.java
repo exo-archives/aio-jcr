@@ -31,6 +31,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
@@ -55,7 +56,8 @@ import org.exoplatform.services.jcr.impl.util.StringConverter;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id: TestExportDocView.java 11962 2008-03-16 16:31:14Z gazarenkov $
  */
 
@@ -72,7 +74,8 @@ public class TestExportDocView extends ExportBase {
 
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     try {
-      contentNode.setProperty("jcr:data", new BinaryValue("this is the content"));
+      Value value = new BinaryValue("this is the content");
+      contentNode.setProperty("jcr:data", value);
       contentNode.setProperty("jcr:mimeType", "application/octet-stream");
     } catch (IOException e) {
       throw new RepositoryException(e);
@@ -123,7 +126,8 @@ public class TestExportDocView extends ExportBase {
     Node contentTestPdfNode = testPdf.addNode("jcr:content", "nt:resource");
     try {
       File file = createBLOBTempFile(2500);// 2.5M
-      log.info("=== File has created, size " + file.length());
+      if (log.isDebugEnabled())
+        log.debug("=== File has created, size " + file.length());
       contentTestPdfNode.setProperty("jcr:data", new FileInputStream(file));
       contentTestPdfNode.setProperty("jcr:mimeType", "application/octet-stream");
     } catch (IOException e) {
@@ -133,9 +137,11 @@ public class TestExportDocView extends ExportBase {
                                                               .createValue(Calendar.getInstance()));
     session.save();
     try {
-      log.info("===Starting export...");
+      if (log.isDebugEnabled())
+        log.debug("===Starting export...");
       session.exportDocumentView("/testPdf", out, false, false);
-      log.info("===Export has finished successfully");
+      if (log.isDebugEnabled())
+        log.debug("===Export has finished successfully");
     } catch (Exception e) {
       e.printStackTrace();
       fail("Impossible to export pdf");
@@ -313,7 +319,10 @@ public class TestExportDocView extends ExportBase {
 
   public void testExportStreamNamespaceRemaping() throws Exception {
 
-    Session newSession = repository.login(this.credentials /* session.getCredentials() */);
+    Session newSession = repository.login(this.credentials /*
+                                                            * session.getCredentials
+                                                            * ()
+                                                            */);
 
     newSession.setNamespacePrefix("newjcr", "http://www.jcp.org/jcr/1.0");
 
@@ -337,7 +346,10 @@ public class TestExportDocView extends ExportBase {
 
   public void testExportCHNamespaceRemaping() throws Exception {
 
-    Session newSession = repository.login(this.credentials /* session.getCredentials() */);
+    Session newSession = repository.login(this.credentials /*
+                                                            * session.getCredentials
+                                                            * ()
+                                                            */);
     newSession.setNamespacePrefix("newjcr", "http://www.jcp.org/jcr/1.0");
 
     Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");

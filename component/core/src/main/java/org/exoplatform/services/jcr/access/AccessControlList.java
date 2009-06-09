@@ -28,10 +28,6 @@ import java.util.StringTokenizer;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
-import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
-import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
-import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -41,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: AccessControlList.java 14556 2008-05-21 15:22:15Z pnedonosko $
  */
 
-public class AccessControlList implements Externalizable{
+public class AccessControlList implements Externalizable {
 
   private static final long              serialVersionUID = 5848327750178729120L;
 
@@ -245,5 +241,4 @@ public class AccessControlList implements Externalizable{
   List<AccessControlEntry> getPermissionsList() {
     return accessList;
   }
-
 }

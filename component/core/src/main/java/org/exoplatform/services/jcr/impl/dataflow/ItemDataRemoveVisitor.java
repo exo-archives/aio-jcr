@@ -212,9 +212,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     if (validate) {
       validate(property);
     }
-    // if (!(property instanceof TransientItemData)) {
     property = (PropertyData) copyItemData(property);
-    // }
     ItemState state = new ItemState(property,
                                     ItemState.DELETED,
                                     true,
@@ -304,7 +302,14 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
                                                               prop.getParentIdentifier(),
                                                               prop.isMultiValued());
 
-    List<ValueData> values = new ArrayList<ValueData>();
+    List<ValueData> values = null;
+    // null is possible for deleting items
+    if (prop.getValues() != null) {
+      values = new ArrayList<ValueData>();
+      for (ValueData val : prop.getValues()) {
+        values.add(((AbstractValueData) val).createTransientCopy());
+      }
+    }
     newData.setValues(values);
     return newData;
   }

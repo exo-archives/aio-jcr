@@ -1,18 +1,13 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Affero General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ * Copyright (C) 2003-2008 eXo Platform SAS. This program is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU Affero
+ * General Public License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version. This program
+ * is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details. You
+ * should have received a copy of the GNU General Public License along with this
+ * program; if not, see<http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
@@ -94,7 +89,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 26.11.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
  *         Nedonosko</a>
@@ -339,18 +335,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
     return new ArrayList<ItemDefinitionData>(mandatoryDefs);
   }
-
-  // /**
-  // * Return
-  // *
-  // * @param nodeType
-  // * @return
-  // * @throws RepositoryException
-  // * @throws IOException
-  // */
-  // public Set<String> getNodes(String uri) throws RepositoryException {
-  //
-  // }
 
   /**
    * Return
@@ -876,19 +860,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   /**
    * Check according the JSR-170
-   * 
-   * @param nodeType NodeTypeData to be checked
-   * @return valid NodeTypeData
-   * @throws RepositoryException
    */
-  /**
-   * validateNodeType.
-   * 
-   * @param nodeType
-   * @return
-   * @throws RepositoryException
-   */
-
   protected void validateNodeType(NodeTypeData nodeType) throws RepositoryException {
     if (nodeType == null) {
       throw new RepositoryException("NodeType object " + nodeType + " is null");

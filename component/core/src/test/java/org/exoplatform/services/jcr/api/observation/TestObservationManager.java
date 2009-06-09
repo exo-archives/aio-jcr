@@ -36,7 +36,8 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestObservationManager.java 15053 2008-06-02 10:31:38Z andrew00x $
+ * @version $Id: TestObservationManager.java 15053 2008-06-02 10:31:38Z
+ *          andrew00x $
  */
 public class TestObservationManager extends JcrAPIBaseTest {
 
@@ -93,12 +94,16 @@ public class TestObservationManager extends JcrAPIBaseTest {
     assertEquals(1, observationManager.getRegisteredEventListeners().getSize());
 
     // [PN] 16.06.07
-    // Listener in observation manager is per session, global listeners is registered in observation
+    // Listener in observation manager is per session, global listeners is
+    // registered in observation
     // registry.
     // Listeners list can be acquired there (Impl level).
-    // Session session1 = repository.login(credentials, this.workspace.getName()); // the same ws
-    // ObservationManager observationManager1 = session1.getWorkspace().getObservationManager();
-    // assertEquals(1, observationManager1.getRegisteredEventListeners().getSize());
+    // Session session1 = repository.login(credentials,
+    // this.workspace.getName()); // the same ws
+    // ObservationManager observationManager1 =
+    // session1.getWorkspace().getObservationManager();
+    // assertEquals(1,
+    // observationManager1.getRegisteredEventListeners().getSize());
 
     Session session2 = repository.login(credentials, "ws2"); // another ws
     ObservationManager observationManager2 = session2.getWorkspace().getObservationManager();
@@ -109,7 +114,8 @@ public class TestObservationManager extends JcrAPIBaseTest {
   }
 
   public void testNodeEventGeneration() throws RepositoryException {
-    // ObservationManager observationManager = this.workspace.getObservationManager();
+    // ObservationManager observationManager =
+    // this.workspace.getObservationManager();
     ObservationManager observationManager = repository.getSystemSession("ws")
                                                       .getWorkspace()
                                                       .getObservationManager();
@@ -202,14 +208,16 @@ public class TestObservationManager extends JcrAPIBaseTest {
     ObservationManager observationManager = this.workspace.getObservationManager();
     EventListener listener = new DummyListener(this.log);
 
-    System.out.println("SET PROP>>");
+    if (log.isDebugEnabled())
+      log.debug("SET PROP>>");
     // Add/remove node by explicit path
     observationManager.addEventListener(listener, Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED
         | Event.PROPERTY_REMOVED, "/", true, null, null, false);
     Node node = testRoot.addNode("childNode", "nt:unstructured");
     Property prop = node.setProperty("prop", "prop");
     root.save();
-    System.out.println("SET PROP>>");
+    if (log.isDebugEnabled())
+      log.debug("SET PROP>>");
 
     // SET /childNode/jcr:primaryType and /childNode/prop
     checkEventNumAndCleanCounter(2);
@@ -223,16 +231,19 @@ public class TestObservationManager extends JcrAPIBaseTest {
   }
 
   /*
-   * public void testMultiEventGeneration() throws RepositoryException { ObservationManager
-   * observationManager = this.workspace.getObservationManager(); EventListener listener = new
+   * public void testMultiEventGeneration() throws RepositoryException {
+   * ObservationManager observationManager =
+   * this.workspace.getObservationManager(); EventListener listener = new
    * SimpleListener(this.log); observationManager.addEventListener(listener,
    * Event.NODE_ADDED|Event.PROPERTY_ADDED
-   * |Event.PROPERTY_REMOVED|Event.NODE_REMOVED|Event.PROPERTY_CHANGED, "/", true, null, null,
-   * false); Node node = root.addNode("childNode", "nt:unstructured"); root.save(); Property prop =
-   * node.setProperty("prop", "test"); root.save(); checkAndCleanCounter(3); prop.setValue("test1");
-   * root.save(); checkAndCleanCounter(1); prop.remove(); root.save(); checkAndCleanCounter(1);
-   * node.remove(); root.save(); checkAndCleanCounter(1);
-   * observationManager.removeEventListener(listener); }
+   * |Event.PROPERTY_REMOVED|Event.NODE_REMOVED|Event.PROPERTY_CHANGED, "/",
+   * true, null, null, false); Node node = root.addNode("childNode",
+   * "nt:unstructured"); root.save(); Property prop = node.setProperty("prop",
+   * "test"); root.save(); checkAndCleanCounter(3); prop.setValue("test1");
+   * root.save(); checkAndCleanCounter(1); prop.remove(); root.save();
+   * checkAndCleanCounter(1); node.remove(); root.save();
+   * checkAndCleanCounter(1); observationManager.removeEventListener(listener);
+   * }
    */
 
   public void testMultiListener() throws RepositoryException {
@@ -321,8 +332,8 @@ public class TestObservationManager extends JcrAPIBaseTest {
         Event event = events.nextEvent();
         counter++;
         try {
-          System.out.println("EVENT fired by SimpleListener " + event.getPath() + " "
-              + event.getType());
+          if (log.isDebugEnabled())
+            log.debug("EVENT fired by SimpleListener " + event.getPath() + " " + event.getType());
         } catch (RepositoryException e) {
           e.printStackTrace();
         }
@@ -341,7 +352,8 @@ public class TestObservationManager extends JcrAPIBaseTest {
       while (events.hasNext()) {
         Event event = events.nextEvent();
         counter++;
-        System.out.println("EVENT fired by SimpleListener-1 " + event + " " + event.getType());
+        if (log.isDebugEnabled())
+          log.debug("EVENT fired by SimpleListener-1 " + event + " " + event.getType());
       }
     }
   }

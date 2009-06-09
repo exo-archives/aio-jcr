@@ -40,17 +40,21 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   protected static final Log LOG            = ExoLogger.getLogger("jcr.TransientItemData");
 
-  private int                NULL_VALUE     = -1;
-
-  private int                NOT_NULL_VALUE = 1;
-
-  protected QPath            qpath;
-
   protected String           identifier;
 
   protected String           parentIdentifier;
 
   protected int              persistedVersion;
+
+  protected QPath            qpath;
+
+  private int                NOT_NULL_VALUE = 1;
+
+  private int                NULL_VALUE     = -1;
+
+  // serializable --------------
+  TransientItemData() {
+  }
 
   /**
    * @param path QPath
@@ -63,51 +67,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     this.identifier = identifier;
     this.qpath = path;
     this.persistedVersion = version;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
-   */
-  public QPath getQPath() {
-    return qpath;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#getIdentifier()
-   */
-  public String getIdentifier() {
-    return identifier;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#getPersistedVersion()
-   */
-  public int getPersistedVersion() {
-    return persistedVersion;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentUUID()
-   */
-  public String getParentIdentifier() {
-    return parentIdentifier;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.datamodel.MutableItemData#increasePersistedVersion()
-   */
-  public void increasePersistedVersion() {
-    this.persistedVersion++;
   }
 
   /*
@@ -131,6 +90,33 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     return false;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#getIdentifier()
+   */
+  public String getIdentifier() {
+    return identifier;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentUUID()
+   */
+  public String getParentIdentifier() {
+    return parentIdentifier;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#getPersistedVersion()
+   */
+  public int getPersistedVersion() {
+    return persistedVersion;
+  }
+
   /**
    * @return Qname - shortcut for getQPath().getName();
    */
@@ -138,26 +124,22 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     return qpath.getName();
   }
 
-  // serializable --------------
-  TransientItemData() {
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
+   */
+  public QPath getQPath() {
+    return qpath;
   }
 
-  public void writeExternal(ObjectOutput out) throws IOException {
-    byte[] buf = qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
-    out.writeInt(buf.length);
-    out.write(buf);
-
-    out.writeInt(identifier.getBytes().length);
-    out.write(identifier.getBytes());
-
-    if (parentIdentifier != null) {
-      out.writeInt(NOT_NULL_VALUE);
-      out.writeInt(parentIdentifier.getBytes().length);
-      out.write(parentIdentifier.getBytes());
-    } else
-      out.writeInt(NULL_VALUE);
-
-    out.writeInt(persistedVersion);
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.MutableItemData#increasePersistedVersion()
+   */
+  public void increasePersistedVersion() {
+    this.persistedVersion++;
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -193,6 +175,24 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     }
 
     persistedVersion = in.readInt();
+  }
+
+  public void writeExternal(ObjectOutput out) throws IOException {
+    byte[] buf = qpath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+    out.writeInt(buf.length);
+    out.write(buf);
+
+    out.writeInt(identifier.getBytes().length);
+    out.write(identifier.getBytes());
+
+    if (parentIdentifier != null) {
+      out.writeInt(NOT_NULL_VALUE);
+      out.writeInt(parentIdentifier.getBytes().length);
+      out.write(parentIdentifier.getBytes());
+    } else
+      out.writeInt(NULL_VALUE);
+
+    out.writeInt(persistedVersion);
   }
 
 }

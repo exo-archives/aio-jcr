@@ -276,7 +276,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
           } catch (NamespaceException e) {
             nsRegistry.registerNamespace(prefix, uri);
           }
-          log.info("Namespace is registered " + prefix + " = " + uri);
+          if (log.isDebugEnabled())
+            log.debug("Namespace is registered " + prefix + " = " + uri);
         }
       } catch (Exception e) {
         log.error("Error load namespaces ", e);
@@ -318,9 +319,11 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
           } catch (Exception e) {
             throw new RepositoryException(e);
           }
-          log.info("Trying register node types from xml-file " + nodeTypeFilesName);
+          if (log.isDebugEnabled())
+            log.debug("Trying register node types from xml-file " + nodeTypeFilesName);
           ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-          log.info("Node types is registered from xml-file " + nodeTypeFilesName);
+          if (log.isDebugEnabled())
+            log.debug("Node types is registered from xml-file " + nodeTypeFilesName);
         }
         List<String> defaultNodeTypesFiles = plugin.getNodeTypesFiles(repositoryName);
         if (defaultNodeTypesFiles != null && defaultNodeTypesFiles.size() > 0) {

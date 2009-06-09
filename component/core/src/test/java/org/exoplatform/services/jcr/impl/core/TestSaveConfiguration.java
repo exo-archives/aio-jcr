@@ -38,9 +38,11 @@ public class TestSaveConfiguration extends JcrImplBaseTest {
     RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
     for (RepositoryEntry rEntry : service.getConfig().getRepositoryConfigurations()) {
-      log.info("=Repository " + rEntry.getName());
+      if (log.isDebugEnabled())
+        log.debug("=Repository " + rEntry.getName());
       for (WorkspaceEntry wsEntry : rEntry.getWorkspaceEntries()) {
-        log.info("===Workspace " + wsEntry.getName());
+        if (log.isDebugEnabled())
+          log.debug("===Workspace " + wsEntry.getName());
       }
     }
 

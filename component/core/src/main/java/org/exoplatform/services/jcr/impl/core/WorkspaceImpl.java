@@ -87,8 +87,6 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   private final NamespaceRegistryImpl namespaceRegistry;
 
-  // private final NodeTypeManager nodeTypeManager;
-
   private final NodeTypeDataManager   nodeTypeManager;
 
   private final ObservationManager    observationManager;
@@ -107,10 +105,6 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     this.observationManager = observationManager;
 
     this.namespaceRegistry = (NamespaceRegistryImpl) container.getComponentInstanceOfType(NamespaceRegistry.class);
-    // this.nodeTypeManager = ((NodeTypeManagerImpl)
-    // container.getComponentInstanceOfType(NodeTypeManagerImpl
-    // .class)).createWorkspaceNTManager(session);
-
     this.nodeTypeManager = (NodeTypeDataManager) container.getComponentInstanceOfType(NodeTypeDataManager.class);
 
     QueryManagerFactory qf = (QueryManagerFactory) container.getComponentInstanceOfType(QueryManagerFactory.class);
@@ -344,6 +338,12 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   }
 
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.core.ExtendedWorkspace#importXML(java.lang
+   * .String, java.io.InputStream, int, boolean)
+   */
   public void importXML(String parentAbsPath,
                         InputStream in,
                         int uuidBehavior,

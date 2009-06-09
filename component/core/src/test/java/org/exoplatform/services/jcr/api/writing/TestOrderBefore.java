@@ -31,11 +31,10 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS 27.12.2006
  * 
- * 27.12.2006
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: TestOrderBefore.java 11962 2008-03-16 16:31:14Z gazarenkov $
  */
 public class TestOrderBefore extends JcrAPIBaseTest {
@@ -160,7 +159,8 @@ public class TestOrderBefore extends JcrAPIBaseTest {
    */
   private void checkOrder(Node testRoot, String[] nodes) throws Exception {
 
-    log.info(">>>> CHECK ORDER >>>>");
+    if (log.isDebugEnabled())
+      log.debug(">>>> CHECK ORDER >>>>");
 
     NodeIterator childs = testRoot.getNodes();
     int orderPos = -1;
@@ -171,7 +171,7 @@ public class TestOrderBefore extends JcrAPIBaseTest {
       if (!next.getPath().endsWith(nodeName)) {
         String failMsg = "Nodes order is invalid. Expected: " + nodeName + ". Found: "
             + next.getPath() + ". Position: " + orderPos;
-        log.info(failMsg);
+        log.error(failMsg);
         fail(failMsg);
       }
       String mixins = "";
@@ -179,9 +179,13 @@ public class TestOrderBefore extends JcrAPIBaseTest {
         mixins += nt.getName() + " ";
       }
       mixins = mixins.trim();
-      log.info(">> " + next.getPath() + ", " + next.getPrimaryNodeType().getName() + " " + mixins);
+      if (log.isDebugEnabled())
+        log.debug(">> " + next.getPath() + ", " + next.getPrimaryNodeType().getName() + " "
+            + mixins);
+
     }
-    log.info("<<<< CHECK ORDER <<<<");
+    if (log.isDebugEnabled())
+      log.debug("<<<< CHECK ORDER <<<<");
   }
 
   /**
@@ -191,8 +195,7 @@ public class TestOrderBefore extends JcrAPIBaseTest {
    */
   private void checkOrderAnotherSession(String[] nodes) throws Exception {
 
-    Session newSession = repository.login(this.credentials,
-                                          session.getWorkspace().getName());
+    Session newSession = repository.login(this.credentials, session.getWorkspace().getName());
     Node testRoot = newSession.getRootNode().getNode(TEST_ROOT);
     checkOrder(testRoot, nodes);
     newSession.logout();
@@ -358,7 +361,8 @@ public class TestOrderBefore extends JcrAPIBaseTest {
     checkOrderAnotherSession(order);
   }
 
-  // ----- Same-name sibling use-case: child nodes n1, n1[2], n1[3], n1[4]. n1[3] -
+  // ----- Same-name sibling use-case: child nodes n1, n1[2], n1[3], n1[4].
+  // n1[3] -
   // mix:referenceable -----
 
   public void testOrderBegin_SNS2() throws Exception {
@@ -368,7 +372,8 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1[3]", "n1");
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3] -> n1
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3]
+    // -> n1
 
     checkOrder(order);
 
@@ -400,7 +405,9 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1[4]", "n1[2]");
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3] -> n1[4]
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3]
+    // ->
+    // n1[4]
 
     checkOrder(order);
 
@@ -432,7 +439,10 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1", "n1[3]");
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3] is unchanged in
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3]
+    // is
+    // unchanged
+    // in
     // location
 
     checkOrder(order);
@@ -470,7 +480,9 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1[2]", "n1[4]");
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3] -> n1[2]
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3]
+    // ->
+    // n1[2]
 
     checkOrder(order);
 
@@ -502,7 +514,9 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1[2]", null);
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3] -> n1[2]
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3]
+    // ->
+    // n1[2]
 
     checkOrder(order);
 
@@ -527,7 +541,8 @@ public class TestOrderBefore extends JcrAPIBaseTest {
     }
   }
 
-  // ----- Same-name sibling use-case: child nodes n1, n1[2], n1[3], n1[4], n2. n1[3] -
+  // ----- Same-name sibling use-case: child nodes n1, n1[2], n1[3], n1[4], n2.
+  // n1[3] -
   // mix:referenceable -----
 
   public void testOrderBegin_SNS3() throws Exception {
@@ -537,7 +552,11 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n2", "n1");
 
-    String[] order = new String[] { "n2", "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1[3] unchanged
+    String[] order = new String[] { "n2", "n1", "n1[2]", "n1[3]", "n1[4]" }; // n1
+    // [
+    // 3
+    // ]
+    // unchanged
 
     checkOrder(order);
 
@@ -569,7 +588,11 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n2", "n1[3]");
 
-    String[] order = new String[] { "n1", "n1[2]", "n2", "n1[3]", "n1[4]" }; // n1[3] unchanged
+    String[] order = new String[] { "n1", "n1[2]", "n2", "n1[3]", "n1[4]" }; // n1
+    // [
+    // 3
+    // ]
+    // unchanged
 
     checkOrder(order);
 
@@ -601,7 +624,16 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1", "n2");
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]", "n2" }; // n1[3] -> n1[2]
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]", "n2" }; // n1
+    // [
+    // 3
+    // ]
+    // -
+    // >
+    // n1
+    // [
+    // 2
+    // ]
 
     checkOrder(order);
 
@@ -636,7 +668,16 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1[2]", "n1[4]");
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]", "n2" }; // n1[3] -> n1[2]
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n1[4]", "n2" }; // n1
+    // [
+    // 3
+    // ]
+    // -
+    // >
+    // n1
+    // [
+    // 2
+    // ]
 
     checkOrder(order);
 
@@ -668,7 +709,16 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     testBase.orderBefore("n1[3]", null);
 
-    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n2", "n1[4]" }; // n1[3] -> n1[4]
+    String[] order = new String[] { "n1", "n1[2]", "n1[3]", "n2", "n1[4]" }; // n1
+    // [
+    // 3
+    // ]
+    // -
+    // >
+    // n1
+    // [
+    // 4
+    // ]
 
     checkOrder(order);
 
@@ -695,8 +745,8 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
   // ================= Large arrays of nodes ================
   /**
-   * Test of case when an index text length in the item path is differs from one new creted by
-   * reorder. E.g. n1[2] -> n1[100]
+   * Test of case when an index text length in the item path is differs from one
+   * new creted by reorder. E.g. n1[2] -> n1[100]
    */
   public void testLargeNodesArray() throws Exception {
     initSNSCaseLargeArray();
@@ -709,16 +759,20 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     // === step 1 ===
 
-    // n1[2] -> n1[100] pos:120; n_21 = pos:121; ... n1[3] -> pos:2; n1[99] -> n1[98] pos:98;
+    // n1[2] -> n1[100] pos:120; n_21 = pos:121; ... n1[3] -> pos:2; n1[99] ->
+    // n1[98] pos:98;
     // n1[100] -> n1[99] pos:99
     testBase.orderBefore("n1[2]", "n_21");
 
     EntityCollection nodes = (EntityCollection) testBase.getNodes();
 
-    assertEquals("Nodes must be equals ", n1__2, nodes.getList().get(119)); // pos: 120
+    assertEquals("Nodes must be equals ", n1__2, nodes.getList().get(119)); // pos
+    // :
+    // 120
     assertEquals("Nodes must be equals ", n1__2, testBase.getNode("n1[100]"));
 
-    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(120)); // pos: 121
+    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(120)); //pos:
+    // 121
     assertEquals("Nodes must be equals ", n_21, testBase.getNode("n_21"));
 
     assertTrue("Node must exists ", testBase.hasNode("n1[2]"));
@@ -727,10 +781,13 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     nodes = (EntityCollection) testBase.getNodes();
 
-    assertEquals("Nodes must be equals ", n1__2, nodes.getList().get(119)); // pos: 120
+    assertEquals("Nodes must be equals ", n1__2, nodes.getList().get(119)); // pos
+    // :
+    // 120
     assertEquals("Nodes must be equals ", n1__2, testBase.getNode("n1[100]"));
 
-    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(120)); // pos: 121
+    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(120)); //pos:
+    // 121
     assertEquals("Nodes must be equals ", n_21, testBase.getNode("n_21"));
 
     assertTrue("Node must exists ", testBase.hasNode("n1[2]"));
@@ -744,24 +801,32 @@ public class TestOrderBefore extends JcrAPIBaseTest {
 
     nodes = (EntityCollection) testBase.getNodes();
 
-    assertEquals("Nodes must be equals ", n1__100, nodes.getList().get(120)); // pos: 121
+    assertEquals("Nodes must be equals ", n1__100, nodes.getList().get(120)); // pos
+    // :
+    // 121
     assertEquals("Nodes must be equals ", n1__100, testBase.getNode("n1[100]"));
 
-    assertEquals("Nodes must be equals ", n_24, nodes.getList().get(119)); // pos: 120
+    assertEquals("Nodes must be equals ", n_24, nodes.getList().get(119)); //pos:
+    // 120
     assertEquals("Nodes must be equals ", n_24, testBase.getNode("n_24"));
 
-    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(121)); // pos: 122
+    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(121)); //pos:
+    // 122
     assertEquals("Nodes must be equals ", n_21, testBase.getNode("n_21"));
 
     testBase.save();
 
-    assertEquals("Nodes must be equals ", n1__100, nodes.getList().get(120)); // pos: 121
+    assertEquals("Nodes must be equals ", n1__100, nodes.getList().get(120)); // pos
+    // :
+    // 121
     assertEquals("Nodes must be equals ", n1__100, testBase.getNode("n1[100]"));
 
-    assertEquals("Nodes must be equals ", n_24, nodes.getList().get(119)); // pos: 120
+    assertEquals("Nodes must be equals ", n_24, nodes.getList().get(119)); //pos:
+    // 120
     assertEquals("Nodes must be equals ", n_24, testBase.getNode("n_24"));
 
-    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(121)); // pos: 122
+    assertEquals("Nodes must be equals ", n_21, nodes.getList().get(121)); //pos:
+    // 122
     assertEquals("Nodes must be equals ", n_21, testBase.getNode("n_21"));
   }
 

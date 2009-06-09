@@ -173,9 +173,10 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
               con.createStatement().executeUpdate("CREATE INDEX " + sqlVCASIDX + " ON " + tableName
                   + "(CAS_ID, PROPERTY_ID, ORDER_NUM)");
 
-              LOG.info("JDBC Value Content Address Storage initialized in database " + sn);
-            } else
-              LOG.info("JDBC Value Content Address Storage already initialized in database " + sn);
+              if (LOG.isDebugEnabled())
+                LOG.debug("JDBC Value Content Address Storage initialized in database " + sn);
+            } else if (LOG.isDebugEnabled())
+              LOG.debug("JDBC Value Content Address Storage already initialized in database " + sn);
           } finally {
             con.close();
           }

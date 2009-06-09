@@ -66,14 +66,14 @@ public class TestSession extends JcrAPIBaseTest {
     Session session2 = session.impersonate(new CredentialsImpl("user", new char[0]));
     assertNotSame(session, session2);
     /*
-     * 6.2.1 The new Session is tied to a new Workspace instance. In other words, Workspace
-     * instances are not re-used.
+     * 6.2.1 The new Session is tied to a new Workspace instance. In other
+     * words, Workspace instances are not re-used.
      */
     assertNotSame(session.getWorkspace(), session2.getWorkspace());
     /*
-     * 6.2.1 However, the Workspace instance returned represents the same actual persistent
-     * workspace entity in the repository as is represented by the Workspace object tied to this
-     * Session.
+     * 6.2.1 However, the Workspace instance returned represents the same actual
+     * persistent workspace entity in the repository as is represented by the
+     * Workspace object tied to this Session.
      */
     assertEquals(session.getWorkspace().getName(), session2.getWorkspace().getName());
   }
@@ -123,17 +123,20 @@ public class TestSession extends JcrAPIBaseTest {
                                                        .createValue(Calendar.getInstance()));
 
     try {
-      // log.debug("SDM before save: "+session.getTransientNodesManager().dump());
+      //log.debug("SDM before save: "+session.getTransientNodesManager().dump())
+      // ;
       session.save();
       // child = child.getNode("jcr:content");
       assertNotNull(contentNode.getUUID());
-      // System.out.println("LOC>>>"+session.getNodesManager().getLocation(contentNode.getUUID()));
+      // System.out.println("LOC>>>"+session.getNodesManager().getLocation(
+      // contentNode.getUUID()));
       Node n = session.getNodeByUUID(contentNode.getUUID());
       assertNotNull(n);
       assertEquals(contentNode.getPath(), n.getPath());
     } finally {
       // folder.refresh(false);
-      log.debug("SDM before remove: " + session.getTransientNodesManager().dump());
+      if (log.isDebugEnabled())
+        log.debug("SDM before remove: " + session.getTransientNodesManager().dump());
       folder.remove();
       session.save();
     }

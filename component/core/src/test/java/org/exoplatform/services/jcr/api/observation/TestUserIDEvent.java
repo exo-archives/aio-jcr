@@ -27,8 +27,9 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
- * reshetnyak.alex@gmail.com 20.06.2007 10:36:07
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 20.06.2007
+ * 10:36:07
  * 
  * @version $Id: TestUserIDEvent.java 20.06.2007 10:36:07 rainfox
  */
@@ -68,8 +69,8 @@ public class TestUserIDEvent extends JcrAPIBaseTest implements EventListener {
         Event event = events.nextEvent();
         String userId = event.getUserID();
 
-        log.info("UserID     : " + userId);
-        log.info("Event path : " + event.getPath());
+        log.debug("UserID     : " + userId);
+        log.debug("Event path : " + event.getPath());
 
         assertEquals("exo", userId);
       }

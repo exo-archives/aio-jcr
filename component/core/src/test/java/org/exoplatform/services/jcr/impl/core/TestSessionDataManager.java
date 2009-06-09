@@ -74,9 +74,11 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
   @Override
   public void tearDown() throws Exception {
-    log.info(" >before delete> " + modificationManager.dump());
+    if (log.isDebugEnabled())
+      log.debug(" >before delete> " + modificationManager.dump());
     modificationManager.delete(testRoot.nodeData());
-    log.info(" >after delete> " + modificationManager.dump());
+    if (log.isDebugEnabled())
+      log.debug(" >after delete> " + modificationManager.dump());
     modificationManager.commit(testRoot.nodeData().getQPath());
 
     // testRoot.remove();
@@ -146,7 +148,8 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     // in case for GC
     Thread.sleep(1000);
     // 1 node and 1 prop
-    log.info(" >>>>> >>>> > " + modificationManager.dump());
+    if (log.isDebugEnabled())
+      log.debug(" >>>>> >>>> > " + modificationManager.dump());
 
     // /TestSessionDataManager/testItemReferencePoolProp1
     // /TestSessionDataManager

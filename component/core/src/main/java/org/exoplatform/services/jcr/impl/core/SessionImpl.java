@@ -706,6 +706,12 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     importXML(parentAbsPath, in, uuidBehavior, context);
   }
 
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.core.ExtendedSession#importXML(java.lang.String
+   * , java.io.InputStream, int, boolean)
+   */
   public void importXML(String parentAbsPath,
                         InputStream in,
                         int uuidBehavior,

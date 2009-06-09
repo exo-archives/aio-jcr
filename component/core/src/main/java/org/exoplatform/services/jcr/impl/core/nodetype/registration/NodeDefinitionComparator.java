@@ -300,47 +300,13 @@ public class NodeDefinitionComparator extends AbstractDefinitionComparator<NodeD
     }
   }
 
-  // private void _init(NodeDefinitionData[] ancestorDefinition,
-  // NodeDefinitionData[] recipientDefinition,
-  // List<NodeDefinitionData> sameDefinitionData,
-  // List<RelatedDefinition<NodeDefinitionData>> changedDefinitionData,
-  // List<NodeDefinitionData> newDefinitionData,
-  // List<NodeDefinitionData> removedDefinitionData) {
-  // for (int i = 0; i < recipientDefinition.length; i++) {
-  // boolean isNew = true;
-  // for (int j = 0; j < ancestorDefinition.length; j++) {
-  // if
-  // (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName()))
-  // {
-  // isNew = false;
-  // if (recipientDefinition[i].equals(ancestorDefinition[j]))
-  // sameDefinitionData.add(recipientDefinition[i]);
-  // else {
-  // RelatedDefinition<NodeDefinitionData> relatedDefinition = new
-  // RelatedDefinition<NodeDefinitionData>(ancestorDefinition[j],
-  // recipientDefinition[i]);
-  // changedDefinitionData.add(relatedDefinition);
-  // }
-  // }
-  // }
-  // if (isNew)
-  // newDefinitionData.add(recipientDefinition[i]);
-  // }
-  // for (int i = 0; i < ancestorDefinition.length; i++) {
-  // boolean isRemoved = true;
-  // for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-  // if
-  // (recipientDefinition[j].getName().equals(ancestorDefinition[i].getName()))
-  // {
-  // isRemoved = false;
-  // break;
-  // }
-  // }
-  // if (isRemoved)
-  // removedDefinitionData.add(ancestorDefinition[i]);
-  // }
-  // }
-
+  /**
+   * @param nodeTypeName
+   * @param newDefinitionData
+   * @param nodes
+   * @param recipientDefinition
+   * @throws RepositoryException
+   */
   private void validateAdded(InternalQName nodeTypeName,
                              List<NodeDefinitionData> newDefinitionData,
                              Set<String> nodes,
@@ -369,6 +335,13 @@ public class NodeDefinitionComparator extends AbstractDefinitionComparator<NodeD
 
   }
 
+  /**
+   * @param registeredNodeType
+   * @param changedDefinitionData
+   * @param nodes
+   * @param allRecipientDefinition
+   * @throws RepositoryException
+   */
   private void validateChanged(InternalQName registeredNodeType,
                                List<RelatedDefinition<NodeDefinitionData>> changedDefinitionData,
                                Set<String> nodes,
@@ -432,6 +405,13 @@ public class NodeDefinitionComparator extends AbstractDefinitionComparator<NodeD
     }
   }
 
+  /**
+   * @param registeredNodeType
+   * @param removedDefinitionData
+   * @param recipientDefinition
+   * @throws ConstraintViolationException
+   * @throws RepositoryException
+   */
   private void validateRemoved(NodeTypeData registeredNodeType,
                                List<NodeDefinitionData> removedDefinitionData,
                                NodeDefinitionData[] recipientDefinition) throws ConstraintViolationException,

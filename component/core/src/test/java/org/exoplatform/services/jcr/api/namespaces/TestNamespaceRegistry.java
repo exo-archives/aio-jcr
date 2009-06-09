@@ -24,6 +24,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.lucene.search.BooleanQuery;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.ExtendedNamespaceRegistry;
@@ -256,4 +257,29 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest {
     assertFalse(nodes.contains(((NodeImpl) test3).getData().getIdentifier()));
   }
 
+  public void testTooManyFields() {
+    try {
+      namespaceRegistry.registerNamespace("tmf", "http://www.tmf.org/jcr");
+
+      int defClausesCount = BooleanQuery.getMaxClauseCount();
+      Node tr = root.addNode("testRoot");
+      for (int i = 0; i < defClausesCount + 10; i++) {
+        tr.setProperty("prop" + i, i);
+      }
+      session.save();
+      // ok
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail();
+    }
+    try {
+      namespaceRegistry.unregisterNamespace("tmf");
+    } catch (NamespaceException e) {
+      e.printStackTrace();
+      fail();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail();
+    }
+  }
 }

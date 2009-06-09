@@ -112,7 +112,8 @@ public class TestItem extends JcrAPIBaseTest {
     List<PropertyData> props = session.getTransientNodesManager()
                                       .getChildPropertiesData((NodeData) ((NodeImpl) node22).getData());
     for (PropertyData prop : props) {
-      System.out.println("PROPS >>>>>>>>>>>> " + prop.getQPath().getAsString());
+      if (log.isDebugEnabled())
+        log.debug("PROPS >>>>>>>>>>>> " + prop.getQPath().getAsString());
     }
 
     try {

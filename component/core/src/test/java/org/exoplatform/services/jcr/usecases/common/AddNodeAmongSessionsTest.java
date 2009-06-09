@@ -34,7 +34,8 @@ public class AddNodeAmongSessionsTest extends BaseUsecasesTest {
 
   public void testAddNodeAmongSession() throws Exception {
     String workspaceName = repository.getSystemWorkspaceName();
-    // Session systemSession = repositoryService.getRepository().getSystemSession(workspaceName) ;
+    // Session systemSession =
+    // repositoryService.getRepository().getSystemSession(workspaceName) ;
     Session systemSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
                                              workspaceName);
 
@@ -75,7 +76,7 @@ public class AddNodeAmongSessionsTest extends BaseUsecasesTest {
     Node parentNode = jcrSystemNode.getNode("Node1");
     List perms = ((NodeImpl) parentNode).getACL().getPermissionEntries();
     for (int i = 0; i < perms.size(); i++) {
-      log.info("PERM >>>> " + perms.get(i));
+      log.debug("PERM >>>> " + perms.get(i));
     }
 
     assertTrue(parentNode.getNodes().getSize() > 0);

@@ -59,9 +59,10 @@ public class TestNodeReference extends JcrAPIBaseTest {
     root.save();
 
     PropertyIterator refs = testNode.getReferences();
-    while (refs.hasNext())
-      log.info("ref >>>" + refs.nextProperty());
-
+    if (log.isDebugEnabled())
+      while (refs.hasNext()) {
+        log.debug("ref >>>" + refs.nextProperty());
+      }
     assertEquals(2, testNode.getReferences().getSize());
     assertEquals(1, testNode1.getReferences().getSize());
 
@@ -133,24 +134,30 @@ public class TestNodeReference extends JcrAPIBaseTest {
       root.save();
 
       PropertyIterator refs = testNode.getReferences();
-      while (refs.hasNext()) {
-        Property p = refs.nextProperty();
-        log.info(testNode.getPath() + " ref >>> " + p.getPath());
-      }
+      if (log.isDebugEnabled())
+        while (refs.hasNext()) {
+          Property p = refs.nextProperty();
+
+          log.debug(testNode.getPath() + " ref >>> " + p.getPath());
+        }
       assertEquals(4, testNode.getReferences().getSize());
 
       refs = testNode1.getReferences();
-      while (refs.hasNext()) {
-        Property p = refs.nextProperty();
-        log.info(testNode1.getPath() + " ref >>> " + p.getPath());
-      }
+      if (log.isDebugEnabled())
+        while (refs.hasNext()) {
+          Property p = refs.nextProperty();
+
+          log.debug(testNode1.getPath() + " ref >>> " + p.getPath());
+        }
       assertEquals(5, testNode1.getReferences().getSize());
 
       refs = testNode2.getReferences();
-      while (refs.hasNext()) {
-        Property p = refs.nextProperty();
-        log.info(testNode2.getPath() + " ref >>> " + p.getPath());
-      }
+      if (log.isDebugEnabled())
+        while (refs.hasNext()) {
+          Property p = refs.nextProperty();
+
+          log.debug(testNode2.getPath() + " ref >>> " + p.getPath());
+        }
       assertEquals(2, testNode2.getReferences().getSize());
 
       testNode.remove();
@@ -199,24 +206,30 @@ public class TestNodeReference extends JcrAPIBaseTest {
       root.save();
 
       refs = testNode.getReferences();
-      while (refs.hasNext()) {
-        Property p = refs.nextProperty();
-        log.info(testNode.getPath() + " ref >>> " + p.getPath());
-      }
+      if (log.isDebugEnabled())
+        while (refs.hasNext()) {
+          Property p = refs.nextProperty();
+
+          log.debug(testNode.getPath() + " ref >>> " + p.getPath());
+        }
       assertEquals(0, testNode.getReferences().getSize());
 
       refs = testNode1.getReferences();
-      while (refs.hasNext()) {
-        Property p = refs.nextProperty();
-        log.info(testNode1.getPath() + " ref >>> " + p.getPath());
-      }
+      if (log.isDebugEnabled())
+        while (refs.hasNext()) {
+          Property p = refs.nextProperty();
+
+          log.debug(testNode1.getPath() + " ref >>> " + p.getPath());
+        }
       assertEquals(5, testNode1.getReferences().getSize());
 
       refs = testNode2.getReferences();
-      while (refs.hasNext()) {
-        Property p = refs.nextProperty();
-        log.info(testNode2.getPath() + " ref >>> " + p.getPath());
-      }
+      if (log.isDebugEnabled())
+        while (refs.hasNext()) {
+          Property p = refs.nextProperty();
+
+          log.debug(testNode2.getPath() + " ref >>> " + p.getPath());
+        }
       assertEquals(2, testNode2.getReferences().getSize());
 
       testNode.remove();

@@ -119,7 +119,8 @@ public class TestNode extends JcrAPIBaseTest {
     assertEquals(node.toString(), root.getNode("childNode").toString());
 
     // not allowed!
-    // root.getNode("childNode/childNode2/jcr:content").setProperty("myapp:temp", new
+    // root.getNode("childNode/childNode2/jcr:content").setProperty("myapp:temp",
+    // new
     // StringValue("Temp"));
 
     Session session2 = repository.login(credentials, WORKSPACE);
@@ -283,7 +284,8 @@ public class TestNode extends JcrAPIBaseTest {
     // log.debug("Set prop");
     node2.getProperty("jcr:data").setValue(valueFactory.createValue(valueNew.toString(),
                                                                     PropertyType.BINARY));
-    // node2.setProperty("jcr:data", valueFactory.createValue("this is the NEW value",
+    // node2.setProperty("jcr:data",
+    // valueFactory.createValue("this is the NEW value",
     // PropertyType.BINARY));
     session2.save();
     // log.debug("Set prop end");

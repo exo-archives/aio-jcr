@@ -33,7 +33,10 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.picocontainer.ComponentAdapter;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AuthenticationPolicy;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -43,7 +46,6 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
-import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -53,13 +55,12 @@ import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataMan
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
-import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
-import org.picocontainer.ComponentAdapter;
 
 /**
- * Created by The eXo Platform SAS.<br/> Implementation of javax.jcr.Repository
+ * Created by The eXo Platform SAS.<br/>
+ * Implementation of javax.jcr.Repository
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id: RepositoryImpl.java 14487 2008-05-20 07:08:40Z gazarenkov $
@@ -185,7 +186,18 @@ public class RepositoryImpl implements ManageableRepository {
           + "' is presumably initialized. config canceled");
     }
 
-    repositoryContainer.registerWorkspace(wsConfig);
+    try {
+      repositoryContainer.registerWorkspace(wsConfig);
+    } catch (RepositoryConfigurationException e) {
+      WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(wsConfig.getName());
+      repositoryContainer.unregisterComponentByInstance(workspaceContainer);
+      repositoryContainer.unregisterComponent(wsConfig.getName());
+    } catch (RepositoryException e) {
+      WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(wsConfig.getName());
+      repositoryContainer.unregisterComponentByInstance(workspaceContainer);
+      repositoryContainer.unregisterComponent(wsConfig.getName());
+      throw e;
+    }
   }
 
   /**
@@ -333,7 +345,7 @@ public class RepositoryImpl implements ManageableRepository {
                                .isWorkspaceInitialized())
           workspaceNames.add(workspaceName);
       } catch (RuntimeException e) {
-        LOG.warn(e.toString());
+        LOG.warn(e.getLocalizedMessage());
       }
 
     }

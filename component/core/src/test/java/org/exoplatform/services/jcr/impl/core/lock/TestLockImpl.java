@@ -34,7 +34,9 @@ public class TestLockImpl extends JcrImplBaseTest {
   private static final long LOCK_TIMEOUT      = 5;                            // sec
 
   private static final long LOCK_REMOVER_WAIT = LockRemover.DEFAULT_THREAD_TIMEOUT
-                                                  + (LOCK_TIMEOUT + 1) * 1000; // 15sec
+                                                  + (LOCK_TIMEOUT + 1) * 1000; // 15
+
+  // sec
 
   public void setUp() throws Exception {
 
@@ -59,8 +61,9 @@ public class TestLockImpl extends JcrImplBaseTest {
 
       assertTrue(lockedNode.isLocked());
       lock.setTimeOut(LOCK_TIMEOUT);// 5 sec
-      log.info("Stoping thread. Wait for removing lock for node "
-          + ((NodeImpl) lockedNode).getData().getIdentifier() + "by LockRemover");
+      if (log.isDebugEnabled())
+        log.debug("Stoping thread. Wait for removing lock for node "
+            + ((NodeImpl) lockedNode).getData().getIdentifier() + "by LockRemover");
       Thread.sleep(LOCK_REMOVER_WAIT);
       assertFalse(lockedNode.isLocked());
 
@@ -76,7 +79,8 @@ public class TestLockImpl extends JcrImplBaseTest {
       LockImpl lock = (LockImpl) lockedNode.lock(true, true);
       assertTrue(lockedNode.isLocked());
       lock.setTimeOut(LOCK_TIMEOUT); // sec
-      log.info("Stoping thread. Wait for removing lock by LockRemover");
+      if (log.isDebugEnabled())
+        log.debug("Stoping thread. Wait for removing lock by LockRemover");
       Thread.sleep(LOCK_REMOVER_WAIT);
       assertTrue(lockedNode.isLocked());
       lockedNode.unlock();

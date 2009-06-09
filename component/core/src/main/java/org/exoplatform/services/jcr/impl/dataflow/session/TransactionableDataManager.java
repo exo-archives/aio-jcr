@@ -174,7 +174,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
    */
   public void commit() throws TransactionException {
     if (txStarted()) {
-      log.debug("tx commit() " + this + "\n" + transactionLog.dump());
+      if (log.isDebugEnabled())
+        log.debug("tx commit() " + this + "\n" + transactionLog.dump());
       try {
         storageDataManager.save(transactionLog);
         transactionLog = null;
@@ -190,8 +191,9 @@ public class TransactionableDataManager implements TransactionResource, DataMana
    * {@inheritDoc}
    */
   public void rollback() {
-    log.debug("tx rollback() " + this
-        + (transactionLog != null ? "\n" + transactionLog.dump() : "[NULL]"));
+    if (log.isDebugEnabled())
+      log.debug("tx rollback() " + this
+          + (transactionLog != null ? "\n" + transactionLog.dump() : "[NULL]"));
     if (txStarted())
       transactionLog = null;
   }
