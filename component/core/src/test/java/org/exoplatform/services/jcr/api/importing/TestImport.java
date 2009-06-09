@@ -18,25 +18,28 @@ package org.exoplatform.services.jcr.api.importing;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import javax.jcr.ImportUUIDBehavior;
-import javax.jcr.NamespaceException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.BaseStandaloneTest;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.util.VersionHistoryImporter;
@@ -411,13 +414,15 @@ public class TestImport extends AbstractImportTest {
    * 
    * @throws Exception
    */
-  public void testAclImport() throws Exception {
+  public void testAclImportDocumentView() throws Exception {
     AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
 
-    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot");
+    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
 
     testRoot.addMixin("exo:owneable");
     testRoot.addMixin("exo:privilegeable");
+    testRoot.setProperty("exo:title", "test");
+
     session.save();
     assertTrue(accessManager.hasPermission(testRoot.getACL(),
                                            PermissionType.SET_PROPERTY,
@@ -449,12 +454,14 @@ public class TestImport extends AbstractImportTest {
                 new BufferedInputStream(new FileInputStream(tmp)));
     session.save();
     Node n1 = importRoot.getNode("TestRoot");
-    assertTrue(accessManager.hasPermission(((NodeImpl) n1).getACL(),
-                                           PermissionType.SET_PROPERTY,
-                                           new Identity("exo")));
-    assertFalse(accessManager.hasPermission(((NodeImpl) n1).getACL(),
-                                            PermissionType.READ,
-                                            new Identity("exo")));
+    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                        PermissionType.SET_PROPERTY,
+                                                        new Identity("exo")));
+    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                         PermissionType.READ,
+                                                         new Identity("exo")));
+    importRoot.remove();
+    session.save();
   }
 
   /**
@@ -462,11 +469,37 @@ public class TestImport extends AbstractImportTest {
    * 
    * @throws Exception
    */
-  public void _testAcl2Import() throws Exception {
-    // registerNodetypes();
+  public void testAclImportSystemView() throws Exception {
     AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
 
-    File tmp = new File("/java/tmp/testPermdocview.xml");
+    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
+
+    testRoot.addMixin("exo:owneable");
+    testRoot.addMixin("exo:privilegeable");
+    testRoot.setProperty("exo:title", "test");
+
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+
+    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
+    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
+    testRoot.removePermission(SystemIdentity.ANY);
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+    assertFalse(accessManager.hasPermission(testRoot.getACL(),
+                                            PermissionType.READ,
+                                            new Identity("exo")));
+
+    File tmp = File.createTempFile("testAclImpormt", "tmp");
+    tmp.deleteOnExit();
+    serialize(testRoot, true, true, tmp);
+    testRoot.remove();
+    session.save();
+
     NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
 
     deserialize(importRoot,
@@ -475,87 +508,44 @@ public class TestImport extends AbstractImportTest {
                 ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
                 new BufferedInputStream(new FileInputStream(tmp)));
     session.save();
-    Node n1 = importRoot.getNode("rapport_intervention-M6-20080828.doc");
-    // assertTrue(accessManager.hasPermission(((NodeImpl) n1).getACL(),
-    // PermissionType.SET_PROPERTY,
-    // new Identity("*:/platform/administrators")));
-    // assertFalse(accessManager.hasPermission(((NodeImpl) n1).getACL(),
-    // PermissionType.READ,
-    // new Identity("validator:/platform/administrators")));
+    Node n1 = importRoot.getNode("TestRoot");
+    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                        PermissionType.SET_PROPERTY,
+                                                        new Identity("exo")));
+    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                         PermissionType.READ,
+                                                         new Identity("exo")));
+    importRoot.remove();
+    session.save();
   }
 
-  private void registerNodetypes() throws Exception {
-
-    registerNamespace("kfx", "http://www.exoplatform.com/jcr/kfx/1.1/");
-    registerNamespace("dc", "http://purl.org/dc/elements/1.1/");
-
-    // InputStream xml = this.getClass()
-    // .getResourceAsStream(
-    // "/org/exoplatform/services/jcr/usecases/query/ext-nodetypes-config.xml");
-    // repositoryService.getCurrentRepository()
-    // .getNodeTypeManager()
-    // .registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml1 = this.getClass()
-                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config.xml");
-    repositoryService.getCurrentRepository()
-                     .getNodeTypeManager()
-                     .registerNodeTypes(xml1, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml2 = this.getClass()
-                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config-extended.xml");
-    repositoryService.getCurrentRepository()
-                     .getNodeTypeManager()
-                     .registerNodeTypes(xml2, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    // InputStream xml3 = this.getClass()
-    // .getResourceAsStream(
-    // "/org/exoplatform/services/jcr/usecases/query/nodetypes-ecm.xml");
-    // repositoryService.getCurrentRepository()
-    // .getNodeTypeManager()
-    // .registerNodeTypes(xml3, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    // InputStream xml4 = this.getClass()
-    // .getResourceAsStream(
-    // "/org/exoplatform/services/jcr/usecases/query/business-process-nodetypes.xml"
-    // );
-    // repositoryService.getCurrentRepository()
-    // .getNodeTypeManager()
-    // .registerNodeTypes(xml4, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-  }
-
-  public void registerNamespace(String prefix, String uri) {
-    try {
-      session.getWorkspace().getNamespaceRegistry().getPrefix(uri);
-    } catch (NamespaceException e) {
-      try {
-        session.getWorkspace().getNamespaceRegistry().registerNamespace(prefix, uri);
-      } catch (NamespaceException e1) {
-        throw new RuntimeException(e1);
-      } catch (RepositoryException e1) {
-        throw new RuntimeException(e1);
+  public void testPermissionAfterImport() throws Exception {
+    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()));
+    InputStream importStream = BaseStandaloneTest.class.getResourceAsStream("/import-export/testPermdocview.xml");
+    session1.importXML("/", importStream, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+    session1.save();
+    // After import
+    ExtendedNode testNode = (ExtendedNode) session1.getItem("/a");
+    List<AccessControlEntry> permsList = testNode.getACL().getPermissionEntries();
+    int permsListTotal = 0;
+    for (AccessControlEntry ace : permsList) {
+      String id = ace.getIdentity();
+      String permission = ace.getPermission();
+      if (id.equals("*:/platform/administrators") || id.equals("root")) {
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.REMOVE)
+            || permission.equals(PermissionType.SET_PROPERTY)
+            || permission.equals(PermissionType.ADD_NODE));
+        permsListTotal++;
+      } else if (id.equals("validator:/platform/users")) {
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.SET_PROPERTY));
+        permsListTotal++;
       }
-    } catch (RepositoryException e) {
-      throw new RuntimeException(e);
     }
+    assertEquals(10, permsListTotal);
+    testNode.remove();
+    session1.save();
 
-  }
-
-  private ByteArrayInputStream readXmlContent(String fileName) {
-
-    try {
-      InputStream is = TestImport.class.getResourceAsStream(fileName);
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      int r = is.available();
-      byte[] bs = new byte[r];
-      while (r > 0) {
-        r = is.read(bs);
-        if (r > 0) {
-          output.write(bs, 0, r);
-        }
-        r = is.available();
-      }
-      is.close();
-      return new ByteArrayInputStream(output.toByteArray());
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return null;
-    }
   }
 }

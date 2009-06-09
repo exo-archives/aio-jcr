@@ -187,6 +187,8 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       int nodeIndex = getNodeIndex(parentData, currentNodeName, null);
       ImportNodeData newNodeData = new ImportNodeData(parentData, currentNodeName, nodeIndex);
+      // preset of ACL
+      newNodeData.setACL(parentData.getACL());
       newNodeData.setOrderNumber(getNextChildOrderNum(parentData));
       newNodeData.setIdentifier(IdGenerator.generate());
 
@@ -275,6 +277,11 @@ public class SystemViewImporter extends BaseXmlImporter {
       createVersionHistory(currentNodeInfo);
     }
 
+    currentNodeInfo.setACL(initAcl(currentNodeInfo.getACL(),
+                                      currentNodeInfo.isExoOwneable(),
+                                      currentNodeInfo.isExoPrivilegeable(),
+                                      currentNodeInfo.getExoOwner(),
+                                      currentNodeInfo.getExoPrivileges()));
   }
 
   /**
@@ -470,6 +477,7 @@ public class SystemViewImporter extends BaseXmlImporter {
    */
   private List<ValueData> parseValues() throws RepositoryException {
     List<ValueData> values = new ArrayList<ValueData>(propertyInfo.getValuesSize());
+    List<String> stringValues = new ArrayList<String>();
     for (int k = 0; k < propertyInfo.getValuesSize(); k++) {
 
       if (propertyInfo.getType() == PropertyType.BINARY) {
@@ -479,7 +487,9 @@ public class SystemViewImporter extends BaseXmlImporter {
           TransientValueData binaryValue = new TransientValueData(vStream);
           binaryValue.setMaxBufferSize(valueFactory.getMaxBufferSize());
           binaryValue.setFileCleaner(valueFactory.getFileCleaner());
-
+          // Call to spool file into tmp
+          binaryValue.getAsStream();
+          vStream.close();
           propertyInfo.getValues().get(k).remove();
           values.add(binaryValue);
 
@@ -489,10 +499,18 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       } else {
         String val = new String(propertyInfo.getValues().get(k).toString());
+        stringValues.add(val);
         values.add(((BaseValue) valueFactory.createValue(val, propertyInfo.getType())).getInternalData());
       }
     }
 
+    if (propertyInfo.getType() == ExtendedPropertyType.PERMISSION) {
+      ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
+      currentNodeInfo.setExoPrivileges(stringValues);
+    } else if (Constants.EXO_OWNER.equals(propertyInfo.getName())) {
+      ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
+      currentNodeInfo.setExoOwner(stringValues.get(0));
+    }
     return values;
 
   }

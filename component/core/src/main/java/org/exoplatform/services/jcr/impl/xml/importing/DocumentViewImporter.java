@@ -302,14 +302,20 @@ public class DocumentViewImporter extends BaseXmlImporter {
               continue;
             }
 
-            Value value = valueFactory.createValue(StringConverter.denormalizeString(propertiesMap.get(propName)),
-                                                   pType);
+            String denormalizeString = StringConverter.denormalizeString(propertiesMap.get(propName));
+            Value value = valueFactory.createValue(denormalizeString, pType);
             values.add(((BaseValue) value).getInternalData());
+            if (Constants.EXO_OWNER.equals(propName)) {
+              nodeData.setExoOwner(denormalizeString);
+            }
           } else {
+            List<String> denormalizeStrings = new ArrayList<String>();
+
             while (spaceTokenizer.hasMoreTokens()) {
               String elem = spaceTokenizer.nextToken();
-
-              Value value = valueFactory.createValue(StringConverter.denormalizeString(elem), pType);
+              String denormalizeString = StringConverter.denormalizeString(elem);
+              denormalizeStrings.add(denormalizeString);
+              Value value = valueFactory.createValue(denormalizeString, pType);
               if (log.isDebugEnabled()) {
                 String valueAsString = null;
                 try {
@@ -322,6 +328,12 @@ public class DocumentViewImporter extends BaseXmlImporter {
                     + "=" + valueAsString);
               }
               values.add(((BaseValue) value).getInternalData());
+
+            }
+            if (pType == ExtendedPropertyType.PERMISSION) {
+              nodeData.setExoPrivileges(denormalizeStrings);
+            } else if (Constants.EXO_OWNER.equals(propName)) {
+              nodeData.setExoOwner(denormalizeStrings.get(0));
             }
           }
 
@@ -359,6 +371,13 @@ public class DocumentViewImporter extends BaseXmlImporter {
         changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, getAncestorToSave()));
       }
     }
+
+    nodeData.setACL(initAcl(parentNodeData.getACL(),
+                               nodeData.isExoOwneable(),
+                               nodeData.isExoPrivilegeable(),
+                               nodeData.getExoOwner(),
+                               nodeData.getExoPrivileges()));
+
     if (nodeData.isMixVersionable()) {
       createVersionHistory(nodeData);
     }

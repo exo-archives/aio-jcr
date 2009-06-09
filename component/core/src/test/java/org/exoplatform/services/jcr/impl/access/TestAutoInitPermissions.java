@@ -27,11 +27,10 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 16.10.2008
  * 
- * <br/>Date: 16.10.2008
- * 
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex
+ *         Reshetnyak</a>
  * @version $Id: TestAutoInitPermissions.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class TestAutoInitPermissions extends BaseStandaloneTest {
@@ -43,8 +42,9 @@ public class TestAutoInitPermissions extends BaseStandaloneTest {
 
   public void testCheckAutoInitPermissions() throws Exception {
     AccessControlList adminRootACL = ((NodeImpl) root).getACL();
-    log.info(adminRootACL.dump());
-    
+    if (log.isDebugEnabled())
+      log.debug(adminRootACL.dump());
+
     assertTrue(root.hasProperties());
 
     try {
@@ -60,8 +60,9 @@ public class TestAutoInitPermissions extends BaseStandaloneTest {
       myNode.save();
 
       AccessControlList johnRootACL = ((NodeImpl) johnSession.getRootNode()).getACL();
-      log.info(johnRootACL.dump());
-      
+      if (log.isDebugEnabled())
+        log.debug(johnRootACL.dump());
+
       assertTrue(johnSession.getRootNode().hasProperties());
 
     } catch (AccessControlException e) {

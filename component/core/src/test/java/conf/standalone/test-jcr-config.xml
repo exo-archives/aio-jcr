@@ -46,10 +46,10 @@
           </initializer -->
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
-              <property name="max-size" value="2k"/>
-              <property name="live-time" value="20m"/>
-              <!-- property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" / -->
+              <property name="max-size" value="2k" />
+              <property name="live-time" value="20m" />
+							<property name="statistic-period" value="30" />
+              <property name="statistic-log" value="false" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

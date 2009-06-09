@@ -74,6 +74,15 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
    * 
    */
   private String                   versionHistoryIdentifier;
+/**
+   * 
+   */
+  private String                       exoOwner;
+
+  /**
+   * 
+   */
+  private List<String>                 exoPrivileges;
 
   /**
    * @param parent
@@ -137,7 +146,19 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   // public List<ExtendedNodeType> getCurrentNodeTypes() {
   // return nodeTypes;
   // }
+ /**
+   * @return the exoOwner
+   */
+  public String getExoOwner() {
+    return exoOwner;
+  }
 
+  /**
+   * @return the exoPrivileges
+   */
+  public List<String> getExoPrivileges() {
+    return exoPrivileges;
+  }
   /*
    * (non-Javadoc)
    * @see
@@ -207,6 +228,31 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
    */
   public void setContainsVersionhistory(boolean isContainsVersionhistory) {
     this.isContainsVersionhistory = isContainsVersionhistory;
+  }
+
+  /**
+   * @param exoOwner the exoOwner to set
+   */
+  public void setExoOwner(String exoOwner) {
+    this.exoOwner = exoOwner;
+  }
+
+  /**
+   * @return
+   */
+  public boolean isExoOwneable() {
+    return exoOwner != null;
+  }
+
+  /**
+   * @param exoPrivileges the exoPrivileges to set
+   */
+  public void setExoPrivileges(List<String> exoPrivileges) {
+    this.exoPrivileges = exoPrivileges;
+  }
+
+  public boolean isExoPrivilegeable() {
+    return exoPrivileges != null;
   }
 
   public void setIsNewIdentifer(boolean newIdentifer) {

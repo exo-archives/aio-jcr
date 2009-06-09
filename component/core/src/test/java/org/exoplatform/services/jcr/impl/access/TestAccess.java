@@ -16,12 +16,14 @@
  */
 package org.exoplatform.services.jcr.impl.access;
 
+import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.jcr.AccessDeniedException;
+import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
@@ -40,7 +42,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.security.Identity;
 
 /**
- * Created by The eXo Platform SAS.<br/> Prerequisite: enable access control i.e.
+ * Created by The eXo Platform SAS.<br/>
+ * Prerequisite: enable access control i.e.
  * <access-control>optional</access-control>
  * 
  * @author Gennady Azarenkov
@@ -161,7 +164,8 @@ public class TestAccess extends BaseStandaloneTest {
     node.addMixin("exo:privilegeable");
 
     session.save();
-    System.out.println("NODE PERM 1 >>> " + node.getACL().dump());
+    if (log.isDebugEnabled())
+      log.debug("NODE PERM 1 >>> " + node.getACL().dump());
     // change permission
     HashMap<String, String[]> perm = new HashMap<String, String[]>();
     perm.put("exo1", new String[] { PermissionType.ADD_NODE, PermissionType.READ });
@@ -169,20 +173,24 @@ public class TestAccess extends BaseStandaloneTest {
 
     // showPermissions("accessTestRoot/testIfPermissionSaved");
 
-    System.out.println("NODE PERM 1 >>> " + node.getACL().dump());
+    if (log.isDebugEnabled())
+      log.debug("NODE PERM 1 >>> " + node.getACL().dump());
 
     session.save();
 
-    System.out.println("NODE PERM 2 >>> " + node.getACL().dump());
+    if (log.isDebugEnabled())
+      log.debug("NODE PERM 2 >>> " + node.getACL().dump());
 
     // get node in new session
     NodeImpl testNode = (NodeImpl) repository.getSystemSession()
                                              .getRootNode()
                                              .getNode("accessTestRoot/testIfPermissionSaved");
 
-    System.out.println("NODE PERM 4 >>> " + node.getACL().dump());
+    if (log.isDebugEnabled())
+      log.debug("NODE PERM 4 >>> " + node.getACL().dump());
 
-    System.out.println("TEST PERM >>> " + testNode.getACL().dump());
+    if (log.isDebugEnabled())
+      log.debug("TEST PERM >>> " + testNode.getACL().dump());
 
     showPermissions("accessTestRoot/testIfPermissionSaved");
 
@@ -343,7 +351,8 @@ public class TestAccess extends BaseStandaloneTest {
     // READ permissions for exo2
 
     // [PN] 19.06.07 owner it's by whom session was open
-    //assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
+    // assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).
+    // getACL().getOwner());
     assertEquals(credentials.getUserID(),
                  ((ExtendedNode) accessTestRoot.getNode("testAddNode")).getACL().getOwner());
 
@@ -558,7 +567,7 @@ public class TestAccess extends BaseStandaloneTest {
     node.setPermission("exo1", PermissionType.ALL);
     assertEquals(PermissionType.ALL.length * 2, node.getACL().getPermissionEntries().size());
 
-    // System.out.println("Access contr " +
+    // ("Access contr " +
     // node.isNodeType("exo:accessControllable"));
     node.setPermission("exo2", new String[] { PermissionType.READ });
     assertEquals(PermissionType.ALL.length * 2 + 1, node.getACL().getPermissionEntries().size());
@@ -569,8 +578,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the setPermission(String identity, String[] permission) completely replace permissions
-   * of the identity.
+   * check if the setPermission(String identity, String[] permission) completely
+   * replace permissions of the identity.
    * 
    * @throws Exception
    */
@@ -594,8 +603,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the removePermission(String identity, String permission) remove specified permissions
-   * of the identity.
+   * check if the removePermission(String identity, String permission) remove
+   * specified permissions of the identity.
    * 
    * @throws Exception
    */
@@ -949,10 +958,45 @@ public class TestAccess extends BaseStandaloneTest {
 
   }
 
+  /**
+   * Check permission after import
+   * 
+   * @throws Exception
+   */
+  public void testPermissionAfterImport() throws Exception {
+    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()));
+    InputStream importStream = BaseStandaloneTest.class.getResourceAsStream("/import-export/testPermdocview.xml");
+    session1.importXML("/", importStream, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+    session1.save();
+    // After import
+    ExtendedNode testNode = (ExtendedNode) session1.getItem("/a");
+    List<AccessControlEntry> permsList = testNode.getACL().getPermissionEntries();
+    int permsListTotal = 0;
+    for (AccessControlEntry ace : permsList) {
+      String id = ace.getIdentity();
+      String permission = ace.getPermission();
+      if (id.equals("*:/platform/administrators") || id.equals("root")) {
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.REMOVE)
+            || permission.equals(PermissionType.SET_PROPERTY)
+            || permission.equals(PermissionType.ADD_NODE));
+        permsListTotal++;
+      } else if (id.equals("validator:/platform/users")) {
+        assertTrue(permission.equals(PermissionType.READ)
+            || permission.equals(PermissionType.SET_PROPERTY));
+        permsListTotal++;
+      }
+    }
+    assertEquals(10, permsListTotal);
+    testNode.remove();
+    session1.save();
+  }
+
   private void showPermissions(String path) throws RepositoryException {
     NodeImpl node = (NodeImpl) this.repository.getSystemSession().getRootNode().getNode(path);
     AccessControlList acl = node.getACL();
-    System.out.println("DUMP: " + acl.dump());
+    if (log.isDebugEnabled())
+      log.debug("DUMP: " + acl.dump());
 
   }
 

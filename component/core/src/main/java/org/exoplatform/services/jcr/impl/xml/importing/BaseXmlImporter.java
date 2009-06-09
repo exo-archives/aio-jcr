@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.ItemExistsException;
@@ -36,6 +37,8 @@ import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -43,6 +46,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.IllegalACLException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -344,112 +348,12 @@ public abstract class BaseXmlImporter implements ContentImporter {
     }
   }
 
-  // /**
-  // * Find proper nodeType for subnode with name <b>name</b> and parent node
-  // type
-  // * <b>parentNodeType</b> and mixin types <b>parentMixinNames</b>.
-  // *
-  // * @param parentNodeType
-  // * @param parentMixinNames
-  // * @param name
-  // * @return
-  // * @throws RepositoryException
-  // * @throws ConstraintViolationException
-  // */
-  // @Deprecated
-  // protected InternalQName findNodeType(InternalQName parentNodeType,
-  // InternalQName[] parentMixinNames,
-  // String name) throws RepositoryException,
-  // ConstraintViolationException {
-  //
-  // List<ExtendedNodeType> nodeTypes =
-  // nodeTypeDataManager.getNodeTypes(parentNodeType,
-  // parentMixinNames);
-  // String residualNodeTypeName = null;
-  // for (ExtendedNodeType extendedNodeType : nodeTypes) {
-  // NodeDefinition[] nodeDefs = extendedNodeType.getChildNodeDefinitions();
-  // for (int i = 0; i < nodeDefs.length; i++) {
-  // NodeDefinition nodeDef = nodeDefs[i];
-  // if (nodeDef.getName().equals(name)) {
-  // if (nodeDef.getDefaultPrimaryType() != null)
-  // return
-  // locationFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName())
-  // .getInternalName();
-  // } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
-  // if (nodeDef.getDefaultPrimaryType() != null)
-  // residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
-  // }
-  // }
-  // }
-  //
-  // if (residualNodeTypeName == null)
-  // throw new ConstraintViolationException("Can not define node-type for node "
-  // + name
-  // + ", parent node type " + parentNodeType.getAsString());
-  // return
-  // locationFactory.parseJCRName(residualNodeTypeName).getInternalName();
-  // }
-
   /**
    * @return parent node.
    */
   protected NodeData getParent() {
     return tree.peek();
   }
-
-  // /**
-  // * Check if parentNodeType and parentMixinNames allowed nodeTypeName as
-  // * nodetype of subnode.
-  // *
-  // * @param parentNodeType
-  // * @param parentMixinNames
-  // * @param nodeTypeName
-  // * @return
-  // * @throws NoSuchNodeTypeException
-  // * @throws RepositoryException
-  // */
-  // protected boolean isChildNodePrimaryTypeAllowed(InternalQName
-  // parentNodeType,
-  // InternalQName[] parentMixinNames,
-  // String nodeTypeName) throws NoSuchNodeTypeException,
-  // RepositoryException {
-  //
-  // List<ExtendedNodeType> parenNt =
-  // nodeTypeDataManager.getNodeTypes(parentNodeType,
-  // parentMixinNames);
-  //
-  //    
-  // for (int i = 0; i < parentMixinNames.length; i++) {
-  // nodeTypeDataManager.findNodeType(parentMixinNames[i]).
-  // }
-  //    
-  // for (ExtendedNodeType extendedNodeType : parenNt) {
-  // if (extendedNodeType.isChildNodePrimaryTypeAllowed(nodeTypeName)) {
-  // return true;
-  // }
-  // }
-  //
-  // return false;
-  //
-  // }
-
-  // /**
-  // * Check if name node type exists in nodeTypes.
-  // *
-  // * @param name
-  // * @param nodeTypes
-  // * @return
-  // */
-  // @Deprecated
-  // protected boolean isNodeType(InternalQName name, List<ExtendedNodeType>
-  // nodeTypes) {
-  // for (ExtendedNodeType nt : nodeTypes) {
-  // if (nt.isNodeType(name)) {
-  // return true;
-  // }
-  // }
-  // return false;
-  // }
 
   /**
    * Check uuid collision. If collision happen reload path information.
@@ -513,6 +417,77 @@ public abstract class BaseXmlImporter implements ContentImporter {
     }
 
     currentNodeInfo.setIdentifier(identifier);
+  }
+
+  protected AccessControlList initAcl(AccessControlList parentACL,
+                                      boolean isOwneable,
+                                      boolean isPrivilegeable,
+                                      String owner,
+                                      List<String> exoPermissions) {
+    AccessControlList acl;
+    if (isOwneable) {
+      // has own owner
+      if (isPrivilegeable) {
+        // and permissions
+        acl = new AccessControlList(owner, readACLPermisions(exoPermissions));
+      } else if (parentACL != null) {
+        // use permissions from existed parent
+        acl = new AccessControlList(owner,
+                                    parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                              : null);
+      } else {
+        // have to search nearest ancestor permissions in ACL manager
+        // acl = new AccessControlList(owner,
+        // traverseACLPermissions(cpid));
+        acl = new AccessControlList(owner, null);
+      }
+    } else if (isPrivilegeable) {
+      // has own permissions
+      if (isOwneable) {
+        // and owner
+        acl = new AccessControlList(owner, readACLPermisions(exoPermissions));
+      } else if (parentACL != null) {
+        // use owner from existed parent
+        acl = new AccessControlList(parentACL.getOwner(), readACLPermisions(exoPermissions));
+      } else {
+        // have to search nearest ancestor owner in ACL manager
+        // acl = new AccessControlList(traverseACLOwner(cpid),
+        // readACLPermisions(cid));
+        acl = new AccessControlList(null, readACLPermisions(exoPermissions));
+      }
+    } else {
+      if (parentACL != null)
+        // construct ACL from existed parent ACL
+        acl = new AccessControlList(parentACL.getOwner(),
+                                    parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                              : null);
+      else
+        // have to search nearest ancestor owner and permissions in ACL manager
+        // acl = traverseACL(cpid);
+        acl = null;
+    }
+    return acl;
+  }
+
+  /**
+   * Return permission values or throw an exception. We assume the node is
+   * mix:privilegeable.
+   * 
+   * @param cid Node id
+   * @return list of ACL entries
+   * @throws IllegalACLException if property exo:permissions is not found for
+   *           node
+   */
+  protected List<AccessControlEntry> readACLPermisions(List<String> exoPermissions) {
+    List<AccessControlEntry> naPermissions = new ArrayList<AccessControlEntry>();
+
+    for (String perm : exoPermissions) {
+
+      StringTokenizer parser = new StringTokenizer(perm, AccessControlEntry.DELIMITER);
+      naPermissions.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
+
+    }
+    return naPermissions;
   }
 
   /**
