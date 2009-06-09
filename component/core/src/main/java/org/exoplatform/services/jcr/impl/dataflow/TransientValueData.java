@@ -284,6 +284,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    */
   public byte[] getAsByteArray() throws IOException {
     if (data != null) {
+      // TODO JCR-992 don't copy bytes 
       byte[] bytes = new byte[data.length];
       System.arraycopy(data, 0, bytes, 0, data.length);
       return bytes;
@@ -364,11 +365,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public TransientValueData createTransientCopy() throws RepositoryException {
     if (isByteArray()) {
       // bytes, make a copy of real data
+      // TODO JCR-992 don't copy bytes
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
 
-      // be more precise if this is a binary but so small, but can be increased
-      // in EditableValueData
       try {
         return new TransientValueData(orderNumber,
                                       newBytes,
@@ -382,7 +382,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
         throw new RepositoryException(e);
       }
     } else {
-      // spool file, i.e. shared across sessions
+      // stream (or file) based , i.e. shared across sessions
       return this;
     }
   }
@@ -397,6 +397,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public EditableValueData createEditableCopy() throws RepositoryException {
     if (isByteArray()) {
       // bytes, make a copy of real data
+      // TODO JCR-992 don't copy bytes
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
 
