@@ -96,7 +96,7 @@ public class TestValueFileIOHelper extends JcrImplBaseTest {
     OutputStream out = new FileOutputStream(dest);
     try {
       int r = 0;
-      byte[] buff = new byte[FileIOChannel.IOBUFFER_SIZE];
+      byte[] buff = new byte[ValueFileIOHelper.IOBUFFER_SIZE];
       while ((r = in.read(buff)) >= 0) {
         out.write(buff, 0, r);
       }
