@@ -10,5 +10,5 @@ $JAVA_HOME/bin/java -Djava.security.manager=default  \
 -cp $JONAS_ROOT/lib/apps/exo.core.component.security.core-2.1.6-SNAPSHOT.jar:\
 $JONAS_ROOT/lib/apps/exo.ws.commons-1.3.4-SNAPSHOT.jar:\
 $JONAS_ROOT/lib/client.jar:\
-exo.jcr.connectors.ejb21.bean-1.10.4-SNAPSHOT.jar \
-org.objectweb.jonas.client.ClientContainer exo.jcr.connectors.ejb21.client-1.10.4-SNAPSHOT.jar $1 $2
+exo.jcr.connectors.ejb21.bean-1.10.4.jar \
+org.objectweb.jonas.client.ClientContainer exo.jcr.connectors.ejb21.client-1.10.4.jar $1 $2

@@ -1,3 +1,3 @@
-java -jar repoload-1.10.4-SNAPSHOT.jar -conf="test-configuration-sjdbc.xml" -root="testroot" -tree="10-5-2-10" -vdfile="img.tif" -repo="db1" -ws="ws" -readtree="true"
+java -jar repoload-1.10.4.jar -conf="test-configuration-sjdbc.xml" -root="testroot" -tree="10-5-2-10" -vdfile="img.tif" -repo="db1" -ws="ws" -readtree="true"
 
 pause
