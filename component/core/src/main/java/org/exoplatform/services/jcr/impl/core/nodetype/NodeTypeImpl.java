@@ -399,28 +399,6 @@ public class NodeTypeImpl implements NodeType {
     }
   }
 
-  // eXo stuff =====
-
-  // public NodeDefinition getChildNodeDefinition(InternalQName name) {
-  // return null;
-  // }
-  //
-  // public NodeDefinition getChildNodeDefinition(String name) {
-  // return null;
-  // }
-  //
-  // public ArrayList<ItemDefinition> getManadatoryItemDefs() {
-  // return null;
-  // }
-  //
-  // public PropertyDefinitions getPropertyDefinitions(InternalQName name) {
-  // return null;
-  // }
-  //
-  // public PropertyDefinitions getPropertyDefinitions(String name) {
-  // return null;
-  // }
-
   /**
    * {@inheritDoc}
    */
