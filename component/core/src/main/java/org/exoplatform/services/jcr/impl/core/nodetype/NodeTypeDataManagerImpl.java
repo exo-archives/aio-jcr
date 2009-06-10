@@ -1,18 +1,18 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright (C) 2003-2007 eXo Platform SAS.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
@@ -127,7 +127,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    */
   private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners;
 
-  private HashSet<QueryHandler>                                       queryHandlers;
+  protected HashSet<QueryHandler>                                     queryHandlers;
 
   private final ValueFactoryImpl                                      valueFactory;
 
@@ -150,6 +150,34 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
     this.buildInNodeTypesNames = new HashSet<InternalQName>();
     initDefault();
+    this.queryHandlers = new HashSet<QueryHandler>();
+  }
+
+  /**
+   * @param accessControlPolicy
+   * @param locationFactory
+   * @param namespaceRegistry
+   * @param persister
+   * @throws RepositoryException
+   */
+  public NodeTypeDataManagerImpl(String accessControlPolicy,
+                                 LocationFactory locationFactory,
+                                 NamespaceRegistry namespaceRegistry,
+                                 NodeTypeDataPersister persister) throws RepositoryException {
+
+    this.namespaceRegistry = namespaceRegistry;
+
+    this.persister = persister;
+
+    this.locationFactory = locationFactory;
+    this.valueFactory = new ValueFactoryImpl(locationFactory);
+    this.accessControlPolicy = accessControlPolicy;
+
+    this.hierarchy = new NodeTypeDataHierarchyHolder();
+
+    this.defsHolder = new ItemDefinitionDataHolder();
+    this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
+    this.buildInNodeTypesNames = new HashSet<InternalQName>();
     this.queryHandlers = new HashSet<QueryHandler>();
   }
 
@@ -303,11 +331,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * @param nodeTypeName
-   * @return
+   * {@inheritDoc}
    */
-  public Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName) {
-    return hierarchy.getDescendantNodeTypes(nodeTypeName);
+  public Set<InternalQName> getDeclaredSubtypes(final InternalQName nodeTypeName) {
+    return hierarchy.getDeclaredSubtypes(nodeTypeName);
 
   }
 
@@ -438,6 +465,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return queryHandlers;
   }
 
+  /**
+   * @param nodeTypeName
+   * @return
+   */
+  public Set<InternalQName> getSubtypes(final InternalQName nodeTypeName) {
+    return hierarchy.getSubtypes(nodeTypeName);
+  }
+
+  public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
+    return hierarchy.getSupertypes(nodeTypeName);
+  }
+
   public boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
                                                InternalQName parentNodeType,
                                                InternalQName[] parentMixinNames) {
@@ -549,10 +588,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
       // using VH helper as for one new VH, all changes in changes log
       makeMixVesionableChanges(parent, dataManager, changes);
-      // for (ItemState istate : changes.getAllStates()) {
-      // dataManager.update(istate, false);
-      // }
-
     }
     return changes;
   }
@@ -731,7 +766,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       throw new RepositoryException(nodeTypeName.toString()
           + ": can't unregister built-in node type.");
     // check dependencies
-    Set<InternalQName> descendantNt = hierarchy.getDescendantNodeTypes(nodeTypeName);
+    Set<InternalQName> descendantNt = hierarchy.getSubtypes(nodeTypeName);
     if (descendantNt.size() > 0) {
       String message = "Can not remove " + nodeTypeName.getAsString()
           + "nodetype, because the following node types depend on it: ";
@@ -751,6 +786,180 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     }
     internalUnregister(nodeTypeName, nodeType);
+  }
+
+  protected List<ValueData> autoCreatedValue(NodeData parent,
+                                             InternalQName typeName,
+                                             PropertyDefinitionData def,
+                                             String owner) throws RepositoryException {
+    NodeTypeDataManager typeDataManager = this;
+    List<ValueData> vals = new ArrayList<ValueData>();
+
+    if (typeDataManager.isNodeType(Constants.NT_BASE, new InternalQName[] { typeName })
+        && def.getName().equals(Constants.JCR_PRIMARYTYPE)) {
+      vals.add(new TransientValueData(parent.getPrimaryTypeName()));
+
+    } else if (typeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                          new InternalQName[] { typeName })
+        && def.getName().equals(Constants.JCR_UUID)) {
+      vals.add(new TransientValueData(parent.getIdentifier()));
+
+    } else if (typeDataManager.isNodeType(Constants.NT_HIERARCHYNODE,
+                                          new InternalQName[] { typeName })
+        && def.getName().equals(Constants.JCR_CREATED)) {
+      vals.add(new TransientValueData(Calendar.getInstance()));
+
+    } else if (typeDataManager.isNodeType(Constants.EXO_OWNEABLE, new InternalQName[] { typeName })
+        && def.getName().equals(Constants.EXO_OWNER)) {
+      // String owner = session.getUserID();
+      vals.add(new TransientValueData(owner));
+      parent.setACL(new AccessControlList(owner, parent.getACL().getPermissionEntries()));
+
+    } else if (typeDataManager.isNodeType(Constants.EXO_PRIVILEGEABLE,
+                                          new InternalQName[] { typeName })
+        && def.getName().equals(Constants.EXO_PERMISSIONS)) {
+      for (AccessControlEntry ace : parent.getACL().getPermissionEntries()) {
+        vals.add(new TransientValueData(ace));
+      }
+
+    } else {
+      String[] propVal = def.getDefaultValues();
+      // there can be null in definition but should not be null value
+      if (propVal != null && propVal.length != 0) {
+        for (String v : propVal) {
+          if (v != null)
+            if (def.getRequiredType() == PropertyType.UNDEFINED)
+              vals.add(((BaseValue) valueFactory.createValue(v)).getInternalData());
+            else
+              vals.add(((BaseValue) valueFactory.createValue(v, def.getRequiredType())).getInternalData());
+          else {
+            vals.add(null);
+          }
+        }
+      } else
+        return null;
+    }
+
+    return vals;
+  }
+
+  protected void initDefault() throws RepositoryException {
+    long start = System.currentTimeMillis();
+    try {
+      InputStream xml = NodeTypeManagerImpl.class.getResourceAsStream(NODETYPES_FILE);
+      if (xml != null) {
+        List<NodeTypeData> registerNodeTypes = registerNodeTypes(xml,
+                                                                 ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+        for (NodeTypeData nodeTypeData : registerNodeTypes) {
+          buildInNodeTypesNames.add(nodeTypeData.getName());
+        }
+      } else {
+        String msg = "Resource file '" + NODETYPES_FILE
+            + "' with NodeTypes configuration does not found. Can not create node type manager";
+        LOG.error(msg);
+        throw new RepositoryException(msg);
+      }
+    } catch (RepositoryException e) {
+      String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
+          + NODETYPES_FILE + "'. " + e;
+      LOG.error(msg);
+      throw new RepositoryException(msg, e);
+    } finally {
+      LOG.info("Initialization of default nodetypes done. " + (System.currentTimeMillis() - start)
+          + " ms.");
+    }
+  }
+
+  /**
+   * @param nodeType
+   * @throws RepositoryException
+   * @throws ValueFormatException
+   * @throws PathNotFoundException
+   */
+  protected void internalRegister(NodeTypeData nodeType,
+                                  Map<InternalQName, NodeTypeData> volatileNodeTypes) throws PathNotFoundException,
+                                                                                     ValueFormatException,
+                                                                                     RepositoryException {
+    hierarchy.addNodeType(nodeType, volatileNodeTypes);
+
+    defsHolder.putDefinitions(nodeType.getName(), nodeType);
+    // put supers
+    Set<InternalQName> supers = hierarchy.getSupertypes(nodeType.getName(), volatileNodeTypes);
+
+    for (InternalQName superName : supers) {
+      defsHolder.putDefinitions(nodeType.getName(), hierarchy.getNodeType(superName,
+                                                                          volatileNodeTypes));
+    }
+  }
+
+  //
+  // /**
+  // * @param nodeType
+  // * @return
+  // * @throws RepositoryException
+  // */
+  // private NodeDefinitionData[] getAllChildNodeDefinitions(NodeTypeData
+  // nodeType) throws RepositoryException {
+  // Collection<NodeDefinitionData> defs = new HashSet<NodeDefinitionData>();
+  //
+  // for (NodeDefinitionData cnd : nodeType.getDeclaredChildNodeDefinitions()) {
+  // defs.add(cnd);
+  // }
+  //
+  // for (InternalQName suname : nodeType.getDeclaredSupertypeNames()) {
+  // NodeDefinitionData[] superDefinitionData =
+  // getAllChildNodeDefinitions(hierarchy.getNodeType(suname));
+  // for (int i = 0; i < superDefinitionData.length; i++) {
+  // defs.add(superDefinitionData[i]);
+  // }
+  // }
+  // return defs.toArray(new NodeDefinitionData[defs.size()]);
+  // }
+  //
+  // /**
+  // * @param nodeType
+  // * @return
+  // */
+  // private PropertyDefinitionData[] getAllPropertyDefinitions(NodeTypeData
+  // nodeType) {
+  // Collection<PropertyDefinitionData> defs = new
+  // HashSet<PropertyDefinitionData>();
+  //
+  // for (PropertyDefinitionData pd : nodeType.getDeclaredPropertyDefinitions())
+  // defs.add(pd);
+  //
+  // for (InternalQName suname : nodeType.getDeclaredSupertypeNames()) {
+  // PropertyDefinitionData[] superDefinitionData =
+  // getAllPropertyDefinitions(hierarchy.getNodeType(suname));
+  // for (int i = 0; i < superDefinitionData.length; i++) {
+  // defs.add(superDefinitionData[i]);
+  // }
+  //
+  // }
+  //
+  // return defs.toArray(new PropertyDefinitionData[defs.size()]);
+  // }
+
+  /**
+   * @param nodeTypeName
+   * @param nodeType
+   * @throws RepositoryException
+   */
+  protected void internalUnregister(InternalQName nodeTypeName, NodeTypeData nodeType) throws RepositoryException {
+    // put supers
+    Set<InternalQName> supers = hierarchy.getSupertypes(nodeTypeName);
+
+    // remove from internal lists
+    hierarchy.removeNodeType(nodeTypeName);
+
+    // remove supers
+    if (supers != null)
+      for (InternalQName superName : supers) {
+        defsHolder.removeDefinitions(nodeTypeName, hierarchy.getNodeType(superName));
+      }
+    // remove it self
+    defsHolder.removeDefinitions(nodeTypeName, nodeType);
+
   }
 
   /**
@@ -900,61 +1109,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  private List<ValueData> autoCreatedValue(NodeData parent,
-                                           InternalQName typeName,
-                                           PropertyDefinitionData def,
-                                           String owner) throws RepositoryException {
-    NodeTypeDataManager typeDataManager = this;
-    List<ValueData> vals = new ArrayList<ValueData>();
-
-    if (typeDataManager.isNodeType(Constants.NT_BASE, new InternalQName[] { typeName })
-        && def.getName().equals(Constants.JCR_PRIMARYTYPE)) {
-      vals.add(new TransientValueData(parent.getPrimaryTypeName()));
-
-    } else if (typeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                                          new InternalQName[] { typeName })
-        && def.getName().equals(Constants.JCR_UUID)) {
-      vals.add(new TransientValueData(parent.getIdentifier()));
-
-    } else if (typeDataManager.isNodeType(Constants.NT_HIERARCHYNODE,
-                                          new InternalQName[] { typeName })
-        && def.getName().equals(Constants.JCR_CREATED)) {
-      vals.add(new TransientValueData(Calendar.getInstance()));
-
-    } else if (typeDataManager.isNodeType(Constants.EXO_OWNEABLE, new InternalQName[] { typeName })
-        && def.getName().equals(Constants.EXO_OWNER)) {
-      // String owner = session.getUserID();
-      vals.add(new TransientValueData(owner));
-      parent.setACL(new AccessControlList(owner, parent.getACL().getPermissionEntries()));
-
-    } else if (typeDataManager.isNodeType(Constants.EXO_PRIVILEGEABLE,
-                                          new InternalQName[] { typeName })
-        && def.getName().equals(Constants.EXO_PERMISSIONS)) {
-      for (AccessControlEntry ace : parent.getACL().getPermissionEntries()) {
-        vals.add(new TransientValueData(ace));
-      }
-
-    } else {
-      String[] propVal = def.getDefaultValues();
-      // there can be null in definition but should not be null value
-      if (propVal != null && propVal.length != 0) {
-        for (String v : propVal) {
-          if (v != null)
-            if (def.getRequiredType() == PropertyType.UNDEFINED)
-              vals.add(((BaseValue) valueFactory.createValue(v)).getInternalData());
-            else
-              vals.add(((BaseValue) valueFactory.createValue(v, def.getRequiredType())).getInternalData());
-          else {
-            vals.add(null);
-          }
-        }
-      } else
-        return null;
-    }
-
-    return vals;
-  }
-
   private void checkCyclicDependencies(Map<InternalQName, NodeTypeData> nodeTypeDataList) throws RepositoryException {
     Set<InternalQName> unresolvedDependecies = new HashSet<InternalQName>();
     Set<InternalQName> resolvedDependecies = new HashSet<InternalQName>();
@@ -999,12 +1153,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  /**
-   * @param nodeType
-   * @return
-   * @throws RepositoryException
-   */
-  private NodeDefinitionData[] getAllChildNodeDefinitions(NodeTypeData nodeType) throws RepositoryException {
+  private NodeDefinitionData[] getAllChildNodeDefinitions(NodeTypeData nodeType,
+                                                          Map<InternalQName, NodeTypeData> volatileNodeTypes) {
     Collection<NodeDefinitionData> defs = new HashSet<NodeDefinitionData>();
 
     for (NodeDefinitionData cnd : nodeType.getDeclaredChildNodeDefinitions()) {
@@ -1012,26 +1162,40 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
 
     for (InternalQName suname : nodeType.getDeclaredSupertypeNames()) {
-      for (NodeDefinitionData cnd : hierarchy.getNodeType(suname).getDeclaredChildNodeDefinitions())
-        defs.add(cnd);
+      NodeTypeData superNodeType = volatileNodeTypes.get(suname);
+      if (superNodeType == null)
+        superNodeType = hierarchy.getNodeType(suname);
+      NodeDefinitionData[] superDefinitionData = getAllChildNodeDefinitions(superNodeType,
+                                                                            volatileNodeTypes);
+      for (int i = 0; i < superDefinitionData.length; i++) {
+        defs.add(superDefinitionData[i]);
+      }
     }
     return defs.toArray(new NodeDefinitionData[defs.size()]);
   }
 
   /**
-   * @param nodeType
+   * @param recipientDefinition
+   * @param volatileNodeTypes
    * @return
    */
-  private PropertyDefinitionData[] getAllPropertyDefinitions(NodeTypeData nodeType) {
+  private PropertyDefinitionData[] getAllPropertyDefinitions(NodeTypeData recipientDefinition,
+                                                             Map<InternalQName, NodeTypeData> volatileNodeTypes) {
     Collection<PropertyDefinitionData> defs = new HashSet<PropertyDefinitionData>();
 
-    for (PropertyDefinitionData pd : nodeType.getDeclaredPropertyDefinitions())
+    for (PropertyDefinitionData pd : recipientDefinition.getDeclaredPropertyDefinitions())
       defs.add(pd);
 
-    for (InternalQName suname : nodeType.getDeclaredSupertypeNames()) {
-      for (PropertyDefinitionData pd : hierarchy.getNodeType(suname)
-                                                .getDeclaredPropertyDefinitions())
-        defs.add(pd);
+    for (InternalQName suname : recipientDefinition.getDeclaredSupertypeNames()) {
+      NodeTypeData superNodeType = volatileNodeTypes.get(suname);
+      if (superNodeType == null)
+        superNodeType = hierarchy.getNodeType(suname);
+      PropertyDefinitionData[] superDefinitionData = getAllPropertyDefinitions(superNodeType,
+                                                                               volatileNodeTypes);
+      for (int i = 0; i < superDefinitionData.length; i++) {
+        defs.add(superDefinitionData[i]);
+      }
+
     }
 
     return defs.toArray(new PropertyDefinitionData[defs.size()]);
@@ -1064,14 +1228,14 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       terms.add(t);
     }
 
-    Iterator<InternalQName> allTypes = hierarchy.getDescendantNodeTypes(nodeType).iterator();
-    while (allTypes.hasNext()) {
+    // now search for all node types that are derived from base
+    Set<InternalQName> allTypes = getSubtypes(nodeType);
+    for (InternalQName descendantNt : allTypes) {
 
-      NodeTypeData nodeTypeData = findNodeType(allTypes.next());
-
-      String ntName = locationFactory.createJCRName(nodeTypeData.getName()).getAsString();
+      String ntName = locationFactory.createJCRName(descendantNt).getAsString();
+      NodeTypeData nt = findNodeType(descendantNt);
       Term t;
-      if (nodeTypeData.isMixin()) {
+      if (nt.isMixin()) {
         // search on jcr:mixinTypes
         t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(mixinTypesField, ntName));
       } else {
@@ -1094,78 +1258,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       }
       return b;
     }
-  }
-
-  private void initDefault() throws RepositoryException {
-    long start = System.currentTimeMillis();
-    try {
-      InputStream xml = NodeTypeManagerImpl.class.getResourceAsStream(NODETYPES_FILE);
-      if (xml != null) {
-        List<NodeTypeData> registerNodeTypes = registerNodeTypes(xml,
-                                                                 ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-        for (NodeTypeData nodeTypeData : registerNodeTypes) {
-          buildInNodeTypesNames.add(nodeTypeData.getName());
-        }
-      } else {
-        String msg = "Resource file '" + NODETYPES_FILE
-            + "' with NodeTypes configuration does not found. Can not create node type manager";
-        LOG.error(msg);
-        throw new RepositoryException(msg);
-      }
-    } catch (RepositoryException e) {
-      String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
-          + NODETYPES_FILE + "'. " + e;
-      LOG.error(msg);
-      throw new RepositoryException(msg, e);
-    } finally {
-      LOG.info("Initialization of default nodetypes done. " + (System.currentTimeMillis() - start)
-          + " ms.");
-    }
-  }
-
-  /**
-   * @param nodeType
-   * @throws RepositoryException
-   * @throws ValueFormatException
-   * @throws PathNotFoundException
-   */
-  private void internalRegister(NodeTypeData nodeType,
-                                Map<InternalQName, NodeTypeData> volatileNodeTypes) throws PathNotFoundException,
-                                                                                   ValueFormatException,
-                                                                                   RepositoryException {
-
-    hierarchy.addNodeType(nodeType, volatileNodeTypes);
-
-    defsHolder.putDefinitions(nodeType.getName(), nodeType);
-    // put supers
-    Set<InternalQName> supers = hierarchy.getSupertypes(nodeType.getName(), volatileNodeTypes);
-
-    for (InternalQName superName : supers) {
-      defsHolder.putDefinitions(nodeType.getName(), hierarchy.getNodeType(superName,
-                                                                          volatileNodeTypes));
-    }
-  }
-
-  /**
-   * @param nodeTypeName
-   * @param nodeType
-   * @throws RepositoryException
-   */
-  private void internalUnregister(InternalQName nodeTypeName, NodeTypeData nodeType) throws RepositoryException {
-    // put supers
-    Set<InternalQName> supers = hierarchy.getSupertypes(nodeTypeName);
-
-    // remove from internal lists
-    hierarchy.removeNodeType(nodeTypeName);
-
-    // remove supers
-    if (supers != null)
-      for (InternalQName superName : supers) {
-        defsHolder.removeDefinitions(nodeTypeName, hierarchy.getNodeType(superName));
-      }
-    // remove it self
-    defsHolder.removeDefinitions(nodeTypeName, nodeType);
-
   }
 
   /**
@@ -1296,7 +1388,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       case ExtendedNodeTypeManager.FAIL_IF_EXISTS:
         throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
       case ExtendedNodeTypeManager.IGNORE_IF_EXISTS:
-        LOG.warn("Skipped " + nodeType.getName().getAsString() + " as already registered");
+        if (LOG.isDebugEnabled())
+          LOG.debug("Skipped " + nodeType.getName().getAsString() + " as already registered");
         break;
       case ExtendedNodeTypeManager.REPLACE_IF_EXISTS:
         changesLog.addAll(reregisterNodeType(registeredNodeType, nodeType, volatileNodeTypes).getAllStates());
@@ -1331,6 +1424,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
           + ": can't reregister built-in node type.");
     }
     PlainChangesLog changesLog = new PlainChangesLogImpl();
+    VolatileNodeTypeDataManager volatileNodeTypeDataManager = new VolatileNodeTypeDataManager(this);
+
+    volatileNodeTypeDataManager.registerVolatileNodeTypes(volatileNodeTypes);
 
     Set<String> nodes = getNodes(recipientDefinition.getName());
     // check add mix:versionable super
@@ -1364,20 +1460,24 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
 
     // child nodes
-    NodeDefinitionComparator nodeDefinitionComparator = new NodeDefinitionComparator(this,
+    NodeDefinitionComparator nodeDefinitionComparator = new NodeDefinitionComparator(volatileNodeTypeDataManager,
                                                                                      persister.getDataManager());
     changesLog.addAll(nodeDefinitionComparator.compare(recipientDefinition,
-                                                       getAllChildNodeDefinitions(ancestorDefinition),
-                                                       getAllChildNodeDefinitions(recipientDefinition))
+                                                       getAllChildNodeDefinitions(ancestorDefinition,
+                                                                                  new HashMap<InternalQName, NodeTypeData>()),
+                                                       getAllChildNodeDefinitions(recipientDefinition,
+                                                                                  volatileNodeTypes))
                                               .getAllStates());
 
     // properties defs
-    PropertyDefinitionComparator propertyDefinitionComparator = new PropertyDefinitionComparator(this,
+    PropertyDefinitionComparator propertyDefinitionComparator = new PropertyDefinitionComparator(volatileNodeTypeDataManager,
                                                                                                  persister.getDataManager(),
                                                                                                  locationFactory);
     changesLog.addAll(propertyDefinitionComparator.compare(recipientDefinition,
-                                                           getAllPropertyDefinitions(ancestorDefinition),
-                                                           getAllPropertyDefinitions(recipientDefinition))
+                                                           getAllPropertyDefinitions(ancestorDefinition,
+                                                                                     new HashMap<InternalQName, NodeTypeData>()),
+                                                           getAllPropertyDefinitions(recipientDefinition,
+                                                                                     volatileNodeTypes))
 
                                                   .getAllStates());
 

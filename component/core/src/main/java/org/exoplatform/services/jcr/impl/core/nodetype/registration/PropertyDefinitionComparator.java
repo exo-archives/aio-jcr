@@ -29,18 +29,19 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.log.ExoLogger;
@@ -65,7 +66,7 @@ public class PropertyDefinitionComparator extends
    * @param persister
    * @param locationFactory
    */
-  public PropertyDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager,
+  public PropertyDefinitionComparator(NodeTypeDataManager nodeTypeDataManager,
                                       DataManager persister,
                                       LocationFactory locationFactory) {
     super(nodeTypeDataManager, persister);
@@ -350,66 +351,29 @@ public class PropertyDefinitionComparator extends
       // added properties
       for (PropertyDefinitionData newPropertyDefinitionData : toAddList) {
         if (!newPropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME)
-            && newPropertyDefinitionData.isAutoCreated())
-          changesLog.addAll(nodeTypeDataManager.makeAutoCreatedProperties(nodeData,
-                                                                          registeredNodeType.getName(),
-                                                                          new PropertyDefinitionData[] { newPropertyDefinitionData },
-                                                                          persister,
-                                                                          nodeData.getACL()
-                                                                                  .getOwner())
-                                               .getAllStates());
+            && newPropertyDefinitionData.isAutoCreated()) {
+          ItemData pdata = persister.getItemData(nodeData,
+                                                 new QPathEntry(newPropertyDefinitionData.getName(),
+                                                                0));
+          if (pdata == null || (pdata != null && pdata.isNode())) {
+            PlainChangesLog autoCreatedChanges = nodeTypeDataManager.makeAutoCreatedProperties(nodeData,
+                                                                                               registeredNodeType.getName(),
+                                                                                               new PropertyDefinitionData[] { newPropertyDefinitionData },
+                                                                                               persister,
+                                                                                               nodeData.getACL()
+                                                                                                       .getOwner());
+            if (autoCreatedChanges.getSize() == 0) {
+              throw new ConstraintViolationException("Fail to add property by definition: "
+                  + newPropertyDefinitionData.getName().getAsString()
+                  + " Possible no default values defined.");
+            }
+
+            changesLog.addAll(autoCreatedChanges.getAllStates());
+          }
+        }
       }
     }
   }
-
-  // /**
-  // * @param ancestorDefinition
-  // * @param recipientDefinition
-  // * @param sameDefinitionData
-  // * @param changedDefinitionData
-  // * @param newDefinitionData
-  // * @param removedDefinitionData
-  // */
-  // private void init(PropertyDefinitionData[] ancestorDefinition,
-  // PropertyDefinitionData[] recipientDefinition,
-  // List<PropertyDefinitionData> sameDefinitionData,
-  // List<RelatedDefinition<PropertyDefinitionData>> changedDefinitionData,
-  // List<PropertyDefinitionData> newDefinitionData,
-  // List<PropertyDefinitionData> removedDefinitionData) {
-  // for (int i = 0; i < recipientDefinition.length; i++) {
-  // boolean isNew = true;
-  // for (int j = 0; j < ancestorDefinition.length; j++) {
-  // if
-  // (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName()))
-  // {
-  // isNew = false;
-  // if (recipientDefinition[i].equals(ancestorDefinition[j]))
-  // sameDefinitionData.add(recipientDefinition[i]);
-  // else {
-  // RelatedDefinition<PropertyDefinitionData> relatedDefinition = new
-  // RelatedDefinition<PropertyDefinitionData>(ancestorDefinition[j],
-  // recipientDefinition[i]);
-  // changedDefinitionData.add(relatedDefinition);
-  // }
-  // }
-  // }
-  // if (isNew)
-  // newDefinitionData.add(recipientDefinition[i]);
-  // }
-  // for (int i = 0; i < ancestorDefinition.length; i++) {
-  // boolean isRemoved = true;
-  // for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-  // if
-  // (recipientDefinition[j].getName().equals(ancestorDefinition[i].getName()))
-  // {
-  // isRemoved = false;
-  // break;
-  // }
-  // }
-  // if (isRemoved)
-  // removedDefinitionData.add(ancestorDefinition[i]);
-  // }
-  // }
 
   /**
    * @param registeredNodeType
@@ -430,16 +394,6 @@ public class PropertyDefinitionComparator extends
           checkValueConstraints(registeredNodeType, propertyDefinitionData, allRecipientDefinition);
           // multiple change
           checkIsMultiple(registeredNodeType, propertyDefinitionData, allRecipientDefinition);
-
-        } else {
-          // if (propertyDefinitionData.isMandatory() ||
-          // propertyDefinitionData.isAutoCreated()) {
-          if (propertyDefinitionData.isAutoCreated()) {
-            if (propertyDefinitionData.getDefaultValues().length == 0)
-              throw new ConstraintViolationException("No default values defined for "
-                  + propertyDefinitionData.getName().getAsString());
-
-          }
         }
       }
     }

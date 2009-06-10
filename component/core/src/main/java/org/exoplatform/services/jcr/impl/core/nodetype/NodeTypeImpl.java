@@ -1,13 +1,18 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS. This program is free software; you
- * can redistribute it and/or modify it under the terms of the GNU Affero
- * General Public License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version. This program
- * is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details. You
- * should have received a copy of the GNU General Public License along with this
- * program; if not, see<http://www.gnu.org/licenses/>.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
@@ -18,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
+import java.util.Set;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -83,8 +89,6 @@ public class NodeTypeImpl implements NodeType {
     this.locationFactory = locationFactory;
     this.valueFactory = valueFactory;
   }
-
-  // JSR-170 stuff ==========================
 
   /**
    * {@inheritDoc}
@@ -344,7 +348,7 @@ public class NodeTypeImpl implements NodeType {
       return locationFactory.createJCRName(nodeTypeData.getName()).getAsString();
     } catch (RepositoryException e) {
       // TODO
-      throw new RuntimeException("Wrong name in data " + e, e);
+      throw new RuntimeException("Wrong name in nodeTypeData " + e, e);
     }
   }
 
@@ -356,22 +360,25 @@ public class NodeTypeImpl implements NodeType {
         return null;
     } catch (RepositoryException e) {
       // TODO
-      throw new RuntimeException("Wrong primary item name in data " + e, e);
+      throw new RuntimeException("Wrong primary item name in nodeTypeData " + e, e);
     }
   }
 
   public PropertyDefinition[] getPropertyDefinitions() {
-    PropertyDefinitionData[] propertyDefs = nodeTypeDataManager.getAllPropertyDefinitions(nodeTypeData.getName());
+     PropertyDefinitionData[] propertyDefs = nodeTypeDataManager.getAllPropertyDefinitions(nodeTypeData.getName());
     return getPropertyDefinition(propertyDefs);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public NodeType[] getSupertypes() {
-    InternalQName[] dsupers = nodeTypeData.getDeclaredSupertypeNames();
-    // TODO traverse inherited supers
-    NodeType[] superTypes = new NodeType[dsupers.length];
-    for (int i = 0; i < dsupers.length; i++) {
+    Set<InternalQName> supers = nodeTypeDataManager.getSupertypes(nodeTypeData.getName());
+    NodeType[] superTypes = new NodeType[supers.size()];
+    int i = 0;
+    for (InternalQName nodeTypeName : supers) {
       try {
-        superTypes[i] = nodeTypeManager.findNodeType(dsupers[i]);
+        superTypes[i++] = nodeTypeManager.findNodeType(nodeTypeName);
       } catch (NoSuchNodeTypeException e) {
         e.printStackTrace();
       } catch (RepositoryException e) {
@@ -402,7 +409,6 @@ public class NodeTypeImpl implements NodeType {
   /**
    * {@inheritDoc}
    */
-
   public InternalQName getQName() {
     return nodeTypeData.getName();
   }

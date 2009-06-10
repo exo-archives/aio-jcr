@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import javax.jcr.nodetype.ItemDefinition;
+
 /**
  * Created by The eXo Platform SAS.<br/> ItemDefinition value object.
  * 
@@ -37,6 +39,14 @@ public abstract class ItemDefinitionValue {
   protected boolean mandatory;
 
   public ItemDefinitionValue() {
+  }
+
+  public ItemDefinitionValue(ItemDefinition itemDefinition) {
+    this.autoCreate = itemDefinition.isAutoCreated();
+    this.mandatory = itemDefinition.isMandatory();
+    this.name = itemDefinition.getName();
+    this.onVersion = itemDefinition.getOnParentVersion();
+    this.readOnly = itemDefinition.isProtected();
   }
 
   /**

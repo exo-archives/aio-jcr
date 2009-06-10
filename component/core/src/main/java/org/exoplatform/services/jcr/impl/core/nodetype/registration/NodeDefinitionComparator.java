@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -36,7 +37,6 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -56,7 +56,7 @@ public class NodeDefinitionComparator extends AbstractDefinitionComparator<NodeD
    * @param nodeTypeDataManager
    * @param persister
    */
-  public NodeDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager, DataManager persister) {
+  public NodeDefinitionComparator(NodeTypeDataManager nodeTypeDataManager, DataManager persister) {
     super(nodeTypeDataManager, persister);
   }
 

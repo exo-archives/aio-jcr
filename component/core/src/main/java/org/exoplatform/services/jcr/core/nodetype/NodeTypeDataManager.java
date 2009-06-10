@@ -23,13 +23,15 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 25.11.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
  *         Nedonosko</a>
@@ -37,6 +39,14 @@ import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
  *          $
  */
 public interface NodeTypeDataManager {
+
+  /**
+   * Returns all supertypes of this node type in the node type inheritance
+   * hierarchy. For primary types apart from <code>nt:base</code>, this list
+   * will always include at least <code>nt:base</code>. For mixin types, there
+   * is no required supertype.
+   */
+  public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName);
 
   void addQueryHandler(QueryHandler queryHandler);
 
@@ -104,10 +114,13 @@ public interface NodeTypeDataManager {
                                             InternalQName parentTypeName);
 
   /**
-   * @param nodeTypeName
+   * Returns the <i>direct</i> subtypes of this node type in the node type
+   * inheritance hierarchy, that is, those which actually declared this node
+   * type in their list of supertypes.
+   * 
    * @return
    */
-  Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName);
+  Set<InternalQName> getDeclaredSubtypes(final InternalQName nodeTypeName);
 
   /**
    * @param primaryNodeType
@@ -118,12 +131,39 @@ public interface NodeTypeDataManager {
                                                  InternalQName[] mixinTypes);
 
   /**
+   * @param name
+   * @return
+   * @throws RepositoryException
+   */
+  Set<String> getNodes(InternalQName name) throws RepositoryException;
+
+  /**
+   * @param name
+   * @param internalQNames
+   * @param internalQNames2
+   * @return
+   * @throws RepositoryException
+   */
+  Set<String> getNodes(InternalQName name,
+                       InternalQName[] includeProperties,
+                       InternalQName[] excludeProperties) throws RepositoryException;
+
+  /**
    * @param propertyName
    * @param nodeTypeNames
    * @return
    */
   PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
                                                  InternalQName... nodeTypeNames);
+
+  /**
+   * Returns all subtypes of this node type in the node type inheritance
+   * hierarchy.
+   * 
+   * @param nodeTypeName
+   * @return
+   */
+  Set<InternalQName> getSubtypes(final InternalQName nodeTypeName);
 
   /**
    * @param childNodeTypeName
@@ -169,6 +209,36 @@ public interface NodeTypeDataManager {
                                        InternalQName nodeTypeName,
                                        ItemDataConsumer dataManager,
                                        String owner) throws RepositoryException;
+
+  /**
+   * @param nodeData
+   * @param name
+   * @param nodeDefinitionDatas
+   * @param persister
+   * @param owner
+   * @return
+   * @throws RepositoryException
+   */
+  ItemStateChangesLog makeAutoCreatedNodes(NodeData nodeData,
+                                           InternalQName name,
+                                           NodeDefinitionData[] nodeDefinitionDatas,
+                                           ItemDataConsumer dataManager,
+                                           String owner) throws RepositoryException;
+
+  /**
+   * @param nodeData
+   * @param name
+   * @param propertyDefinitionDatas
+   * @param persister
+   * @param owner
+   * @return
+   * @throws RepositoryException
+   */
+  PlainChangesLog makeAutoCreatedProperties(NodeData nodeData,
+                                            InternalQName name,
+                                            PropertyDefinitionData[] propertyDefinitionDatas,
+                                            ItemDataConsumer dataManager,
+                                            String owner) throws RepositoryException;
 
   /**
    * @param xml

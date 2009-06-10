@@ -63,10 +63,33 @@ public class NodeTypeDataHierarchyHolder {
   }
 
   /**
+   * Returns the <i>direct</i> subtypes of this node type in the node type
+   * inheritance hierarchy, that is, those which actually declared this node
+   * type in their list of supertypes.
+   * 
+   * @return
+   */
+  public Set<InternalQName> getDeclaredSubtypes(final InternalQName nodeTypeName) {
+    // TODO Speed up this method
+    Set<InternalQName> resultSet = new HashSet<InternalQName>();
+    for (Map.Entry<InternalQName, NodeTypeHolder> entry : nodeTypes.entrySet()) {
+      InternalQName[] declaredSupertypeNames = entry.getValue().nodeType.getDeclaredSupertypeNames();
+      for (int i = 0; i < declaredSupertypeNames.length; i++) {
+        if (nodeTypeName.equals(declaredSupertypeNames[i]))
+          resultSet.add(entry.getKey());
+      }
+    }
+    return resultSet;
+  }
+
+  /**
+   * Returns all subtypes of this node type in the node type inheritance
+   * hierarchy.
+   * 
    * @param nodeTypeName
    * @return
    */
-  public Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName) {
+  public Set<InternalQName> getSubtypes(final InternalQName nodeTypeName) {
     // TODO Speed up this method
     Set<InternalQName> resultSet = new HashSet<InternalQName>();
     for (InternalQName ntName : nodeTypes.keySet()) {
@@ -77,11 +100,24 @@ public class NodeTypeDataHierarchyHolder {
     return resultSet;
   }
 
+  /**
+   * @param nodeTypeName
+   * @return
+   */
   public NodeTypeData getNodeType(final InternalQName nodeTypeName) {
-    final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
-    return nt != null ? nt.nodeType : null;
+    if (nodeTypeName != null) {
+      final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
+      if (nt != null)
+        return nt.nodeType;
+    }
+    return null;
   }
 
+  /**
+   * @param nodeTypeName
+   * @param volatileNodeTypes
+   * @return
+   */
   public NodeTypeData getNodeType(final InternalQName nodeTypeName,
                                   Map<InternalQName, NodeTypeData> volatileNodeTypes) {
     NodeTypeData nt = volatileNodeTypes.get(nodeTypeName);
@@ -92,11 +128,25 @@ public class NodeTypeDataHierarchyHolder {
     return nt;
   }
 
+  /**
+   * @param nodeTypeName
+   * @return
+   */
   public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
-    final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
-    return nt != null ? nt.superTypes : null;
+    if (nodeTypeName != null) {
+      final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
+      if (nt != null)
+        return nt.superTypes;
+    }
+    return new HashSet<InternalQName>();
   }
 
+  /**
+   * @param nodeTypeName
+   * @param volatileNodeTypes
+   * @return
+   * @throws RepositoryException
+   */
   public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName,
                                           Map<InternalQName, NodeTypeData> volatileNodeTypes) throws RepositoryException {
     final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
@@ -107,6 +157,9 @@ public class NodeTypeDataHierarchyHolder {
     return supers;
   }
 
+  /**
+   * @return
+   */
   public List<NodeTypeData> getAllNodeTypes() {
     Collection<NodeTypeHolder> hs = nodeTypes.values();
     List<NodeTypeData> nts = new ArrayList<NodeTypeData>(hs.size());
@@ -116,6 +169,11 @@ public class NodeTypeDataHierarchyHolder {
     return nts;
   }
 
+  /**
+   * @param testTypeName
+   * @param typesNames
+   * @return
+   */
   public boolean isNodeType(final InternalQName testTypeName, final InternalQName... typesNames) {
 
     for (InternalQName typeName : typesNames) {
@@ -168,15 +226,4 @@ public class NodeTypeDataHierarchyHolder {
     }
 
   }
-
-  // private void addSupertypes(final Collection<InternalQName> list,
-  // final Collection<InternalQName> supers) {
-  // if (supers != null) {
-  // for (InternalQName su : supers) {
-  // list.add(su);
-  // addSupertypes(list, nodeTypes.get(su).superTypes);
-  // }
-  // }
-  // }
-
 }

@@ -23,11 +23,11 @@ import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,19 +39,18 @@ public abstract class AbstractDefinitionComparator<T extends ItemDefinitionData>
   /**
    * Data manager
    */
-  protected final DataManager             persister;
+  protected final DataManager         persister;
 
   /**
    * Node type data manager
    */
-  protected final NodeTypeDataManagerImpl nodeTypeDataManager;
+  protected final NodeTypeDataManager nodeTypeDataManager;
 
   /**
    * @param nodeTypeDataManager
    * @param persister
    */
-  public AbstractDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager,
-                                      DataManager persister) {
+  public AbstractDefinitionComparator(NodeTypeDataManager nodeTypeDataManager, DataManager persister) {
     super();
     this.nodeTypeDataManager = nodeTypeDataManager;
     this.persister = persister;

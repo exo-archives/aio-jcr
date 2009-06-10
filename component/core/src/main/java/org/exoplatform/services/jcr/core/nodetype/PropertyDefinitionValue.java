@@ -16,7 +16,13 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.nodetype.PropertyDefinition;
 
 /**
  * Created by The eXo Platform SAS.
@@ -27,7 +33,6 @@ import java.util.List;
  */
 
 public final class PropertyDefinitionValue extends ItemDefinitionValue {
-
   private int          requiredType;
 
   private List<String> valueConstraints;
@@ -64,6 +69,16 @@ public final class PropertyDefinitionValue extends ItemDefinitionValue {
     this.multiple = multiple;
     this.requiredType = requiredType;
     this.valueConstraints = valueConstraints;
+  }
+
+  public PropertyDefinitionValue(PropertyDefinition propertyDefinition) throws RepositoryException {
+    super(propertyDefinition);
+    this.defaultValueStrings = convert(propertyDefinition.getDefaultValues());
+    this.multiple = propertyDefinition.isMultiple();
+    this.requiredType = propertyDefinition.getRequiredType();
+    this.valueConstraints = propertyDefinition.getValueConstraints() != null ? Arrays.asList(propertyDefinition.getValueConstraints())
+                                                                            : new ArrayList<String>();
+    ;
   }
 
   /**
@@ -120,5 +135,13 @@ public final class PropertyDefinitionValue extends ItemDefinitionValue {
    */
   public void setValueConstraints(List<String> valueConstraints) {
     this.valueConstraints = valueConstraints;
+  }
+
+  private List<String> convert(Value[] values) throws RepositoryException {
+    List<String> result = new ArrayList<String>(values.length);
+    for (int i = 0; i < values.length; i++) {
+      result.add(values[i].getString());
+    }
+    return result;
   }
 }
