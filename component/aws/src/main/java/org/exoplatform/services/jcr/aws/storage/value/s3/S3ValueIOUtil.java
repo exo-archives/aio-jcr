@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -239,7 +240,7 @@ public class S3ValueIOUtil {
     AWSAuthConnection conn = new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
     InputStream valueStream = (value.isByteArray())
         ? new ByteArrayInputStream(value.getAsByteArray())
-        : value.getAsStream();
+        : ((TransientValueData) value).getAsStream(false);
     Response resp = conn.put(bucket, key, new S3Object(valueStream, null), null);
     int responseCode = resp.connection.getResponseCode();
     if (responseCode != HttpURLConnection.HTTP_OK) {
