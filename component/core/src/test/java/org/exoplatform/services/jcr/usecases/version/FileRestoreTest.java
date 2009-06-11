@@ -29,13 +29,14 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 02.06.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 02.06.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: FileRestoreTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class FileRestoreTest  extends BaseUsecasesTest {
-  
+public class FileRestoreTest extends BaseUsecasesTest {
+
   public void testBigFileRestore() throws Exception {
 
     File tempFile = File.createTempFile("tempFile", "doc");
@@ -67,94 +68,52 @@ public class FileRestoreTest  extends BaseUsecasesTest {
     log.info("FILE for VERSION #2 : file size = " + tempFile2.length() + " bytes");
     log.info("FILE for VERSION #3 : file size = " + tempFile3.length() + " bytes");
 
-    Node srcVersionNode = root.addNode("nt_file_node", "nt:file");
-    Node contentNode = srcVersionNode.addNode("jcr:content", "nt:resource");
+    Node file = root.addNode("nt_file_node", "nt:file");
+    Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
     contentNode.setProperty("jcr:mimeType", "text/plain");
     contentNode.setProperty("jcr:lastModified", session.getValueFactory()
                                                        .createValue(Calendar.getInstance()));
-    srcVersionNode.addMixin("mix:versionable");
-
+    file.addMixin("mix:versionable");
     session.save();
 
     log.info("SAVED");
 
-    Node srcVersion = root.getNode("nt_file_node");
-    log.info("GET");
-
-    long time = 10 * 1000;
-
-    Thread.sleep(time);
-
-    compareStream(new FileInputStream(tempFile), contentNode.getProperty("jcr:data")
-                                                                .getStream());
-
-    srcVersion.checkin();
+    file.checkin(); // v1
+    file.checkout();  // file.getNode("jcr:content").getProperty("jcr:data").getStream()
+    file.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile2));
     session.save();
-
-    srcVersion.checkout();
-    srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile2));
-    session.save();
-
-    Thread.sleep(time);
 
     log.info("ADD VERSION #2 : file size = "
         + contentNode.getProperty("jcr:data").getStream().available() + " bytes");
-    compareStream(new FileInputStream(tempFile2), contentNode.getProperty("jcr:data")
-                                                                 .getStream());
+    compareStream(new FileInputStream(tempFile2), contentNode.getProperty("jcr:data").getStream());
 
-    srcVersion.checkin();
+    file.checkin(); // v2
+    file.checkout();
+    file.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile3));
     session.save();
-
-    Thread.sleep(time);
-
-    srcVersion.checkout();
-    srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile3));
-    session.save();
-
-    Thread.sleep(time);
 
     log.info("ADD VERSION #3 : file size = "
         + contentNode.getProperty("jcr:data").getStream().available() + " bytes");
-    compareStream(new FileInputStream(tempFile3), contentNode.getProperty("jcr:data")
-                                                                 .getStream());
+    compareStream(new FileInputStream(tempFile3), contentNode.getProperty("jcr:data").getStream());
 
-    Version baseVersion = srcVersion.getBaseVersion();
-    srcVersion.restore(baseVersion, true);
-    session.save();
+    // restore version v2
+    Version v2 = file.getBaseVersion();
+    file.restore(v2, true);
 
-    Thread.sleep(time);
+    compareStream(new FileInputStream(tempFile2), contentNode.getProperty("jcr:data").getStream());
 
-    compareStream(new FileInputStream(tempFile2), contentNode.getProperty("jcr:data")
-                                                                 .getStream());
+    // restore version v1
+    Version v1 = file.getBaseVersion().getPredecessors()[0];
+    file.restore(v1, true); // HERE
 
-    Version baseVersion1 = srcVersion.getBaseVersion();
-    Version[] predesessors = baseVersion1.getPredecessors();
-    Version restoreToBaseVersion = predesessors[0];
+    compareStream(new FileInputStream(tempFile), contentNode.getProperty("jcr:data").getStream());
 
-    srcVersion.restore(restoreToBaseVersion, true); // HERE
-    session.save();
+    // restore version v2 again
+    file.restore(v2, true);
 
-    Thread.sleep(time);
-
-    compareStream(new FileInputStream(tempFile), contentNode.getProperty("jcr:data")
-                                                                .getStream());
-
-    // restore from destination node
-    Node destVersion = contentNode.getParent();
-
-    Version baseVersion2 = destVersion.getBaseVersion();
-    Version[] predesessors2 = baseVersion2.getSuccessors();
-    Version restoreToBaseVersion_2 = predesessors2[0];
-
-    destVersion.restore(restoreToBaseVersion_2, true);
-    session.save();
-
-    Thread.sleep(time);
-
-    compareStream(new FileInputStream(tempFile2), srcVersionNode.getNode("jcr:content")
-                                                                .getProperty("jcr:data")
-                                                                .getStream());
+    compareStream(new FileInputStream(tempFile2), file.getNode("jcr:content")
+                                                      .getProperty("jcr:data")
+                                                      .getStream());
   }
-
 }

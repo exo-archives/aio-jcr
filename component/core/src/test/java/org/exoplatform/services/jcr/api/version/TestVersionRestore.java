@@ -16,12 +16,18 @@
  */
 package org.exoplatform.services.jcr.api.version;
 
+import java.io.ByteArrayInputStream;
+import java.util.Calendar;
+
 import javax.jcr.Node;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.lock.LockException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
+
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * <code>TestVersionRestore</code> covers tests related to the methods of the
@@ -267,5 +273,62 @@ public class TestVersionRestore extends BaseVersionTest {
 
     // test it
     session.getWorkspace().restore(vs, true);// restore A v.3, B v.2, C v.2
+  }
+
+  /**
+   * Tests multiple restores of same version.
+   * 
+   * @throws Exception
+   *           if error
+   */
+  public void testMultipleRestore() throws Exception {
+    String content = "Binary content";
+    byte[] bytes = content.getBytes(Constants.DEFAULT_ENCODING);
+
+    Node file = root.addNode("testMultipleRestore_File", "nt:file");
+    Node contentNode = file.addNode("jcr:content", "nt:resource");
+    contentNode.setProperty("jcr:data", content, PropertyType.BINARY);
+    contentNode.setProperty("jcr:mimeType", "text/plain");
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
+    file.addMixin("mix:versionable");
+    session.save();
+
+    file.checkin(); // v1
+    file.checkout();
+
+    compareStream(new ByteArrayInputStream(bytes), file.getNode("jcr:content")
+                                                       .getProperty("jcr:data")
+                                                       .getStream());
+
+    String content2 = content + " #2";
+    file.getNode("jcr:content").setProperty("jcr:data", content2, PropertyType.BINARY);
+    file.checkin(); // v2
+    file.checkout();
+
+    String content3 = content + " #3";
+    file.getNode("jcr:content").setProperty("jcr:data", content3, PropertyType.BINARY);
+    session.save();
+
+    // restore version v2
+    Version v2 = file.getBaseVersion();
+    file.restore(v2, true);
+
+    compareStream(new ByteArrayInputStream(content2.getBytes(Constants.DEFAULT_ENCODING)),
+                  file.getNode("jcr:content").getProperty("jcr:data").getStream());
+
+    // restore version v1
+    Version v1 = file.getBaseVersion().getPredecessors()[0];
+    file.restore(v1, true);
+
+    compareStream(new ByteArrayInputStream(bytes), file.getNode("jcr:content")
+                                                       .getProperty("jcr:data")
+                                                       .getStream());
+
+    // restore version v2 again
+    file.restore(v2, true);
+
+    compareStream(new ByteArrayInputStream(content2.getBytes(Constants.DEFAULT_ENCODING)),
+                  file.getNode("jcr:content").getProperty("jcr:data").getStream());
   }
 }

@@ -60,9 +60,9 @@ public class TestFileValueIO extends TestCase {
       return null;
     }
 
-    static public ValueData testReadValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
+    static public ValueData testReadValue(File file, int orderNum, int maxBufferSize) throws IOException {
 
-      return new FileValueIOUtil().readValue(file, orderNum, maxBufferSize, temp);
+      return new FileValueIOUtil().readValue(file, orderNum, maxBufferSize);
     }
 
     static public void testWriteValue(File file, ValueData value) throws IOException {
@@ -81,7 +81,7 @@ public class TestFileValueIO extends TestCase {
     out.close();
 
     // max buffer size = 50 - so ByteArray will be created
-    ValueData vd = FileValueIOUtil.testReadValue(file, 0, 50, false);
+    ValueData vd = FileValueIOUtil.testReadValue(file, 0, 50);
 
     assertTrue(vd instanceof ByteArrayPersistedValueData);
     assertTrue(vd.isByteArray());
@@ -102,7 +102,7 @@ public class TestFileValueIO extends TestCase {
     out.close();
 
     // max buffer size = 5 - so File will be created
-    ValueData vd = FileValueIOUtil.testReadValue(file, 0, 5, false);
+    ValueData vd = FileValueIOUtil.testReadValue(file, 0, 5);
 
     assertTrue(vd instanceof FileStreamPersistedValueData);
     assertFalse(vd.isByteArray());
@@ -128,20 +128,11 @@ public class TestFileValueIO extends TestCase {
     FileValueIOUtil.testWriteValue(file, vd);
 
     // max buffer size = 5 - so File will be created
-    ValueData vd1 = FileValueIOUtil.testReadValue(file, 0, 5, false);
+    ValueData vd1 = FileValueIOUtil.testReadValue(file, 0, 5);
 
     assertFalse(vd1.isByteArray());
     assertEquals(10, vd1.getLength());
     assertEquals(0, vd1.getOrderNumber());
     assertTrue(vd1.getAsStream() instanceof FileInputStream);
   }
-
-  /*
-   * private class Probe extends Thread { private File file; private int len = 0; public Probe(File
-   * file) { super(); this.file = file; } public void run() {
-   * System.out.println("Thread started "+this.getName()); try { FileInputStream is = new
-   * FileInputStream(file); while(is.read()>0) { len++; } } catch (Exception e) {
-   * e.printStackTrace(); } System.out.println("Thread finished "+this.getName()+" read: "+len); }
-   * public int getLen() { return len; } }
-   */
 }
