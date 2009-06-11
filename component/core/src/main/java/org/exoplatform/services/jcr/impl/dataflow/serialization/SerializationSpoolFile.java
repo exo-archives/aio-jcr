@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 
@@ -66,11 +67,18 @@ public class SerializationSpoolFile extends SpoolFile {
 
   @Override
   public synchronized boolean delete() {
-    boolean result = super.delete();
-    if (result) {
-      holder.remove(id);
+    try {
+      if (!inUse()) {
+        boolean result = super.delete();
+        if (result) {
+          holder.remove(id);
+        }
+        return result;
+      }
+    } catch (FileNotFoundException e) {
+      // haven't file - haven't problem
     }
-    return result;
+    return false;
   }
 
 }
