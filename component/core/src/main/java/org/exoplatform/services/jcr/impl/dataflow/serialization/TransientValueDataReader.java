@@ -50,12 +50,16 @@ public class TransientValueDataReader {
    * ReadedSpoolFile holder,
    */
   private final ReaderSpoolFileHolder holder;
-
+  
   /**
    * Constructor.
    * 
    * @param fileCleaner
+   *          FileCleaner
    * @param maxBufferSize
+   *          int
+   * @param holder
+   *          ReaderSpoolFileHolder
    */
   public TransientValueDataReader(FileCleaner fileCleaner,
                                   int maxBufferSize,
@@ -77,15 +81,12 @@ public class TransientValueDataReader {
    *           If an I/O error has occurred.
    */
   public TransientValueData read(ObjectReader in) throws UnknownClassIdException, IOException {
-    File tempDirectory = new File(System.getProperty("java.io.tmpdir") + "/"
-        + TransientValueData.DESERIALIAED_SPOOLFILES_TEMP_DIR);
-    tempDirectory.mkdirs();
+    File tempDirectory = new File(SerializationConstants.TEMP_DIR);
 
     // read id
     int key;
-    if ((key = in.readInt()) != SerializationConstants.TRANSIENT_VALUE_DATA) {
+    if ((key = in.readInt()) != SerializationConstants.TRANSIENT_VALUE_DATA)
       throw new UnknownClassIdException("There is unexpected class [" + key + "]");
-    }
 
     int orderNumber = in.readInt();
 
