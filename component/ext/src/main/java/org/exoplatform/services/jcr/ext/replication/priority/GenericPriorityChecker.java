@@ -19,8 +19,10 @@ package org.exoplatform.services.jcr.ext.replication.priority;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -38,7 +40,7 @@ public class GenericPriorityChecker extends AbstractPriorityChecker {
    */
   private static Log log = ExoLogger.getLogger("ext.GenericPriorityChecker");
 
-  public GenericPriorityChecker(ChannelManager channelManager,
+  public GenericPriorityChecker(AsyncChannelManager channelManager,
                                 int ownPriority,
                                 String ownName,
                                 List<String> otherParticipants) {
@@ -55,7 +57,8 @@ public class GenericPriorityChecker extends AbstractPriorityChecker {
   /**
    * {@inheritDoc}
    */
-  public void receive(Packet packet) {
+  public void receive(AbstractPacket p, MemberAddress sourceAddress) {
+    Packet packet = (Packet) p;
 
     if (log.isDebugEnabled())
       log.debug(" ------->>> receive from " + packet.getOwnerName() + ", byte == "
@@ -104,6 +107,12 @@ public class GenericPriorityChecker extends AbstractPriorityChecker {
    */
   public boolean hasDuplicatePriority() {
     return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onError(MemberAddress sourceAddress) {
   }
 
 }

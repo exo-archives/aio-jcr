@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.File;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -32,8 +31,6 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
-import org.jgroups.MembershipListener;
-import org.jgroups.View;
 
 /**
  * Created by The eXo Platform SAS.
@@ -42,42 +39,37 @@ import org.jgroups.View;
  * @version $Id$
  */
 
-public class WorkspaceDataTransmitter implements ItemsPersistenceListener, MembershipListener {
+public class WorkspaceDataTransmitter implements ItemsPersistenceListener {
 
   /**
    * The apache logger.
    */
-  private static Log      log = ExoLogger.getLogger("ext.WorksapeDataTransmitter");
+  private static Log                log = ExoLogger.getLogger("ext.WorksapeDataTransmitter");
 
   /**
    * System identification string.
    */
-  private String          systemId;
+  private String                    systemId;
 
   /**
-   * The ChannalManager will be transmitted the Packets.
+   * The ReplicationChannelManager will be transmitted the Packets.
    */
-  private ChannelManager  channelManager;
+  private ReplicationChannelManager channelManager;
 
   /**
    * The FileCleaner will be deleted temporary files.
    */
-  private FileCleaner     fileCleaner;
-
-  /**
-   * The list of address to members.
-   */
-  private Vector<Address> members;
+  private FileCleaner               fileCleaner;
 
   /**
    * The RecoveryManager will be saved ChangesLogs on FS(file system).
    */
-  private RecoveryManager recoveryManager;
+  private RecoveryManager           recoveryManager;
 
   /**
    * The own name in cluster.
    */
-  private String          ownName;
+  private String                    ownName;
 
   /**
    * WorkspaceDataTransmitter constructor.
@@ -96,7 +88,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
    * init.
    * 
    * @param channelManager
-   *          the ChannelManager
+   *          the ReplicationChannelManager
    * @param systemId
    *          system identification string
    * @param ownName
@@ -104,7 +96,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
    * @param recoveryManager
    *          the RecoveryManager
    */
-  public void init(ChannelManager channelManager,
+  public void init(ReplicationChannelManager channelManager,
                    String systemId,
                    String ownName,
                    RecoveryManager recoveryManager) {
@@ -215,29 +207,11 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   }
 
   /**
-   * {@inheritDoc}
-   */
-  public void viewAccepted(View views) {
-    Address localIpAddres = channelManager.getChannel().getLocalAddress();
-
-    members = new Vector();
-
-    for (int i = 0; i < views.getMembers().size(); i++) {
-      Address address = (Address) (views.getMembers().get(i));
-      if (address.compareTo(localIpAddres) != 0)
-        members.add(address);
-    }
-
-    if (log.isDebugEnabled())
-      log.debug(members.size());
-  }
-
-  /**
    * getChannelManager.
    * 
-   * @return ChannelManager return the ChannelManager
+   * @return ReplicationChannelManager return the ChannelManager
    */
-  public ChannelManager getChannelManager() {
+  public ReplicationChannelManager getChannelManager() {
     return channelManager;
   }
 }

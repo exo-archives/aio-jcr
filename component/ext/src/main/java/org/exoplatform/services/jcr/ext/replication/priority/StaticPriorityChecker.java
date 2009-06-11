@@ -19,8 +19,10 @@ package org.exoplatform.services.jcr.ext.replication.priority;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -49,7 +51,7 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
    * @param otherParticipants
    *          the list of names to other participants
    */
-  public StaticPriorityChecker(ChannelManager channelManager,
+  public StaticPriorityChecker(AsyncChannelManager channelManager,
                                int ownPriority,
                                String ownName,
                                List<String> otherParticipants) {
@@ -59,7 +61,8 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
   /**
    * {@inheritDoc}
    */
-  public void receive(Packet packet) {
+  public void receive(AbstractPacket p, MemberAddress sourceAddress) {
+    Packet packet = (Packet) p;
 
     if (log.isDebugEnabled())
       log.debug(" ------->>> receive from " + packet.getOwnerName() + ", byte == "
@@ -109,5 +112,11 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
    */
   public boolean isMaxPriority() {
     return ownPriority == MAX_PRIORITY;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onError(MemberAddress sourceAddress) {
   }
 }

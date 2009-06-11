@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.PriorityDucplicatedException;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
 import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChecker;
@@ -30,6 +29,9 @@ import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChec
 import org.exoplatform.services.jcr.ext.replication.priority.GenericPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.MemberListener;
 import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.AsyncStateEvent;
+import org.exoplatform.services.jcr.ext.transport.AsyncStateListener;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
@@ -44,7 +46,7 @@ import org.jgroups.View;
  * @version $Id: ConectionFailDetector.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
-public class ConnectionFailDetector implements ChannelListener, MembershipListener, MemberListener {
+public class ConnectionFailDetector implements AsyncStateListener{
   /**
    * The apache logger.
    */
@@ -76,9 +78,9 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   private static final int              AFTER_INIT    = 60000;
 
   /**
-   * The ChannalManager will be transmitted or receive the Packets.
+   * The ChannelManager will be transmitted or receive the Packets.
    */
-  private final ChannelManager          channelManager;
+  private final AsyncChannelManager          channelManager;
   
   /**
    * The name of workspace.
@@ -108,17 +110,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   /**
    * The PersistentDataManager will be used to workspace for set state 'read-only'.
    */
-  private final PersistentDataManager  dataManager;
+  private final PersistentDataManager   dataManager;
 
   /**
    * The RecoveryManager will be initialized cluster node synchronization.
    */
   private final RecoveryManager         recoveryManager;
-
-  /**
-   * The list of address for suspect members.
-   */
-  private List<Address>                 suspectMembers;
 
   /**
    * The own priority value.
@@ -165,7 +162,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * @param workspaceName
    *          String, the name of workspace         
    */
-  public ConnectionFailDetector(ChannelManager channelManager,
+  public ConnectionFailDetector(AsyncChannelManager channelManager,
                                 PersistentDataManager dataManager,
                                 RecoveryManager recoveryManager,
                                 int ownPriority,
@@ -174,7 +171,6 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
                                 String priprityType,
                                 String workspaceName) {
     this.channelManager = channelManager;
-    this.channelManager.setChannelListener(this);
 
     this.dataManager = dataManager;
     this.workspaceName = workspaceName;
@@ -201,8 +197,6 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
                                                    ownName,
                                                    otherParticipants);
 
-    priorityChecker.setMemberListener(this);
-
     viewChecker = new ViewChecker();
     viewChecker.start();
   }
@@ -210,66 +204,8 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   /**
    * {@inheritDoc}
    */
-  public void channelClosed(Channel channel) {
-    if (log.isDebugEnabled())
-      log.debug("Channel closed : " + channel.getClusterName());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void channelConnected(Channel channel) {
-    if (log.isDebugEnabled())
-      log.debug("Channel connected : " + channel.getClusterName());
-
-    channelName = channel.getClusterName();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void channelDisconnected(Channel channel) {
-    if (log.isDebugEnabled())
-      log.debug("Channel disconnected : " + channel.getClusterName());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void channelReconnected(Address address) {
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void channelShunned() {
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void block() {
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void suspect(Address adrress) {
-    if (log.isDebugEnabled())
-      log.debug(" ------->>> MembershipListener.suspect : " + adrress.toString());
-
-    if (suspectMembers == null)
-      suspectMembers = new ArrayList<Address>();
-
-    if (!suspectMembers.contains(adrress))
-      suspectMembers.add(adrress);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void viewAccepted(View view) {
-    viewChecker.putView(view);
+  public void onStateChanged(AsyncStateEvent event) {
+    viewChecker.putView(event);
   }
 
   private void viewAccepted(int viewSise) throws InterruptedException, PriorityDucplicatedException {
@@ -353,10 +289,8 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   private class ViewChecker extends Thread {
     private final ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<Integer>();
 
-    public void putView(View view) {
-      log.info(" Memebers view :" + view.printDetails());
-
-      queue.offer(view.size());
+    public void putView(AsyncStateEvent event) {
+      queue.offer(event.getMembers().size());
     }
 
     /**
@@ -421,11 +355,10 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
           }
 
           if (isStop && (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline()))) {
-            channelManager.closeChannel();
+            channelManager.disconnect();
 
             Thread.sleep(BEFORE_INIT);
 
-            channelManager.init();
             channelManager.connect();
           } else {
             isStop = false;
@@ -480,4 +413,5 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       dataManager.setReadOnly(true);
     }
   }
+
 }

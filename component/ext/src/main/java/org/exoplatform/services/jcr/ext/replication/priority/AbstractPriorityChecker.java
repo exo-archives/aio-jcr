@@ -21,9 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
-import org.exoplatform.services.jcr.ext.replication.PacketListener;
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -34,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: PriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
-public abstract class AbstractPriorityChecker implements PacketListener {
+public abstract class AbstractPriorityChecker implements AsyncPacketListener {
 
   /**
    * The definition max priority value.
@@ -52,9 +54,9 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   private static Log                 log           = ExoLogger.getLogger("ext.AbstractPriorityChecker");
 
   /**
-   * The ChannalManager will be transmitted the Packets.
+   * The ChannelManager will be transmitted the Packets.
    */
-  protected final ChannelManager     channelManager;
+  protected final AsyncChannelManager channelManager;
 
   /**
    * The own priority value.
@@ -82,11 +84,6 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   protected String                   identifier;
 
   /**
-   * The MemberListener.
-   */
-  protected MemberListener           memberListener;
-
-  /**
    * AbstractPriorityChecker constructor.
    * 
    * @param channelManager
@@ -98,7 +95,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    * @param otherParticipants
    *          the list of names to other participants.
    */
-  public AbstractPriorityChecker(ChannelManager channelManager,
+  public AbstractPriorityChecker(AsyncChannelManager channelManager,
                                  int ownPriority,
                                  String ownName,
                                  List<String> otherParticipants) {
@@ -116,7 +113,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   /**
    * {@inheritDoc}
    */
-  public abstract void receive(Packet packet);
+  public abstract void receive(AbstractPacket packet, MemberAddress sourceAddress);
 
   /**
    * informAll. If was changed members in cluster, then will be called this method.
@@ -159,16 +156,6 @@ public abstract class AbstractPriorityChecker implements PacketListener {
     log.info(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
     for (String memberName : currentParticipants.keySet())
       log.debug("    " + memberName + ":" + currentParticipants.get(memberName));
-  }
-
-  /**
-   * setMemberListener.
-   * 
-   * @param memberListener
-   *          the MemberListener
-   */
-  public void setMemberListener(MemberListener memberListener) {
-    this.memberListener = memberListener;
   }
 
   /**

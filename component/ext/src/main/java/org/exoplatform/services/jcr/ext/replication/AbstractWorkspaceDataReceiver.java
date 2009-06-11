@@ -26,6 +26,10 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -37,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 
-public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
+public abstract class AbstractWorkspaceDataReceiver implements AsyncPacketListener {
 
   /**
    * The apache logger.
@@ -77,7 +81,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * The ChannalManager will be transmitted the Packets.
    */
-  private ChannelManager                     channelManager;
+  private AsyncChannelManager                     channelManager;
 
   /**
    * The HashMap with PendingChangesLogs.
@@ -135,7 +139,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
    * @param recoveryManager
    *          the RecoveryManager
    */
-  public void init(ChannelManager channelManager,
+  public void init(AsyncChannelManager channelManager,
                    String systemId,
                    String ownName,
                    RecoveryManager recoveryManager) {
@@ -212,8 +216,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   /**
    * {@inheritDoc}
    */
-  public void receive(Packet packet) {
+  public void receive(AbstractPacket p, MemberAddress sourceAddress) {
     try {
+      Packet packet = (Packet) p;
       Packet bigPacket = null;
 
       switch (packet.getPacketType()) {
@@ -263,6 +268,13 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
     } catch (Exception e) {
       log.error("An error in processing packet : ", e);
     }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void onError(MemberAddress sourceAddress) {
+    
   }
 
   /**

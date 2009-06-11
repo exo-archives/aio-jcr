@@ -28,8 +28,9 @@ import org.exoplatform.management.annotations.ManagedBy;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.replication.ReplicationChannelManager;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -101,13 +102,9 @@ public class RecoveryManager {
   private RecoverySynchronizer                                    recoverySynchronizer;
 
   /**
-   * The ItemDataKeeper will be saved the ChangesLog to JCR.
+   * The ChannelManager will be transmitted or receive the Packets.
    */
-  // private ItemDataKeeper dataKeeper;
-  /**
-   * The ChannalManager will be transmitted or receive the Packets.
-   */
-  private ChannelManager                                          channelManager;
+  private AsyncChannelManager                                    channelManager;
 
   /**
    * The list of names other participants.
@@ -142,7 +139,7 @@ public class RecoveryManager {
    * @param wsName
    *          the workspace name
    * @param channelManager
-   *          the ChannelManager
+   *          the ReplicationChannelManager
    * @throws IOException
    *           will be generated the IOException
    */
@@ -153,7 +150,7 @@ public class RecoveryManager {
                          long waitConformation,
                          String repoName,
                          String wsName,
-                         ChannelManager channelManager,
+                         ReplicationChannelManager channelManager,
                          FileCleaner fileCleaner,
                          int maxBufferSize,
                          ReaderSpoolFileHolder holder) throws IOException {
@@ -464,7 +461,7 @@ public class RecoveryManager {
     return repoName;
   }
 
-  public ChannelManager getChannelManager() {
+  public AsyncChannelManager getChannelManager() {
     return channelManager;
   }
 

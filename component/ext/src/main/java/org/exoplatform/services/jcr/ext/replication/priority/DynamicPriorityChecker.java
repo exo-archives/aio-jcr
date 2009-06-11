@@ -19,8 +19,10 @@ package org.exoplatform.services.jcr.ext.replication.priority;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -59,7 +61,7 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
    * @param otherParticipants
    *          the list of names to other participants
    */
-  public DynamicPriorityChecker(ChannelManager channelManager,
+  public DynamicPriorityChecker(AsyncChannelManager channelManager,
                                 int ownPriority,
                                 String ownName,
                                 List<String> otherParticipants) {
@@ -69,7 +71,9 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
   /**
    * {@inheritDoc}
    */
-  public void receive(Packet packet) {
+  public void receive(AbstractPacket p, MemberAddress sourceAddress) {
+    Packet packet = (Packet) p;
+    
     if (log.isDebugEnabled())
       log.info(" ------->>> MessageListener.receive(), byte == " + packet.getByteArray());
 
@@ -152,5 +156,11 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
       return false;
     else
       return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onError(MemberAddress sourceAddress) {
   }
 }

@@ -39,14 +39,13 @@ import org.jgroups.blocks.RequestHandler;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>
- * Date: 12.12.2008
+ * <br/> Date: 12.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AsyncChannelManager.java 31925 2009-05-19 07:40:04Z rainf0x $
  */
 public class AsyncChannelManager implements RequestHandler, MembershipListener {
-  
+
   /**
    * The initialized state.
    */
@@ -65,32 +64,32 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * log. the apache logger.
    */
-  private static final Log               LOG = ExoLogger.getLogger("ext.AsyncChannelManager");
-  
+  private static final Log               LOG          = ExoLogger.getLogger("ext.AsyncChannelManager");
+
   /**
    * State of async channel manager {INITIALIZED, CONNECTED, DISCONNECTED}.
    */
-  private        int                     state;
+  protected int                          state;
 
   /**
-   * channel. The JChanel object of JGroups.
+   * The JChanel.
    */
-  private JChannel                       channel;
+  protected JChannel                     channel;
 
   /**
    * dispatcher. The MessageDispatcher will be transmitted the Massage.
    */
-  private MessageDispatcher              dispatcher;
+  protected MessageDispatcher            dispatcher;
 
   /**
    * channelConfig. The configuration to JChannel.
    */
-  private final String                   channelConfig;
+  protected final String                 channelConfig;
 
   /**
-   * channelName. The name to JChannel.
+   * channelName. The name to channel.
    */
-  private final String                   channelName;
+  protected final String                 channelName;
 
   /**
    * Members count according the configuration (other-participants-priority).
@@ -115,7 +114,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * Packets handler.
    */
-  private final PacketHandler            packetsHandler;
+  protected final PacketHandler          packetsHandler;
 
   class MemberPacket {
     final AbstractPacket packet;
@@ -128,7 +127,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     }
   }
 
-  class PacketHandler extends Thread {
+  protected class PacketHandler extends Thread {
 
     /**
      * Wait lock.
@@ -185,7 +184,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * @param member
      *          Member
      */
-    void add(AbstractPacket packet, MemberAddress member) {
+    public void add(AbstractPacket packet, MemberAddress member) {
       queue.add(new MemberPacket(packet, member));
     }
 
@@ -193,7 +192,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * Run handler if channel is ready.
      * 
      */
-    void handle() {
+    public void handle() {
 
       if (current == null) {
         synchronized (lock) {
@@ -203,8 +202,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
         // JCR-886: let other threads work
         Thread.yield();
       } else
-        // TODO 
-        LOG.info("Handler already active");
+        if (LOG.isDebugEnabled())
+          LOG.debug("Handler already active, queue size : " + queue.size());
     }
   }
 
@@ -215,6 +214,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *          channel configuration
    * @param channelName
    *          name of channel
+   * @param confMembersCount
+   *          the how many members was configured
    */
   public AsyncChannelManager(String channelConfig, String channelName, int confMembersCount) {
     this.state = INITIALIZED;
@@ -390,7 +391,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
     return members;
   }
-  
+
   /**
    * sendPacket.
    * 
@@ -406,12 +407,12 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       Vector<Address> dest = new Vector<Address>();
       for (MemberAddress address : destinations)
         dest.add(address.getAddress());
-  
+
       sendPacket(packet, dest);
     } else if (state == INITIALIZED)
       throw new ChannelNotConnectedException("The channel is not connected.");
-      else
-        throw new ChannelWasDisconnectedException("The channel was disconnected.");
+    else
+      throw new ChannelWasDisconnectedException("The channel was disconnected.");
   }
 
   /**
@@ -444,12 +445,12 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     if (state == CONNECTED) {
       Vector<Address> dest = new Vector<Address>(channel.getView().getMembers());
       dest.remove(channel.getLocalAddress());
-  
+
       sendPacket(packet, dest);
     } else if (state == INITIALIZED)
       throw new ChannelNotConnectedException("The channel is not connected.");
-      else
-        throw new ChannelWasDisconnectedException("The channel was disconnected.");
+    else
+      throw new ChannelWasDisconnectedException("The channel was disconnected.");
   }
 
   /**

@@ -33,10 +33,11 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
 import org.exoplatform.services.jcr.ext.replication.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.PendingBinaryFile;
+import org.exoplatform.services.jcr.ext.replication.ReplicationChannelManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -70,9 +71,9 @@ public class RecoverySynchronizer {
   private FileCleaner                        fileCleaner;
 
   /**
-   * The ChannalManager will be transmitted or receive the Packets.
+   * The ReplicationChannelManager will be transmitted or receive the Packets.
    */
-  private ChannelManager                     channelManager;
+  private ReplicationChannelManager          channelManager;
 
   /**
    * The own name in cluster.
@@ -129,7 +130,7 @@ public class RecoverySynchronizer {
    * @param fileCleaner
    *          the FileCleaner
    * @param channelManager
-   *          the ChannelManager
+   *          the ReplicationChannelManager
    * @param ownName
    *          the own name
    * @param recoveryWriter
@@ -142,7 +143,7 @@ public class RecoverySynchronizer {
   public RecoverySynchronizer(File recoveryDir,
                               FileNameFactory fileNameFactory,
                               FileCleaner fileCleaner,
-                              ChannelManager channelManager,
+                              ReplicationChannelManager channelManager,
                               String ownName,
                               RecoveryWriter recoveryWriter,
                               RecoveryReader recoveryReader,

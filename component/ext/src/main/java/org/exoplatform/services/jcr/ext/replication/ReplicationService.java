@@ -47,6 +47,7 @@ import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.replication.recovery.ConnectionFailDetector;
 import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.ext.replication.recovery.backup.BackupCreator;
+import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
@@ -350,7 +351,6 @@ public class ReplicationService implements Startable, ManagementAware {
 
               String systemId = IdGenerator.generate();
               String props = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
-              JChannel channel = new JChannel(props);
 
               // get workspace container
               WorkspaceContainer wContainer = (WorkspaceContainer) jcrRepository.getSystemSession(workspaces[wIndex])
@@ -360,7 +360,7 @@ public class ReplicationService implements Startable, ManagementAware {
               if (testMode != null && "true".equals(testMode))
                 uniqueNoame = "Test_Channel234";
 
-              ChannelManager channelManager = new ChannelManager(props, channelName + (channelName.equals("") ? "" : "_") + uniqueNoame);
+              ReplicationChannelManager channelManager = new ReplicationChannelManager(props, channelName + (channelName.equals("") ? "" : "_") + uniqueNoame);
 
               WorkspaceContainerFacade wsFacade = jcrRepository.getWorkspaceContainer(workspaces[wIndex]);
               WorkspaceEntry wconf = (WorkspaceEntry) wsFacade.getComponent(WorkspaceEntry.class);
@@ -395,7 +395,7 @@ public class ReplicationService implements Startable, ManagementAware {
                                                                                ownName,
                                                                                priprityType,
                                                                                workspaces[wIndex]);
-              channelManager.setMembershipListener(failDetector);
+              channelManager.addStateListener(failDetector);
 
               // add data transmitter
               wContainer.registerComponentImplementation(WorkspaceDataTransmitter.class);
@@ -417,7 +417,6 @@ public class ReplicationService implements Startable, ManagementAware {
               recoveryManager.setDataKeeper(dataReceiver.getDataKeeper());
               dataReceiver.init(channelManager, systemId, ownName, recoveryManager);
 
-              channelManager.init();
               channelManager.connect();
 
               // Register for management

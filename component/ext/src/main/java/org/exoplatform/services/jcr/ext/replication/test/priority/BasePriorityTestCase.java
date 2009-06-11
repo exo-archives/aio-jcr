@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.ext.replication.ChannelManager;
+import org.exoplatform.services.jcr.ext.replication.ReplicationChannelManager;
 import org.exoplatform.services.jcr.ext.replication.WorkspaceDataTransmitter;
 import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
@@ -82,11 +82,10 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
     StringBuffer sb = new StringBuffer();
 
     try {
-      ChannelManager channelManager = dataTransmitter.getChannelManager();
+      ReplicationChannelManager channelManager = dataTransmitter.getChannelManager();
       channelManager.setAllowConnect(false);
-      channelManager.closeChannel();
+      channelManager.disconnect();
 
-      channelManager.init();
       channelManager.connect();
 
       sb.append("ok");
@@ -109,11 +108,10 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
     StringBuffer sb = new StringBuffer();
 
     try {
-      ChannelManager channelManager = dataTransmitter.getChannelManager();
+      ReplicationChannelManager channelManager = dataTransmitter.getChannelManager();
       channelManager.setAllowConnect(false, id);
-      channelManager.closeChannel();
+      channelManager.disconnect();
 
-      channelManager.init();
       channelManager.connect();
 
       sb.append("ok");
@@ -133,7 +131,7 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
   public StringBuffer allowConnect() {
     StringBuffer sb = new StringBuffer();
     try {
-      ChannelManager channelManager = dataTransmitter.getChannelManager();
+      ReplicationChannelManager channelManager = dataTransmitter.getChannelManager();
       channelManager.setAllowConnect(true);
 
       sb.append("ok");
@@ -153,12 +151,11 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
   public StringBuffer allowConnectForced() {
     StringBuffer sb = new StringBuffer();
     try {
-      ChannelManager channelManager = dataTransmitter.getChannelManager();
+      ReplicationChannelManager channelManager = dataTransmitter.getChannelManager();
       channelManager.setAllowConnect(true);
 
-      channelManager.closeChannel();
+      channelManager.disconnect();
 
-      channelManager.init();
       channelManager.connect();
 
       sb.append("ok");

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -37,7 +38,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @version $Id$
  */
 
-public class Packet implements Externalizable {
+public class Packet extends AbstractPacket implements Externalizable {
 
   /**
    * serialVersionUID.
