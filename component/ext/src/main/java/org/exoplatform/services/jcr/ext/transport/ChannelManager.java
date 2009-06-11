@@ -39,7 +39,8 @@ import org.jgroups.blocks.RequestHandler;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/> Date: 12.12.2008
+ * <br/>
+ * Date: 12.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ChannelManager.java 31925 2009-05-19 07:40:04Z rainf0x $
@@ -99,12 +100,12 @@ public class ChannelManager implements RequestHandler, MembershipListener {
   /**
    * Packet listeners.
    */
-  private List<PacketListener>      packetListeners;
+  private List<PacketListener>           packetListeners;
 
   /**
    * Channel state listeners.
    */
-  private List<StateListener>       stateListeners;
+  private List<StateListener>            stateListeners;
 
   /**
    * Channel connection sate listeners.
@@ -201,9 +202,8 @@ public class ChannelManager implements RequestHandler, MembershipListener {
 
         // JCR-886: let other threads work
         Thread.yield();
-      } else
-        if (LOG.isDebugEnabled())
-          LOG.debug("Handler already active, queue size : " + queue.size());
+      } else if (LOG.isDebugEnabled())
+        LOG.debug("Handler already active, queue size : " + queue.size());
     }
   }
 
@@ -426,11 +426,13 @@ public class ChannelManager implements RequestHandler, MembershipListener {
    *           if error
    */
   private void sendPacket(AbstractPacket packet, Vector<Address> dest) throws IOException {
-    byte[] buffer = PacketTransformer.getAsByteArray(packet);
+    if (state == CONNECTED) {
+      byte[] buffer = PacketTransformer.getAsByteArray(packet);
 
-    Message msg = new Message(null, null, buffer);
+      Message msg = new Message(null, null, buffer);
 
-    dispatcher.castMessage(dest, msg, GroupRequest.GET_NONE, 0);
+      dispatcher.castMessage(dest, msg, GroupRequest.GET_NONE, 0);
+    }
   }
 
   /**
@@ -512,8 +514,7 @@ public class ChannelManager implements RequestHandler, MembershipListener {
       for (Address address : view.getMembers())
         members.add(new MemberAddress(address));
 
-      StateEvent event = new StateEvent(new MemberAddress(channel.getLocalAddress()),
-                                                  members);
+      StateEvent event = new StateEvent(new MemberAddress(channel.getLocalAddress()), members);
 
       for (StateListener listener : stateListeners)
         listener.onStateChanged(event);
