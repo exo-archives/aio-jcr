@@ -698,15 +698,8 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
                                                    maxBufferSize,
                                                    null,
                                                    true);
-                    // fileCleaner.addFile(pfile); // add manually, cleaner should be started!
                   } else
-                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {})); // empty
-                  // data
-                  // ,
-                  // should
-                  // never
-                  // occurs
-                  // !
+                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {}));
                 }
               } else {
                 vdata = new TransientValueData(propertyValue.getText()); // other like String

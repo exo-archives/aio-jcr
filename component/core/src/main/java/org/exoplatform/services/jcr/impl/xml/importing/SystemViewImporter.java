@@ -278,10 +278,10 @@ public class SystemViewImporter extends BaseXmlImporter {
     }
 
     currentNodeInfo.setACL(initAcl(currentNodeInfo.getACL(),
-                                      currentNodeInfo.isExoOwneable(),
-                                      currentNodeInfo.isExoPrivilegeable(),
-                                      currentNodeInfo.getExoOwner(),
-                                      currentNodeInfo.getExoPrivileges()));
+                                   currentNodeInfo.isExoOwneable(),
+                                   currentNodeInfo.isExoPrivilegeable(),
+                                   currentNodeInfo.getExoOwner(),
+                                   currentNodeInfo.getExoPrivileges()));
   }
 
   /**
@@ -484,15 +484,21 @@ public class SystemViewImporter extends BaseXmlImporter {
         try {
           InputStream vStream = propertyInfo.getValues().get(k).getInputStream();
 
-          TransientValueData binaryValue = new TransientValueData(vStream);
-          binaryValue.setMaxBufferSize(valueFactory.getMaxBufferSize());
-          binaryValue.setFileCleaner(valueFactory.getFileCleaner());
+          // TODO cleanup
+          // TransientValueData binaryValue = new TransientValueData(vStream);
+          TransientValueData binaryValue = new TransientValueData(k,
+                                                                  null,
+                                                                  vStream,
+                                                                  null,
+                                                                  valueFactory.getFileCleaner(),
+                                                                  valueFactory.getMaxBufferSize(),
+                                                                  null,
+                                                                  true);
           // Call to spool file into tmp
-          binaryValue.getAsStream();
+          binaryValue.getAsStream().close();
           vStream.close();
           propertyInfo.getValues().get(k).remove();
           values.add(binaryValue);
-
         } catch (IOException e) {
           throw new RepositoryException(e);
         }

@@ -92,12 +92,34 @@ public class DocumentViewImporter extends BaseXmlImporter {
   private String             xmlCharactersPropertyValue;
 
   /**
-   * Document view importer.
+   * DocumentViewImporter constructor.
    * 
-   * @param parent - parent node
+   * @param parent
+   *          NodeData, parent node
+   * @param ancestorToSave
+   *          QPath
    * @param uuidBehavior
-   * @param saveType
-   * @param respectPropertyDefinitionsConstraints sdf;gkjwpeoirjtg
+   *          int
+   * @param dataConsumer
+   *          ItemDataConsumer
+   * @param ntManager
+   *          NodeTypeDataManager
+   * @param locationFactory
+   *          LocationFactory
+   * @param valueFactory
+   *          ValueFactoryImpl
+   * @param namespaceRegistry
+   *          NamespaceRegistry
+   * @param accessManager
+   *          AccessManager
+   * @param userState
+   *          ConversationState
+   * @param context
+   *          Map
+   * @param repository
+   *          RepositoryImpl
+   * @param currentWorkspaceName
+   *          String
    */
   public DocumentViewImporter(NodeData parent,
                               QPath ancestorToSave,
@@ -129,11 +151,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
     xmlCharactersPropertyValue = null;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
-   * int, int)
+  /**
+   * {@inheritDoc}
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
 
@@ -186,11 +205,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java
-   * .lang.String, java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void endElement(String uri, String localName, String qName) throws RepositoryException {
     tree.pop();
@@ -373,26 +389,16 @@ public class DocumentViewImporter extends BaseXmlImporter {
     }
 
     nodeData.setACL(initAcl(parentNodeData.getACL(),
-                               nodeData.isExoOwneable(),
-                               nodeData.isExoPrivilegeable(),
-                               nodeData.getExoOwner(),
-                               nodeData.getExoPrivileges()));
+                            nodeData.isExoOwneable(),
+                            nodeData.isExoPrivilegeable(),
+                            nodeData.getExoOwner(),
+                            nodeData.getExoPrivileges()));
 
     if (nodeData.isMixVersionable()) {
       createVersionHistory(nodeData);
     }
   }
 
-  /**
-   * @param nodeTypes
-   * @param propertiesMap
-   * @param mixinNodeTypes
-   * @param jcrName
-   * @return
-   * @throws PathNotFoundException
-   * @throws IllegalPathException
-   * @throws RepositoryException
-   */
   private ImportNodeData createNode(List<NodeTypeData> nodeTypes,
                                     HashMap<InternalQName, String> propertiesMap,
                                     List<InternalQName> mixinNodeTypes,
@@ -435,18 +441,12 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                                              PropertyType.BINARY,
                                                              false,
                                                              new TransientValueData(new ByteArrayInputStream(Base64.decode(propertiesMap.get(propName)))));
-
     } catch (DecodingException e) {
       throw new RepositoryException(e);
     }
     return newProperty;
   }
 
-  /**
-   * @param mixinNodeTypes
-   * @param key
-   * @return
-   */
   private PropertyData endMixinTypes(List<InternalQName> mixinNodeTypes, InternalQName key) {
     PropertyData newProperty;
     List<ValueData> valuesData = new ArrayList<ValueData>(mixinNodeTypes.size());
@@ -463,11 +463,6 @@ public class DocumentViewImporter extends BaseXmlImporter {
     return newProperty;
   }
 
-  /**
-   * @param props
-   * @param key
-   * @return
-   */
   private PropertyData endPrimaryType(InternalQName primaryTypeName) {
     PropertyData newProperty;
     if (log.isDebugEnabled()) {
@@ -481,15 +476,6 @@ public class DocumentViewImporter extends BaseXmlImporter {
     return newProperty;
   }
 
-  /**
-   * @param nodeData
-   * @param key
-   * @return
-   * @throws ValueFormatException
-   * @throws UnsupportedRepositoryOperationException
-   * @throws RepositoryException
-   * @throws IllegalStateException
-   */
   private PropertyData endUuid(ImportNodeData nodeData, InternalQName key) throws ValueFormatException,
                                                                           UnsupportedRepositoryOperationException,
                                                                           RepositoryException,
@@ -508,12 +494,6 @@ public class DocumentViewImporter extends BaseXmlImporter {
     return newProperty;
   }
 
-  /**
-   * @param nodeData
-   * @param values
-   * @param propName
-   * @throws RepositoryException
-   */
   private void endVersionable(ImportNodeData nodeData,
                               List<ValueData> values,
                               InternalQName propName) throws RepositoryException {
@@ -537,14 +517,6 @@ public class DocumentViewImporter extends BaseXmlImporter {
     }
   }
 
-  /**
-   * @param atts
-   * @param nodeTypes
-   * @param mixinNodeTypes
-   * @param props
-   * @throws PathNotFoundException
-   * @throws RepositoryException
-   */
   private void parseAttr(Map<String, String> atts,
                          List<NodeTypeData> nodeTypes,
                          List<InternalQName> mixinNodeTypes,
@@ -611,8 +583,6 @@ public class DocumentViewImporter extends BaseXmlImporter {
           props.put(propInternalQName, attValue);
         }
       }
-
     }
-
   }
 }

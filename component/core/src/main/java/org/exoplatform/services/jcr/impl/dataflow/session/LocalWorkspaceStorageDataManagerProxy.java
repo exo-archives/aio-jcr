@@ -67,11 +67,8 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     this.valueFactory = valueFactory;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#save(org
-   * .exoplatform.services.jcr.impl.dataflow.ItemDataChangesLog)
+  /**
+   * {@inheritDoc}
    */
   public void save(ItemStateChangesLog changesLog) throws InvalidItemStateException,
                                                   UnsupportedOperationException,
@@ -102,29 +99,22 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     return copyItemData(storageDataManager.getItemData(parentData, name));
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getItemData
-   * (java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
     return copyItemData(storageDataManager.getItemData(identifier));
   }
 
-  /*
-   * (non-Javadoc)
-   * @seeorg.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#
-   * getChildNodesData(org.exoplatform.services.jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
     return copyNodes(storageDataManager.getChildNodesData(parent));
   }
 
-  /*
-   * (non-Javadoc)
-   * @seeorg.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#
-   * getChildPropertiesData(org.exoplatform.services.jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     return copyProperties(storageDataManager.getChildPropertiesData(parent));
@@ -134,20 +124,15 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     return copyPropertiesWithoutValues(storageDataManager.listChildPropertiesData(parent));
   }
 
-  /*
-   * (non-Javadoc)
-   * @seeorg.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#
-   * getReferencesData(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
     return copyProperties(storageDataManager.getReferencesData(identifier, skipVersionStorage));
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getCurrentTime
-   * ()
+  /**
+   * {@inheritDoc}
    */
   public Calendar getCurrentTime() {
     return storageDataManager.getCurrentTime();

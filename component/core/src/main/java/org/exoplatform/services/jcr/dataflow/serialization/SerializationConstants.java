@@ -16,57 +16,77 @@
  */
 package org.exoplatform.services.jcr.dataflow.serialization;
 
+import java.io.File;
+
 /**
- * Created by The eXo Platform SAS. <br/>Date: 13.02.2009
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 13.02.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: JCRExternalizable.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class SerializationConstants {
 
   /**
+   * Serialization temp dir.
+   */
+  public static final String TEMP_DIR                = System.getProperty("java.io.tmpdir")
+                                                         + File.separator + "_jcrser.tmp";
+
+  /**
    * TransientValueData class.
    */
-  public static final int TRANSIENT_VALUE_DATA    = 1;
+  public static final int    TRANSIENT_VALUE_DATA    = 1;
 
   /**
    * AccessControlList class.
    */
-  public static final int ACCESS_CONTROL_LIST     = 2;
+  public static final int    ACCESS_CONTROL_LIST     = 2;
 
   /**
    * ItemState class.
    */
-  public static final int ITEM_STATE              = 3;
+  public static final int    ITEM_STATE              = 3;
 
   /**
    * PlainChangesLogImpl class.
    */
-  public static final int PLAIN_CHANGES_LOG_IMPL  = 4;
+  public static final int    PLAIN_CHANGES_LOG_IMPL  = 4;
 
   /**
    * TransactionChangesLog class.
    */
-  public static final int TRANSACTION_CHANGES_LOG = 5;
+  public static final int    TRANSACTION_CHANGES_LOG = 5;
 
   /**
    * TransientNodeData class.
    */
-  public static final int TRANSIENT_NODE_DATA     = 7;
+  public static final int    TRANSIENT_NODE_DATA     = 7;
 
   /**
    * TransientPropertyData class.
    */
-  public static final int TRANSIENT_PROPERTY_DATA = 8;
+  public static final int    TRANSIENT_PROPERTY_DATA = 8;
 
   // flags
 
-  public static final byte NULL_DATA               = 0;
+  public static final byte   NULL_DATA               = 0;
 
-  public static final byte NOT_NULL_DATA           = 1;
+  public static final byte   NOT_NULL_DATA           = 1;
 
   /**
    * Serialization bytebuffer size.
    */
-  public static final int INTERNAL_BUFFER_SIZE    = 2048;
+  public static final int    INTERNAL_BUFFER_SIZE    = 2048;
+  
+  static {
+    try {
+      File tempDirectory = new File(SerializationConstants.TEMP_DIR);
+      tempDirectory.mkdirs();
+    } catch (Throwable e) {
+      // LOG to standard output
+      System.err.println("[FATAL] " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
 }
