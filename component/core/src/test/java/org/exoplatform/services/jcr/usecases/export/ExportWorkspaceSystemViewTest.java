@@ -58,7 +58,7 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
       sessionWS1.exportWorkspaceSystemView(new FileOutputStream(f1), false, false);
 
       // 1-st import
-      WorkspaceEntry ws1_restore_1 = makeWorkspaceEntry("ws1_restore_1", "jdbcjcr2export1", f1);
+      WorkspaceEntry ws1_restore_1 = makeWorkspaceEntry("ws1_restore_1", isMultiDB(session) ? "jdbcjcr2export1" : "jdbcjcr", f1);
       repository.configWorkspace(ws1_restore_1);
       repository.createWorkspace(ws1_restore_1.getName());
       
@@ -80,7 +80,7 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
       back1.exportWorkspaceSystemView(new FileOutputStream(f2), false, false);
 
       // 2-st import
-      WorkspaceEntry ws1_restore_2 = makeWorkspaceEntry("ws1_restore_2", "jdbcjcr2export2", f2);
+      WorkspaceEntry ws1_restore_2 = makeWorkspaceEntry("ws1_restore_2", isMultiDB(session) ? "jdbcjcr2export2" : "jdbcjcr", f2);
       repository.configWorkspace(ws1_restore_2);
       repository.createWorkspace(ws1_restore_2.getName());
       
@@ -130,10 +130,12 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
       SimpleParameterEntry p = (SimpleParameterEntry) i.next();
       SimpleParameterEntry newp = new SimpleParameterEntry(p.getName(), p.getValue());
 
-      if (newp.getName().equals("source-name"))
+      if (isMultiDB(session) && newp.getName().equals("source-name"))
         newp.setValue(sourceName);
       else if (newp.getName().equals("swap-directory"))
         newp.setValue("target/temp/swap/" + name);
+      else if (isMultiDB(session) && newp.getName().equals("dialect"))
+        newp.setValue("hsqldb");
 
       params.add(newp);
     }
@@ -143,5 +145,20 @@ public class ExportWorkspaceSystemViewTest extends BaseUsecasesTest {
     ws1back.setContainer(ce);
 
     return ws1back;
+  }
+  
+  
+  private boolean isMultiDB(SessionImpl session) {
+    WorkspaceEntry ws1e = (WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class);
+    
+    for (Iterator i = ws1e.getContainer().getParameters().iterator(); i.hasNext();) {
+      SimpleParameterEntry p = (SimpleParameterEntry) i.next();
+      SimpleParameterEntry newp = new SimpleParameterEntry(p.getName(), p.getValue());
+
+      if (newp.getName().equals("multi-db"))
+        return Boolean.valueOf(newp.getValue());
+    }
+    
+    throw new RuntimeException("Can not get property 'multi-db' in configuration on workspace '" + ws1e.getName() + "'");
   }
 }
