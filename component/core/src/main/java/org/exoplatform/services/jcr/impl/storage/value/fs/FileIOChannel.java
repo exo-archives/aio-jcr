@@ -153,7 +153,7 @@ public abstract class FileIOChannel extends ValueFileIOHelper implements ValueIO
    * {@inheritDoc}
    */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
-    return readValue(getFile(propertyId, orderNumber), orderNumber, maxBufferSize, false);
+    return readValue(getFile(propertyId, orderNumber), orderNumber, maxBufferSize);
   }
 
   /**

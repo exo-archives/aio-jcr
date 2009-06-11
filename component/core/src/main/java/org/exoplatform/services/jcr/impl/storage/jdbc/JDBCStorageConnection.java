@@ -57,6 +57,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedV
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.storage.value.ValueStorageNotFoundException;
+import org.exoplatform.services.jcr.impl.storage.value.fs.operations.ValueFileIOHelper;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
@@ -1581,7 +1582,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     ResultSet valueResultSet = null;
 
     byte[] buffer = new byte[0];
-    byte[] spoolBuffer = new byte[2048];
+    byte[] spoolBuffer = new byte[ValueFileIOHelper.IOBUFFER_SIZE];
     int read;
     int len = 0;
     OutputStream out = null;
