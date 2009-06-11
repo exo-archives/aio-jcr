@@ -47,7 +47,7 @@ import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.replication.recovery.ConnectionFailDetector;
 import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.ext.replication.recovery.backup.BackupCreator;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;

@@ -16,8 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.transport;
 
-import java.util.List;
-
 
 /**
  * Created by The eXo Platform SAS.
@@ -26,31 +24,16 @@ import java.util.List;
  * Date: 25.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: AsyncStateEvent.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id: StateListener.java 31768 2009-05-14 09:35:43Z pnedonosko $
  */
-public class AsyncStateEvent {
-
-  private final List<MemberAddress> members;
-
-  private final MemberAddress       localMember;
+public interface StateListener {
 
   /**
-   * @return the members
+   * Members connected state.
+   * 
+   * @param event
+   *          List of Member
    */
-  public List<MemberAddress> getMembers() {
-    return members;
-  }
+  void onStateChanged(StateEvent event);
 
-  public AsyncStateEvent(MemberAddress localMember, List<MemberAddress> members) {
-    this.members = members;
-    this.localMember = localMember;
-  }
-
-  public MemberAddress getLocalMember() {
-    return localMember;
-  }
-
-  public boolean isCoordinator() {
-    return members.get(0).getAddress().equals(localMember.getAddress());
-  }
 }

@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.ext.initializer.RemoteTransport;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.storage.InvalidChecksumException;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 
 /**
  * Created by The eXo Platform SAS.
@@ -50,7 +50,7 @@ public class RemoteTransportImpl implements RemoteTransport {
   /**
    * The channel manager.
    */
-  private final AsyncChannelManager channelManager;
+  private final ChannelManager channelManager;
 
   /**
    * The data transmitter.
@@ -91,7 +91,7 @@ public class RemoteTransportImpl implements RemoteTransport {
    * @param sourceUrl
    *          data source url.
    */
-  public RemoteTransportImpl(AsyncChannelManager channelManager, File tempDir, String sourceUrl) {
+  public RemoteTransportImpl(ChannelManager channelManager, File tempDir, String sourceUrl) {
     this.latch = new CountDownLatch(1);
     this.channelManager = channelManager;
     this.tempDir = tempDir;

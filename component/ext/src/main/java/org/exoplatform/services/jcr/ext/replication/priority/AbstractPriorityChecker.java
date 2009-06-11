@@ -23,8 +23,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
+import org.exoplatform.services.jcr.ext.transport.PacketListener;
 import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -36,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: PriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
-public abstract class AbstractPriorityChecker implements AsyncPacketListener {
+public abstract class AbstractPriorityChecker implements PacketListener {
 
   /**
    * The definition max priority value.
@@ -56,7 +56,7 @@ public abstract class AbstractPriorityChecker implements AsyncPacketListener {
   /**
    * The ChannelManager will be transmitted the Packets.
    */
-  protected final AsyncChannelManager channelManager;
+  protected final ChannelManager channelManager;
 
   /**
    * The own priority value.
@@ -95,7 +95,7 @@ public abstract class AbstractPriorityChecker implements AsyncPacketListener {
    * @param otherParticipants
    *          the list of names to other participants.
    */
-  public AbstractPriorityChecker(AsyncChannelManager channelManager,
+  public AbstractPriorityChecker(ChannelManager channelManager,
                                  int ownPriority,
                                  String ownName,
                                  List<String> otherParticipants) {

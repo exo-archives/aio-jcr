@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.jcr.ext.transport.PacketTransformer;
 import org.exoplatform.services.log.ExoLogger;
@@ -42,7 +42,7 @@ import org.jgroups.blocks.MessageDispatcher;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ReplicationChannelManager.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class ReplicationChannelManager extends AsyncChannelManager {
+public class ReplicationChannelManager extends ChannelManager {
 
   /**
    * log. the apache logger.

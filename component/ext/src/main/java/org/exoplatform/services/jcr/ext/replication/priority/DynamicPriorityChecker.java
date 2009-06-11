@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -61,7 +61,7 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
    * @param otherParticipants
    *          the list of names to other participants
    */
-  public DynamicPriorityChecker(AsyncChannelManager channelManager,
+  public DynamicPriorityChecker(ChannelManager channelManager,
                                 int ownPriority,
                                 String ownName,
                                 List<String> otherParticipants) {

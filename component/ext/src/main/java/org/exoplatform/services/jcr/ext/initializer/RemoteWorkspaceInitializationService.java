@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.ext.initializer.impl.RemoteTransportImpl;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -208,7 +208,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
 
     String id = IdGenerator.generate();
 
-    AsyncChannelManager channelManager = new AsyncChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
+    ChannelManager channelManager = new ChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
                                                                                           bindIpAddress),
                                                                  channelName + "_" + repository
                                                                      + "_" + workspace + "_" + id,
@@ -248,7 +248,7 @@ public class RemoteWorkspaceInitializationService implements ResourceContainer {
     String result = "OK";
 
     // init transport
-    AsyncChannelManager channelManager = new AsyncChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
+    ChannelManager channelManager = new ChannelManager(channelConfig.replaceAll(IP_ADRESS_TEMPLATE,
                                                                                           bindIpAddress),
                                                                  channelName + "_" + repositoryName
                                                                      + "_" + workspaceName + "_"

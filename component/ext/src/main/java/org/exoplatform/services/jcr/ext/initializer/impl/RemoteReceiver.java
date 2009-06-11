@@ -28,9 +28,9 @@ import org.exoplatform.services.jcr.ext.replication.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.storage.RandomChangesFile;
 import org.exoplatform.services.jcr.ext.replication.storage.ResourcesHolder;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.AsyncPacketListener;
-import org.exoplatform.services.jcr.ext.transport.AsyncStateEvent;
-import org.exoplatform.services.jcr.ext.transport.AsyncStateListener;
+import org.exoplatform.services.jcr.ext.transport.PacketListener;
+import org.exoplatform.services.jcr.ext.transport.StateEvent;
+import org.exoplatform.services.jcr.ext.transport.StateListener;
 import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: RemoteReceiver.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class RemoteReceiver implements AsyncPacketListener, AsyncStateListener {
+public class RemoteReceiver implements PacketListener, StateListener {
 
   /**
    * The apache logger.
@@ -171,7 +171,7 @@ public class RemoteReceiver implements AsyncPacketListener, AsyncStateListener {
   /**
    * {@inheritDoc}
    */
-  public void onStateChanged(AsyncStateEvent event) {
+  public void onStateChanged(StateEvent event) {
     if (membrerInited == 2 && event.getMembers().size() == 1
         && (context == null || !context.isFinished())) {
       exception = new RemoteWorkspaceInitializationException("The remote member was disconected");

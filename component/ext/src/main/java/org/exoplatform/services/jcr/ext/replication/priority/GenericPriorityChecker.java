@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -40,7 +40,7 @@ public class GenericPriorityChecker extends AbstractPriorityChecker {
    */
   private static Log log = ExoLogger.getLogger("ext.GenericPriorityChecker");
 
-  public GenericPriorityChecker(AsyncChannelManager channelManager,
+  public GenericPriorityChecker(ChannelManager channelManager,
                                 int ownPriority,
                                 String ownName,
                                 List<String> otherParticipants) {

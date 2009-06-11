@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.ReplicationChannelManager;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -104,7 +104,7 @@ public class RecoveryManager {
   /**
    * The ChannelManager will be transmitted or receive the Packets.
    */
-  private AsyncChannelManager                                    channelManager;
+  private ChannelManager                                    channelManager;
 
   /**
    * The list of names other participants.
@@ -461,7 +461,7 @@ public class RecoveryManager {
     return repoName;
   }
 
-  public AsyncChannelManager getChannelManager() {
+  public ChannelManager getChannelManager() {
     return channelManager;
   }
 

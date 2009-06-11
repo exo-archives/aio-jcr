@@ -29,9 +29,9 @@ import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChec
 import org.exoplatform.services.jcr.ext.replication.priority.GenericPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.MemberListener;
 import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.transport.AsyncStateEvent;
-import org.exoplatform.services.jcr.ext.transport.AsyncStateListener;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
+import org.exoplatform.services.jcr.ext.transport.StateEvent;
+import org.exoplatform.services.jcr.ext.transport.StateListener;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
@@ -46,7 +46,7 @@ import org.jgroups.View;
  * @version $Id: ConectionFailDetector.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
-public class ConnectionFailDetector implements AsyncStateListener{
+public class ConnectionFailDetector implements StateListener{
   /**
    * The apache logger.
    */
@@ -80,7 +80,7 @@ public class ConnectionFailDetector implements AsyncStateListener{
   /**
    * The ChannelManager will be transmitted or receive the Packets.
    */
-  private final AsyncChannelManager          channelManager;
+  private final ChannelManager          channelManager;
   
   /**
    * The name of workspace.
@@ -162,7 +162,7 @@ public class ConnectionFailDetector implements AsyncStateListener{
    * @param workspaceName
    *          String, the name of workspace         
    */
-  public ConnectionFailDetector(AsyncChannelManager channelManager,
+  public ConnectionFailDetector(ChannelManager channelManager,
                                 PersistentDataManager dataManager,
                                 RecoveryManager recoveryManager,
                                 int ownPriority,
@@ -204,7 +204,7 @@ public class ConnectionFailDetector implements AsyncStateListener{
   /**
    * {@inheritDoc}
    */
-  public void onStateChanged(AsyncStateEvent event) {
+  public void onStateChanged(StateEvent event) {
     viewChecker.putView(event);
   }
 
@@ -289,7 +289,7 @@ public class ConnectionFailDetector implements AsyncStateListener{
   private class ViewChecker extends Thread {
     private final ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<Integer>();
 
-    public void putView(AsyncStateEvent event) {
+    public void putView(StateEvent event) {
       queue.offer(event.getMembers().size());
     }
 

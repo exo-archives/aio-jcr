@@ -42,9 +42,9 @@ import org.jgroups.blocks.RequestHandler;
  * <br/> Date: 12.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: AsyncChannelManager.java 31925 2009-05-19 07:40:04Z rainf0x $
+ * @version $Id: ChannelManager.java 31925 2009-05-19 07:40:04Z rainf0x $
  */
-public class AsyncChannelManager implements RequestHandler, MembershipListener {
+public class ChannelManager implements RequestHandler, MembershipListener {
 
   /**
    * The initialized state.
@@ -99,12 +99,12 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * Packet listeners.
    */
-  private List<AsyncPacketListener>      packetListeners;
+  private List<PacketListener>      packetListeners;
 
   /**
    * Channel state listeners.
    */
-  private List<AsyncStateListener>       stateListeners;
+  private List<StateListener>       stateListeners;
 
   /**
    * Channel connection sate listeners.
@@ -154,8 +154,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
           synchronized (lock) {
             current = queue.poll();
             while (current != null) {
-              AsyncPacketListener[] pl = packetListeners.toArray(new AsyncPacketListener[packetListeners.size()]);
-              for (AsyncPacketListener handler : pl)
+              PacketListener[] pl = packetListeners.toArray(new PacketListener[packetListeners.size()]);
+              for (PacketListener handler : pl)
                 handler.receive(current.packet, current.member);
 
               current = queue.poll();
@@ -217,14 +217,14 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * @param confMembersCount
    *          the how many members was configured
    */
-  public AsyncChannelManager(String channelConfig, String channelName, int confMembersCount) {
+  public ChannelManager(String channelConfig, String channelName, int confMembersCount) {
     this.state = INITIALIZED;
     this.channelConfig = channelConfig;
     this.channelName = channelName;
     this.confMembersCount = confMembersCount;
 
-    this.packetListeners = new ArrayList<AsyncPacketListener>();
-    this.stateListeners = new ArrayList<AsyncStateListener>();
+    this.packetListeners = new ArrayList<PacketListener>();
+    this.stateListeners = new ArrayList<StateListener>();
     this.connectionListeners = new ArrayList<ConnectionListener>();
 
     this.packetsHandler = new PacketHandler();
@@ -324,7 +324,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * @param packetListener
    *          add the PacketListener
    */
-  public void addPacketListener(AsyncPacketListener packetListener) {
+  public void addPacketListener(PacketListener packetListener) {
     this.packetListeners.add(packetListener);
   }
 
@@ -334,7 +334,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * @param packetListener
    *          add the PacketListener
    */
-  public void removePacketListener(AsyncPacketListener packetListener) {
+  public void removePacketListener(PacketListener packetListener) {
     this.packetListeners.remove(packetListener);
   }
 
@@ -342,13 +342,13 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * Add channel state listener (AsynInitializer).
    * 
    * @param listener
-   *          AsyncStateListener
+   *          StateListener
    */
-  public void addStateListener(AsyncStateListener listener) {
+  public void addStateListener(StateListener listener) {
     this.stateListeners.add(listener);
   }
 
-  public void removeStateListener(AsyncStateListener listener) {
+  public void removeStateListener(StateListener listener) {
     this.stateListeners.remove(listener);
   }
 
@@ -512,10 +512,10 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       for (Address address : view.getMembers())
         members.add(new MemberAddress(address));
 
-      AsyncStateEvent event = new AsyncStateEvent(new MemberAddress(channel.getLocalAddress()),
+      StateEvent event = new StateEvent(new MemberAddress(channel.getLocalAddress()),
                                                   members);
 
-      for (AsyncStateListener listener : stateListeners)
+      for (StateListener listener : stateListeners)
         listener.onStateChanged(event);
 
       // check if we have data to be propagated to the synchronization

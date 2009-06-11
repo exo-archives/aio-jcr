@@ -27,8 +27,8 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
+import org.exoplatform.services.jcr.ext.transport.PacketListener;
 import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 
-public abstract class AbstractWorkspaceDataReceiver implements AsyncPacketListener {
+public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * The apache logger.
@@ -81,7 +81,7 @@ public abstract class AbstractWorkspaceDataReceiver implements AsyncPacketListen
   /**
    * The ChannalManager will be transmitted the Packets.
    */
-  private AsyncChannelManager                     channelManager;
+  private ChannelManager                     channelManager;
 
   /**
    * The HashMap with PendingChangesLogs.
@@ -139,7 +139,7 @@ public abstract class AbstractWorkspaceDataReceiver implements AsyncPacketListen
    * @param recoveryManager
    *          the RecoveryManager
    */
-  public void init(AsyncChannelManager channelManager,
+  public void init(ChannelManager channelManager,
                    String systemId,
                    String ownName,
                    RecoveryManager recoveryManager) {

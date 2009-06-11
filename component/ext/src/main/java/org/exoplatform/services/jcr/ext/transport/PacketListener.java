@@ -21,19 +21,25 @@ package org.exoplatform.services.jcr.ext.transport;
  * Created by The eXo Platform SAS.
  * 
  * <br/>
- * Date: 25.12.2008
+ * Date: 15.12.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: AsyncStateListener.java 31768 2009-05-14 09:35:43Z pnedonosko $
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id: PacketListener.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public interface AsyncStateListener {
+public interface PacketListener {
 
   /**
-   * Members connected state.
+   * receive. Will be called this method when receive the Packet.
    * 
-   * @param event
-   *          List of Member
+   * @param packet
+   *          the Packet object.
    */
-  void onStateChanged(AsyncStateEvent event);
+  void receive(AbstractPacket packet, MemberAddress sourceAddress);
 
+  /**
+   * onError.
+   * 
+   * @param sourceAddress
+   */
+  void onError(MemberAddress sourceAddress);
 }

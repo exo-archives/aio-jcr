@@ -16,30 +16,41 @@
  */
 package org.exoplatform.services.jcr.ext.transport;
 
+import java.util.List;
+
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>
- * Date: 15.12.2008
+ * Date: 25.12.2008
  * 
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: AsyncPacketListener.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: StateEvent.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public interface AsyncPacketListener {
+public class StateEvent {
+
+  private final List<MemberAddress> members;
+
+  private final MemberAddress       localMember;
 
   /**
-   * receive. Will be called this method when receive the Packet.
-   * 
-   * @param packet
-   *          the Packet object.
+   * @return the members
    */
-  void receive(AbstractPacket packet, MemberAddress sourceAddress);
+  public List<MemberAddress> getMembers() {
+    return members;
+  }
 
-  /**
-   * onError.
-   * 
-   * @param sourceAddress
-   */
-  void onError(MemberAddress sourceAddress);
+  public StateEvent(MemberAddress localMember, List<MemberAddress> members) {
+    this.members = members;
+    this.localMember = localMember;
+  }
+
+  public MemberAddress getLocalMember() {
+    return localMember;
+  }
+
+  public boolean isCoordinator() {
+    return members.get(0).getAddress().equals(localMember.getAddress());
+  }
 }

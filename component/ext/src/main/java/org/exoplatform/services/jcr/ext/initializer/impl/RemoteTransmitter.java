@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.ext.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -43,17 +43,17 @@ public class RemoteTransmitter {
   private static Log                log = ExoLogger.getLogger("ext.RemoteTransmitter");
 
   /**
-   * The AsyncChannelManager will be send data.
+   * The ChannelManager will be send data.
    */
-  private final AsyncChannelManager channelManager;
+  private final ChannelManager channelManager;
 
   /**
    * RemoteTransmitter constructor.
    * 
    * @param channelManager
-   *          the AsyncChannelManager.
+   *          the ChannelManager.
    */
-  public RemoteTransmitter(AsyncChannelManager channelManager) {
+  public RemoteTransmitter(ChannelManager channelManager) {
     this.channelManager = channelManager;
 
   }
