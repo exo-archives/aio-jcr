@@ -440,7 +440,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                                              propName,
                                                              PropertyType.BINARY,
                                                              false,
-                                                             new TransientValueData(new ByteArrayInputStream(Base64.decode(propertiesMap.get(propName)))));
+                                                             new TransientValueData(Base64.decode(propertiesMap.get(propName)), 0));
     } catch (DecodingException e) {
       throw new RepositoryException(e);
     }

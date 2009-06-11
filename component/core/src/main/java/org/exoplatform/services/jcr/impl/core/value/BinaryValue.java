@@ -56,11 +56,18 @@ public class BinaryValue extends BaseValue implements EditableBinaryValue {
   }
 
   /**
+   * BinaryValue constructor.
+   * 
    * @param stream
+   *          InputStream
    * @param fileCleaner
+   *          FileCleaner
    * @param tempDirectory
+   *          File
    * @param maxFufferSize
+   *          int
    * @throws IOException
+   *           if error
    */
   public BinaryValue(InputStream stream,
                      FileCleaner fileCleaner,

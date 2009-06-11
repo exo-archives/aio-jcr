@@ -58,7 +58,7 @@ public class ByteArrayPersistedValueData extends AbstractValueData {
   /**
    * {@inheritDoc}
    */
-  public byte[] getAsByteArray() throws IllegalStateException {
+  public byte[] getAsByteArray() {
     return data;
   }
 
@@ -86,6 +86,13 @@ public class ByteArrayPersistedValueData extends AbstractValueData {
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isTransient() {
+    return false;
   }
 
 }

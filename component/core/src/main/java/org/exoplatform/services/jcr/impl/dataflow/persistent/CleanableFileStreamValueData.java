@@ -36,21 +36,44 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
 
   protected final FileCleaner cleaner;
 
+  /**
+   * CleanableFileStreamValueData  constructor.
+   *
+   * @param file SwapFile
+   * @param orderNumber int 
+   * @param cleaner FileCleaner
+   */
   public CleanableFileStreamValueData(SwapFile file, int orderNumber, FileCleaner cleaner) {
-    super(file, orderNumber, false);
+    super(file, orderNumber);
     this.cleaner = cleaner;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected void finalize() throws Throwable {
-    cleaner.addFile(file);
+    try {
+      if (!file.delete()) {
+        cleaner.addFile(file);
+
+        log.warn("CleanableFileStreamValueData: could not remove temporary file on finalize "
+            + file.getAbsolutePath());
+      }
+    } finally {
+      super.finalize();
+    }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
-      return new TransientValueData(orderNumber, null, null, file, cleaner, -1, null, false);
+      // TODO cleanup
+      //return new TransientValueData(orderNumber, null, null, file, cleaner, -1, null, false);
+      return new FileStreamTransientValueData(file, orderNumber);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
   }
-
 }

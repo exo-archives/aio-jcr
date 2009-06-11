@@ -33,7 +33,7 @@ public class EditableValueData extends TransientValueData {
 
     this.spooled = true;
   }
-  
+
   // TODO use InputStream instead of spoolFile and use Channel.transferFrom.
   public EditableValueData(File spoolFile,
                            int orderNumber,
@@ -104,18 +104,20 @@ public class EditableValueData extends TransientValueData {
         spoolChannel.force(false);
 
         InputStream thisStream = getAsStream();
-        TransientValueData copy = new TransientValueData(orderNumber,
-                                                         null,
-                                                         thisStream,
-                                                         null,
-                                                         fileCleaner,
-                                                         maxBufferSize,
-                                                         tempDirectory,
-                                                         true);
-        copy.spoolInputStream(); // force spool - read now, till the source isn't changed
-        thisStream.close();
-
-        return copy;
+        try {
+          TransientValueData copy = new TransientValueData(orderNumber,
+                                                           null,
+                                                           thisStream,
+                                                           null,
+                                                           fileCleaner,
+                                                           maxBufferSize,
+                                                           tempDirectory,
+                                                           true);
+          copy.spoolInputStream(); // force spool - read now, till the source isn't changed
+          return copy;
+        } finally {
+          thisStream.close();
+        }
       } catch (IOException e) {
         throw new RepositoryException("Create transient copy error. " + e, e);
       }
@@ -216,7 +218,7 @@ public class EditableValueData extends TransientValueData {
 
           // write update data
           // TODO don't use Channels.newChannel in Java5
-          ReadableByteChannel sch = Channels.newChannel(stream);  
+          ReadableByteChannel sch = Channels.newChannel(stream);
           chch.transferFrom(sch, newIndex, length);
           sch.close();
           newIndex += length;

@@ -56,9 +56,11 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
 
   /**
    * Package-private default constructor.
-   *
-   * @param type int 
-   * @param data TransientValueData
+   * 
+   * @param type
+   *          int
+   * @param data
+   *          TransientValueData
    */
   BaseValue(int type, TransientValueData data) {
     this.type = type;
@@ -67,10 +69,12 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
 
   /**
    * Return Session scope ValueData.
-   *
-   * @param asStream boolean 
+   * 
+   * @param asStream
+   *          boolean
    * @return LocalTransientValueData
-   * @throws IOException if error
+   * @throws IOException
+   *           if error
    */
   protected LocalTransientValueData getLocalData(boolean asStream) throws IOException {
     if (data == null)
@@ -345,8 +349,14 @@ public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
      */
     @Override
     public TransientValueData createTransientCopy() {
-      throw new RuntimeException("LocalTransientValueData.createTransientCopy()");
+      throw new RuntimeException("LocalTransientValueData.createTransientCopy() is out of contract");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isTransient() {
+      return true;
+    }
   }
 }

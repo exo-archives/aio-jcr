@@ -55,32 +55,30 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  */
 public class TransientValueData extends AbstractValueData implements Externalizable {
 
-  private static final long  serialVersionUID                 = -5280857006905550884L;
+  private static final long serialVersionUID = -5280857006905550884L;
 
-  public static final String DESERIALIAED_SPOOLFILES_TEMP_DIR = "_JCRVDtemp";
+  protected byte[]          data;
 
-  protected byte[]           data;
+  protected InputStream     tmpStream;
 
-  protected InputStream      tmpStream;
+  protected File            spoolFile;
 
-  protected File             spoolFile;
-
-  protected final boolean    closeTmpStream;
+  protected final boolean   closeTmpStream;
 
   /**
    * User for read(...) method
    */
-  protected FileChannel      spoolChannel;
+  protected FileChannel     spoolChannel;
 
-  protected FileCleaner      fileCleaner;
+  protected FileCleaner     fileCleaner;
 
-  protected int              maxBufferSize;
+  protected int             maxBufferSize;
 
-  protected File             tempDirectory;
+  protected File            tempDirectory;
 
-  protected boolean          spooled                          = false;
+  protected boolean         spooled          = false;
 
-  private boolean            deleteSpoolFile;
+  private boolean           deleteSpoolFile;
 
   /**
    * Convert String into bytes array using default encoding.
@@ -102,7 +100,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param orderNumber
    *          int
    */
-  protected TransientValueData(byte[] value, int orderNumber) {
+  public TransientValueData(byte[] value, int orderNumber) {
     super(orderNumber);
     this.data = value;
     this.deleteSpoolFile = true;
@@ -284,7 +282,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    */
   public byte[] getAsByteArray() throws IOException {
     if (data != null) {
-      // TODO JCR-992 don't copy bytes 
+      // TODO JCR-992 don't copy bytes
       byte[] bytes = new byte[data.length];
       System.arraycopy(data, 0, bytes, 0, data.length);
       return bytes;
@@ -298,7 +296,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * Get input stream.
    * 
    * @param needSpool
-   *          spool input stream if need
+   *          spool input stream if true
    * @return input stream
    * @throws IOException
    *           if any Exception is occurred
@@ -440,7 +438,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param position
    *          - position in value data from which the read will be performed
    * @return - The number of bytes, possibly zero, that were actually transferred
-   * @throws IOException if read/write error occurs
+   * @throws IOException
+   *           if read/write error occurs
    */
   public long read(OutputStream stream, long length, long position) throws IOException {
 
@@ -463,7 +462,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       return length;
     } else {
       spoolInputStream();
-      
+
       if (spoolChannel == null)
         spoolChannel = new FileInputStream(spoolFile).getChannel();
 
@@ -476,7 +475,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       MappedByteBuffer bb = spoolChannel.map(FileChannel.MapMode.READ_ONLY, position, length);
 
-      WritableByteChannel ch = Channels.newChannel(stream); // TODO don't use Channels.newChannel 
+      WritableByteChannel ch = Channels.newChannel(stream); // TODO don't use Channels.newChannel
       ch.write(bb);
       ch.close();
 
@@ -746,12 +745,19 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   // ------------- Serializable
 
+  /**
+   * TransientValueData empty constructor. Used for Replication serialization (java).
+   *
+   */
   public TransientValueData() {
     super(0);
     this.deleteSpoolFile = true;
     this.closeTmpStream = true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeExternal(ObjectOutput out) throws IOException {
     if (this.isByteArray()) {
       out.writeInt(1);
@@ -765,6 +771,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     out.writeInt(maxBufferSize);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     int type = in.readInt();
 
@@ -776,9 +785,20 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     maxBufferSize = in.readInt();
   }
 
+  /**
+   * Set data Stream from outside. FOR Synchronouis replicatiojn only!
+   *
+   * @param in InputStream
+   */
   public void setStream(InputStream in) {
     this.spooled = false;
     this.tmpStream = in;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isTransient() {
+    return true;
+  }
 }

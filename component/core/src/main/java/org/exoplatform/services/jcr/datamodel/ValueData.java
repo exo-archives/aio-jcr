@@ -23,44 +23,65 @@ import java.io.InputStream;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: ValueData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
-
 public interface ValueData {
 
   /**
-   * set number of this value (values should be ordered)
+   * Set Value order number.
+   * 
+   * @param orderNum
+   *          int, Value order number
    */
   void setOrderNumber(int orderNum);
 
   /**
+   * Return Value order number.
+   * 
    * @return number of this value (values should be ordered)
    */
   int getOrderNumber();
 
   /**
+   * Tell is this Value backed by bytes array.
+   * 
    * @return true if data rendered as byte array, false otherwise
    */
   boolean isByteArray();
 
   /**
-   * @return this value data as array of bytes
+   * Renders this value data as array of bytes.
+   * 
+   * @return byte[], this value data as array of bytes
    * @throws IllegalStateException
+   *           if cannot return this Value as array of bytes
+   * @throws IOException
+   *           if I/O error occurs
    */
   byte[] getAsByteArray() throws IllegalStateException, IOException;
 
   /**
-   * renders this value data as stream of bytes NOTE: client is responsible for closing this stream,
-   * else IllegalStateException occurs in close()!
+   * Renders this value data as stream of bytes NOTE: client is responsible for closing this stream,
+   * else IllegalStateException occurs in close().
    * 
-   * @return this value data as stream of bytes
+   * @return InputStream, this value data as stream of bytes
    * @throws IOException
+   *           if I/O error occurs
    */
   InputStream getAsStream() throws IOException;
 
   /**
-   * Return this data length in bytes
+   * Return this data length in bytes.
+   * 
+   * @return long
    */
   long getLength();
 
+  /**
+   * Tell if this ValueData is transient (not saved).<br/>
+   * It means this ValueData instance of <code>TransientValueData<code/>.
+   * 
+   * @return boolean, true if ValueData is transient, false - otherwise
+   */
+  boolean isTransient();
 }

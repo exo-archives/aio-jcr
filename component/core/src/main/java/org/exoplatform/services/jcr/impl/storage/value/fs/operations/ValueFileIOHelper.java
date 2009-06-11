@@ -66,20 +66,18 @@ public class ValueFileIOHelper {
    *          - used in PersistedValueData logic
    * @param maxBufferSize
    *          - threshold for spooling
-   * @param temp
-   *          - temporary file flag
    * @return ValueData
    * @throws IOException
    *           if error
    */
-  protected ValueData readValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
+  protected ValueData readValue(File file, int orderNum, int maxBufferSize) throws IOException {
 
     FileInputStream is = new FileInputStream(file);
     try {
       long fileSize = file.length();
 
       if (fileSize > maxBufferSize) {
-        return new FileStreamPersistedValueData(file, orderNum, temp);
+        return new FileStreamPersistedValueData(file, orderNum);
       } else {
         int buffSize = (int) fileSize;
         byte[] res = new byte[buffSize];
@@ -118,9 +116,9 @@ public class ValueFileIOHelper {
         out.close();
       }
     } else {
-      File spoolFile = tvalue.getSpoolFile();
-      if (spoolFile != null) {
-        // if it's BLOB and it's already spooled
+      File spoolFile;
+      if (tvalue.isTransient() && (spoolFile = tvalue.getSpoolFile()) != null) {
+        // if it's transient and spooled BLOB
         if (!spoolFile.renameTo(file)) {
           // not succeeded - write bytes
           if (LOG.isDebugEnabled())
@@ -129,12 +127,12 @@ public class ValueFileIOHelper {
 
           copyClose(new FileInputStream(spoolFile), new FileOutputStream(file));
         }
+        ((TransientValueData) value).setSpoolFile(file);
       } else {
         // not spooled, use InputStream
         copyClose(tvalue.getAsStream(false), new FileOutputStream(file));
       }
     }
-    ((TransientValueData) value).setSpoolFile(file);
   }
 
   /**
@@ -159,6 +157,7 @@ public class ValueFileIOHelper {
         in.close();
       }
 
+      // TODO cleanup
       // byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE];
       // int len;
       // InputStream in = value.getAsStream();

@@ -37,58 +37,71 @@ public class FileStreamPersistedValueData extends AbstractValueData {
 
   protected final File    file;
 
-  protected final boolean temp;
-
-  public FileStreamPersistedValueData(File file, int orderNumber, boolean temp) {
+  /**
+   * FileStreamPersistedValueData  constructor.
+   *
+   * @param file File
+   * @param orderNumber int
+   */
+  public FileStreamPersistedValueData(File file, int orderNumber) {
     super(orderNumber);
     this.file = file;
-    this.temp = temp;
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsStream()
+   * {@inheritDoc}
    */
   public InputStream getAsStream() throws IOException {
     return new FileInputStream(file);
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsByteArray()
+   * {@inheritDoc}
    */
   public byte[] getAsByteArray() throws IllegalStateException {
     throw new IllegalStateException("It is illegal to call on FileStreamPersistedValueData due to potential lack of memory");
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getLength()
+   * {@inheritDoc}
    */
   public long getLength() {
     return file.length();
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#isByteArray()
+   * {@inheritDoc}
    */
   public boolean isByteArray() {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
-      return new TransientValueData(orderNumber, null, null, file, null, -1, null, false);
+      return new FileStreamTransientValueData(file, orderNumber);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
   }
 
-  protected void finalize() throws Throwable {
-    try {
-      if (temp && !file.delete())
-        log.warn("FilePersistedValueData could not remove temporary file on finalize "
-            + file.getAbsolutePath());
-    } finally {
-      super.finalize();
-    }
-  }
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isTransient() {
+    return false;
+  }  
+  
+//  protected void finalize() throws Throwable {
+//    try {
+//      if (temp && !file.delete())
+//        log.warn("FilePersistedValueData could not remove temporary file on finalize "
+//            + file.getAbsolutePath());
+//    } finally {
+//      super.finalize();
+//    }
+//  }
 }

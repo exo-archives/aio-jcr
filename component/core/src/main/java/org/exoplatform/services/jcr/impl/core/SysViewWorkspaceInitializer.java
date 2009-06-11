@@ -699,7 +699,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
                                                    null,
                                                    true);
                   } else
-                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {}));
+                    vdata = new TransientValueData(new byte[] {}, 0);
                 }
               } else {
                 vdata = new TransientValueData(propertyValue.getText()); // other like String
