@@ -174,7 +174,8 @@ public class CASableWriteValue extends WriteValue {
         } // else - CASed Value already exists
 
         // set new spool file
-        ((TransientValueData) value).setSpoolFile(vcasFile);
+        if (value.isTransient() && !value.isByteArray())
+          ((TransientValueData) value).setSpoolFile(vcasFile);
 
       } finally {
         // remove temp file
