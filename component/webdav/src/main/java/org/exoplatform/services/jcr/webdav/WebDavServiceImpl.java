@@ -128,12 +128,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
    */
   private static Log                              log                             = ExoLogger.getLogger(WebDavServiceImpl.class);
 
+  /**
+   * Local Thread SessionProvider.
+   */
   private final ThreadLocalSessionProviderService sessionProviderService;
 
+  /**
+   * Repository service.
+   */
   private final RepositoryService                 repositoryService;
 
-  // private final ResourceBinder resourceBinder;
-
+  /**
+   * NullResourceLocksHolder.
+   */
   private final NullResourceLocksHolder           nullResourceLocks;
 
   /**
@@ -151,8 +158,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
    */
   private String                                  defaultFileMimeType             = "application/octet-stream";
 
+  /**
+   * Update policy.
+   */
   private String                                  updatePolicyType                = "create-version";
 
+  /**
+   * The list of allowed methods.
+   */
   private static final String                     ALLOW;
 
   static {
@@ -172,6 +185,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
+  /**
+   * Constructor.
+   * 
+   * @param params Initialization parameters
+   * @param repositoryService repository service
+   * @param sessionProviderService session provider service
+   * @throws Exception {@link Exception}
+   */
   public WebDavServiceImpl(InitParams params,
                            RepositoryService repositoryService,
                            ThreadLocalSessionProviderService sessionProviderService) throws Exception {
@@ -205,6 +226,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @CHECKIN
   @Path("/{repoName}/{repoPath:.*}/")
   public Response checkin(@PathParam("repoName") String repoName,
@@ -228,6 +252,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @CHECKOUT
   @Path("/{repoName}/{repoPath:.*}/")
   public Response checkout(@PathParam("repoName") String repoName,
@@ -251,6 +278,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @COPY
   @Path("/{repoName}/{repoPath:.*}/")
   public Response copy(@PathParam("repoName") String repoName,
@@ -346,6 +376,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @DELETE
   @Path("/{repoName}/{repoPath:.*}/")
   public Response delete(@PathParam("repoName") String repoName,
@@ -362,7 +395,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
-      if(lockTokenHeader != null){
+      if (lockTokenHeader != null) {
         lockTokenHeader = lockTokenHeader.substring(1, lockTokenHeader.length() - 1);
       }
       return new DeleteCommand().delete(session, path(repoPath), lockTokenHeader);
@@ -375,6 +408,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @GET
   @Path("/{repoName}/{repoPath:.*}/")
   public Response get(@PathParam("repoName") String repoName,
@@ -441,6 +477,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @HEAD
   @Path("/{repoName}/{repoPath:.*}/")
   public Response head(@PathParam("repoName") String repoName,
@@ -471,6 +510,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @LOCK
   @Path("/{repoName}/{repoPath:.*}/")
   public Response lock(@PathParam("repoName") String repoName,
@@ -509,6 +551,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @UNLOCK
   @Path("/{repoName}/{repoPath:.*}/")
   public Response unlock(@PathParam("repoName") String repoName,
@@ -537,6 +582,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @MKCOL
   @Path("/{repoName}/{repoPath:.*}/")
   public Response mkcol(@PathParam("repoName") String repoName,
@@ -573,6 +621,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @MOVE
   @Path("/{repoName}/{repoPath:.*}/")
   public Response move(@PathParam("repoName") String repoName,
@@ -657,6 +708,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @OPTIONS
   @Path("/{repoName}/{path:.*}/")
   public Response options(@PathParam("path") String path) {
@@ -676,6 +730,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                    .build();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @ORDERPATCH
   @Path("/{repoName}/{repoPath:.*}/")
   public Response order(@PathParam("repoName") String repoName,
@@ -707,6 +764,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @PROPFIND
   @Path("/{repoName}/{repoPath:.*}/")
   public Response propfind(@PathParam("repoName") String repoName,
@@ -740,6 +800,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @PROPPATCH
   @Path("/{repoName}/{repoPath:.*}/")
   public Response proppatch(@PathParam("repoName") String repoName,
@@ -777,6 +840,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @PUT
   @Path("/{repoName}/{repoPath:.*}/")
   public Response put(@PathParam("repoName") String repoName,
@@ -800,13 +866,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       Session session = session(repoName, workspaceName(repoPath), tokens);
 
       String fileNodeType = NodeTypeUtil.getFileNodeType(fileNodeTypeHeader);
-      if(fileNodeType == null){
+      if (fileNodeType == null) {
         fileNodeType = defaultFileNodeType;
       }
-      
+
       String contentNodeType = NodeTypeUtil.getContentNodeType(contentNodeTypeHeader);
       NodeTypeManager ntm = session.getWorkspace().getNodeTypeManager();
-      NodeType nodeType = ntm.getNodeType(contentNodeType);      
+      NodeType nodeType = ntm.getNodeType(contentNodeType);
       NodeTypeUtil.checkContentResourceType(nodeType);
 
       if (mimeType == null) {
@@ -814,7 +880,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         mimeTypeResolver.setDefaultMimeType(defaultFileMimeType);
         mimeType = mimeTypeResolver.getMimeType(TextUtil.nameOnly(repoPath));
       }
-      
+
       return new PutCommand(nullResourceLocks).put(session,
                                                    path(repoPath),
                                                    inputStream,
@@ -832,13 +898,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     } catch (NoSuchNodeTypeException exc) {
       log.error("NoSuchNodeTypeException " + exc.getMessage(), exc);
       return Response.status(HTTPStatus.BAD_REQUEST).build();
-    } 
-    catch (Exception exc) {
+    } catch (Exception exc) {
       log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @REPORT
   @Path("/{repoName}/{repoPath:.*}/")
   public Response report(@PathParam("repoName") String repoName,
@@ -872,6 +940,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SEARCH
   @Path("/{repoName}/{repoPath:.*}/")
   public Response search(@PathParam("repoName") String repoName,
@@ -904,6 +975,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @UNCHECKOUT
   @Path("/{repoName}/{repoPath:.*}/")
   public Response uncheckout(@PathParam("repoName") String repoName,
@@ -932,6 +1006,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @VERSIONCONTROL
   @Path("/{repoName}/{repoPath:.*}/")
   public Response versionControl(@PathParam("repoName") String repoName,
@@ -955,6 +1032,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     return new VersionControlCommand().versionControl(session, path(repoPath));
   }
 
+  /**
+   * Gives access to the current session.
+   * 
+   * @param repoName repository name
+   * @param wsName workspace name
+   * @param lockTokens Lock tokens
+   * @return current session
+   * @throws Exception {@link Exception}
+   */
   protected Session session(String repoName, String wsName, List<String> lockTokens) throws Exception {
     ManageableRepository repo = this.repositoryService.getRepository(repoName);
     SessionProvider sp = sessionProviderService.getSessionProvider(null);
@@ -981,24 +1067,37 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     return session;
   }
 
+  /**
+   * Extracts workspace name from repository path.
+   * 
+   * @param repoPath repository path
+   * @return workspace name
+   */
   protected String workspaceName(String repoPath) {
     return repoPath.split("/")[0];
   }
 
+  /**
+   * Normalizes path.
+   * 
+   * @param repoPath repository path
+   * @return normalized path.
+   */
   protected String normalizePath(String repoPath) {
     if (repoPath.length() > 0 && repoPath.endsWith("/")) {
-      return repoPath.substring(0, repoPath.length() - 1);// lastIndexOf("/"));
+      return repoPath.substring(0, repoPath.length() - 1);
     }
     return repoPath;
   }
 
+  /**
+   * Extracts path from repository path.
+   * 
+   * @param repoPath repository path
+   * @return path
+   */
   protected String path(String repoPath) {
-    String path = repoPath.substring(workspaceName(repoPath).length()/*
-                                                                      * ,
-                                                                      * repoPath
-                                                                      * .
-                                                                      * length()
-                                                                      */);
+    String path = repoPath.substring(workspaceName(repoPath).length());
 
     if (!"".equals(path)) {
       return path;
@@ -1007,6 +1106,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     return "/";
   }
 
+  /**
+   * Creates the list of Lock tokens from Lock-Token and If headers.
+   * 
+   * @param lockTokenHeader Lock-Token HTTP header
+   * @param ifHeader If HTTP header
+   * @return the list of lock tokens
+   */
   protected List<String> lockTokens(String lockTokenHeader, String ifHeader) {
     ArrayList<String> lockTokens = new ArrayList<String>();
 

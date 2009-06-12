@@ -39,21 +39,43 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class PropPatchCommand {
 
+  /**
+   * logger.
+   */
   private static Log                      log = ExoLogger.getLogger(PropPatchCommand.class);
 
+  /**
+   * resource locks.
+   */
   protected final NullResourceLocksHolder lockHolder;
 
+  /**
+   * Constructor.
+   * 
+   * @param lockHolder resource locks
+   */
   public PropPatchCommand(NullResourceLocksHolder lockHolder) {
     this.lockHolder = lockHolder;
   }
 
+  /**
+   * Webdav Proppatch method method implementation.
+   * 
+   * @param session current session
+   * @param path resource path
+   * @param body request body
+   * @param tokens tokens
+   * @param baseURI base uri
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response propPatch(Session session,
                             String path,
                             HierarchicalProperty body,
@@ -100,6 +122,12 @@ public class PropPatchCommand {
 
   }
 
+  /**
+   * List of properties to set.
+   * 
+   * @param request request body
+   * @return list of properties to set.
+   */
   public List<HierarchicalProperty> setList(HierarchicalProperty request) {
     HierarchicalProperty set = request.getChild(new QName("DAV:", "set"));
     HierarchicalProperty prop = set.getChild(new QName("DAV:", "prop"));
@@ -107,6 +135,12 @@ public class PropPatchCommand {
     return setList;
   }
 
+  /**
+   * List of properties to remove.
+   * 
+   * @param request request body
+   * @return list of properties to remove.
+   */
   public List<HierarchicalProperty> removeList(HierarchicalProperty request) {
     HierarchicalProperty remove = request.getChild(new QName("DAV:", "remove"));
     HierarchicalProperty prop = remove.getChild(new QName("DAV:", "prop"));

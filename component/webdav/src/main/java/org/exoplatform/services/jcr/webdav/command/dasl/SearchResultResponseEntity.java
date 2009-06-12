@@ -47,21 +47,37 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
 
 public class SearchResultResponseEntity implements StreamingOutput {
 
-  private static Log log = ExoLogger.getLogger(SearchResultResponseEntity.class);
-  
+  /**
+   * logger.
+   */
+  private static Log                   log        = ExoLogger.getLogger(SearchResultResponseEntity.class);
+
+  /**
+   * Namespace conetext.
+   */
   private final WebDavNamespaceContext nsContext;
 
+  /**
+   * Query result.
+   */
   private QueryResult                  queryResult;
 
+  /**
+   * base uri.
+   */
   private String                       baseURI;
 
+  /**
+   * The list of properties.
+   */
   private static Set<QName>            properties = new HashSet<QName>();
 
   static {
@@ -72,6 +88,13 @@ public class SearchResultResponseEntity implements StreamingOutput {
     properties.add(new QName("DAV:", "getcontentlength"));
   }
 
+  /**
+   * Constructor.
+   * 
+   * @param queryResult Result of request
+   * @param nsContext namespace context
+   * @param baseURI base uri
+   */
   public SearchResultResponseEntity(QueryResult queryResult,
                                     final WebDavNamespaceContext nsContext,
                                     String baseURI) {
@@ -80,6 +103,9 @@ public class SearchResultResponseEntity implements StreamingOutput {
     this.baseURI = baseURI;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void write(OutputStream outStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()

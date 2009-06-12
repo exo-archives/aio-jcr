@@ -20,19 +20,33 @@ package org.exoplatform.services.jcr.webdav.command.dasl;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
-
 public class SearchRequestEntity {
 
+  /**
+   * Request body.
+   */
   private HierarchicalProperty body;
 
+  /**
+   * Constructor.
+   * 
+   * @param body request body.
+   */
   public SearchRequestEntity(HierarchicalProperty body) {
     this.body = body;
   }
 
+  /**
+   * Get query language.
+   * 
+   * @return query language
+   * @throws UnsupportedQueryException {@link UnsupportedQueryException}
+   */
   public String getQueryLanguage() throws UnsupportedQueryException {
     if (body.getChild(0).getName().getNamespaceURI().equals("DAV:")
         && body.getChild(0).getName().getLocalPart().equals("sql")) {
@@ -45,6 +59,12 @@ public class SearchRequestEntity {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Get query.
+   * 
+   * @return query qury body.
+   * @throws UnsupportedQueryException {@link UnsupportedQueryException}
+   */
   public String getQuery() throws UnsupportedQueryException {
     if (body.getChild(0).getName().getNamespaceURI().equals("DAV:")
         && body.getChild(0).getName().getLocalPart().equals("sql")) {

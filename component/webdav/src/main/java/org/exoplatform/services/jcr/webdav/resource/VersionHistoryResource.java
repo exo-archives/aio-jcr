@@ -41,13 +41,26 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 public class VersionHistoryResource extends GenericResource {
 
+  /**
+   * History of versions.
+   */
   protected final VersionHistory    versionHistory;
 
-  // protected final URI versionedResourceID;
+  /**
+   * Versioned resource.
+   */
   protected final VersionedResource versionedResource;
 
-  public VersionHistoryResource(final URI identifier, VersionHistory versionHistory,
-  // final URI versionedResourceID,
+  /**
+   * @param identifier resource identifier
+   * @param versionHistory history of versions
+   * @param versionedResource resource
+   * @param namespaceContext namespace context
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   * @throws RepositoryException {@link}
+   */
+  public VersionHistoryResource(final URI identifier,
+                                VersionHistory versionHistory,
                                 final VersionedResource versionedResource,
                                 final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
       RepositoryException {
@@ -56,17 +69,29 @@ public class VersionHistoryResource extends GenericResource {
     this.versionedResource = versionedResource;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
                                                      AccessDeniedException,
                                                      RepositoryException {
-    // TODO Auto-generated method stub
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public final boolean isCollection() {
     return false;
   }
 
+  /**
+   * Returns all versions of a resource.
+   * 
+   * @return all versions of a resource
+   * @throws RepositoryException {@link RepositoryException}
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   */
   public Set<VersionResource> getVersions() throws RepositoryException,
                                            IllegalResourceTypeException {
     Set<VersionResource> resources = new HashSet<VersionResource>();
@@ -85,6 +110,14 @@ public class VersionHistoryResource extends GenericResource {
     return resources;
   }
 
+  /**
+   * Returns the version of resouce by name.
+   * 
+   * @param name version name
+   * @return version of a resource
+   * @throws RepositoryException {@link RepositoryException}
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   */
   public VersionResource getVersion(String name) throws RepositoryException,
                                                 IllegalResourceTypeException {
     return new VersionResource(versionURI(name),
@@ -93,6 +126,12 @@ public class VersionHistoryResource extends GenericResource {
                                namespaceContext);
   }
 
+  /**
+   * Returns URI of the resource version.
+   * 
+   * @param versionName version name
+   * @return URI of the resource version
+   */
   protected final URI versionURI(String versionName) {
     return URI.create(versionedResource.getIdentifier().toASCIIString() + "?version=" + versionName);
   }

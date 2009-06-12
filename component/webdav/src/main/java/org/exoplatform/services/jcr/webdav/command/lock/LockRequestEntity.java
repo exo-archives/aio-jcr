@@ -33,14 +33,31 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class LockRequestEntity {
 
-  private final static Log log = ExoLogger.getLogger("jcr.LockRequestEntity");
+  /**
+   * logger.
+   */
+  private Log log = ExoLogger.getLogger("jcr.LockRequestEntity");
 
+  /**
+   * Lock scope.
+   */
   private QName            lockScope;
 
+  /**
+   * Lock type.
+   */
   private QName            lockType;
 
+  /**
+   * Owner.
+   */
   private String           owner;
 
+  /**
+   * Constructor.
+   * 
+   * @param input request body.
+   */
   public LockRequestEntity(HierarchicalProperty input) {
     if (input == null) {
       lockScope = PropertyConstants.EXCLUSIVE;
@@ -72,14 +89,29 @@ public class LockRequestEntity {
     }
   }
 
+  /**
+   * lockScope getter.
+   * 
+   * @return lockScope
+   */
   public QName getLockScope() {
     return lockScope;
   }
 
+  /**
+   * owner getter.
+   * 
+   * @return owner
+   */
   public String getOwner() {
     return owner;
   }
 
+  /**
+   * lockType getter.
+   * 
+   * @return lockType
+   */
   public QName getLockType() {
     return lockType;
   }

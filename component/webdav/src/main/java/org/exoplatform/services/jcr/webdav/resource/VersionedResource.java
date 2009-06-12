@@ -22,7 +22,8 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.webdav.util.DeltaVConstants;
 
 /**
- * Created by The eXo Platform SARL .<br/> Versioned resource (mix:versionable node)
+ * Created by The eXo Platform SARL .<br/>
+ * Versioned resource (mix:versionable node)
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -32,8 +33,8 @@ public interface VersionedResource extends Resource, DeltaVConstants {
 
   /**
    * @return version history
-   * @throws RepositoryException
-   * @throws IllegalResourceTypeException
+   * @throws RepositoryException {@link RepositoryException}
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
    */
   VersionHistoryResource getVersionHistory() throws RepositoryException,
                                             IllegalResourceTypeException;

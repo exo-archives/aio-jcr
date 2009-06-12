@@ -29,8 +29,8 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> Versioned file resource
- * (nt:file+mix:versionable/nt:resource )
+ * Created by The eXo Platform SARL .<br/>
+ * Versioned file resource (nt:file+mix:versionable/nt:resource )
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -45,6 +45,14 @@ public class VersionedFileResource extends FileResource implements VersionedReso
     FILE_SKIP.add("jcr:uuid");
   }
 
+  /**
+   * 
+   * @param identifier resource identifier
+   * @param node node
+   * @param namespaceContext namespace context
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   * @throws RepositoryException {@link RepositoryException}}
+   */
   public VersionedFileResource(URI identifier, Node node, WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
       RepositoryException {
     super(VERSIONED_FILE, identifier, node, namespaceContext);
@@ -53,6 +61,10 @@ public class VersionedFileResource extends FileResource implements VersionedReso
           + node.getPath());
   }
 
+
+  /**
+   * {@inheritDoc}
+   */
   public VersionHistoryResource getVersionHistory() throws RepositoryException,
                                                    IllegalResourceTypeException {
     return new VersionHistoryResource(versionHistoryURI(),
@@ -61,10 +73,18 @@ public class VersionedFileResource extends FileResource implements VersionedReso
                                       namespaceContext);
   }
 
+  /**
+   * Resturns version history URI.
+   * 
+   * @return version history URI
+   */
   protected final URI versionHistoryURI() {
     return URI.create(identifier.toASCIIString() + "?vh");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
                                                      AccessDeniedException,

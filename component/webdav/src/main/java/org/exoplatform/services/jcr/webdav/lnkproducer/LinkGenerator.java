@@ -22,14 +22,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class LinkGenerator {
 
-  // MICROSOFT *.LNK FILE HEADER
+  /**
+   * MICROSOFT *.LNK FILE HEADER.
+   */
   public static int[] linkHeader = {
       // 0h 1 dword Always 0000004Ch 'L'
       0x4C, 0x00, 0x00, 0x00,
@@ -68,18 +71,40 @@ public class LinkGenerator {
       // 44h 2 dwords Unknown, always zero
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+  /**
+   * Host name.
+   */
   private String      hostName;
 
+  /**
+   * Servlet path.
+   */
   private String      servletPath;
 
+  /**
+   * Traget path.
+   */
   private String      targetPath;
 
+  /**
+   * Constructor.
+   * 
+   * @param hostName host name
+   * @param servletPath servlet path
+   * @param targetPath target path
+   */
   public LinkGenerator(String hostName, String servletPath, String targetPath) {
     this.hostName = hostName;
     this.servletPath = servletPath;
     this.targetPath = targetPath;
   }
 
+  /**
+   * Generates the content of link.
+   * 
+   * @return link content
+   * @throws IOException {@link IOException}
+   */
   public byte[] generateLinkContent() throws IOException {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
@@ -101,6 +126,12 @@ public class LinkGenerator {
     return outStream.toByteArray();
   }
 
+  /**
+   * Gets the content of the link.
+   * 
+   * @return link content
+   * @throws IOException {@link IOException}
+   */
   private byte[] getLinkContent() throws IOException {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
@@ -144,6 +175,12 @@ public class LinkGenerator {
     return outStream.toByteArray();
   }
 
+  /**
+   * Returns the first item.
+   * 
+   * @return first item
+   * @throws IOException {@link IOException}
+   */
   private byte[] getFirstItem() throws IOException {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
@@ -155,6 +192,12 @@ public class LinkGenerator {
     return outStream.toByteArray();
   }
 
+  /**
+   * Returns the last item.
+   * 
+   * @return last item
+   * @throws IOException {@link IOException}
+   */
   private byte[] getLastItem() throws IOException {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
@@ -166,6 +209,14 @@ public class LinkGenerator {
     return outStream.toByteArray();
   }
 
+  /**
+   * Returns the root item.
+   * 
+   * @param rootName root item name.
+   * @param servlet servlet name.
+   * @return root item
+   * @throws IOException {@link IOException}
+   */
   private byte[] getRootItem(String rootName, String servlet) throws IOException {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
@@ -186,6 +237,12 @@ public class LinkGenerator {
     return outStream.toByteArray();
   }
 
+  /**
+   * Returns the root item.
+   * 
+   * @return root item
+   * @throws IOException {@link IOException}
+   */
   private byte[] getRootHeader() throws IOException {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
@@ -196,6 +253,13 @@ public class LinkGenerator {
     return outStream.toByteArray();
   }
 
+  /**
+   * Returns the root value.
+   * 
+   * @param rootName root item name.
+   * @return root item value
+   * @throws IOException {@link IOException}
+   */
   private byte[] getRootValue(String rootName) throws IOException {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
@@ -238,6 +302,13 @@ public class LinkGenerator {
     return outStream.toByteArray();
   }
 
+  /**
+   * Writes string into stream.
+   * 
+   * @param outString string
+   * @param outStream stream
+   * @throws IOException {@link IOException}
+   */
   private void simpleWriteString(String outString, OutputStream outStream) throws IOException {
     for (int i = 0; i < outString.length(); i++) {
       int charCode = outString.charAt(i);
@@ -246,6 +317,13 @@ public class LinkGenerator {
     }
   }
 
+  /**
+   * Writes zero-string into stream.
+   * 
+   * @param outString string
+   * @param outStream stream
+   * @throws IOException {@link IOException}
+   */
   private void writeZeroString(String outString, OutputStream outStream) throws IOException {
     simpleWriteString(outString, outStream);
     outStream.write(0);
@@ -258,11 +336,25 @@ public class LinkGenerator {
     writeZeroString(outString, outStream);
   }
 
+  /**
+   * Writes int into stream.
+   * 
+   * @param intValue int value
+   * @param outStream stream
+   * @throws IOException {@link IOException}
+   */
   private void writeInt(int intValue, OutputStream outStream) throws IOException {
     outStream.write(intValue & 0xFF);
     outStream.write((intValue >> 8) & 0xFF);
   }
 
+  /**
+   * Writes int array into stream.
+   * 
+   * @param bytes int array
+   * @param outStream stream
+   * @throws IOException {@link IOException}
+   */
   private void writeInts(int[] bytes, OutputStream outStream) throws IOException {
     for (int i = 0; i < bytes.length; i++) {
       byte curByte = (byte) bytes[i];
@@ -270,6 +362,13 @@ public class LinkGenerator {
     }
   }
 
+  /**
+   * Writes byte array into stream.
+   * 
+   * @param bytes byte array
+   * @param outStream stream
+   * @throws IOException {@link IOException}
+   */
   private void writeBytes(byte[] bytes, OutputStream outStream) throws IOException {
     for (int i = 0; i < bytes.length; i++) {
       byte curByte = bytes[i];

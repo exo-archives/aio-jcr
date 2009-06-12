@@ -33,15 +33,27 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
 
 public class SearchCommand {
-  
+
+  /**
+   * logger.
+   */
   private static Log log = ExoLogger.getLogger(SearchCommand.class);
 
+  /**
+   * Webdav search method implementation.
+   * 
+   * @param session current session
+   * @param body rrequest body
+   * @param baseURI base uri
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response search(Session session, HierarchicalProperty body, String baseURI) {
     try {
       SearchRequestEntity requestEntity = new SearchRequestEntity(body);

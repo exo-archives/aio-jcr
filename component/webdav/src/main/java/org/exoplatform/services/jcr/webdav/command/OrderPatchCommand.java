@@ -41,18 +41,33 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
-
 public class OrderPatchCommand {
 
+  /**
+   * logger.
+   */
   private static Log log = ExoLogger.getLogger(OrderPatchCommand.class);
-  
+
+  /**
+   * Constructor.
+   */
   public OrderPatchCommand() {
   }
 
+  /**
+   * Webdav OrderPatch method implementation.
+   * 
+   * @param session current session
+   * @param path resource path
+   * @param body responce body
+   * @param baseURI base uri
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response orderPatch(Session session, String path, HierarchicalProperty body, String baseURI) {
     try {
       Node node = (Node) session.getItem(path);
@@ -82,6 +97,12 @@ public class OrderPatchCommand {
 
   }
 
+  /**
+   * Get oder members.
+   * 
+   * @param body request body.
+   * @return list of members
+   */
   protected List<OrderMember> getMembers(HierarchicalProperty body) {
     ArrayList<OrderMember> members = new ArrayList<OrderMember>();
     List<HierarchicalProperty> childs = body.getChildren();
@@ -92,6 +113,13 @@ public class OrderPatchCommand {
     return members;
   }
 
+  /**
+   * Order members.
+   * 
+   * @param parentNode parent node
+   * @param members members
+   * @return true if can order
+   */
   protected boolean doOrder(Node parentNode, List<OrderMember> members) {
     boolean success = true;
     for (int i = 0; i < members.size(); i++) {

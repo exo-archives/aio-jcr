@@ -31,9 +31,24 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ResourceUtil {
-  
+
+  /**
+   * Constructor.
+   */
+  private ResourceUtil() {
+  }
+
+  /**
+   * logger.
+   */
   private static Log log = ExoLogger.getLogger(ResourceUtil.class);
 
+  /**
+   * If the node is file.
+   * 
+   * @param node node
+   * @return true if node is file false if not
+   */
   public static boolean isFile(Node node) {
     try {
       if (!node.isNodeType("nt:file"))
@@ -47,6 +62,12 @@ public class ResourceUtil {
     }
   }
 
+  /**
+   * If the node is version.
+   * 
+   * @param node node
+   * @return true if node is version false if not
+   */
   public static boolean isVersion(Node node) {
     try {
       if (node.isNodeType("nt:version"))
@@ -58,6 +79,12 @@ public class ResourceUtil {
     }
   }
 
+  /**
+   * If the node is versionable.
+   * 
+   * @param node node
+   * @return true if node is versionable false if not
+   */
   public static boolean isVersioned(Node node) {
     try {
       if (node.isNodeType("mix:versionable"))

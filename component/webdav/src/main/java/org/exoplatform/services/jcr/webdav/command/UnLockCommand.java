@@ -31,21 +31,41 @@ import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
 
 public class UnLockCommand {
-  
-  private static Log log = ExoLogger.getLogger(UnLockCommand.class);
 
+  /**
+   * logger.
+   */
+  private static Log                      log = ExoLogger.getLogger(UnLockCommand.class);
+
+  /**
+   * resource locks.
+   */
   protected final NullResourceLocksHolder nullResourceLocks;
 
+  /**
+   * Constructor.
+   * 
+   * @param nullResourceLocks resource locks.
+   */
   public UnLockCommand(final NullResourceLocksHolder nullResourceLocks) {
     this.nullResourceLocks = nullResourceLocks;
   }
 
+  /**
+   * Webdav Unlock method implementation.
+   * 
+   * @param session current seesion
+   * @param path resource path
+   * @param tokens tokens
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response unLock(Session session, String path, List<String> tokens) {
     try {
       try {

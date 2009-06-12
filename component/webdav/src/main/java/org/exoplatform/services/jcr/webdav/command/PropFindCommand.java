@@ -49,23 +49,27 @@ import org.exoplatform.services.rest.ExtHttpHeaders;
 
 /**
  * Created by The eXo Platform SAS <br/>
- * 
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Author : <a href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class PropFindCommand {
 
+  /**
+   * logger.
+   */
   private static Log log = ExoLogger.getLogger(PropFindCommand.class);
 
   /**
-   * @param session
-   * @param path
-   * @param body
-   * @param depth
-   * @param baseURI
-   * @return
+   * Webdav Propfind methos implementation.
+   * 
+   * @param session current session
+   * @param path resource path
+   * @param body request body
+   * @param depth request depth
+   * @param baseURI base Uri
+   * @return the instance of javax.ws.rs.core.Response
    */
   public Response propfind(Session session,
                            String path,
@@ -133,6 +137,12 @@ public class PropFindCommand {
                    .build();
   }
 
+  /**
+   * Returns the set of properties names.
+   * 
+   * @param body request body.
+   * @return the set of properties names.
+   */
   private Set<QName> propertyNames(HierarchicalProperty body) {
     HashSet<QName> names = new HashSet<QName>();
 

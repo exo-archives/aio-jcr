@@ -21,19 +21,35 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class RangedInputStream extends InputStream {
 
+  /**
+   * Input Stream.
+   */
   private InputStream nativeInputStream;
 
+  /**
+   * End of range.
+   */
   private long        endRange;
 
+  /**
+   * Position.
+   */
   private long        position = 0;
 
+  /**
+   * @param nativeInputStream Input Stream.
+   * @param startRange range start
+   * @param endRange range end
+   * @throws IOException {@link IOException}
+   */
   public RangedInputStream(InputStream nativeInputStream, long startRange, long endRange) throws IOException {
     this.nativeInputStream = nativeInputStream;
     this.endRange = endRange;
@@ -56,6 +72,9 @@ public class RangedInputStream extends InputStream {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int read() throws IOException {
     if (position > endRange) {
       return -1;
@@ -68,10 +87,16 @@ public class RangedInputStream extends InputStream {
     return curReaded;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int read(byte[] buffer) throws IOException {
     return read(buffer, 0, buffer.length);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int read(byte[] buffer, int offset, int size) throws IOException {
     long needsToRead = size;
 
@@ -88,26 +113,44 @@ public class RangedInputStream extends InputStream {
     return curReaded;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public long skip(long skipVal) throws IOException {
     return nativeInputStream.skip(skipVal);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int available() throws IOException {
     return nativeInputStream.available();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void close() throws IOException {
     nativeInputStream.close();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public synchronized void mark(int markVal) {
     nativeInputStream.mark(markVal);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public synchronized void reset() throws IOException {
     nativeInputStream.reset();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean markSupported() {
     return nativeInputStream.markSupported();
   }

@@ -37,24 +37,47 @@ import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/>
+ * Created by The eXo Platform SARL.<br/>
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class PropstatGroupedRepresentation {
-  
-  private static Log log = ExoLogger.getLogger(PropstatGroupedRepresentation.class);
 
+  /**
+   * logger.
+   */
+  private static Log                                     log       = ExoLogger.getLogger(PropstatGroupedRepresentation.class);
+
+  /**
+   * properties statuses.
+   */
   protected final Map<String, Set<HierarchicalProperty>> propStats;
 
+  /**
+   * properties names
+   */
   protected Set<QName>                                   propNames = null;
 
+  /**
+   * Boolean flag. Shows if only properties names are required (true) or
+   * properties and values (false).
+   */
   protected final boolean                                namesOnly;
 
+  /**
+   * resource.
+   */
   protected final Resource                               resource;
 
+  /**
+   * @param resource resource
+   * @param propNames properties names
+   * @param namesOnly Boolean flag. Shows if only properties names are required
+   *          (true) or properties and values (false).
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public PropstatGroupedRepresentation(final Resource resource,
                                        final Set<QName> propNames,
                                        boolean namesOnly) throws RepositoryException {
@@ -74,6 +97,12 @@ public class PropstatGroupedRepresentation {
     }
   }
 
+  /**
+   * Returns properties statuses.
+   * 
+   * @return properties statuses
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public final Map<String, Set<HierarchicalProperty>> getPropStats() throws RepositoryException {
     String statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
     if (propNames == null) {

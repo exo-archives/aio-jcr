@@ -29,14 +29,21 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 public class MoveCommand {
 
+  /**
+   * Cache control object.
+   */
   private static CacheControl cacheControl = new CacheControl();
 
+  /**
+   * Logger.
+   */
   private static Log          log          = ExoLogger.getLogger(MoveCommand.class);
 
   // Fix problem with moving under Windows Explorer.
@@ -44,6 +51,14 @@ public class MoveCommand {
     cacheControl.setNoCache(true);
   }
 
+  /**
+   * Webdav Move method implementation.
+   * 
+   * @param session current session.
+   * @param srcPath source resource path
+   * @param destPath destination resource path
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response move(Session session, String srcPath, String destPath) {
     try {
 
@@ -74,6 +89,15 @@ public class MoveCommand {
 
   }
 
+  /**
+   * Webdav Move method implementation.
+   * 
+   * @param sourceSession source session
+   * @param destSession destination session
+   * @param srcPath source resource path
+   * @param destPath destination resource path
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response move(Session sourceSession, Session destSession, String srcPath, String destPath) {
     try {
 

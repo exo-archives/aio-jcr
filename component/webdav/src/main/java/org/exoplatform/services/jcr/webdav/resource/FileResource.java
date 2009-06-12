@@ -34,6 +34,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -48,32 +49,61 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class FileResource extends GenericResource {
 
+  /**
+   * logger.
+   */
   private static final Log           LOG          = ExoLogger.getLogger(FileResource.class);
 
+  /**
+   * The list of properties which are skipped for nt:file.
+   */
   protected final static Set<String> FILE_SKIP    = new HashSet<String>();
   static {
-    FILE_SKIP.add("jcr:primaryType");
+    // FILE_SKIP.add("jcr:primaryType");
     FILE_SKIP.add("jcr:mixinTypes");
     FILE_SKIP.add("jcr:created");
   };
 
+  /**
+   * The list of properties which are skipped for jcr:content.
+   */
   protected final static Set<String> CONTENT_SKIP = new HashSet<String>();
   static {
-    CONTENT_SKIP.add("jcr:primaryType");
-    CONTENT_SKIP.add("jcr:mixinTypes");
     CONTENT_SKIP.add("jcr:data");
     CONTENT_SKIP.add("jcr:lastModified");
     CONTENT_SKIP.add("jcr:mimeType");
     CONTENT_SKIP.add("jcr:uuid");
+
+    CONTENT_SKIP.add("dc:date");
+    CONTENT_SKIP.add("exo:internalUse");
   };
 
+  /**
+   * Node.
+   */
   protected final Node               node;
 
+  /**
+   * @param identifier resource identifier
+   * @param node node
+   * @param namespaceContext namespace context
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public FileResource(final URI identifier, Node node, final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
       RepositoryException {
     this(FILE, identifier, node, namespaceContext);
   }
 
+/**
+   * 
+   * @param type resource type
+   * @param identifier resource identifier
+   * @param node node
+   * @param namespaceContext namespace context
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException
+   * @throws RepositoryException {@link RepositoryException}
+   */
   protected FileResource(final int type,
                          final URI identifier,
                          Node node,
@@ -95,10 +125,17 @@ public class FileResource extends GenericResource {
                                                                    RepositoryException {
 
     Set<HierarchicalProperty> props = super.getProperties(namesOnly);
+
     props.add(namesOnly ? new HierarchicalProperty(GETLASTMODIFIED) : getProperty(GETLASTMODIFIED));
     props.add(namesOnly ? new HierarchicalProperty(GETCONTENTLENGTH)
                        : getProperty(GETCONTENTLENGTH));
     props.add(namesOnly ? new HierarchicalProperty(GETCONTENTTYPE) : getProperty(GETCONTENTTYPE));
+
+    QName nodeTypeName = namespaceContext.createQName("jcr:nodeType");
+    HierarchicalProperty noneTypeProp = new HierarchicalProperty(nodeTypeName,
+                                                                 contentNode().getPrimaryNodeType()
+                                                                              .getName());
+    props.add(noneTypeProp);
 
     Set<QName> presents = new HashSet<QName>();
 
@@ -118,6 +155,8 @@ public class FileResource extends GenericResource {
     }
 
     jcrProps = contentNode().getProperties();
+    HierarchicalProperty jcrContentProp = new HierarchicalProperty(namespaceContext.createQName(WebDavConst.NodeTypes.JCR_CONTENT));
+
     while (jcrProps.hasNext()) {
       Property property = jcrProps.nextProperty();
       if (!CONTENT_SKIP.contains(property.getName())) {
@@ -127,10 +166,13 @@ public class FileResource extends GenericResource {
           continue;
         }
 
-        props.add((namesOnly) ? new HierarchicalProperty(name) : getProperty(name));
+        jcrContentProp.addChild((namesOnly) ? new HierarchicalProperty(name) : getProperty(name));
       }
     }
 
+    if (!jcrContentProp.getChildren().isEmpty()) {
+      props.add(jcrContentProp);
+    }
     return props;
   }
 
@@ -242,14 +284,31 @@ public class FileResource extends GenericResource {
     return false;
   }
 
+  /**
+   * Returns the content of node as text.
+   * 
+   * @return content as text
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public String getContentAsText() throws RepositoryException {
     return contentNode().getProperty("jcr:data").getString();
   }
 
+  /**
+   * Returns the content of node as stream.
+   * 
+   * @return content as stream
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public InputStream getContentAsStream() throws RepositoryException {
     return contentNode().getProperty("jcr:data").getStream();
   }
 
+  /**
+   * if the content of node is text.
+   * 
+   * @return true if the content of node is text false if not
+   */
   public boolean isTextContent() {
     try {
       return contentNode().getProperty("jcr:data").getType() != PropertyType.BINARY;
@@ -259,6 +318,12 @@ public class FileResource extends GenericResource {
     }
   }
 
+  /**
+   * Returns the content node.
+   * 
+   * @return the content node
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public Node contentNode() throws RepositoryException {
     return node.getNode("jcr:content");
   }

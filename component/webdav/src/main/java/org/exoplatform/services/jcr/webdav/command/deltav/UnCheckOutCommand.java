@@ -33,15 +33,26 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class UnCheckOutCommand {
-  
+
+  /**
+   * logger.
+   */
   private static Log log = ExoLogger.getLogger(UnCheckOutCommand.class);
 
+  /**
+   * Webdav Uncheckout method implementation.
+   * 
+   * @param session current session 
+   * @param path resource path
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response uncheckout(Session session, String path) {
 
     try {

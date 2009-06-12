@@ -35,21 +35,43 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class MkColCommand {
 
+  /**
+   * Logger.
+   */
   private static Log                    log = ExoLogger.getLogger(MkColCommand.class);
 
+  /**
+   * resource locks.
+   */
   private final NullResourceLocksHolder nullResourceLocks;
 
+  /**
+   * Constructor. 
+   * 
+   * @param nullResourceLocks resource locks. 
+   */
   public MkColCommand(final NullResourceLocksHolder nullResourceLocks) {
     this.nullResourceLocks = nullResourceLocks;
   }
 
+  /**
+   * Webdav Mkcol method implementation.
+   * 
+   * @param session current session
+   * @param path resource path
+   * @param nodeType folder node type
+   * @param mixinTypes mixin types 
+   * @param tokens tokens
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response mkCol(Session session,
                         String path,
                         String nodeType,
@@ -84,6 +106,12 @@ public class MkColCommand {
     return Response.status(HTTPStatus.CREATED).build();
   }
 
+  /**
+   * Adds mixins to node.
+   * 
+   * @param node node.
+   * @param mixinTypes mixin types.
+   */
   private void addMixins(Node node, List<String> mixinTypes) {
     for (int i = 0; i < mixinTypes.size(); i++) {
       String curMixinType = mixinTypes.get(i);

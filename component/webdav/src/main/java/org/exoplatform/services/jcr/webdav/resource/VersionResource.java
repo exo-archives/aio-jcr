@@ -42,10 +42,22 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 public class VersionResource extends GenericResource {
 
+  /**
+   * resource version.
+   */
   protected final Version           version;
 
+  /**
+   * versioned resource.
+   */
   protected final VersionedResource versionedResource;
 
+  /**
+   * @param identifier resource identifier
+   * @param versionedResource resource
+   * @param version version
+   * @param namespaceContext namespace context
+   */
   public VersionResource(final URI identifier,
                          VersionedResource versionedResource,
                          Version version,
@@ -55,6 +67,9 @@ public class VersionResource extends GenericResource {
     this.versionedResource = versionedResource;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
                                                      AccessDeniedException,
                                                      RepositoryException {
@@ -139,14 +154,29 @@ public class VersionResource extends GenericResource {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public final boolean isCollection() {
     return false;
   }
 
+  /**
+   * Returns content node.
+   * 
+   * @return content node
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public Node contentNode() throws RepositoryException {
     return version.getNode("jcr:frozenNode").getNode("jcr:content");
   }
 
+  /**
+   * Returns the content of node as a stream.
+   * 
+   * @return content as stream
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public InputStream getContentAsStream() throws RepositoryException {
     return contentNode().getProperty("jcr:data").getStream();
   }

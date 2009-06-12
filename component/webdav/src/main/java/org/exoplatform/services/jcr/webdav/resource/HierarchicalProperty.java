@@ -28,8 +28,8 @@ import java.util.TimeZone;
 import javax.xml.namespace.QName;
 
 /**
- * Created by The eXo Platform SAS .<br/> DOM - like (but lighter) webdav
- * property representation
+ * Created by The eXo Platform SAS .<br/>
+ * DOM - like (but lighter) webdav property representation
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -37,17 +37,29 @@ import javax.xml.namespace.QName;
 
 public class HierarchicalProperty {
 
+  /**
+   * The list of property's children.
+   */
   protected List<HierarchicalProperty> children;
 
+  /**
+   * Property's name.
+   */
   protected QName                      name;
 
+  /**
+   * Property's value.
+   */
   protected String                     value;
 
+  /**
+   * Property's attributes.
+   */
   protected HashMap<String, String>    attributes = new HashMap<String, String>();
 
   /**
    * Constructor accepting String as property name, both prefixed (i.e.
-   * prefix:local) and not (i.e. local) are accepted
+   * prefix:local) and not (i.e. local) are accepted.
    * 
    * @param name property name
    * @param value property value (can be null)
@@ -64,8 +76,9 @@ public class HierarchicalProperty {
   }
 
   /**
-   * @param name
-   * @param value
+   * Constructor accepting QName as property name and String as value.
+   * @param name property name
+   * @param value property value
    */
   public HierarchicalProperty(QName name, String value) {
     this.name = name;
@@ -74,9 +87,11 @@ public class HierarchicalProperty {
   }
 
   /**
-   * @param name
-   * @param dateValue
-   * @param formatPattern
+   * Constructor accepting QName as property name and calendar as value.
+   * 
+   * @param name property name 
+   * @param dateValue property value
+   * @param formatPattern date format pattern
    */
   public HierarchicalProperty(QName name, Calendar dateValue, String formatPattern) {
     this(name, null);
@@ -86,19 +101,19 @@ public class HierarchicalProperty {
   }
 
   /**
-   * Shortcut for XMLProperty(name, null)
+   * Shortcut for XMLProperty(name, null).
    * 
-   * @param name
+   * @param name property name
    */
   public HierarchicalProperty(QName name) {
     this(name, null);
   }
 
   /**
-   * adds prop as a children to this property
+   * adds prop as a children to this property.
    * 
-   * @param prop
-   * @return added property
+   * @param prop property name
+   * @return added property 
    */
   public HierarchicalProperty addChild(HierarchicalProperty prop) {
     children.add(prop);
@@ -106,6 +121,8 @@ public class HierarchicalProperty {
   }
 
   /**
+   * Returns this property children.
+   * 
    * @return child properties of this property
    */
   public List<HierarchicalProperty> getChildren() {
@@ -113,9 +130,9 @@ public class HierarchicalProperty {
   }
 
   /**
-   * retrieves children property by name
+   * retrieves children property by name.
    * 
-   * @param name
+   * @param name child name
    * @return property or null if not found
    */
   public HierarchicalProperty getChild(QName name) {
@@ -127,10 +144,10 @@ public class HierarchicalProperty {
   }
 
   /**
-   * retrieves children property by 0 based index
+   * retrieves children property by 0 based index.
    * 
-   * @param index
-   * @return
+   * @param index the index of child
+   * @return child with current index
    */
   public HierarchicalProperty getChild(int index) {
     return children.get(index);
@@ -151,27 +168,27 @@ public class HierarchicalProperty {
   }
 
   /**
-   * sets the property value
+   * sets the property value.
    * 
-   * @param value
+   * @param value property value
    */
   public void setValue(String value) {
     this.value = value;
   }
 
   /**
-   * sets the attribute
+   * sets the attribute.
    * 
-   * @param attributeName
-   * @param attributeValue
+   * @param attributeName attribute name
+   * @param attributeValue attribute value
    */
   public void setAttribute(String attributeName, String attributeValue) {
     attributes.put(attributeName, attributeValue);
   }
 
   /**
-   * @param attributeName
-   * @return attribute
+   * @param attributeName attribute name
+   * @return attribute attribute
    */
   public String getAttribute(String attributeName) {
     return attributes.get(attributeName);

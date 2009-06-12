@@ -30,20 +30,32 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class CopyCommand {
 
+  /**
+   * Logger.
+   */
   private static Log log = ExoLogger.getLogger(CopyCommand.class);
 
+  /**
+   * Webdav COPY method implementation for the same workspace.
+   * 
+   * @param destSession destination session
+   * @param sourcePath source file path
+   * @param destPath destination file path
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response copy(Session destSession, String sourcePath, String destPath) {
     try {
       destSession.getWorkspace().copy(sourcePath, destPath);
       return Response.status(HTTPStatus.CREATED).build();
-    } catch (ItemExistsException e) {     
+    } catch (ItemExistsException e) {
       return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
     } catch (PathNotFoundException e) {
       return Response.status(HTTPStatus.CONFLICT).build();
@@ -57,6 +69,15 @@ public class CopyCommand {
     }
   }
 
+  /**
+   * Webdav COPY method implementation for the different workspaces.
+   * 
+   * @param destSession destination session
+   * @param sourceWorkspace source workspace name
+   * @param sourcePath source file path
+   * @param destPath destination file path
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response copy(Session destSession,
                        String sourceWorkspace,
                        String sourcePath,

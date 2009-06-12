@@ -34,13 +34,26 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class NullResourceLocksHolder {
 
-  // repo -> Map(/workspace/path/ -> token)
+  /**
+   * repo -> Map(/workspace/path/ -> token).
+   */
   private final HashMap<String, String> nullResourceLocks;
 
+  /**
+   * Default constructor.
+   */
   public NullResourceLocksHolder() {
     this.nullResourceLocks = new HashMap<String, String>();
   }
 
+  /**
+   * Locks the node.
+   * 
+   * @param session current session
+   * @param path node path
+   * @return thee lock token key
+   * @throws LockException {@link LockException}
+   */
   public String addLock(Session session, String path) throws LockException {
 
     String repoPath = session.getRepository().hashCode() + "/" + session.getWorkspace().getName()
@@ -62,6 +75,12 @@ public class NullResourceLocksHolder {
     throw new LockException("Resource already locked " + repoPath);
   }
 
+  /**
+   * Removes lock from the node.
+   * 
+   * @param session current session
+   * @param path nodepath
+   */
   public void removeLock(Session session, String path) {
     String repoPath = session.getRepository().hashCode() + "/" + session.getWorkspace().getName()
         + "/" + path;
@@ -70,6 +89,13 @@ public class NullResourceLocksHolder {
     nullResourceLocks.remove(repoPath);
   }
 
+  /**
+   * Checks if the node is locked.
+   * 
+   * @param session current session
+   * @param path node path
+   * @return true if the node is locked false if not
+   */
   public boolean isLocked(Session session, String path) {
     String repoPath = session.getRepository().hashCode() + "/" + session.getWorkspace().getName()
         + "/" + path;
@@ -80,6 +106,14 @@ public class NullResourceLocksHolder {
     return false;
   }
 
+  /**
+   * Checks if the node can be unlocked using current tokens.
+   * 
+   * @param session current session
+   * @param path node path
+   * @param tokens tokens
+   * @throws LockException {@link LockException}
+   */
   public void checkLock(Session session, String path, List<String> tokens) throws LockException {
     String repoPath = session.getRepository().hashCode() + "/" + session.getWorkspace().getName()
         + "/" + path;

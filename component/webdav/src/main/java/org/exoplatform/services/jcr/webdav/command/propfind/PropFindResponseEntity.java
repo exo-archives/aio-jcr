@@ -48,22 +48,54 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class PropFindResponseEntity implements StreamingOutput {
 
+  /**
+   * logger.
+   */
   private static Log                     log = ExoLogger.getLogger(PropFindResponseEntity.class);
 
+  /**
+   * XML writer.
+   */
   protected XMLStreamWriter              xmlStreamWriter;
 
+  /**
+   * Output stream.
+   */
   protected OutputStream                 outputStream;
 
+  /**
+   * Namespace context.
+   */
   protected final WebDavNamespaceContext namespaceContext;
 
+  /**
+   * Root resource.
+   */
   protected final Resource               rootResource;
 
+  /**
+   * The list of properties to get.
+   */
   protected Set<QName>                   propertyNames;
 
+  /**
+   * Request depth.
+   */
   protected final int                    depth;
 
+  /**
+   * Boolean flag, shows if only property names a requested.
+   */
   protected final boolean                propertyNamesOnly;
 
+  /**
+   * Constructor.
+   * 
+   * @param depth reqest depth.
+   * @param rootResource root resource.
+   * @param propertyNames the list of properties requested
+   * @param propertyNamesOnly if only property names a requested
+   */
   public PropFindResponseEntity(int depth,
                                 Resource rootResource,
                                 Set<QName> propertyNames,
@@ -75,11 +107,8 @@ public class PropFindResponseEntity implements StreamingOutput {
     this.propertyNamesOnly = propertyNamesOnly;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject
-   * (java.io.OutputStream)
+  /**
+   * {@inheritDoc}
    */
   public void write(OutputStream stream) throws IOException {
     this.outputStream = stream;
@@ -109,6 +138,16 @@ public class PropFindResponseEntity implements StreamingOutput {
     }
   }
 
+  /**
+   * Traverses resources and collects the vales of required properties.
+   * 
+   * @param resource resource to traverse
+   * @param counter the depth
+   * @throws XMLStreamException {@link XMLStreamException}
+   * @throws RepositoryException {@link RepositoryException}
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   * @throws URISyntaxException {@link URISyntaxException}
+   */
   private void traverseResources(Resource resource, int counter) throws XMLStreamException,
                                                                 RepositoryException,
                                                                 IllegalResourceTypeException,

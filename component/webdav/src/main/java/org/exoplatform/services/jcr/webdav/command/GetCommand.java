@@ -51,13 +51,17 @@ import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.ext.provider.XSLTStreamingOutput;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class GetCommand {
 
+  /**
+   * Logger.
+   */
   private static Log log = ExoLogger.getLogger(GetCommand.class);
 
   /**
@@ -65,12 +69,12 @@ public class GetCommand {
    * returns in the XML type. If version parameter is present, returns the
    * content of the version of the resource.
    * 
-   * @param session
-   * @param path
-   * @param version
-   * @param baseURI
-   * @param range
-   * @return
+   * @param session current session
+   * @param path resource path
+   * @param version version name
+   * @param baseURI base uri
+   * @param ranges ranges
+   * @return the instance of javax.ws.rs.core.Response
    */
   public Response get(Session session,
                       String path,
@@ -202,6 +206,13 @@ public class GetCommand {
     }
   }
 
+  /**
+   * Checks is the range is valid.
+   * 
+   * @param range range
+   * @param contentLength coontent length
+   * @return true if the range is valid else false
+   */
   private boolean validateRange(Range range, long contentLength) {
     long start = range.getStart();
     long end = range.getEnd();
@@ -236,6 +247,12 @@ public class GetCommand {
     return false;
   }
 
+  /**
+   * Generates the value of Cache-Control header according to the content type.
+   * 
+   * @param contentType content type
+   * @return Cache-Control value
+   */
   private String generateCacheControl(String contentType) {
     if (contentType.contains("image")) {
       return CacheConstants.IMAGE_CACHE;

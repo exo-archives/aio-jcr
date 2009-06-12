@@ -1,6 +1,5 @@
-<nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
-  xmlns:jcr="http://www.jcp.org/jcr/1.0">
-  
+<nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0">
+
   <nodeType name="webdav:folder" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
 
     <supertypes>
@@ -9,14 +8,8 @@
     </supertypes>
 
     <propertyDefinitions>
-      <propertyDefinition name="*" 
-				  requiredType="undefined" 
-				  autoCreated="false" 
-				  mandatory="false" 
-				  onParentVersion="COPY" 
-				  protected="false" 
-				  multiple="false">
-        <valueConstraints/>
+      <propertyDefinition name="*" requiredType="undefined" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints />
       </propertyDefinition>
     </propertyDefinitions>
 
@@ -30,19 +23,13 @@
     </supertypes>
 
     <propertyDefinitions>
-      <propertyDefinition name="webdav:Author" 
-				  requiredType="String" 
-				  autoCreated="false" 
-				  mandatory="false" 
-				  onParentVersion="COPY" 
-				  protected="false" 
-				  multiple="false">
-        <valueConstraints/>
+      <propertyDefinition name="webdav:Author" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints />
       </propertyDefinition>
     </propertyDefinitions>
 
-  </nodeType>	
-  
+  </nodeType>
+
   <nodeType name="webdav:badres" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
 
     <supertypes>
@@ -51,19 +38,13 @@
     </supertypes>
 
     <propertyDefinitions>
-      <propertyDefinition name="*" 
-          requiredType="undefined" 
-          autoCreated="false" 
-          mandatory="false" 
-          onParentVersion="COPY" 
-          protected="false" 
-          multiple="false">
-        <valueConstraints/>
+      <propertyDefinition name="*" requiredType="undefined" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints />
       </propertyDefinition>
     </propertyDefinitions>
 
   </nodeType>
-  
+
   <nodeType name="webdav:goodres" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
 
     <supertypes>
@@ -72,75 +53,47 @@
     </supertypes>
 
     <propertyDefinitions>
-      <propertyDefinition name="*" 
-          requiredType="undefined" 
-          autoCreated="false" 
-          mandatory="false" 
-          onParentVersion="COPY" 
-          protected="false" 
-          multiple="false">
-        <valueConstraints/>
+      <propertyDefinition name="*" requiredType="undefined" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints />
       </propertyDefinition>
     </propertyDefinitions>
 
-  </nodeType>  
-  
+  </nodeType>
+
   <nodeType name="mix:wdTestMixin1" isMixin="true" hasOrderableChildNodes="true" primaryItemName="">
-    
+
     <propertyDefinitions>
-      <propertyDefinition name="*" 
-          requiredType="undefined" 
-          autoCreated="false" 
-          mandatory="false" 
-          onParentVersion="COPY" 
-          protected="false" 
-          multiple="false">
-        <valueConstraints/>
+      <propertyDefinition name="*" requiredType="undefined" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints />
       </propertyDefinition>
     </propertyDefinitions>
 
   </nodeType>
-  
+
   <nodeType name="mix:wdTestMixin2" isMixin="true" hasOrderableChildNodes="true" primaryItemName="">
-    
+
     <propertyDefinitions>
-      <propertyDefinition name="*" 
-          requiredType="undefined" 
-          autoCreated="false" 
-          mandatory="false" 
-          onParentVersion="COPY" 
-          protected="false" 
-          multiple="false">
-        <valueConstraints/>
+      <propertyDefinition name="*" requiredType="undefined" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints />
       </propertyDefinition>
     </propertyDefinitions>
 
   </nodeType>
-  
-  
-      <nodeType name="exo:testResource" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
+
+
+  <nodeType name="exo:testResource" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
 
     <supertypes>
       <supertype>nt:resource</supertype>
       <supertype>nt:unstructured</supertype>
     </supertypes>
-    <!--   propertyDefinitions>
-      <propertyDefinition name="*" requiredType="String"
-        autoCreated="false" mandatory="false" onParentVersion="IGNORE"
-        protected="false" multiple="false">
-        <valueConstraints/>
-      </propertyDefinition>
-    </propertyDefinitions>
-    <childNodeDefinitions>
-      <childNodeDefinition name="*" defaultPrimaryType="nt:unstructured"
-        autoCreated="false" mandatory="false" onParentVersion="IGNORE"
-        protected="false" sameNameSiblings="false">
-        <requiredPrimaryTypes>
-          <requiredPrimaryType>nt:unstructured</requiredPrimaryType>
-        </requiredPrimaryTypes>
-      </childNodeDefinition>
-    </childNodeDefinitions -->
-  </nodeType> 
-	  
+    <!--
+      propertyDefinitions> <propertyDefinition name="*" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="IGNORE" protected="false" multiple="false"> <valueConstraints/>
+      </propertyDefinition> </propertyDefinitions> <childNodeDefinitions> <childNodeDefinition name="*" defaultPrimaryType="nt:unstructured" autoCreated="false" mandatory="false"
+      onParentVersion="IGNORE" protected="false" sameNameSiblings="false"> <requiredPrimaryTypes> <requiredPrimaryType>nt:unstructured</requiredPrimaryType> </requiredPrimaryTypes>
+      </childNodeDefinition> </childNodeDefinitions
+    -->
+  </nodeType>
+
 </nodeTypes>
 

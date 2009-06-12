@@ -49,7 +49,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/> Other than nt:file/jcr:content(nt:resource)
+ * Created by The eXo Platform SARL .<br/>
+ * Other than nt:file/jcr:content(nt:resource)
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -57,35 +58,78 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class CollectionResource extends GenericResource {
 
+  /**
+   * XML prefix.
+   */
   final String                       PREFIX          = "sv:";
 
+  /**
+   * XML node constant.
+   */
   final String                       XML_NODE        = PREFIX + "node";
 
+  /**
+   * XML name constant.
+   */
   final String                       XML_NAME        = PREFIX + "name";
 
+  /**
+   * XML property constant.
+   */
   final String                       XML_PROPERTY    = PREFIX + "property";
 
+  /**
+   * XML href constant.
+   */
   final String                       XML_HREF        = "xlink:href";
 
+  /**
+   * XML namespace prefix.
+   */
   final String                       PREFIX_XMLNS    = "xmlns:sv";
 
+  /**
+   * Prefix link.
+   */
   final String                       PREFIX_LINK     = "http://www.jcp.org/jcr/sv/1.0";
 
+  /**
+   * XML namespace xlink constant.
+   */
   final String                       XLINK_XMLNS     = "xmlns:xlink";
 
+  /**
+   * XML xlink constant.
+   */
   final String                       XLINK_LINK      = "http://www.w3.org/1999/xlink";
 
+  /**
+   * logger.
+   */
   private final static Log           LOG             = ExoLogger.getLogger(CollectionResource.class);
 
+  /**
+   * Properties skipped for collections.
+   */
   protected final static Set<String> COLLECTION_SKIP = new HashSet<String>();
-  
+
   static {
     COLLECTION_SKIP.add("jcr:created");
     COLLECTION_SKIP.add("jcr:primaryType");
   };
 
+  /**
+   * node.
+   */
   protected final Node               node;
 
+  /**
+   * @param identifier resource identifier
+   * @param node node
+   * @param namespaceContext namespace context
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public CollectionResource(final URI identifier,
                             Node node,
                             final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
@@ -93,6 +137,14 @@ public class CollectionResource extends GenericResource {
     this(COLLECTION, identifier, node, new WebDavNamespaceContext(node.getSession()));
   }
 
+  /**
+   * @param type resource type
+   * @param identifier resource identifier
+   * @param node node
+   * @param namespaceContext namespace context
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   * @throws RepositoryException {@link RepositoryException}
+   */
   protected CollectionResource(final int type,
                                final URI identifier,
                                Node node,
@@ -245,6 +297,11 @@ public class CollectionResource extends GenericResource {
     return true;
   }
 
+  /**
+   * @return the list of all child resources
+   * @throws RepositoryException {@link RepositoryException}
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   */
   public List<Resource> getResources() throws RepositoryException, IllegalResourceTypeException {
     NodeIterator children = node.getNodes();
     List<Resource> resources = new ArrayList<Resource>();
@@ -271,12 +328,23 @@ public class CollectionResource extends GenericResource {
     return resources;
   }
 
+  /**
+   * 
+   * @param childName child name
+   * @return child URI
+   */
   protected final URI childURI(String childName) {
     String childURI = identifier.toASCIIString() + "/" + TextUtil.escape(childName, '%', true);
     return URI.create(childURI);
   }
 
-  // make a xml representation of the collection and serialize it to stream
+  /**
+   *  make a xml representation of the collection and serialize it to stream.
+   *  
+   * @param rootHref root HRef
+   * @return content wrapped into stream
+   * @throws IOException {@link IOException}
+   */
   public InputStream getContentAsStream(final String rootHref) throws IOException {
     final PipedOutputStream po = new PipedOutputStream();
     final PipedInputStream pi = new PipedInputStream(po);

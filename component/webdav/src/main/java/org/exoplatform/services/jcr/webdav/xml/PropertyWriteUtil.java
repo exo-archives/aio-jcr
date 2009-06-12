@@ -28,13 +28,21 @@ import javax.xml.stream.XMLStreamWriter;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
 
 public class PropertyWriteUtil {
 
+  /**
+   * Writes the statuses of properties into XML.
+   * 
+   * @param xmlStreamWriter XML writer
+   * @param propStatuses properties statuses
+   * @throws XMLStreamException {@link XMLStreamException}
+   */
   public static void writePropStats(XMLStreamWriter xmlStreamWriter,
                                     Map<String, Set<HierarchicalProperty>> propStatuses) throws XMLStreamException {
     for (Map.Entry<String, Set<HierarchicalProperty>> stat : propStatuses.entrySet()) {
@@ -55,6 +63,13 @@ public class PropertyWriteUtil {
     }
   }
 
+  /**
+   * Writes the statuses of property into XML.
+   * 
+   * @param xmlStreamWriter XML writer
+   * @param prop property
+   * @throws XMLStreamException {@link XMLStreamException}
+   */
   public static void writeProperty(XMLStreamWriter xmlStreamWriter, HierarchicalProperty prop) throws XMLStreamException {
     String uri = prop.getName().getNamespaceURI();
 
@@ -104,6 +119,13 @@ public class PropertyWriteUtil {
     }
   }
 
+  /**
+   * Writes property attributes into XML.
+   * 
+   * @param xmlStreamWriter XML writer
+   * @param property property
+   * @throws XMLStreamException {@link XMLStreamException}
+   */
   public static void writeAttributes(XMLStreamWriter xmlStreamWriter, HierarchicalProperty property) throws XMLStreamException {
     HashMap<String, String> attributes = property.getAttributes();
     Iterator<String> keyIter = attributes.keySet().iterator();

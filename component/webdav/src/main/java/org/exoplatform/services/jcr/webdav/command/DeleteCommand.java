@@ -27,30 +27,39 @@ import javax.ws.rs.core.Response;
 import org.exoplatform.common.http.HTTPStatus;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class DeleteCommand {
 
+  /**
+   * Webdav Delete method implementation.
+   * 
+   * @param session current session
+   * @param path file path
+   * @param lockTokenHeader lock tokens
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response delete(Session session, String path, String lockTokenHeader) {
     try {
-      if(lockTokenHeader == null){
+      if (lockTokenHeader == null) {
         lockTokenHeader = "";
       }
-      
+
       Item item = session.getItem(path);
       if (item.isNode()) {
         Node node = (Node) item;
-        if(node.isLocked()){
-          
+        if (node.isLocked()) {
+
           String nodeLockToken = node.getLock().getLockToken();
-          
-          if( (nodeLockToken == null) || (!nodeLockToken.equals(lockTokenHeader))) {
+
+          if ((nodeLockToken == null) || (!nodeLockToken.equals(lockTokenHeader))) {
             return Response.status(HTTPStatus.LOCKED).build();
           }
-        }        
+        }
       }
       item.remove();
       session.save();

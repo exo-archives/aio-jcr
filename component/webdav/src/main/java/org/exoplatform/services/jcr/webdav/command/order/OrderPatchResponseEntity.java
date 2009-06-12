@@ -35,23 +35,47 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
 
 public class OrderPatchResponseEntity implements StreamingOutput {
-  
-  private static Log log = ExoLogger.getLogger(OrderPatchResponseEntity.class);
 
+  /**
+   * logger.
+   */
+  private static Log                     log = ExoLogger.getLogger(OrderPatchResponseEntity.class);
+
+  /**
+   * Namespace context.
+   */
   protected final WebDavNamespaceContext nsContext;
 
+  /**
+   * URI.
+   */
   protected final URI                    uri;
 
+  /**
+   * Node.
+   */
   protected Node                         node;
 
+  /**
+   * Order members.
+   */
   protected List<OrderMember>            members;
 
+  /**
+   * Constructor.
+   * 
+   * @param nsContext namespace context.
+   * @param uri uri
+   * @param node node
+   * @param members order members
+   */
   public OrderPatchResponseEntity(WebDavNamespaceContext nsContext,
                                   URI uri,
                                   Node node,
@@ -62,6 +86,9 @@ public class OrderPatchResponseEntity implements StreamingOutput {
     this.members = members;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void write(OutputStream outputStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()

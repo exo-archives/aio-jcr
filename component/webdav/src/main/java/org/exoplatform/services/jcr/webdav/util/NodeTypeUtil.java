@@ -26,14 +26,21 @@ import javax.jcr.nodetype.NodeType;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 
 /**
- * Created by The eXo Platform SARL Author : Vitaly Guly
- * <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class NodeTypeUtil {
 
+  /**
+   * Returns the NodeType of node according to the File-NodeType header.
+   * 
+   * @param fileNodeTypeHeader File-NodeType header
+   * @return Nodetype
+   * @throws NoSuchNodeTypeException {@link NoSuchNodeTypeException}
+   */
   public static String getFileNodeType(String fileNodeTypeHeader) throws NoSuchNodeTypeException {
     if (fileNodeTypeHeader != null && !fileNodeTypeHeader.equals(WebDavConst.NodeTypes.NT_FILE))
       throw new NoSuchNodeTypeException("Unsupported file node type: " + fileNodeTypeHeader);
@@ -42,6 +49,13 @@ public class NodeTypeUtil {
       return null;
   }
 
+  /**
+   * Returns the NodeType of content node according to the Content-NodeType
+   * header.
+   * 
+   * @param contentNodeTypeHeader Content-NodeType header
+   * @return Nodetype
+   */
   public static String getContentNodeType(String contentNodeTypeHeader) {
     if (contentNodeTypeHeader != null)
       return contentNodeTypeHeader;
@@ -49,6 +63,12 @@ public class NodeTypeUtil {
       return WebDavConst.NodeTypes.NT_RESOURCE;
   }
 
+  /**
+   * Cheks if the NodeType of content node extends nt:resource.
+   * 
+   * @param contentNodeType Content-NodeType header
+   * @throws NoSuchNodeTypeException {@link NoSuchNodeTypeException}
+   */
   public static void checkContentResourceType(NodeType contentNodeType) throws NoSuchNodeTypeException {
     if (!contentNodeType.isNodeType(WebDavConst.NodeTypes.NT_RESOURCE)) {
       throw new NoSuchNodeTypeException("Content-Node type " + contentNodeType.getName()
@@ -56,6 +76,12 @@ public class NodeTypeUtil {
     }
   }
 
+  /**
+   * Returns the list of node mixins.
+   * 
+   * @param mixinTypes list of mixins or null
+   * @return list of mixins
+   */
   public static ArrayList<String> getMixinTypes(List<String> mixinTypes) {
     ArrayList<String> mixins = new ArrayList<String>();
     if (mixinTypes == null) {
@@ -63,6 +89,5 @@ public class NodeTypeUtil {
     }
     return mixins;
   }
-
 
 }

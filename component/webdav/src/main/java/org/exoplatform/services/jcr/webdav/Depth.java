@@ -29,22 +29,22 @@ public class Depth {
   /**
    * String constant for depth "infinity" value.
    */
-  public static final String INFINITY_NAME = "Infinity";
+  public static final String INFINITY_NAME  = "Infinity";
 
   /**
    * Integer constant for depth "infinity" value.
    */
-  public static final int INFINITY_VALUE = -1;
+  public static final int    INFINITY_VALUE = -1;
 
   /**
    * Integer depth-value property.
    */
-  private int intValue;
+  private int                intValue;
 
   /**
    * String depth-value property.
    */
-  private String stringValue;
+  private String             stringValue;
 
   /**
    * Creates a Depth object from the String.

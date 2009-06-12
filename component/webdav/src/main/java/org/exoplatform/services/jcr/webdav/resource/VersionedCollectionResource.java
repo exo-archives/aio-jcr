@@ -37,6 +37,14 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 public class VersionedCollectionResource extends CollectionResource implements VersionedResource {
 
+  /**
+   * 
+   * @param identifier resource identifier
+   * @param node node
+   * @param namespaceContext namespace context
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public VersionedCollectionResource(URI identifier,
                                      Node node,
                                      WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
@@ -47,6 +55,11 @@ public class VersionedCollectionResource extends CollectionResource implements V
           + node.getPath());
   }
 
+  /**
+   * @return this resource versionhistory.
+   * @throws RepositoryException {@link RepositoryException}
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   */
   public VersionHistoryResource getVersionHistory() throws RepositoryException,
                                                    IllegalResourceTypeException {
     return new VersionHistoryResource(versionHistoryURI(),
@@ -55,10 +68,18 @@ public class VersionedCollectionResource extends CollectionResource implements V
                                       namespaceContext);
   }
 
+  /**
+   * returns versionhistory URI.
+   * 
+   * @return versionhistory URI
+   */
   protected final URI versionHistoryURI() {
     return URI.create(identifier.toASCIIString() + "?vh");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
                                                      AccessDeniedException,
@@ -75,7 +96,7 @@ public class VersionedCollectionResource extends CollectionResource implements V
       HierarchicalProperty checkedIn = new HierarchicalProperty(name);
       checkedIn.addChild(new HierarchicalProperty(new QName("DAV:", "href"), checkedInHref));
       return checkedIn;
-
+ 
     } else if (name.equals(CHECKEDOUT)) {
       if (!node.isCheckedOut()) {
         throw new PathNotFoundException();

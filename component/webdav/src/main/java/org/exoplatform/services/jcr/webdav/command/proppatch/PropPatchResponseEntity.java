@@ -55,23 +55,42 @@ import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
 
 public class PropPatchResponseEntity implements StreamingOutput {
 
+  /**
+   * Namespace context.
+   */
   private final WebDavNamespaceContext     nsContext;
 
+  /**
+   * Node.
+   */
   private Node                             node;
 
+  /**
+   * Uri.
+   */
   private final URI                        uri;
 
+  /**
+   * The list of properties to set.
+   */
   private final List<HierarchicalProperty> setList;
 
+  /**
+   * The list of properties ro remove.
+   */
   private final List<HierarchicalProperty> removeList;
 
+  /**
+   * The list of properties that can-not be removed.
+   */
   protected final static Set<QName>        NON_REMOVING_PROPS = new HashSet<QName>();
   static {
     NON_REMOVING_PROPS.add(PropertyConstants.CREATIONDATE);
@@ -80,8 +99,27 @@ public class PropPatchResponseEntity implements StreamingOutput {
     NON_REMOVING_PROPS.add(PropertyConstants.GETCONTENTLENGTH);
     NON_REMOVING_PROPS.add(PropertyConstants.GETCONTENTTYPE);
     NON_REMOVING_PROPS.add(PropertyConstants.GETLASTMODIFIED);
+
+    NON_REMOVING_PROPS.add(PropertyConstants.JCR_DATA);
   };
 
+  /**
+   * The list of properties that can-not be changed.
+   */
+  protected final static Set<QName>        READ_ONLY_PROPS    = new HashSet<QName>();
+  static {
+    READ_ONLY_PROPS.add(PropertyConstants.JCR_DATA);
+  };
+
+  /**
+   * Constructor.
+   * 
+   * @param nsContext namespace context
+   * @param node node
+   * @param uri iru
+   * @param setList list of properties to set
+   * @param removeList list of properties to remove
+   */
   public PropPatchResponseEntity(WebDavNamespaceContext nsContext,
                                  Node node,
                                  URI uri,
@@ -94,6 +132,9 @@ public class PropPatchResponseEntity implements StreamingOutput {
     this.removeList = removeList;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void write(OutputStream outStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
@@ -128,6 +169,12 @@ public class PropPatchResponseEntity implements StreamingOutput {
     }
   }
 
+  /**
+   * Performs manipulations with properties and returns the list of
+   * corresponding statuses.
+   * 
+   * @return map with the list of properties statuses
+   */
   protected Map<String, Set<HierarchicalProperty>> getPropStat() {
     Map<String, Set<HierarchicalProperty>> propStats = new HashMap<String, Set<HierarchicalProperty>>();
 
@@ -152,13 +199,13 @@ public class PropPatchResponseEntity implements StreamingOutput {
 
               Set<HierarchicalProperty> propSet = propStats.get(statname);
 
-              HierarchicalProperty jcrContentProp = new HierarchicalProperty(new QName(WebDavConst.NodeTypes.JCR_CONTENT));
+              // TODO Use constant
+              HierarchicalProperty jcrContentProp = new HierarchicalProperty(PropertyConstants.JCR_CONTENT);
               jcrContentProp.addChild(new HierarchicalProperty(child.getName()));
 
               propSet.add(jcrContentProp);
 
             } else {
-              
             }
 
           }
@@ -233,13 +280,30 @@ public class PropPatchResponseEntity implements StreamingOutput {
     return propStats;
   }
 
+  /**
+   * Gets the content node.
+   * 
+   * @return content node
+   * @throws RepositoryException Repository exception.
+   */
   public Node getContentNode() throws RepositoryException {
     return node.getNode("jcr:content");
   }
 
+  /**
+   * Sets changes the property value.
+   * 
+   * @param node node
+   * @param property property to set.
+   * @return status
+   */
   private String setProperty(Node node, HierarchicalProperty property) {
 
     String propertyName = WebDavNamespaceContext.createName(property.getName());
+
+    if (READ_ONLY_PROPS.contains(property.getName())) {
+      return WebDavConst.getStatusDescription(HTTPStatus.CONFLICT);
+    }
 
     try {
 
@@ -285,6 +349,13 @@ public class PropPatchResponseEntity implements StreamingOutput {
 
   }
 
+  /**
+   * Removes the property.
+   * 
+   * @param node node
+   * @param property property
+   * @return status
+   */
   private String removeProperty(Node node, HierarchicalProperty property) {
 
     try {
@@ -302,4 +373,5 @@ public class PropPatchResponseEntity implements StreamingOutput {
     }
 
   }
+
 }

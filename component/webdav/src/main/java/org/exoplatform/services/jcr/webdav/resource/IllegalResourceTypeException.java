@@ -24,22 +24,41 @@ package org.exoplatform.services.jcr.webdav.resource;
  * @version $Id: $
  */
 
-
 @SuppressWarnings("serial")
 public class IllegalResourceTypeException extends Exception {
 
+  /**
+   * Default constructor.
+   */
   public IllegalResourceTypeException() {
     super();
   }
 
+  /**
+   * Constructor accepting String as message and Throwable object as the second
+   * argument.
+   * 
+   * @param message message
+   * @param t Throwable
+   */
   public IllegalResourceTypeException(String message, Throwable t) {
     super(message, t);
   }
 
+  /**
+   * Constructor accepting String as message.
+   * 
+   * @param message message
+   */
   public IllegalResourceTypeException(String message) {
     super(message);
   }
 
+  /**
+   * Constructor accepting Throwable as an argument.
+   * 
+   * @param t Throwable
+   */
   public IllegalResourceTypeException(Throwable t) {
     super(t);
   }

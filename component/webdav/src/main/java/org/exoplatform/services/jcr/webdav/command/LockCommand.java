@@ -45,7 +45,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS .<br/>
+ * Created by The eXo Platform SAS<br/>
+ * .
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -53,14 +54,35 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class LockCommand {
 
+  /**
+   * logger.
+   */
   private static Log                    log = ExoLogger.getLogger(LockCommand.class);
 
+  /**
+   * Resource locks holder.
+   */
   private final NullResourceLocksHolder nullResourceLocks;
 
+  /**
+   * Constructor.
+   * 
+   * @param nullResourceLocks resource locks
+   */
   public LockCommand(final NullResourceLocksHolder nullResourceLocks) {
     this.nullResourceLocks = nullResourceLocks;
   }
 
+  /**
+   * Webdav Lock comand implementation.
+   * 
+   * @param session current session
+   * @param path resource path
+   * @param body request body
+   * @param depth lock depth
+   * @param timeout lock timeout
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response lock(Session session,
                        String path,
                        HierarchicalProperty body,
@@ -110,25 +132,59 @@ public class LockCommand {
 
   }
 
-  private final StreamingOutput body(WebDavNamespaceContext nsContext,
-                                     LockRequestEntity input,
-                                     Depth depth,
-                                     String lockToken,
-                                     String lockOwner,
-                                     String timeout) {
+  /**
+   * Writes response body into the stream. 
+   * 
+   * @param nsContext name space context
+   * @param input request body
+   * @param depth lock depth
+   * @param lockToken lock token key
+   * @param lockOwner loco owner
+   * @param timeout lock timeout
+   * @return response body
+   */
+  private StreamingOutput body(WebDavNamespaceContext nsContext,
+                               LockRequestEntity input,
+                               Depth depth,
+                               String lockToken,
+                               String lockOwner,
+                               String timeout) {
     return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
   }
 
+  /**
+   * @author Gennady Azarenkov
+   */
   public class LockResultResponseEntity implements StreamingOutput {
 
+    /**
+     * Webdav namespace context.
+     */
     protected WebDavNamespaceContext nsContext;
 
+    /**
+     * Lock token.
+     */
     protected String                 lockToken;
 
+    /**
+     * Lock owner.
+     */
     protected String                 lockOwner;
 
+    /**
+     * Lock timeout.
+     */
     protected String                 timeOut;
 
+    /**
+     * Constructor.
+     * 
+     * @param nsContext namespace context
+     * @param lockToken lock token
+     * @param lockOwner lock owner
+     * @param timeOut lock timeout
+     */
     public LockResultResponseEntity(WebDavNamespaceContext nsContext,
                                     String lockToken,
                                     String lockOwner,
@@ -139,6 +195,9 @@ public class LockCommand {
       this.timeOut = timeOut;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void write(OutputStream stream) throws IOException {
       try {
         XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()

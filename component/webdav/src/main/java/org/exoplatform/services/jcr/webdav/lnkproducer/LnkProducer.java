@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.webdav.lnkproducer;
 
 import java.io.IOException;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -36,9 +35,9 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
-
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
@@ -46,11 +45,25 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 @Path("/lnkproducer/")
 public class LnkProducer implements ResourceContainer {
 
+  /**
+   * logger.
+   */
   private static Log log = ExoLogger.getLogger(LnkProducer.class);
 
+  /**
+   * Default constructor.
+   */
   public LnkProducer() {
   }
 
+  /**
+   * Produces a link.
+   * 
+   * @param linkFilePath link file path
+   * @param path path to resource
+   * @param uriInfo uriInfo
+   * @return generated link
+   */
   @GET
   @Path("/{linkFilePath}/")
   @Produces("application/octet-stream")

@@ -21,13 +21,21 @@ import java.io.ByteArrayOutputStream;
 import java.util.BitSet;
 
 /**
- * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: PutCommand.java 12004 2007-01-17 12:03:57Z geaz $
  */
 
 public class TextUtil {
 
+  /**
+   * Unescapes string using escape symbol.
+   * 
+   * @param string string
+   * @param escape escape symbol
+   * @return unescaped string
+   */
   public static String unescape(String string, char escape) {
     ByteArrayOutputStream out = new ByteArrayOutputStream(string.length());
     for (int i = 0; i < string.length(); i++) {
@@ -85,8 +93,20 @@ public class TextUtil {
     URISaveEx.set('/');
   }
 
+  /**
+   * Hexademical characters.
+   */
   public static final char[] hexTable = "0123456789abcdef".toCharArray();
-
+  
+  /**
+   * Escapes string using escape symbol.
+   * 
+   * @param string string
+   * @param escape escape symbol
+   * @param isPath if the string is path
+   * 
+   * @return escaped string
+   */
   public static String escape(String string, char escape, boolean isPath) {
     try {
       BitSet validChars = isPath ? URISaveEx : URISave;
@@ -108,6 +128,12 @@ public class TextUtil {
     }
   }
 
+  /**
+   * Creates relative path from string.
+   * 
+   * @param path path
+   * @return relative path 
+   */
   public static String relativizePath(String path) {
 
     if (path.startsWith("/"))
@@ -115,6 +141,12 @@ public class TextUtil {
     return path;
   }
 
+  /**
+   * Cuts the path from string.
+   * 
+   * @param path full path 
+   * @return relative path.
+   */
   public static String pathOnly(String path) {
     String curPath = path;
     curPath = curPath.substring(curPath.indexOf("/"));
@@ -125,12 +157,24 @@ public class TextUtil {
     return curPath;
   }
 
+  /**
+   * Cuts the current name from the path.
+   * 
+   * @param path path
+   * @return current name
+   */
   public static String nameOnly(String path) {
     String[] curNames = path.split("/");
     return curNames[curNames.length - 1];
   }
-  
-  public static boolean isMediaFile(String mimeType){
+
+  /**
+   * Checks if Mime-Type is media mime type.
+   *  
+   * @param mimeType Mime-Type
+   * @return true if is media false if not.
+   */
+  public static boolean isMediaFile(String mimeType) {
     return mimeType.contains("image");
   }
 

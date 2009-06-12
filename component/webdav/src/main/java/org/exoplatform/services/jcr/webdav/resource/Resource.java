@@ -30,11 +30,12 @@ import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> WebDAV applicable abstraction of REST
- * Resource definition (by Fielding: "Any information that can be named can be a
- * resource... In other words: any concept that might be the target of an
- * author's hypertext reference must fit within the definition of a resource")
- * Here the REST resource abstraction is some narrowed to the WebDAV needs
+ * Created by The eXo Platform SARL .<br/>
+ * WebDAV applicable abstraction of REST Resource definition (by Fielding: "Any
+ * information that can be named can be a resource... In other words: any
+ * concept that might be the target of an author's hypertext reference must fit
+ * within the definition of a resource") Here the REST resource abstraction is
+ * some narrowed to the WebDAV needs
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -42,18 +43,39 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 public interface Resource extends PropertyConstants {
 
+  /**
+   * File nodetype index.
+   */
   public static final int FILE                 = 1;
 
+  /**
+   * Collection nodetype index.
+   */
   public static final int COLLECTION           = 2;
 
+  /**
+   * Version nodetype index.
+   */
   public static final int VERSION              = 4;
 
+  /**
+   * Versioned file nodetype index.
+   */
   public static final int VERSIONED_FILE       = 5;
 
+  /**
+   * Versioned collection nodetype index.
+   */
   public static final int VERSIONED_COLLECTION = 6;
 
+  /**
+   * Version history nodetype index.
+   */
   public static final int VERSION_HISTORY      = 8;
 
+  /**
+   * Empty nodetype index.
+   */
   public static final int NULL                 = 0;
 
   /**
@@ -67,11 +89,11 @@ public interface Resource extends PropertyConstants {
   int getType();
 
   /**
-   * @param name
+   * @param name property name
    * @return property by its name
-   * @throws PathNotFoundException
-   * @throws AccessDeniedException
-   * @throws RepositoryException
+   * @throws PathNotFoundException {@link PathNotFoundException}
+   * @throws AccessDeniedException {@link AccessDeniedException}
+   * @throws RepositoryException {@link RepositoryException}
    */
   HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
                                               AccessDeniedException,
@@ -81,7 +103,7 @@ public interface Resource extends PropertyConstants {
    * @param namesOnly - if true "empty" properties will be returned (w/o values
    *          inside)
    * @return all properties belonging to this resource
-   * @throws RepositoryException
+   * @throws RepositoryException {@link RepositoryException}
    */
   Set<HierarchicalProperty> getProperties(boolean namesOnly) throws RepositoryException;
 

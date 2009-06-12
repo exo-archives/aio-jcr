@@ -36,15 +36,27 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id: $
  */
 
 public class HeadCommand {
-  
+
+  /**
+   * Logger.
+   */
   private static Log log = ExoLogger.getLogger(HeadCommand.class);
 
+  /**
+   * Webdav Head method implementation.
+   * 
+   * @param session current session
+   * @param path resouce path
+   * @param baseURI base uri
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response head(Session session, String path, String baseURI) {
     try {
       Node node = (Node) session.getItem(path);
@@ -60,10 +72,10 @@ public class HeadCommand {
         String contentLength = resource.getProperty(PropertyConstants.GETCONTENTLENGTH).getValue();
 
         return Response.ok()
-                               .header(ExtHttpHeaders.LAST_MODIFIED, lastModified)
-                               .header(ExtHttpHeaders.CONTENT_TYPE, contentType)
-                               .header(ExtHttpHeaders.CONTENT_LENGTH, contentLength)
-                               .build();
+                       .header(ExtHttpHeaders.LAST_MODIFIED, lastModified)
+                       .header(ExtHttpHeaders.CONTENT_TYPE, contentType)
+                       .header(ExtHttpHeaders.CONTENT_LENGTH, contentLength)
+                       .build();
       }
 
       return Response.ok().build();

@@ -42,15 +42,29 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class ReportCommand {
-  
+
+  /**
+   * logger.
+   */
   private static Log log = ExoLogger.getLogger(ReportCommand.class);
 
+  /**
+   * Webdav Report method implementation.
+   * 
+   * @param session current session
+   * @param path resource path
+   * @param body request bidy
+   * @param depth report depth
+   * @param baseURI base Uri
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response report(Session session,
                          String path,
                          HierarchicalProperty body,
@@ -92,6 +106,12 @@ public class ReportCommand {
     }
   }
 
+  /**
+   * Returns the list of properties.
+   * 
+   * @param body request body
+   * @return the list of properties
+   */
   protected Set<QName> getProperties(HierarchicalProperty body) {
     HashSet<QName> properties = new HashSet<QName>();
 

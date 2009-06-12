@@ -30,12 +30,25 @@ import org.exoplatform.common.util.HierarchicalProperty;
 
 public class PropFindRequestEntity {
 
+  /**
+   * Request body.
+   */
   protected HierarchicalProperty input;
 
+  /**
+   * Constructor.
+   * 
+   * @param input request body
+   */
   public PropFindRequestEntity(HierarchicalProperty input) {
     this.input = input;
   }
 
+  /**
+   * Returns the type of request.
+   * 
+   * @return request type
+   */
   public String getType() {
 
     if (input == null) {
@@ -48,15 +61,5 @@ public class PropFindRequestEntity {
     else
       return null;
   }
-
-  // public List<QName> getPropNames() {
-  // List<QName> props = new ArrayList<QName>();
-  // if(getType() != null && getType().equals("prop")) {
-  // for(XMLProperty prop : input.getChild(0).getChildren()) {
-  // props.add(prop.getName());
-  // }
-  // }
-  // return props;
-  // }
 
 }

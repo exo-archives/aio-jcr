@@ -22,42 +22,82 @@ import javax.xml.namespace.QName;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class OrderMember {
 
+  /**
+   * Represents order mamber.
+   */
   private HierarchicalProperty member;
 
+  /**
+   * order segment.
+   */
   private String               segment;
 
+  /**
+   * status.
+   */
   private int                  status;
 
+  /**
+   * Constructor.
+   * 
+   * @param member order member
+   */
   public OrderMember(HierarchicalProperty member) {
     this.member = member;
     HierarchicalProperty segmentProperty = member.getChild(new QName("DAV:", "segment"));
     segment = segmentProperty.getValue();
   }
 
+  /**
+   * Segment getter.
+   * 
+   * @return segment
+   */
   public String getSegment() {
     return segment;
   }
 
+  /**
+   * Position getter.
+   * 
+   * @return position property value.
+   */
   public QName getPosition() {
     return member.getChild(new QName("DAV:", "position")).getChild(0).getName();
   }
 
+  /**
+   * Position segment getter.
+   * 
+   * @return position segment.
+   */
   public String getPositionSegment() {
     HierarchicalProperty position = member.getChild(new QName("DAV:", "position"));
     return position.getChild(0).getChild(new QName("DAV:", "segment")).getValue();
   }
 
+  /**
+   * Status getter.
+   * 
+   * @return status
+   */
   public int getStatus() {
     return status;
   }
 
+  /**
+   * Status setter.
+   * 
+   * @param status status
+   */
   public void setStatus(int status) {
     this.status = status;
   }

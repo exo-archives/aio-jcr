@@ -39,23 +39,48 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class VersionTreeResponseEntity implements StreamingOutput {
-  
-  private static Log log = ExoLogger.getLogger(VersionTreeResponseEntity.class);
 
+  /**
+   * logger.
+   */
+  private static Log                     log = ExoLogger.getLogger(VersionTreeResponseEntity.class);
+
+  /**
+   * XML writer.
+   */
   protected XMLStreamWriter              xmlStreamWriter;
 
+  /**
+   * Name space context.
+   */
   protected final WebDavNamespaceContext namespaceContext;
 
+  /**
+   * The list of versions.
+   */
   private Set<VersionResource>           versions;
 
+  /**
+   * The list of properties.
+   */
   private Set<QName>                     properties;
 
+  /**
+   * Constructor.
+   * 
+   * @param namespaceContext namespace context
+   * @param versionedResource resource 
+   * @param properties list of properties
+   * @throws RepositoryException {@link RepositoryException}
+   * @throws IllegalResourceTypeException {@link IllegalResourceTypeException}
+   */
   public VersionTreeResponseEntity(WebDavNamespaceContext namespaceContext,
                                    VersionedResource versionedResource,
                                    Set<QName> properties) throws RepositoryException,
@@ -65,6 +90,9 @@ public class VersionTreeResponseEntity implements StreamingOutput {
     versions = versionedResource.getVersionHistory().getVersions();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void write(OutputStream outputStream) throws IOException {
     try {
       this.xmlStreamWriter = XMLOutputFactory.newInstance()

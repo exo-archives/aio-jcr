@@ -34,19 +34,42 @@ import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class PutCommand {
 
+  /**
+   * resource locks.
+   */
   private final NullResourceLocksHolder nullResourceLocks;
 
+  /**
+   * Constructor.
+   * 
+   * @param nullResourceLocks resource locks.
+   */
   public PutCommand(final NullResourceLocksHolder nullResourceLocks) {
     this.nullResourceLocks = nullResourceLocks;
   }
 
+  /**
+   * Webdav Put method implementation.
+   * 
+   * @param session current session
+   * @param path resource path
+   * @param inputStream stream that contains resource content
+   * @param fileNodeType the node type of file node
+   * @param contentNodeType the node type of content
+   * @param mixins the list of mixins
+   * @param mimeType content type
+   * @param updatePolicyType update policy
+   * @param tokens tokens
+   * @return the instance of javax.ws.rs.core.Response
+   */
   public Response put(Session session,
                       String path,
                       InputStream inputStream,
@@ -69,7 +92,7 @@ public class PutCommand {
       if (node == null || "add".equals(updatePolicyType)) {
 
         node = session.getRootNode().addNode(TextUtil.relativizePath(path), fileNodeType);
-        
+
         node.addNode("jcr:content", contentNodeType);
         updateContent(node, inputStream, mimeType, mixins);
       } else {
@@ -99,10 +122,19 @@ public class PutCommand {
     return Response.status(HTTPStatus.CREATED).build();
   }
 
-  private final void createVersion(Node fileNode,
-                                   InputStream inputStream,
-                                   String mimeType,
-                                   List<String> mixins) throws RepositoryException {
+  /**
+   * Creates the new version of file.
+   * 
+   * @param fileNode file node
+   * @param inputStream input stream that contains the content of file
+   * @param mimeType content type
+   * @param mixins list of mixins
+   * @throws RepositoryException {@link RepositoryException}
+   */
+  private void createVersion(Node fileNode,
+                             InputStream inputStream,
+                             String mimeType,
+                             List<String> mixins) throws RepositoryException {
     if (!fileNode.isNodeType("mix:versionable")) {
       if (fileNode.canAddMixin("mix:versionable")) {
         fileNode.addMixin("mix:versionable");
@@ -123,21 +155,31 @@ public class PutCommand {
     fileNode.getSession().save();
   }
 
-  private final void updateContent(Node node,
-                                   InputStream inputStream,
-                                   String mimeType,
-                                   List<String> mixins) throws RepositoryException {
-    
+  /**
+   * Updates jcr:content node.
+   * 
+   * @param node parent node
+   * @param inputStream inputStream input stream that contains the content of
+   *          file
+   * @param mimeType content type
+   * @param mixins list of mixins
+   * @throws RepositoryException  {@link RepositoryException}
+   */
+  private void updateContent(Node node,
+                             InputStream inputStream,
+                             String mimeType,
+                             List<String> mixins) throws RepositoryException {
+
     Node content = node.getNode("jcr:content");
     content.setProperty("jcr:mimeType", mimeType);
     content.setProperty("jcr:lastModified", Calendar.getInstance());
     content.setProperty("jcr:data", inputStream);
-    
+
     for (String mixinName : mixins) {
-      if(content.canAddMixin(mixinName)) {
+      if (content.canAddMixin(mixinName)) {
         content.addMixin(mixinName);
       }
-      
+
     }
 
   }

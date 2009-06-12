@@ -29,9 +29,9 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> Abstract WebDav Resource
- * implementation It is recommended to extend this class instead of implement
- * Resource itself
+ * Created by The eXo Platform SARL .<br/>
+ * Abstract WebDav Resource implementation It is recommended to extend this
+ * class instead of implement Resource itself
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -39,21 +39,36 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 public abstract class GenericResource implements Resource {
 
-
+  /**
+   * Resource identifier.
+   */
   protected final URI                    identifier;
 
+  /**
+   * Resource type.
+   */
   protected final int                    type;
 
+  /**
+   * Namespace context.
+   */
   protected final WebDavNamespaceContext namespaceContext;
 
+  /**
+   * Properties which are set by JCR.
+   */
   protected static final Set<QName>      PRESET_PROP = new HashSet<QName>();
-  
   static {
     PRESET_PROP.add(DISPLAYNAME);
     PRESET_PROP.add(RESOURCETYPE);
     PRESET_PROP.add(CREATIONDATE);
   }
 
+  /**
+   * @param type resource type
+   * @param identifier resource identifier
+   * @param namespaceContext namespace context
+   */
   public GenericResource(final int type,
                          final URI identifier,
                          final WebDavNamespaceContext namespaceContext) {
@@ -102,6 +117,14 @@ public abstract class GenericResource implements Resource {
     return namespaceContext;
   }
 
+  /**
+   * Returns the information about lock.
+   * 
+   * @param token lock token
+   * @param lockOwner lockowner
+   * @param timeOut lock timeout
+   * @return lock information
+   */
   public static HierarchicalProperty lockDiscovery(String token, String lockOwner, String timeOut) {
     HierarchicalProperty lockDiscovery = new HierarchicalProperty(new QName("DAV:", "lockdiscovery"));
 
@@ -141,6 +164,11 @@ public abstract class GenericResource implements Resource {
     return lockDiscovery;
   }
 
+  /**
+   * The information about supported locks.
+   * 
+   * @return information about supported locks
+   */
   protected HierarchicalProperty supportedLock() {
     HierarchicalProperty supportedLock = new HierarchicalProperty(new QName("DAV:", "supportedlock"));
 
@@ -158,6 +186,11 @@ public abstract class GenericResource implements Resource {
     return supportedLock;
   }
 
+  /**
+   * The information about supported methods.
+   * 
+   * @return information about supported methods
+   */
   protected HierarchicalProperty supportedMethodSet() {
     HierarchicalProperty supportedMethodProp = new HierarchicalProperty(SUPPORTEDMETHODSET);
 

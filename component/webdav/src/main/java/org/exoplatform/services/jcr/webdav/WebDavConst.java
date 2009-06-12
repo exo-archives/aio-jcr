@@ -26,7 +26,13 @@ import org.exoplatform.common.http.HTTPStatus;
  * 
  * @author <a href="mailto:gavrik-vetal@gmail.com">Vitaly Guly</a>
  */
-public class WebDavConst {
+public final class WebDavConst {
+
+  /**
+   * Private constructor.
+   */
+  private WebDavConst() {
+  }
 
   /**
    *
@@ -100,7 +106,13 @@ public class WebDavConst {
    * 
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
-  public class DavDocument {
+  public final class DavDocument {
+
+    /**
+     * Private constructor.
+     */
+    private DavDocument() {
+    }
 
     /**
      * Webdav document "acl-principal-props" property. See <a
@@ -176,7 +188,13 @@ public class WebDavConst {
    * 
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
-  public class DavProperty {
+  public final class DavProperty {
+
+    /**
+     * Private constructor.
+     */
+    private DavProperty() {
+    }
 
     /**
      * Webdav "depth" property. See <a
@@ -213,7 +231,13 @@ public class WebDavConst {
    * 
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
-  public class ResourceType {
+  public final class ResourceType {
+
+    /**
+     * Private constructor.
+     */
+    private ResourceType() {
+    }
 
     /**
      * Webdav "collection" resource type.
@@ -232,7 +256,13 @@ public class WebDavConst {
    * 
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
-  public class CacheConstants {
+  public final class CacheConstants {
+
+    /**
+     * Private constructor.
+     */
+    private CacheConstants() {
+    }
 
     /**
      * Default Cache-Control header value.
@@ -256,7 +286,13 @@ public class WebDavConst {
    * 
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
-  public class Lock {
+  public final class Lock {
+
+    /**
+     * Private constructor.
+     */
+    private Lock() {
+    }
 
     /**
      * Webdav "shared" lock type.
@@ -273,6 +309,9 @@ public class WebDavConst {
      */
     public static final String TYPE_WRITE        = "write";
 
+    /**
+     * opaquelocktoken for LockToken generation.
+     */
     public static final String OPAQUE_LOCK_TOKEN = "opaquelocktoken";
   }
 
@@ -281,13 +320,27 @@ public class WebDavConst {
    * 
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
-  public class NodeTypes {
+  public final class NodeTypes {
+
+    /**
+     * Private constructor.
+     */
+    private NodeTypes() {
+    }
+
     /**
      * JCR "jcr:content" NodeType. See <a
      * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
      * for JavaTM technology API</a> for more information.
      */
     public static final String JCR_CONTENT      = "jcr:content";
+
+    /**
+     * JCR "jcr:nodeType" NodeType. See <a
+     * href='http://jcp.org/en/jsr/detail?id=170'> JSR 170: Content Repository
+     * for JavaTM technology API</a> for more information.
+     */
+    public static final String JCR_NODE_TYPE    = "jcr:nodeType";
 
     /**
      * JCR "jcr:data" NodeType. See <a
@@ -386,7 +439,14 @@ public class WebDavConst {
    * 
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
-  public class DateFormat {
+  public final class DateFormat {
+
+    /**
+     * Private constructor.
+     */
+    private DateFormat() {
+
+    }
 
     /**
      * Creation date pattern.
@@ -464,7 +524,7 @@ public class WebDavConst {
    * @param status Status code
    * @return Status Description
    */
-  public static final String getStatusDescription(int status) {
+  public static String getStatusDescription(int status) {
     String description = "";
 
     Integer statusKey = new Integer(status);

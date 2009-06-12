@@ -33,23 +33,43 @@ import org.exoplatform.services.jcr.webdav.resource.VersionResource;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 
-
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class MultipartByterangesEntity implements StreamingOutput {
-  
-  private static Log log = ExoLogger.getLogger(MultipartByterangesEntity.class);
 
+  /**
+   * logger.
+   */
+  private static Log        log = ExoLogger.getLogger(MultipartByterangesEntity.class);
+
+  /**
+   * resource.
+   */
   private final Resource    resource_;
 
+  /**
+   * ranges.
+   */
   private final List<Range> ranges_;
 
+  /**
+   * content-length.
+   */
   private final long        contentLength_;
 
+  /**
+   * content-type.
+   */
   private final String      contentType_;
 
+  /**
+   * @param resource resource
+   * @param ranges ranges
+   * @param contentType content-type
+   * @param contentLength content-length
+   */
   public MultipartByterangesEntity(Resource resource,
                                    List<Range> ranges,
                                    String contentType,
@@ -60,10 +80,8 @@ public class MultipartByterangesEntity implements StreamingOutput {
     contentType_ = contentType;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
+  /**
+   * {@inheritDoc}
    */
   public void write(OutputStream ostream) throws IOException {
     try {
@@ -106,6 +124,13 @@ public class MultipartByterangesEntity implements StreamingOutput {
     }
   }
 
+  /**
+   * Writes string into stream.
+   * 
+   * @param s string
+   * @param ostream stream
+   * @throws IOException {@link IOException}
+   */
   private void print(String s, OutputStream ostream) throws IOException {
     int length = s.length();
     for (int i = 0; i < length; i++) {
@@ -114,6 +139,11 @@ public class MultipartByterangesEntity implements StreamingOutput {
     }
   }
 
+  /**
+   * Writes a new line into stream.
+   * @param ostream stream
+   * @throws IOException {@link IOException}
+   */
   private void println(OutputStream ostream) throws IOException {
     ostream.write('\r');
     ostream.write('\n');

@@ -33,30 +33,53 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : <a
+ * href="gavrikvetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public class WebDavNamespaceContext implements NamespaceContext {
-  
-  private static Log log = ExoLogger.getLogger(WebDavNamespaceContext.class);
 
-  /*
-   * Key: NameSpace Value: Prefix
+  /**
+   * logger.
+   */
+  private static Log              log        = ExoLogger.getLogger(WebDavNamespaceContext.class);
+
+  /**
+   * Namespace prefixes.
    */
   private HashMap<String, String> prefixes   = new HashMap<String, String>();
 
+  /**
+   * NAmespaces.
+   */
   private HashMap<String, String> namespaces = new HashMap<String, String>();
 
+  /**
+   * Namespace registry.
+   */
   private final NamespaceRegistry namespaceRegistry;
 
+  /**
+   * WebDav namespace context.
+   * 
+   * @param session current session.
+   * @throws RepositoryException {@link RepositoryException}
+   */
   public WebDavNamespaceContext(Session session) throws RepositoryException {
     this.namespaceRegistry = session.getWorkspace().getNamespaceRegistry();
+
     prefixes.put("DAV:", "D");
     namespaces.put("D", "DAV:");
   }
 
+  /**
+   * Converts String into QName.
+   * 
+   * @param strName string name
+   * @return new QName
+   */
   public QName createQName(String strName) {
     String[] parts = strName.split(":");
     if (parts.length > 1)
@@ -65,13 +88,21 @@ public class WebDavNamespaceContext implements NamespaceContext {
       return new QName(parts[0]);
   }
 
+  /**
+   * Converts QName into the String.
+   * 
+   * @param qName QName
+   * @return string name
+   */
   public static String createName(QName qName) {
     return qName.getPrefix() + ":" + qName.getLocalPart();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.xml.namespace.NamespaceContext#getNamespaceURI(java.lang.String)
+  /**
+   * Returns namespace URI.
+   * @see javax.xml.namespace.NamespaceContext#getNamespaceURI(java.lang.String).
+   * @param prefix namespace prefix
+   * @return namespace URI
    */
   public String getNamespaceURI(String prefix) {
     String uri = null;
@@ -85,9 +116,11 @@ public class WebDavNamespaceContext implements NamespaceContext {
     return uri;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.xml.namespace.NamespaceContext#getPrefix(java.lang.String)
+  /**
+   * Returns namespace prefix.
+   * @see javax.xml.namespace.NamespaceContext#getPrefix(java.lang.String).
+   * @param namespaceURI namespace URI 
+   * @return namespace prefix
    */
   public String getPrefix(String namespaceURI) {
     String prefix = null;
@@ -102,9 +135,11 @@ public class WebDavNamespaceContext implements NamespaceContext {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.xml.namespace.NamespaceContext#getPrefixes(java.lang.String)
+  /**
+   * Returns the list of registered for this URI namespace prefixes.
+   * @see javax.xml.namespace.NamespaceContext#getPrefixes(java.lang.String).
+   * @param namespaceURI namespace URI
+   * @return list of registered for prefixes
    */
   public Iterator<String> getPrefixes(String namespaceURI) {
     List<String> list = new ArrayList<String>();
