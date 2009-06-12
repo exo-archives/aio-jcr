@@ -82,6 +82,7 @@ public class TransientValueDataReader {
    */
   public TransientValueData read(ObjectReader in) throws UnknownClassIdException, IOException {
     File tempDirectory = new File(SerializationConstants.TEMP_DIR);
+    tempDirectory.mkdirs();
 
     // read id
     int key;

@@ -78,15 +78,4 @@ public class SerializationConstants {
    * Serialization bytebuffer size.
    */
   public static final int    INTERNAL_BUFFER_SIZE    = 2048;
-  
-  static {
-    try {
-      File tempDirectory = new File(SerializationConstants.TEMP_DIR);
-      tempDirectory.mkdirs();
-    } catch (Throwable e) {
-      // LOG to standard output
-      System.err.println("[FATAL] " + e.getMessage());
-      e.printStackTrace();
-    }
-  }
 }
