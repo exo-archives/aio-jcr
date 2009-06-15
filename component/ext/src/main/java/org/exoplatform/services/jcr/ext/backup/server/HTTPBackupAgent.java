@@ -383,6 +383,9 @@ public class HTTPBackupAgent implements ResourceContainer {
             + " not exists.");
 
       validateRepositoryName(repository);
+      
+      if (isWorkspaceExist(repository, wEntry.getName()))
+      	throw new Exception("Workspace " + wEntry.getName() + " already exist!");
 
       BackupChainLog backupChainLog = new BackupChainLog(backupLog);
 
@@ -858,6 +861,18 @@ public class HTTPBackupAgent implements ResourceContainer {
     ses.logout();
   }
 
+  
+  private boolean isWorkspaceExist(String repositoryName, String workspaceName) throws RepositoryException, RepositoryConfigurationException {
+		for(String workspace : repositoryService.getRepository(repositoryName).getWorkspaceNames()) {
+			if (workspaceName.equals(workspace)) {
+				return true;
+			}
+		}
+		
+		return false;
+  }
+  
+  
   /**
    * validateOneBackupInstants.
    * 
