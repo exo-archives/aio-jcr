@@ -502,28 +502,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    *           if any Exception is occurred
    */
   public void setSpoolFile(File spoolFile) throws IOException {
-    // delete previous spool file
     if (isTransient()) {
-      if (spoolChannel != null)
-        spoolChannel.close();
-
-      if (this.spoolFile != null) {
-
-        if (this.spoolFile instanceof SpoolFile)
-          ((SpoolFile) this.spoolFile).release(this);
-
-        if (deleteSpoolFile && this.spoolFile.exists()) {
-          if (!this.spoolFile.delete()) {
-            if (fileCleaner != null) {
-              log.info("Could not remove file. Add to fileCleaner " + this.spoolFile);
-              fileCleaner.addFile(this.spoolFile);
-            } else {
-              log.warn("Could not remove temporary file on finalize "
-                  + this.spoolFile.getAbsolutePath());
-            }
-          }
-        }
-      }
+      deleteCurrentSpoolFile();
     }
 
     this.spoolFile = spoolFile;
@@ -574,24 +554,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * {@inheritDoc}
    */
   protected void finalize() throws Throwable {
-    if (spoolChannel != null)
-      spoolChannel.close();
-
-    if (spoolFile != null) {
-
-      if (spoolFile instanceof SpoolFile)
-        ((SpoolFile) spoolFile).release(this);
-
-      if (deleteSpoolFile && spoolFile.exists()) {
-        if (!spoolFile.delete())
-          if (fileCleaner != null) {
-            log.info("Could not remove file. Add to fileCleaner " + spoolFile);
-            fileCleaner.addFile(spoolFile);
-          } else {
-            log.warn("Could not remove temporary file on finalize " + spoolFile.getAbsolutePath());
-          }
-      }
-    }
+    deleteCurrentSpoolFile();
   }
 
   /**
@@ -766,6 +729,33 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       }
     } finally {
       fch.close();
+    }
+  }
+
+  /**
+   * Delete current spool file.
+   * 
+   * @throws IOException
+   */
+  private void deleteCurrentSpoolFile() throws IOException {
+    if (spoolChannel != null)
+      spoolChannel.close();
+
+    if (spoolFile != null) {
+
+      if (spoolFile instanceof SpoolFile)
+        ((SpoolFile) spoolFile).release(this);
+
+      if (deleteSpoolFile && spoolFile.exists()) {
+        if (!spoolFile.delete()) {
+          if (fileCleaner != null) {
+            log.info("Could not remove file. Add to fileCleaner " + spoolFile);
+            fileCleaner.addFile(spoolFile);
+          } else {
+            log.warn("Could not remove temporary file on finalize " + spoolFile.getAbsolutePath());
+          }
+        }
+      }
     }
   }
 
