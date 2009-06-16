@@ -23,46 +23,45 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 
-
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class OrderPatchTest extends BaseStandaloneTest {
-  
+
   public static final String ORDERABLE_NODETYPE = "nt:unstructured";
 
-  protected Node orderPatchNode;
-  
+  protected Node             orderPatchNode;
+
   public void setUp() throws Exception {
     super.setUp();
-    if(orderPatchNode == null) {
+    if (orderPatchNode == null) {
       orderPatchNode = session.getRootNode().addNode("orderPatchNode", ORDERABLE_NODETYPE);
       session.save();
     }
-  }  
-  
-  public void assertOrder(Node parentNode, String []nodes) throws RepositoryException {
+  }
+
+  public void assertOrder(Node parentNode, String[] nodes) throws RepositoryException {
     NodeIterator iterator = parentNode.getNodes();
     int pos = 0;
     while (iterator.hasNext()) {
       String requiredName = nodes[pos++];
       String nodeName = iterator.nextNode().getName();
-      
+
       if (!requiredName.equals(nodeName)) {
-        System.out.println("Node [" + requiredName + "] not in then same position with [" + nodeName + "]");
+        System.out.println("Node [" + requiredName + "] not in then same position with ["
+            + nodeName + "]");
       }
-      
+
       assertEquals(requiredName, nodeName);
     }
   }
-  
-  
+
   @Override
   protected String getRepositoryName() {
     return null;
-  }  
-  
+  }
+
 }

@@ -35,101 +35,84 @@ import org.exoplatform.services.rest.ext.provider.HierarchicalPropertyEntityProv
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class TestMultipleOrder extends OrderPatchTest {
-  
+
   protected Node multipleOrderNode;
-  
+
   public void setUp() throws Exception {
     super.setUp();
     session.refresh(false);
-    if(multipleOrderNode == null) {
+    if (multipleOrderNode == null) {
       multipleOrderNode = orderPatchNode.addNode("multipleOrderNode", ORDERABLE_NODETYPE);
-      session.save();      
+      session.save();
       for (int i = 1; i <= 5; i++) {
         multipleOrderNode.addNode("n" + i, ORDERABLE_NODETYPE);
-      }      
+      }
       session.save();
     }
-  }  
-  
+  }
+
   public void testMultipleOrder() throws Exception {
-    assertOrder(multipleOrderNode, new String[]{"n1", "n2", "n3", "n4", "n5"});
-    
+    assertOrder(multipleOrderNode, new String[] { "n1", "n2", "n3", "n4", "n5" });
+
     String path = multipleOrderNode.getPath();
-    // 1 2 3 4 5    1 2 3 4 5
-    // 1 before 4   2 3 1 4 5
-    // 4 before 3   2 4 3 1 5
-    // 2 last       4 3 1 5 2
-    // 5 first      5 4 3 1 2
-    // 3 after 2    5 4 1 2 3
-    // 5 after 1    4 1 5 2 3
-    
-    String xml = ""+
-    "<D:orderpatch xmlns:D=\"DAV:\">"+
-    
-      "<D:order-member>"+
-        "<D:segment>n1</D:segment>"+
-        "<D:position>"+
-          "<D:before><D:segment>n4</D:segment></D:before>"+
-        "</D:position>"+
-      "</D:order-member>"+
-      
-      "<D:order-member>"+
-        "<D:segment>n4</D:segment>"+
-        "<D:position>"+
-          "<D:before><D:segment>n3</D:segment></D:before>"+
-        "</D:position>"+
-      "</D:order-member>"+
+    // 1 2 3 4 5 1 2 3 4 5
+    // 1 before 4 2 3 1 4 5
+    // 4 before 3 2 4 3 1 5
+    // 2 last 4 3 1 5 2
+    // 5 first 5 4 3 1 2
+    // 3 after 2 5 4 1 2 3
+    // 5 after 1 4 1 5 2 3
 
-      "<D:order-member>"+
-        "<D:segment>n2</D:segment>"+
-        "<D:position><D:last/></D:position>"+
-      "</D:order-member>"+
+    String xml = "" + "<D:orderpatch xmlns:D=\"DAV:\">" +
 
-      "<D:order-member>"+
-        "<D:segment>n5</D:segment>"+
-        "<D:position><D:first/></D:position>"+
-      "</D:order-member>"+
+    "<D:order-member>" + "<D:segment>n1</D:segment>" + "<D:position>"
+        + "<D:before><D:segment>n4</D:segment></D:before>" + "</D:position>" + "</D:order-member>" +
 
-      "<D:order-member>"+
-        "<D:segment>n3</D:segment>"+
-        "<D:position>"+
-          "<D:after><D:segment>n2</D:segment></D:after>"+
-        "</D:position>"+
-      "</D:order-member>"+
+        "<D:order-member>" + "<D:segment>n4</D:segment>" + "<D:position>"
+        + "<D:before><D:segment>n3</D:segment></D:before>" + "</D:position>" + "</D:order-member>" +
 
-      "<D:order-member>"+
-        "<D:segment>n5</D:segment>"+
-        "<D:position>"+
-          "<D:after><D:segment>n1</D:segment></D:after>"+
-        "</D:position>"+
-      "</D:order-member>"+
+        "<D:order-member>" + "<D:segment>n2</D:segment>" + "<D:position><D:last/></D:position>"
+        + "</D:order-member>" +
 
-      "<D:order-member>"+
-        "<D:segment>n0</D:segment>"+
-        "<D:position><D:first/></D:position>"+
-      "</D:order-member>"+
-      
-    "</D:orderpatch>";
-    
-//    HierarchicalProperty body = body(xml);
-    ContainerResponse response = service(WebDAVMethods.ORDERPATCH, getPathWS() + URLEncoder.encode(path, "UTF-8"), "", null, xml.getBytes()); 
+        "<D:order-member>" + "<D:segment>n5</D:segment>" + "<D:position><D:first/></D:position>"
+        + "</D:order-member>" +
+
+        "<D:order-member>" + "<D:segment>n3</D:segment>" + "<D:position>"
+        + "<D:after><D:segment>n2</D:segment></D:after>" + "</D:position>" + "</D:order-member>" +
+
+        "<D:order-member>" + "<D:segment>n5</D:segment>" + "<D:position>"
+        + "<D:after><D:segment>n1</D:segment></D:after>" + "</D:position>" + "</D:order-member>" +
+
+        "<D:order-member>" + "<D:segment>n0</D:segment>" + "<D:position><D:first/></D:position>"
+        + "</D:order-member>" +
+
+        "</D:orderpatch>";
+
+    // HierarchicalProperty body = body(xml);
+    ContainerResponse response = service(WebDAVMethods.ORDERPATCH, getPathWS()
+        + URLEncoder.encode(path, "UTF-8"), "", null, xml.getBytes());
     assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
-    OrderPatchResponseEntity entity = (OrderPatchResponseEntity)response.getEntity();
+    OrderPatchResponseEntity entity = (OrderPatchResponseEntity) response.getEntity();
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     entity.write(outStream);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     entity.write(outputStream);
     String resp = outputStream.toString();
     HierarchicalPropertyEntityProvider entityProvider = new HierarchicalPropertyEntityProvider();
-    HierarchicalProperty multistatus = entityProvider.readFrom(null, null, null, null, null, new ByteArrayInputStream(resp.getBytes()));
+    HierarchicalProperty multistatus = entityProvider.readFrom(null,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               new ByteArrayInputStream(resp.getBytes()));
     assertEquals(new QName("DAV:", "multistatus"), multistatus.getName());
-   
+
     for (int i = 0; i < 6; i++) {
       HierarchicalProperty respProperty = multistatus.getChild(i);
       String okStatus = WebDavConst.getStatusDescription(HTTPStatus.OK);
@@ -138,9 +121,9 @@ public class TestMultipleOrder extends OrderPatchTest {
     HierarchicalProperty badResp = multistatus.getChild(6);
     String forbiddenStatus = WebDavConst.getStatusDescription(HTTPStatus.FORBIDDEN);
     assertEquals(forbiddenStatus, badResp.getChild(new QName("DAV:", "status")).getValue());
-//    
-//    // 4 1 5 2 3
-    assertOrder(multipleOrderNode, new String[]{"n4", "n1", "n5", "n2", "n3"});    
+    //    
+    // // 4 1 5 2 3
+    assertOrder(multipleOrderNode, new String[] { "n4", "n1", "n5", "n2", "n3" });
   }
 
 }

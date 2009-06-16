@@ -34,105 +34,90 @@ import org.exoplatform.services.rest.ext.provider.HierarchicalPropertyEntityProv
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class TestOrderAfter extends OrderPatchTest {
-  
+
   protected Node orderAfterNode;
-  
+
   public void setUp() throws Exception {
     super.setUp();
     session.refresh(false);
-    if(orderAfterNode == null) {
+    if (orderAfterNode == null) {
       orderAfterNode = orderPatchNode.addNode("orderAfterNode", ORDERABLE_NODETYPE);
-      session.save();      
+      session.save();
       for (int i = 1; i <= 5; i++) {
         orderAfterNode.addNode("n" + i, ORDERABLE_NODETYPE);
-      }      
+      }
       session.save();
     }
   }
-  
-  public void testOrderAfter1() throws Exception {
-    assertOrder(orderAfterNode, new String[]{"n1", "n2", "n3", "n4", "n5"});
 
-    String path = orderAfterNode.getPath(); 
-    
-    String xml = ""+
-    "<D:orderpatch xmlns:D=\"DAV:\">"+
-      "<D:order-member>"+
-        "<D:segment>n1</D:segment>"+
-        "<D:position>"+
-          "<D:after>"+
-            "<D:segment>n3</D:segment>"+
-          "</D:after>"+
-        "</D:position>"+     
-      "</D:order-member>"+
-    "</D:orderpatch>";
-    
-    
-    ContainerResponse response = service(WebDAVMethods.ORDERPATCH, getPathWS() + URLEncoder.encode(path, "UTF-8"), "", null, xml.getBytes()); 
+  public void testOrderAfter1() throws Exception {
+    assertOrder(orderAfterNode, new String[] { "n1", "n2", "n3", "n4", "n5" });
+
+    String path = orderAfterNode.getPath();
+
+    String xml = "" + "<D:orderpatch xmlns:D=\"DAV:\">" + "<D:order-member>"
+        + "<D:segment>n1</D:segment>" + "<D:position>" + "<D:after>" + "<D:segment>n3</D:segment>"
+        + "</D:after>" + "</D:position>" + "</D:order-member>" + "</D:orderpatch>";
+
+    ContainerResponse response = service(WebDAVMethods.ORDERPATCH, getPathWS()
+        + URLEncoder.encode(path, "UTF-8"), "", null, xml.getBytes());
     assertEquals(HTTPStatus.OK, response.getStatus());
-    assertOrder(orderAfterNode, new String[]{"n2", "n3", "n1", "n4", "n5"});
+    assertOrder(orderAfterNode, new String[] { "n2", "n3", "n1", "n4", "n5" });
   }
 
   public void testOrderAfter2() throws Exception {
-    assertOrder(orderAfterNode, new String[]{"n1", "n2", "n3", "n4", "n5"});
-    
-    String path = orderAfterNode.getPath(); 
-    
-    String xml = ""+
-    "<D:orderpatch xmlns:D=\"DAV:\">"+
-      "<D:order-member>"+
-        "<D:segment>n2</D:segment>"+
-        "<D:position>"+
-          "<D:after>"+
-            "<D:segment>n4</D:segment>"+
-          "</D:after>"+
-        "</D:position>"+     
-      "</D:order-member>"+
-      
-      "<D:order-member>"+
-        "<D:segment>n3</D:segment>"+
-        "<D:position>"+
-          "<D:after>"+
-            "<D:segment>n0</D:segment>"+
-          "</D:after>"+
-        "</D:position>"+
-      "</D:order-member>"+      
-    "</D:orderpatch>";
-    
-    ContainerResponse response = service(WebDAVMethods.ORDERPATCH, getPathWS() + URLEncoder.encode(path, "UTF-8"), "", null, xml.getBytes()); 
+    assertOrder(orderAfterNode, new String[] { "n1", "n2", "n3", "n4", "n5" });
+
+    String path = orderAfterNode.getPath();
+
+    String xml = "" + "<D:orderpatch xmlns:D=\"DAV:\">" + "<D:order-member>"
+        + "<D:segment>n2</D:segment>" + "<D:position>" + "<D:after>" + "<D:segment>n4</D:segment>"
+        + "</D:after>" + "</D:position>" + "</D:order-member>" +
+
+        "<D:order-member>" + "<D:segment>n3</D:segment>" + "<D:position>" + "<D:after>"
+        + "<D:segment>n0</D:segment>" + "</D:after>" + "</D:position>" + "</D:order-member>"
+        + "</D:orderpatch>";
+
+    ContainerResponse response = service(WebDAVMethods.ORDERPATCH, getPathWS()
+        + URLEncoder.encode(path, "UTF-8"), "", null, xml.getBytes());
     assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
-    OrderPatchResponseEntity entity = (OrderPatchResponseEntity)response.getEntity();
+    OrderPatchResponseEntity entity = (OrderPatchResponseEntity) response.getEntity();
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     entity.write(outStream);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     entity.write(outputStream);
     String resp = outputStream.toString();
     HierarchicalPropertyEntityProvider entityProvider = new HierarchicalPropertyEntityProvider();
-    HierarchicalProperty multistatus = entityProvider.readFrom(null, null, null, null, null, new ByteArrayInputStream(resp.getBytes()));
+    HierarchicalProperty multistatus = entityProvider.readFrom(null,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               new ByteArrayInputStream(resp.getBytes()));
     assertEquals(new QName("DAV:", "multistatus"), multistatus.getName());
     assertEquals(2, multistatus.getChildren().size());
 
     HierarchicalProperty responseProp = multistatus.getChild(0);
-    
+
     String href1MustBe = TextUtil.escape(getPathWS() + orderAfterNode.getPath() + "/n2", '%', true);
     assertEquals(href1MustBe, responseProp.getChild(new QName("DAV:", "href")).getValue());
     String status1 = WebDavConst.getStatusDescription(HTTPStatus.OK);
     assertEquals(status1, responseProp.getChild(new QName("DAV:", "status")).getValue());
-    
+
     HierarchicalProperty responseProp2 = multistatus.getChild(1);
-    
+
     String href2MustBe = TextUtil.escape(getPathWS() + orderAfterNode.getPath() + "/n3", '%', true);
     assertEquals(href2MustBe, responseProp2.getChild(new QName("DAV:", "href")).getValue());
     String status2 = WebDavConst.getStatusDescription(HTTPStatus.FORBIDDEN);
     assertEquals(status2, responseProp2.getChild(new QName("DAV:", "status")).getValue());
-    
-    assertOrder(orderAfterNode, new String[]{"n1", "n3", "n4", "n2", "n5"});    
+
+    assertOrder(orderAfterNode, new String[] { "n1", "n3", "n4", "n2", "n5" });
   }
 
 }
