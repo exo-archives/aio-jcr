@@ -27,29 +27,32 @@ import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class TestCheckIn extends BaseStandaloneTest {
 
-   
   public void testCheckIn() throws Exception {
     String path = TestUtils.getFileName();
-    Node node = TestUtils.addContent(session, path, new ByteArrayInputStream(TestUtils.getFileContent().getBytes()), "nt:unstructured", "");
-    
+    Node node = TestUtils.addContent(session,
+                                     path,
+                                     new ByteArrayInputStream(TestUtils.getFileContent().getBytes()),
+                                     "nt:unstructured",
+                                     "");
+
     Response response = new CheckInCommand().checkIn(session, path);
     assertEquals(HTTPStatus.CONFLICT, response.getStatus());
-    
+
     response = new VersionControlCommand().versionControl(session, path);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    
+
     assertEquals(true, node.isCheckedOut());
-    
+
     response = new CheckInCommand().checkIn(session, path);
     assertEquals(HTTPStatus.OK, response.getStatus());
-    
+
     assertEquals(false, node.isCheckedOut());
   }
 

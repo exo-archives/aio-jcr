@@ -37,38 +37,57 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class TestGetByVersion extends BaseStandaloneTest {
-  
+
   private Node getByVersionNode;
-    
-  private void assertResponseContent(String path, String versionName, String content) throws IOException, VersionException, UnsupportedRepositoryOperationException, PathNotFoundException, RepositoryException {
-    Version version = session.getRootNode().getNode(TextUtil.relativizePath(path)).getVersionHistory().getVersion(versionName);
-    String receivedContent = version.getNode("jcr:frozenNode").getNode("jcr:content").getProperty("jcr:data").getString();
-    assertEquals(content, receivedContent);    
+
+  private void assertResponseContent(String path, String versionName, String content) throws IOException,
+                                                                                     VersionException,
+                                                                                     UnsupportedRepositoryOperationException,
+                                                                                     PathNotFoundException,
+                                                                                     RepositoryException {
+    Version version = session.getRootNode()
+                             .getNode(TextUtil.relativizePath(path))
+                             .getVersionHistory()
+                             .getVersion(versionName);
+    String receivedContent = version.getNode("jcr:frozenNode")
+                                    .getNode("jcr:content")
+                                    .getProperty("jcr:data")
+                                    .getString();
+    assertEquals(content, receivedContent);
   }
-  
+
   public void testGetByVersion1() throws Exception {
     String CONTENT1 = "TEST BASE FILE CONTENT..";
     String CONTENT2 = "TEST CONTENT FOR SECOND VERSION..";
     String CONTENT3 = "TEST CONTENT FOR THIRD VERSION OF THE FILE..";
-    
-//    NullResourceLocksHolder lockHolder = new NullResourceLocksHolder();
-    
+
+    // NullResourceLocksHolder lockHolder = new NullResourceLocksHolder();
+
     String path = TestUtils.getFileName();
-    Node node = TestUtils.addContent(session, path, new ByteArrayInputStream(CONTENT1.getBytes()), defaultFileNodeType, MediaType.TEXT_PLAIN);
-    createVersion(node, new ByteArrayInputStream(CONTENT2.getBytes()), MediaType.TEXT_PLAIN, new ArrayList<String>());
-    createVersion(node, new ByteArrayInputStream(CONTENT3.getBytes()), MediaType.TEXT_PLAIN, new ArrayList<String>());
+    Node node = TestUtils.addContent(session,
+                                     path,
+                                     new ByteArrayInputStream(CONTENT1.getBytes()),
+                                     defaultFileNodeType,
+                                     MediaType.TEXT_PLAIN);
+    createVersion(node,
+                  new ByteArrayInputStream(CONTENT2.getBytes()),
+                  MediaType.TEXT_PLAIN,
+                  new ArrayList<String>());
+    createVersion(node,
+                  new ByteArrayInputStream(CONTENT3.getBytes()),
+                  MediaType.TEXT_PLAIN,
+                  new ArrayList<String>());
     assertResponseContent(path, "1", CONTENT1);
     assertResponseContent(path, "2", CONTENT2);
     assertResponseContent(path, "3", CONTENT3);
   }
-  
-  
+
   private final void createVersion(Node fileNode,
                                    InputStream inputStream,
                                    String mimeType,
@@ -97,13 +116,13 @@ public class TestGetByVersion extends BaseStandaloneTest {
                                    InputStream inputStream,
                                    String mimeType,
                                    List<String> mixins) throws RepositoryException {
-    
+
     Node content = node.getNode("jcr:content");
     content.setProperty("jcr:mimeType", mimeType);
     content.setProperty("jcr:lastModified", Calendar.getInstance());
     content.setProperty("jcr:data", inputStream);
-    
-    while(mixins.iterator().hasNext()){
+
+    while (mixins.iterator().hasNext()) {
       content.addMixin(mixins.iterator().next());
     }
   }

@@ -29,20 +29,23 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class TestVersionControl extends BaseStandaloneTest {
-  
-  
+
   public void testVersionControl() throws Exception {
-    
+
     String path = TestUtils.getFileName();
-    Node  node = TestUtils.addContent(session, path, new ByteArrayInputStream(TestUtils.getFileContent().getBytes()), defaultFileNodeType, MediaType.TEXT_PLAIN);
+    Node node = TestUtils.addContent(session,
+                                     path,
+                                     new ByteArrayInputStream(TestUtils.getFileContent().getBytes()),
+                                     defaultFileNodeType,
+                                     MediaType.TEXT_PLAIN);
     assertEquals(false, node.isNodeType("mix:versionable"));
-    ContainerResponse response = service("VERSION-CONTROL", getPathWS() + path, "", null, null); 
+    ContainerResponse response = service("VERSION-CONTROL", getPathWS() + path, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
     Node verNode = session.getRootNode().getNode(TextUtil.relativizePath(path));
     assertEquals(true, verNode.isNodeType("mix:versionable"));
@@ -54,4 +57,3 @@ public class TestVersionControl extends BaseStandaloneTest {
   }
 
 }
-

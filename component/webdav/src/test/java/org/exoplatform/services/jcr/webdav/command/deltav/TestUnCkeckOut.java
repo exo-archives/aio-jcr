@@ -28,18 +28,21 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class TestUnCkeckOut extends BaseStandaloneTest {
 
-  
   public void testUnCkeckOut() throws Exception {
     String path = TestUtils.getFileName();
-    Node  node = TestUtils.addContent(session, path, new ByteArrayInputStream(TestUtils.getFileContent().getBytes()), defaultFileNodeType, MediaType.TEXT_PLAIN);
-    ContainerResponse response = service("UNCHECKOUT", getPathWS() + path, "", null, null); 
+    Node node = TestUtils.addContent(session,
+                                     path,
+                                     new ByteArrayInputStream(TestUtils.getFileContent().getBytes()),
+                                     defaultFileNodeType,
+                                     MediaType.TEXT_PLAIN);
+    ContainerResponse response = service("UNCHECKOUT", getPathWS() + path, "", null, null);
     assertEquals(HTTPStatus.CONFLICT, response.getStatus());
     if (!node.isNodeType("mix:versionable")) {
       node.addMixin("mix:versionable");
@@ -53,13 +56,9 @@ public class TestUnCkeckOut extends BaseStandaloneTest {
     assertEquals(HTTPStatus.OK, response.getStatus());
   }
 
-
-
   @Override
   protected String getRepositoryName() {
     return null;
   }
-  
 
 }
-
