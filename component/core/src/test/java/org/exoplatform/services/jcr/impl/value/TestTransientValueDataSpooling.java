@@ -84,7 +84,7 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
    * 
    * @throws Exception
    */
-  public void testSpooling() throws Exception {
+  public void testRemoveAfterSet() throws Exception {
     File tmpFile = createBLOBTempFile(4048);
 
     int countBefore = tmpdir.list(new FilenameFilter() {
@@ -104,7 +104,7 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
       }
     }).length;
 
-    assertEquals(countBefore + 1, countAfter);
+    assertEquals(countBefore, countAfter);
   }
 
   @Override

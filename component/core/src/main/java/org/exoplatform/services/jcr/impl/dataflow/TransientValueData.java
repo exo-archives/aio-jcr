@@ -498,8 +498,34 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * 
    * @param spoolFile
    *          File
+   * @throws IOException
+   *           if any Exception is occurred
    */
-  public void setSpoolFile(File spoolFile) {
+  public void setSpoolFile(File spoolFile) throws IOException {
+    // delete previous spool file
+    if (isTransient()) {
+      if (spoolChannel != null)
+        spoolChannel.close();
+
+      if (this.spoolFile != null) {
+
+        if (this.spoolFile instanceof SpoolFile)
+          ((SpoolFile) this.spoolFile).release(this);
+
+        if (deleteSpoolFile && this.spoolFile.exists()) {
+          if (!this.spoolFile.delete()) {
+            if (fileCleaner != null) {
+              log.info("Could not remove file. Add to fileCleaner " + this.spoolFile);
+              fileCleaner.addFile(this.spoolFile);
+            } else {
+              log.warn("Could not remove temporary file on finalize "
+                  + this.spoolFile.getAbsolutePath());
+            }
+          }
+        }
+      }
+    }
+
     this.spoolFile = spoolFile;
     this.deleteSpoolFile = false;
     this.spooled = true;
@@ -747,7 +773,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   /**
    * TransientValueData empty constructor. Used for Replication serialization (java).
-   *
+   * 
    */
   public TransientValueData() {
     super(0);
@@ -787,8 +813,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   /**
    * Set data Stream from outside. FOR Synchronouis replicatiojn only!
-   *
-   * @param in InputStream
+   * 
+   * @param in
+   *          InputStream
    */
   public void setStream(InputStream in) {
     this.spooled = false;
