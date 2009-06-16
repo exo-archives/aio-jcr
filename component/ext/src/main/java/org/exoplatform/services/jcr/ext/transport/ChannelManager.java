@@ -431,6 +431,9 @@ public class ChannelManager implements RequestHandler, MembershipListener {
 
       Message msg = new Message(null, null, buffer);
 
+      if (state == DISCONNECTED || dispatcher == null)
+        throw new ChannelWasDisconnectedException("The channel was disconnected.");
+      
       dispatcher.castMessage(dest, msg, GroupRequest.GET_NONE, 0);
     }
   }
