@@ -38,16 +38,15 @@ import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
+import org.exoplatform.services.jcr.ext.backup.ContainerRequestUserRole;
 import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfoEx;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfoList;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.RequestHandler;
-import org.exoplatform.services.rest.impl.ContainerRequest;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.InputHeadersMap;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
@@ -100,7 +99,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
   public void testInfo() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO),
                                                  new URI(""),
@@ -132,7 +131,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     assertNotNull(session_db6_ws1);
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.DROP_WORKSPACE
                                                      + "/db6/ws1/true"),
@@ -174,7 +173,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/json; charset=UTF-8");
-    ContainerRequest creq = new ContainerRequest("POST",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("POST",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.START_BACKUP
                                                      + "/db6/ws2"),
@@ -194,7 +193,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
   public void testInfoBackup() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.CURRENT_AND_COMPLETED_BACKUPS_INFO),
                                                  new URI(""),
@@ -227,7 +226,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
   public void testInfoBackupOnWorkspace() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET", new URI(HTTP_BACKUP_AGENT_PATH
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET", new URI(HTTP_BACKUP_AGENT_PATH
         + HTTPBackupAgent.Constants.OperationType.CURRENT_AND_COMPLETED_BACKUPS_INFO_ON_WS
         + "/db6/ws2"), new URI(""), null, new InputHeadersMap(headers));
 
@@ -257,7 +256,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
   public void testInfoBackupCurrent() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
                                                  new URI(""),
@@ -294,7 +293,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                    new URI(HTTP_BACKUP_AGENT_PATH
                                                        + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
                                                    new URI(""),
@@ -322,7 +321,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     }
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO
                                                      + "/" + id),
@@ -355,7 +354,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                    new URI(HTTP_BACKUP_AGENT_PATH
                                                        + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO),
                                                    new URI(""),
@@ -383,7 +382,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     }
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.STOP_BACKUP
                                                      + "/" + id),
@@ -400,7 +399,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
   public void testInfoBackupCompleted() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
                                                  new URI(""),
@@ -437,7 +436,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                    new URI(HTTP_BACKUP_AGENT_PATH
                                                        + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
                                                    new URI(""),
@@ -465,7 +464,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     }
 
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO
                                                      + "/" + id),
@@ -495,7 +494,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
   public void testGetDefaultWorkspaceConfig() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    ContainerRequest creq = new ContainerRequest("GET",
+    ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                  new URI(HTTP_BACKUP_AGENT_PATH
                                                      + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
                                                  new URI(""),
@@ -519,7 +518,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     WorkspaceEntry defEntry;
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                    new URI(HTTP_BACKUP_AGENT_PATH
                                                        + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
                                                    new URI(""),
@@ -568,7 +567,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                    new URI(HTTP_BACKUP_AGENT_PATH
                                                        + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO),
                                                    new URI(""),
@@ -599,7 +598,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     WorkspaceEntry defEntry;
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                    new URI(HTTP_BACKUP_AGENT_PATH
                                                        + HTTPBackupAgent.Constants.OperationType.GET_DEFAULT_WORKSPACE_CONFIG),
                                                    new URI(""),
@@ -633,7 +632,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
       // Execute restore
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
       headers.putSingle("Content-Type", "application/json; charset=UTF-8");
-      ContainerRequest creq = new ContainerRequest("POST",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("POST",
                                                    new URI(HTTP_BACKUP_AGENT_PATH
                                                        + HTTPBackupAgent.Constants.OperationType.RESTORE
                                                        + "/" + "db6" + "/" + id),
@@ -654,7 +653,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     // Get restore info to workspace /db6/ws3
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET", new URI(HTTP_BACKUP_AGENT_PATH
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET", new URI(HTTP_BACKUP_AGENT_PATH
           + HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORE_INFO_ON_WS + "/" + "db6" + "/"
           + "ws3"), new URI(""), null, new InputHeadersMap(headers));
 
@@ -664,7 +663,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
       assertEquals(200, cres.getStatus());
 
-      DetailedInfoEx info = (DetailedInfoEx) getObject(DetailedInfoEx.class, responseWriter.getBody());
+      DetailedInfo info = (DetailedInfo) getObject(DetailedInfo.class, responseWriter.getBody());
 
       assertNotNull(info);
       assertEquals(BackupManager.FULL_AND_INCREMENTAL, info.getBackupType().intValue());
@@ -684,7 +683,7 @@ public class HTTPBackupAgentTest extends BaseStandaloneTest {
     // Get restores info
     {
       MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-      ContainerRequest creq = new ContainerRequest("GET",
+      ContainerRequestUserRole creq = new ContainerRequestUserRole("GET",
                                                    new URI(HTTP_BACKUP_AGENT_PATH + HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORES),
                                                    new URI(""),
                                                    null,
