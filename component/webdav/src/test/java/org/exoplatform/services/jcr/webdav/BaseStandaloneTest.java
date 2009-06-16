@@ -80,10 +80,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   public String                 defaultFolderNodeType = "nt:folder";
 
   public String                 repoName;
-  
 
   public void setUp() throws Exception {
-    
+
     String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml")
                                      .toString();
 
@@ -104,7 +103,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     session = (SessionImpl) repository.login(credentials, WORKSPACE);
     destSession = (SessionImpl) repository.login(credentials, DEST_WORKSPACE);
     workspace = session.getWorkspace();
-    //root = session.getRootNode();
+    // root = session.getRootNode();
     initRepository();
     SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
     assertNotNull(sessionProviderService);
@@ -118,13 +117,11 @@ public abstract class BaseStandaloneTest extends TestCase {
     assertNotNull(requestHandler);
     providers = ProviderBinder.getInstance();
     ApplicationContextImpl.setCurrent(new ApplicationContextImpl(null, null, providers));
-    
-    
+
     root = session.getRootNode().addNode("webdav-test", "nt:folder");
-    
-    //session.save();
-    
-    
+
+    // session.save();
+
   }
 
   public ContainerResponse service(String method,
@@ -168,7 +165,7 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   protected void tearDown() throws Exception {
-    
+
     root.remove();
 
     if (session != null) {
@@ -202,7 +199,6 @@ public abstract class BaseStandaloneTest extends TestCase {
   public void initRepository() throws RepositoryException {
   }
 
-  
   public String getPathWS() {
     return "/jcr/" + repoName + "/" + WORKSPACE;
   }
