@@ -37,29 +37,31 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
  * @version $Id: testSearch.java
  */
 public class TestSearch extends BaseStandaloneTest {
-  
-  private String       fileName     = TestUtils.getFileName();
 
-  private final String fileContent  = "TEST FILE CONTENT...";
+  private String       fileName    = TestUtils.getFileName();
+
+  private final String fileContent = "TEST FILE CONTENT...";
 
   public void testBasicSearch() throws Exception {
-    
-//    String body = 
-//      "<D:searchrequest xmlns:D='DAV:'>" +
-//        "<D:xpath>" +
-//          "element(*, nt:resource)[jcr:contains(jcr:data, '*F*')]" +
-//        "</D:xpath>" +
-//      "</D:searchrequest>";
-    
-    String sql = "<D:searchrequest xmlns:D='DAV:'>" +
-                 "<D:sql>" +
-                 "SELECT * FROM  nt:resource WHERE contains(*, 'TEST')" +
-                 "</D:sql>" +
-                "</D:searchrequest>";
-    
+
+    // String body =
+    // "<D:searchrequest xmlns:D='DAV:'>" +
+    // "<D:xpath>" +
+    // "element(*, nt:resource)[jcr:contains(jcr:data, '*F*')]" +
+    // "</D:xpath>" +
+    // "</D:searchrequest>";
+
+    String sql = "<D:searchrequest xmlns:D='DAV:'>" + "<D:sql>"
+        + "SELECT * FROM  nt:resource WHERE contains(*, 'TEST')" + "</D:sql>"
+        + "</D:searchrequest>";
+
     InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes());
     TestUtils.addContent(session, fileName, inputStream, defaultFileNodeType, MediaType.TEXT_PLAIN);
-    ContainerResponse response = service(WebDAVMethods.SEARCH, getPathWS(), "", null, sql.getBytes());    
+    ContainerResponse response = service(WebDAVMethods.SEARCH,
+                                         getPathWS(),
+                                         "",
+                                         null,
+                                         sql.getBytes());
     assertEquals(HTTPStatus.MULTISTATUS, response.getStatus());
     SearchResultResponseEntity entity = (SearchResultResponseEntity) response.getEntity();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

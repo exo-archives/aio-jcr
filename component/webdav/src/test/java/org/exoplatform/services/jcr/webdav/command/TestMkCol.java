@@ -39,7 +39,6 @@ public class TestMkCol extends BaseStandaloneTest {
     assertEquals(HTTPStatus.CREATED, response.getStatus());
   }
 
-  
   public void testMkCol() throws Exception {
     String folder = TestUtils.getFolderName();
     ContainerResponse response = service(WebDAVMethods.MKCOL, getPathWS() + folder, "", null, null);
@@ -59,10 +58,14 @@ public class TestMkCol extends BaseStandaloneTest {
     return null;
   }
 
-   public void testConflict() throws Exception {
-     String folder = TestUtils.getFolderName();
-     ContainerResponse response = service(WebDAVMethods.MKCOL, getPathWS() + folder + folder, "", null, null);
-     assertEquals(HTTPStatus.CONFLICT, response.getStatus());
-    }
- 
+  public void testConflict() throws Exception {
+    String folder = TestUtils.getFolderName();
+    ContainerResponse response = service(WebDAVMethods.MKCOL,
+                                         getPathWS() + folder + folder,
+                                         "",
+                                         null,
+                                         null);
+    assertEquals(HTTPStatus.CONFLICT, response.getStatus());
+  }
+
 }

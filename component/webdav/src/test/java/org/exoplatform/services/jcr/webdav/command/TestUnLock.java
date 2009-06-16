@@ -35,6 +35,7 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:vitaly.parfonov@gmail.com">Vitaly Parfonov</a>
  * @version $Id: $
  */
@@ -51,11 +52,10 @@ public class TestUnLock extends BaseStandaloneTest {
   protected String getRepositoryName() {
     return null;
   }
-  
-  private String path = TestUtils.getFileName();
+
+  private String path        = TestUtils.getFileName();
 
   private String fileContent = TestUtils.getFileContent();
-
 
   @Override
   public void setUp() throws Exception {
@@ -64,7 +64,6 @@ public class TestUnLock extends BaseStandaloneTest {
     TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
   }
 
-  
   public void testUnLock() throws Exception {
     assertTrue(session.getRootNode().hasNode(TextUtil.relativizePath(path)));
     Node lockNode = session.getRootNode().getNode(TextUtil.relativizePath(path));
@@ -72,12 +71,13 @@ public class TestUnLock extends BaseStandaloneTest {
     assertTrue(lockNode.isLocked());
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.LOCKTOKEN, token);
-    ContainerResponse containerResponse = service(WebDAVMethods.UNLOCK,getPathWS() + path , "", headers, null);
+    ContainerResponse containerResponse = service(WebDAVMethods.UNLOCK,
+                                                  getPathWS() + path,
+                                                  "",
+                                                  headers,
+                                                  null);
     assertEquals(HTTPStatus.NO_CONTENT, containerResponse.getStatus());
-    
-    
+
   }
-  
-  
-  
+
 }

@@ -37,29 +37,32 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
  */
 public class TestMove extends BaseStandaloneTest {
 
-
   public void testMoveForNonCollectionSingleWorkspace() throws Exception {
     String content = TestUtils.getFileContent();
     String filename = TestUtils.getFileName();
     InputStream inputStream = new ByteArrayInputStream(content.getBytes());
     TestUtils.addContent(session, filename, inputStream, defaultFileNodeType, "");
     String destFilename = TestUtils.getFileName();
-    MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.DESTINATION, getPathWS() + destFilename);
-    ContainerResponse response = service(WebDAVMethods.MOVE,getPathWS() + filename,"",headers,null);
+    ContainerResponse response = service(WebDAVMethods.MOVE,
+                                         getPathWS() + filename,
+                                         "",
+                                         headers,
+                                         null);
     assertEquals(HTTPStatus.CREATED, response.getStatus());
     assertTrue(session.getRootNode().hasNode(TextUtil.relativizePath(destFilename)));
-    Node nodeDest = session.getRootNode().getNode(TextUtil.relativizePath(destFilename)); 
+    Node nodeDest = session.getRootNode().getNode(TextUtil.relativizePath(destFilename));
     assertTrue(nodeDest.hasNode("jcr:content"));
     Node nodeDestContent = nodeDest.getNode("jcr:content");
     assertTrue(nodeDestContent.hasProperty("jcr:data"));
-    ByteArrayInputStream streamDest = (ByteArrayInputStream) nodeDestContent.getProperty("jcr:data").getStream();
+    ByteArrayInputStream streamDest = (ByteArrayInputStream) nodeDestContent.getProperty("jcr:data")
+                                                                            .getStream();
     String getContentDest = TestUtils.stream2string(streamDest, null);
     assertEquals(content, getContentDest);
     assertFalse(session.getRootNode().hasNode(TextUtil.relativizePath(filename)));
   }
-  
-  
+
   public void testMoveForNonCollectionDiferntWorkspaces() throws Exception {
     assertNotSame(session.getWorkspace().getName(), destSession.getWorkspace().getName());
     String content = TestUtils.getFileContent();
@@ -67,25 +70,25 @@ public class TestMove extends BaseStandaloneTest {
     InputStream inputStream = new ByteArrayInputStream(content.getBytes());
     TestUtils.addContent(session, filename, inputStream, defaultFileNodeType, "");
     String destFilename = TestUtils.getFileName();
-    MultivaluedMap<String, String> headers = new MultivaluedMapImpl(); 
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add(ExtHttpHeaders.DESTINATION, getPathDestWS() + destFilename);
-    ContainerResponse response = service(WebDAVMethods.MOVE,getPathWS() + filename,"",headers,null);
+    ContainerResponse response = service(WebDAVMethods.MOVE,
+                                         getPathWS() + filename,
+                                         "",
+                                         headers,
+                                         null);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatus());
     assertTrue(destSession.getRootNode().hasNode(TextUtil.relativizePath(destFilename)));
-    Node nodeDest = destSession.getRootNode().getNode(TextUtil.relativizePath(destFilename)); 
+    Node nodeDest = destSession.getRootNode().getNode(TextUtil.relativizePath(destFilename));
     assertTrue(nodeDest.hasNode("jcr:content"));
     Node nodeDestContent = nodeDest.getNode("jcr:content");
     assertTrue(nodeDestContent.hasProperty("jcr:data"));
-    ByteArrayInputStream streamDest = (ByteArrayInputStream) nodeDestContent.getProperty("jcr:data").getStream();
+    ByteArrayInputStream streamDest = (ByteArrayInputStream) nodeDestContent.getProperty("jcr:data")
+                                                                            .getStream();
     String getContentDest = TestUtils.stream2string(streamDest, null);
     assertEquals(content, getContentDest);
     assertFalse(session.getRootNode().hasNode(TextUtil.relativizePath(filename)));
   }
-  
-  
-  
-
-
 
   @Override
   protected String getRepositoryName() {

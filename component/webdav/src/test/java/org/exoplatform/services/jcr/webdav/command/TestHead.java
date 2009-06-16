@@ -29,12 +29,11 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
  * Created by The eXo Platform SAS Author : Dmytro Katayev
  * work.visor.ck@gmail.com Aug 13, 2008
  */
-public class TestHead extends BaseStandaloneTest{
-  
-  private String       path = TestUtils.getFileName();
+public class TestHead extends BaseStandaloneTest {
+
+  private String path        = TestUtils.getFileName();
 
   private String fileContent = TestUtils.getFileContent();
-
 
   @Override
   public void setUp() throws Exception {
@@ -44,7 +43,7 @@ public class TestHead extends BaseStandaloneTest{
   }
 
   public void testSimpleHead() throws Exception {
-    ContainerResponse response = service(WebDAVMethods.HEAD, getPathWS() + path, "", null,null );
+    ContainerResponse response = service(WebDAVMethods.HEAD, getPathWS() + path, "", null, null);
     assertEquals(HTTPStatus.OK, response.getStatus());
   }
 

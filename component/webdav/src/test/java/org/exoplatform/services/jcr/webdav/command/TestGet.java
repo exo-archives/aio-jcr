@@ -30,7 +30,8 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com Aug 13, 2008
  */
 public class TestGet extends BaseStandaloneTest {
 

@@ -40,10 +40,9 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 
 public class TestLock extends BaseStandaloneTest {
 
-  private String path = TestUtils.getFileName();
+  private String path        = TestUtils.getFileName();
 
   private String fileContent = TestUtils.getFileContent();
-
 
   @Override
   public void setUp() throws Exception {
@@ -52,17 +51,19 @@ public class TestLock extends BaseStandaloneTest {
     TestUtils.addContent(session, path, inputStream, defaultFileNodeType, "");
   }
 
-  
   public void testLock() throws Exception {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add("Content-Type", MediaType.TEXT_PLAIN);
-    ContainerResponse containerResponse = service(WebDAVMethods.LOCK,getPathWS() + path , "", headers, null);
+    ContainerResponse containerResponse = service(WebDAVMethods.LOCK,
+                                                  getPathWS() + path,
+                                                  "",
+                                                  headers,
+                                                  null);
     assertEquals(HTTPStatus.OK, containerResponse.getStatus());
-    containerResponse = service("DELETE",getPathWS() + path , "", null, null);
+    containerResponse = service("DELETE", getPathWS() + path, "", null, null);
     assertEquals(HTTPStatus.LOCKED, containerResponse.getStatus());
     assertTrue(session.getRootNode().getNode(TextUtil.relativizePath(path)).isLocked());
   }
-
 
   @Override
   protected String getRepositoryName() {
