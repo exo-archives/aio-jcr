@@ -207,7 +207,7 @@ public class SysViewWorkspaceInitializer implements WorkspaceInitializer {
 
     @Override
     String getText() throws IOException {
-      return new String(this.decoder.getByteArray());
+      return new String(this.decoder.getByteArray() != null ? this.decoder.getByteArray() : new byte[0]);
     }
 
     @Override
