@@ -35,7 +35,6 @@ import org.exoplatform.services.jcr.ext.backup.server.HTTPBackupAgent;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfoEx;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfoList;
 import org.exoplatform.ws.frameworks.json.JsonHandler;
@@ -407,11 +406,11 @@ public class BackupClientImpl implements BackupClient {
     BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-      DetailedInfoEx info;
+      DetailedInfo info;
       try {
-        info = (DetailedInfoEx) getObject(DetailedInfoEx.class, response.getResponseData());
+        info = (DetailedInfo) getObject(DetailedInfo.class, response.getResponseData());
       } catch (Exception e) {
-        throw new  RuntimeException("Can not get DetailedInfoEx from responce.", e);
+        throw new  RuntimeException("Can not get DetailedInfo from responce.", e);
       }
       
       
