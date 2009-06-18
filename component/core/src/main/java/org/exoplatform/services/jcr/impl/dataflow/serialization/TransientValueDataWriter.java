@@ -71,8 +71,7 @@ public class TransientValueDataWriter {
         String id = IdGenerator.generate();
         out.writeString(id);
 
-        out.writeLong(vd.getSpoolFile().length());
-        // InputStream in = new FileInputStream(vd.getSpoolFile());
+        out.writeLong(vd.getLength());
         try {
           byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
           int l = 0;
