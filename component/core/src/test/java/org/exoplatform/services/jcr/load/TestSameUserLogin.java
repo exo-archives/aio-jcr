@@ -38,10 +38,10 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class TestSameUserLogin extends BaseUsecasesTest {
 
+  private final Log          TLOG  = ExoLogger.getLogger("jcr.LoginThread");
+  
   class LoginThread extends Thread {
     
-    private final Log          TLOG  = ExoLogger.getLogger("jcr.LoginThread");
-
     private final Credentials user;
     
     private final Object lock;
@@ -62,7 +62,6 @@ public class TestSameUserLogin extends BaseUsecasesTest {
       
       try {
         synchronized (lock) {
-          //TLOG.info("On wait");
           lock.wait();  
         }
         session = repository.login(user, "ws1");
@@ -105,6 +104,93 @@ public class TestSameUserLogin extends BaseUsecasesTest {
     
     for (LoginThread lt : queue) {
       lt.done();
+    }
+  }
+  
+  /**
+   * LoginThread modified by Tomasz Wysocki according to http://jira.exoplatform.org/browse/JCR-875
+   */
+  class LoginThread2 extends Thread {
+
+    private final Credentials user;
+
+    private volatile boolean  stop = false;
+
+    private Session           session;
+
+    private int               pass;
+
+    private int               passes;
+
+    private final int         number;
+
+    LoginThread2(int number, Credentials user, Object runLock, int passes) {
+      super("LoginThread-" + number);
+      this.number = number;
+      this.user = user;
+      this.passes = passes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run() {
+
+      try {
+        TLOG.info("#" + number + " Starting Login/Logout " + passes + " cycles.");
+        while (!stop && pass < passes) {
+          try {
+            session = repository.login(user, "ws1");
+            pass++;
+          } finally {
+            session.logout();
+          }
+        }
+        TLOG.info("#" + number + " Done Login/Logout " + pass + "/" + passes + " cycles.");
+      } catch (LoginException e) {
+        e.printStackTrace();
+      } catch (NoSuchWorkspaceException e) {
+        e.printStackTrace();
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
+    }
+
+    int done() throws InterruptedException {
+      this.stop = true;
+      join();
+      TLOG.info("#" + number + " Login/Logout cycles completed :" + pass);
+      return pass;
+    }
+  }  
+  
+  
+  /**
+   * Test modified by Tomasz Wysocki according to http://jira.exoplatform.org/browse/JCR-875
+   */
+  public void testMultiThreadLogin2() throws InterruptedException {
+
+    LoginThread2[] queue = new LoginThread2[20];
+
+    Object runLock = new Object();
+
+    int passes = 10000;
+    for (int i = 0; i < queue.length; i++) {
+      queue[i] = new LoginThread2(i,
+                                 new CredentialsImpl("root", "exo".toCharArray()),
+                                 runLock,
+                                 passes);
+    }
+
+    for (int i = 0; i < queue.length; i++) {
+      queue[i].start();
+    }
+
+    Thread.sleep(30000);
+
+    for (LoginThread2 lt : queue) {
+      assertEquals(passes, lt.done());
     }
   }
 
