@@ -94,7 +94,7 @@ public class SQLExceptionHandler {
    *           if <code>InvalidItemStateException</code> should be thrown
    */
   protected String handleAddException(SQLException e, ItemData item) throws RepositoryException,
-                                                                 InvalidItemStateException {
+                                                                    InvalidItemStateException {
     String message = "[" + containerName + "] ADD " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
     String itemInfo = item.getQPath().getAsString() + ", ID: " + item.getIdentifier()
@@ -168,6 +168,15 @@ public class SQLExceptionHandler {
           if (ownException != null)
             throw ownException;
         }
+
+        // MySQL violation
+        if (e.getClass().getName().indexOf("MySQLIntegrityConstraintViolationException") >= 0
+            && errMessage.indexOf(item.getIdentifier()) >= 0) {
+          // it's JCR_PK_ITEM violation 
+          message += "Item already exists. Condition: ID. " + itemInfo;
+          throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
+        }
+
         message += "Error of item add. " + itemInfo;
         ownException = new RepositoryException(message, e);
         throw ownException;
@@ -180,7 +189,7 @@ public class SQLExceptionHandler {
     message += "Error of item add. " + itemInfo;
     throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
   }
-  
+
   /**
    * Handle Add IOException.
    * 
@@ -195,7 +204,7 @@ public class SQLExceptionHandler {
    *           if <code>InvalidItemStateException</code> should be thrown
    */
   protected String handleAddException(IOException e, ItemData item) throws RepositoryException,
-                                                                 InvalidItemStateException {
+                                                                   InvalidItemStateException {
     String message = "[" + containerName + "] ADD " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
     String itemInfo = item.getQPath().getAsString() + ", ID: " + item.getIdentifier()
@@ -257,7 +266,7 @@ public class SQLExceptionHandler {
    *           if <code>InvalidItemStateException</code> should be thrown
    */
   protected String handleDeleteException(SQLException e, ItemData item) throws RepositoryException,
-                                                                    InvalidItemStateException {
+                                                                       InvalidItemStateException {
     String message = "[" + containerName + "] DELETE " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
     String itemInfo = item.getQPath().getAsString() + " " + item.getIdentifier()
@@ -294,7 +303,7 @@ public class SQLExceptionHandler {
    *           if <code>InvalidItemStateException</code> should be thrown
    */
   protected String handleUpdateException(SQLException e, ItemData item) throws RepositoryException,
-                                                                    InvalidItemStateException {
+                                                                       InvalidItemStateException {
     String message = "[" + containerName + "] EDIT " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
     String itemInfo = item.getQPath().getAsString() + " " + item.getIdentifier()
