@@ -24,10 +24,12 @@ import java.io.InputStream;
 import javax.jcr.Node;
 import javax.jcr.lock.Lock;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
@@ -620,4 +622,74 @@ public class TestBackupManager extends AbstractBackupTestCase {
       //ok
     }
   }
+  
+  public void testRestoreAfterFAilureRestore() throws Exception {
+    // backup
+    File backDir = new File("target/backup/ws1");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_BACKUP_ONLY);
+
+    config.setBackupDir(backDir);
+
+    backup.startBackup(config);
+
+    BackupChain bch = backup.findBackup(repository.getName(), "ws1");
+
+    // wait till full backup will be stopped
+    while (bch.getFullBackupState() != BackupJob.FINISHED) {
+      Thread.yield();
+      Thread.sleep(50);
+    }
+
+    // stop fullBackup
+
+    if (bch != null)
+      backup.stopBackup(bch);
+    else
+      fail("Can't get fullBackup chain");
+
+    // restore
+    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
+                                                     .getComponentInstanceOfType(RepositoryEntry.class);
+    WorkspaceEntry ws1back = makeWorkspaceEntry("ws1backt", "jdbcjcr_backup_only_use_8_NOT_EXIST");
+
+    File backLog = new File(bch.getLogFilePath());
+    if (backLog.exists()) {
+      BackupChainLog bchLog = new BackupChainLog(backLog);
+
+
+      try {
+        backup.restore(bchLog, re.getName(), ws1back, false);
+        fail("The backup can not be restored.");
+      } catch (Exception e) {
+        //ok
+        
+        WorkspaceEntry ws1backTwo = makeWorkspaceEntry("ws1backt", "jdbcjcr_backup_only_use_8");
+
+        backup.restore(bchLog, re.getName(), ws1backTwo, false);
+      }
+
+      // check
+      SessionImpl back1 = null;
+      try {
+        back1 = (SessionImpl) repository.login(credentials, "ws1back");
+        Node ws1backTestRoot = back1.getRootNode().getNode("backupTest");
+        assertEquals("Restored content should be same",
+                     "property-5",
+                     ws1backTestRoot.getNode("node_5").getProperty("exo:data").getString());
+      } catch (Exception e) {
+        e.printStackTrace();
+        fail(e.getMessage());
+      } finally {
+        if (back1 != null)
+          back1.logout();
+      }
+    } else
+      fail("There are no backup files in " + backDir.getAbsolutePath());
+  }
+  
 }
