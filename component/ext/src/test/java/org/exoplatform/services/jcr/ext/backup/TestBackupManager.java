@@ -578,4 +578,46 @@ public class TestBackupManager extends AbstractBackupTestCase {
       Thread.sleep(50);
     }
   }
+  
+  public void testNegativeIncremetalJobPeriod() throws Exception {
+    // backup
+    File backDir = new File("target/backup/ws1_negative_period");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
+    config.setIncrementalJobPeriod(-1000);
+
+    config.setBackupDir(backDir);
+
+    try {
+      backup.startBackup(config);
+      fail("The backup can not be started.");
+    } catch (BackupConfigurationException e) {
+      //ok
+    }
+  }
+  
+  public void testNegativeIncremetalJobNumber() throws Exception {
+    // backup
+    File backDir = new File("target/backup/ws1_negative_job_number");
+    backDir.mkdirs();
+
+    BackupConfig config = new BackupConfig();
+    config.setRepository(repository.getName());
+    config.setWorkspace("ws1");
+    config.setBackupType(BackupManager.FULL_AND_INCREMENTAL);
+    config.setIncrementalJobNumber(-5);
+
+    config.setBackupDir(backDir);
+
+    try {
+      backup.startBackup(config);
+      fail("The backup can not be started.");
+    } catch (BackupConfigurationException e) {
+      //ok
+    }
+  }
 }

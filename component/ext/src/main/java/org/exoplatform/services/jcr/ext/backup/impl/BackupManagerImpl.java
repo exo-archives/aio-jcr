@@ -452,6 +452,13 @@ public class BackupManagerImpl implements BackupManager, Startable {
                                                                              BackupConfigurationException,
                                                                              RepositoryException,
                                                                              RepositoryConfigurationException {
+    
+    if (config.getIncrementalJobPeriod() < 0)
+      throw new BackupConfigurationException("The parameter 'incremental job period' can not be negative.");
+    
+    if (config.getIncrementalJobNumber() < 0)
+      throw new BackupConfigurationException("The parameter 'incremental job number' can not be negative.");
+    
 
     if (config.getIncrementalJobPeriod() == 0
         && config.getBackupType() == BackupManager.FULL_AND_INCREMENTAL)
