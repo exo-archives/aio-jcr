@@ -67,6 +67,11 @@ public class BackupClientImpl implements BackupClient {
    * Client transport.
    */
   private ClientTransport transport;
+  
+  /**
+   * The URL path.
+   */
+  private final String path;
 
   /**
    * User login.
@@ -77,7 +82,7 @@ public class BackupClientImpl implements BackupClient {
    * User password.
    */
   private final String    pass;
-
+  
   /**
    * Constructor.
    * 
@@ -85,17 +90,22 @@ public class BackupClientImpl implements BackupClient {
    * @param login user login.
    * @param pass user password.
    */
-  public BackupClientImpl(ClientTransport transport, String login, String pass) {
+  public BackupClientImpl(ClientTransport transport, String login, String pass, String urlPath) {
     this.transport = transport;
     this.userName = login;
     this.pass = pass;
+    
+    if (urlPath == null)
+      path = "/rest";
+    else
+      path = urlPath;
   }
-
+  
   /**
    * {@inheritDoc}
    */
   public String startBackUp(String repositoryName, String workspaceName, String backupDir) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.START_BACKUP +
                   "/" + repositoryName +
                   "/" + workspaceName;
@@ -126,7 +136,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String startIncrementalBackUp(String repositoryName, String workspaceName, String backupDir, long incr) throws IOException,
                                                                                  BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.START_BACKUP +
                   "/" + repositoryName +
                   "/" + workspaceName;
@@ -157,7 +167,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String status(String backupId) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.CURRENT_OR_COMPLETED_BACKUP_INFO + 
                   "/" + backupId;
 
@@ -214,7 +224,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String stop(String backupId) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.STOP_BACKUP + 
                   "/" + backupId;
 
@@ -233,7 +243,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String restore(String repositoryName, String workspaceName, String backupId, InputStream config) throws IOException,
                                                                                  BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.RESTORE +
                   "/" + repositoryName +
                   "/" + backupId;
@@ -270,7 +280,7 @@ public class BackupClientImpl implements BackupClient {
    */
   public String drop(boolean forceClose, String repositoryName, String workspaceName) throws IOException,
                                                          BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.DROP_WORKSPACE +
                   "/" + repositoryName +
                   "/" + workspaceName + 
@@ -290,7 +300,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String info() throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO;
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.BACKUP_SERVICE_INFO;
     BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
@@ -317,7 +327,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String list() throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO;
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.CURRENT_BACKUPS_INFO;
     BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
@@ -359,7 +369,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String listCompleted() throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO;
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + HTTPBackupAgent.Constants.OperationType.COMPLETED_BACKUPS_INFO;
     BackupAgentResponse response = transport.executeGET(sURL);
     
     if (response.getStatus() == Response.Status.OK.getStatusCode()) {
@@ -399,7 +409,7 @@ public class BackupClientImpl implements BackupClient {
    * {@inheritDoc}
    */
   public String restores(String repositoryName, String workspaceName) throws IOException, BackupExecuteException {
-    String sURL = HTTPBackupAgent.Constants.BASE_URL + 
+    String sURL = path + HTTPBackupAgent.Constants.BASE_URL + 
                   HTTPBackupAgent.Constants.OperationType.CURRENT_RESTORE_INFO_ON_WS +
                   "/" + repositoryName +
                   "/" + workspaceName;

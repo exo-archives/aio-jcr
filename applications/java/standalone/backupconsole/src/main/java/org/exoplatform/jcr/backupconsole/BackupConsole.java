@@ -49,7 +49,7 @@ public class BackupConsole {
    * Force close session parameter string.
    */
   private static final String FORCE_CLOSE         = "force-close-session";
-
+  
   /**
    * Help string.
    */
@@ -87,8 +87,8 @@ public class BackupConsole {
   /**
    * Main.
    * 
-   * @param args - arguments used as parameters for execute backup server
-   *          commands.
+   * @param args -
+   *          arguments used as parameters for execute backup server commands.
    */
   public static void main(String[] args) {
 
@@ -115,6 +115,11 @@ public class BackupConsole {
       return;
     }
     
+    String urlPath = null;
+    
+    if (!("".equals(url.getPath())))
+      urlPath = url.getPath();
+    
     // login:password
     String login = url.getUserInfo();
     if (login == null) {
@@ -130,7 +135,7 @@ public class BackupConsole {
     // initialize transport and backup client
     String[] lp = login.split(LOGIN_PASS_SPLITTER);
     ClientTransport transport = new ClientTransportImpl(lp[0], lp[1], host, url.getProtocol());
-    BackupClient client = new BackupClientImpl(transport, lp[0], lp[1]);
+    BackupClient client = new BackupClientImpl(transport, lp[0], lp[1], urlPath);
 
     // commands
     if (curArg == args.length) {
@@ -315,11 +320,10 @@ public class BackupConsole {
 
   /**
    * getWorkspaceName.
-   *
+   * 
    * @param pathToWS
    *          the /<repository-name>/<workspace name>
-   * @return String
-   *           return the workspace name
+   * @return String return the workspace name
    */
   private static String getWorkspaceName(String pathToWS) {
     return pathToWS.split("/")[2];
@@ -327,22 +331,23 @@ public class BackupConsole {
 
   /**
    * getRepositoryName.
-   *
+   * 
    * @param pathToWS
    *          the /<repository-name>/<workspace name>
-   * @return String
-   *           return the repository name
+   * @return String return the repository name
    */
   private static String getRepositoryName(String pathToWS) {
     return pathToWS.split("/")[1];
   }
 
   /**
-   * Get parameter from argument list, check it and return as valid path to
-   * repository and workspace.
+   * Get parameter from argument list, check it and return as valid path to repository and
+   * workspace.
    * 
-   * @param args list of arguments.
-   * @param curArg argument index.
+   * @param args
+   *          list of arguments.
+   * @param curArg
+   *          argument index.
    * @return String valid path.
    */
   private static String getRepoWS(String[] args, int curArg) {
