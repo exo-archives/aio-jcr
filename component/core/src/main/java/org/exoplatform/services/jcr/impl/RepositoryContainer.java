@@ -24,6 +24,7 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.QueryManager;
+import javax.naming.NameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
@@ -306,6 +307,8 @@ public class RepositoryContainer extends ExoContainer {
           throw (RepositoryException) retval;
         } else if (retval instanceof RepositoryConfigurationException) {
           throw (RepositoryConfigurationException) retval;
+        } else if (retval instanceof NameNotFoundException) {
+          throw new RepositoryException(retval.getMessage(), e);
         }
         depth++;
       }
