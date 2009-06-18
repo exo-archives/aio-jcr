@@ -43,7 +43,6 @@ import org.exoplatform.services.jcr.ext.backup.impl.JobWorkspaceRestore;
 import org.exoplatform.services.jcr.ext.backup.server.bean.BackupConfigBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.BackupServiceInfoBean;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfo;
-import org.exoplatform.services.jcr.ext.backup.server.bean.response.DetailedInfoEx;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfo;
 import org.exoplatform.services.jcr.ext.backup.server.bean.response.ShortInfoList;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -76,8 +75,7 @@ import org.exoplatform.ws.frameworks.json.value.JsonValue;
  */
 public class HTTPBackupAgentTest extends BaseStandaloneTest {
 
-  private String         HTTP_BACKUP_AGENT_PATH = HTTPBackupAgent.Constants.BASE_URL.replaceAll("/rest",
-                                                                                                "");
+  private String         HTTP_BACKUP_AGENT_PATH = HTTPBackupAgent.Constants.BASE_URL;
 
   private ResourceBinder binder;
 

@@ -86,7 +86,7 @@ public class HTTPBackupAgent implements ResourceContainer {
     /**
      * The base path to this service.
      */
-    public static final String BASE_URL             = "/rest/jcr-backup";
+    public static final String BASE_URL             = "/jcr-backup";
 
     /**
      * Definition the operation types.
