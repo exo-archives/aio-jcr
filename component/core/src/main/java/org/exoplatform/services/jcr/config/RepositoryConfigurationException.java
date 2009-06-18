@@ -47,4 +47,14 @@ public class RepositoryConfigurationException extends Exception {
   public RepositoryConfigurationException(String message, Throwable cause) {
     super(message, cause);
   }
+  
+  /**
+   * RepositoryConfigurationException  constructor.
+   *
+   * @param cause
+   *         Throwable, the base exception.
+   */
+  public RepositoryConfigurationException(Throwable cause) {
+    super(cause);
+  }
 }

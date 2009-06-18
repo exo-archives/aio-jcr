@@ -304,9 +304,9 @@ public class RepositoryContainer extends ExoContainer {
       while (retval.getCause() != null && depth < 100) {
         retval = retval.getCause();
         if (retval instanceof RepositoryException) {
-          throw (RepositoryException) retval;
+          throw new RepositoryException(retval.getMessage(), e);
         } else if (retval instanceof RepositoryConfigurationException) {
-          throw (RepositoryConfigurationException) retval;
+          throw new RepositoryConfigurationException(retval.getMessage(), e);
         } else if (retval instanceof NameNotFoundException) {
           throw new RepositoryException(retval.getMessage(), e);
         }

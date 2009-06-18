@@ -192,12 +192,12 @@ public class RepositoryImpl implements ManageableRepository {
       WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(wsConfig.getName());
       repositoryContainer.unregisterComponentByInstance(workspaceContainer);
       repositoryContainer.unregisterComponent(wsConfig.getName());
-      throw e;
+      throw new RepositoryConfigurationException(e);
     } catch (RepositoryException e) {
       WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(wsConfig.getName());
       repositoryContainer.unregisterComponentByInstance(workspaceContainer);
       repositoryContainer.unregisterComponent(wsConfig.getName());
-      throw e;
+      throw new RepositoryException(e);
     }
   }
 
