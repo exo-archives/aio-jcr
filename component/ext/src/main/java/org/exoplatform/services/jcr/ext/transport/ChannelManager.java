@@ -277,7 +277,7 @@ public class ChannelManager implements RequestHandler, MembershipListener {
   /**
    * closeChannel. Close the channel.
    */
-  public void disconnect() {
+  synchronized public void disconnect() {
     this.state = DISCONNECTED;
 
     if (dispatcher != null) {
