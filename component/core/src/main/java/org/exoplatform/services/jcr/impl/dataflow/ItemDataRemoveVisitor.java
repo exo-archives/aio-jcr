@@ -46,8 +46,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS 15.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataRemoveVisitor.java 14100 2008-05-12 10:53:47Z
- *          gazarenkov $
+ * @version $Id: ItemDataRemoveVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
 
@@ -213,11 +212,9 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(property);
     }
     property = (PropertyData) copyItemData(property);
-    ItemState state = new ItemState(property,
-                                    ItemState.DELETED,
-                                    true,
-                                    ancestorToSave != null ? ancestorToSave
-                                                          : removedRoot.getQPath());
+    ItemState state = new ItemState(property, ItemState.DELETED, true, ancestorToSave != null
+        ? ancestorToSave
+        : removedRoot.getQPath());
 
     if (!itemRemovedStates.contains(state))
       itemRemovedStates.add(state);
@@ -242,11 +239,9 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     if (!(node instanceof TransientItemData)) {
       node = (NodeData) copyItemData(node);
     }
-    ItemState state = new ItemState(node,
-                                    ItemState.DELETED,
-                                    true,
-                                    ancestorToSave != null ? ancestorToSave
-                                                          : removedRoot.getQPath());
+    ItemState state = new ItemState(node, ItemState.DELETED, true, ancestorToSave != null
+        ? ancestorToSave
+        : removedRoot.getQPath());
     itemRemovedStates.add(state);
   }
 
@@ -304,12 +299,12 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
 
     List<ValueData> values = null;
     // null is possible for deleting items
-    if (prop.getValues() != null) {
+    /*if (prop.getValues() != null) {
       values = new ArrayList<ValueData>();
       for (ValueData val : prop.getValues()) {
         values.add(((AbstractValueData) val).createTransientCopy());
       }
-    }
+    }*/
     newData.setValues(values);
     return newData;
   }

@@ -43,11 +43,14 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 public class FileStreamTransientValueData extends TransientValueData {
 
   /**
-   * FileStreamTransientValueData  constructor.
-   *
-   * @param file File from Value storage
-   * @param orderNumber int
-   * @throws IOException if error occurs
+   * FileStreamTransientValueData constructor.
+   * 
+   * @param file
+   *          File from Value storage
+   * @param orderNumber
+   *          int
+   * @throws IOException
+   *           if error occurs
    */
   FileStreamTransientValueData(File file, int orderNumber) throws IOException {
     super(orderNumber, null, null, file, null, -1, null, false);
@@ -73,14 +76,23 @@ public class FileStreamTransientValueData extends TransientValueData {
    * {@inheritDoc}
    */
   @Override
-  public void setSpoolFile(File spoolFile) {
-    assert !true : "Set of spool file is out of contract.";
+  public long getLength() {
+    return spoolFile.length();
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setPersistetFile(File spoolFile) {
+    assert !true : "Set of persistet file is out of contract.";
+  }
+
   /**
    * {@inheritDoc}
    */
   public boolean isTransient() {
     return false;
-  }  
+  }
+
 }

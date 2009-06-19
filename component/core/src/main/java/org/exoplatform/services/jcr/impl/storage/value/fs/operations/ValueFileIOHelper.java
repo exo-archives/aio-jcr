@@ -108,6 +108,7 @@ public class ValueFileIOHelper {
    */
   protected void writeValue(File file, ValueData value) throws IOException {
     TransientValueData tvalue = (TransientValueData) value;
+
     if (tvalue.isByteArray()) {
       OutputStream out = new FileOutputStream(file);
       try {
@@ -127,7 +128,7 @@ public class ValueFileIOHelper {
 
           copyClose(new FileInputStream(spoolFile), new FileOutputStream(file));
         }
-        ((TransientValueData) value).setSpoolFile(file);
+        ((TransientValueData) value).setPersistetFile(file);
       } else {
         // not spooled, use InputStream
         copyClose(tvalue.getAsStream(false), new FileOutputStream(file));
