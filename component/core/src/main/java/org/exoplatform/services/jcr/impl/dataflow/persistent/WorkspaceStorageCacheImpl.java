@@ -31,6 +31,7 @@ import java.util.WeakHashMap;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.cache.CacheListener;
+import org.exoplatform.services.cache.CacheListenerContext;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.CachedObjectSelector;
 import org.exoplatform.services.cache.ExoCache;
@@ -994,6 +995,31 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
 
     public void onRemove(ExoCache cache, Serializable key, Object obj) throws Exception {
+    }
+
+    public void onClearCache(CacheListenerContext context) throws Exception {
+      // TODO Auto-generated method stub
+      
+    }
+
+    public void onExpire(CacheListenerContext context, Serializable key, Object obj) throws Exception {
+      // TODO Auto-generated method stub
+      
+    }
+
+    public void onGet(CacheListenerContext context, Serializable key, Object obj) throws Exception {
+      // TODO Auto-generated method stub
+      
+    }
+
+    public void onPut(CacheListenerContext context, Serializable key, Object obj) throws Exception {
+      // TODO Auto-generated method stub
+      
+    }
+
+    public void onRemove(CacheListenerContext context, Serializable key, Object obj) throws Exception {
+      // TODO Auto-generated method stub
+      
     }
   }
 }
