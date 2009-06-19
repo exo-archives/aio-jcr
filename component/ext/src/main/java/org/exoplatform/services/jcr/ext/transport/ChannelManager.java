@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
@@ -116,7 +117,12 @@ public class ChannelManager implements RequestHandler, MembershipListener {
    * Packets handler.
    */
   protected final PacketHandler          packetsHandler;
-
+  
+  /**
+   * This latch will be used for sending pocket after successful connection.
+   */
+  private CountDownLatch                 latch;
+  
   class MemberPacket {
     final AbstractPacket packet;
 
@@ -250,6 +256,8 @@ public class ChannelManager implements RequestHandler, MembershipListener {
 
     try {
       if (channel == null) {
+        latch = new CountDownLatch(1);
+        
         channel = new JChannel(channelConfig);
 
         channel.setOpt(Channel.AUTO_RECONNECT, Boolean.TRUE);
@@ -271,6 +279,8 @@ public class ChannelManager implements RequestHandler, MembershipListener {
       this.state = CONNECTED;
     } catch (ChannelException e) {
       throw new ReplicationException("Can't connect to JGroups channel", e);
+    } finally {
+      latch.countDown();
     }
   }
 
@@ -403,6 +413,14 @@ public class ChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet, MemberAddress... destinations) throws IOException {
+    if (latch != null && latch.getCount() != 0) {
+      try {
+        latch.await();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    
     if (state == CONNECTED) {
       Vector<Address> dest = new Vector<Address>();
       for (MemberAddress address : destinations)
@@ -447,6 +465,14 @@ public class ChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {
+    if (latch != null && latch.getCount() != 0) {
+      try {
+        latch.await();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    
     if (state == CONNECTED) {
       Vector<Address> dest = new Vector<Address>(channel.getView().getMembers());
       dest.remove(channel.getLocalAddress());
