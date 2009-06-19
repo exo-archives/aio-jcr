@@ -16,7 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.StreamCorruptedException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
@@ -25,23 +27,24 @@ import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdExcepti
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ItemStateReader.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ItemStateReader {
 
-  private FileCleaner fileCleaner;
+  private FileCleaner           fileCleaner;
 
-  private int         maxBufferSize;
+  private int                   maxBufferSize;
+
   private ReaderSpoolFileHolder holder;
-
 
   /**
    * Constructor.
    */
-  public ItemStateReader(FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder ) {
+  public ItemStateReader(FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
     this.holder = holder;
@@ -50,11 +53,13 @@ public class ItemStateReader {
   /**
    * Read and set ItemState data.
    * 
-   * @param in ObjectReader.
+   * @param in
+   *          ObjectReader.
    * @return ItemState object.
-   * @throws UnknownClassIdException If read Class ID is not expected or do not
-   *           exist.
-   * @throws IOException If an I/O error has occurred.
+   * @throws UnknownClassIdException
+   *           If read Class ID is not expected or do not exist.
+   * @throws IOException
+   *           If an I/O error has occurred.
    */
   public ItemState read(ObjectReader in) throws UnknownClassIdException, IOException {
     // read id
@@ -63,21 +68,26 @@ public class ItemStateReader {
       throw new UnknownClassIdException("There is unexpected class [" + key + "]");
     }
 
-    int state = in.readInt();
-    boolean isPersisted = in.readBoolean();
-    boolean eventFire = in.readBoolean();
+    ItemState is = null;
+    try {
+      int state = in.readInt();
+      boolean isPersisted = in.readBoolean();
+      boolean eventFire = in.readBoolean();
 
-    boolean isNodeData = in.readBoolean();
+      boolean isNodeData = in.readBoolean();
 
-    ItemState is;
-    if (isNodeData) {
-      TransientNodeDataReader rdr = new TransientNodeDataReader();
-      is = new ItemState(rdr.read(in), state, eventFire, null, false, isPersisted);
-    } else {
-      TransientPropertyDataReader rdr = new TransientPropertyDataReader(fileCleaner, maxBufferSize, holder);
-      is = new ItemState(rdr.read(in), state, eventFire, null, false, isPersisted);
+      if (isNodeData) {
+        TransientNodeDataReader rdr = new TransientNodeDataReader();
+        is = new ItemState(rdr.read(in), state, eventFire, null, false, isPersisted);
+      } else {
+        TransientPropertyDataReader rdr = new TransientPropertyDataReader(fileCleaner,
+                                                                          maxBufferSize,
+                                                                          holder);
+        is = new ItemState(rdr.read(in), state, eventFire, null, false, isPersisted);
+      }
+      return is;
+    } catch (EOFException e) {
+      throw new StreamCorruptedException("Unexpected EOF in middle of data block.");
     }
-    return is;
   }
-
 }
