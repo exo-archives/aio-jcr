@@ -84,7 +84,7 @@ public class FileStreamTransientValueData extends TransientValueData {
    * {@inheritDoc}
    */
   @Override
-  public void setPersistetFile(File spoolFile) {
+  public void setPersistedFile(File spoolFile) {
     assert !true : "Set of persistet file is out of contract.";
   }
 

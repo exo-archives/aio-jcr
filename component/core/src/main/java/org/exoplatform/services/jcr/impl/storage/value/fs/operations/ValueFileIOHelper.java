@@ -128,7 +128,7 @@ public class ValueFileIOHelper {
 
           copyClose(new FileInputStream(spoolFile), new FileOutputStream(file));
         }
-        ((TransientValueData) value).setPersistetFile(file);
+        ((TransientValueData) value).setPersistedFile(file);
       } else {
         // not spooled, use InputStream
         copyClose(tvalue.getAsStream(false), new FileOutputStream(file));
@@ -157,17 +157,6 @@ public class ValueFileIOHelper {
       } finally {
         in.close();
       }
-
-      // TODO cleanup
-      // byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE];
-      // int len;
-      // InputStream in = value.getAsStream();
-      // try {
-      // while ((len = in.read(buffer)) > 0)
-      // out.write(buffer, 0, len);
-      // } finally {
-      // in.close();
-      // }
     }
   }
 

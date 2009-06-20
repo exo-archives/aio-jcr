@@ -495,20 +495,20 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * Set spool file. It's means ValueData has its data somewhere spooled to a file system. And it's
-   * a file with the content.
+   * Set spool as persisted file. It's means ValueData has its data stored to a External Value Storage. And it's
+   * a file with the content which cannot be deleted or moved outside Value Storage.
    * 
-   * @param persistetFile
+   * @param persistedFile
    *          File
    * @throws IOException
    *           if any Exception is occurred
    */
-  public void setPersistetFile(File persistetFile) throws IOException {
+  public void setPersistedFile(File persistedFile) throws IOException {
     if (isTransient()) {
       deleteCurrentSpoolFile();
     }
 
-    this.spoolFile = persistetFile;
+    this.spoolFile = persistedFile;
     this.deleteSpoolFile = false;
     this.spooled = true;
     this.isTransient = false;
