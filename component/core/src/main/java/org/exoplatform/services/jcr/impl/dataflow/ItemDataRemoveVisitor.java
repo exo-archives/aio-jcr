@@ -211,7 +211,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     if (validate) {
       validate(property);
     }
-    property = (PropertyData) copyItemData(property);
+    property = (PropertyData) copyItemDataDelete(property);
     ItemState state = new ItemState(property, ItemState.DELETED, true, ancestorToSave != null
         ? ancestorToSave
         : removedRoot.getQPath());
@@ -237,7 +237,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(node);
     }
     if (!(node instanceof TransientItemData)) {
-      node = (NodeData) copyItemData(node);
+      node = (NodeData) copyItemDataDelete(node);
     }
     ItemState state = new ItemState(node, ItemState.DELETED, true, ancestorToSave != null
         ? ancestorToSave
@@ -261,7 +261,16 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     return reversedItemRemovedStates;
   }
 
-  private TransientItemData copyItemData(final ItemData item) throws RepositoryException {
+  /**
+   * Copy ItemData for Delete operation.
+   * 
+   * @param item
+   *          ItemData
+   * @return TransientItemData
+   * @throws RepositoryException
+   *           if error occurs
+   */
+  private TransientItemData copyItemDataDelete(final ItemData item) throws RepositoryException {
 
     if (item == null)
       return null;
@@ -297,15 +306,8 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
                                                               prop.getParentIdentifier(),
                                                               prop.isMultiValued());
 
-    List<ValueData> values = null;
-    // null is possible for deleting items
-    /*if (prop.getValues() != null) {
-      values = new ArrayList<ValueData>();
-      for (ValueData val : prop.getValues()) {
-        values.add(((AbstractValueData) val).createTransientCopy());
-      }
-    }*/
-    newData.setValues(values);
+    // set null as it's delete state, was set list of createTransientCopy()
+    newData.setValues(null);
     return newData;
   }
 }
