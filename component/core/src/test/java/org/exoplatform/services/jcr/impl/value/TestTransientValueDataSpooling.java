@@ -82,10 +82,10 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
   /**
    * Spool steam on get operation.
    * 
-   * @throws Exception
+   * @throws Exception if error
    */
   public void testRemoveAfterSet() throws Exception {
-    File tmpFile = createBLOBTempFile(4048);
+    File tmpFile = createBLOBTempFile(250);
 
     int countBefore = tmpdir.list(new FilenameFilter() {
       public boolean accept(File dir, String name) {
@@ -95,7 +95,7 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
 
     Node node = root.addNode("testNode");
     node.setProperty("testProp", new FileInputStream(tmpFile));
-    node.getProperty("testProp").getStream();
+    node.getProperty("testProp").getStream().close();
     root.save();
 
     int countAfter = tmpdir.list(new FilenameFilter() {
@@ -109,7 +109,6 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
 
   @Override
   protected String getRepositoryName() {
-    // TODO Auto-generated method stub
     return null;
   }
 
