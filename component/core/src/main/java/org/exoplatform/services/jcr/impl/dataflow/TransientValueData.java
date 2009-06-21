@@ -285,9 +285,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public byte[] getAsByteArray() throws IOException {
     if (data != null) {
       // TODO JCR-992 don't copy bytes
-      byte[] bytes = new byte[data.length];
-      System.arraycopy(data, 0, bytes, 0, data.length);
-      return bytes;
+      //byte[] bytes = new byte[data.length];
+      //System.arraycopy(data, 0, bytes, 0, data.length);
+      return data;
     } else {
       spoolInputStream();
       return fileToByteArray();
@@ -366,12 +366,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     if (isByteArray()) {
       // bytes, make a copy of real data
       // TODO JCR-992 don't copy bytes
-      byte[] newBytes = new byte[data.length];
-      System.arraycopy(data, 0, newBytes, 0, newBytes.length);
+      //byte[] newBytes = new byte[data.length];
+      //System.arraycopy(data, 0, newBytes, 0, newBytes.length);
 
       try {
         return new TransientValueData(orderNumber,
-                                      newBytes,
+                                      data, // TODO JCR-992 
                                       null,
                                       null,
                                       fileCleaner,
@@ -397,12 +397,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public EditableValueData createEditableCopy() throws RepositoryException {
     if (isByteArray()) {
       // bytes, make a copy of real data
-      // TODO JCR-992 don't copy bytes
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
 
       try {
-        return new EditableValueData(newBytes,
+        return new EditableValueData(newBytes, 
                                      orderNumber,
                                      fileCleaner,
                                      maxBufferSize,
@@ -707,10 +706,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * try to convert stream to byte array WARNING: Potential lack of memory due to call
-   * getAsByteArray() on stream data
+   * Convert File to byte array. <br/>
+   * WARNING: Potential lack of memory due to call getAsByteArray() on stream data.
    * 
-   * @return byte array
+   * @return byte[] bytes array
    */
   private byte[] fileToByteArray() throws IOException {
     FileChannel fch = new FileInputStream(spoolFile).getChannel();
@@ -738,7 +737,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   /**
    * Delete current spool file.
    * 
-   * @throws IOException
+   * @throws IOException if error
    */
   private void deleteCurrentSpoolFile() throws IOException {
     if (spoolChannel != null)

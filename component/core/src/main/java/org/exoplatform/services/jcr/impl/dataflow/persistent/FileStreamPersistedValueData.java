@@ -95,6 +95,7 @@ public class FileStreamPersistedValueData extends AbstractValueData {
     return false;
   }  
   
+  // TODO cleanup
 //  protected void finalize() throws Throwable {
 //    try {
 //      if (temp && !file.delete())
