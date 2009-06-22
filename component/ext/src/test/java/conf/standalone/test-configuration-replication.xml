@@ -24,7 +24,7 @@
         <property name="recovery-dir" value="target/replication/recovery"/>
         <property name="node-name" value="cluster_node1"/>
         <property name="other-participants" value="cluster_node2"/>
-        <property name="wait-confirmation" value="10"/>
+        <property name="wait-confirmation" value="2000"/>
       </properties-param>
       <properties-param>
         <name>replication-priority-properties</name>
@@ -53,7 +53,7 @@
           <property name="recovery-dir" value="target/replication/recovery"/>
           <property name="node-name" value="cluster_node1"/>
           <property name="other-participants" value="cluster_node2"/>
-          <property name="wait-confirmation" value="10"/>
+          <property name="wait-confirmation" value="2000"/>
       </properties-param>
       <properties-param>
         <name>replication-priority-properties</name>
@@ -82,7 +82,7 @@
           <property name="recovery-dir" value="target/replication/recovery"/>
           <property name="node-name" value="cluster_node1"/>
           <property name="other-participants" value="cluster_node2"/>
-          <property name="wait-confirmation" value="10"/>
+          <property name="wait-confirmation" value="2000"/>
       </properties-param>
       <properties-param>
         <name>replication-priority-properties</name>
