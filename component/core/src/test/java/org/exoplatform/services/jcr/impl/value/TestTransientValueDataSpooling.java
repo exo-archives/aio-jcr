@@ -18,22 +18,21 @@ package org.exoplatform.services.jcr.impl.value;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 
-import javax.imageio.stream.FileImageInputStream;
 import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.PropertyType;
-import javax.jcr.Value;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.dataflow.EditableValueData;
-import org.exoplatform.services.jcr.impl.dataflow.TesterTransientValueData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
-
-import junit.framework.TestCase;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 
 /**
  * Created by The eXo Platform SAS.
@@ -44,9 +43,21 @@ import junit.framework.TestCase;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id$
  */
-public class TestTransientValueDataSpooling extends BaseStandaloneTest {
+public class TestTransientValueDataSpooling extends BaseStandaloneTest implements
+    ItemsPersistenceListener {
 
-  private final File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+  private TransactionChangesLog cLog;
+
+  private final File            tmpdir = new File(System.getProperty("java.io.tmpdir"));
+
+  public void setUp() throws Exception {
+    super.setUp();
+
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
+                                                                           .getName());
+    CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.addItemPersistenceListener(this);
+  }
 
   public void tearDown() throws Exception {
     super.tearDown();
@@ -82,7 +93,8 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
   /**
    * Spool steam on get operation.
    * 
-   * @throws Exception if error
+   * @throws Exception
+   *           if error
    */
   public void testRemoveAfterSet() throws Exception {
     File tmpFile = createBLOBTempFile(250);
@@ -107,9 +119,30 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest {
     assertEquals(countBefore, countAfter);
   }
 
+  public void _testSerialization() throws Exception {
+    File tmpFile = createBLOBTempFile(250);
+
+    Node node = root.addNode("testNode");
+    node.setProperty("testProp", new FileInputStream(tmpFile));
+    session.save();
+
+    TransactionChangesLog cl = new TransactionChangesLog(cLog.getLogIterator().nextLog());
+
+    node.getProperty("testProp").remove();
+    session.save();
+
+    ObjectWriter out = new ObjectWriterImpl(new FileOutputStream(File.createTempFile("out", ".tmp")));
+    TransactionChangesLogWriter lw = new TransactionChangesLogWriter();
+
+    lw.write(out, cl);
+  }
+
   @Override
   protected String getRepositoryName() {
     return null;
   }
 
+  public void onSaveItems(ItemStateChangesLog itemStates) {
+    cLog = (TransactionChangesLog) itemStates;
+  }
 }
