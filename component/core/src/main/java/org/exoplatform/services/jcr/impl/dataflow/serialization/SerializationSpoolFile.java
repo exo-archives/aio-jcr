@@ -65,6 +65,9 @@ public class SerializationSpoolFile extends SpoolFile {
     return id;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public synchronized boolean delete() {
     try {

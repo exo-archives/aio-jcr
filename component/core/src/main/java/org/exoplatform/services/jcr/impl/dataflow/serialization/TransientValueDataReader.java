@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
- * @version $Id: TransientValueDataReader.java 111 2008-11-11 11:11:11Z serg $
+ * @version $Id$
  */
 public class TransientValueDataReader {
 
@@ -50,7 +50,7 @@ public class TransientValueDataReader {
    * ReadedSpoolFile holder,
    */
   private final ReaderSpoolFileHolder holder;
-  
+
   /**
    * Constructor.
    * 
@@ -126,19 +126,25 @@ public class TransientValueDataReader {
                                       tempDirectory,
                                       true);
       } else {
-        TransientValueData vd = new TransientValueData(orderNumber,
-                                                       null,
-                                                       null,
-                                                       sf,
-                                                       fileCleaner,
-                                                       maxBufferSize,
-                                                       tempDirectory,
-                                                       true);
-        // skip data in input stream
-        if (in.skip(length) != length)
-          throw new IOException("Content isn't skipped correctly.");
+        sf.acquire(this); // TODO workaround for AsyncReplication test
+        try {
+          TransientValueData vd = new TransientValueData(orderNumber,
+                                                         null,
+                                                         null,
+                                                         sf,
+                                                         fileCleaner,
+                                                         maxBufferSize,
+                                                         tempDirectory,
+                                                         true);
 
-        return vd;
+          // skip data in input stream
+          if (in.skip(length) != length)
+            throw new IOException("Content isn't skipped correctly.");
+
+          return vd;
+        } finally {
+          sf.release(this);
+        }
       }
     }
   }
