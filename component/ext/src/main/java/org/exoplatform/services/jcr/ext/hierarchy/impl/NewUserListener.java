@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 
 import org.exoplatform.container.xml.InitParams;
@@ -63,13 +64,14 @@ public class NewUserListener extends UserEventListener {
     userPath_ = nodeHierarchyCreatorService.getJcrPath(USERS_PATH);
   }
 
-  @SuppressWarnings("unused")
   public void preSave(User user, boolean isNew) throws Exception {
     String userName = user.getUserName();
     List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations();
     // TODO [PN, 12.02.08] only default repository should contains user structure
-    for (RepositoryEntry repo : repositories) {
-      processUserStructure(repo.getName(), userName);
+    if(isNew) {
+      for (RepositoryEntry repo : repositories) {
+        processUserStructure(repo.getName(), userName);
+      }
     }
   }
 
@@ -79,9 +81,13 @@ public class NewUserListener extends UserEventListener {
     String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
     Session session = manageableRepository.getSystemSession(systemWorkspace);
     Node usersHome = (Node) session.getItem(userPath_);
-    Node userNode = usersHome.addNode(userName);
     List<JcrPath> jcrPaths = config_.getJcrPaths();
-
+    Node userNode = null;
+    try {
+      userNode = usersHome.getNode(userName);
+    } catch(PathNotFoundException e) {
+      userNode = usersHome.addNode(userName);
+    }
     for (JcrPath jcrPath : jcrPaths) {
       createNode(userNode,
                  jcrPath.getPath(),
@@ -120,7 +126,11 @@ public class NewUserListener extends UserEventListener {
                           Map permissions) throws Exception {
     if (nodeType == null || nodeType.length() == 0)
       nodeType = NT_UNSTRUCTURED;
-    userNode = userNode.addNode(path, nodeType);
+    try {
+      userNode = userNode.getNode(path);
+    } catch(PathNotFoundException e) {
+      userNode = userNode.addNode(path, nodeType);
+    }
     if (userNode.canAddMixin("exo:privilegeable"))
       userNode.addMixin("exo:privilegeable");
     if (permissions != null && !permissions.isEmpty())

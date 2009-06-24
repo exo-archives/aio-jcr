@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 
 import org.exoplatform.container.xml.InitParams;
@@ -59,7 +60,6 @@ public class NewGroupListener extends GroupEventListener {
     groupsPath_ = nodeHierarchyCreatorService.getJcrPath(GROUPS_PATH);
   }
 
-  @SuppressWarnings("unused")
   public void preSave(Group group, boolean isNew) throws Exception {
     String groupId = null;
     String parentId = group.getParentId();
@@ -68,8 +68,10 @@ public class NewGroupListener extends GroupEventListener {
     else
       groupId = parentId + "/" + group.getGroupName();
     List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations();
-    for (RepositoryEntry repo : repositories) {
-      buildGroupStructure(repo.getName(), groupId);
+    if(isNew) {
+      for (RepositoryEntry repo : repositories) {
+        buildGroupStructure(repo.getName(), groupId);
+      }
     }
   }
 
@@ -106,8 +108,13 @@ public class NewGroupListener extends GroupEventListener {
     String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
     Session session = manageableRepository.getSystemSession(systemWorkspace);
     Node groupsHome = (Node) session.getItem(groupsPath_);
-    Node groupNode = groupsHome.addNode(groupId.substring(1, groupId.length()));
     List jcrPaths = config_.getJcrPaths();
+    Node groupNode = null;
+    try {
+      groupNode = groupsHome.getNode(groupId.substring(1, groupId.length()));
+    } catch(PathNotFoundException e) {
+      groupNode = groupsHome.addNode(groupId.substring(1, groupId.length()));
+    }
     for (JcrPath jcrPath : (List<JcrPath>) jcrPaths) {
       createNode(groupNode,
                  jcrPath.getPath(),
@@ -127,7 +134,11 @@ public class NewGroupListener extends GroupEventListener {
                           Map permissions) throws Exception {
     if (nodeType == null || nodeType.length() == 0)
       nodeType = NT_UNSTRUCTURED;
-    groupNode = groupNode.addNode(path, nodeType);
+    try {
+      groupNode = groupNode.getNode(path);
+    } catch(PathNotFoundException e) {
+      groupNode = groupNode.addNode(path, nodeType);
+    }
     if (groupNode.canAddMixin("exo:privilegeable"))
       groupNode.addMixin("exo:privilegeable");
     if (permissions != null && !permissions.isEmpty())
