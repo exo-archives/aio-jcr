@@ -25,6 +25,7 @@ import java.io.IOException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS.
@@ -54,6 +55,29 @@ public class FileStreamTransientValueData extends TransientValueData {
    */
   FileStreamTransientValueData(File file, int orderNumber) throws IOException {
     super(orderNumber, null, null, file, null, -1, null, false);
+  }
+
+  /**
+   * FileStreamTransientValueData constructor for swap files. Swap file it's a temp file used by
+   * container for BLOBs read from database or any remote storage.
+   * 
+   * @param file
+   *          File from storage
+   * @param orderNumber
+   *          int
+   * @param fileCleaner
+   *          FileCleaner
+   * @param deleteFile
+   *          boolean, if true file will be deleted after the FileStreamTransientValueData will be
+   *          GCed.
+   * @throws IOException
+   *           if error occurs
+   */
+  FileStreamTransientValueData(File file,
+                               int orderNumber,
+                               FileCleaner fileCleaner,
+                               boolean deleteFile) throws IOException {
+    super(orderNumber, null, null, file, fileCleaner, -1, null, deleteFile);
   }
 
   /**

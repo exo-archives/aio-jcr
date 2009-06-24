@@ -30,6 +30,7 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.ValueFormatException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.datamodel.Identifier;
@@ -43,9 +44,11 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.<br/> ValueFactory implementation
+ * Created by The eXo Platform SAS.<br/>
+ * ValueFactory implementation
  * 
  * @author Gennady Azarenkov
  * @version $Id: ValueFactoryImpl.java 11907 2008-03-13 15:36:21Z ksm $
@@ -53,13 +56,15 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 public class ValueFactoryImpl implements ValueFactory {
 
-  private LocationFactory locationFactory;
+  protected static final Log LOG = ExoLogger.getLogger("jcr.ValueFactoryImpl");
 
-  private FileCleaner     fileCleaner;
+  private LocationFactory    locationFactory;
 
-  private File            tempDirectory;
+  private FileCleaner        fileCleaner;
 
-  private int             maxBufferSize;
+  private File               tempDirectory;
+
+  private int                maxBufferSize;
 
   public ValueFactoryImpl(LocationFactory locationFactory,
                           WorkspaceEntry workspaceConfig,
@@ -83,8 +88,8 @@ public class ValueFactoryImpl implements ValueFactory {
     this.maxBufferSize = WorkspaceDataContainer.DEF_MAXBUFFERSIZE;
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(java.lang.String, int)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(String value, int type) throws ValueFormatException {
     if (value == null)
@@ -145,8 +150,8 @@ public class ValueFactoryImpl implements ValueFactory {
     }
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(String value) {
     if (value == null)
@@ -154,53 +159,52 @@ public class ValueFactoryImpl implements ValueFactory {
     try {
       return new StringValue(value);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Cannot create Value from String " + value, e);
       return null;
     }
 
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(long)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(long value) {
     try {
       return new LongValue(value);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Cannot create Value from long " + value, e);
       return null;
     }
 
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(double)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(double value) {
     try {
       return new DoubleValue(value);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Cannot create Value from double " + value, e);
       return null;
     }
-
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(boolean)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(boolean value) {
     try {
       return new BooleanValue(value);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Cannot create Value from boolean " + value, e);
       return null;
     }
 
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(java.util.Calendar)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(Calendar value) {
     if (value == null)
@@ -208,13 +212,13 @@ public class ValueFactoryImpl implements ValueFactory {
     try {
       return new DateValue(value);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Cannot create Value from Calendar " + value, e);
       return null;
     }
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(java.io.InputStream)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(InputStream value) {
     if (value == null)
@@ -222,13 +226,13 @@ public class ValueFactoryImpl implements ValueFactory {
     try {
       return new BinaryValue(value, fileCleaner, tempDirectory, maxBufferSize);
     } catch (IOException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
+      LOG.warn("Cannot create Value from InputStream " + value, e);
+      return null;
     }
   }
 
-  /*
-   * @see javax.jcr.ValueFactory#createValue(javax.jcr.Node)
+  /**
+   * {@inheritDoc}
    */
   public Value createValue(Node value) throws RepositoryException {
     if (value == null)
@@ -243,17 +247,20 @@ public class ValueFactoryImpl implements ValueFactory {
         throw new RepositoryException("Its need a NodeImpl instance of Node");
       }
     } catch (IOException e) {
-      e.printStackTrace();
-      return null;
+      throw new RepositoryException("Cannot create REFERENE Value from Node", e);
     }
   }
 
   // /////////////////////////
 
   /**
+   * Create Value from JCRName.
+   * 
    * @param value
-   * @return new NameValue
+   *          JCRName
+   * @return Value
    * @throws RepositoryException
+   *           if error
    */
   public Value createValue(JCRName value) throws RepositoryException {
     if (value == null)
@@ -261,15 +268,18 @@ public class ValueFactoryImpl implements ValueFactory {
     try {
       return new NameValue(value.getInternalName(), locationFactory);
     } catch (IOException e) {
-      e.printStackTrace();
-      return null;
+      throw new RepositoryException("Cannot create NAME Value from JCRName", e);
     }
   }
 
   /**
+   * Create Value from JCRPath.
+   * 
    * @param value
-   * @return new PathValue
+   *          JCRPath
+   * @return Value
    * @throws RepositoryException
+   *           if error
    */
   public Value createValue(JCRPath value) throws RepositoryException {
     if (value == null)
@@ -277,14 +287,16 @@ public class ValueFactoryImpl implements ValueFactory {
     try {
       return new PathValue(value.getInternalPath(), locationFactory);
     } catch (IOException e) {
-      e.printStackTrace();
-      return null;
+      throw new RepositoryException("Cannot create PATH Value from JCRPath", e);
     }
   }
 
   /**
+   * Create Value from Id.
+   * 
    * @param value
-   * @return NEW ReferenceValue
+   *          Identifier
+   * @return Value Reference
    */
   public Value createValue(Identifier value) {
     if (value == null)
@@ -292,19 +304,21 @@ public class ValueFactoryImpl implements ValueFactory {
     try {
       return new ReferenceValue(value);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Cannot create REFERENCE Value from Identifier " + value, e);
       return null;
     }
-
   }
 
   /**
    * Creates new Value object using ValueData
    * 
    * @param data
+   *          TransientValueData
    * @param type
-   * @return new Value
+   *          int
+   * @return Value
    * @throws RepositoryException
+   *           if error
    */
   public Value loadValue(TransientValueData data, int type) throws RepositoryException {
 

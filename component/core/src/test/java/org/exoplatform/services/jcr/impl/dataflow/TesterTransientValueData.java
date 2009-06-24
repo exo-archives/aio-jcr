@@ -16,9 +16,8 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow;
 
+import java.io.IOException;
 import java.io.InputStream;
-
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -31,12 +30,12 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  */
 public class TesterTransientValueData extends TransientValueData {
 
-  public TransientValueData getTransientValueData(InputStream stream, int orderNumber) {
-    return new TransientValueData(stream, orderNumber);
+  public TransientValueData getTransientValueData(InputStream stream, int orderNumber) throws IOException {
+    return new TransientValueData(orderNumber, null, stream, null, null, -1, null, true);
   }
 
-  public TransientValueData getTransientValueData(byte[] data, int orderNumber) {
-    return new TransientValueData(data, orderNumber);
+  public TransientValueData getTransientValueData(byte[] data, int orderNumber) throws IOException {
+    return new TransientValueData(orderNumber, data, null, null, null, -1, null, true);
   }
 
 }

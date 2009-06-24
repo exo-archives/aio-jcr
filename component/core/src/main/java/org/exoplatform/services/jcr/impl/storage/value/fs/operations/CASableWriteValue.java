@@ -117,7 +117,6 @@ public class CASableWriteValue extends WriteValue {
     makePerformed();
 
     // write calc digest hash
-    // TODO optimize with NIO
     // we need hash at first to know do we have to store file or just use one
     // existing (with same hash)
     File temp = new File(tempDir, IdGenerator.generate() + "-" + propertyId + orderNumb
@@ -173,7 +172,7 @@ public class CASableWriteValue extends WriteValue {
                 + " can't be renamed to VCAS-named " + vcasFile.getAbsolutePath());
         } // else - CASed Value already exists
 
-        // set new spool file
+        // set new spool file as persisted
         if (value.isTransient() && !value.isByteArray())
           ((TransientValueData) value).setPersistedFile(vcasFile);
 

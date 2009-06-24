@@ -85,7 +85,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   /**
    * Convert String into bytes array using default encoding.
    */
-  static protected byte[] stringToBytes(final String value) {
+  protected static byte[] stringToBytes(final String value) {
     try {
       return value.getBytes(Constants.DEFAULT_ENCODING);
     } catch (UnsupportedEncodingException e) {
@@ -285,8 +285,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public byte[] getAsByteArray() throws IOException {
     if (data != null) {
       // TODO JCR-992 don't copy bytes
-      //byte[] bytes = new byte[data.length];
-      //System.arraycopy(data, 0, bytes, 0, data.length);
+      // byte[] bytes = new byte[data.length];
+      // System.arraycopy(data, 0, bytes, 0, data.length);
       return data;
     } else {
       spoolInputStream();
@@ -310,7 +310,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       } else {
         spoolInputStream();
         if (spoolFile != null) {
-          return new FileInputStream(spoolFile); // from spool file if
+          return new FileInputStream(spoolFile); // from spool file
         } else {
           throw new NullPointerException("Stream already consumed");
         }
@@ -366,12 +366,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     if (isByteArray()) {
       // bytes, make a copy of real data
       // TODO JCR-992 don't copy bytes
-      //byte[] newBytes = new byte[data.length];
-      //System.arraycopy(data, 0, newBytes, 0, newBytes.length);
+      // byte[] newBytes = new byte[data.length];
+      // System.arraycopy(data, 0, newBytes, 0, newBytes.length);
 
       try {
-        return new TransientValueData(orderNumber,
-                                      data, // TODO JCR-992 
+        return new TransientValueData(orderNumber, data, // TODO JCR-992
                                       null,
                                       null,
                                       fileCleaner,
@@ -401,7 +400,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
 
       try {
-        return new EditableValueData(newBytes, 
+        return new EditableValueData(newBytes,
                                      orderNumber,
                                      fileCleaner,
                                      maxBufferSize,
@@ -494,8 +493,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
 
   /**
-   * Set spool as persisted file. It's means ValueData has its data stored to a External Value Storage. And it's
-   * a file with the content which cannot be deleted or moved outside Value Storage.
+   * Set spool as persisted file. It's means ValueData has its data stored to a External Value
+   * Storage. And it's a file with the content which cannot be deleted or moved outside Value
+   * Storage.
    * 
    * @param persistedFile
    *          File
@@ -510,6 +510,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.spoolFile = persistedFile;
     this.deleteSpoolFile = false;
     this.spooled = true;
+    this.tmpStream = null;
     this.isTransient = false;
   }
 
@@ -579,7 +580,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
         } else
           return getSpoolFile().equals(other.getSpoolFile());
       } catch (IOException e) {
-        e.printStackTrace();
+        log.error("Read error", e);
         return false;
       }
     }
@@ -737,7 +738,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   /**
    * Delete current spool file.
    * 
-   * @throws IOException if error
+   * @throws IOException
+   *           if error
    */
   private void deleteCurrentSpoolFile() throws IOException {
     if (spoolChannel != null)
@@ -812,6 +814,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void setStream(InputStream in) {
     this.spooled = false;
     this.tmpStream = in;
+    this.spoolFile = null;
+    this.spoolChannel = null;
   }
 
   /**

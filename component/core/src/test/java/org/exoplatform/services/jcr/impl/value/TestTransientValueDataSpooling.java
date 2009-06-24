@@ -24,8 +24,10 @@ import java.io.FilenameFilter;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
@@ -48,17 +50,33 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest implement
 
   private TransactionChangesLog cLog;
 
-  private final File            tmpdir = new File(System.getProperty("java.io.tmpdir"));
+  private final File            tmpdir           = new File(System.getProperty("java.io.tmpdir"));
 
+  private boolean               haveValueStorage = false;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void setUp() throws Exception {
     super.setUp();
 
+    for (WorkspaceEntry we : repository.getConfiguration().getWorkspaceEntries()) {
+      if (we.getName().equals(root.getSession().getWorkspace().getName())) {
+        haveValueStorage = we.getContainer().getValueStorages() != null;
+        break;
+      }
+    }
+
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
                                                                            .getName());
-    CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
     dm.addItemPersistenceListener(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void tearDown() throws Exception {
     super.tearDown();
   }
@@ -69,7 +87,7 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest implement
    * @throws Exception
    */
   public void testNotSpooling() throws Exception {
-    File tmpFile = createBLOBTempFile(4048);
+    File tmpFile = createBLOBTempFile(250);
 
     int countBefore = tmpdir.list(new FilenameFilter() {
       public boolean accept(File dir, String name) {
@@ -87,7 +105,7 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest implement
       }
     }).length;
 
-    assertEquals(countBefore, countAfter);
+    assertEquals(countBefore + (haveValueStorage ? 0 : 1), countAfter);
   }
 
   /**
@@ -116,7 +134,7 @@ public class TestTransientValueDataSpooling extends BaseStandaloneTest implement
       }
     }).length;
 
-    assertEquals(countBefore, countAfter);
+    assertEquals(countBefore + (haveValueStorage ? 0 : 1), countAfter);
   }
 
   public void _testSerialization() throws Exception {
