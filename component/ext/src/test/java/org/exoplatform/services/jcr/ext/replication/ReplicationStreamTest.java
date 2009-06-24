@@ -102,7 +102,7 @@ public class ReplicationStreamTest extends BaseReplicationTest {
     srcParent.remove();
     session.save();
 
-    Thread.sleep(25 * 1000);
+    Thread.sleep(5 * 1000);
 
     try {
       Node destinationRemovablesNode = (Node) session2.getItem("/cms2/test/nnn");
@@ -110,7 +110,6 @@ public class ReplicationStreamTest extends BaseReplicationTest {
     } catch (PathNotFoundException pe) {
       // ok
     }
-
   }
 
   public void tearDown() throws Exception {

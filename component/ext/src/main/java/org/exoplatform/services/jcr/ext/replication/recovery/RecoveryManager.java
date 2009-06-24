@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.management.annotations.ManagedBy;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.ReplicationChannelManager;
@@ -190,10 +191,11 @@ public class RecoveryManager {
    *          the ChangesLog with data
    * @param identifier
    *          the identifier to ChangesLog
+   * @return String return the name of file
    * @throws IOException
    *           will be generated the IOException
    */
-  public void save(ItemStateChangesLog cangesLog, String identifier) throws IOException {
+  public String save(ItemStateChangesLog cangesLog, String identifier) throws IOException {
     timeStamp = Calendar.getInstance();
 
     PendingConfirmationChengesLog confirmationChengesLog = new PendingConfirmationChengesLog(cangesLog,
@@ -201,13 +203,18 @@ public class RecoveryManager {
                                                                                              identifier);
 
     mapPendingConfirmation.put(identifier, confirmationChengesLog);
+    
+    String fName = this.saveCLog(identifier);
 
     WaitConfirmation waitConfirmationThread = new WaitConfirmation(waitConfirmationTimeout,
                                                                    this,
                                                                    identifier);
     waitConfirmationThread.start();
+    
+    return fName;
   }
-
+  
+  
   /**
    * confirmationChengesLogSave.
    * 
@@ -267,9 +274,41 @@ public class RecoveryManager {
   public String save(String identifier) throws IOException {
     PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(identifier);
 
-    String fileName = recoveryWriter.save(confirmationChengesLog);
+    String fileName = recoveryWriter.saveDataInfo(confirmationChengesLog);
 
     return fileName;
+  }
+  
+  /**
+   * saveCLog.
+   * 
+   * @param identifier
+   *          the identifier of ChangesLog
+   * @return String return the name of file
+   * @throws IOException
+   *           will be generated the IOException
+   */
+  private String saveCLog(String identifier) throws IOException {
+    PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(identifier);
+
+    String fileName = recoveryWriter.saveDataFile(confirmationChengesLog.getTimeStamp(),
+                                          confirmationChengesLog.getIdentifier(),
+                                          (TransactionChangesLog) confirmationChengesLog.getChangesLog());
+    
+    confirmationChengesLog.setDataFilePath(fileName);
+
+    return fileName;
+  }
+  
+  /**
+   * removeDataFile.
+   *
+   * @param path
+   * @return File
+   *           path to data file.
+   */
+  public void removeDataFile(File f) {
+    recoveryWriter.removeDataFile(f);
   }
 
   /**

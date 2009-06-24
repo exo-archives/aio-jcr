@@ -54,6 +54,11 @@ public class PendingConfirmationChengesLog {
    * The identification string to PendingConfirmationChengesLog.
    */
   private String              identifier;
+  
+  /**
+   * The path to data file.
+   */
+  private String              dataFilePath;
 
   /**
    * PendingConfirmationChengesLog constructor.
@@ -168,4 +173,25 @@ public class PendingConfirmationChengesLog {
   public void setNotConfirmationList(List<String> notConfirmationList) {
     this.notConfirmationList = notConfirmationList;
   }
+
+  /**
+   * getDataFilePath.
+   *
+   * @return String
+   *           the path to data file.
+   */
+  public String getDataFilePath() {
+    return dataFilePath;
+  }
+
+  /**
+   * setDataFilePath.
+   *
+   * @param dataFilePath
+   *          String, path to data file.
+   */
+  public void setDataFilePath(String dataFilePath) {
+    this.dataFilePath = dataFilePath;
+  }
+  
 }

@@ -152,25 +152,16 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener {
    *           will be generated Exception
    */
   private String sendAsBinaryFile(ItemStateChangesLog isChangesLog) throws Exception {
-    TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
-
     // before save ChangesLog
     String identifier = IdGenerator.generate();
-    recoveryManager.save(isChangesLog, identifier);
+    String fName = recoveryManager.save(isChangesLog, identifier);
 
-    File f = File.createTempFile("cl_", ".tmp");
-
-    recoveryManager.getRecoveryWriter().save(f, changesLog);
-
-    channelManager.sendBinaryFile(f.getCanonicalPath(),
+    channelManager.sendBinaryFile(new File(fName).getCanonicalPath(),
                                   ownName,
                                   identifier,
                                   systemId,
                                   Packet.PacketType.BINARY_CHANGESLOG_PACKET);
-
-    if (!f.delete())
-      fileCleaner.addFile(f);
-
+    
     return identifier;
   }
 

@@ -172,7 +172,7 @@ public class ReplicationChannelManager extends ChannelManager {
     File f = new File(filePath);
     long packetCount = getPacketCount(f.length(), Packet.MAX_PACKET_SIZE);
 
-    InputStream in = new FileInputStream(f);
+    FileInputStream in = new FileInputStream(f);
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
@@ -221,8 +221,8 @@ public class ReplicationChannelManager extends ChannelManager {
 
       if (LOG.isDebugEnabled())
         LOG.debug("Send packet type [" + packetType + "] --> " + offset);
-    }
-
+    } 
+    
     in.close();
   }
 

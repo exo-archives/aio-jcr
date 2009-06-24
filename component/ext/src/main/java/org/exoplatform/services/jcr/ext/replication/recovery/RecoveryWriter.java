@@ -24,10 +24,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class RecoveryWriter extends AbstractFSAccess {
   /**
    * Definition the timeout to FileRemover.
    */
-  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;                       // 2 hours
+  private static final long REMOVER_TIMEOUT = 5 * 60 * 1000;
 
   /**
    * The FileCleaner will delete the temporary files.
@@ -122,26 +121,27 @@ public class RecoveryWriter extends AbstractFSAccess {
    * @throws IOException
    *           will be generated the IOException
    */
-  public String save(PendingConfirmationChengesLog confirmationChengesLog) throws IOException {
+  public String saveDataInfo(PendingConfirmationChengesLog confirmationChengesLog) throws IOException {
 
     if (confirmationChengesLog.getNotConfirmationList().size() > 0) {
-      String fileName = fileNameFactory.getTimeStampName(confirmationChengesLog.getTimeStamp())
-          + "_" + confirmationChengesLog.getIdentifier();
-
-      // create dir
-      File dir = new File(recoveryDirDate.getCanonicalPath() + File.separator
-          + fileNameFactory.getRandomSubPath());
-      dir.mkdirs();
-
-      File f = new File(dir.getCanonicalPath() + File.separator + File.separator + fileName);
-
-      // save data
-      this.save(f, (TransactionChangesLog) confirmationChengesLog.getChangesLog());
-
-      // ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
-
-      // writeExternal(objectOutputStream,
-      // (TransactionChangesLog) confirmationChengesLog.getChangesLog());
+      
+      File f = new File(confirmationChengesLog.getDataFilePath());
+      /*if (confirmationChengesLog.getDataFilePath() == null) {
+        String fileName = fileNameFactory.getTimeStampName(confirmationChengesLog.getTimeStamp())
+            + "_" + confirmationChengesLog.getIdentifier();
+  
+        // create dir
+        File dir = new File(recoveryDirDate.getCanonicalPath() + File.separator
+            + fileNameFactory.getRandomSubPath());
+        dir.mkdirs();
+  
+        f = new File(dir.getCanonicalPath() + File.separator + File.separator + fileName);
+        
+        // save data
+        this.save(f, (TransactionChangesLog) confirmationChengesLog.getChangesLog());
+      } else {
+        f = new File(confirmationChengesLog.getDataFilePath());
+      }*/
 
       // save info
       if (log.isDebugEnabled())
@@ -152,6 +152,38 @@ public class RecoveryWriter extends AbstractFSAccess {
       return f.getName();
     }
     return null;
+  }
+  
+  /**
+   * save.
+   *
+   * @param timeStamp
+   *          the time stamp to ChangesLog
+   * @param identifier
+   *          the identifier to ChangesLog
+   * @param tcLog
+   *          the ChangersLog
+   * @return String
+   *           the canonical path to serialized ChangrsLog
+   * @throws IOException
+   *           will be generated the IOException
+   */
+  public String saveDataFile(Calendar timeStamp, 
+                     String identifier, 
+                     TransactionChangesLog tcLog) throws IOException {
+    String fileName = fileNameFactory.getTimeStampName(timeStamp) + "_" + identifier;
+    
+    // create dir
+    File dir = new File(recoveryDirDate.getCanonicalPath() + File.separator
+        + fileNameFactory.getRandomSubPath());
+    dir.mkdirs();
+    
+    File f = new File(dir.getCanonicalPath() + File.separator + File.separator + fileName);
+    
+    // save data
+    this.save(f, (TransactionChangesLog) tcLog);
+    
+    return f.getCanonicalPath();
   }
 
   /**
@@ -171,7 +203,6 @@ public class RecoveryWriter extends AbstractFSAccess {
     TransactionChangesLogWriter wr = new TransactionChangesLogWriter();
     wr.write(out, changesLog);
 
-    // writeExternal(objectOutputStream, changesLog);
     out.flush();
     out.close();
     return f.getName();
@@ -201,86 +232,6 @@ public class RecoveryWriter extends AbstractFSAccess {
 
       raf.close();
     }
-  }
-
-  /**
-   * writeExternal.
-   * 
-   * @param out
-   *          the ObjectOutputStream to ChangesLog
-   * @param changesLog
-   *          the ChangesLog
-   * @throws IOException
-   *           will be generated the IOException
-   */
-  /* private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
-
-     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
-
-     if (pendingChangesLog.getConteinerType() == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
-
-       out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITH_STREAM);
-       out.writeObject(changesLog);
-
-       // Write FixupStream
-       List<FixupStream> listfs = pendingChangesLog.getFixupStreams();
-       out.writeInt(listfs.size());
-
-       for (int i = 0; i < listfs.size(); i++)
-         out.writeObject(listfs.get(i));
-
-       // write stream data
-       List<InputStream> listInputList = pendingChangesLog.getInputStreams();
-
-       // write file count
-       out.writeInt(listInputList.size());
-
-       for (int i = 0; i < listInputList.size(); i++) {
-         File tempFile = getAsFile(listInputList.get(i));
-         FileInputStream fis = new FileInputStream(tempFile);
-
-         // write file size
-         out.writeLong(tempFile.length());
-
-         // write file content
-         writeContent(fis, out);
-
-         fis.close();
-         fileCleaner.addFile(tempFile);
-       }
-
-       // restore changes log worlds
-
-     } else {
-       out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM);
-       out.writeObject(changesLog);
-     }
-
-     out.flush();
-   }*/
-
-  /**
-   * writeContent. Will be wrote the InputStream to ObjectOutputStream.
-   * 
-   * @param is
-   *          the InputStream
-   * @param oos
-   *          the ObjectOutputStream
-   * @throws IOException
-   *           will be generated the IOException
-   */
-  private void writeContent(InputStream is, ObjectOutputStream oos) throws IOException {
-    byte[] buf = new byte[BUFFER_1KB * BUFFER_8X];
-    int len;
-
-    int size = 0;
-
-    while ((len = is.read(buf)) > 0) {
-      oos.write(buf, 0, len);
-      size += len;
-    }
-
-    oos.flush();
   }
 
   /**
@@ -314,7 +265,7 @@ public class RecoveryWriter extends AbstractFSAccess {
           log.debug("remove changes log form fs : " + identifier);
         }
 
-        saveRemoveChangesLog((new File(fileName)).getName());
+        saveRemoveChangesLog((new File(fileName)).getCanonicalPath());
         break;
       }
 
@@ -375,14 +326,14 @@ public class RecoveryWriter extends AbstractFSAccess {
   /**
    * saveRemoveChangesLog. Save the file name for deleting.
    * 
-   * @param fileName
+   * @param filePath
    *          the file name
    * @throws IOException
    *           will be generated the IOException
    */
-  public void saveRemoveChangesLog(String fileName) throws IOException {
+  public void saveRemoveChangesLog(String filePath) throws IOException {
     if (log.isDebugEnabled())
-      log.debug("Seve removable changeslogs form fs : " + fileName);
+      log.debug("Seve removable changeslogs form fs : " + filePath);
 
     File removeDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + DATA_DIR_NAME
         + File.separator + IdGenerator.generate() + REMOVED_SUFFIX);
@@ -392,9 +343,9 @@ public class RecoveryWriter extends AbstractFSAccess {
     BufferedWriter bw = new BufferedWriter(new FileWriter(removeDataFile));
 
     if (log.isDebugEnabled())
-      log.debug("remove  : " + fileName);
+      log.debug("remove  : " + filePath);
 
-    bw.write(fileName + "\n");
+    bw.write(filePath + "\n");
     bw.flush();
     bw.close();
   }
@@ -429,6 +380,17 @@ public class RecoveryWriter extends AbstractFSAccess {
 
     bw.flush();
     bw.close();
+  }
+
+  /**
+   * removeDataFile.
+   *
+   * @param File
+   *          File, data file.
+   */
+  public void removeDataFile(File f) {
+    if (!f.delete())
+      fileCleaner.addFile(f);
   }
 }
 
@@ -514,25 +476,24 @@ class FileRemover extends Thread {
 
           HashMap<String, String> map = getAllPendingBinaryFilePath();
 
-          List<File> savedBinaryFileList = getAllSavedBinaryFile(recoveryDataDir);
-
-          for (File f : savedBinaryFileList)
-            if (needRemoveFilesName.contains(f.getName()) && !map.containsKey(f.getName())) {
+          for (String fPath : needRemoveFilesName) {
+            File f = new File(fPath);
+            if (f.exists() && !map.containsKey(f.getName())) {
               fileCleaner.addFile(f);
 
               if (log.isDebugEnabled())
                 log.debug("Remove file :" + f.getCanonicalPath());
             }
-
+          }
+          
           // remove *.remove files
-          if (savedBinaryFileList.size() == 0)
-            for (File f : fArray) {
-              fileCleaner.addFile(f);
+          if (map.size() == 0)
+            for (File ff : fArray) {
+              fileCleaner.addFile(ff);
 
               if (log.isDebugEnabled())
-                log.debug("Remove file :" + f.getCanonicalPath());
+                log.debug("Remove file :" + ff.getCanonicalPath());
             }
-
         }
       } catch (IOException e) {
         log.error("FileRemover error :", e);

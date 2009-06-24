@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,6 +93,7 @@ public class WaitConfirmation extends Thread {
 
       if (notConfirmationList.size() > 0) {
         confirmationChengesLog.setNotConfirmationList(notConfirmationList);
+
         String fileName = recoveryManager.save(identifier);
 
         if (log.isDebugEnabled())
@@ -99,6 +101,8 @@ public class WaitConfirmation extends Thread {
 
         for (String ownerName : confirmationChengesLog.getConfirmationList())
           recoveryManager.removeChangesLog(identifier, ownerName);
+      } else if (notConfirmationList.size() == 0 && confirmationChengesLog.getDataFilePath() != null) {
+        recoveryManager.removeDataFile(new File(confirmationChengesLog.getDataFilePath()));
       }
 
       if (log.isDebugEnabled())

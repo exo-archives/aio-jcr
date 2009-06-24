@@ -224,6 +224,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
       switch (packet.getPacketType()) {
 
       case Packet.PacketType.BINARY_CHANGESLOG_PACKET:
+        
         PendingBinaryFile container = mapPendingBinaryFile.get(packet.getIdentifier());
         if (container == null) {
           container = new PendingBinaryFile();
