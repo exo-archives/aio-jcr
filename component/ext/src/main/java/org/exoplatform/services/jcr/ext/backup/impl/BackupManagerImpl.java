@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -116,7 +117,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
   private String                     incrementalBackupType;
 
-  private final HashSet<BackupChain> currentBackups;
+  private final Set<BackupChain>     currentBackups;
 
   /**
    * The list of restore job.
@@ -275,7 +276,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
     this.registryService = registryService;
     this.initParams = initParams;
 
-    currentBackups = new HashSet<BackupChain>();
+    currentBackups = Collections.synchronizedSet(new HashSet<BackupChain>());
 
     fileCleaner = new FileCleaner(10000);
 
