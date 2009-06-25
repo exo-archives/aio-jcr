@@ -510,7 +510,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.spoolFile = persistedFile;
     this.deleteSpoolFile = false;
     this.spooled = true;
+    
     this.tmpStream = null;
+    this.data = null;
+    
     this.isTransient = false;
   }
 
@@ -607,14 +610,14 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       sf.acquire(this);
       sfout = new FileOutputStream(sf);
 
-      while ((read = tmpStream.read(tmpBuff)) >= 0) {
+      while ((read = tmpStream.read(tmpBuff)) >= 0)
         sfout.write(tmpBuff, 0, read);
-      }
 
+      this.spoolChannel = null;
       this.spoolFile = sf;
+      
       this.data = null;
       this.spooled = true;
-
     } catch (IOException e) {
       throw new IllegalStateException(e);
     } finally {
@@ -814,6 +817,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void setStream(InputStream in) {
     this.spooled = false;
     this.tmpStream = in;
+    
+    this.data = null;
+    
     this.spoolFile = null;
     this.spoolChannel = null;
   }

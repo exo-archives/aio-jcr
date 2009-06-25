@@ -117,22 +117,28 @@ public class ValueFileIOHelper {
         out.close();
       }
     } else {
-      File spoolFile;
-      if (tvalue.isTransient() && (spoolFile = tvalue.getSpoolFile()) != null) {
-        // if it's transient and spooled BLOB
-        if (!spoolFile.renameTo(file)) {
-          // not succeeded - write bytes
-          if (LOG.isDebugEnabled())
-            LOG.debug("Value spool file move (rename) to Values Storage is not succeeded. Trying bytes copy. Spool file: "
-                + spoolFile.getAbsolutePath() + ". Destination: " + file.getAbsolutePath());
+      if (tvalue.isTransient()) {
+        // transient Value
+        File spoolFile;
+        if ((spoolFile = tvalue.getSpoolFile()) != null) {
+          // it's spooled Value, try move its file to VS
+          if (!spoolFile.renameTo(file)) {
+            // not succeeded - copy bytes
+            if (LOG.isDebugEnabled())
+              LOG.debug("Value spool file move (rename) to Values Storage is not succeeded. Trying bytes copy. Spool file: "
+                  + spoolFile.getAbsolutePath() + ". Destination: " + file.getAbsolutePath());
 
-          copyClose(new FileInputStream(spoolFile), new FileOutputStream(file));
-        }
+            copyClose(new FileInputStream(spoolFile), new FileOutputStream(file));
+          }
+        } else
+          // not spooled, use InputStream
+          copyClose(tvalue.getAsStream(false), new FileOutputStream(file));
+
+        // map this transient Value to file in VS
         ((TransientValueData) value).setPersistedFile(file);
-      } else {
-        // not spooled, use InputStream
+      } else
+        // persisted Value returned from Session, use InputStream on file from VS
         copyClose(tvalue.getAsStream(false), new FileOutputStream(file));
-      }
     }
   }
 
