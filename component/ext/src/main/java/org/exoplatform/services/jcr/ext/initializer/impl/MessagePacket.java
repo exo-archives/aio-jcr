@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.initializer.impl;
 
-import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
 
 /**
  * Created by The eXo Platform SAS.

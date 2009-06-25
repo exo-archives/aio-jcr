@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**

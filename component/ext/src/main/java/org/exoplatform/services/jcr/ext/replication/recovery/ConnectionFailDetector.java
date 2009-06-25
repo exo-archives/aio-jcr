@@ -28,9 +28,9 @@ import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChe
 import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.GenericPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
-import org.exoplatform.services.jcr.ext.transport.ChannelManager;
-import org.exoplatform.services.jcr.ext.transport.StateEvent;
-import org.exoplatform.services.jcr.ext.transport.StateListener;
+import org.exoplatform.services.jcr.ext.replication.transport.ChannelManager;
+import org.exoplatform.services.jcr.ext.replication.transport.StateEvent;
+import org.exoplatform.services.jcr.ext.replication.transport.StateListener;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

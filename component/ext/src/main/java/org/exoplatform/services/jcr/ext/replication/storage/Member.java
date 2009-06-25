@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.storage;
 
-import org.exoplatform.services.jcr.ext.transport.MemberAddress;
+import org.exoplatform.services.jcr.ext.replication.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.

@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.Packet;
-import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
-import org.exoplatform.services.jcr.ext.transport.ChannelManager;
-import org.exoplatform.services.jcr.ext.transport.PacketListener;
-import org.exoplatform.services.jcr.ext.transport.MemberAddress;
+import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.transport.ChannelManager;
+import org.exoplatform.services.jcr.ext.replication.transport.MemberAddress;
+import org.exoplatform.services.jcr.ext.replication.transport.PacketListener;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 

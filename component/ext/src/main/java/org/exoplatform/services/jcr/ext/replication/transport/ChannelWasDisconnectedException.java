@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,26 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.transport;
+package org.exoplatform.services.jcr.ext.replication.transport;
 
+import java.io.IOException;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>
- * Date: 25.12.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: StateListener.java 31768 2009-05-14 09:35:43Z pnedonosko $
+ * <br/>Date: 19.05.2009
+ *
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: ChannelWasDisconnected.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public interface StateListener {
-
+public class ChannelWasDisconnectedException extends IOException {
+  
   /**
-   * Members connected state.
-   * 
-   * @param event
-   *          List of Member
+   * ChannelWasDisconnectedException  constructor.
+   *
+   * @param message
+   *          String, the message.
    */
-  void onStateChanged(StateEvent event);
+  public ChannelWasDisconnectedException(final String message) {
+    super(message);
+  }
 
 }
