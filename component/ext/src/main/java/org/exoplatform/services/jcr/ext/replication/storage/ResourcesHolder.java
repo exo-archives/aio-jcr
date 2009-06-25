@@ -32,6 +32,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class ResourcesHolder {
 
+  /**
+   * The queue of Closeable resources.
+   */
   private final Queue<Closeable> resources = new ConcurrentLinkedQueue<Closeable>();
 
   /**

@@ -42,9 +42,9 @@ public class ChangesFile implements Comparable<ChangesFile> {
    * systemId. The system identification String.
    */
   private final String     systemId;
-
+  
   /**
-   * Total packet count;
+   * totalPacketCount. The total packets.
    */
   private final long       totalPacketCount;
 
@@ -60,6 +60,8 @@ public class ChangesFile implements Comparable<ChangesFile> {
    *          the File object
    * @param systemId
    *          The system identification String
+   * @param totalPacketCount
+   *          the packet count.
    */
   public ChangesFile(File f, String systemId, long totalPacketCount) {
     this.file = f;

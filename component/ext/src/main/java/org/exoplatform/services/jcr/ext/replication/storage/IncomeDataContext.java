@@ -29,12 +29,24 @@ import java.io.IOException;
  * @version $Id: IncomeDataContext.java 111 2008-11-11 11:11:11Z serg $
  */
 public class IncomeDataContext {
+  /**
+   * The random changes file.
+   */
   private final RandomChangesFile changesFile;
 
+  /**
+   * The description to mamber.
+   */
   private final Member            member;
 
+  /**
+   * The total packets.
+   */
   private final long              totalPackets;
 
+  /**
+   * The saved packets.
+   */
   private long                    savedPackets;
 
   /**
@@ -54,14 +66,36 @@ public class IncomeDataContext {
     this.savedPackets = 0;
   }
 
+  /**
+   * getChangesFile.
+   *
+   * @return RandomChangesFile
+   *           return the random changes file
+   */
   public RandomChangesFile getChangesFile() {
     return changesFile;
   }
 
+  /**
+   * getMember.
+   *
+   * @return Member
+   *           return the member 
+   */
   public Member getMember() {
     return member;
   }
 
+  /**
+   * writeData.
+   *
+   * @param buf 
+   *          byte[], piece of data
+   * @param offset
+   *          long, offset for data
+   * @throws IOException
+   *           will be generated piece of data
+   */
   public void writeData(byte[] buf, long offset) throws IOException {
     changesFile.writeData(buf, offset);
     savedPackets++;
@@ -69,6 +103,12 @@ public class IncomeDataContext {
       changesFile.finishWrite();
   }
 
+  /**
+   * Check of all data saved.
+   *
+   * @return boolean
+   *           return boolean value of all data saved 
+   */
   public boolean isFinished() {
     return (savedPackets == totalPackets);
   }

@@ -44,17 +44,20 @@ public interface ChangesFile {
   void validate() throws InvalidChecksumException;
 
   /**
-   * getTimeStamp.
+   * getId.
    * 
-   * @return long return the time stamp to ChangesLog.
+   * @return long 
+   *           return the id to changes file.
    */
   long getId();
 
   /**
-   * Return
-   * 
+   * getInputStream.
+   *
    * @return InputStream
+   *           return the input stream
    * @throws IOException
+   *           will be generated IOException. 
    */
   InputStream getInputStream() throws IOException;
 
@@ -68,5 +71,11 @@ public interface ChangesFile {
    */
   boolean delete() throws IOException;
 
+  /**
+   * getLength.
+   *
+   * @return long
+   *           return the length of changes file 
+   */
   long getLength();
 }

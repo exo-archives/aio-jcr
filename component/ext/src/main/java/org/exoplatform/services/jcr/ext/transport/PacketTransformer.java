@@ -28,8 +28,15 @@ import java.io.ObjectOutputStream;
  * 
  * Created by The eXo Platform SAS Author : Karpenko Sergiy karpenko.sergiy@gmail.com
  */
-public class PacketTransformer {
-
+public final class PacketTransformer {
+  
+  /**
+   * PacketTransformer.
+   *
+   */
+   private PacketTransformer() {
+   } 
+  
   /**
    * Returns byte array representation of AsyncPacket.
    * 
@@ -67,4 +74,5 @@ public class PacketTransformer {
 
     return objRead;
   }
+  
 }

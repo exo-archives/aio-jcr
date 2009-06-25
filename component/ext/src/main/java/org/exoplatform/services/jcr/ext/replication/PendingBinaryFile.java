@@ -90,6 +90,10 @@ public class PendingBinaryFile {
    *          name of file
    * @param systemId
    *          String of system identification
+   * @param totalPacketCount
+   *          long, the total packets count
+   * @return ChangesFile
+   *           return the ChangesFile 
    * @throws IOException
    *           will be generated IOException
    */
@@ -102,7 +106,7 @@ public class PendingBinaryFile {
 
     HashMap<String, ChangesFile> fileMap;
 
-    if (mapFilePerOwner.containsKey(ownerName) == false) {
+    if (!mapFilePerOwner.containsKey(ownerName)) {
       fileMap = new HashMap<String, ChangesFile>();
       mapFilePerOwner.put(ownerName, fileMap);
     } else {

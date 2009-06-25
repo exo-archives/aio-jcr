@@ -42,6 +42,11 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    * The definition max priority value.
    */
   public static final int            MAX_PRIORITY  = 100;
+  
+  /**
+   * The wait timeout.
+   */
+  public static final int            WAIT_TIMEOUT  = 100;
 
   /**
    * The definition timeout for information.
@@ -217,7 +222,8 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   /**
    * getOtherPriorities.
    * 
-   * @return List<Integer> the list of priorities of other participants.
+   * @return List
+   *           the list of priorities of other participants.
    */
   public final List<Integer> getOtherPriorities() {
     return new ArrayList<Integer>(currentParticipants.values());
@@ -231,6 +237,6 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    */
   protected final void waitView() throws InterruptedException {
     while (channelManager.getChannel().getView() == null)
-      Thread.sleep(100);
+      Thread.sleep(WAIT_TIMEOUT);
   }
 }

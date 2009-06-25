@@ -207,7 +207,8 @@ public class RecoverySynchronizer {
    *          the Packet
    * @param status
    *          before status
-   * @return int after status
+   * @return int 
+   *           after status
    * @throws Exception
    *           will be generated the Exception
    */
@@ -506,6 +507,18 @@ public class RecoverySynchronizer {
     }
   }
 
+  /**
+   * getNormalizedChangesLog.
+   *
+   * @param collisionID
+   *          String, id of collision
+   * @param state
+   *          int, the state
+   * @param changesLog
+   *          TransactionChangesLog, the changes log
+   * @return TransactionChangesLog
+   *           return the normalized changes log
+   */
   private TransactionChangesLog getNormalizedChangesLog(String collisionID,
                                                         int state,
                                                         TransactionChangesLog changesLog) {
@@ -551,17 +564,41 @@ public class RecoverySynchronizer {
   }
 }
 
+/**
+ * Counter.
+ *
+ */
 class Counter {
+  
+  /**
+   * The count value.
+   */
   int count = 0;
 
+  /**
+   * inc.
+   *
+   * @return int
+   *           return the value of count
+   */
   public int inc() {
     return ++count;
   }
 
+  /**
+   * clear.
+   *
+   */
   public void clear() {
     count = 0;
   }
 
+  /**
+   * getValue.
+   *
+   * @return int
+   *           return the value of count 
+   */
   public int getValue() {
     return count;
   }

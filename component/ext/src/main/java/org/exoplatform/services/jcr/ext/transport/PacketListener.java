@@ -33,6 +33,8 @@ public interface PacketListener {
    * 
    * @param packet
    *          the Packet object.
+   * @param sourceAddress
+   *          MemberAddress, the source address 
    */
   void receive(AbstractPacket packet, MemberAddress sourceAddress);
 
@@ -40,6 +42,8 @@ public interface PacketListener {
    * onError.
    * 
    * @param sourceAddress
+   *          MemberAddress, the source address
+   * 
    */
   void onError(MemberAddress sourceAddress);
 }

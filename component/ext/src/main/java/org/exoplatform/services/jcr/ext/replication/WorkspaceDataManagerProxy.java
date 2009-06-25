@@ -78,11 +78,15 @@ public class WorkspaceDataManagerProxy implements ItemDataKeeper {
   /**
    * calls onSaveItems on all registered listeners.
    * 
-   * @throws RepositoryException
-   *           , UnsupportedOperationException, InvalidItemStateException
-   * 
    * @param changesLog
    *          the ChangesLog with data
+   *
+   * @throws InvalidItemStateException
+   *           will be generate the exception InvalidItemStateException           
+   * @throws UnsupportedOperationException
+   *           will be generate the exception UnsupportedOperationException
+   * @throws RepositoryException
+   *           will be generate the exception RepositoryException
    */
   public void save(ItemStateChangesLog changesLog) throws InvalidItemStateException,
                                                   UnsupportedOperationException,

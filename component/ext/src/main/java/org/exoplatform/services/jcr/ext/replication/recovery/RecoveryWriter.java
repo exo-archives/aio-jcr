@@ -126,23 +126,7 @@ public class RecoveryWriter extends AbstractFSAccess {
     if (confirmationChengesLog.getNotConfirmationList().size() > 0) {
       
       File f = new File(confirmationChengesLog.getDataFilePath());
-      /*if (confirmationChengesLog.getDataFilePath() == null) {
-        String fileName = fileNameFactory.getTimeStampName(confirmationChengesLog.getTimeStamp())
-            + "_" + confirmationChengesLog.getIdentifier();
-  
-        // create dir
-        File dir = new File(recoveryDirDate.getCanonicalPath() + File.separator
-            + fileNameFactory.getRandomSubPath());
-        dir.mkdirs();
-  
-        f = new File(dir.getCanonicalPath() + File.separator + File.separator + fileName);
-        
-        // save data
-        this.save(f, (TransactionChangesLog) confirmationChengesLog.getChangesLog());
-      } else {
-        f = new File(confirmationChengesLog.getDataFilePath());
-      }*/
-
+      
       // save info
       if (log.isDebugEnabled())
         log.debug("Write info : " + f.getAbsolutePath());
@@ -385,7 +369,7 @@ public class RecoveryWriter extends AbstractFSAccess {
   /**
    * removeDataFile.
    *
-   * @param File
+   * @param f
    *          File, data file.
    */
   public void removeDataFile(File f) {

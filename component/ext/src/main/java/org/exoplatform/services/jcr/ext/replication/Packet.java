@@ -260,6 +260,9 @@ public class Packet extends AbstractPacket implements Externalizable {
    */
   private List<String>    fileNameList     = new ArrayList<String>();
 
+  /**
+   * The total packets count.
+   */
   private long            totalPacketCount = 1;
 
   /**
@@ -336,6 +339,7 @@ public class Packet extends AbstractPacket implements Externalizable {
    * @param type
    *          packet type
    * @param systemId
+   *          the system id
    * @param identifier
    *          packet identifier
    * @param ownName
@@ -343,8 +347,11 @@ public class Packet extends AbstractPacket implements Externalizable {
    * @param fileName
    *          file name
    * @param totalPacketCount
+   *          total packets count
    * @param offset
+   *          offset in data file
    * @param data
+   *          piece of data
    */
   public Packet(int type,
                 String systemId,

@@ -20,7 +20,8 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * Created by The eXo Platform SAS.
+ *  Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
  * 09.01.2008
  */
 public interface BackupChain {
@@ -51,14 +52,14 @@ public interface BackupChain {
   String getLogFilePath();
   
   /**
-   * Add listener to all existing and will be created in future jobs
+   * Add listener to all existing and will be created in future jobs.
    * 
    * @param listener
    */
   void addListener(BackupJobListener listener);
 
   /**
-   * Remove listener from all existing and don't add it to a created in future jobs
+   * Remove listener from all existing and don't add it to a created in future jobs.
    * 
    * @param listener
    */

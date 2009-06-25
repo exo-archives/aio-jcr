@@ -40,6 +40,18 @@ public class GenericPriorityChecker extends AbstractPriorityChecker {
    */
   private static Log log = ExoLogger.getLogger("ext.GenericPriorityChecker");
 
+  /**
+   * GenericPriorityChecker  constructor.
+   *
+   * @param channelManager
+   *          ChannelManager, the channel manager
+   * @param ownPriority
+   *          the own priority
+   * @param ownName
+   *          the own name
+   * @param otherParticipants
+   *          the other participants
+   */
   public GenericPriorityChecker(ChannelManager channelManager,
                                 int ownPriority,
                                 String ownName,

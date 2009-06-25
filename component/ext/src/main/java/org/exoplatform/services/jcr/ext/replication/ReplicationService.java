@@ -47,7 +47,6 @@ import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.replication.recovery.ConnectionFailDetector;
 import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.ext.replication.recovery.backup.BackupCreator;
-import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.serialization.ReaderSpoolFileHolder;
@@ -79,6 +78,9 @@ public class ReplicationService implements Startable, ManagementAware {
    */
   private static Log          log                   = ExoLogger.getLogger("ext.ReplicationService");
 
+  /**
+   * The service name.
+   */
   private static final String SERVICE_NAME          = "Replication";
 
   /**
@@ -482,11 +484,14 @@ public class ReplicationService implements Startable, ManagementAware {
   }
 
   /**
-   * Write parameters to RegistryService.
-   * 
-   * @param registryEntry
+   * Write parameters to RegistryService..
+   *
+   * @param sessionProvider
+   *          SessionProvider, the session provider
    * @throws ParserConfigurationException
+   *           will be generate the exception ParserConfigurationException
    * @throws RepositoryException
+   *           will be generate the exception RepositoryException 
    */
   private void writeParamsToRegistryService(SessionProvider sessionProvider) throws ParserConfigurationException,
                                                                             RepositoryException {
@@ -533,9 +538,10 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * Read parameters to RegistryService.
    * 
-   * @param registryEntry
+   * @param sessionProvider
+   *          SessionProvider, the session provider
    * @throws RepositoryException
-   * @throws RepositoryConfigurationException
+   *           will be generate the exception RepositoryException 
    */
   private void readParamsFromRegistryService(SessionProvider sessionProvider) throws RepositoryException {
     // initialize repositories
@@ -810,7 +816,7 @@ public class ReplicationService implements Startable, ManagementAware {
   /**
    * getInitialHosts.
    *
-   * @return List<String>
+   * @return List
    *           return list of initial hosts.
    */
   private List<String> getInitialHosts() {

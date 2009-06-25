@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -37,9 +36,10 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class RandomChangesFile implements ChangesFile {
 
+  /**
+   * The logger.
+   */
   protected static final Log    LOG     = ExoLogger.getLogger("ext.RandomChangesFile");
-
-  // private static final int OBJECT_OUT_HEADER_LEN = 4;
 
   /**
    * Checksum to file (set in constructor).
@@ -56,12 +56,24 @@ public class RandomChangesFile implements ChangesFile {
    */
   private final long            id;
 
+  /**
+   * The file with data.
+   */
   private final File            file;
 
+  /**
+   * The resources holder.
+   */
   private final ResourcesHolder resHolder;
 
+  /**
+   * The random access file.
+   */
   private RandomAccessFile      fileAccessor;
 
+  /**
+   * MessageDigest will be used for calculating MD5 checksum.
+   */
   private MessageDigest         digest;
 
   /**
@@ -71,10 +83,12 @@ public class RandomChangesFile implements ChangesFile {
    *          changes file
    * @param crc
    *          checksum
-   * @param timeStamp
-   *          time stamp
+   * @param id
+   *          the id to changes file
+   * @param resHolder
+   *          ResourcesHolde, the resources holder.
    * @throws NoSuchAlgorithmException
-   * @throws IOException
+   *           will be generated the exception NoSuchAlgorithmException
    */
   public RandomChangesFile(File file, byte[] crc, long id, ResourcesHolder resHolder) throws NoSuchAlgorithmException {
     this.crc = crc;
@@ -85,19 +99,14 @@ public class RandomChangesFile implements ChangesFile {
   }
 
   /**
-   * File checksum.
-   * 
-   * @return String return the check sum to file.
+   * {@inheritDoc}
    */
   public byte[] getChecksum() {
     return crc;
   }
 
   /**
-   * Return
-   * 
-   * @return InputStream
-   * @throws IOException
+   * {@inheritDoc}
    */
   public InputStream getInputStream() throws IOException {
     finishWrite();
@@ -108,53 +117,6 @@ public class RandomChangesFile implements ChangesFile {
   }
 
   /**
-   * NOTE! OutputStream will not be closed by resHandler.
-   */
-  @Deprecated
-  // TODO remove method
-  public OutputStream getOutputStream() throws IOException {
-    return new OutputStream() {
-
-      @Override
-      public void write(int b) throws IOException {
-        checkFileAccessor();
-        // LOG.info("write - b=" + b);
-        synchronized (fileAccessor) {
-          fileAccessor.write(b);
-          // trunc();
-        }
-      }
-
-      public void write(byte b[]) throws IOException {
-        checkFileAccessor();
-        // LOG.info("write - b[]=" + b + " (" + b.length + ")");
-        synchronized (fileAccessor) {
-          fileAccessor.write(b);
-          // trunc();
-        }
-      }
-
-      public void write(byte b[], int off, int len) throws IOException {
-        checkFileAccessor();
-        // LOG.info("write - b[]=" + b + " (" + b.length + "), off=" + off + ",
-        // len=" + len);
-        synchronized (fileAccessor) {
-          fileAccessor.write(b, off, len);
-          // trunc();
-        }
-      }
-
-      /*
-       * private void trunc() throws IOException { if (doTruncate) {
-       * fileAccessor.seek(file.length() - OBJECT_OUT_HEADER_LEN); doTruncate =
-       * false; // LOG.info("trunc - seek on " + (file.length() -
-       * OBJECT_OUT_HEADER_LEN)); } }
-       */
-
-    };
-  }
-
-  /**
    * Write data to file.
    * 
    * @param data
@@ -162,6 +124,7 @@ public class RandomChangesFile implements ChangesFile {
    * @param position
    *          to write
    * @throws IOException
+   *           will be generated the exception IOException 
    */
   public void writeData(byte[] data, long position) throws IOException {
     checkFileAccessor();
@@ -225,18 +188,30 @@ public class RandomChangesFile implements ChangesFile {
     return file.delete();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public long getId() {
     return id;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String toString() {
     return file.getAbsolutePath();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public long getLength() {
     return file.length();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void validate() throws InvalidChecksumException {
     if (crc == null || crc.length == 0) {
       throw new InvalidChecksumException("File checksum is null or empty.");

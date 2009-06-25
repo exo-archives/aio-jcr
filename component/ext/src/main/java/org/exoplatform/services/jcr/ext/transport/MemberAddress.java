@@ -37,6 +37,9 @@ import org.jgroups.Address;
  */
 public class MemberAddress implements Externalizable {
 
+  /**
+   * The JGroups address.
+   */
   private Address address;
 
   /**
@@ -52,7 +55,6 @@ public class MemberAddress implements Externalizable {
   /**
    * {@inheritDoc}
    */
-  @Override
   public boolean equals(Object obj) {
     if (obj instanceof MemberAddress)
       return this.address.equals(((MemberAddress) obj).address);
@@ -63,7 +65,6 @@ public class MemberAddress implements Externalizable {
   /**
    * {@inheritDoc}
    */
-  @Override
   public String toString() {
     return super.toString() + " [" + getAddress() + "]";
   }

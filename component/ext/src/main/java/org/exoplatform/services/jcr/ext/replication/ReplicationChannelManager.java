@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.transport.AbstractPacket;
@@ -61,8 +60,6 @@ public class ReplicationChannelManager extends ChannelManager {
    *          channel configuration
    * @param channelName
    *          name of channel
-   * @param confMembersCount
-   *          the how many members was configured
    */
   public ReplicationChannelManager(String channelConfig, String channelName) {
     super(channelConfig, channelName, 0);
@@ -226,6 +223,16 @@ public class ReplicationChannelManager extends ChannelManager {
     in.close();
   }
 
+  /**
+   * getPacketCount.
+   *
+   * @param contentLength
+   *          long, the content length
+   * @param packetSize
+   *          long, the packet size
+   * @return long
+   *           the total packets for this content 
+   */
   private long getPacketCount(long contentLength, long packetSize) {
     long count = contentLength / packetSize;
     count += ((count * packetSize - contentLength) != 0) ? 1 : 0;

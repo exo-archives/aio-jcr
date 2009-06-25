@@ -141,6 +141,12 @@ public class RecoveryManager {
    *          the workspace name
    * @param channelManager
    *          the ReplicationChannelManager
+   * @param fileCleaner
+   *          the file cleaner
+   * @param maxBufferSize
+   *          int, the max buffer size
+   * @param holder
+   *          ReaderSpoolFileHolder, the reader spool file holder 
    * @throws IOException
    *           will be generated the IOException
    */
@@ -303,9 +309,8 @@ public class RecoveryManager {
   /**
    * removeDataFile.
    *
-   * @param path
-   * @return File
-   *           path to data file.
+   * @param f
+   *         File, the file
    */
   public void removeDataFile(File f) {
     recoveryWriter.removeDataFile(f);
@@ -480,26 +485,62 @@ public class RecoveryManager {
     return participantsClusterList;
   }
 
+  /**
+   * isAllInited.
+   *
+   * @return boolean
+   *           return the all initialized flag 
+   */
   public boolean isAllInited() {
     return isAllInited;
   }
 
+  /**
+   * getInitedParticipantsClusterList.
+   *
+   * @return List
+   *           return list of initialized participants
+   */
   public List<String> getInitedParticipantsClusterList() {
     return initedParticipantsClusterList;
   }
 
+  /**
+   * getOwnName.
+   *
+   * @return String
+   *           return own name
+   */
   public String getOwnName() {
     return ownName;
   }
 
+  /**
+   * getWorkspaceName.
+   *
+   * @return String
+   *           return the workspace name
+   */
   public String getWorkspaceName() {
     return wsName;
   }
 
+  /**
+   * getRepositoryName.
+   *
+   * @return String 
+   *           return the repository name 
+   */
   public String getRepositoryName() {
     return repoName;
   }
 
+  /**
+   * getChannelManager.
+   *
+   * @return ChannelManager
+   *           return the channel manager
+   */
   public ChannelManager getChannelManager() {
     return channelManager;
   }

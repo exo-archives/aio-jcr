@@ -77,6 +77,10 @@ public class RecoveryReader extends AbstractFSAccess {
    *          the FileCleaner
    * @param recoveryDir
    *          the recoveryDir
+   * @param maxBufferSize
+   *          the max buffer size
+   * @param holder
+   *          ReaderSpoolFileHolder, the reader spool file holder 
    */
   public RecoveryReader(FileCleaner fileCleaner,
                         File recoveryDir,

@@ -67,8 +67,6 @@ public abstract class AbstractPacket implements Externalizable {
    * 
    * @param type
    *          packet type
-   * @param buf
-   *          binary data
    * @param priority
    *          the priority value of transmitters
    */
@@ -77,6 +75,10 @@ public abstract class AbstractPacket implements Externalizable {
     this.priority = priority;
   }
 
+  /**
+   * AbstractPacket  constructor.
+   *
+   */
   public AbstractPacket() {
     this.type = -1;
     this.priority = 0;
@@ -98,10 +100,22 @@ public abstract class AbstractPacket implements Externalizable {
     priority = in.readInt();
   }
 
+  /**
+   * getType.
+   *
+   * @return int
+   *           return the packet type
+   */
   public int getType() {
     return type;
   }
 
+  /**
+   * getTransmitterPriority.
+   *
+   * @return int
+   *           return the transmitter priority
+   */
   public int getTransmitterPriority() {
     return priority;
   }

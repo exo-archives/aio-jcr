@@ -29,8 +29,14 @@ import org.exoplatform.services.jcr.ext.transport.MemberAddress;
  */
 public class Member {
 
+  /**
+   * Member address.
+   */
   private final MemberAddress address;
 
+  /**
+   * The priority of member.
+   */
   private final int           priority;
 
   /**
@@ -61,7 +67,6 @@ public class Member {
   /**
    * {@inheritDoc}
    */
-  @Override
   public boolean equals(Object obj) {
     if (obj instanceof Member)
       return this.address.equals(((Member) obj).address)
@@ -73,7 +78,6 @@ public class Member {
   /**
    * {@inheritDoc}
    */
-  @Override
   public String toString() {
     return super.toString() + " [" + getName() + "]";
   }
@@ -93,16 +97,5 @@ public class Member {
   public int getPriority() {
     return priority;
   }
-
-  // TODO
-  // public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-  // priority = in.readInt();
-  // address = (MemberAddress) in.readObject();
-  // }
-  //
-  // public void writeExternal(ObjectOutput out) throws IOException {
-  // out.writeInt(priority);
-  // out.writeObject(address);
-  // }
 
 }

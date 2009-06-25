@@ -31,7 +31,9 @@ public class PriorityDucplicatedException extends Exception {
    * PriorityDucplicatedException constructor.
    * 
    * @param message
+   *          String, the exception message
    * @param cause
+   *          Throwable, the base cause
    */
   public PriorityDucplicatedException(String message, Throwable cause) {
     super(message, cause);
@@ -41,6 +43,7 @@ public class PriorityDucplicatedException extends Exception {
    * PriorityDucplicatedException constructor.
    * 
    * @param message
+   *          String, the exception message
    */
   public PriorityDucplicatedException(String message) {
     super(message);

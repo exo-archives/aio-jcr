@@ -29,13 +29,30 @@ import java.io.IOException;
  */
 public class StorageIOException extends IOException {
 
+  /**
+   * The base cause exception.
+   */
   protected final Throwable cause;
 
+  /**
+   * StorageIOException  constructor.
+   *
+   * @param message
+   *          String, the exception message
+   */
   public StorageIOException(String message) {
     super(message);
     this.cause = null;
   }
 
+  /**
+   * StorageIOException  constructor.
+   *
+   * @param message
+   *          String, the exception message
+   * @param cause
+   *          Throwable, the cause exception
+   */
   public StorageIOException(String message, Throwable cause) {
     super(message);
     this.cause = cause;
@@ -44,7 +61,6 @@ public class StorageIOException extends IOException {
   /**
    * {@inheritDoc}
    */
-  @Override
   public Throwable getCause() {
     return cause;
   }

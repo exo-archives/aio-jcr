@@ -30,8 +30,14 @@ import java.util.List;
  */
 public class StateEvent {
 
+  /**
+   * The current members.
+   */
   private final List<MemberAddress> members;
 
+  /**
+   * The local member.
+   */
   private final MemberAddress       localMember;
 
   /**
@@ -41,15 +47,35 @@ public class StateEvent {
     return members;
   }
 
+  /**
+   * StateEvent  constructor.
+   *
+   * @param localMember
+   *          MemberAddress, the local member
+   * @param members
+   *          List, the memebrs
+   */
   public StateEvent(MemberAddress localMember, List<MemberAddress> members) {
     this.members = members;
     this.localMember = localMember;
   }
 
+  /**
+   * getLocalMember.
+   *
+   * @return MemberAddress
+   *           return the local member
+   */
   public MemberAddress getLocalMember() {
     return localMember;
   }
 
+  /**
+   * isCoordinator.
+   *
+   * @return boolean
+   *           return 'true' when local member is coordinator.  
+   */
   public boolean isCoordinator() {
     return members.get(0).getAddress().equals(localMember.getAddress());
   }

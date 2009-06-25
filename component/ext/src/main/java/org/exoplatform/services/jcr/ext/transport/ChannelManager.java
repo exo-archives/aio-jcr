@@ -123,17 +123,39 @@ public class ChannelManager implements RequestHandler, MembershipListener {
    */
   private CountDownLatch                 latch;
   
+  /**
+   * MemberPacket.
+   *
+   */
   class MemberPacket {
+    /**
+     * packet.
+     */
     final AbstractPacket packet;
 
+    /**
+     * member.
+     */
     final MemberAddress  member;
 
+    /**
+     * MemberPacket  constructor.
+     *
+     * @param packet
+     *          AbstractPacket, the packet
+     * @param member
+     *          MemebrAddress, the member address
+     */
     MemberPacket(AbstractPacket packet, MemberAddress member) {
       this.packet = packet;
       this.member = member;
     }
   }
 
+  /**
+   * PacketHandler.
+   *
+   */
   protected class PacketHandler extends Thread {
 
     /**
@@ -287,7 +309,7 @@ public class ChannelManager implements RequestHandler, MembershipListener {
   /**
    * closeChannel. Close the channel.
    */
-  synchronized public void disconnect() {
+  public synchronized void disconnect() {
     this.state = DISCONNECTED;
 
     if (dispatcher != null) {
@@ -358,6 +380,12 @@ public class ChannelManager implements RequestHandler, MembershipListener {
     this.stateListeners.add(listener);
   }
 
+  /**
+   * Remove SatateListener.
+   *
+   * @param listener
+   *          StateListener
+   */
   public void removeStateListener(StateListener listener) {
     this.stateListeners.remove(listener);
   }
@@ -372,6 +400,12 @@ public class ChannelManager implements RequestHandler, MembershipListener {
     this.connectionListeners.add(listener);
   }
 
+  /**
+   * Remove connection listener.
+   *
+   * @param listener
+   *          ConnectionListener
+   */
   public void removeConnectionListener(ConnectionListener listener) {
     this.connectionListeners.remove(listener);
   }
@@ -388,7 +422,7 @@ public class ChannelManager implements RequestHandler, MembershipListener {
   /**
    * getOtherMembers.
    * 
-   * @return List<Member> list of other members.
+   * @return List list of other members.
    */
   public List<MemberAddress> getOtherMembers() {
     List<Address> list = new ArrayList<Address>(channel.getView().getMembers());
@@ -407,9 +441,9 @@ public class ChannelManager implements RequestHandler, MembershipListener {
    * 
    * @param packet
    *          the Packet with content
-   * @param destinationAddresses
+   * @param destinations
    *          the destination addresses
-   * @throws Exception
+   * @throws IOException
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet, MemberAddress... destinations) throws IOException {
@@ -461,7 +495,7 @@ public class ChannelManager implements RequestHandler, MembershipListener {
    * 
    * @param packet
    *          the Packet with contents
-   * @throws Exception
+   * @throws IOException
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {

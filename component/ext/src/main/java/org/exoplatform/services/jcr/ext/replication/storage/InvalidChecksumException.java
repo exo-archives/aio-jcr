@@ -27,6 +27,12 @@ package org.exoplatform.services.jcr.ext.replication.storage;
  */
 public class InvalidChecksumException extends StorageIOException {
 
+  /**
+   * InvalidChecksumException  constructor.
+   *
+   * @param message
+   *          String, the message to exception  
+   */
   public InvalidChecksumException(String message) {
     super(message);
   }

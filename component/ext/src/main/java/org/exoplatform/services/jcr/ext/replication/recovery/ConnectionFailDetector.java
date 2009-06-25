@@ -27,17 +27,11 @@ import org.exoplatform.services.jcr.ext.replication.ReplicationService;
 import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.GenericPriorityChecker;
-import org.exoplatform.services.jcr.ext.replication.priority.MemberListener;
 import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
 import org.exoplatform.services.jcr.ext.transport.ChannelManager;
 import org.exoplatform.services.jcr.ext.transport.StateEvent;
 import org.exoplatform.services.jcr.ext.transport.StateListener;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.Address;
-import org.jgroups.Channel;
-import org.jgroups.ChannelListener;
-import org.jgroups.MembershipListener;
-import org.jgroups.View;
 
 /**
  * Created by The eXo Platform SAS.
@@ -46,7 +40,7 @@ import org.jgroups.View;
  * @version $Id: ConectionFailDetector.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 
-public class ConnectionFailDetector implements StateListener{
+public class ConnectionFailDetector implements StateListener {
   /**
    * The apache logger.
    */
@@ -208,16 +202,26 @@ public class ConnectionFailDetector implements StateListener{
     viewChecker.putView(event);
   }
 
-  private void viewAccepted(int viewSise) throws InterruptedException, PriorityDucplicatedException {
+  /**
+   * viewAccepted.
+   *
+   * @param viewSize
+   *          int, the view size
+   * @throws InterruptedException
+   *           will be generated the exception InterruptedException  
+   * @throws PriorityDucplicatedException
+   *           will be generated the exception PriorityDucplicatedException 
+   */
+  private void viewAccepted(int viewSize) throws InterruptedException, PriorityDucplicatedException {
     priorityChecker.informAll();
 
     Thread.sleep(INFORM_TIMOUT);
     
-    if (viewSise > 1)
+    if (viewSize > 1)
       allInited = true;
 
     if (allInited == true)
-      lastViewSize = viewSise;
+      lastViewSize = viewSize;
 
     if (priorityChecker.hasDuplicatePriority()) {
       log.info(workspaceName + " set read-only");
@@ -287,8 +291,17 @@ public class ConnectionFailDetector implements StateListener{
    * 
    */
   private class ViewChecker extends Thread {
+    /**
+     * The view queue.
+     */
     private final ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<Integer>();
 
+    /**
+     * putView.
+     *
+     * @param event
+     *          StateEvent, the event
+     */
     public void putView(StateEvent event) {
       queue.offer(event.getMembers().size());
     }
