@@ -70,8 +70,10 @@ public class GroupImpl implements Group {
    * 
    * @param name
    *          The name of the group
-   * @param parendId
-   *          The parentId of the group * @param UUId The group's UUId in the storage
+   * @param parentId
+   *          The parentId of the group
+   * @param UUId
+   *          The group's UUId in the storage
    */
   GroupImpl(String name, String parentId, String UUId) {
     this.groupName = name;

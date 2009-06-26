@@ -43,8 +43,8 @@ public class UserByGroupJCRUserListAccess extends JCRUserListAccess {
    * 
    * @param service
    *          The JCROrganizationService
-   * @param query
-   *          The sting query
+   * @param groupId
+   *          The group identifier
    */
   public UserByGroupJCRUserListAccess(JCROrganizationServiceImpl service, String groupId) {
     super(service);

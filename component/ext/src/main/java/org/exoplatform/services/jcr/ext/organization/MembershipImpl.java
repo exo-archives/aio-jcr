@@ -57,6 +57,8 @@ public class MembershipImpl implements Membership {
   /**
    * MembershipImpl constructor.
    * 
+   * @param id
+   *          The membership record identifier
    * @param userName
    *          The user name
    * @param groupId

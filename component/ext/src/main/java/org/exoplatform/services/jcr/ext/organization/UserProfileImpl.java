@@ -95,6 +95,9 @@ public class UserProfileImpl implements UserProfile {
   /**
    * Set user name
    * 
+   * @param username
+   *          user name
+   * 
    *@deprecated The third party developer should not used this method. We should pass the username
    *             to the @see UserProfileHandler.createUserInstance() and set the username for the
    *             instance once only.

@@ -138,7 +138,7 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   /**
    * JCROrganizationServiceImpl constructor.
    * 
-   * @param params
+   * @param initParams
    *          The initialization parameters
    * @param repositoryService
    *          The repository service
@@ -230,10 +230,11 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   }
 
   /**
-   * Return org-sergvice actual storage path.
+   * Return org-service actual storage path.
    * 
-   * @return
+   * @return org-service storage path
    * @throws RepositoryException
+   *           if any Exception is occurred
    */
   String getStoragePath() throws RepositoryException {
     if (storagePath == null) {
@@ -246,8 +247,9 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   /**
    * Return system Session to org-service storage workspace. For internal use only.
    * 
-   * @return
+   * @return system session
    * @throws RepositoryException
+   *           if any Exception is occurred
    */
   Session getStorageSession() throws RepositoryException {
     try {
@@ -264,7 +266,7 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
    * @param sessionProvider
    *          The SessionProvider
    * @throws RepositoryException
-   * @throws PathNotFoundException
+   *           if any Exception is occurred
    */
   private void readParamsFromRegistryService(SessionProvider sessionProvider) throws PathNotFoundException,
                                                                              RepositoryException {

@@ -44,6 +44,8 @@ public class UserByQueryJCRUserListAccess extends JCRUserListAccess {
    * 
    * @param service
    *          The JCROrganizationService
+   * @param query
+   *          The query
    */
   public UserByQueryJCRUserListAccess(JCROrganizationServiceImpl service,
                                       org.exoplatform.services.organization.Query query) {
@@ -152,13 +154,6 @@ public class UserByQueryJCRUserListAccess extends JCRUserListAccess {
     }
   }
 
-  /**
-   * isNameLike.
-   * 
-   * @param userName
-   * @param queryName
-   * @return
-   */
   private boolean isNameLike(String userName, String queryName) {
     boolean startWith = false;
     boolean endWith = false;
