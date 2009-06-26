@@ -29,29 +29,25 @@ import org.exoplatform.services.transaction.TransactionException;
 /**
  * Created by The eXo Platform SAS.
  * <p/>
- * Manager provides consistency of transaction operations performed by same user
- * but in different Repository Sessions.
+ * Manager provides consistency of transaction operations performed by same user but in different
+ * Repository Sessions.
  * <p/>
- * Manager stores list of XASessions involved in transaction by a user and then
- * can be used to broadcast transaction start/commit/rollback to all live
- * Sessions of the user.
+ * Manager stores list of XASessions involved in transaction by a user and then can be used to
+ * broadcast transaction start/commit/rollback to all live Sessions of the user.
  * <p/>
- * Broadcast of operations it's an atomic operation regarding to the Sessions
- * list. Until operation broadcast request is active other requests or list
- * modifications will wait for.
+ * Broadcast of operations it's an atomic operation regarding to the Sessions list. Until operation
+ * broadcast request is active other requests or list modifications will wait for.
  * <p/>
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
- * @version $Id: TransactionableResourceManager.java 30993 2009-04-15 11:08:55Z
- *          pnedonosko $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
 public class TransactionableResourceManager {
 
   /**
    * XASessions involved in transaction. Sessions stored by userId.
    */
-  private Map<String, List<SoftReference<XASessionImpl>>> txManagers = new HashMap<String, List<SoftReference<XASessionImpl>>>(); // TransactionableDataManager
+  private Map<String, List<SoftReference<XASessionImpl>>> txManagers = new HashMap<String, List<SoftReference<XASessionImpl>>>();
 
   /**
    * TransactionableResourceManager constructor.
@@ -62,7 +58,8 @@ public class TransactionableResourceManager {
   /**
    * Add session to the transaction group.
    * 
-   * @param userSession user XASession
+   * @param userSession
+   *          XASessionImpl, user XASession
    */
   synchronized public void add(XASessionImpl userSession) {
     final List<SoftReference<XASessionImpl>> joinedList = txManagers.get(userSession.getUserID());
@@ -96,7 +93,8 @@ public class TransactionableResourceManager {
   /**
    * Remove session from user Sessions list.
    * 
-   * @param userSession user XASession
+   * @param userSession
+   *          XASessionImpl, user XASession
    */
   synchronized public void remove(XASessionImpl userSession) {
     final List<SoftReference<XASessionImpl>> joinedList = txManagers.get(userSession.getUserID());
@@ -119,8 +117,10 @@ public class TransactionableResourceManager {
   /**
    * Commit all sessions.
    * 
-   * @param userSession commit initializing session
-   * @throws TransactionException Transaction error
+   * @param userSession
+   *          XASessionImpl, commit initializing session
+   * @throws TransactionException
+   *           Transaction error
    */
   synchronized public void commit(XASessionImpl userSession) throws TransactionException {
     List<SoftReference<XASessionImpl>> joinedList = txManagers.remove(userSession.getUserID());
@@ -138,7 +138,8 @@ public class TransactionableResourceManager {
   /**
    * Start transaction on all sessions.
    * 
-   * @param userSession start initializing session
+   * @param userSession
+   *          XASessionImpl, start initializing session
    */
   synchronized public void start(XASessionImpl userSession) {
     List<SoftReference<XASessionImpl>> joinedList = txManagers.get(userSession.getUserID());
@@ -156,7 +157,8 @@ public class TransactionableResourceManager {
   /**
    * Rollback transaction on all sessions.
    * 
-   * @param userSession rollback initializing session
+   * @param userSession
+   *          XASessionImpl, rollback initializing session
    */
   synchronized public void rollback(XASessionImpl userSession) {
     List<SoftReference<XASessionImpl>> joinedList = txManagers.remove(userSession.getUserID());
@@ -178,7 +180,6 @@ public class TransactionableResourceManager {
     } else {
       return txManagers.get(key);
     }
-
   }
 
 }
