@@ -283,13 +283,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * {@inheritDoc}
    */
   public byte[] getAsByteArray() throws IOException {
-    if (data != null) {
+    if (isByteArrayAfterSpool()) {
       // TODO JCR-992 don't copy bytes
       // byte[] bytes = new byte[data.length];
       // System.arraycopy(data, 0, bytes, 0, data.length);
       return data;
     } else {
-      spoolInputStream();
       return fileToByteArray();
     }
   }
@@ -305,10 +304,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    */
   public InputStream getAsStream(boolean needSpool) throws IOException {
     if (needSpool) {
-      if (data != null) {
+      if (isByteArrayAfterSpool()) {
         return new ByteArrayInputStream(data); // from bytes
       } else {
-        spoolInputStream();
         if (spoolFile != null) {
           return new FileInputStream(spoolFile); // from spool file
         } else {
@@ -339,15 +337,14 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * {@inheritDoc}
    */
   public long getLength() {
-    if (data == null) {
-      spoolInputStream();
-      if (log.isDebugEnabled())
-        log.debug("getLength spoolFile : " + spoolFile.length());
-      return spoolFile.length();
-    } else {
+    if (isByteArrayAfterSpool()) {
       if (log.isDebugEnabled())
         log.debug("getLength data : " + data.length);
       return data.length;
+    } else {
+      if (log.isDebugEnabled())
+        log.debug("getLength spoolFile : " + spoolFile.length());
+      return spoolFile.length();
     }
   }
 
@@ -394,7 +391,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    *           if error occurs
    */
   public EditableValueData createEditableCopy() throws RepositoryException {
-    if (isByteArray()) {
+    if (isByteArrayAfterSpool()) {
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
@@ -410,8 +407,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       }
     } else {
       // edited BLOB file, make a copy
-      spoolInputStream();
-
       try {
         EditableValueData copy = new EditableValueData(spoolFile,
                                                        orderNumber,
@@ -449,7 +444,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     if (length < 0)
       throw new IOException("Length must be higher or equals 0. But given " + length);
 
-    if (isByteArray()) {
+    if (isByteArrayAfterSpool()) {
       // validation
       if (position >= data.length && position > 0)
         throw new IOException("Position " + position + " out of value size " + data.length);
@@ -461,8 +456,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       return length;
     } else {
-      spoolInputStream();
-
       if (spoolChannel == null)
         spoolChannel = new FileInputStream(spoolFile).getChannel();
 
@@ -510,10 +503,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.spoolFile = persistedFile;
     this.deleteSpoolFile = false;
     this.spooled = true;
-    
+
     this.tmpStream = null;
     this.data = null;
-    
+
     this.isTransient = false;
   }
 
@@ -593,10 +586,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   // ///////////////////////////////////
 
   /**
-   * Spool ValueData temp InputStream to a temp File.
-   * 
+   * Spool ValueData InputStream to a temp File.
    */
-  protected void spoolInputStream() {
+  protected void spoolInputStreamAlways() {
 
     if (spooled || tmpStream == null) // already spooled
       return;
@@ -615,7 +607,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       this.spoolChannel = null;
       this.spoolFile = sf;
-      
+
       this.data = null;
       this.spooled = true;
     } catch (IOException e) {
@@ -638,8 +630,23 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
   }
 
-  @Deprecated
-  private void spoolInputStreamOld() {
+  /**
+   * Tell is this Value backed by bytes array before or after spooling.
+   */
+  protected boolean isByteArrayAfterSpool() {
+    if (data != null) {
+      return true;
+    } else {
+      spoolInputStream();
+
+      return data != null;
+    }
+  }
+
+  /**
+   * Spool ValueData temp InputStream to a temp File.
+   */
+  protected void spoolInputStream() {
 
     if (spooled || tmpStream == null) // already spooled
       return;
@@ -817,9 +824,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void setStream(InputStream in) {
     this.spooled = false;
     this.tmpStream = in;
-    
+
     this.data = null;
-    
+
     this.spoolFile = null;
     this.spoolChannel = null;
   }
