@@ -107,23 +107,37 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id: NodeImpl.java 14520 2008-05-20 13:42:15Z pnedonosko $
  */
-
 public class NodeImpl extends ItemImpl implements ExtendedNode {
 
+  /**
+   * Logger.
+   */
   protected static final Log      LOG = ExoLogger.getLogger("jcr.NodeImpl");
 
+  /**
+   * System LocationFactory.
+   */
   protected final LocationFactory sysLocFactory;
 
+  /**
+   * This Node NodeDefinition data.
+   */
   protected NodeDefinitionData    definition;
 
+  /**
+   * This Node NodeDefinition object.
+   */
   protected NodeDefinition        nodeDefinition;
 
   /**
    * NodeImpl constructor.
    * 
-   * @param data Node data
-   * @param session Session
-   * @throws RepositoryException if error occurs during the Node data loading
+   * @param data
+   *          Node data
+   * @param session
+   *          Session
+   * @throws RepositoryException
+   *           if error occurs during the Node data loading
    */
   public NodeImpl(NodeData data, SessionImpl session) throws RepositoryException {
     super(data, session);
@@ -132,7 +146,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Item#accept
+   * {@inheritDoc}
    */
   public void accept(ItemVisitor visitor) throws RepositoryException {
     checkValid();
@@ -141,7 +155,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#addMixin
+   * {@inheritDoc}
    */
   public void addMixin(String mixinName) throws NoSuchNodeTypeException,
                                         ConstraintViolationException,
@@ -194,7 +208,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#addNode
+   * {@inheritDoc}
    */
   public Node addNode(String relPath) throws PathNotFoundException,
                                      ConstraintViolationException,
@@ -246,7 +260,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#addNode
+   * {@inheritDoc}
    */
   public Node addNode(String relPath, String nodeTypeName) throws ItemExistsException,
                                                           PathNotFoundException,
@@ -318,9 +332,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Node#cancelMerge(javax.jcr.version.Version)
+  /**
+   * {@inheritDoc}
    */
   public void cancelMerge(Version version) throws VersionException,
                                           InvalidItemStateException,
@@ -339,14 +352,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * Tell if this node or its nearest versionable ancestor is checked-out.
    * 
-   * @return
+   * @return boolean
    * @throws UnsupportedRepositoryOperationException
+   *           if Versionable operations is not supported
    * @throws RepositoryException
+   *           if error occurs
    */
   public boolean checkedOut() throws UnsupportedRepositoryOperationException, RepositoryException {
-
-    // if (isRoot())
-    // return true;
 
     NodeData vancestor = getVersionableAncestor();
     if (vancestor != null) {
@@ -365,6 +377,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version checkin() throws VersionException,
                           UnsupportedRepositoryOperationException,
                           InvalidItemStateException,
@@ -414,6 +429,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return version;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void checkout() throws RepositoryException, UnsupportedRepositoryOperationException {
 
     checkValid();
@@ -442,11 +460,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     session.getActionHandler().postCheckout(this);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ExtendedNode#checkPermission(java.lang
-   * .String)
+  /**
+   * {@inheritDoc}
    */
   public void checkPermission(String actions) throws AccessControlException, RepositoryException {
 
@@ -459,7 +474,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @return list with actual nodes, that stored in persisten storage
+   * Return child Nodes list.
+   * 
+   * @return List of child Nodes
+   * @throws RepositoryException
+   *           if error occurs
+   * @throws AccessDeniedException
+   *           if Nodes cannot be listed due to permissions on this Node
    */
   public List<NodeImpl> childNodes() throws RepositoryException, AccessDeniedException {
 
@@ -469,7 +490,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @return list with actual nodes, that stored in persistent storage
+   * Return child Properties list.
+   * 
+   * @return List of child Properties
+   * @throws RepositoryException
+   *           if error occurs
+   * @throws AccessDeniedException
+   *           if Properties cannot be listed due to permissions on this Node
    */
   public List<PropertyImpl> childProperties() throws RepositoryException, AccessDeniedException {
 
@@ -479,9 +506,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Clears Access Control List
-   * 
-   * @see org.exoplatform.services.jcr.core.ExtendedNode#clearACL()
+   * {@inheritDoc}
    */
   public void clearACL() throws RepositoryException, AccessControlException {
 
@@ -500,6 +525,22 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     setACL(acl);
   }
 
+  /**
+   * Internal method to add mixin Nodetype to the Node.
+   * 
+   * @param type
+   *          NodeTypeData
+   * @throws NoSuchNodeTypeException
+   *           if requested Nodetype is not found
+   * @throws ConstraintViolationException
+   *           if add will brkoes any constrainst
+   * @throws VersionException
+   *           if this Node (or its ancestor) is checked-in.
+   * @throws LockException
+   *           if this Node (or its ancestor) is locked
+   * @throws RepositoryException
+   *           if any other error occurs
+   */
   public void doAddMixin(NodeTypeData type) throws NoSuchNodeTypeException,
                                            ConstraintViolationException,
                                            VersionException,
@@ -559,8 +600,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       dataManager.update(autoCreatedState, false);
     }
 
-    // addAutoCreatedItems(type.getName());
-
     // launch event
     session.getActionHandler().postAddMixin(this, type.getName());
 
@@ -569,9 +608,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           + mixinTypes.length);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Node#doneMerge(javax.jcr.version.Version)
+  /**
+   * {@inheritDoc}
    */
   public void doneMerge(Version version) throws VersionException,
                                         InvalidItemStateException,
@@ -612,9 +650,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Return a copy of ACL for this node for information purpose only.
-   * 
-   * @see org.exoplatform.services.jcr.core.ExtendedNode#getACL()
+   * {@inheritDoc}
    */
   public AccessControlList getACL() throws RepositoryException {
 
@@ -629,6 +665,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return new AccessControlList(nodeData().getACL().getOwner(), listEntry);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version getBaseVersion() throws UnsupportedRepositoryOperationException,
                                  RepositoryException {
 
@@ -648,8 +687,21 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
   }
 
+  /**
+   * Return Node corresponding to this Node. DEPRECATED.
+   * 
+   * @param correspSession
+   *          session on corresponding Workspace
+   * @return Node corresponding Node
+   * @throws ItemNotFoundException
+   *           if corresponding Node not found
+   * @throws AccessDeniedException
+   *           if read impossible due to permisions
+   * @throws RepositoryException
+   *           if any other error occurs
+   */
+  @Deprecated
   public Node getCorrespondingNode(SessionImpl correspSession) throws ItemNotFoundException,
-                                                              NoSuchWorkspaceException,
                                                               AccessDeniedException,
                                                               RepositoryException {
 
@@ -679,10 +731,22 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
   }
 
-  public NodeData getCorrespondingNodeData(SessionImpl corrSession) throws ItemNotFoundException,
-                                                                   NoSuchWorkspaceException,
-                                                                   AccessDeniedException,
-                                                                   RepositoryException {
+  /**
+   * Return Node corresponding to this Node.
+   * 
+   * @param correspSession
+   *          session on corresponding Workspace
+   * @return NodeData corresponding Node
+   * @throws ItemNotFoundException
+   *           if corresponding Node not found
+   * @throws AccessDeniedException
+   *           if read impossible due to permisions
+   * @throws RepositoryException
+   *           if any other error occurs
+   */
+  protected NodeData getCorrespondingNodeData(SessionImpl corrSession) throws ItemNotFoundException,
+                                                                      AccessDeniedException,
+                                                                      RepositoryException {
 
     final QPath myPath = nodeData().getQPath();
     final SessionDataManager corrDataManager = corrSession.getTransientNodesManager();
@@ -722,7 +786,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getCorrespondingNodePath
+   * {@inheritDoc}
    */
   public String getCorrespondingNodePath(String workspaceName) throws ItemNotFoundException,
                                                               NoSuchWorkspaceException,
@@ -733,8 +797,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     SessionImpl corrSession = ((RepositoryImpl) session.getRepository()).internalLogin(session.getUserState(),
                                                                                        workspaceName);
-    // .login(session.getCredentials(), workspaceName);
-
     return corrSession.getLocationFactory()
                       .createJCRPath(getCorrespondingNodeData(corrSession).getQPath())
                       .getAsString(false);
@@ -784,11 +846,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           rnts[j] = nodeTypeManager.findNodeType(rnames[j]);
         }
 
-        String name = locationFactory.createJCRName(definition.getName() != null ? definition.getName()
-                                                                                : Constants.JCR_ANY_NAME)
-                                     .getAsString();
-        NodeType defType = definition.getDefaultPrimaryType() != null ? nodeTypeManager.findNodeType(definition.getDefaultPrimaryType())
-                                                                     : null;
+        String name = locationFactory.createJCRName(definition.getName() != null
+            ? definition.getName()
+            : Constants.JCR_ANY_NAME).getAsString();
+        NodeType defType = definition.getDefaultPrimaryType() != null
+            ? nodeTypeManager.findNodeType(definition.getDefaultPrimaryType())
+            : null;
         NodeType declaringNodeType = nodeTypeManager.findNodeType(definition.getDeclaringNodeType());
         nodeDefinition = new NodeDefinitionImpl(name,
                                                 declaringNodeType,
@@ -803,13 +866,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     return nodeDefinition;
-
   }
 
-  // // -------------- Writting
-
   /**
-   * @see javax.jcr.Node#getIndex
+   * {@inheritDoc}
    */
   public int getIndex() throws RepositoryException {
 
@@ -818,9 +878,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return getInternalPath().getIndex();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Node#getLock()
+  /**
+   * {@inheritDoc}
    */
   public Lock getLock() throws UnsupportedRepositoryOperationException,
                        LockException,
@@ -837,13 +896,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getMixinNodeTypes
+   * {@inheritDoc}
    */
   public NodeType[] getMixinNodeTypes() throws RepositoryException {
 
     checkValid();
 
-    // TODO should not be null
+    // should not be null
     if (nodeData().getMixinTypeNames() == null)
       throw new RepositoryException("Data Container implementation error getMixinTypeNames == null");
 
@@ -857,6 +916,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return mixinNodeTypes;
   }
 
+  /**
+   * Return mixin Nodetype names.
+   * 
+   * @return String[]
+   * @throws RepositoryException
+   *           if error occurs
+   */
   public String[] getMixinTypeNames() throws RepositoryException {
     NodeType[] mixinTypes = getMixinNodeTypes();
     String[] mtNames = new String[mixinTypes.length];
@@ -865,18 +931,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return mtNames;
   }
 
-  public int getNextChildOrderNum(List<NodeData> siblings) {
-    int max = -1;
-    for (NodeData sibling : siblings) {
-      int cur = sibling.getOrderNumber();
-      if (cur > max)
-        max = cur;
-    }
-    return ++max;
-  }
-
   /**
-   * @see javax.jcr.Node#getNode
+   * {@inheritDoc}
    */
   public Node getNode(String relPath) throws PathNotFoundException, RepositoryException {
 
@@ -892,7 +948,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getNodes
+   * {@inheritDoc}
    */
   public NodeIterator getNodes() throws RepositoryException {
 
@@ -910,7 +966,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getNodes
+   * {@inheritDoc}
    */
   public NodeIterator getNodes(String namePattern) throws RepositoryException {
 
@@ -936,7 +992,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getPrimaryItem
+   * {@inheritDoc}
    */
   public Item getPrimaryItem() throws ItemNotFoundException, RepositoryException {
 
@@ -968,7 +1024,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getPrimaryNodeType
+   * {@inheritDoc}
    */
   public NodeType getPrimaryNodeType() throws RepositoryException {
 
@@ -979,7 +1035,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getProperties
+   * {@inheritDoc}
    */
   public PropertyIterator getProperties() throws RepositoryException {
 
@@ -998,7 +1054,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getProperties
+   * {@inheritDoc}
    */
   public PropertyIterator getProperties(String namePattern) throws RepositoryException {
 
@@ -1025,7 +1081,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getProperty
+   * {@inheritDoc}
    */
   public Property getProperty(String relPath) throws PathNotFoundException, RepositoryException {
 
@@ -1044,9 +1100,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Returns saved only references (allowed by specs)
-   * 
-   * @see javax.jcr.Node#getReferences
+   * {@inheritDoc}
    */
   public PropertyIterator getReferences() throws RepositoryException {
 
@@ -1056,7 +1110,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#getUUID
+   * {@inheritDoc}
    */
   public String getUUID() throws UnsupportedRepositoryOperationException, RepositoryException {
 
@@ -1071,12 +1125,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Get nearest versionable ancestor NodeData. If the node is mix:versionable
-   * this NodeData will be returned.
+   * Get nearest versionable ancestor NodeData. If the node is mix:versionable this NodeData will be
+   * returned.
    * 
-   * @return NodeData of versionable ancestor or null if no versionable ancestor
-   *         exists.
+   * @return NodeData of versionable ancestor or null if no versionable ancestor exists.
    * @throws RepositoryException
+   *           if error
    */
   public NodeData getVersionableAncestor() throws RepositoryException {
     NodeData node = nodeData();
@@ -1103,9 +1157,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Node#getVersionHistory()
+  /**
+   * {@inheritDoc}
    */
   public VersionHistory getVersionHistory() throws UnsupportedRepositoryOperationException,
                                            RepositoryException {
@@ -1116,7 +1169,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#hasNode
+   * {@inheritDoc}
    */
   public boolean hasNode(String relPath) throws RepositoryException {
 
@@ -1129,7 +1182,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#hasNodes
+   * {@inheritDoc}
    */
   public boolean hasNodes() throws RepositoryException {
 
@@ -1139,7 +1192,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#hasProperties
+   * {@inheritDoc}
    */
   public boolean hasProperties() throws RepositoryException {
 
@@ -1149,7 +1202,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#hasProperty
+   * {@inheritDoc}
    */
   public boolean hasProperty(String relPath) throws RepositoryException {
 
@@ -1170,6 +1223,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return session.getLockManager().holdsLock((NodeData) getData());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isCheckedOut() throws UnsupportedRepositoryOperationException, RepositoryException {
 
     checkValid();
@@ -1187,18 +1243,22 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Item#isNode
+   * {@inheritDoc}
    */
   public boolean isNode() {
     return true;
   }
 
   /**
-   * TODO have it private
+   * Indicates whether this node is of the specified node type. Returns true if this node is of the
+   * specified node type or a subtype of the specified node type. Returns false otherwise. <br/>
+   * Nodetype name asked in for mof internal QName. TODO have it private.
    * 
    * @param qName
-   * @return
+   *          InternalQName
+   * @return boolean
    * @throws RepositoryException
+   *           if error occurs
    */
   public boolean isNodeType(InternalQName qName) throws RepositoryException {
 
@@ -1208,7 +1268,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#isNodeType
+   * {@inheritDoc}
    */
   public boolean isNodeType(String nodeTypeName) throws RepositoryException {
     return isNodeType(locationFactory.parseJCRName(nodeTypeName).getInternalName());
@@ -1250,9 +1310,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     initDefinition();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Node#lock(boolean, boolean)
+  /**
+   * {@inheritDoc}
    */
   public Lock lock(boolean isDeep, boolean isSessionScoped) throws UnsupportedRepositoryOperationException,
                                                            LockException,
@@ -1294,6 +1353,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Lock lock(boolean isDeep, long timeOut) throws UnsupportedRepositoryOperationException,
                                                 LockException,
                                                 AccessDeniedException,
@@ -1333,6 +1395,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public NodeIterator merge(String srcWorkspace, boolean bestEffort) throws UnsupportedRepositoryOperationException,
                                                                     NoSuchWorkspaceException,
                                                                     AccessDeniedException,
@@ -1350,7 +1415,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // get corresponding node
     SessionImpl corrSession = ((RepositoryImpl) session.getRepository()).internalLogin(session.getUserState(),
                                                                                        srcWorkspace);
-    // .login(session.getCredentials(), srcWorkspace);
 
     ItemDataMergeVisitor visitor = new ItemDataMergeVisitor(this.session,
                                                             corrSession,
@@ -1369,7 +1433,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#orderBefore
+   * {@inheritDoc}
    */
   public void orderBefore(String srcName, String destName) throws UnsupportedRepositoryOperationException,
                                                           ConstraintViolationException,
@@ -1392,7 +1456,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#removeMixin
+   * {@inheritDoc}
    */
   public void removeMixin(String mixinName) throws NoSuchNodeTypeException,
                                            ConstraintViolationException,
@@ -1487,11 +1551,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ExtendedNode#removePermission(java.lang
-   * .String)
+  /**
+   * {@inheritDoc}
    */
   public void removePermission(String identity) throws RepositoryException, AccessControlException {
 
@@ -1508,11 +1569,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ExtendedNode#removePermission(java.lang
-   * .String,java.lang. String)
+  /**
+   * {@inheritDoc}
    */
   public void removePermission(String identity, String permission) throws RepositoryException,
                                                                   AccessControlException {
@@ -1530,6 +1588,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void restore(String versionName, boolean removeExisting) throws VersionException,
                                                                  ItemExistsException,
                                                                  UnsupportedRepositoryOperationException,
@@ -1541,6 +1602,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     restore(version, removeExisting);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void restore(Version version, boolean removeExisting) throws VersionException,
                                                               ItemExistsException,
                                                               UnsupportedRepositoryOperationException,
@@ -1573,6 +1637,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                     removeExisting);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void restore(Version version, String relPath, boolean removeExisting) throws VersionException,
                                                                               ItemExistsException,
                                                                               UnsupportedRepositoryOperationException,
@@ -1584,8 +1651,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
       // restore at this position
       this.restore(version, removeExisting);
-      // throw new RepositoryException("Can't restore node to the path '" +
-      // relPath + "'");
     } else {
 
       // restore at relPath
@@ -1642,6 +1707,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void restoreByLabel(String versionLabel, boolean removeExisting) throws VersionException,
                                                                          ItemExistsException,
                                                                          UnsupportedRepositoryOperationException,
@@ -1656,11 +1724,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ExtendedNode#setPermission(java.lang.
-   * String, java.lang.String[])
+  /**
+   * {@inheritDoc}
    */
   public void setPermission(String identity, String[] permission) throws RepositoryException,
                                                                  AccessControlException {
@@ -1688,11 +1753,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   // VERSIONING
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ExtendedNode#setPermissions(java.util
-   * .Map)
+  /**
+   * {@inheritDoc}
    */
   public void setPermissions(Map permissions) throws RepositoryException,
                                              AccessDeniedException,
@@ -1724,11 +1786,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     AccessControlList acl = new AccessControlList(getACL().getOwner(), aces);
     updatePermissions(acl);
     setACL(acl);
-
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, boolean value) throws ValueFormatException,
                                                          VersionException,
@@ -1746,42 +1807,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
-  // /**
-  // * @deprecated use isCheckedOut
-  // * @return
-  // * @throws UnsupportedRepositoryOperationException
-  // * @throws RepositoryException
-  // */
-  // public boolean isCheckedOut_Old() throws
-  // UnsupportedRepositoryOperationException,
-  // RepositoryException {
-  //
-  // checkValid();
-  //
-  // if (isRoot())
-  // return true;
-  //
-  // if (this.isNodeType(Constants.MIX_VERSIONABLE)) {
-  // return ((Property) dataManager.getItem(nodeData(), new
-  // QPathEntry(Constants.JCR_ISCHECKEDOUT,
-  // 0), false)).getBoolean();
-  // }
-  //
-  // NodeImpl ancestor = parent();
-  // while (!ancestor.isRoot()) {
-  // if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
-  // return ancestor.isCheckedOut();
-  // else
-  // ancestor = ancestor.parent();
-  // }
-  // if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
-  // return ancestor.isCheckedOut();
-  // else
-  // return true;
-  // }
-
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, Calendar value) throws ValueFormatException,
                                                           VersionException,
@@ -1800,7 +1827,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, double value) throws ValueFormatException,
                                                         VersionException,
@@ -1818,7 +1845,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, InputStream value) throws ValueFormatException,
                                                              VersionException,
@@ -1836,7 +1863,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, long value) throws ValueFormatException,
                                                       VersionException,
@@ -1855,7 +1882,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, Node value) throws ValueFormatException,
                                                       VersionException,
@@ -1874,7 +1901,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, String value) throws ValueFormatException,
                                                         VersionException,
@@ -1893,7 +1920,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, String value, int type) throws ValueFormatException,
                                                                   VersionException,
@@ -1911,7 +1938,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, String[] values) throws ValueFormatException,
                                                            VersionException,
@@ -1936,7 +1963,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, String[] values, int type) throws ValueFormatException,
                                                                      VersionException,
@@ -1962,7 +1989,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, Value value) throws ValueFormatException,
                                                        VersionException,
@@ -1980,7 +2007,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, Value value, int type) throws ValueFormatException,
                                                                  VersionException,
@@ -1999,7 +2026,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, Value[] values) throws ValueFormatException,
                                                           VersionException,
@@ -2017,7 +2044,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#setProperty
+   * {@inheritDoc}
    */
   public Property setProperty(String name, Value[] values, int type) throws ValueFormatException,
                                                                     VersionException,
@@ -2035,7 +2062,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#unlock()
+   * {@inheritDoc}
    */
   public void unlock() throws UnsupportedRepositoryOperationException,
                       LockException,
@@ -2059,7 +2086,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#update
+   * {@inheritDoc}
    */
   public void update(String srcWorkspaceName) throws NoSuchWorkspaceException,
                                              AccessDeniedException,
@@ -2109,8 +2136,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // reload node impl with old uuid to a new one data
     session.getTransientNodesManager().getItemsPool().reload(getInternalIdentifier(), thisNew);
   }
-
-  // Locks
 
   public void validateChildNode(InternalQName name, InternalQName primaryTypeName) throws ItemExistsException,
                                                                                   RepositoryException,
@@ -2165,8 +2190,16 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * For internal use. Doesn't check the InvalidItemStateException and may
-   * return unpooled VersionHistory object.
+   * For internal use. Doesn't check the InvalidItemStateException and may return unpooled
+   * VersionHistory object.
+   * 
+   * @param pool
+   *          boolean, true if result should be pooled in Session
+   * @return VersionHistoryImpl
+   * @throws UnsupportedRepositoryOperationException
+   *           if versions is nopt supported
+   * @throws RepositoryException
+   *           if error occurs
    */
   public VersionHistoryImpl versionHistory(boolean pool) throws UnsupportedRepositoryOperationException,
                                                         RepositoryException {
@@ -2335,7 +2368,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * Remove mix:lockable properties.
    * 
-   * @throws RepositoryException
+   * @throws RepositoryException if error occurs
    */
   protected void doUnlock() throws RepositoryException {
 
@@ -2482,6 +2515,16 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   // ----------------------------- ExtendedNode -----------------------------
 
+  private int getNextChildOrderNum(List<NodeData> siblings) {
+    int max = -1;
+    for (NodeData sibling : siblings) {
+      int cur = sibling.getOrderNumber();
+      if (cur > max)
+        max = cur;
+    }
+    return ++max;
+  }
+
   private NodeImpl doAddNode(NodeImpl parentNode, InternalQName name, InternalQName primaryTypeName) throws ItemExistsException,
                                                                                                     RepositoryException,
                                                                                                     ConstraintViolationException,
@@ -2593,8 +2636,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * Init NodeDefinition.
    * 
-   * @throws RepositoryException if error occurs
-   * @throws ConstraintViolationException if definition not found
+   * @throws RepositoryException
+   *           if error occurs
+   * @throws ConstraintViolationException
+   *           if definition not found
    */
   private void initDefinition() throws RepositoryException, ConstraintViolationException {
 
