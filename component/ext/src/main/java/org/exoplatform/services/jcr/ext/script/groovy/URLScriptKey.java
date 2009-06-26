@@ -17,51 +17,16 @@
 
 package org.exoplatform.services.jcr.ext.script.groovy;
 
-import java.util.List;
+import java.net.URL;
 
 /**
- * Should be used in configuration.xml as object parameter.
- * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id$
  */
-public class ObservationListenerConfiguration {
-  /**
-   * Repository name.
-   */
-  private String       repository;
+public class URLScriptKey extends SimpleScriptKey implements ScriptKey {
 
-  /**
-   * Workspace name.
-   */
-  private List<String> workspaces;
-
-  /**
-   * @return get repository
-   */
-  public String getRepository() {
-    return repository;
-  }
-
-  /**
-   * @param repository repository name
-   */
-  public void setRepository(String repository) {
-    this.repository = repository;
-  }
-
-  /**
-   * @return get list of workspaces
-   */
-  public List<String> getWorkspaces() {
-    return workspaces;
-  }
-
-  /**
-   * @param workspaces list of workspaces
-   */
-  public void setWorkspaces(List<String> workspaces) {
-    this.workspaces = workspaces;
+  public URLScriptKey(URL url) {
+    super(url.toString());
   }
 
 }

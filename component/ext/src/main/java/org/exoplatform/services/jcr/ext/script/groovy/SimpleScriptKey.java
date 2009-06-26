@@ -17,51 +17,45 @@
 
 package org.exoplatform.services.jcr.ext.script.groovy;
 
-import java.util.List;
-
 /**
- * Should be used in configuration.xml as object parameter.
- * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id$
  */
-public class ObservationListenerConfiguration {
-  /**
-   * Repository name.
-   */
-  private String       repository;
+// Need this for back compatibility, see @deprecated methods in
+// GroovyScript2RestLoader.
+public class SimpleScriptKey implements ScriptKey {
 
-  /**
-   * Workspace name.
-   */
-  private List<String> workspaces;
+  protected final String key;
 
-  /**
-   * @return get repository
-   */
-  public String getRepository() {
-    return repository;
+  public SimpleScriptKey(String key) {
+    this.key = key;
   }
 
   /**
-   * @param repository repository name
+   * {@inheritDoc}
    */
-  public void setRepository(String repository) {
-    this.repository = repository;
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    return key.equals(((SimpleScriptKey) obj).key);
   }
 
   /**
-   * @return get list of workspaces
+   * {@inheritDoc}
    */
-  public List<String> getWorkspaces() {
-    return workspaces;
+  @Override
+  public int hashCode() {
+    return key.hashCode();
   }
 
   /**
-   * @param workspaces list of workspaces
+   * {@inheritDoc}
    */
-  public void setWorkspaces(List<String> workspaces) {
-    this.workspaces = workspaces;
+  public String toString() {
+    return key;
   }
 
 }

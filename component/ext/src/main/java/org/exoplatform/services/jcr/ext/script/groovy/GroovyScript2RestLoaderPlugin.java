@@ -29,33 +29,23 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
 
-  /**
-   * Logger.
-   */
+  /** Logger. */
   private static final Log           LOG = ExoLogger.getLogger(GroovyScript2RestLoaderPlugin.class.getName());
 
-  /**
-   * Configurations for scripts what were got from XML.
-   */
+  /** Configurations for scripts what were got from XML. */
   private List<XMLGroovyScript2Rest> l   = new ArrayList<XMLGroovyScript2Rest>();
 
-  /**
-   * Repository.
-   */
+  /** Repository. */
   private String                     repository;
 
-  /**
-   * Workspace.
-   */
+  /** Workspace. */
   private String                     workspace;
 
-  /**
-   * Root node for scripts. If it does not exist new one will be created.
-   */
+  /** Root node for scripts. If it does not exist new one will be created. */
   private String                     node;
 
   @SuppressWarnings("unchecked")
