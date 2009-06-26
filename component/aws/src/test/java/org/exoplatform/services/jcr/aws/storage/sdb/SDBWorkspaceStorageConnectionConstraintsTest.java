@@ -41,7 +41,8 @@ import com.amazonaws.sdb.model.GetAttributesResult;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 13.10.2008
+ * <br/>
+ * Date: 13.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SDBWorkspaceStorageConnectionConstraintsTest.java 21434 2008-10-15 21:57:24Z
@@ -86,7 +87,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
   public void nontestInvalidItemState() throws Exception {
 
     // TODO check InvalidItemState logic in connection
-    
+
     sdbConn.add(jcrRoot);
     sdbConn.add(testRoot);
     sdbConn.commit();
@@ -112,7 +113,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
     sdbConn.commit();
 
     Thread.sleep(2000);
-    
+
     // run for fail
     try {
       sdbConn.update(updated2);
@@ -235,7 +236,9 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
     try {
       // try property with same name but diff Id
       TransientPropertyData newp = new TransientPropertyData(testProperty.getQPath(),
-                                                             newpId = SIDGenerator.generate(), // new ID !
+                                                             newpId = SIDGenerator.generate(), // new
+                                                                                               // ID
+                                                                                               // !
                                                              1,
                                                              PropertyType.DATE,
                                                              testProperty.getParentIdentifier(),
@@ -264,7 +267,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
       // try property with same Id but diff Name
       TransientPropertyData newp = new TransientPropertyData(testMultivaluedProperty.getQPath(),
                                                              testProperty.getIdentifier(), // ID of
-                                                                                           // testProperty
+                                                             // testProperty
                                                              1,
                                                              PropertyType.DATE,
                                                              testProperty.getParentIdentifier(),

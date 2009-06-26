@@ -16,11 +16,11 @@
  */
 package org.exoplatform.services.jcr.aws.storage.sdb;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 07.10.2008
+ * <br/>
+ * Date: 07.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -30,8 +30,8 @@ public class SDBItemValueLengthExceeded extends SDBRepositoryException {
   /**
    * Exception generated on attribute value maximum length error.
    * 
-   * Find more on <a href='http://docs.amazonwebservices.com/AmazonSimpleDB/2007-11-07/DeveloperGuide/index.html?SDBLimits.html'
-   * > SimpleDB limits page</a>
+   * Find more on <a href='http://docs.amazonwebservices.com/AmazonSimpleDB/2007-11-07/DeveloperGuide/index.html?SDBLimits.html
+   * ' > SimpleDB limits page</a>
    * 
    * @param message
    *          - error description.

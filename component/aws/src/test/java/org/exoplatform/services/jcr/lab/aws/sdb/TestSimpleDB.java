@@ -183,8 +183,6 @@ public class TestSimpleDB extends TestCase {
     return service.getAttributes(request);
   }
 
-
-
   public void testListDomains() {
     /* Listing the domains belonging to our AWS account */
     String nextToken = "";
@@ -339,7 +337,7 @@ public class TestSimpleDB extends TestCase {
     // list.add(new ReplaceableAttribute( attributeName, value, replacePreviousValue?));
     list.add(new ReplaceableAttribute("organization", "eXo Platform", true));
     list.add(new ReplaceableAttribute("address", "45, 33 Univ str", true));
-    
+
     list.add(new ReplaceableAttribute("state", "Ukraine", true));
     list.add(new ReplaceableAttribute("country", "Ukraine", true));
 

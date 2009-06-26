@@ -69,7 +69,7 @@ public abstract class S3IOChannel implements ValueIOChannel {
 
   /**
    * DeleteOperation.
-   *
+   * 
    */
   class DeleteOperation implements ValueOperation {
 
@@ -112,7 +112,7 @@ public abstract class S3IOChannel implements ValueIOChannel {
 
   /**
    * WriteOperation.
-   *
+   * 
    */
   class WriteOperation implements ValueOperation {
 
@@ -127,10 +127,12 @@ public abstract class S3IOChannel implements ValueIOChannel {
     private final ValueData value;
 
     /**
-     * WriteOperation  constructor.
-     *
-     * @param propertyId String
-     * @param value ValueData
+     * WriteOperation constructor.
+     * 
+     * @param propertyId
+     *          String
+     * @param value
+     *          ValueData
      */
     WriteOperation(String propertyId, ValueData value) {
       this.propertyId = propertyId;

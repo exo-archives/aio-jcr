@@ -48,21 +48,21 @@ public class TestDeleteDomain extends TestCase {
    * EXO_PREFIX.
    */
   private static final String EXO_PREFIX = "jcr-test";
-  
+
   /**
    * accessKey.
    */
-  private String           accessKey;
+  private String              accessKey;
 
   /**
    * secretKey.
    */
-  private String           secretKey;
+  private String              secretKey;
 
   /**
    * sdbService.
    */
-  protected AmazonSimpleDB sdbService;
+  protected AmazonSimpleDB    sdbService;
 
   /**
    * {@inheritDoc}
@@ -181,10 +181,10 @@ public class TestDeleteDomain extends TestCase {
    */
   public void testDeleteDomain() throws Exception {
 
-    //sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-system"));
-    //sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-collaboration"));
-    //sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-backup"));
-    
+    // sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-system"));
+    // sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-collaboration"));
+    // sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-backup"));
+
     sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-ws"));
     sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-ws1"));
     sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-ws2"));

@@ -16,11 +16,11 @@
  */
 package org.exoplatform.services.jcr.aws.storage.sdb;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 08.10.2008
+ * <br/>
+ * Date: 08.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -28,10 +28,12 @@ package org.exoplatform.services.jcr.aws.storage.sdb;
 public class SDBAttributeValueCorruptedException extends SDBRepositoryException {
 
   /**
-   * SDBAttributeValueCorruptedException  constructor.
-   *
-   * @param message - error description
-   * @param rootCause - cause
+   * SDBAttributeValueCorruptedException constructor.
+   * 
+   * @param message
+   *          - error description
+   * @param rootCause
+   *          - cause
    */
   public SDBAttributeValueCorruptedException(String message, Exception rootCause) {
     super(message, rootCause);

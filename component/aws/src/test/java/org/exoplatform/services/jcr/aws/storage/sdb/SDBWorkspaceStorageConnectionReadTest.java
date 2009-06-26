@@ -40,7 +40,8 @@ import org.exoplatform.services.jcr.util.SIDGenerator;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 13.10.2008
+ * <br/>
+ * Date: 13.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -252,27 +253,27 @@ public class SDBWorkspaceStorageConnectionReadTest extends SDBWorkspaceTestBase 
     sdbConn.add(testNode);
 
     final NodeData refNode = new TransientNodeData(QPath.makeChildPath(testRoot.getQPath(),
-                                                          QPathEntry.parse("[]refNode:1")),
-                                      SIDGenerator.generate(),
-                                      1,
-                                      Constants.NT_RESOURCE,
-                                      new InternalQName[] { Constants.MIX_REFERENCEABLE },
-                                      1,
-                                      testRoot.getIdentifier(),
-                                      null);
+                                                                       QPathEntry.parse("[]refNode:1")),
+                                                   SIDGenerator.generate(),
+                                                   1,
+                                                   Constants.NT_RESOURCE,
+                                                   new InternalQName[] { Constants.MIX_REFERENCEABLE },
+                                                   1,
+                                                   testRoot.getIdentifier(),
+                                                   null);
     sdbConn.add(refNode);
-    
+
     final int propsCount = 5;
     final PropertyData[] props = new PropertyData[propsCount];
     for (int i = 0; i < propsCount; i++) {
       TransientPropertyData refProp = new TransientPropertyData(QPath.makeChildPath(testNode.getQPath(),
-                                                                                  QPathEntry.parse("[]ref-property"
-                                                                                      + i + ":1")),
-                                                              SIDGenerator.generate(),
-                                                              1,
-                                                              PropertyType.REFERENCE,
-                                                              testNode.getIdentifier(),
-                                                              false);
+                                                                                    QPathEntry.parse("[]ref-property"
+                                                                                        + i + ":1")),
+                                                                SIDGenerator.generate(),
+                                                                1,
+                                                                PropertyType.REFERENCE,
+                                                                testNode.getIdentifier(),
+                                                                false);
 
       List<ValueData> values = new ArrayList<ValueData>(1);
       values.add(new TransientValueData(new Identifier(refNode.getIdentifier())));
@@ -309,5 +310,5 @@ public class SDBWorkspaceStorageConnectionReadTest extends SDBWorkspaceTestBase 
       fail(e.getMessage());
     }
   }
-  
+
 }

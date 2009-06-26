@@ -21,7 +21,8 @@ import javax.jcr.RepositoryException;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 03.10.2008
+ * <br/>
+ * Date: 03.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -37,7 +38,7 @@ public class SDBRepositoryException extends RepositoryException {
   public SDBRepositoryException(String message) {
     super(message);
   }
-  
+
   /**
    * SDBRepositoryException constructor.
    * 

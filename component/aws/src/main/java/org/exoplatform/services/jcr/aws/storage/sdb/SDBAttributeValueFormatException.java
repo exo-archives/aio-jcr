@@ -16,11 +16,11 @@
  */
 package org.exoplatform.services.jcr.aws.storage.sdb;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 08.10.2008
+ * <br/>
+ * Date: 08.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -36,7 +36,7 @@ public class SDBAttributeValueFormatException extends SDBRepositoryException {
   public SDBAttributeValueFormatException(String message) {
     super(message);
   }
-  
+
   /**
    * SDBRepositoryException constructor.
    * 

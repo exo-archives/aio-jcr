@@ -19,7 +19,8 @@ package org.exoplatform.services.jcr.aws.storage.sdb;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 03.10.2008
+ * <br/>
+ * Date: 03.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

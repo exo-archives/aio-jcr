@@ -31,7 +31,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 30.09.2008
+ * <br/>
+ * Date: 30.09.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -57,11 +58,11 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
    * AWS SimpleDB domain name will be used. If name doesn't exist it will be created.
    */
   public static final String                 SDB_DOMAINNAME          = "domain-name";
-  
+
   /**
    * Storage cleaner timeout 30min.
    */
-  protected static final int                 CLEANER_TIMEOUT           = 20 * 60 * 1000; 
+  protected static final int                 CLEANER_TIMEOUT         = 20 * 60 * 1000;
 
   /**
    * Container logger.
@@ -102,11 +103,11 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
    * Max buffer size used by External Value Storages provider to match storage per Property.
    */
   protected final int                        maxBufferSize;
-  
+
   /**
    * Storage cleaner.
    */
-  protected final StorageCleaner                       storageCleaner;
+  protected final StorageCleaner             storageCleaner;
 
   /**
    * Create container using repository and workspace configuration.
@@ -164,7 +165,7 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
                                                                            maxBufferSize,
                                                                            valueStorageProvider);
     this.storageVersion = conn.initStorage(containerName, CURRENT_STORAGE_VERSION);
-    
+
     this.storageCleaner = new StorageCleaner(containerName, conn, CLEANER_TIMEOUT);
     this.storageCleaner.start();
 
@@ -224,5 +225,5 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
     // TODO use accessKey to ident
     return this.equals(another);
   }
-  
+
 }
