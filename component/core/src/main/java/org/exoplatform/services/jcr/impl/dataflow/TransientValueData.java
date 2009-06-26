@@ -687,10 +687,12 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
       if (sf != null) {
         // spooled to file
+        this.spoolChannel = null;
         this.spoolFile = sf;
         this.data = null;
       } else {
         // ...bytes
+        this.spoolChannel = null;
         this.spoolFile = null;
         this.data = buffer;
       }
