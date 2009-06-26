@@ -73,15 +73,26 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: ItemImpl.java 14590 2008-05-22 08:51:29Z pnedonosko $
  */
-
 public abstract class ItemImpl implements Item {
 
+  /**
+   * Logger.
+   */
   private static Log           log = ExoLogger.getLogger("jcr.ItemImpl");
 
+  /**
+   * Session object.
+   */
   protected final SessionImpl  session;
 
+  /**
+   * ItemData object.
+   */
   protected ItemData           data;
 
+  /**
+   * Item JCRPath.
+   */
   protected JCRPath            location;
 
   protected SessionDataManager dataManager;
@@ -90,8 +101,21 @@ public abstract class ItemImpl implements Item {
 
   protected ValueFactoryImpl   valueFactory;
 
+  /**
+   * Hashcode.
+   */
   protected final int          itemHashCode;
 
+  /**
+   * ItemImpl constructor.
+   * 
+   * @param data
+   *          ItemData object
+   * @param session
+   *          Session object
+   * @throws RepositoryException
+   *           if any Exception is occurred
+   */
   ItemImpl(ItemData data, SessionImpl session) throws RepositoryException {
 
     this.session = session;
@@ -132,16 +156,22 @@ public abstract class ItemImpl implements Item {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String getPath() {
     return getLocation().getAsString(false);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String getName() {
     return getLocation().getName().getAsString();
   }
 
   /**
-   * @see javax.jcr.Item#getAncestor(int)
+   * {@inheritDoc}
    */
   public Item getAncestor(int degree) throws ItemNotFoundException,
                                      AccessDeniedException,
@@ -168,7 +198,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see javax.jcr.Item#getParent()
+   * {@inheritDoc}
    */
   public NodeImpl getParent() throws ItemNotFoundException,
                              AccessDeniedException,
@@ -183,21 +213,21 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see javax.jcr.Item#getSession()
+   * {@inheritDoc}
    */
   public SessionImpl getSession() {
     return session;
   }
 
   /**
-   * @see javax.jcr.Item#getDepth()
+   * {@inheritDoc}
    */
   public int getDepth() {
     return getLocation().getDepth();
   }
 
   /**
-   * @see javax.jcr.Item#isSame(javax.jcr.Item)
+   * {@inheritDoc}
    */
   public boolean isSame(Item otherItem) {
 
@@ -222,7 +252,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see javax.jcr.Item#isNew()
+   * {@inheritDoc}
    */
   public boolean isNew() {
     if (isValid())
@@ -233,7 +263,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see javax.jcr.Item#isModified()
+   * {@inheritDoc}
    */
   public boolean isModified() {
     if (isValid())
@@ -244,7 +274,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see javax.jcr.Item#remove()
+   * {@inheritDoc}
    */
   public void remove() throws RepositoryException,
                       ConstraintViolationException,
@@ -510,7 +540,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see javax.jcr.Item#save()
+   * {@inheritDoc}
    */
   public void save() throws ReferentialIntegrityException,
                     AccessDeniedException,
@@ -587,7 +617,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see javax.jcr.Item#refresh(boolean)
+   * {@inheritDoc}
    */
   public void refresh(boolean keepChanges) throws InvalidItemStateException, RepositoryException {
 
@@ -605,6 +635,11 @@ public abstract class ItemImpl implements Item {
     return data;
   }
 
+  /**
+   * Get identifier of parent item.
+   * 
+   * @return parent identifier
+   */
   public String getParentIdentifier() {
     return getData().getParentIdentifier();
   }
@@ -621,6 +656,13 @@ public abstract class ItemImpl implements Item {
     return dataManager.getItemByIdentifier(identifier, false);
   }
 
+  /**
+   * Get parent node item.
+   * 
+   * @return parent item
+   * @throws RepositoryException
+   *           if parent item is null
+   */
   protected NodeImpl parent() throws RepositoryException {
     NodeImpl parent = (NodeImpl) item(getParentIdentifier());
     if (parent == null)
@@ -629,6 +671,13 @@ public abstract class ItemImpl implements Item {
     return parent;
   }
 
+  /**
+   * Get and return parent node data.
+   * 
+   * @return parent node data
+   * @throws RepositoryException
+   *           if parent item is null
+   */
   public NodeData parentData() throws RepositoryException {
     NodeData parent = (NodeData) dataManager.getItemData(getData().getParentIdentifier());
     if (parent == null)
@@ -661,10 +710,20 @@ public abstract class ItemImpl implements Item {
     return data.getIdentifier();
   }
 
+  /**
+   * Get item JCRPath location.
+   * 
+   * @return item JCRPath
+   */
   public JCRPath getLocation() {
     return this.location;
   }
 
+  /**
+   * Check if item is root.
+   * 
+   * @return true if item is root and false in other case
+   */
   public boolean isRoot() {
     return data.getIdentifier().equals(Constants.ROOT_UUID);
   }
