@@ -17,13 +17,20 @@
 package org.exoplatform.services.jcr.dataflow.serialization;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: UnknownClassIdException.java 111 2008-11-11 11:11:11Z serg $
  */
 public class UnknownClassIdException extends Exception {
- 
+
+  /**
+   * UnknownClassIdException constructor.
+   * 
+   * @param message
+   *          the detail message
+   */
   public UnknownClassIdException(String message) {
     super(message);
   }

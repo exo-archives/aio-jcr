@@ -16,8 +16,8 @@
  */
 package org.exoplatform.services.jcr.dataflow.serialization;
 
-import java.io.EOFException;
 import java.io.IOException;
+import java.io.EOFException;
 import java.io.OutputStream;
 
 /**
@@ -96,6 +96,15 @@ public interface ObjectReader {
    */
   boolean readBoolean() throws IOException;
 
+  /**
+   * Reads byte and returns a <code>byte</code> value.
+   * 
+   * @return the <code>byte</code> value read.
+   * @exception EOFException
+   *              if this stream reaches the end before reading all the bytes.
+   * @exception IOException
+   *              if an I/O error occurs.
+   */
   byte readByte() throws IOException;
 
   /**

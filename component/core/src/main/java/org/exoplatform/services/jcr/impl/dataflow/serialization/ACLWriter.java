@@ -25,13 +25,24 @@ import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ACLWriter.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ACLWriter {
 
+  /**
+   * Write AccessControlList data.
+   * 
+   * @param out
+   *          The ObjectWriter
+   * @param acl
+   *          The AccessControlList object
+   * @throws IOException
+   *           If an I/O error has occurred.
+   */
   public void write(ObjectWriter out, AccessControlList acl) throws IOException {
     // write id
     out.writeInt(SerializationConstants.ACCESS_CONTROL_LIST);

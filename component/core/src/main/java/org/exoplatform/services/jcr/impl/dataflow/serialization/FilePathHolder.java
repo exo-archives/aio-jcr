@@ -26,33 +26,58 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 19.02.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * <br/>
+ * Date: 19.02.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: FilePathHolder.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class FilePathHolder {
-  
-  private FileCleaner cleaner;
-  
-  private  ConcurrentHashMap<String, String> filePathMap = new ConcurrentHashMap<String, String>();
-  
+
+  /**
+   * The file cleaner.
+   */
+  private FileCleaner                       cleaner;
+
+  /**
+   * File path map.
+   */
+  private ConcurrentHashMap<String, String> filePathMap = new ConcurrentHashMap<String, String>();
+
+  /**
+   * Get file path from map.
+   * 
+   * @param parentPropertyDataId
+   *          id
+   * @return File path if present and null in other case
+   */
   public String getPath(String parentPropertyDataId) {
     if (filePathMap.containsKey(parentPropertyDataId)) {
       return filePathMap.get(parentPropertyDataId);
-    } else 
+    } else
       return null;
   }
-  
+
+  /**
+   * Put file path in map.
+   * 
+   * @param parentPropertyDataId
+   *          id
+   * @param filePath
+   *          file path
+   */
   public void putPath(String parentPropertyDataId, String filePath) {
     filePathMap.put(parentPropertyDataId, filePath);
   }
-  
+
+  /**
+   * Add all files to file cleaner.
+   */
   public void clean() {
-    List<String> ls  = new ArrayList<String>(filePathMap.values());
-    
-    for (String fPath : ls) 
+    List<String> ls = new ArrayList<String>(filePathMap.values());
+
+    for (String fPath : ls)
       cleaner.addFile(new File(fPath));
-  } 
+  }
 
 }

@@ -25,37 +25,46 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ItemStateWriter.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ItemStateWriter{
+public class ItemStateWriter {
 
-
+  /**
+   * Write item state into file.
+   * 
+   * @param out
+   *          ObjectWriter
+   * @param itemState
+   *          ItemState
+   * @throws IOException
+   *           if any Exception is occurred
+   */
   public void write(ObjectWriter out, ItemState itemState) throws IOException {
     // write id
     out.writeInt(SerializationConstants.ITEM_STATE);
-    
+
     out.writeInt(itemState.getState());
     out.writeBoolean(itemState.isPersisted());
     out.writeBoolean(itemState.isEventFire());
-    
+
     // write flag isNodeData and ItemData
     ItemData data = itemState.getData();
-    
+
     boolean isNodeData = (data instanceof TransientNodeData);
     out.writeBoolean(isNodeData);
-    if(isNodeData){
+    if (isNodeData) {
       TransientNodeDataWriter wr = new TransientNodeDataWriter();
-      wr.write(out, (TransientNodeData)data);
-    }else{
+      wr.write(out, (TransientNodeData) data);
+    } else {
       TransientPropertyDataWriter wr = new TransientPropertyDataWriter();
-      wr.write(out, (TransientPropertyData)data);
+      wr.write(out, (TransientPropertyData) data);
     }
   }
 

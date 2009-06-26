@@ -35,14 +35,27 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 public class ItemStateReader {
 
+  /**
+   * File cleaner.
+   */
   private FileCleaner           fileCleaner;
 
+  /**
+   * Maximum buffer size.
+   */
   private int                   maxBufferSize;
 
+  /**
+   * Spool file holder.
+   */
   private ReaderSpoolFileHolder holder;
 
   /**
-   * Constructor.
+   * ItemStateReader constructor.
+   * 
+   * @param fileCleaner
+   * @param maxBufferSize
+   * @param holder
    */
   public ItemStateReader(FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;

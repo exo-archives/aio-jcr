@@ -29,20 +29,47 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ReaderSpoolFileHolder {
 
+  /**
+   * SpoolFile map.
+   */
   private final ConcurrentHashMap<String, SerializationSpoolFile> map;
 
+  /**
+   * ReaderSpoolFileHolder constructor.
+   */
   public ReaderSpoolFileHolder() {
     map = new ConcurrentHashMap<String, SerializationSpoolFile>();
   }
 
+  /**
+   * Get SpoolFile from holder.
+   * 
+   * @param key
+   *          key
+   * @return SpoolFile
+   */
   public SerializationSpoolFile get(String key) {
     return map.get(key);
   }
 
+  /**
+   * Put file into holder.
+   * 
+   * @param key
+   *          key
+   * @param file
+   *          SpoolFile
+   */
   public void put(String key, SerializationSpoolFile file) {
     map.put(key, file);
   }
 
+  /**
+   * Remove file form holder.
+   * 
+   * @param key
+   *          key
+   */
   public void remove(String key) {
     map.remove(key);
   }

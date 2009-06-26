@@ -30,7 +30,8 @@ import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstant
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS. <br/> Date: 13.02.2009
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 13.02.2009
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: JCRObjectInputImpl.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -50,7 +51,8 @@ public class ObjectReaderImpl implements ObjectReader {
   /**
    * ObjectReaderImpl constructor.
    * 
-   * @param in original InputStream
+   * @param in
+   *          original InputStream
    */
   public ObjectReaderImpl(InputStream in) {
     this.in = new BufferedInputStream(in, SerializationConstants.INTERNAL_BUFFER_SIZE);
@@ -78,16 +80,17 @@ public class ObjectReaderImpl implements ObjectReader {
 
     return v != 0;
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
   public byte readByte() throws IOException {
     int v = in.read();
     if (v < 0)
       throw new EOFException();
 
-    return (byte)v;
+    return (byte) v;
   }
-  
-  
 
   /**
    * {@inheritDoc}

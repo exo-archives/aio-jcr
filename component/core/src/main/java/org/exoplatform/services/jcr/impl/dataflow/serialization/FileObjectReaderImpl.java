@@ -16,20 +16,16 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.serialization;
 
-import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
 
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectReader;
 import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
@@ -44,8 +40,19 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class FileObjectReaderImpl implements ObjectReader {
 
+  /**
+   * The file channel to reading.
+   */
   private final FileChannel channel;
 
+  /**
+   * FileObjectReaderImpl constructor.
+   * 
+   * @param file
+   *          Source file to reading
+   * @throws FileNotFoundException
+   *           if file does not exist
+   */
   public FileObjectReaderImpl(File file) throws FileNotFoundException {
     this.channel = new FileInputStream(file).getChannel();
   }
@@ -57,6 +64,14 @@ public class FileObjectReaderImpl implements ObjectReader {
     channel.close();
   }
 
+  /**
+   * Reads a sequence of bytes from file into the given buffer.
+   * 
+   * @param dst
+   *          buffer
+   * @throws IOException
+   *           if any Exception is occurred
+   */
   private void readFully(ByteBuffer dst) throws IOException {
     int r = channel.read(dst);
 
@@ -76,14 +91,16 @@ public class FileObjectReaderImpl implements ObjectReader {
 
     return v != 0;
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
   public byte readByte() throws IOException {
-    
+
     ByteBuffer dst = ByteBuffer.allocate(1);
     readFully(dst);
     return dst.get();
   }
-  
 
   /**
    * {@inheritDoc}
@@ -150,28 +167,6 @@ public class FileObjectReaderImpl implements ObjectReader {
         readed += r;
       }
       return readed;
-
-      // choose which kind of stream to use
-      // if this input stream contains enough available bytes we think it's large content - use
-      // fileIn
-      // if not - use buffered write
-      // InputStream readIn;
-      //
-      // if (fileIn != null && fileIn.available() >= SerializationConstants.INTERNAL_BUFFER_SIZE) {
-      // readIn = fileIn; // and use File stream
-      // } else {
-      // readIn = this.in;
-      // recreateBuffer = false;
-      // }
-      //
-      // byte[] buf = new byte[SerializationConstants.INTERNAL_BUFFER_SIZE];
-      // int r;
-      // int readed = 0;
-      // while ((r = readIn.read(buf)) <= 0) {
-      // stream.write(buf, 0, r);
-      // readed += r;
-      // }
-      // return readed;
     }
   }
 

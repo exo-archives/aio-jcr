@@ -105,6 +105,14 @@ public interface ObjectWriter {
    */
   void writeBoolean(boolean v) throws IOException;
 
+  /**
+   * Writes an <code>byte</code> value to the output stream.
+   * 
+   * @param b
+   *          the <code>byte</code> value to be written
+   * @exception IOException
+   *              If an I/O error has occurred.
+   */
   void writeByte(byte b) throws IOException;
 
   /**

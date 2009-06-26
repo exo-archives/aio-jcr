@@ -29,22 +29,42 @@ import org.exoplatform.services.jcr.dataflow.serialization.UnknownClassIdExcepti
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date:
+ * Created by The eXo Platform SAS. <br/>
+ * Date:
  * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: PlainChangesLogReader.java 111 2008-11-11 11:11:11Z serg $
  */
 public class PlainChangesLogReader {
 
-  private FileCleaner fileCleaner;
+  /**
+   * File cleaner.
+   */
+  private FileCleaner           fileCleaner;
 
-  private int         maxBufferSize;
+  /**
+   * Maximum buffer size.
+   */
+  private int                   maxBufferSize;
+
+  /**
+   * Spool file holder.
+   */
   private ReaderSpoolFileHolder holder;
 
   /**
-   * Constructor.
+   * PlainChangesLogReader constructor.
+   * 
+   * @param fileCleaner
+   *          File cleaner
+   * @param maxBufferSize
+   *          maximum buffer size
+   * @param holder
+   *          Spool file holder
    */
-  public PlainChangesLogReader(FileCleaner fileCleaner, int maxBufferSize, ReaderSpoolFileHolder holder) {
+  public PlainChangesLogReader(FileCleaner fileCleaner,
+                               int maxBufferSize,
+                               ReaderSpoolFileHolder holder) {
     this.fileCleaner = fileCleaner;
     this.maxBufferSize = maxBufferSize;
     this.holder = holder;
@@ -53,14 +73,15 @@ public class PlainChangesLogReader {
   /**
    * Read and set PlainChangesLog data.
    * 
-   * @param in ObjectReader.
+   * @param in
+   *          ObjectReader.
    * @return PlainChangesLog object.
-   * @throws UnknownClassIdException If read Class ID is not expected or do not
-   *           exist.
-   * @throws IOException If an I/O error has occurred.
+   * @throws UnknownClassIdException
+   *           If read Class ID is not expected or do not exist.
+   * @throws IOException
+   *           If an I/O error has occurred.
    */
-  public PlainChangesLog read(ObjectReader in) throws UnknownClassIdException,
-                                                          IOException {
+  public PlainChangesLog read(ObjectReader in) throws UnknownClassIdException, IOException {
     int key;
     if ((key = in.readInt()) != SerializationConstants.PLAIN_CHANGES_LOG_IMPL) {
       throw new UnknownClassIdException("There is unexpected class [" + key + "]");

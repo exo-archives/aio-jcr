@@ -99,6 +99,9 @@ public class ObjectWriterImpl implements ObjectWriter {
   }
 
   // TODO can be useful to flag write
+  /**
+   * {@inheritDoc}
+   */
   public void writeByte(byte b) throws IOException {
     out.write(b);
   }
@@ -143,10 +146,10 @@ public class ObjectWriterImpl implements ObjectWriter {
    * {@inheritDoc}
    */
   public synchronized void writeStream(InputStream stream) throws IOException {
-    
+
     if (true)
       throw new IOException("Not implemented");
-    
+
     if (fileOut != null && stream instanceof FileInputStream) {
       out.flush(); // flush buffer
 

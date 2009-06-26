@@ -24,30 +24,40 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.serialization.SerializationConstants;
 import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * <br/>
+ * Date:
+ * 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: PlainChangesLogWriter.java 111 2008-11-11 11:11:11Z serg $
  */
-public class PlainChangesLogWriter{
+public class PlainChangesLogWriter {
 
+  /**
+   * Write PlainChangesLog data.
+   * 
+   * @param out
+   *          ObjectWriter
+   * @param pcl
+   *          PlainChangesLog ojbect
+   * @throws IOException
+   *           if any Exception is occurred
+   */
   public void write(ObjectWriter out, PlainChangesLog pcl) throws IOException {
     // write id
     out.writeInt(SerializationConstants.PLAIN_CHANGES_LOG_IMPL);
-    
+
     out.writeInt(pcl.getEventType());
     out.writeString(pcl.getSessionId());
-    
+
     List<ItemState> list = pcl.getAllStates();
-    
+
     int listSize = list.size();
     out.writeInt(listSize);
-    ItemStateWriter wr = new ItemStateWriter(); 
-    for (int i = 0; i < listSize; i++){
+    ItemStateWriter wr = new ItemStateWriter();
+    for (int i = 0; i < listSize; i++) {
       wr.write(out, list.get(i));
     }
 

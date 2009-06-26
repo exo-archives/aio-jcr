@@ -68,10 +68,14 @@ public class SerializationConstants {
    */
   public static final int    TRANSIENT_PROPERTY_DATA = 8;
 
-  // flags
-
+  /**
+   * Null data.
+   */
   public static final byte   NULL_DATA               = 0;
 
+  /**
+   * Not null data.
+   */
   public static final byte   NOT_NULL_DATA           = 1;
 
   /**
