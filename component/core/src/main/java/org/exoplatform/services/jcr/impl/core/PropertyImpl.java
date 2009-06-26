@@ -50,26 +50,35 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * @author Gennady Azarenkov
  * @version $Id: PropertyImpl.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
 public class PropertyImpl extends ItemImpl implements Property {
 
+  /**
+   * Value type.
+   */
   protected int                  type;
 
   private PropertyDefinitionData propertyDef;
 
   private TransientPropertyData  propertyData;
 
+  /**
+   * PropertyImpl constructor.
+   * 
+   * @param data
+   *          ItemData object
+   * @param session
+   *          Session object
+   * @throws RepositoryException
+   * @throws ConstraintViolationException
+   */
   PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException,
       ConstraintViolationException {
     super(data, session);
     loadData(data);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform
-   * .services.jcr.datamodel .ItemData)
+  /**
+   * {@inheritDoc}
    */
   void loadData(ItemData data) throws RepositoryException, ConstraintViolationException {
 
@@ -87,7 +96,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getValue
+   * {@inheritDoc}
    */
   public Value getValue() throws ValueFormatException, RepositoryException {
 
@@ -105,7 +114,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getValues
+   * {@inheritDoc}
    */
   public Value[] getValues() throws ValueFormatException, RepositoryException {
 
@@ -121,7 +130,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getString
+   * {@inheritDoc}
    */
   public String getString() throws ValueFormatException, RepositoryException {
     try {
@@ -134,7 +143,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getDouble
+   * {@inheritDoc}
    */
   public double getDouble() throws ValueFormatException, RepositoryException {
     try {
@@ -145,7 +154,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getLong
+   * {@inheritDoc}
    */
   public long getLong() throws ValueFormatException, RepositoryException {
     try {
@@ -156,7 +165,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getStream
+   * {@inheritDoc}
    */
   public InputStream getStream() throws ValueFormatException, RepositoryException {
     try {
@@ -167,7 +176,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getDate
+   * {@inheritDoc}
    */
   public Calendar getDate() throws ValueFormatException, RepositoryException {
     try {
@@ -178,7 +187,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getBoolean
+   * {@inheritDoc}
    */
   public boolean getBoolean() throws ValueFormatException, RepositoryException {
     try {
@@ -189,7 +198,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getNode
+   * {@inheritDoc}
    */
   public Node getNode() throws ValueFormatException, RepositoryException {
     try {
@@ -201,7 +210,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getLength
+   * {@inheritDoc}
    */
   public long getLength() throws ValueFormatException, RepositoryException {
 
@@ -209,7 +218,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getLengths
+   * {@inheritDoc}
    */
   public long[] getLengths() throws ValueFormatException, RepositoryException {
 
@@ -223,7 +232,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getDefinition
+   * {@inheritDoc}
    */
   public PropertyDefinition getDefinition() throws RepositoryException {
 
@@ -233,9 +242,9 @@ public class PropertyImpl extends ItemImpl implements Property {
       throw new RepositoryException("FATAL: property definition is NULL " + getPath() + " "
           + propertyData.getValues());
     }
-    String name = locationFactory.createJCRName(propertyDef.getName() != null ? propertyDef.getName()
-                                                                             : Constants.JCR_ANY_NAME)
-                                 .getAsString();
+    String name = locationFactory.createJCRName(propertyDef.getName() != null
+        ? propertyDef.getName()
+        : Constants.JCR_ANY_NAME).getAsString();
     ExtendedNodeTypeManager nodeTypeManager = (ExtendedNodeTypeManager) session.getWorkspace()
                                                                                .getNodeTypeManager();
 
@@ -285,14 +294,14 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#getType
+   * {@inheritDoc}
    */
   public int getType() {
     return type;
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(Value value) throws ValueFormatException,
                                    VersionException,
@@ -306,7 +315,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(Value[] values) throws ValueFormatException,
                                       VersionException,
@@ -320,17 +329,18 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @return multiValued property of data field (PropertyData) it's a life-state
-   *         property field which contains multiple-valued flag for value(s)
-   *         data. Can be set in property creation time or from persistent
-   *         storage.
+   * Check if property is multi valued.
+   * 
+   * @return multiValued property of data field (PropertyData) it's a life-state property field
+   *         which contains multiple-valued flag for value(s) data. Can be set in property creation
+   *         time or from persistent storage.
    */
   public boolean isMultiValued() {
     return ((PropertyData) data).isMultiValued();
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(String value) throws ValueFormatException,
                                     VersionException,
@@ -341,7 +351,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(InputStream stream) throws ValueFormatException,
                                           VersionException,
@@ -352,7 +362,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(double number) throws ValueFormatException,
                                      VersionException,
@@ -363,7 +373,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(long number) throws ValueFormatException,
                                    VersionException,
@@ -374,7 +384,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(Calendar date) throws ValueFormatException,
                                      VersionException,
@@ -385,7 +395,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(boolean b) throws ValueFormatException,
                                  VersionException,
@@ -396,7 +406,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(Node value) throws ValueFormatException,
                                   VersionException,
@@ -407,7 +417,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Property#setValue
+   * {@inheritDoc}
    */
   public void setValue(String[] values) throws ValueFormatException,
                                        VersionException,
@@ -427,7 +437,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   // ////////////////// Item implementation ////////////////////
 
   /**
-   * @see javax.jcr.Item#accept
+   * {@inheritDoc}
    */
   public void accept(ItemVisitor visitor) throws RepositoryException {
     checkValid();
@@ -436,7 +446,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see javax.jcr.Item#isNode
+   * {@inheritDoc}
    */
   public boolean isNode() {
     return false;
@@ -474,8 +484,11 @@ public class PropertyImpl extends ItemImpl implements Property {
   // ////////////////////////////////
 
   /**
-   * @return
+   * Copies property values into array.
+   * 
+   * @return array of property values
    * @throws RepositoryException
+   *           if any Exception is occurred
    */
   public Value[] getValueArray() throws RepositoryException {
 
@@ -487,6 +500,11 @@ public class PropertyImpl extends ItemImpl implements Property {
     return values;
   }
 
+  /**
+   * Get info about property values.
+   * 
+   * @return string with property values
+   */
   public String dump() {
     String vals = "Property " + getPath() + " values: ";
     try {
@@ -503,8 +521,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   // ----------------------- Object -----------------------
 
   /**
-   * @author [PN] 18.04.06
-   * @see java.lang.Object#equals(java.lang.Object)
+   * {@inheritDoc}
    */
   @Override
   public boolean equals(Object obj) {
@@ -520,7 +537,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @see java.lang.Object#hashCode()
+   * {@inheritDoc}
    */
   @Override
   public int hashCode() {

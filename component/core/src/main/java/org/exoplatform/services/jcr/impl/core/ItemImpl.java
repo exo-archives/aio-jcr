@@ -110,8 +110,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * Return a status of the item state. If the state is invalid the item can't
-   * be used anymore.
+   * Return a status of the item state. If the state is invalid the item can't be used anymore.
    * 
    * @return boolean flag, true if an item is usable in the session.
    */
@@ -120,8 +119,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * Checking if this item has valid item state, i.e. wasn't removed (and
-   * saved).
+   * Checking if this item has valid item state, i.e. wasn't removed (and saved).
    * 
    * @return true or throws an InvalidItemStateException exception otherwise
    * @throws InvalidItemStateException
@@ -288,8 +286,8 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * Check when it's a Node and is versionable will a version history removed.
-   * Case of last version in version history.
+   * Check when it's a Node and is versionable will a version history removed. Case of last version
+   * in version history.
    * 
    * @throws RepositoryException
    * @throws ConstraintViolationException
@@ -687,6 +685,9 @@ public abstract class ItemImpl implements Item {
                                                     session.getUserState().getIdentity());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof ItemImpl) {
@@ -705,7 +706,7 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * @see java.lang.Object#hashCode()
+   * {@inheritDoc}
    */
   @Override
   public int hashCode() {
