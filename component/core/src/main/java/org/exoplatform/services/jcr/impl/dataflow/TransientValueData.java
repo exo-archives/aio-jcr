@@ -633,7 +633,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   /**
    * Tell is this Value backed by bytes array before or after spooling.
    */
-  protected boolean isByteArrayAfterSpool() {
+  private boolean isByteArrayAfterSpool() {
     if (data != null) {
       return true;
     } else {
