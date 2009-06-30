@@ -20,7 +20,7 @@ import javax.jcr.RepositoryException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.jmx.MX4JComponentAdapterFactory;

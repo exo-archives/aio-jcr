@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 

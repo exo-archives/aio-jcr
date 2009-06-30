@@ -30,7 +30,7 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;

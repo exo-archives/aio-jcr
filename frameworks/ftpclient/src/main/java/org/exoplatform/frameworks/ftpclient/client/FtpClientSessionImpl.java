@@ -22,7 +22,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.frameworks.ftpclient.FtpConst;
 import org.exoplatform.frameworks.ftpclient.commands.FtpCommand;
 import org.exoplatform.frameworks.ftpclient.data.FtpDataTransiver;

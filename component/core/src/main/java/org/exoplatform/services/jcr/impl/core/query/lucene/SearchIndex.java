@@ -31,7 +31,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 
 import org.apache.commons.collections.iterators.AbstractIteratorDecorator;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;

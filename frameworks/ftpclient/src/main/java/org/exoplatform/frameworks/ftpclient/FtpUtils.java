@@ -17,7 +17,7 @@
 package org.exoplatform.frameworks.ftpclient;
 
 import java.net.ServerSocket;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

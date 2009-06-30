@@ -17,7 +17,7 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.client.DavSearch;
 import org.exoplatform.applications.ooplugin.client.Multistatus;
 import org.exoplatform.applications.ooplugin.client.ResponseDoc;

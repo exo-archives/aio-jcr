@@ -23,7 +23,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;

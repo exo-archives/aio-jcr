@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.impl.core;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;

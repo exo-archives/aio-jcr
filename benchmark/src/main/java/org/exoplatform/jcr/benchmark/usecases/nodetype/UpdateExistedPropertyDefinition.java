@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.jcr.PropertyType;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;

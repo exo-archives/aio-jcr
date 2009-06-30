@@ -29,7 +29,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 import javax.jcr.version.OnParentVersionAction;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;

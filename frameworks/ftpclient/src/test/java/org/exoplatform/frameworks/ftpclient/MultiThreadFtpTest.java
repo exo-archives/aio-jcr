@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.frameworks.ftpclient.client.FtpClientSession;
 import org.exoplatform.frameworks.ftpclient.client.FtpClientSessionImpl;
 import org.exoplatform.frameworks.ftpclient.commands.CmdList;

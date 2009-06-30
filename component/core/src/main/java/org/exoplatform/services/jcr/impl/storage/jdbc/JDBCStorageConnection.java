@@ -36,7 +36,7 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;

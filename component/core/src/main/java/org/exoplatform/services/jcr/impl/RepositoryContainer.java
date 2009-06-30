@@ -26,7 +26,7 @@ import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.QueryManager;
 import javax.naming.NameNotFoundException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.jmx.MX4JComponentAdapterFactory;
 import org.exoplatform.management.annotations.Managed;

@@ -17,7 +17,7 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.Rectangle;

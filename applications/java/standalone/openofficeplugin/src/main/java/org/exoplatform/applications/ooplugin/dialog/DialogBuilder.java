@@ -19,7 +19,7 @@ package org.exoplatform.applications.ooplugin.dialog;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.PlugInDialog;
 import org.exoplatform.applications.ooplugin.Resources;
 import org.exoplatform.applications.ooplugin.config.XmlConfig;

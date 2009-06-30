@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.log.ExoLogger;
 

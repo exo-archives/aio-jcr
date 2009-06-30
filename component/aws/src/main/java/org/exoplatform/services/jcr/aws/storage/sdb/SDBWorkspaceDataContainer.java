@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.aws.storage.sdb;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;

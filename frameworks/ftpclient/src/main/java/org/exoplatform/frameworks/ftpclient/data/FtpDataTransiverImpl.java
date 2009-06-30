@@ -23,7 +23,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.frameworks.ftpclient.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 

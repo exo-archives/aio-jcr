@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.ext.replication;
 
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;

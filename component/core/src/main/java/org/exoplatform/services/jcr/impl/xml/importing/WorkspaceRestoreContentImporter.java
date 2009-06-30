@@ -21,7 +21,7 @@ import java.util.Map;
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.NamespaceRegistry;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;

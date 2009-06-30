@@ -26,7 +26,7 @@ import java.util.concurrent.Semaphore;
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
 import org.apache.commons.collections.buffer.UnboundedFifoBuffer;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 

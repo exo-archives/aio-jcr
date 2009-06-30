@@ -16,7 +16,7 @@
  */
 package org.exoplatform.applications.repoload;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.scale.Scale;
 import org.exoplatform.applications.scale.ScaleBase;
 import org.exoplatform.services.log.ExoLogger;

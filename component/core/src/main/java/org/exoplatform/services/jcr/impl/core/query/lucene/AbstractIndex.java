@@ -23,7 +23,7 @@ import java.io.StringReader;
 import java.util.BitSet;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;

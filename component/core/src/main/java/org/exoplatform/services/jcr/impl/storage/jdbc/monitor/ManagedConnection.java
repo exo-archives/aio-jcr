@@ -26,7 +26,7 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

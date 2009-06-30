@@ -24,7 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataResourceHolder;
 import org.exoplatform.services.jcr.impl.storage.value.ValueOperation;
 import org.exoplatform.services.jcr.impl.storage.value.fs.FileLockException;

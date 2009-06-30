@@ -17,7 +17,7 @@
 
 package org.exoplatform.applications.ooplugin.client;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.applications.ooplugin.props.PropertyList;
 import org.exoplatform.common.http.HTTPStatus;

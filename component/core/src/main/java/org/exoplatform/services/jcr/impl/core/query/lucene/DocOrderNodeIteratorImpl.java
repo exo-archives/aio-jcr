@@ -28,7 +28,7 @@ import java.util.Set;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.datamodel.NodeData;

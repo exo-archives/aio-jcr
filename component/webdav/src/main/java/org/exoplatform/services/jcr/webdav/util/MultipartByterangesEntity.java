@@ -24,7 +24,7 @@ import java.util.List;
 
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;

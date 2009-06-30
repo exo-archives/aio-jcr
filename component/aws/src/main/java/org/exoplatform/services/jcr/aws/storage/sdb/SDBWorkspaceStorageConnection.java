@@ -34,7 +34,7 @@ import javax.jcr.ItemExistsException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.ws.commons.util.Base64;
 import org.apache.ws.commons.util.Base64.DecodingException;
 import org.exoplatform.services.jcr.access.AccessControlEntry;

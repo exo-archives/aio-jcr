@@ -24,7 +24,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.User;

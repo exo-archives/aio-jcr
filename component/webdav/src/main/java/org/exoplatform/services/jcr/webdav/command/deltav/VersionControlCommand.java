@@ -23,7 +23,7 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
 

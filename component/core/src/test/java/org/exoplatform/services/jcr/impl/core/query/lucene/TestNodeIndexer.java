@@ -25,7 +25,7 @@ import java.util.Vector;
 import javax.jcr.Node;
 import javax.jcr.PropertyType;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 

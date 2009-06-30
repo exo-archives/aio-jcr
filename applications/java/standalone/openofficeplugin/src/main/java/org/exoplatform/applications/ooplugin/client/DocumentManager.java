@@ -22,7 +22,7 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;

@@ -35,7 +35,7 @@ import javax.jcr.Session;
 
 import org.picocontainer.ComponentAdapter;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.access.AuthenticationPolicy;
 import org.exoplatform.services.jcr.access.SystemIdentity;

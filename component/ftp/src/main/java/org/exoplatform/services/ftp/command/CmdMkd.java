@@ -23,7 +23,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 

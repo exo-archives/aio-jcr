@@ -23,7 +23,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import org.apache.commons.chain.Catalog;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.command.impl.CommandService;
 import org.exoplatform.services.ftp.client.FtpClientSession;
 import org.exoplatform.services.ftp.client.FtpClientSessionImpl;

@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import javax.ws.rs.WebApplicationException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.client.WebDavContext;
 import org.exoplatform.services.log.ExoLogger;
 

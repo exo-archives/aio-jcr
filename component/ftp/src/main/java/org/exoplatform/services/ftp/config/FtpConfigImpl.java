@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.ftp.config;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.ftp.FtpConst;

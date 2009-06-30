@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 

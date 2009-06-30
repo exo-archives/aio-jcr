@@ -24,7 +24,7 @@ import javax.jcr.RepositoryException;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.aws.storage.sdb.SDBWorkspaceStorageConnection;
 import org.exoplatform.services.jcr.config.AccessManagerEntry;

@@ -28,7 +28,7 @@ import javax.jcr.Session;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.Depth;

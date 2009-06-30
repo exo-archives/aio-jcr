@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import javax.jcr.RepositoryException;
 import javax.jcr.lock.LockException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.LockPersisterEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;

@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.impl.utils;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.impl.util.StringConverter;
 import org.exoplatform.services.log.ExoLogger;

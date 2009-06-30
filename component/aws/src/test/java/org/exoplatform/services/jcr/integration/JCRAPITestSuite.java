@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.integration;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.log.ExoLogger;
 

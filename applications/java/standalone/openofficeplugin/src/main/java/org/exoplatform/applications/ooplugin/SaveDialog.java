@@ -22,7 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
 import org.exoplatform.applications.ooplugin.client.ResponseDoc;
 import org.exoplatform.applications.ooplugin.config.FilterListLoader;

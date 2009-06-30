@@ -24,7 +24,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.QueryResult;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.lucene.search.Query;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;

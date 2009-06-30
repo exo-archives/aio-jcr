@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.impl.core.version;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.OnParentVersionAction;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;

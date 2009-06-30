@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;

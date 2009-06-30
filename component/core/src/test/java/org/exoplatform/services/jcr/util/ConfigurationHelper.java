@@ -29,7 +29,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSourceFactory;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.RepositoryService;

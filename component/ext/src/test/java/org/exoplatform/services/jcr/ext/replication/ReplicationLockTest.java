@@ -20,7 +20,7 @@ import javax.jcr.Node;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.transport.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.transport.MemberAddress;

@@ -8,7 +8,7 @@ package org.exoplatform.services.ftp.client;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.ftp.FtpConst;

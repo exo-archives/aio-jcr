@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.ext.audit;
 import javax.jcr.Node;
 
 import org.apache.commons.chain.Context;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.command.action.Action;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;

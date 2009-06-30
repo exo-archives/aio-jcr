@@ -21,7 +21,7 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 /**
  * Created by The eXo Platform SAS 10.05.2006

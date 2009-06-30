@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.impl.ext.action;
 import javax.jcr.RepositoryException;
 import javax.jcr.observation.Event;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.command.action.Action;

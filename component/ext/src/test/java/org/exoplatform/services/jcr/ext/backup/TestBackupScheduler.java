@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupMessagesLog;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
 import org.exoplatform.services.log.ExoLogger;

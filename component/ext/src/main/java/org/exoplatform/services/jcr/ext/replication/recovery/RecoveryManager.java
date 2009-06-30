@@ -23,7 +23,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.management.annotations.ManagedBy;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;

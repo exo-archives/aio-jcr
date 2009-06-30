@@ -24,7 +24,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;

@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.impl.core.query.lucene.hits;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.log.ExoLogger;
 

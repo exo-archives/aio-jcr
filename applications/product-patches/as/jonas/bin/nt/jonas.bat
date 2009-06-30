@@ -80,7 +80,7 @@ set JONAS_OPTS=%JONAS_OPTS% -Djava.endorsed.dirs=%JONAS_ROOT%\lib\endorsed
 
 Rem ----------------------- Begin eXo configuration ----------------------------
 cd %JONAS_ROOT%/bin
-set JONAS_OPTS=%JONAS_OPTS% -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog -Djava.awt.headless=true
+set JONAS_OPTS=%JONAS_OPTS% -Dorg.exoplatform.services.log.Log=org.apache.commons.logging.impl.SimpleLog -Djava.awt.headless=true
 set JAVA_OPTS=%JAVA_OPTS% -Xmx512M
 Rem ------------------------ End eXo configuration -----------------------------
 

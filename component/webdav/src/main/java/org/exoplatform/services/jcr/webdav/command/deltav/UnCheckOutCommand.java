@@ -27,7 +27,7 @@ import javax.jcr.version.Version;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.log.ExoLogger;

@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.dialog.DialogBuilder;
 import org.exoplatform.applications.ooplugin.dialog.EventHandler;
 import org.exoplatform.applications.ooplugin.utils.TextUtils;

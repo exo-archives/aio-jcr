@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.log.ExoLogger;
 

@@ -190,6 +190,11 @@ public class PropPatchResponseEntity implements StreamingOutput {
 
             if (child.getChildren().isEmpty()) {
 
+              if (node.isNodeType(WebDavConst.NodeTypes.MIX_VERSIONABLE) && !node.isCheckedOut()) {
+                node.checkout();
+                node.save();
+              }
+
               Node content = getContentNode();
               statname = setProperty(content, child);
 
@@ -199,7 +204,6 @@ public class PropPatchResponseEntity implements StreamingOutput {
 
               Set<HierarchicalProperty> propSet = propStats.get(statname);
 
-              // TODO Use constant
               HierarchicalProperty jcrContentProp = new HierarchicalProperty(PropertyConstants.JCR_CONTENT);
               jcrContentProp.addChild(new HierarchicalProperty(child.getName()));
 
@@ -327,6 +331,11 @@ public class PropPatchResponseEntity implements StreamingOutput {
 
       boolean isMultiValued = propertyDefinitionData.isMultiple();
 
+      if (node.isNodeType(WebDavConst.NodeTypes.MIX_VERSIONABLE) && !node.isCheckedOut()) {
+        node.checkout();
+        node.save();
+      }
+
       if (!isMultiValued) {
         node.setProperty(propertyName, property.getValue());
       } else {
@@ -334,6 +343,7 @@ public class PropPatchResponseEntity implements StreamingOutput {
         value[0] = property.getValue();
         node.setProperty(propertyName, value);
       }
+
       node.save();
       return WebDavConst.getStatusDescription(HTTPStatus.OK);
 
@@ -345,6 +355,7 @@ public class PropPatchResponseEntity implements StreamingOutput {
       return WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
     } catch (RepositoryException e) {
       return WebDavConst.getStatusDescription(HTTPStatus.CONFLICT);
+
     }
 
   }

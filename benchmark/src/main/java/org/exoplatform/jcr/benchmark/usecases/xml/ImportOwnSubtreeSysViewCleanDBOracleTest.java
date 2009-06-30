@@ -29,7 +29,7 @@ import java.util.List;
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;

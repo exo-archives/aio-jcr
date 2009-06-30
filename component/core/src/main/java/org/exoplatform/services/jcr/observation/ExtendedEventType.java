@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.observation;
 
 import javax.jcr.observation.Event;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.log.ExoLogger;
 

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.ext.initializer.RemoteWorkspaceInitializationException;
 import org.exoplatform.services.jcr.ext.replication.storage.IncomeDataContext;
 import org.exoplatform.services.jcr.ext.replication.storage.Member;

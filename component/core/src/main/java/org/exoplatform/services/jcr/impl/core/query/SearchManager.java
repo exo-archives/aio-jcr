@@ -36,7 +36,7 @@ import javax.jcr.query.Query;
 
 import org.picocontainer.Startable;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;

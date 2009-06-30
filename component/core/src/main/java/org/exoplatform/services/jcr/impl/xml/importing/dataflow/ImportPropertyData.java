@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.xml.importing.dataflow;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;

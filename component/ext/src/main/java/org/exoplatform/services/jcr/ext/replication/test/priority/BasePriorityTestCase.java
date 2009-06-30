@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.test.priority;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;

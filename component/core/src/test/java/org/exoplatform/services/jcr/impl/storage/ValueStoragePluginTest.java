@@ -31,7 +31,7 @@ import javax.jcr.Node;
 import javax.jcr.PropertyType;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.RepositoryService;

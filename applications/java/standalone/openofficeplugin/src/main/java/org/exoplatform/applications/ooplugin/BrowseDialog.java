@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
 import org.exoplatform.applications.ooplugin.client.CommonProp;
 import org.exoplatform.applications.ooplugin.client.DavPropFind;

@@ -22,7 +22,7 @@ import java.io.InputStream;
 import javax.jcr.Node;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneTest;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDAVMethods;

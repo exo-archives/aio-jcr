@@ -25,7 +25,7 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 

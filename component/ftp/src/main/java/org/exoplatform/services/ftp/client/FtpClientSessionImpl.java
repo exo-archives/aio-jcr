@@ -27,7 +27,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.ftp.FtpConst;

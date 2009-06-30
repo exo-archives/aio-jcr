@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.IdGenerator;

@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 /**
  * Created by The eXo Platform SAS.

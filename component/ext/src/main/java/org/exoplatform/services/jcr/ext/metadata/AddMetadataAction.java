@@ -29,7 +29,7 @@ import javax.jcr.ValueFactory;
 import javax.jcr.ValueFormatException;
 
 import org.apache.commons.chain.Context;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.commons.utils.QName;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.command.action.Action;

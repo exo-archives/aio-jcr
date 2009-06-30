@@ -17,7 +17,7 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
 import org.exoplatform.applications.ooplugin.client.ResponseDoc;
 import org.exoplatform.applications.ooplugin.dialog.Component;

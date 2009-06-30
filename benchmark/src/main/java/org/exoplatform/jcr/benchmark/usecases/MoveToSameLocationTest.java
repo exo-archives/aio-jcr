@@ -19,7 +19,7 @@ package org.exoplatform.jcr.benchmark.usecases;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.services.log.ExoLogger;
 

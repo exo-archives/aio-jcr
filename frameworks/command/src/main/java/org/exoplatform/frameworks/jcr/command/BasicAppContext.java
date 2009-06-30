@@ -23,7 +23,7 @@ import javax.jcr.Session;
 import javax.naming.NamingException;
 
 import org.apache.commons.chain.impl.ContextBase;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;

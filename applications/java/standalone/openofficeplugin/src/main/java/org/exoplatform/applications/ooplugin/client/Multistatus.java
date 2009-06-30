@@ -19,7 +19,7 @@ package org.exoplatform.applications.ooplugin.client;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.applications.ooplugin.XmlUtil;
 import org.exoplatform.services.log.ExoLogger;

@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.config;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex;

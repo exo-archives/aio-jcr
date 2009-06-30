@@ -69,8 +69,10 @@
             <include>**/Test*</include>
           </includes>
           <excludes>
-            <exclude>**/TestPropPatch.java</exclude>
             <exclude>**/TestUtils.java</exclude>
+            <exclude>**/TestUnLock</exclude>
+            <exclude>**/TestPropFindContent.java</exclude>
+            <exclude>**/TestPropPatchContent.java</exclude>
           </excludes>
         </configuration>
       </plugin>

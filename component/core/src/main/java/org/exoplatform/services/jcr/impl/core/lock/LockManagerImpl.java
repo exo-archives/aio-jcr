@@ -33,7 +33,7 @@ import javax.jcr.lock.LockException;
 
 import org.picocontainer.Startable;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;

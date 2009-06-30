@@ -18,7 +18,7 @@ package org.exoplatform.frameworks.ftpclient.commands;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.frameworks.ftpclient.FtpConst;
 import org.exoplatform.frameworks.ftpclient.data.FtpDataTransiver;
 import org.exoplatform.frameworks.ftpclient.data.FtpFileInfo;

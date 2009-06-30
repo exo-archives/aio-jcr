@@ -21,7 +21,7 @@ package org.exoplatform.services.jcr.aws.storage.sdb;
 
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

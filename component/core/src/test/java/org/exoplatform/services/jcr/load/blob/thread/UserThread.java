@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.load.blob.thread;
 
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.log.ExoLogger;
 

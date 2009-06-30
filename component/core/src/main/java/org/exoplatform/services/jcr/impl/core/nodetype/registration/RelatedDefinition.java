@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype.registration;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 
 import org.exoplatform.services.log.ExoLogger;
 

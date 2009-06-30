@@ -23,7 +23,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.command.dasl.SearchRequestEntity;

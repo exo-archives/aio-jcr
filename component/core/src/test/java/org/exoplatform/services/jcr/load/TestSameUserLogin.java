@@ -22,7 +22,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 import org.exoplatform.services.log.ExoLogger;
@@ -87,21 +87,21 @@ public class TestSameUserLogin extends BaseUsecasesTest {
   }
 
   public void testMultiThreadLogin() {
-   
+
     LoginThread[] queue = new LoginThread[20];
-    
+
     Object runLock = new Object();
-    
-    for (int i = 0; i<queue.length; i++) {
+
+    for (int i = 0; i < queue.length; i++) {
       queue[i] = new LoginThread(i, new CredentialsImpl("root", "exo".toCharArray()), runLock);
       queue[i].start();
     }
-    
+
     // try start all together
     synchronized (runLock) {
-      runLock.notifyAll();  
+      runLock.notifyAll();
     }
-    
+
     for (LoginThread lt : queue) {
       lt.done();
     }
@@ -176,6 +176,7 @@ public class TestSameUserLogin extends BaseUsecasesTest {
     Object runLock = new Object();
 
     int passes = 10000;
+    
     for (int i = 0; i < queue.length; i++) {
       queue[i] = new LoginThread2(i,
                                  new CredentialsImpl("root", "exo".toCharArray()),
@@ -188,7 +189,7 @@ public class TestSameUserLogin extends BaseUsecasesTest {
     }
 
     Thread.sleep(30000);
-
+    
     for (LoginThread2 lt : queue) {
       assertEquals(passes, lt.done());
     }

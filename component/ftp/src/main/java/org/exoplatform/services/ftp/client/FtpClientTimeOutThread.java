@@ -7,7 +7,7 @@ package org.exoplatform.services.ftp.client;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 

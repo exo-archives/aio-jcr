@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.priority;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.transport.ChannelManager;
