@@ -14,7 +14,6 @@
   <description>eXo JCR RMI Service component</description>
 
   <dependencies>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
@@ -22,13 +21,12 @@
       <scope>compile</scope>
     </dependency>
 
+    <!-- slf4j-log4j12 for TCK -->
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.0</version>
-        <scope>compile</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

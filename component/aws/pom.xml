@@ -42,17 +42,15 @@
     </dependency>
     
     <!-- slf4j-log4j12 for TCK -->
-	<dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.0</version>
       <scope>test</scope>
     </dependency>
 	
-	<dependency>
+    <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
-      <version>1.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
