@@ -17,6 +17,9 @@
 package org.exoplatform.services.jcr.api.writing;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.GregorianCalendar;
 
 import javax.jcr.ItemExistsException;
@@ -30,8 +33,18 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.version.OnParentVersionAction;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.dataflow.serialization.ObjectWriter;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.NameValue;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.ObjectWriterImpl;
+import org.exoplatform.services.jcr.impl.dataflow.serialization.TransactionChangesLogWriter;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,11 +52,22 @@ import org.exoplatform.services.jcr.impl.core.value.NameValue;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestSetProperty.java 14508 2008-05-20 10:07:45Z ksm $
  */
-public class TestSetProperty extends JcrAPIBaseTest {
+public class TestSetProperty extends JcrAPIBaseTest implements ItemsPersistenceListener {
 
-  static protected String TEST_MULTIVALUED = "testMultivalued";
+  static protected String       TEST_MULTIVALUED = "testMultivalued";
 
-  protected Node          testMultivalued  = null;
+  protected Node                testMultivalued  = null;
+
+  private TransactionChangesLog cLog;
+
+  public void setUp() throws Exception {
+    super.setUp();
+
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
+                                                                           .getName());
+    CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.addItemPersistenceListener(this);
+  }
 
   public void initRepository() throws RepositoryException {
     Node root = session.getRootNode();
@@ -298,4 +322,34 @@ public class TestSetProperty extends JcrAPIBaseTest {
 
   }
 
+  public void testSetPropertySeveralTime() throws Exception {
+
+    Node node = root.addNode("testNode");
+
+    File tmpFile1 = createBLOBTempFile(250);
+    node.setProperty("testProp", new FileInputStream(tmpFile1));
+
+    File tmpFile2 = createBLOBTempFile(500);
+    node.setProperty("testProp", new FileInputStream(tmpFile2));
+
+    File tmpFile3 = createBLOBTempFile(1000);
+    node.setProperty("testProp", new FileInputStream(tmpFile3));
+
+    session.save();
+
+    File tempFiles[] = new File[3];
+    tempFiles[0] = tmpFile1;
+    tempFiles[1] = tmpFile2;
+    tempFiles[2] = tmpFile3;
+
+    for (int i = 2; i < cLog.getAllStates().size(); i++) {
+      ItemState item = cLog.getAllStates().get(i);
+      compareStream(((PropertyData) item.getData()).getValues().get(0).getAsStream(),
+                    new FileInputStream(tempFiles[i - 2]));
+    }
+  }
+
+  public void onSaveItems(ItemStateChangesLog itemStates) {
+    cLog = (TransactionChangesLog) itemStates;
+  }
 }
