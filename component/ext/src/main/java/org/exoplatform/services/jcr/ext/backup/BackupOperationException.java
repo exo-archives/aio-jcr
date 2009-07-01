@@ -17,7 +17,8 @@
 package org.exoplatform.services.jcr.ext.backup;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS.
+ *  Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 06.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
@@ -25,14 +26,34 @@ package org.exoplatform.services.jcr.ext.backup;
  */
 public class BackupOperationException extends Exception {
 
+  /**
+   * BackupOperationException  constructor.
+   *
+   * @param message
+   *          String, the exception message
+   */
   public BackupOperationException(String message) {
     super(message);
   }
 
+  /**
+   * BackupOperationException  constructor.
+   *
+   * @param message
+   *          String, the exception message
+   * @param e
+   *         Throwable, the cause exception
+   */
   public BackupOperationException(String message, Throwable e) {
     super(message, e);
   }
 
+  /**
+   * BackupOperationException  constructor.
+   *
+   * @param e
+   *          Throwable, the cause exception
+   */
   public BackupOperationException(Throwable e) {
     super(e.getMessage(), e);
   }

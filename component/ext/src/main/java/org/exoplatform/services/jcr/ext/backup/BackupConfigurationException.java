@@ -17,21 +17,42 @@
 package org.exoplatform.services.jcr.ext.backup;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS.
+ *  Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 06.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupConfigurationException.java 568 2008-01-09 16:48:40Z rainf0x $
  */
 public class BackupConfigurationException extends Exception {
+  /**
+   * BackupConfigurationException  constructor.
+   *
+   * @param message
+   *          String, the exception message 
+   */
   public BackupConfigurationException(String message) {
     super(message);
   }
 
+  /**
+   * BackupConfigurationException  constructor.
+   *
+   * @param message
+   *          String, the exception message
+   * @param e
+   *         Throwable, the cause exception
+   */
   public BackupConfigurationException(String message, Throwable e) {
     super(message, e);
   }
 
+  /**
+   * BackupConfigurationException  constructor.
+   *
+   * @param e
+   *          Throwable, the cause exception
+   */
   public BackupConfigurationException(Throwable e) {
     super(e.getMessage(), e);
   }

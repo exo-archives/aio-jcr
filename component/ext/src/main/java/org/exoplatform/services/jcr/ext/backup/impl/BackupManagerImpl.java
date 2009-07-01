@@ -65,7 +65,6 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
-import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.SysViewWorkspaceInitializer;
@@ -263,10 +262,27 @@ public class BackupManagerImpl implements BackupManager, Startable {
     }
   }
 
+  /**
+   * BackupManagerImpl  constructor.
+   *
+   * @param initParams
+   *          InitParams,  the init parameters
+   * @param repoService
+   *          RepositoryService, the repository service
+   */
   public BackupManagerImpl(InitParams initParams, RepositoryService repoService) {
     this(initParams, repoService, null);
   }
 
+  /**
+   * BackupManagerImpl  constructor.
+   *
+   *          InitParams,  the init parameters
+   * @param repoService
+   *          RepositoryService, the repository service
+   * @param registryService
+   *          RegistryService, the registry service
+   */
   public BackupManagerImpl(InitParams initParams,
                            RepositoryService repoService,
                            RegistryService registryService) {
@@ -289,14 +305,23 @@ public class BackupManagerImpl implements BackupManager, Startable {
     this.stopper.start();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Set<BackupChain> getCurrentBackups() {
     return currentBackups;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public BackupMessage[] getMessages() {
     return messages.getMessages();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public BackupChainLog[] getBackupsLogs() {
     File[] cfs = logsDirectory.listFiles(new LogsFilter());
     List<BackupChainLog> logs = new ArrayList<BackupChainLog>();
@@ -330,6 +355,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Deprecated
   public void restore(BackupChainLog log, String repositoryName, WorkspaceEntry workspaceEntry) throws BackupOperationException,
                                                                                                 RepositoryException,
@@ -430,6 +458,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public BackupChain startBackup(BackupConfig config) throws BackupOperationException,
                                                      BackupConfigurationException,
                                                      RepositoryException,
@@ -481,11 +512,17 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return bchain;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void stopBackup(BackupChain backup) {
     backup.stopBackup();
     currentBackups.remove(backup);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void start() {
     // start all scheduled before tasks
 
@@ -526,6 +563,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void stop() {
     // 1. stop current backup chains
     // for (Iterator iterator = currentBackups.iterator(); iterator.hasNext();) {
@@ -885,6 +925,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
       throw new RuntimeException(INCREMENTAL_BACKUP_TYPE + " not specified");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public BackupChain findBackup(String repository, String workspace) {
     Iterator<BackupChain> it = currentBackups.iterator();
     while (it.hasNext()) {
@@ -896,6 +939,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public BackupChain findBackup(String backupId) {
     Iterator<BackupChain> it = currentBackups.iterator();
     while (it.hasNext()) {
@@ -906,39 +952,61 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public BackupScheduler getScheduler() {
     return scheduler;
   }
 
   /**
-   * Used in scheduler
-   * 
-   * @return
+   * getLogsDirectory.
+   *
+   * @return File
+   *           return the logs directory
    */
   File getLogsDirectory() {
     return logsDirectory;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public File getBackupDirectory() {
     return getLogsDirectory();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String getFullBackupType() {
     return fullBackupType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String getIncrementalBackupType() {
     return incrementalBackupType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public long getDefaultIncrementalJobPeriod() {
     return defaultIncrementalJobPeriod;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<JobWorkspaceRestore> getRestores() {
     return restoreJobs;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public JobWorkspaceRestore getLastRestore(String repositoryName, String workspaceName) {
     for (int i = restoreJobs.size() - 1; i >= 0; i--) {
       JobWorkspaceRestore job = restoreJobs.get(i);
@@ -953,6 +1021,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void restore(BackupChainLog log,
                       String repositoryName,
                       WorkspaceEntry workspaceEntry,

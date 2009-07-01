@@ -32,7 +32,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS.
+ *  Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 05.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>

@@ -17,7 +17,7 @@
 package org.exoplatform.services.jcr.ext.backup;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * Date: 05.02.2008
  * 
@@ -26,8 +26,24 @@ package org.exoplatform.services.jcr.ext.backup;
  */
 public interface BackupJobListener {
 
+  /**
+   * onStateChanged.
+   *
+   * @param job
+   *          BackupJob, the backup job
+   */
   void onStateChanged(BackupJob job);
 
+  /**
+   * onError.
+   *
+   * @param job
+   *          BackupJob, the backup job 
+   * @param message
+   *          String, the error message
+   * @param error
+   *          Throwable,  the cause exception
+   */
   void onError(BackupJob job, String message, Throwable error);
 
 }

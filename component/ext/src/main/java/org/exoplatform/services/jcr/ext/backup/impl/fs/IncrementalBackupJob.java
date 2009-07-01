@@ -34,8 +34,8 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.impl.AbstractIncrementalBackupJob;
+import org.exoplatform.services.jcr.ext.backup.impl.PendingChangesLog;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
-import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 

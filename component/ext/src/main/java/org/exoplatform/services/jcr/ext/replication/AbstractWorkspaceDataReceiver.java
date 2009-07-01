@@ -84,11 +84,6 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   private ChannelManager                     channelManager;
 
   /**
-   * The HashMap with PendingChangesLogs.
-   */
-  private HashMap<String, PendingChangesLog> mapPendingChangesLog;
-
-  /**
    * The HashMap with mapPendingBinaryFiles.
    */
   private HashMap<String, PendingBinaryFile> mapPendingBinaryFile;
@@ -121,7 +116,6 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
    */
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
     this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
-    mapPendingChangesLog = new HashMap<String, PendingChangesLog>();
     mapPendingBinaryFile = new HashMap<String, PendingBinaryFile>();
 
     state = INIT_MODE;

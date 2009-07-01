@@ -76,6 +76,22 @@ public class BackupChainLog {
   
   private boolean                  finalized;
 
+  /**
+   * BackupChainLog  constructor.
+   *
+   * @param logDir
+   *          File, the directory to logs
+   * @param config
+   *          BackupConfig, the backup config
+   * @param fullBackupType
+   *          Sting, FQN for full backup
+   * @param incrementalBackupType
+   *          Sting, FQN for incremental backup
+   * @param backupId
+   *          String, the identifier of backup
+   * @throws BackupOperationException
+   *           will be generate the exception BackupOperationException 
+   */
   public BackupChainLog(File logDir,
                         BackupConfig config,
                         String fullBackupType,
@@ -101,6 +117,14 @@ public class BackupChainLog {
     }
   }
 
+  /**
+   * BackupChainLog  constructor.
+   *
+   * @param log
+   *          File, the backup log
+   * @throws BackupOperationException
+   *           will be generate  the BackupOperationException 
+   */
   public BackupChainLog(File log) throws BackupOperationException {
     this.log = log;
     this.backupId = log.getName().replaceAll(PREFIX, "").replaceAll(SUFFIX, "");
@@ -134,6 +158,12 @@ public class BackupChainLog {
     }
   }
 
+  /**
+   * Adding the the backup job.
+   *
+   * @param job 
+   *          BackupJob, the backup job
+   */
   public void addJobEntry(BackupJob job) {
     // jobEntries
     try {
@@ -149,23 +179,52 @@ public class BackupChainLog {
     }
   }
 
+  /**
+   * Getting the backup id.
+   *
+   * @return int
+   *           return the backup id
+   */
   public String getBackupId() {
     return backupId;
   }
 
+  /**
+   * Getting the config info.
+   *
+   * @return String 
+   *           return the config info
+   */
   public String getConfigInfo() {
     return configInfo;
   }
 
+  /**
+   * Getting the job informations.
+   *
+   * @return List
+   *           return the job informations.
+   */
   public List<JobEntryInfo> getJobEntryInfos() {
     return jobEntries;
   }
 
+  /**
+   * Finalize log.
+   *
+   */
   public void endLog() {
     finalized = true;
     logWriter.writeEndLog();
   }
 
+  /**
+   * Getting the states for jobs.
+   *
+   * @return Collection
+   *           return the collection of states for jobs
+   * 
+   */
   public Collection<JobEntryInfo> getJobEntryStates() {
     HashMap<Integer, JobEntryInfo> infos = new HashMap<Integer, JobEntryInfo>();
     for (JobEntryInfo jobEntry : jobEntries) {
@@ -174,18 +233,42 @@ public class BackupChainLog {
     return infos.values();
   }
 
+  /**
+   * Getting backup config.
+   *
+   * @return BackupConfig
+   *           return the backup config
+   */
   public BackupConfig getBackupConfig() {
     return config;
   }
 
+  /**
+   * Getting log file path.
+   *
+   * @return String
+   *           return the path to backup log
+   */
   public String getLogFilePath() {
     return log.getAbsolutePath();
   }
 
+  /**
+   * Getting the started time.
+   *
+   * @return Calendar
+   *           return the started time
+   */
   public Calendar getStartedTime() {
     return startedTime;
   }
 
+  /**
+   * Getting the finished time.
+   *
+   * @return Calendar
+   *           return the finished time 
+   */
   public Calendar getFinishedTime() {
     return finishedTime;
   }

@@ -30,40 +30,107 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 
 public interface BackupJob extends Runnable {
 
+  /**
+   * The full backup type of job.
+   */
   public static final int FULL        = 1;
 
+  /**
+   * THe incremental backup type of job.
+   */
   public static final int INCREMENTAL = 2;
 
+  /**
+   * The STARTING state of job.
+   */
   public static final int STARTING    = 0;
 
+  /**
+   * The WAITING state of job..
+   */
   public static final int WAITING     = 1;
 
+  /**
+   * The WORKING state of job.
+   */
   public static final int WORKING     = 2;
 
+  /**
+   * The FINISHED state of job..
+   */
   public static final int FINISHED    = 4;
 
   /**
-   * FULL or INCREMENTAL
+   * Getting the type of job.
    * 
-   * @return
+   * @return int
+   *           return the type of job
    */
   int getType();
 
+  /**
+   * Getting state of job.
+   *
+   * @return int
+   *           return the state of job
+   */
   int getState();
 
+  /**
+   * Getting the id of job.
+   *
+   * @return int
+   *           return id
+   */
   int getId();
 
+  /**
+   * Getting storage URL.
+   *
+   * @return URL
+   *           return the storage URL
+   * @throws BackupOperationException
+   *           will be generate the exception BackupOperationException 
+   */
   URL getStorageURL() throws BackupOperationException;
 
+  /**
+   * Call stop of job.
+   *
+   */
   void stop();
 
+  /**
+   * Initialize.
+   *
+   * @param repository
+   *          ManageableRepository, the manageable repository
+   * @param workspaceName
+   *          String, the workspace name 
+   * @param config
+   *          BackupConfig, the backup config
+   * @param timeStamp
+   *          Calendar,  the time stamp
+   */
   void init(ManageableRepository repository,
             String workspaceName,
             BackupConfig config,
             Calendar timeStamp);
 
+  /**
+   * Adding listener.
+   *
+   * @param listener
+   *          BackupJobListener, the job listener
+   */
   void addListener(BackupJobListener listener);
 
+  /**
+   * Remove listener.
+   *
+   * @param listener
+   *          BackupJobListener, the job listener
+   */
   void removeListener(BackupJobListener listener);
 
 }
