@@ -115,7 +115,7 @@ public class TestPersistedValueData extends TestCase {
     }
 
     // should be enough to finish all the threads
-    Thread.sleep(1000);
+    Thread.sleep(4000);
 
     for (int i = 0; i < 10; i++) {
       assertEquals(100 * 100, p[i].getLen());
