@@ -396,6 +396,7 @@
                 <include>**/impl/**/Test*.java</include>
               </includes>
               <excludes>
+              	<exclude>**/TestImport.java</exclude>
                 <exclude>**/TestRollbackBigFiles.java</exclude>
                 <exclude>**/TestErrorMultithreading.java</exclude>
                 <exclude>**/api/**/TestSameNameItems.java</exclude>
