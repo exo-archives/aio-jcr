@@ -113,7 +113,10 @@ public class BackupWorkspaceInitializer extends SysViewWorkspaceInitializer {
       // restore from full backup
       PlainChangesLog changes = read();
 
-      dataManager.save(changes);
+      TransactionChangesLog tLog = new TransactionChangesLog(changes);
+      tLog.setSystemId(Constants.JCR_CORE_RESTORE_WORKSPACE_INITIALIZER_SYSTEM_ID); // mark changes
+
+      dataManager.save(tLog);
 
       // restore from incremental backup
       incrementalRead();
@@ -158,6 +161,7 @@ public class BackupWorkspaceInitializer extends SysViewWorkspaceInitializer {
 
       while (true) {
         TransactionChangesLog changesLog = readExternal(ois);
+        changesLog.setSystemId(Constants.JCR_CORE_RESTORE_WORKSPACE_INITIALIZER_SYSTEM_ID); // mark changes
 
         ChangesLogIterator cli = changesLog.getLogIterator();
         while (cli.hasNextLog()) {
