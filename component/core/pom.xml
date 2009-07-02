@@ -25,26 +25,22 @@
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <!-- eXo dependencies (eXo JCR API) -->
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.container</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.component.command</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.component.common</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <!-- eXo dependencies (eXo JCR Impl) -->
@@ -52,31 +48,26 @@
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.component.cache</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.organization.api</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.document</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.security.core</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.database</artifactId>
-      <scope>compile</scope>
     </dependency>
 
     <!-- Third party dependencies (eXo JCR Impl) -->
@@ -149,7 +140,7 @@
     <dependency>
       <groupId>concurrent</groupId>
       <artifactId>concurrent</artifactId>
-	  <scope>compile</scope>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -173,12 +164,22 @@
           <groupId>xml-apis</groupId>
           <artifactId>xml-apis</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
       <scope>test</scope>
     </dependency>
 	
