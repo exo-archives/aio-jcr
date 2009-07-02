@@ -24,10 +24,6 @@
       <exclusions>
         <exclusion>
           <groupId>org.exoplatform.kernel</groupId>
-          <artifactId>exo.kernel.commons</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.kernel</groupId>
           <artifactId>exo.kernel.container</artifactId>
         </exclusion>
         <exclusion>
@@ -65,6 +61,12 @@
       <groupId>org.exoplatform.ws</groupId>
       <artifactId>exo.ws.rest.ext</artifactId>
       <version>${org.exoplatform.ws.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.kernel</groupId>
+      <artifactId>exo.kernel.commons</artifactId>
+      <version>${org.exoplatform.kernel.version}</version>
       <scope>compile</scope>
     </dependency>
 
