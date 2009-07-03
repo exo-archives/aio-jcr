@@ -10,7 +10,7 @@
   <version>1.11.2-SNAPSHOT</version>
   <packaging>war</packaging>
   <url>http://www.exoplatform.org</url>
-  <name>eXo JCR Browser (JNDI/RMI) demo</name>
+  <name>eXo JCR Browser demo</name>
 
   <dependencies>
 
@@ -48,7 +48,6 @@
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
-
   </dependencies>
 
   <build>
