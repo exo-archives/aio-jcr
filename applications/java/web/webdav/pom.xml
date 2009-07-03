@@ -2,12 +2,12 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.11.2</version>
+    <version>1.11.3-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.webdav</artifactId>
-  <version>1.11.2</version>
+  <version>1.11.3-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>eXO JCR Webdav web application</name>
   <url>http://www.exoplatform.org</url>
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.web</artifactId>
-      <version>1.11.2</version>
+      <version>1.11.3-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 

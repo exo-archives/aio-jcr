@@ -9,7 +9,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.11.2</version>
+  <version>1.11.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <properties>
@@ -18,9 +18,9 @@
   </properties>
   
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.11.2</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.11.2</developerConnection>
-    <url>http://fisheye.exoplatform.org/browse/projects-jcr/tags/1.11.2</url>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</developerConnection>
+    <url>http://fisheye.exoplatform.org/browse/projects-jcr/trunk</url>
   </scm>
   
   <modules>

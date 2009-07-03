@@ -2,12 +2,12 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.11.2</version>
+    <version>1.11.3-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.ear</artifactId>
-  <version>1.11.2</version>
+  <version>1.11.3-SNAPSHOT</version>
   <packaging>ear</packaging>
   <url>http://www.exoplatform.org</url>
   <name>eXo JCR EAR</name>
@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.connectors.localadapter</artifactId>
-      <version>1.11.2</version>
+      <version>1.11.3-SNAPSHOT</version>
       <type>rar</type>
       <scope>runtime</scope>
     </dependency>
@@ -25,7 +25,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.applications.rest</artifactId>
-      <version>1.11.2</version>
+      <version>1.11.3-SNAPSHOT</version>
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.applications.browser</artifactId>
-      <version>1.11.2</version>
+      <version>1.11.3-SNAPSHOT</version>
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.applications.fckeditor</artifactId>
-      <version>1.11.2</version>
+      <version>1.11.3-SNAPSHOT</version>
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
@@ -49,7 +49,7 @@
     <dependency>
 	      <groupId>org.exoplatform.jcr</groupId>
 	      <artifactId>exo.jcr.component.webdav</artifactId>
-	      <version>1.11.2</version>
+	      <version>1.11.3-SNAPSHOT</version>
 	      <scope>runtime</scope>
     </dependency>
 
