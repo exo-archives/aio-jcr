@@ -8,7 +8,7 @@ fi
 $JAVA_HOME/bin/java -Djava.security.manager=default  \
 -Djava.security.policy=$JONAS_ROOT/conf/java.policy \
 -cp \
-../connector/target/exo.jcr.connectors.ejb30.bean-1.11.2-SNAPSHOT.jar:\
+../connector/target/exo.jcr.connectors.ejb30.bean-1.11.2.jar:\
 $JONAS_ROOT/lib/apps/exo.core.component.security.core-2.2.1.jar:\
 $JONAS_ROOT/lib/apps/exo.ws.rest.core-2.0.1.jar:\
 $JONAS_ROOT/lib/apps/exo.ws.rest.ext-2.0.1.jar:\
@@ -24,4 +24,4 @@ target/rar/util-log-1.0.6.jar:\
 target/rar/util-i18n-1.0.6.jar:\
 target/rar/easybeans-asm-3.0.jar:\
 target/rar/easybeans-util-1.0.1.jar \
-org.objectweb.jonas.client.ClientContainer target/exo.jcr.connectors.ejb30.client-1.11.2-SNAPSHOT.jar $1 $2
+org.objectweb.jonas.client.ClientContainer target/exo.jcr.connectors.ejb30.client-1.11.2.jar $1 $2
