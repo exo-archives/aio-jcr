@@ -116,11 +116,11 @@
         <version>1.0</version>
       </dependency>
       
-      <!-- dependency>
+      <dependency>
         <groupId>org.apache.jackrabbit</groupId>
         <artifactId>jackrabbit-jcr-tests</artifactId>
         <version>1.4</version>
-      </dependency -->
+      </dependency>
 
       <!-- slf4j-log4j12 for TCK sources -->
       <dependency>
