@@ -2,12 +2,12 @@
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>config</artifactId>
-		<version>1.11.2-SNAPSHOT</version>
+		<version>1.11.2</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.jcr.applications.repoload</artifactId>
 	<packaging>jar</packaging>
-	<version>1.11.2-SNAPSHOT</version>
+	<version>1.11.2</version>
 	<name>repoload</name>
 	<url>http://www.exoplatform.org</url>
 	<description>Repository Uploader</description>
@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.core</artifactId>
-			<version>1.11.2-SNAPSHOT</version>
+			<version>1.11.2</version>
 			<scope>compile</scope>
 		</dependency>
 

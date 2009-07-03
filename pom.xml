@@ -9,7 +9,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.11.2-SNAPSHOT</version>
+  <version>1.11.2</version>
   <packaging>pom</packaging>
   
   <properties>
@@ -18,9 +18,9 @@
   </properties>
   
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</developerConnection>
-    <url>http://fisheye.exoplatform.org/browse/projects-jcr/trunk</url>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.11.2</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.11.2</developerConnection>
+    <url>http://fisheye.exoplatform.org/browse/projects-jcr/tags/1.11.2</url>
   </scm>
   
   <modules>
@@ -373,25 +373,25 @@
             <phase>test-compile</phase>
             <configuration>
               <tasks if="emma.run">
-                <echo message="[EMMA] Start classes instrumentation ..."/>
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath"/>
-                <mkdir dir="target"/>
-                <mkdir dir="target/classes"/>
-                <mkdir dir="target/emma/classes"/>
+                <echo message="[EMMA] Start classes instrumentation ..." />
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
+                <mkdir dir="target" />
+                <mkdir dir="target/classes" />
+                <mkdir dir="target/emma/classes" />
                 <!-- Do nothing if the directory already exist-->
                 <copy todir="target/emma/classes" verbose="false" overwrite="true">
-                  <fileset dir="target/classes"/>
+                  <fileset dir="target/classes" />
                 </copy>
                 <emma enabled="true">
                   <instr mode="overwrite" metadatafile="target/emma/metadata.em">
-                    <filter excludes="*JiBX*"/>
-                    <filter excludes="*Entry*"/>
-                    <filter excludes="*Value*"/>
-                    <filter excludes="*RepositoryServiceConfiguration*"/>
-                    <filter excludes="*.query*"/>
+                    <filter excludes="*JiBX*" />
+                    <filter excludes="*Entry*" />
+                    <filter excludes="*Value*" />
+                    <filter excludes="*RepositoryServiceConfiguration*" />
+                    <filter excludes="*.query*" />
                     <instrpath>
                       <dirset dir="target">
-                        <include name="emma/classes"/>
+                        <include name="emma/classes" />
                       </dirset>
                     </instrpath>
                   </instr>
@@ -407,29 +407,29 @@
             <phase>test</phase>
             <configuration>
               <tasks if="emma.run">
-                <echo message="[EMMA] Start report generation..."/>
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath"/>
+                <echo message="[EMMA] Start report generation..." />
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
                   <merge outfile="target/coverage.es">
                     <fileset dir=".">
-                      <include name="**/target/emma/*.e*"/>
-                      <include name="**/target/emma/*.e*"/>
+                      <include name="**/target/emma/*.e*" />
+                      <include name="**/target/emma/*.e*" />
                     </fileset>
                     <!-- just for the first launnch -->
-                    <fileset file="${exo.projects.directory.config}/coverage.es"/>
+                    <fileset file="${exo.projects.directory.config}/coverage.es" />
                   </merge>
                   <report>
                     <sourcepath>
                       <dirset dir=".">
-                        <include name="**/src/**/java"/>
+                        <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
                     <fileset dir="target/">
-                      <include name="*.es"/>
+                      <include name="*.es" />
                     </fileset>
-                    <html outfile="target/coverage.html"/>
-                    <xml outfile="target/coverage.xml"/>
+                    <html outfile="target/coverage.html" />
+                    <xml outfile="target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
