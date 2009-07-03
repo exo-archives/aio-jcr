@@ -1,65 +1,64 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
   <parent>
     <groupId>org.exoplatform</groupId>
     <artifactId>parent</artifactId>
     <version>1.1.1</version>
   </parent>
-
+  
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
   <version>1.11.2-SNAPSHOT</version>
   <packaging>pom</packaging>
-
+  
   <properties>
     <exo.product.name>exo-jcr</exo.product.name>
     <exo.product.specification>1.11</exo.product.specification>
   </properties>
-
+  
   <scm>
     <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</connection>
     <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/trunk</developerConnection>
     <url>http://fisheye.exoplatform.org/browse/projects-jcr/trunk</url>
   </scm>
-
+  
   <modules>
     <module>component/core</module>
     <module>component/ext</module>
-
+    
     <module>component/aws</module>
     <module>component/rmi</module>
     <module>component/ftp</module>
     <module>component/webdav</module>
-
+    
     <module>frameworks/command</module>
     <module>frameworks/web</module>
     <module>frameworks/ftpclient</module>
-
+    
     <module>connectors/ejb/ejb21</module>
     <module>connectors/ejb/ejb30</module>
     <module>connectors/rmiadapter</module>
     <module>connectors/jca</module>
-
+    
     <module>applications/config</module>
     <module>applications/java/web/samples/browser</module>
     <module>applications/java/web/samples/fckeditor</module>
     <module>applications/java/web/webdav</module>
     <module>applications/java/web/rest</module>
-
+    
     <module>applications/java/web/ear</module>
     <module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
     <module>applications/java/standalone/backupconsole</module>
-
-    <!-- module>applications/java/standalone/openofficeplugin</module -->
+    
+    <module>applications/java/standalone/openofficeplugin</module>
     <module>applications/java/standalone/samples/repoload</module>
     <module>applications/java/web/console</module>
-
+    
     <module>benchmark</module>
   </modules>
-
+  
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -67,110 +66,110 @@
         <artifactId>exo.kernel.container</artifactId>
         <version>${org.exoplatform.kernel.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.exoplatform.kernel</groupId>
         <artifactId>exo.kernel.component.command</artifactId>
         <version>${org.exoplatform.kernel.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.exoplatform.kernel</groupId>
         <artifactId>exo.kernel.component.common</artifactId>
         <version>${org.exoplatform.kernel.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.exoplatform.kernel</groupId>
         <artifactId>exo.kernel.component.cache</artifactId>
         <version>${org.exoplatform.kernel.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.exoplatform.core</groupId>
         <artifactId>exo.core.component.organization.api</artifactId>
         <version>${org.exoplatform.core.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.exoplatform.core</groupId>
         <artifactId>exo.core.component.document</artifactId>
         <version>${org.exoplatform.core.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.exoplatform.core</groupId>
         <artifactId>exo.core.component.security.core</artifactId>
         <version>${org.exoplatform.core.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.exoplatform.core</groupId>
         <artifactId>exo.core.component.database</artifactId>
         <version>${org.exoplatform.core.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>javax.jcr</groupId>
         <artifactId>jcr</artifactId>
         <version>1.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.apache.jackrabbit</groupId>
         <artifactId>jackrabbit-jcr-tests</artifactId>
         <version>1.4</version>
       </dependency>
-
+      
       <!-- slf4j-log4j12 for TCK sources -->
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>1.5.6</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-core</artifactId>
         <version>2.2.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-spellchecker</artifactId>
         <version>2.2.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-memory</artifactId>
         <version>2.2.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>javax.xml.stream</groupId>
         <artifactId>stax-api</artifactId>
         <version>1.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>com.sun.xml.stream</groupId>
         <artifactId>sjsxp</artifactId>
         <version>1.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
         <version>1.8.0.7</version>
       </dependency>
-
+      
       <dependency>
         <groupId>commons-dbcp</groupId>
         <artifactId>commons-dbcp</artifactId>
         <version>1.2.1</version>
       </dependency>
-
+      
       <dependency>
         <groupId>jotm</groupId>
         <artifactId>jotm</artifactId>
@@ -182,101 +181,101 @@
           </exclusion>
         </exclusions>
       </dependency>
-
+      
       <dependency>
         <groupId>javax.resource</groupId>
         <artifactId>connector-api</artifactId>
         <version>1.5</version>
       </dependency>
-
+      
       <dependency>
         <groupId>javax.transaction</groupId>
         <artifactId>jta</artifactId>
         <version>1.0.1B</version>
         <scope>compile</scope>
       </dependency>
-
+      
       <dependency>
         <groupId>concurrent</groupId>
         <artifactId>concurrent</artifactId>
         <version>1.3.4</version>
       </dependency>
-
+      
       <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <version>3.1</version>
       </dependency>
-
+      
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>1.2</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.apache.ws.commons</groupId>
         <artifactId>ws-commons-util</artifactId>
         <version>1.0.1</version>
       </dependency>
-
+      
       <dependency>
         <groupId>emma</groupId>
         <artifactId>emma</artifactId>
         <version>2.0.5312</version>
       </dependency>
-
+      
       <dependency>
         <groupId>jgroups</groupId>
         <artifactId>jgroups</artifactId>
         <version>2.5.2</version>
       </dependency>
-
+      
       <dependency>
         <groupId>commons-chain</groupId>
         <artifactId>commons-chain</artifactId>
         <version>1.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>1.3</version>
       </dependency>
-
+      
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>3.8.1</version>
       </dependency>
-
+      
       <dependency>
         <groupId>com.amazon</groupId>
         <artifactId>s3</artifactId>
         <version>0.1</version>
       </dependency>
-
+      
       <dependency>
         <groupId>com.amazonaws.sdb</groupId>
         <artifactId>simpledb</artifactId>
         <version>2007-11-07</version>
       </dependency>
-
+      
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
         <version>1.2.1</version>
       </dependency>
-
+      
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>
         <version>2.4</version>
       </dependency>
-
+      
     </dependencies>
   </dependencyManagement>
-
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -289,7 +288,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
+  
   <build>
     <resources>
       <resource>
@@ -316,7 +315,7 @@
         </includes>
       </resource>
     </resources>
-
+    
     <testResources>
       <testResource>
         <directory>src/test/java</directory>
@@ -339,7 +338,7 @@
         </includes>
       </testResource>
     </testResources>
-
+    
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -364,7 +363,7 @@
           </systemProperties>
         </configuration>
       </plugin>
-
+      
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.3</version>
@@ -374,25 +373,25 @@
             <phase>test-compile</phase>
             <configuration>
               <tasks if="emma.run">
-                <echo message="[EMMA] Start classes instrumentation ..." />
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
-                <mkdir dir="target" />
-                <mkdir dir="target/classes" />
-                <mkdir dir="target/emma/classes" />
+                <echo message="[EMMA] Start classes instrumentation ..."/>
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath"/>
+                <mkdir dir="target"/>
+                <mkdir dir="target/classes"/>
+                <mkdir dir="target/emma/classes"/>
                 <!-- Do nothing if the directory already exist-->
                 <copy todir="target/emma/classes" verbose="false" overwrite="true">
-                  <fileset dir="target/classes" />
+                  <fileset dir="target/classes"/>
                 </copy>
                 <emma enabled="true">
                   <instr mode="overwrite" metadatafile="target/emma/metadata.em">
-                    <filter excludes="*JiBX*" />
-                    <filter excludes="*Entry*" />
-                    <filter excludes="*Value*" />
-                    <filter excludes="*RepositoryServiceConfiguration*" />
-                    <filter excludes="*.query*" />
+                    <filter excludes="*JiBX*"/>
+                    <filter excludes="*Entry*"/>
+                    <filter excludes="*Value*"/>
+                    <filter excludes="*RepositoryServiceConfiguration*"/>
+                    <filter excludes="*.query*"/>
                     <instrpath>
                       <dirset dir="target">
-                        <include name="emma/classes" />
+                        <include name="emma/classes"/>
                       </dirset>
                     </instrpath>
                   </instr>
@@ -408,29 +407,29 @@
             <phase>test</phase>
             <configuration>
               <tasks if="emma.run">
-                <echo message="[EMMA] Start report generation..." />
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
+                <echo message="[EMMA] Start report generation..."/>
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath"/>
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
                   <merge outfile="target/coverage.es">
                     <fileset dir=".">
-                      <include name="**/target/emma/*.e*" />
-                      <include name="**/target/emma/*.e*" />
+                      <include name="**/target/emma/*.e*"/>
+                      <include name="**/target/emma/*.e*"/>
                     </fileset>
                     <!-- just for the first launnch -->
-                    <fileset file="${exo.projects.directory.config}/coverage.es" />
+                    <fileset file="${exo.projects.directory.config}/coverage.es"/>
                   </merge>
                   <report>
                     <sourcepath>
                       <dirset dir=".">
-                        <include name="**/src/**/java" />
+                        <include name="**/src/**/java"/>
                       </dirset>
                     </sourcepath>
                     <fileset dir="target/">
-                      <include name="*.es" />
+                      <include name="*.es"/>
                     </fileset>
-                    <html outfile="target/coverage.html" />
-                    <xml outfile="target/coverage.xml" />
+                    <html outfile="target/coverage.html"/>
+                    <xml outfile="target/coverage.xml"/>
                   </report>
                 </emma>
               </tasks>
@@ -457,7 +456,7 @@
       </plugin>
     </plugins>
   </build>
-
+  
   <reporting>
     <plugins>
       <plugin>
@@ -468,7 +467,7 @@
           <suppressionsLocation>exo-checkstyle-suppressions.xml</suppressionsLocation>
         </configuration>
       </plugin>
-
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -481,13 +480,28 @@
       </plugin>
     </plugins>
   </reporting>
-
+  
   <repositories>
-    <!--
-      repository> <id>maven.org</id> <url>http://repo1.maven.org/maven2</url> </repository> <repository> <id>ibiblio.org</id> <url>http://www.ibiblio.org/maven2</url> </repository> <repository>
-      <id>exo-vietnam</id> <url>http://vnserver.exoplatform.org/maven2</url> </repository> <repository> <id>objectweb.org</id> <url>http://maven.objectweb.org/maven2</url> </repository> <repository>
-      <id>objectweb.org-snapshot</id> <url>http://maven.objectweb.org/maven2-snapshot/</url> </repository
-    -->
+    <!-- repository>
+      <id>maven.org</id>
+      <url>http://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>ibiblio.org</id>
+      <url>http://www.ibiblio.org/maven2</url>
+    </repository>
+    <repository>
+      <id>exo-vietnam</id>
+      <url>http://vnserver.exoplatform.org/maven2</url>
+    </repository>
+    <repository>
+      <id>objectweb.org</id>
+      <url>http://maven.objectweb.org/maven2</url>
+    </repository>
+    <repository>
+      <id>objectweb.org-snapshot</id>
+      <url>http://maven.objectweb.org/maven2-snapshot/</url>
+    </repository -->
     <repository>
       <id>jboss.com</id>
       <url>http://repository.jboss.com/maven2</url>
@@ -499,7 +513,7 @@
       <layout>legacy</layout>
     </repository>
   </repositories>
-
+  
   <profiles>
     <profile>
       <id>default</id>
@@ -512,7 +526,7 @@
       <properties>
         <org.exoplatform.kernel.version>2.1.2</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>2.2.2</org.exoplatform.core.version>
-        <org.exoplatform.ws.version>2.0.2-SNAPSHOT</org.exoplatform.ws.version>
+        <org.exoplatform.ws.version>2.0.2</org.exoplatform.ws.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>
