@@ -171,7 +171,7 @@
       </exclusions>
     </dependency>
 
-    <!-- dependency>
+    <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
       <exclusions>
@@ -181,7 +181,7 @@
         </exclusion>
       </exclusions>
       <scope>test</scope>
-    </dependency -->
+    </dependency>
 	
     <!-- slf4j-log4j12 for TCK sources -->
     <dependency>
