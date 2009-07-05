@@ -64,7 +64,7 @@
 
     <structure name="lock-manager" field="lockManager" usage="optional">
       <value name="time-out" field="timeout" usage="optional" 
-			  deserializer="org.exoplatform.services.jcr.util.ConfigurationFormat.parseLong" />
+			  deserializer="org.exoplatform.services.jcr.util.ConfigurationFormat.parseTime" />
       <structure name="persister" field="persister" usage="optional">
         <value name="class" field="type" style="attribute" />
         <collection name="properties" field="parameters" usage="optional"
