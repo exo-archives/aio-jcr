@@ -18,28 +18,21 @@ package org.exoplatform.services.jcr.api.importing;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryManager;
-import javax.jcr.query.QueryResult;
-import javax.jcr.version.Version;
-
-import org.exoplatform.services.log.Log;
+import javax.jcr.ValueFormatException;
+import javax.jcr.util.TraversingItemVisitor;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
@@ -52,6 +45,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.util.VersionHistoryImporter;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
 
 /**
@@ -67,11 +61,122 @@ public class TestImport extends AbstractImportTest {
   private final Log    log = ExoLogger.getLogger("jcr.TestImport");
 
   private final Random random;
-  private List<String> versionList = new ArrayList<String>();
+
+  // private List<String> versionList = new ArrayList<String>();
 
   public TestImport() {
     super();
     random = new Random();
+  }
+
+  /**
+   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * 
+   * @throws Exception
+   */
+  public void testAclImportDocumentView() throws Exception {
+    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+
+    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
+
+    testRoot.addMixin("exo:owneable");
+    testRoot.addMixin("exo:privilegeable");
+    testRoot.setProperty("exo:title", "test");
+
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+
+    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
+    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
+    testRoot.removePermission(SystemIdentity.ANY);
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+    assertFalse(accessManager.hasPermission(testRoot.getACL(),
+                                            PermissionType.READ,
+                                            new Identity("exo")));
+
+    File tmp = File.createTempFile("testAclImpormt", "tmp");
+    tmp.deleteOnExit();
+    serialize(testRoot, false, true, tmp);
+    testRoot.remove();
+    session.save();
+
+    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+
+    deserialize(importRoot,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+                new BufferedInputStream(new FileInputStream(tmp)));
+    session.save();
+    Node n1 = importRoot.getNode("TestRoot");
+    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                        PermissionType.SET_PROPERTY,
+                                                        new Identity("exo")));
+    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                         PermissionType.READ,
+                                                         new Identity("exo")));
+    importRoot.remove();
+    session.save();
+  }
+
+  /**
+   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * 
+   * @throws Exception
+   */
+  public void testAclImportSystemView() throws Exception {
+    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+
+    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
+
+    testRoot.addMixin("exo:owneable");
+    testRoot.addMixin("exo:privilegeable");
+    testRoot.setProperty("exo:title", "test");
+
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+
+    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
+    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
+    testRoot.removePermission(SystemIdentity.ANY);
+    session.save();
+    assertTrue(accessManager.hasPermission(testRoot.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           new Identity("exo")));
+    assertFalse(accessManager.hasPermission(testRoot.getACL(),
+                                            PermissionType.READ,
+                                            new Identity("exo")));
+
+    File tmp = File.createTempFile("testAclImpormt", "tmp");
+    tmp.deleteOnExit();
+    serialize(testRoot, true, true, tmp);
+    testRoot.remove();
+    session.save();
+
+    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+
+    deserialize(importRoot,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+                new BufferedInputStream(new FileInputStream(tmp)));
+    session.save();
+    Node n1 = importRoot.getNode("TestRoot");
+    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                        PermissionType.SET_PROPERTY,
+                                                        new Identity("exo")));
+    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
+                                                         PermissionType.READ,
+                                                         new Identity("exo")));
+    importRoot.remove();
+    session.save();
   }
 
   /**
@@ -419,113 +524,145 @@ public class TestImport extends AbstractImportTest {
   }
 
   /**
-   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * Test for http://jira.exoplatform.org/browse/JCR-1047
    * 
    * @throws Exception
    */
-  public void testAclImportDocumentView() throws Exception {
-    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+  public void testJCR1047_DocumentView() throws Exception {
+    // create initial data
+    Node aaa = root.addNode("AAA");
 
-    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
-
-    testRoot.addMixin("exo:owneable");
-    testRoot.addMixin("exo:privilegeable");
-    testRoot.setProperty("exo:title", "test");
+    Node hello = aaa.addNode("hello", "exo:article");
+    hello.setProperty("exo:title", "hello");
+    hello.addMixin("mix:versionable");
 
     session.save();
-    assertTrue(accessManager.hasPermission(testRoot.getACL(),
-                                           PermissionType.SET_PROPERTY,
-                                           new Identity("exo")));
 
-    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
-    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
-    testRoot.removePermission(SystemIdentity.ANY);
-    session.save();
-    assertTrue(accessManager.hasPermission(testRoot.getACL(),
-                                           PermissionType.SET_PROPERTY,
-                                           new Identity("exo")));
-    assertFalse(accessManager.hasPermission(testRoot.getACL(),
-                                            PermissionType.READ,
-                                            new Identity("exo")));
-
-    File tmp = File.createTempFile("testAclImpormt", "tmp");
-    tmp.deleteOnExit();
-    serialize(testRoot, false, true, tmp);
-    testRoot.remove();
+    // versions create
+    hello.checkin();
+    hello.checkout();
     session.save();
 
-    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+    hello.setProperty("exo:title", "hello2");
+    session.save();
 
-    deserialize(importRoot,
+    hello.checkin();
+    hello.checkout();
+    session.save();
+
+    String nodeDump = dumpVersionable(hello);
+
+    // Export VersionHistory
+
+    assertTrue(hello.isNodeType("mix:versionable"));
+
+    VersionableNodeInfo nodeInfo = new VersionableNodeInfo(hello);
+
+    // node content
+    byte[] versionableNode = serialize(hello, false, true);
+    // version history
+    byte[] versionHistory = serialize(hello.getVersionHistory(), false, true);
+
+    aaa.remove();
+    session.save();
+
+    assertFalse(root.hasNode("AAA"));
+
+    Node AAA = root.addNode("AAA");
+    session.save();
+
+    // restore node content
+    deserialize(AAA,
                 XmlSaveType.SESSION,
                 true,
-                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
-                new BufferedInputStream(new FileInputStream(tmp)));
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                new ByteArrayInputStream(versionableNode));
     session.save();
-    Node n1 = importRoot.getNode("TestRoot");
-    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
-                                                        PermissionType.SET_PROPERTY,
-                                                        new Identity("exo")));
-    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
-                                                         PermissionType.READ,
-                                                         new Identity("exo")));
-    importRoot.remove();
-    session.save();
+    assertTrue(AAA.hasNode("hello"));
+
+    Node helloImport = AAA.getNode("hello");
+    assertTrue(helloImport.isNodeType("mix:versionable"));
+
+    VersionHistoryImporter versionHistoryImporter = new VersionHistoryImporter((NodeImpl) helloImport,
+                                                                               new ByteArrayInputStream(versionHistory),
+                                                                               nodeInfo.getBaseVersion(),
+                                                                               nodeInfo.getPredecessorsHistory(),
+                                                                               nodeInfo.getVersionHistory());
+    versionHistoryImporter.doImport();
+
+    assertEquals(nodeDump, dumpVersionable(helloImport));
+
   }
 
   /**
-   * Test for http://jira.exoplatform.org/browse/JCR-872
+   * Test for http://jira.exoplatform.org/browse/JCR-1047
    * 
    * @throws Exception
    */
-  public void testAclImportSystemView() throws Exception {
-    AccessManager accessManager = ((SessionImpl) root.getSession()).getAccessManager();
+  public void testJCR1047_SystemView() throws Exception {
+    // create initial data
+    Node aaa = root.addNode("AAA");
 
-    NodeImpl testRoot = (NodeImpl) root.addNode("TestRoot", "exo:article");
-
-    testRoot.addMixin("exo:owneable");
-    testRoot.addMixin("exo:privilegeable");
-    testRoot.setProperty("exo:title", "test");
+    Node hello = aaa.addNode("hello", "exo:article");
+    hello.setProperty("exo:title", "hello");
+    hello.addMixin("mix:versionable");
 
     session.save();
-    assertTrue(accessManager.hasPermission(testRoot.getACL(),
-                                           PermissionType.SET_PROPERTY,
-                                           new Identity("exo")));
 
-    testRoot.setPermission(testRoot.getSession().getUserID(), PermissionType.ALL);
-    testRoot.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
-    testRoot.removePermission(SystemIdentity.ANY);
-    session.save();
-    assertTrue(accessManager.hasPermission(testRoot.getACL(),
-                                           PermissionType.SET_PROPERTY,
-                                           new Identity("exo")));
-    assertFalse(accessManager.hasPermission(testRoot.getACL(),
-                                            PermissionType.READ,
-                                            new Identity("exo")));
-
-    File tmp = File.createTempFile("testAclImpormt", "tmp");
-    tmp.deleteOnExit();
-    serialize(testRoot, true, true, tmp);
-    testRoot.remove();
+    // versions create
+    hello.checkin();
+    hello.checkout();
     session.save();
 
-    NodeImpl importRoot = (NodeImpl) root.addNode("ImportRoot");
+    hello.setProperty("exo:title", "hello2");
+    session.save();
 
-    deserialize(importRoot,
+    hello.checkin();
+    hello.checkout();
+    session.save();
+
+    String nodeDump = dumpVersionable(hello);
+
+    // Export VersionHistory
+
+    assertTrue(hello.isNodeType("mix:versionable"));
+
+    VersionableNodeInfo nodeInfo = new VersionableNodeInfo(hello);
+
+    // node content
+    byte[] versionableNode = serialize(hello, true, true);
+    // version history
+    byte[] versionHistory = serialize(hello.getVersionHistory(), true, true);
+
+    aaa.remove();
+    session.save();
+
+    assertFalse(root.hasNode("AAA"));
+
+    Node AAA = root.addNode("AAA");
+    session.save();
+
+    // restore node content
+    deserialize(AAA,
                 XmlSaveType.SESSION,
                 true,
-                ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
-                new BufferedInputStream(new FileInputStream(tmp)));
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                new ByteArrayInputStream(versionableNode));
     session.save();
-    Node n1 = importRoot.getNode("TestRoot");
-    assertTrue("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
-                                                        PermissionType.SET_PROPERTY,
-                                                        new Identity("exo")));
-    assertFalse("Wrong ACL", accessManager.hasPermission(((NodeImpl) n1).getACL(),
-                                                         PermissionType.READ,
-                                                         new Identity("exo")));
-    importRoot.remove();
-    session.save();
+    assertTrue(AAA.hasNode("hello"));
+
+    Node helloImport = AAA.getNode("hello");
+    assertTrue(helloImport.isNodeType("mix:versionable"));
+
+    VersionHistoryImporter versionHistoryImporter = new VersionHistoryImporter((NodeImpl) helloImport,
+                                                                               new ByteArrayInputStream(versionHistory),
+                                                                               nodeInfo.getBaseVersion(),
+                                                                               nodeInfo.getPredecessorsHistory(),
+                                                                               nodeInfo.getVersionHistory());
+    versionHistoryImporter.doImport();
+
+    assertEquals(nodeDump, dumpVersionable(helloImport));
+
   }
 
   public void testPermissionAfterImport() throws Exception {
@@ -556,109 +693,108 @@ public class TestImport extends AbstractImportTest {
     testNode.remove();
     session1.save();
   }
-  
-  /**
-   * Test for http://jira.exoplatform.org/browse/JCR-1047
-   * 
-   * @throws Exception
-   */
-  public void testImportDataVersionHistory() throws Exception {
-    Node aaa = root.addNode("AAA");    
-    Node bbb = root.addNode("BBB");
-    Node ccc = root.addNode("CCC");
-    session.save();
-    
-    // Export Action
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    aaa.getSession().exportDocumentView(aaa.getPath(), bos, false, false);
-    ByteArrayInputStream is = new ByteArrayInputStream(bos.toByteArray());
-    bbb.getSession().importXML(bbb.getPath(), is, 1);
-    session.save();
-    
-    Node hello = aaa.addNode("hello", "exo:article");
-    hello.setProperty("exo:title", "hello");
-    hello.addMixin("mix:versionable");
-    session.save();
-    
-    hello.checkin();
-    hello.checkout();    
-    session.save();
-    
-    /**
-     * Before import this node has one version
-     */
-    Version rootVersion = hello.getVersionHistory().getRootVersion();    
-    getListVersion(rootVersion);
-    assertEquals(1, versionList.size());
-    
-    // Export VersionHistory
-    InputStream inputVersion = null;
-    if(hello.isNodeType("mix:versionable")) {
-      ByteArrayOutputStream bosVersion = new ByteArrayOutputStream();
-      hello.getSession().exportDocumentView(hello.getVersionHistory().getPath(), bosVersion, false, false);      
-      inputVersion = new ByteArrayInputStream(bosVersion.toByteArray());
-    }
-    String versionHistory = hello.getProperty("jcr:versionHistory").getValue().getString();
-    String baseVersion = hello.getProperty("jcr:baseVersion").getValue().getString();
-    Value[] jcrPredecessors = hello.getProperty("jcr:predecessors").getValues();
-    String[] predecessorsHistory; 
-    StringBuilder jcrPredecessorsBuilder = new StringBuilder();
-    for(Value value : jcrPredecessors) {
-      if(jcrPredecessorsBuilder.length() > 0) jcrPredecessorsBuilder.append(",") ;
-      jcrPredecessorsBuilder.append(value.getString());
-    }
-    if(jcrPredecessorsBuilder.toString().indexOf(",") > -1) {
-      predecessorsHistory = jcrPredecessorsBuilder.toString().split(",");
-    } else {
-      predecessorsHistory = new String[] { jcrPredecessorsBuilder.toString() };
-    }
-    
-    // Export Action
-    ByteArrayOutputStream bosHello = new ByteArrayOutputStream();
-    hello.getSession().exportDocumentView(hello.getPath(), bosHello, false, false);
-    ByteArrayInputStream isHello = new ByteArrayInputStream(bosHello.toByteArray());
-    ccc.getSession().importXML(ccc.getPath(), isHello, 1);
-    session.save();
-        
-    /**
-     * Import VersionHistory
-     * After import version history, the node has no version
-     * Errors: Lose (jcr:predecessors) property when import version history
-     */ 
-    Node helloImport = (Node) session.getItem("/CCC/hello");
-    importHistory((NodeImpl)helloImport, inputVersion, baseVersion, predecessorsHistory, versionHistory);
-    versionList.clear();
-    Version rootVersionImport = helloImport.getVersionHistory().getRootVersion();    
-    getListVersion(rootVersionImport);    
-    assertEquals(1, versionList.size());
+
+  private String dumpVersionable(Node versionableNode) throws RepositoryException {
+    String result;
+    NodeAndValueDumpVisitor dumpVisitor = new NodeAndValueDumpVisitor();
+    dumpVisitor.visit(versionableNode);
+    result = dumpVisitor.getDump();
+    dumpVisitor = new NodeAndValueDumpVisitor();
+    dumpVisitor.visit(versionableNode.getVersionHistory());
+    result += "\n" + dumpVisitor.getDump();
+    return result;
   }
-  
-  // Using for testImportDataVersionHistory()
-  private void getListVersion(Version version) {
-    try {      
-      String uuid = version.getUUID();
-      QueryManager queryManager = session.getWorkspace().getQueryManager();
-      Query query = queryManager.createQuery("//element(*, nt:version)[@jcr:predecessors='" + uuid + "']", Query.XPATH);
-      QueryResult queryResult = query.execute();
-      NodeIterator iterate = queryResult.getNodes();
-      while (iterate.hasNext()) {
-        Version version1 = (Version) iterate.nextNode();
-        versionList.add(version1.getUUID());
-        getListVersion(version1);
-      }
-    } catch (Exception e) {
+
+  private class NodeAndValueDumpVisitor extends TraversingItemVisitor {
+    protected String dumpStr = "";
+
+    protected void entering(Node node, int level) throws RepositoryException {
+      dumpStr += node.getPath() + "\n";
     }
-  }  
-  
-  // Using for testImportDataVersionHistory()
-  private void importHistory(
-      NodeImpl versionableNode, 
-      InputStream versionHistoryStream, 
-      String baseVersionUuid, 
-      String[] predecessors, 
-      String versionHistory) throws RepositoryException, IOException {
-    VersionHistoryImporter versionHistoryImporter = 
-      new VersionHistoryImporter(versionableNode, versionHistoryStream, baseVersionUuid, predecessors, versionHistory);
-    versionHistoryImporter.doImport();
+
+    protected void leaving(Property property, int level) throws RepositoryException {
+    }
+
+    protected void leaving(Node node, int level) throws RepositoryException {
+    }
+
+    public String getDump() {
+      return dumpStr;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected void entering(Property property, int level) throws RepositoryException {
+      dumpStr += " " + property.getPath() + "=" + valToString(property) + " \n";
+    }
+
+    private String valToString(Property property) throws ValueFormatException,
+                                                 IllegalStateException,
+                                                 RepositoryException {
+      String prResult = "";
+      if (property.getDefinition().isMultiple()) {
+        if (property.getValues().length < 2) {
+          prResult += property.getValues()[0].getString();
+        } else {
+          prResult = property.getValues()[0].getString();
+          for (int i = 1; i < property.getValues().length; i++) {
+            prResult += " " + property.getValues()[i].getString();
+          }
+        }
+      } else {
+        prResult += property.getValue().getString();
+      }
+      return prResult;
+    }
+
+  }
+
+  private class VersionableNodeInfo {
+    private final String   versionHistory;
+
+    private final String   baseVersion;
+
+    private final String[] predecessorsHistory;
+
+    /**
+     * @return the versionHistory
+     */
+    public String getVersionHistory() {
+      return versionHistory;
+    }
+
+    /**
+     * @return the baseVersion
+     */
+    public String getBaseVersion() {
+      return baseVersion;
+    }
+
+    /**
+     * @return the predecessorsHistory
+     */
+    public String[] getPredecessorsHistory() {
+      return predecessorsHistory;
+    }
+
+    /**
+     * @throws RepositoryException
+     */
+    public VersionableNodeInfo(Node versionableNode) throws RepositoryException {
+      super();
+      assertTrue(versionableNode.isNodeType("mix:versionable"));
+      this.versionHistory = versionableNode.getProperty("jcr:versionHistory")
+                                           .getValue()
+                                           .getString();
+      this.baseVersion = versionableNode.getProperty("jcr:baseVersion").getValue().getString();
+      Value[] jcrPredecessors = versionableNode.getProperty("jcr:predecessors").getValues();
+
+      this.predecessorsHistory = new String[jcrPredecessors.length];
+      for (int i = 0; i < jcrPredecessors.length; i++) {
+        this.predecessorsHistory[i] = jcrPredecessors[i].getString();
+      }
+
+    }
   }
 }
