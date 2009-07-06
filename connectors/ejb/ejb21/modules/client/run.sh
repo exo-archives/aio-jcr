@@ -7,10 +7,10 @@ fi
 
 $JAVA_HOME/bin/java -Djava.security.manager=default  \
 -Djava.security.policy=$JONAS_ROOT/conf/java.policy \
--cp $JONAS_ROOT/lib/apps/exo.core.component.security.core-2.2.1.jar:\
-$JONAS_ROOT/lib/apps/exo.ws.commons-2.0.1.jar:\
-$JONAS_ROOT/lib/apps/exo.ws.rest.core-2.0.1.jar:\
-$JONAS_ROOT/lib/apps/exo.ws.rest.ext-2.0.1.jar:\
+-cp $JONAS_ROOT/lib/apps/exo.core.component.security.core-2.2.3.jar:\
+$JONAS_ROOT/lib/apps/exo.ws.commons-2.0.3.jar:\
+$JONAS_ROOT/lib/apps/exo.ws.rest.core-2.0.3.jar:\
+$JONAS_ROOT/lib/apps/exo.ws.rest.ext-2.0.3.jar:\
 $JONAS_ROOT/lib/apps/jsr311-api-1.0.jar:\
 $JONAS_ROOT/lib/client.jar:\
 exo.jcr.connectors.ejb21.bean-1.11.3-SNAPSHOT.jar \

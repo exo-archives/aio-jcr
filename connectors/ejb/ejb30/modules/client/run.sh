@@ -9,9 +9,9 @@ $JAVA_HOME/bin/java -Djava.security.manager=default  \
 -Djava.security.policy=$JONAS_ROOT/conf/java.policy \
 -cp \
 ../connector/target/exo.jcr.connectors.ejb30.bean-1.11.3-SNAPSHOT.jar:\
-$JONAS_ROOT/lib/apps/exo.core.component.security.core-2.2.1.jar:\
-$JONAS_ROOT/lib/apps/exo.ws.rest.core-2.0.1.jar:\
-$JONAS_ROOT/lib/apps/exo.ws.rest.ext-2.0.1.jar:\
+$JONAS_ROOT/lib/apps/exo.core.component.security.core-2.2.3-SNAPSHOT.jar:\
+$JONAS_ROOT/lib/apps/exo.ws.rest.core-2.0.3-SNAPSHOT.jar:\
+$JONAS_ROOT/lib/apps/exo.ws.rest.ext-2.0.3-SNAPSHOT.jar:\
 $JONAS_ROOT/lib/apps/jsr311-api-1.0.jar:\
 $JONAS_ROOT/lib/client.jar:\
 target/rar/easybeans-component-smartclient-client-1.0.1.jar:\
