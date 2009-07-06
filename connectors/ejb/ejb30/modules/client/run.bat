@@ -7,9 +7,9 @@
 
 :ok
 @set CLASSPATH=..\connector\target\exo.jcr.connectors.ejb30.bean-1.11.2.jar
-@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.core.component.security.core-2.2.1.jar
-@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.rest.core-2.0.1.jar
-@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.rest.ext-2.0.1.jar
+@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.core.component.security.core-2.2.2.jar
+@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.rest.core-2.0.2.jar
+@set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\apps\exo.ws.rest.ext-2.0.2.jar
 @set CLASSPATH=%CLASSPATH%;%JONAS_ROOT%\lib\client.jar
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-component-smartclient-client-1.0.1.jar
 @set CLASSPATH=%CLASSPATH%;target\rar\easybeans-component-smartclient-api-1.0.1.jar
