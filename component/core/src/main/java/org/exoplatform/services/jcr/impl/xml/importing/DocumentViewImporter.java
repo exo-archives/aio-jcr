@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.xml.importing;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +33,6 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.ConstraintViolationException;
 
-import org.exoplatform.services.log.Log;
 import org.apache.ws.commons.util.Base64;
 import org.apache.ws.commons.util.Base64.DecodingException;
 
@@ -67,6 +65,7 @@ import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportNodeData;
 import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportPropertyData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 
 /**
@@ -94,32 +93,19 @@ public class DocumentViewImporter extends BaseXmlImporter {
   /**
    * DocumentViewImporter constructor.
    * 
-   * @param parent
-   *          NodeData, parent node
-   * @param ancestorToSave
-   *          QPath
-   * @param uuidBehavior
-   *          int
-   * @param dataConsumer
-   *          ItemDataConsumer
-   * @param ntManager
-   *          NodeTypeDataManager
-   * @param locationFactory
-   *          LocationFactory
-   * @param valueFactory
-   *          ValueFactoryImpl
-   * @param namespaceRegistry
-   *          NamespaceRegistry
-   * @param accessManager
-   *          AccessManager
-   * @param userState
-   *          ConversationState
-   * @param context
-   *          Map
-   * @param repository
-   *          RepositoryImpl
-   * @param currentWorkspaceName
-   *          String
+   * @param parent NodeData, parent node
+   * @param ancestorToSave QPath
+   * @param uuidBehavior int
+   * @param dataConsumer ItemDataConsumer
+   * @param ntManager NodeTypeDataManager
+   * @param locationFactory LocationFactory
+   * @param valueFactory ValueFactoryImpl
+   * @param namespaceRegistry NamespaceRegistry
+   * @param accessManager AccessManager
+   * @param userState ConversationState
+   * @param context Map
+   * @param repository RepositoryImpl
+   * @param currentWorkspaceName String
    */
   public DocumentViewImporter(NodeData parent,
                               QPath ancestorToSave,
@@ -381,11 +367,12 @@ public class DocumentViewImporter extends BaseXmlImporter {
         }
       }
       // skip versionable
-      if (!Constants.JCR_VERSIONHISTORY.equals(propName)
-          && !Constants.JCR_BASEVERSION.equals(propName)
-          && !Constants.JCR_PREDECESSORS.equals(propName)) {
+
+      if ((newProperty.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH) || (!Constants.JCR_VERSIONHISTORY.equals(propName)
+          && !Constants.JCR_BASEVERSION.equals(propName) && !Constants.JCR_PREDECESSORS.equals(propName)))) {
         changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, getAncestorToSave()));
       }
+
     }
 
     nodeData.setACL(initAcl(parentNodeData.getACL(),
@@ -440,7 +427,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                                              propName,
                                                              PropertyType.BINARY,
                                                              false,
-                                                             new TransientValueData(Base64.decode(propertiesMap.get(propName)), 0));
+                                                             new TransientValueData(Base64.decode(propertiesMap.get(propName)),
+                                                                                    0));
     } catch (DecodingException e) {
       throw new RepositoryException(e);
     }

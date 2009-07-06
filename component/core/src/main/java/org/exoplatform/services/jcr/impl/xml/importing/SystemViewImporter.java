@@ -30,8 +30,6 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
-import org.exoplatform.services.log.Log;
-
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -56,6 +54,7 @@ import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportPropertyDa
 import org.exoplatform.services.jcr.impl.xml.importing.dataflow.PropertyInfo;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 
 /**
@@ -353,9 +352,9 @@ public class SystemViewImporter extends BaseXmlImporter {
       propertyData = endUuid();
 
       // skip verionable properties
-    } else if (Constants.JCR_VERSIONHISTORY.equals(propertyInfo.getName())
-        || Constants.JCR_BASEVERSION.equals(propertyInfo.getName())
-        || Constants.JCR_PREDECESSORS.equals(propertyInfo.getName())) {
+    } else if (!getParent().getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)
+        && (Constants.JCR_VERSIONHISTORY.equals(propertyInfo.getName())
+            || Constants.JCR_BASEVERSION.equals(propertyInfo.getName()) || Constants.JCR_PREDECESSORS.equals(propertyInfo.getName()))) {
 
       propertyData = null;
 
@@ -524,11 +523,10 @@ public class SystemViewImporter extends BaseXmlImporter {
   /**
    * Returns the value of the named XML attribute.
    * 
-   * @param attributes
-   *          set of XML attributes
-   * @param name
-   *          attribute name
-   * @return attribute value, or <code>null</code> if the named attribute is not found
+   * @param attributes set of XML attributes
+   * @param name attribute name
+   * @return attribute value, or <code>null</code> if the named attribute is not
+   *         found
    * @throws RepositoryException
    */
 
