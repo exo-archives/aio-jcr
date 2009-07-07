@@ -42,7 +42,6 @@
       <scope>compile</scope>
       <excludes>
         <exclude>junit:junit</exclude>
-        <exclude>org.exoplatform.kernel:exo.kernel.commons</exclude>
         <exclude>commons-lang:commons-lang</exclude>
         <exclude>xpp3:xpp3</exclude>
         <exclude>org.exoplatform.tool:exo.tool.framework.junit</exclude>
