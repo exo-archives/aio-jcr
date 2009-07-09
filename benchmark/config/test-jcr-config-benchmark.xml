@@ -19,9 +19,9 @@
                 <properties>
                   <property name="path" value="../temp/values/system" />
                 </properties>
-                <filters>
-                  <filter property-type="Binary" />
-                </filters>
+				<filters>
+       			   <filter property-type="Binary" min-value-size="200k"/>
+     			</filters>
               </value-storage>
             </value-storages>
           </container>
@@ -65,9 +65,9 @@
                 <properties>
                   <property name="path" value="../temp/values/collaboration" />
                 </properties>
-                <filters>
-                  <filter property-type="Binary" />
-                </filters>
+				<filters>
+    			   <filter property-type="Binary" min-value-size="200k"/>
+     			</filters>
               </value-storage>
             </value-storages>
           </container>
