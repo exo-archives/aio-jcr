@@ -266,7 +266,7 @@ JCR Samples
     http://localhost:8080/rest/jcr/repository/production - WebDAV service,
         Open in Microsoft Explorer, File-Open-OpenAsWebFolder with url http://localhost:8080/rest/jcr/repository/production
         Add/read/remove files there and browse it in the JCR browser or FTP.
-        User name/password: admin/admin
+        User name/password: root/exo
     ftp://localhost:2121 - FTP server
         Open the repository in FTP client and browse the JCR repository started with Tomcat as FTP content,
         add/read/remove files there and browse it in the JCR browser or WebDAV.
