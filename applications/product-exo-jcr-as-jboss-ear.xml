@@ -21,6 +21,12 @@
       <type>ear</type>
       <scope>runtime</scope>
     </dependency>
+
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
   
   <build>
