@@ -3,6 +3,7 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
 import java.sql.*;
 import java.util.Properties;
 
+import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -10,7 +11,8 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import junit.framework.TestCase;
 
 abstract public class JDBCConnectionTestBase extends TestCase {
-	final String URL = "jdbc:hsqldb:file:../temp/data/portal";
+
+	final static String URL = "jdbc:hsqldb:file:../temp/data/portal";
 	final String USER = "sa";
 	final String PASSWORD = "";
 	public Connection connect = null;
@@ -20,10 +22,16 @@ abstract public class JDBCConnectionTestBase extends TestCase {
 
 	public void setUp() throws Exception {
 
-		DriverManager.registerDriver((Driver) Class.forName(
-				"org.hsqldb.jdbcDriver").newInstance());
-		connect = DriverManager.getConnection(URL, USER, PASSWORD);
+		connect = getHSQLConnection();
+
+		// DriverManager.registerDriver((Driver) Class.forName(
+		// "org.hsqldb.jdbcDriver").newInstance());
+		// connect = DriverManager.getConnection(URL, USER, PASSWORD);
+		
+		
 		st = connect.createStatement();
+		st
+				.executeUpdate("CREATE TABLE JCR_SITEM(ID VARCHAR(96) NOT NULL,PARENT_ID VARCHAR(96) NOT NULL,NAME VARCHAR(512) NOT NULL,VERSION INTEGER NOT NULL,CONTAINER_NAME VARCHAR(96) NOT NULL,I_CLASS INTEGER NOT NULL,I_INDEX INTEGER NOT NULL,N_ORDER_NUM INTEGER,P_TYPE INTEGER,P_MULTIVALUED BOOLEAN);");
 
 	}
 
@@ -32,6 +40,12 @@ abstract public class JDBCConnectionTestBase extends TestCase {
 		st.close();
 		connect.close();
 		// super.tearDown();
+	}
+
+	private static Connection getHSQLConnection() throws Exception {
+		Class.forName("org.hsqldb.jdbcDriver");
+//		String url = "jdbc:hsqldb:file:../temp/data/portal";
+		return DriverManager.getConnection(URL, "sa", "");
 	}
 
 	public NodeData giveNode() throws Exception {
