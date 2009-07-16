@@ -50,11 +50,11 @@ public class TestSingleDbJDBCConnection extends JDBCConnectionTestBase {
 //		super.tearDown();
 	}
 
-	public void testAddNode() throws Exception {
-
-		jdbcConn.add(setNode());
-		assertEquals(addNode("JCR_SITEM"), rs.getInt("N_ORDER_NUM"));
-	}
+//	public void testAddNode() throws Exception {
+//
+//		jdbcConn.add(setNode());
+//		assertEquals(addNode("JCR_SITEM"), rs.getInt("N_ORDER_NUM"));
+//	}
 //
 //	public void testAddValueData() throws Exception {
 //

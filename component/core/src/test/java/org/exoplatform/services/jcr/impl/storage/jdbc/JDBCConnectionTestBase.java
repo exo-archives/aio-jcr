@@ -3,6 +3,10 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
 import java.sql.*;
 import java.util.Properties;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -10,7 +14,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import junit.framework.TestCase;
 
-abstract public class JDBCConnectionTestBase extends TestCase {
+abstract public class JDBCConnectionTestBase extends JcrAPIBaseTest {
 
 	final static String URL = "jdbc:hsqldb:file:../temp/data/portal";
 	final String USER = "sa";
@@ -22,13 +26,12 @@ abstract public class JDBCConnectionTestBase extends TestCase {
 
 	public void setUp() throws Exception {
 
-		connect = getHSQLConnection();
-
+		// connect = getHSQLConnection();
 		// DriverManager.registerDriver((Driver) Class.forName(
 		// "org.hsqldb.jdbcDriver").newInstance());
 		// connect = DriverManager.getConnection(URL, USER, PASSWORD);
-		
-		
+
+		connect = getJNDIConnection();
 		st = connect.createStatement();
 		st
 				.executeUpdate("CREATE TABLE JCR_SITEM(ID VARCHAR(96) NOT NULL,PARENT_ID VARCHAR(96) NOT NULL,NAME VARCHAR(512) NOT NULL,VERSION INTEGER NOT NULL,CONTAINER_NAME VARCHAR(96) NOT NULL,I_CLASS INTEGER NOT NULL,I_INDEX INTEGER NOT NULL,N_ORDER_NUM INTEGER,P_TYPE INTEGER,P_MULTIVALUED BOOLEAN);");
@@ -42,9 +45,18 @@ abstract public class JDBCConnectionTestBase extends TestCase {
 		// super.tearDown();
 	}
 
+	private Connection getJNDIConnection() throws Exception{
+
+		Context ctx = new InitialContext();
+		DataSource ds = (DataSource) ctx.lookup("jdbcexo");
+		Connection conn = ds.getConnection();
+		return conn;
+
+	}
+
 	private static Connection getHSQLConnection() throws Exception {
 		Class.forName("org.hsqldb.jdbcDriver");
-//		String url = "jdbc:hsqldb:file:../temp/data/portal";
+		// String url = "jdbc:hsqldb:file:../temp/data/portal";
 		return DriverManager.getConnection(URL, "sa", "");
 	}
 
