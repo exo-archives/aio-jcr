@@ -38,9 +38,15 @@
       <artifactId>s3</artifactId>
       <scope>compile</scope>
     </dependency>
+
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
     
-	<!-- TCK binaries and deps for repo stub -->  
-	<dependency>
+    <!-- TCK binaries and deps for repo stub -->  
+    <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
       <exclusions>
