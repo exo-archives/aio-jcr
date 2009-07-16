@@ -44,6 +44,11 @@
       <version>1.11.2</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
     <!-- dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
