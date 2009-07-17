@@ -110,6 +110,18 @@
       </dependency>
       
       <dependency>
+        <groupId>org.exoplatform.ws</groupId>
+        <artifactId>exo.ws.rest.ext</artifactId>
+        <version>${org.exoplatform.ws.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.exoplatform.ws</groupId>
+        <artifactId>exo.ws.commons</artifactId>
+        <version>${org.exoplatform.ws.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>javax.jcr</groupId>
         <artifactId>jcr</artifactId>
         <version>1.0</version>
@@ -271,6 +283,24 @@
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>
         <version>2.4</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>com.sun.star</groupId>
+        <artifactId>comp</artifactId>
+        <version>1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.sun.star</groupId>
+        <artifactId>unoil</artifactId>
+        <version>1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.sun.star</groupId>
+        <artifactId>beans</artifactId>
+        <version>1.0</version>
       </dependency>
       
     </dependencies>
