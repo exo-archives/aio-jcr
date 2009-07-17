@@ -27,9 +27,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.utils.TextUtils;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.ExtHttpHeaders;
 
 /**

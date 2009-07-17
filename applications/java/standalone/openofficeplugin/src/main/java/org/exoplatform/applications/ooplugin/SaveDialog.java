@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
 import org.exoplatform.applications.ooplugin.client.ResponseDoc;
 import org.exoplatform.applications.ooplugin.config.FilterListLoader;
@@ -38,6 +37,7 @@ import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.common.http.client.NVPair;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XComboBox;

@@ -17,9 +17,9 @@
 
 package org.exoplatform.applications.ooplugin.client;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.w3c.dom.Node;
 
 /**

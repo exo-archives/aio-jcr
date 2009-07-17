@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
 import org.exoplatform.applications.ooplugin.client.DavReport;
 import org.exoplatform.applications.ooplugin.client.Multistatus;
@@ -34,6 +33,7 @@ import org.exoplatform.applications.ooplugin.props.CreatorDisplayNameProp;
 import org.exoplatform.applications.ooplugin.props.DisplayNameProp;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XFixedText;

@@ -19,10 +19,10 @@ package org.exoplatform.applications.ooplugin.client;
 
 import java.util.ArrayList;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.applications.ooplugin.XmlUtil;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

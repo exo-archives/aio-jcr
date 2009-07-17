@@ -19,13 +19,13 @@ package org.exoplatform.applications.ooplugin.dialog;
 
 import java.util.ArrayList;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.PlugInDialog;
 import org.exoplatform.applications.ooplugin.Resources;
 import org.exoplatform.applications.ooplugin.config.XmlConfig;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

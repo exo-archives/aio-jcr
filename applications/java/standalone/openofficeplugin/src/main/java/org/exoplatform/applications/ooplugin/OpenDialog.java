@@ -17,7 +17,6 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
 import org.exoplatform.applications.ooplugin.client.ResponseDoc;
 import org.exoplatform.applications.ooplugin.dialog.Component;
@@ -27,6 +26,7 @@ import org.exoplatform.applications.ooplugin.props.VersionNameProp;
 import org.exoplatform.applications.ooplugin.utils.TextUtils;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.ItemEvent;

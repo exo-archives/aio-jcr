@@ -17,8 +17,8 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.document.XDocumentInfo;

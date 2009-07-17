@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.dialog.DialogBuilder;
 import org.exoplatform.applications.ooplugin.dialog.EventHandler;
 import org.exoplatform.applications.ooplugin.utils.TextUtils;
@@ -30,6 +29,7 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import com.sun.star.awt.Rectangle;
 import com.sun.star.awt.VclWindowPeerAttribute;
