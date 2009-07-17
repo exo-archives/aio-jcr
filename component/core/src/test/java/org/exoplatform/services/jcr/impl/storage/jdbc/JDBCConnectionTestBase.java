@@ -1,8 +1,7 @@
 package org.exoplatform.services.jcr.impl.storage.jdbc;
 
+import java.io.ByteArrayInputStream;
 import java.sql.*;
-import java.util.Properties;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -12,52 +11,36 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import junit.framework.TestCase;
 
 abstract public class JDBCConnectionTestBase extends JcrAPIBaseTest {
 
-	final static String URL = "jdbc:hsqldb:file:../temp/data/portal";
-	final String USER = "sa";
-	final String PASSWORD = "";
 	public Connection connect = null;
 	public Statement st;
 	public ResultSet rs = null;
 	protected JDBCStorageConnection jdbcConn = null;
+	protected String tableType = null;
 
 	public void setUp() throws Exception {
 
-		// connect = getHSQLConnection();
-		// DriverManager.registerDriver((Driver) Class.forName(
-		// "org.hsqldb.jdbcDriver").newInstance());
-		// connect = DriverManager.getConnection(URL, USER, PASSWORD);
-
+		super.setUp();
 		connect = getJNDIConnection();
 		st = connect.createStatement();
-		st
-				.executeUpdate("CREATE TABLE JCR_SITEM(ID VARCHAR(96) NOT NULL,PARENT_ID VARCHAR(96) NOT NULL,NAME VARCHAR(512) NOT NULL,VERSION INTEGER NOT NULL,CONTAINER_NAME VARCHAR(96) NOT NULL,I_CLASS INTEGER NOT NULL,I_INDEX INTEGER NOT NULL,N_ORDER_NUM INTEGER,P_TYPE INTEGER,P_MULTIVALUED BOOLEAN);");
-
 	}
 
 	protected void tearDown() throws Exception {
 
 		st.close();
 		connect.close();
-		// super.tearDown();
+		super.tearDown();
 	}
 
-	private Connection getJNDIConnection() throws Exception{
+	private Connection getJNDIConnection() throws Exception {
 
 		Context ctx = new InitialContext();
-		DataSource ds = (DataSource) ctx.lookup("jdbcexo");
+		DataSource ds = (DataSource) ctx.lookup("jdbcjcr");
 		Connection conn = ds.getConnection();
 		return conn;
 
-	}
-
-	private static Connection getHSQLConnection() throws Exception {
-		Class.forName("org.hsqldb.jdbcDriver");
-		// String url = "jdbc:hsqldb:file:../temp/data/portal";
-		return DriverManager.getConnection(URL, "sa", "");
 	}
 
 	public NodeData giveNode() throws Exception {
@@ -89,132 +72,165 @@ abstract public class JDBCConnectionTestBase extends JcrAPIBaseTest {
 		rs = st.executeQuery(sql);
 	}
 
+	public void testAddNode() throws Exception {
+
+		jdbcConn.add(setNode());
+		makeFindDB("select * from " + "JCR_" + tableType + "ITEM"
+				+ " where N_ORDER_NUM=8");
+		assertEquals(8, rs.getInt("N_ORDER_NUM"));
+	}
+
+	public void testAddValueData() throws Exception {
+
+		byte data[] = { Byte.parseByte("2") };
+		ByteArrayInputStream bas = new ByteArrayInputStream(data);
+		jdbcConn.addValueData("45", 2, bas, 13, "000");
+		makeFindDB("select * from " + "JCR_" + tableType + "VALUE"
+				+ " where PROPERTY_ID='45'");
+		assertEquals("45", rs.getString("PROPERTY_ID"));
+	}
+
 	public void testRenameNode() throws Exception {
 
 		jdbcConn.renameNode(giveNode());
-		assertEquals(renameNode("JCR_SITEM"), rs.getString("PARENT_ID"));
+		makeFindDB("select * from " + "JCR_" + tableType + "SITEM"
+				+ " where ID='myContainer123'");
+		assertEquals("myContainer4512", rs.getString("PARENT_ID"));
 	}
 
-	protected int addNode(String table) throws Exception {
+	public void testUpdateNodeByIdentifier() throws Exception {
 
-		makeFindDB("select * from " + table + " where N_ORDER_NUM=8");
-		return 8;
+		jdbcConn.updateNodeByIdentifier(200923, 4512, 20, "12345");
+		makeFindDB("select * from " + "JCR_" + tableType + "ITEM"
+				+ " where ID='12345'");
+		assertEquals(20, rs.getInt("N_ORDER_NUM"));
 	}
 
-	protected String addValueData(String table) throws Exception {
+	public void testUpdatePropertyByIdentifier() throws Exception {
 
-		makeFindDB("select * from " + table + " where PROPERTY_ID='45'");
-		return "45";
+		jdbcConn.updatePropertyByIdentifier(200923, 4512, "12345");
+		makeFindDB("select * from " + "JCR_" + tableType + "ITEM"
+				+ " where ID='12345'");
+		assertEquals(4512, rs.getInt("P_TYPE"));
 	}
 
-	protected String renameNode(String table) throws Exception {
+	public void testDeleteReference() throws Exception {
 
-		makeFindDB("select * from " + table + " where ID='myContainer123'");
-		return "myContainer4512";
+		jdbcConn.deleteReference("5987");
+		checkDeleted("select * from " + "JCR_" + tableType + "REF"
+				+ " where PROPERTY_ID='5987'");
+		assertEquals(false, rs.next());
 	}
 
-	protected int updateNodeByIdentifier(String table) throws Exception {
+	public void testDeleteItemByIdentifier() throws Exception {
 
-		makeFindDB("select * from " + table + " where ID='12345'");
-		return 20;
-	}
-
-	protected int updatePropertyByIdentifier(String table) throws Exception {
-
-		makeFindDB("select * from " + table + " where ID='12345'");
-		return 4512;
-	}
-
-	protected boolean deleteReference(String table) throws Exception {
-
-		checkDeleted("select * from " + table + " where PROPERTY_ID='5987'");
-		return false;
-	}
-
-	protected boolean deleteItemByIdentifier(String table) throws Exception {
-
-		checkDeleted("select * from " + table
+		jdbcConn.deleteItemByIdentifier("myContainer123");
+		checkDeleted("select * from " + "JCR_" + tableType + "REF"
 				+ " where NODE_ID='myContainer123'");
-		return false;
+		assertEquals(false, rs.next());
 	}
 
-	protected boolean deleteValueData(String table) throws Exception {
+	public void testDeleteValueData() throws Exception {
 
-		checkDeleted("select * from " + table + " where PROPERTY_ID='12345'");
-		return false;
+		jdbcConn.deleteValueData("12345");
+		checkDeleted("select * from " + "JCR_" + tableType + "VALUE"
+				+ " where PROPERTY_ID='12345'");
+		assertEquals(false, rs.next());
 	}
 
-	protected String findItemByIdentifier(String table, ResultSet rsRemote)
-			throws Exception {
+	public void testFindItemByIdentifier() throws Exception {
 
-		makeFindDB("select * from " + table + " where ID='12345'");
-		return rsRemote.getString("ID");
+		ResultSet rsRemote = jdbcConn.findItemByIdentifier("12345");
+		rsRemote.next();
+		makeFindDB("select * from " + "JCR_" + tableType + "ITEM"
+				+ " where ID='12345'");
+		assertEquals(rsRemote.getString("ID"), rs.getString("ID"));
 	}
 
-	protected String findPropertyByName(String table1, String table2,
-			ResultSet rsRemote) throws Exception {
+	public void testFindPropertyByName() throws Exception {
 
+		ResultSet rsRemote = jdbcConn.findPropertyByName("123456", "Sam");
+		rsRemote.next();
 		makeFindDB("select V.DATA"
 				+ " from "
-				+ table1
+				+ "JCR_"
+				+ tableType
+				+ "ITEM"
 				+ " I, "
-				+ table2
+				+ "JCR_"
+				+ tableType
+				+ "VALUE"
 				+ " V"
 				+ " where I.I_CLASS=2 and I.PARENT_ID='123456' and I.NAME='Sam' and I.ID=V.PROPERTY_ID order by V.ORDER_NUM");
-		return rsRemote.getString("DATA");
+		assertEquals(rsRemote.getString("DATA"), rs.getString("DATA"));
 	}
 
-	protected int findItemByName(String table, ResultSet rsRemote)
-			throws Exception {
+	public void testFindItemByName() throws Exception {
 
+		ResultSet rsRemote = jdbcConn.findItemByName("123456", "Sam", 1233);
+		rsRemote.next();
 		makeFindDB("select * from "
-				+ table
+				+ "JCR_"
+				+ tableType
+				+ "ITEM"
 				+ " where PARENT_ID='123456' and NAME='Sam' and I_INDEX=1233 order by I_CLASS, VERSION DESC");
-		return rsRemote.getInt("I_INDEX");
+		assertTrue(rsRemote.getInt("I_INDEX") == rs.getInt("I_INDEX"));
 	}
 
-	protected String findChildNodesByParentIdentifier(String table,
-			ResultSet rsRemote) throws Exception {
+	public void testFindChildNodesByParentIdentifier() throws Exception {
 
-		makeFindDB("select * from " + table
+		ResultSet rsRemote = jdbcConn.findChildNodesByParentIdentifier("1235");
+		rsRemote.next();
+		makeFindDB("select * from " + "JCR_" + tableType + "ITEM"
 				+ " where I_CLASS=1 and PARENT_ID='1235'");
-		return rsRemote.getString("PARENT_ID");
+		assertEquals(rsRemote.getString("PARENT_ID"), rs.getString("PARENT_ID"));
 	}
 
-	protected String findChildPropertiesByParentIdentifier(String table,
-			ResultSet rsRemote) throws Exception {
-
-		makeFindDB("select * from " + table
+	public void testFindChildPropertiesByParentIdentifier() throws Exception {
+		ResultSet rsRemote = jdbcConn
+				.findChildPropertiesByParentIdentifier("123456");
+		rsRemote.next();
+		makeFindDB("select * from " + "JCR_" + tableType + "ITEM"
 				+ " where I_CLASS=2 and PARENT_ID='123456'" + " order by ID");
-		return rsRemote.getString("PARENT_ID");
+		assertEquals(rsRemote.getString("PARENT_ID"), rs.getString("PARENT_ID"));
 	}
 
-	protected String findReferences(String table1, String table2,
-			ResultSet rsRemote) throws Exception {
+	public void testFindReferences() throws Exception {
 
+		ResultSet rsRemote = jdbcConn.findReferences("45as1");
+		rsRemote.next();
 		makeFindDB("select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME"
 				+ " from "
-				+ table1
+				+ "JCR_"
+				+ tableType
+				+ "REF"
 				+ " R, "
-				+ table2
+				+ "JCR_"
+				+ tableType
+				+ "ITEM"
 				+ " P"
 				+ " where R.NODE_ID='45as1' and P.ID=R.PROPERTY_ID and P.I_CLASS=2");
-		return rsRemote.getString("ID");
+		assertEquals(rsRemote.getString("ID"), rs.getString("ID"));
 	}
 
-	protected String findValuesByPropertyId(String table, ResultSet rsRemote)
-			throws Exception {
+	public void testFindValuesByPropertyId() throws Exception {
 
-		makeFindDB("select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from " + table
+		ResultSet rsRemote = jdbcConn.findValuesByPropertyId("12345");
+		rsRemote.next();
+		makeFindDB("select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from " + "JCR_"
+				+ tableType + "VALUE"
 				+ " where PROPERTY_ID='12345' order by ORDER_NUM");
-		return rsRemote.getString("PROPERTY_ID");
+		assertEquals(rsRemote.getString("PROPERTY_ID"), rs
+				.getString("PROPERTY_ID"));
 	}
 
-	protected String findValueByPropertyIdOrderNumber(String table,
-			ResultSet rsRemote) throws Exception {
+	public void testFindValueByPropertyIdOrderNumber() throws Exception {
 
-		makeFindDB("select DATA from " + table
+		ResultSet rsRemote = jdbcConn.findValueByPropertyIdOrderNumber("12345",
+				16);
+		rsRemote.next();
+		makeFindDB("select DATA from " + "JCR_" + tableType + "VALUE"
 				+ " where PROPERTY_ID='12345' and ORDER_NUM=16");
-		return rsRemote.getString("DATA");
+		assertEquals(rsRemote.getString("DATA"), rs.getString("DATA"));
 	}
 }
