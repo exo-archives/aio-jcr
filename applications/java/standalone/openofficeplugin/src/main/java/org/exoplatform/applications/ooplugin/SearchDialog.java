@@ -17,7 +17,6 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.client.DavSearch;
 import org.exoplatform.applications.ooplugin.client.Multistatus;
 import org.exoplatform.applications.ooplugin.client.ResponseDoc;
@@ -26,6 +25,7 @@ import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.search.SQLQuery;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XListBox;

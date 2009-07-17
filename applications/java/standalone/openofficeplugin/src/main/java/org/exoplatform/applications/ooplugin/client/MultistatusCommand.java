@@ -17,11 +17,11 @@
 
 package org.exoplatform.applications.ooplugin.client;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants;
 import org.exoplatform.applications.ooplugin.props.PropertyList;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

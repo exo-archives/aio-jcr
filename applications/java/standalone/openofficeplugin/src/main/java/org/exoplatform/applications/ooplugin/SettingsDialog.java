@@ -17,7 +17,6 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.utils.WebDavUtils;
@@ -25,6 +24,7 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XTextComponent;

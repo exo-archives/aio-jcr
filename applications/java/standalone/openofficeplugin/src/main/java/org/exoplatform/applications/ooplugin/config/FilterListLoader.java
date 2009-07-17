@@ -19,9 +19,9 @@ package org.exoplatform.applications.ooplugin.config;
 
 import java.util.ArrayList;
 
-import org.exoplatform.services.log.Log;
 import org.exoplatform.applications.ooplugin.XmlUtil;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
