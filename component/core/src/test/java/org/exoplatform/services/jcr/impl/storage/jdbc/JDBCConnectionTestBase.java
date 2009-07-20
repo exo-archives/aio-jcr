@@ -37,7 +37,7 @@ abstract public class JDBCConnectionTestBase extends JcrAPIBaseTest {
 	private Connection getJNDIConnection() throws Exception {
 
 		Context ctx = new InitialContext();
-		DataSource ds = (DataSource) ctx.lookup("jdbcjcr");
+		DataSource ds = (DataSource) ctx.lookup("jdbcexo");
 		Connection conn = ds.getConnection();
 		return conn;
 
