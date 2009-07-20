@@ -12,17 +12,11 @@
   <name>eXo JCR Product</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Product</description>
-  
+
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.database</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.organization.jdbc</artifactId>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
