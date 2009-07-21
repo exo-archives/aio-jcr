@@ -4,6 +4,20 @@ JCR 1.11.2 release notes
 eXoPlatform Java Content Repository (JSR-170) implementation and Extension services.
 
 Main changes of version 1.11.2:
+1. JCR Core Binary Values improved processing: use of input stream with only on-demand spooling of big Binary Values.
+2. Asynchronous and Synchronous replication Binary Values improved processing: changes storage for replication 
+   use less amount of files
+3. Synchronous Replication Proxy mode simple configuration. Added an option for Proxy Replication allowing 
+   running several servers on the same physical host (useful for development).
+   Tested replication on JBoss Farm environment.
+4. Asynchronous replication improvements of merger, subscriber lifecycle, connection and local storage consistency.
+5. Support of Values large of 2GiB in External Value Storage.
+6. JCR Core Node.gatProperties() bugfix of duplicate Properties returned for unsaved Node 
+   when changes occurs in another Session.
+7. Lot of minor Backup Service bugs fixed. Asynchronous restore support added.
+8. HTTP Backup agent improvements of API for backup process and restore information. 
+9. WeBDAV codestyle refactoring and bugfixes of PROPPATCH and DELETE calls
+10. Version history Import/Export utility bugfix of Items import.
 
 
 Changes log
@@ -417,16 +431,11 @@ JCR Samples
     ftp://localhost:2121 - FTP server
         Open the repository in FTP client and browse the JCR repository started with Tomcat as FTP content,
         add/read/remove files there and browse it in the JCR browser or WebDAV.
-    Configure CIFS server (beta3) according the documentation:
-        http://wiki.exoplatform.org/xwiki/bin/view/JCR/Quick+start 
-        http://wiki.exoplatform.org/xwiki/bin/view/JCR/CIFS(SMB).
-    Try it on Windows \\UniqCIFS, or on Unix smb://UniqCIFS 
-        Open beta3 available CIFS service for browse the JCR repository.
 
 EAR deploy
 ==========
 
-eXo JCR was tested under JBoss-4.2.2.GA and JOnAS-4.9.2 application servers
+eXo JCR was tested under JBoss-4.2.3.GA and JOnAS-4.8.5 application servers
 
   Before use of eXo EAR you need to configure eXo JRC modifying exo-configuration.xml file, first of all you should configure
   ListenerService component which is configured for JBossAuthenticationListener by default
@@ -434,7 +443,7 @@ eXo JCR was tested under JBoss-4.2.2.GA and JOnAS-4.9.2 application servers
   Then put the configuration file to the root directory of an application server (same files as exo-configuration.xml can be found
   in any war file located in the EAR, e.g. fckeditor.war path /WEB-INF/classes/conf).
 
-JBoss-4.2.2.GA
+JBoss-4.2.3.GA
 
   1. Configuration
 
@@ -459,7 +468,7 @@ JBoss-4.2.2.GA
      or
        * bin/run.sh  on Unix
 
-JOnAS-4.9.2
+JOnAS-4.8.5
 
   1. Configuration
 
