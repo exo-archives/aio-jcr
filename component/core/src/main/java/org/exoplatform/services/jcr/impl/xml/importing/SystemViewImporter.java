@@ -358,9 +358,9 @@ public class SystemViewImporter extends BaseXmlImporter {
       propertyData = endUuid();
 
       // skip verionable properties
-    } else if (Constants.JCR_VERSIONHISTORY.equals(propertyInfo.getName())
-        || Constants.JCR_BASEVERSION.equals(propertyInfo.getName())
-        || Constants.JCR_PREDECESSORS.equals(propertyInfo.getName())) {
+    } else if (!getParent().getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)
+        && (Constants.JCR_VERSIONHISTORY.equals(propertyInfo.getName())
+            || Constants.JCR_BASEVERSION.equals(propertyInfo.getName()) || Constants.JCR_PREDECESSORS.equals(propertyInfo.getName()))) {
 
       propertyData = null;
 

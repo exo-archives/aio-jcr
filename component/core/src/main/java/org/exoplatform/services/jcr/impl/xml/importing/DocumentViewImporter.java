@@ -321,8 +321,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
                   log.error("Can't present value as string. " + e.getMessage());
                   valueAsString = "[Can't present value as string]";
                 }
-                log.debug("Property " + PropertyType.nameFromValue(pType) + ": " + propName + "="
-                    + valueAsString);
+                log.debug("Property " + ExtendedPropertyType.nameFromValue(pType) + ": " + propName
+                    + "=" + valueAsString);
               }
               values.add(((BaseValue) value).getInternalData());
 
@@ -363,9 +363,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
         }
       }
       // skip versionable
-      if (!Constants.JCR_VERSIONHISTORY.equals(propName)
-          && !Constants.JCR_BASEVERSION.equals(propName)
-          && !Constants.JCR_PREDECESSORS.equals(propName)) {
+
+      if ((newProperty.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH) || (!Constants.JCR_VERSIONHISTORY.equals(propName)
+          && !Constants.JCR_BASEVERSION.equals(propName) && !Constants.JCR_PREDECESSORS.equals(propName)))) {
         changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, getAncestorToSave()));
       }
     }
