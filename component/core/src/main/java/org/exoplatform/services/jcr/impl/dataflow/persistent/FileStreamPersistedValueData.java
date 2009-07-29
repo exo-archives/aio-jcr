@@ -82,13 +82,14 @@ public class FileStreamPersistedValueData extends AbstractValueData {
     }
   }
 
-  protected void finalize() throws Throwable {
-    try {
-      if (temp && !file.delete())
-        log.warn("FilePersistedValueData could not remove temporary file on finalize "
-            + file.getAbsolutePath());
-    } finally {
-      super.finalize();
-    }
-  }
+  // TODO cleanup
+//  protected void finalize() throws Throwable {
+//    try {
+//      if (temp && !file.delete())
+//        log.warn("FilePersistedValueData could not remove temporary file on finalize "
+//            + file.getAbsolutePath());
+//    } finally {
+//      super.finalize();
+//    }
+//  }
 }

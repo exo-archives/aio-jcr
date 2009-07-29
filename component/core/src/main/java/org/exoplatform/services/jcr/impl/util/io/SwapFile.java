@@ -59,7 +59,7 @@ public class SwapFile extends SpoolFile {
    * @param child
    *          File name
    */
-  private SwapFile(File parent, String child) {
+  protected SwapFile(File parent, String child) {
     super(parent, child);
   }
 

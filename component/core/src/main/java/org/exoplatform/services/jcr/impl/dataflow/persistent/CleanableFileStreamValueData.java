@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.jcr.RepositoryException;
@@ -36,18 +37,33 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
 
   protected final FileCleaner cleaner;
 
-  public CleanableFileStreamValueData(SwapFile file, int orderNumber, FileCleaner cleaner) {
+  public CleanableFileStreamValueData(SwapFile file, int orderNumber, FileCleaner cleaner) throws FileNotFoundException {
     super(file, orderNumber, false);
     this.cleaner = cleaner;
+    
+    // aquire this file
+    file.acquire(this);
   }
 
   protected void finalize() throws Throwable {
-    cleaner.addFile(file);
+    try {
+      // release file
+      ((SwapFile) file).release(this);
+      
+      if (!file.delete()) {
+        cleaner.addFile(file);
+
+        log.warn("CleanableFileStreamValueData: could not remove temporary file on finalize "
+            + file.getAbsolutePath());
+      }
+    } finally {
+      super.finalize();
+    }
   }
 
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
-      return new TransientValueData(orderNumber, null, null, file, cleaner, -1, null, false);
+      return new TransientValueData(orderNumber, null, null, file, cleaner, -1, null, true); // was false
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
