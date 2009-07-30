@@ -459,7 +459,7 @@
                 <include>**/**/TestCASableTreeFileIOChannel__.java</include>
 				<include>**/**/TestInvalidItemState__.java</include>
 				
-				<include>**/**/TestBulkDelete.java</include>
+				<include>**/**/TestCleanableFileStreamValueData.java</include>
               </includes>
             </configuration>
           </execution>
