@@ -32,7 +32,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * @author Gennady Azarenkov
  * @version $Id: FileStreamPersistedValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
 public class FileStreamPersistedValueData extends AbstractValueData {
 
   protected final File    file;
@@ -43,33 +42,36 @@ public class FileStreamPersistedValueData extends AbstractValueData {
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsStream()
+   * {@inheritDoc}
    */
   public InputStream getAsStream() throws IOException {
     return new FileInputStream(file);
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsByteArray()
+   * {@inheritDoc}
    */
   public byte[] getAsByteArray() throws IllegalStateException {
     throw new IllegalStateException("It is illegal to call on FileStreamPersistedValueData due to potential lack of memory");
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getLength()
+   * {@inheritDoc}
    */
   public long getLength() {
     return file.length();
   }
 
   /**
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#isByteArray()
+   * {@inheritDoc}
    */
   public boolean isByteArray() {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
@@ -78,15 +80,4 @@ public class FileStreamPersistedValueData extends AbstractValueData {
       throw new RepositoryException(e);
     }
   }
-
-  // TODO cleanup
-//  protected void finalize() throws Throwable {
-//    try {
-//      if (temp && !file.delete())
-//        log.warn("FilePersistedValueData could not remove temporary file on finalize "
-//            + file.getAbsolutePath());
-//    } finally {
-//      super.finalize();
-//    }
-//  }
 }
