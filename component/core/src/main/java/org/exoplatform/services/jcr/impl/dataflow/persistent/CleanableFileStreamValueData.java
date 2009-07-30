@@ -38,7 +38,7 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
   protected final FileCleaner cleaner;
 
   public CleanableFileStreamValueData(SwapFile file, int orderNumber, FileCleaner cleaner) throws FileNotFoundException {
-    super(file, orderNumber, false);
+    super(file, orderNumber);
     this.cleaner = cleaner;
     
     // aquire this file

@@ -37,12 +37,9 @@ public class FileStreamPersistedValueData extends AbstractValueData {
 
   protected final File    file;
 
-  protected final boolean temp;
-
-  public FileStreamPersistedValueData(File file, int orderNumber, boolean temp) {
+  public FileStreamPersistedValueData(File file, int orderNumber) {
     super(orderNumber);
     this.file = file;
-    this.temp = temp;
   }
 
   /**

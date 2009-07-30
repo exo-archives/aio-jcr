@@ -83,7 +83,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#read(java.lang.String, int, int)
    */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
-    return readValue(getFile(propertyId, orderNumber), orderNumber, maxBufferSize, false);
+    return readValue(getFile(propertyId, orderNumber), orderNumber, maxBufferSize);
   }
 
   /**
@@ -132,18 +132,16 @@ public abstract class FileIOChannel implements ValueIOChannel {
    *          - used in PersistedValueData logic
    * @param maxBufferSize
    *          - threshold for spooling
-   * @param temp
-   *          - temporary file flag
    * @return
    * @throws IOException
    */
-  protected ValueData readValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
+  protected ValueData readValue(File file, int orderNum, int maxBufferSize) throws IOException {
     FileInputStream is = new FileInputStream(file);
     try {
       long fileSize = file.length();
 
       if (fileSize > maxBufferSize) {
-        return new FileStreamPersistedValueData(file, orderNum, temp);        
+        return new FileStreamPersistedValueData(file, orderNum);        
       } else {
         int buffSize = (int) fileSize;
         byte[] res = new byte[buffSize];

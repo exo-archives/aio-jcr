@@ -16,15 +16,18 @@
  */
 package org.exoplatform.services.jcr.impl.value;
 
+import junit.framework.TestCase;
+
+import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.SwapFile;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
-import junit.framework.TestCase;
-
-import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -55,7 +58,7 @@ public class TestPersistedValueData extends TestCase {
     out.write(buf);
     out.close();
 
-    FileStreamPersistedValueData vd = new FileStreamPersistedValueData(file, 0, false);
+    FileStreamPersistedValueData vd = new FileStreamPersistedValueData(file, 0);
     assertFalse(vd.isByteArray());
     assertEquals(10, vd.getLength());
     assertEquals(0, vd.getOrderNumber());
@@ -70,21 +73,19 @@ public class TestPersistedValueData extends TestCase {
   public void testIfFinalizeRemovesTempFileStreamValueData() throws Exception {
 
     byte[] buf = "0123456789".getBytes();
-    File file = new File("target/testIfFinalizeRemovesTempFileStreamValueData");
-    if (file.exists())
-      file.delete();
+    SwapFile file = SwapFile.get(new File("target"), "testIfFinalizeRemovesTempFileStreamValueData");
     FileOutputStream out = new FileOutputStream(file);
     out.write(buf);
     out.close();
 
-    FileStreamPersistedValueData vd = new FileStreamPersistedValueData(file, 0, true);
+    CleanableFileStreamValueData vd = new CleanableFileStreamValueData(file, 0, new FileCleaner(1000, true));
     assertTrue(file.exists());
 
     vd = null;
     System.gc();
 
     // allows GC to call finalize on vd
-    Thread.sleep(1000);
+    Thread.sleep(1500);
 
     assertFalse(file.exists());
   }
