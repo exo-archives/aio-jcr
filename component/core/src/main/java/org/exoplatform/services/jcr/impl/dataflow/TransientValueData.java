@@ -448,8 +448,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       if (deleteSpoolFile && spoolFile.exists()) {
         if (!spoolFile.delete())
           if (fileCleaner != null) {
-            log.info("Could not remove file. Add to fileCleaner " + spoolFile);
             fileCleaner.addFile(spoolFile);
+            
+            if (log.isDebugEnabled())
+              log.debug("Could not remove file. Add to fileCleaner " + spoolFile.getAbsolutePath());
           } else {
             log.warn("Could not remove temporary file on finalize " + spoolFile.getAbsolutePath());
           }

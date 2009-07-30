@@ -57,7 +57,8 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
         cleaner.addFile(file);
 
         if (log.isDebugEnabled())
-          log.debug("Ñould not remove temporary file on finalize " + file.getAbsolutePath());
+          log.debug("Ñould not remove temporary file on finalize: inUse="
+              + (((SwapFile) file).inUse()) + ", " + file.getAbsolutePath());
       }
     } finally {
       super.finalize();

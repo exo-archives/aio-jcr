@@ -62,7 +62,7 @@ public class FileCleaner extends WorkerThread {
       start();
 
     registerShutdownHook();
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("FileCleaner instantiated name= " + getName() + " timeout= " + timeout);
     }
   }
@@ -98,11 +98,10 @@ public class FileCleaner extends WorkerThread {
       for (File file : oldFiles) {
         if (file.exists()) {
           if (!file.delete()) {
-            log.warn("Could not delete " + (file.isDirectory() ? "directory" : "file")
-                + ". Will try next time: " + file.getAbsolutePath());
+            if (log.isDebugEnabled())
+              log.debug("Could not delete " + (file.isDirectory() ? "directory" : "file")
+                  + ". Will try next time: " + file.getAbsolutePath());
 
-            // [PN] 08.10.07 should use same file (i.e. SpoolFile instance)
-            // files.add(new File(file.getAbsolutePath()));
             files.add(file);
           } else if (log.isDebugEnabled()) {
             log.debug((file.isDirectory() ? "Directory" : "File") + " deleted : "
@@ -124,9 +123,8 @@ public class FileCleaner extends WorkerThread {
           // to avoid ConcurrentModificationException (JCR-549)
           // @see java.lang.util.Collections.synchronizedList(java.util.List)
           synchronized (oldFiles) {
-            for (File file : oldFiles) {
+            for (File file : oldFiles)
               file.delete();
-            }
           }
         }
       });
