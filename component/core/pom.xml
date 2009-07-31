@@ -424,7 +424,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.4.3</version>
         <!-- normal mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false clean install -->
         <!-- debug  mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false -Dexo.test.forkmode=never clean install
         -->
@@ -638,7 +637,6 @@
       
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.3</version>
         <executions>
           <execution>
             <id>delete-sources</id>
