@@ -16,13 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core.query;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jcr.RepositoryException;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
@@ -34,11 +28,17 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.jcr.RepositoryException;
+
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: SystemSearchManager.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id: SystemSearchManager.java 13891 2008-05-05 16:02:30Z pnedonosko
+ *          $
  */
 public class SystemSearchManager extends SearchManager {
 
@@ -80,11 +80,6 @@ public class SystemSearchManager extends SearchManager {
 
   @Override
   public void start() {
-    
-    // SystemSearchManager.start can be called twice
-    // 1. From system WorkspaceContainer
-    // 2. From RepositoryContainer
-    // to avoid double initialization
     indexingRoot = Constants.JCR_SYSTEM_PATH;
     excludedPaths.remove(Constants.JCR_SYSTEM_PATH);
     isStarted = true;
@@ -92,6 +87,8 @@ public class SystemSearchManager extends SearchManager {
     for (ItemStateChangesLog bufferedChangesLog : changesLogBuffer) {
       super.onSaveItems(bufferedChangesLog);
     }
+    changesLogBuffer.clear();
+    changesLogBuffer = null;
   }
 
   @Override
