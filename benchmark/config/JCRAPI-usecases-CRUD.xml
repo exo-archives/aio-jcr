@@ -7,7 +7,7 @@
 	<param name="japex.plotGroupSize" value="5" />
 	<param name="japex.resultUnit" value="tps" />
 	<param name="japex.warmupIterations" value="0" />
-	<param name="japex.runIterations" value="1" />
+	<param name="japex.runIterations" value="10" />
 	<!--param name="japex.runTime" value="03" /-->
 	<!-- 10 for 10 sec -->
 	<!-- 15:00 for 15min -->
@@ -30,13 +30,25 @@
 
 	<testCase name="AddNodeWithStringAndBinaryProperties20k">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeWithProperties" />
+			value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeWithPropertiesTest" />
 		<param name="ext.fileSizeInKb" value="20" />
 	</testCase>
 
 	<testCase name="AddNodeWithStringAndBinaryProperties5M">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeWithProperties" />
+			value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeWithPropertiesTest" />
+		<param name="ext.fileSizeInKb" value="5120" />
+	</testCase>
+
+	<testCase name="GetNodeWithStringAndBinaryProperties20k">
+		<param name="exo.testClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeWithPropertiesTest" />
+		<param name="ext.fileSizeInKb" value="20" />
+	</testCase>
+
+	<testCase name="GetNodeWithStringAndBinaryProperties5M">
+		<param name="exo.testClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeWithPropertiesTest" />
 		<param name="ext.fileSizeInKb" value="5120" />
 	</testCase>
 
