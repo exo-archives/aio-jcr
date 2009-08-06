@@ -11,7 +11,7 @@ import javax.jcr.Node;
 import javax.jcr.PropertyType;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemNameTest;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
@@ -20,7 +20,7 @@ import com.sun.japex.TestCase;
  * 
  * @author Nikolay Zamosenchuk
  */
-public class NodeGetNodeWithPropertiesTest extends AbstractGetItemNameTest {
+public class NodeCheckInNodeWithPropertiesTest extends AbstractGetItemTest {
 
   private int    binaryPropertySize;
 
@@ -54,33 +54,22 @@ public class NodeGetNodeWithPropertiesTest extends AbstractGetItemNameTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    // superclass's method doPrepare generates nodes in repository according to
-    // runIterations count. Each generated node name add to array list. Later
-    // names can be accessed by calling nextName() method.
-    Node node = parent.addNode(context.generateUniqueName("parentNode"));
-    addName(parent.getName()+"/"+node.getName());
-
-    // when string and binary values ready and super.doPrepare() is invoked node
-    // generation is started. This method createContent(..) is invoked each time
-    // new node is created. So now nodes can be filled with required data.
-    // setting string property
+    Node node = parent.addNode(context.generateUniqueName("nodeToMove"));
+    node.addMixin("mix:versionable");
     node.setProperty("stringProperty", stringValue, PropertyType.STRING);
     // setting binary property
     node.setProperty("binaryProperty",
-                       context.getSession()
-                              .getValueFactory()
-                              .createValue(new ByteArrayInputStream(binaryValue)),
-                       PropertyType.BINARY);
+                     context.getSession()
+                            .getValueFactory()
+                            .createValue(new ByteArrayInputStream(binaryValue)),
+                     PropertyType.BINARY);
+    // add node to list;
+    addNode(node);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    // now let's get next node, using name stored in array list with volatile
-    // iterator
-    Node node = rootNode.getNode(nextName());
-    // get their properties
-    node.getProperty("stringProperty");
-    node.getProperty("binaryProperty");
+    nextNode().checkin();
   }
 
 }

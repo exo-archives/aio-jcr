@@ -30,25 +30,49 @@
 
 	<testCase name="AddNodeWithStringAndBinaryProperties20k">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeWithPropertiesTest" />
+			value="org.exoplatform.jcr.benchmark.usecases.NodeAddNodeWithPropertiesTest" />
 		<param name="ext.fileSizeInKb" value="20" />
 	</testCase>
 
 	<testCase name="AddNodeWithStringAndBinaryProperties5M">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeWithPropertiesTest" />
+			value="org.exoplatform.jcr.benchmark.usecases.NodeAddNodeWithPropertiesTest" />
 		<param name="ext.fileSizeInKb" value="5120" />
 	</testCase>
 
 	<testCase name="GetNodeWithStringAndBinaryProperties20k">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeWithPropertiesTest" />
+			value="org.exoplatform.jcr.benchmark.usecases.NodeGetNodeWithPropertiesTest" />
 		<param name="ext.fileSizeInKb" value="20" />
 	</testCase>
 
 	<testCase name="GetNodeWithStringAndBinaryProperties5M">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeWithPropertiesTest" />
+			value="org.exoplatform.jcr.benchmark.usecases.NodeGetNodeWithPropertiesTest" />
+		<param name="ext.fileSizeInKb" value="5120" />
+	</testCase>
+
+	<testCase name="MoveNodeWithStringAndBinaryProperties20k">
+		<param name="exo.testClass"
+			value="org.exoplatform.jcr.benchmark.usecases.NodeMoveNodeWithPropertiesTest" />
+		<param name="ext.fileSizeInKb" value="20" />
+	</testCase>
+
+	<testCase name="MoveNodeWithStringAndBinaryProperties5M">
+		<param name="exo.testClass"
+			value="org.exoplatform.jcr.benchmark.usecases.NodeMoveNodeWithPropertiesTest" />
+		<param name="ext.fileSizeInKb" value="5120" />
+	</testCase>
+
+	<testCase name="CheckInNodeWithStringAndBinaryProperties20k">
+		<param name="exo.testClass"
+			value="org.exoplatform.jcr.benchmark.usecases.NodeCheckInNodeWithPropertiesTest" />
+		<param name="ext.fileSizeInKb" value="20" />
+	</testCase>
+
+	<testCase name="CheckInNodeWithStringAndBinaryProperties5M">
+		<param name="exo.testClass"
+			value="org.exoplatform.jcr.benchmark.usecases.NodeCheckInNodeWithPropertiesTest" />
 		<param name="ext.fileSizeInKb" value="5120" />
 	</testCase>
 

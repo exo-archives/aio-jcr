@@ -20,11 +20,13 @@ import com.sun.japex.TestCase;
  * 
  * @author Nikolay Zamosenchuk
  */
-public class NodeGetNodeWithPropertiesTest extends AbstractGetItemNameTest {
+public class NodeMoveNodeWithPropertiesTest extends AbstractGetItemNameTest {
 
   private int    binaryPropertySize;
 
   private byte[] binaryValue;
+
+  private Node   destination;
 
   private String stringValue = "Content Repository API for Java (JCR) is a specification for"
                                  + " a Java platform API for accessing content repositories in a uniform manner.[1] [2] "
@@ -47,40 +49,45 @@ public class NodeGetNodeWithPropertiesTest extends AbstractGetItemNameTest {
     Random generator = new Random();
     // generating binary value in memory
     generator.nextBytes(binaryValue);
-    // when string and binary values ready and can be used call superclass's
-    // doPrepare to fill repository with nodes
+    destination = context.getSession()
+                         .getRootNode()
+                         .addNode(context.generateUniqueName("destination"));
+    // when string and binary values ready and can be used then call
+    // superclass's doPrepare to fill repository with nodes
     super.doPrepare(tc, context);
   }
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    // superclass's method doPrepare generates nodes in repository according to
-    // runIterations count. Each generated node name add to array list. Later
-    // names can be accessed by calling nextName() method.
-    Node node = parent.addNode(context.generateUniqueName("parentNode"));
-    addName(parent.getName()+"/"+node.getName());
-
-    // when string and binary values ready and super.doPrepare() is invoked node
-    // generation is started. This method createContent(..) is invoked each time
-    // new node is created. So now nodes can be filled with required data.
-    // setting string property
-    node.setProperty("stringProperty", stringValue, PropertyType.STRING);
+    Node nodeToMove = parent.addNode(context.generateUniqueName("nodeToMove"));
+    nodeToMove.setProperty("stringProperty", stringValue, PropertyType.STRING);
     // setting binary property
-    node.setProperty("binaryProperty",
-                       context.getSession()
-                              .getValueFactory()
-                              .createValue(new ByteArrayInputStream(binaryValue)),
-                       PropertyType.BINARY);
+    nodeToMove.setProperty("binaryProperty",
+                           context.getSession()
+                                  .getValueFactory()
+                                  .createValue(new ByteArrayInputStream(binaryValue)),
+                           PropertyType.BINARY);
+    if (!destination.hasNode(parent.getName())) {
+      destination.addNode(parent.getName());
+    }
+    addName(parent.getName() + "/" + nodeToMove.getName());
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    // now let's get next node, using name stored in array list with volatile
-    // iterator
-    Node node = rootNode.getNode(nextName());
-    // get their properties
-    node.getProperty("stringProperty");
-    node.getProperty("binaryProperty");
+    // moving saved node
+    // from : /root-xx/parent-yy/nodeToMove-zz
+    // to : /destination/parent-yy/nodeToMove-zz
+    String nodeName = nextName();
+    String src = rootNode.getPath() + "/" + nodeName;
+    String dest = destination.getPath() + "/" + nodeName;
+    rootNode.getSession().getWorkspace().move(src, dest);
+  }
+
+  @Override
+  public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
+    destination.remove();
+    super.doFinish(tc, context);
   }
 
 }

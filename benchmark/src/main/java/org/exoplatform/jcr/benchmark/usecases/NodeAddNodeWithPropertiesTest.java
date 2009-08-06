@@ -2,7 +2,7 @@
  * Copyright 2001-2009 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
-package org.exoplatform.jcr.benchmark.jcrapi.node.write;
+package org.exoplatform.jcr.benchmark.usecases;
 
 import java.io.ByteArrayInputStream;
 import java.util.Random;
@@ -10,8 +10,8 @@ import java.util.Random;
 import javax.jcr.Node;
 import javax.jcr.PropertyType;
 
+import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractAddItemTest;
 
 import com.sun.japex.TestCase;
 
@@ -20,11 +20,13 @@ import com.sun.japex.TestCase;
  * 
  * @author Nikolay Zamosenchuk
  */
-public class NodeAddNodeWithPropertiesTest extends AbstractAddItemTest {
+public class NodeAddNodeWithPropertiesTest extends JCRTestBase {
 
   private int    binaryPropertySize;
 
   private byte[] binaryValue;
+
+  private Node   testRoot;
 
   private String stringValue = "Content Repository API for Java (JCR) is a specification for"
                                  + " a Java platform API for accessing content repositories in a uniform manner.[1] [2] "
@@ -48,16 +50,15 @@ public class NodeAddNodeWithPropertiesTest extends AbstractAddItemTest {
     Random generator = new Random();
     // generating binary value in memory
     generator.nextBytes(binaryValue);
-  }
-
-  @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
+    // each thread has it's own root node
+    testRoot = context.getSession().getRootNode().addNode(context.generateUniqueName("testRoot"));
+    context.getSession().save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     // adding node
-    Node node = nextParent().addNode(context.generateUniqueName("parentNode"));
+    Node node = testRoot.addNode(context.generateUniqueName("parentNode"));
     // setting string property
     node.setProperty("stringProperty", stringValue, PropertyType.STRING);
     // setting binary property
@@ -67,6 +68,14 @@ public class NodeAddNodeWithPropertiesTest extends AbstractAddItemTest {
                             .createValue(new ByteArrayInputStream(binaryValue)),
                      PropertyType.BINARY);
 
+  }
+
+  @Override
+  public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
+    super.doFinish(tc, context);
+    // cleaning
+    testRoot.remove();
+    context.getSession().save();
   }
 
 }
