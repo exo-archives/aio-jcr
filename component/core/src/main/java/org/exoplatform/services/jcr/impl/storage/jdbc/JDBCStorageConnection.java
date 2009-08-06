@@ -235,6 +235,19 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   /**
    * {@inheritDoc}
    */
+  public final void close() throws IllegalStateException, RepositoryException {
+    checkIfOpened();
+    try {
+      dbConnection.close();
+
+    } catch (SQLException e) {
+      throw new RepositoryException(e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public final void commit() throws IllegalStateException, RepositoryException {
     checkIfOpened();
     try {

@@ -55,7 +55,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   /**
    * Logger.
    */
-  protected final Log                            log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
+  protected final Log                      log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
 
   /**
    * Workspace data container (persistent storage).
@@ -195,7 +195,19 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     try {
       return con.getItemData(identifier);
     } finally {
-      con.rollback();
+      con.close();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public ItemData getItemData(final NodeData parentData, final QPathEntry name) throws RepositoryException {
+    final WorkspaceStorageConnection con = dataContainer.openConnection();
+    try {
+      return con.getItemData(parentData, name);
+    } finally {
+      con.close();
     }
   }
 
@@ -218,7 +230,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       }
       return refProps;
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -231,7 +243,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     try {
       return con.getChildNodesData(nodeData);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -243,7 +255,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     try {
       return con.getChildPropertiesData(nodeData);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -255,7 +267,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     try {
       return con.listChildPropertiesData(nodeData);
     } finally {
-      con.rollback();
+      con.close();
     }
   }
 
@@ -427,24 +439,13 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
 
   /**
    * Tell if the path is jcr:system descendant.
-   *
-   * @param path path to check
+   * 
+   * @param path
+   *          path to check
    * @return boolean result, true if yes - it's jcr:system tree path
    */
   private boolean isSystemDescendant(QPath path) {
     return path.isDescendantOf(Constants.JCR_SYSTEM_PATH) || path.equals(Constants.JCR_SYSTEM_PATH);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ItemData getItemData(final NodeData parentData, final QPathEntry name) throws RepositoryException {
-    final WorkspaceStorageConnection con = dataContainer.openConnection();
-    try {
-      return con.getItemData(parentData, name);
-    } finally {
-      con.rollback();
-    }
   }
 
 }

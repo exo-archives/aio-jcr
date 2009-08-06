@@ -2417,6 +2417,13 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       changedItems.clear();
     }
   }
+  
+  /**
+   * Same as roolback() method.
+   */
+  public void close() throws IllegalStateException, RepositoryException {
+    rollback();
+  }
 
   /**
    * {@inheritDoc}
