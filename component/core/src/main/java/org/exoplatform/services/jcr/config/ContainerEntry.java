@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: ContainerEntry.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class ContainerEntry extends MappedParametrizedObjectEntry {

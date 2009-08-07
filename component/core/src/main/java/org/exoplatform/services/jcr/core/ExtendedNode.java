@@ -31,10 +31,11 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Created by The eXo Platform SAS.<br/> The extension for JSR-170 standard Node interface.
+ * Created by The eXo Platform SAS.<br/>
+ * The extension for JSR-170 standard Node interface.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ExtendedNode.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface ExtendedNode extends Node {

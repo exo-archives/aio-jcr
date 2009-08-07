@@ -27,10 +27,11 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.<br/> item state to save
+ * Created by The eXo Platform SAS.<br/>
+ * item state to save
  * 
  * @author Gennady Azarenkov
- * @version $Id: ItemState.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ItemState implements Externalizable {
 

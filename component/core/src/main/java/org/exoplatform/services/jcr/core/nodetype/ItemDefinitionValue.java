@@ -17,10 +17,11 @@
 package org.exoplatform.services.jcr.core.nodetype;
 
 /**
- * Created by The eXo Platform SAS.<br/> ItemDefinition value object.
+ * Created by The eXo Platform SAS.<br/>
+ * ItemDefinition value object.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: ItemDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public abstract class ItemDefinitionValue {

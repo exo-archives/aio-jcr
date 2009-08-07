@@ -19,10 +19,11 @@ package org.exoplatform.services.jcr.core.nodetype;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS.<br/> NodeDefinition value object
+ * Created by The eXo Platform SAS.<br/>
+ * NodeDefinition value object
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: NodeDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class NodeDefinitionValue extends ItemDefinitionValue {

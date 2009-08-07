@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ItemDataTraversingVisitor.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public abstract class ItemDataTraversingVisitor implements ItemDataVisitor {

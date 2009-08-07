@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.dataflow;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: DataManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public abstract interface DataManager extends ItemDataConsumer, ItemDataKeeper {
 

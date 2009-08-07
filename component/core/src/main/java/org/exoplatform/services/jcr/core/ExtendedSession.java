@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ExtendedSession.java 12649 2008-04-02 12:46:37Z ksm $
+ * @version $Id$
  */
 
 public interface ExtendedSession extends Session {

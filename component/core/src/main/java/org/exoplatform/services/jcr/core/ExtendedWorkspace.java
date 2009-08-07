@@ -29,7 +29,7 @@ import javax.jcr.nodetype.ConstraintViolationException;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ExtendedWorkspace.java 12649 2008-04-02 12:46:37Z ksm $
+ * @version $Id$
  */
 public interface ExtendedWorkspace extends Workspace {
 

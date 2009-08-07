@@ -26,10 +26,11 @@ import javax.jcr.nodetype.NodeTypeManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Created by The eXo Platform SAS. <br/> Node Type manager.
+ * Created by The eXo Platform SAS. <br/>
+ * Node Type manager.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: ExtendedNodeTypeManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface ExtendedNodeTypeManager extends NodeTypeManager {

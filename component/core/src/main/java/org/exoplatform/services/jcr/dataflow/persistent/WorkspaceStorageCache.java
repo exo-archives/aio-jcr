@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * Defines storage cache contract
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: WorkspaceStorageCache.java 13869 2008-05-05 08:40:10Z pnedonosko $
+ * @version $Id$
  */
 public interface WorkspaceStorageCache extends ItemsPersistenceListener {
 
@@ -71,9 +71,10 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
   List<PropertyData> getChildProperties(NodeData parent);
 
   /**
-   * List node child properties.<br/> A difference from {@link getChildProperties()} it's that the
-   * method may return list of node properties (PropertyData) which contains no data
-   * (ValueData).<br/> Used for Node.hasProperties(), NodeIndexer.createDoc().
+   * List node child properties.<br/>
+   * A difference from {@link getChildProperties()} it's that the method may return list of node
+   * properties (PropertyData) which contains no data (ValueData).<br/>
+   * Used for Node.hasProperties(), NodeIndexer.createDoc().
    * 
    * @param parent
    * @return child properties for parent if found; null if no items initialized

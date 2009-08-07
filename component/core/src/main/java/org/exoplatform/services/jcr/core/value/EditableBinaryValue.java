@@ -26,7 +26,7 @@ import javax.jcr.RepositoryException;
  * 7, 2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: EditableBinaryValue.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public interface EditableBinaryValue extends ReadableBinaryValue {
   /**

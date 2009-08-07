@@ -22,11 +22,12 @@ import javax.jcr.LoginException;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS.<br/> Authentication policy for
+ * Created by The eXo Platform SAS.<br/>
+ * Authentication policy for
  * 
  * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
- * @version $Id: AuthenticationPolicy.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 
 public interface AuthenticationPolicy {

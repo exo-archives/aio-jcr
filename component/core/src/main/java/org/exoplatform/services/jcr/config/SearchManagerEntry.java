@@ -26,7 +26,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: SearchManagerEntry.java 12111 2008-03-19 16:27:42Z serg $
+ * @version $Id$
  */
 public class SearchManagerEntry {
   /**

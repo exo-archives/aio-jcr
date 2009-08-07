@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.config;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov </a>
- * @version $Id: WorkspaceEntry.java 13991 2008-05-08 11:07:05Z pnedonosko $
+ * @version $Id$
  */
 public class WorkspaceEntry {
 

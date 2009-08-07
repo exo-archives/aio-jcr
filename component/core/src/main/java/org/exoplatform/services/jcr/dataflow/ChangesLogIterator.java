@@ -20,10 +20,11 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Created by The eXo Platform SAS.<br/> iterator of PlainChangesLog
+ * Created by The eXo Platform SAS.<br/>
+ * iterator of PlainChangesLog
  * 
  * @author Gennady Azarenkov
- * @version $Id: ChangesLogIterator.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class ChangesLogIterator {

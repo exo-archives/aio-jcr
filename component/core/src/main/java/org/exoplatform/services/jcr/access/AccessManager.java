@@ -38,7 +38,7 @@ import org.exoplatform.services.security.MembershipEntry;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: AccessManager.java 14518 2008-05-20 13:27:19Z ksm $
+ * @version $Id$
  */
 
 public abstract class AccessManager {

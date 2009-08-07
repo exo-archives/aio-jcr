@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.config;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SimpleParameterEntry.java 15047 2008-06-02 10:22:56Z pnedonosko $
+ * @version $Id$
  */
 
 public class SimpleParameterEntry {

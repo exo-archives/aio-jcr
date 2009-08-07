@@ -31,10 +31,11 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.<br/> Access Control List.
+ * Created by The eXo Platform SAS.<br/>
+ * Access Control List.
  * 
  * @author Gennady Azarenkov
- * @version $Id: AccessControlList.java 14556 2008-05-21 15:22:15Z pnedonosko $
+ * @version $Id$
  */
 
 public class AccessControlList implements Externalizable {

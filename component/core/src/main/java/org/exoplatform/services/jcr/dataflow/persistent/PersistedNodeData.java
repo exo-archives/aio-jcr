@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * Immutable NodeData from persistense storage
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: PersistedNodeData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class PersistedNodeData extends PersistedItemData implements NodeData {

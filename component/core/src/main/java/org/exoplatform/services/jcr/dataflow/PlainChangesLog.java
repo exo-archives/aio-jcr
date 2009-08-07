@@ -22,11 +22,11 @@ import org.exoplatform.services.jcr.observation.ExtendedEventType;
 import org.exoplatform.services.jcr.impl.core.observation.EventImpl;
 
 /**
- * Created by The eXo Platform SAS.<br/> Plain changes log implementation (i.e. no nested logs
- * inside)
+ * Created by The eXo Platform SAS.<br/>
+ * Plain changes log implementation (i.e. no nested logs inside)
  * 
  * @author Gennady Azarenkov
- * @version $Id: PlainChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public interface PlainChangesLog extends ItemStateChangesLog {
 

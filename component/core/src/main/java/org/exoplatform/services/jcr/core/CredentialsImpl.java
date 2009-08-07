@@ -24,7 +24,7 @@ import javax.jcr.SimpleCredentials;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: CredentialsImpl.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public class CredentialsImpl implements Credentials {

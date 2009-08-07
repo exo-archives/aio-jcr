@@ -28,7 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: MappedParametrizedObjectEntry.java 1807 2005-08-28 13:34:58Z geaz $
+ * @version $Id$
  */
 
 public abstract class MappedParametrizedObjectEntry {

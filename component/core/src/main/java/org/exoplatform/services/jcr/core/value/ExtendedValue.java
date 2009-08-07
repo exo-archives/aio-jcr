@@ -25,7 +25,7 @@ import javax.jcr.ValueFormatException;
  * created for compatibility with RMI interface with JSR specification.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ExtendedValue.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface ExtendedValue extends Value {

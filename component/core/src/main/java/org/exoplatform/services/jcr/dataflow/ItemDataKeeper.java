@@ -23,7 +23,7 @@ import javax.jcr.RepositoryException;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ItemDataKeeper.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface ItemDataKeeper {

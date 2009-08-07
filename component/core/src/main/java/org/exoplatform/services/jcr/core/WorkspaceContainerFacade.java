@@ -20,11 +20,11 @@ package org.exoplatform.services.jcr.core;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 
 /**
- * Created by The eXo Platform SAS .<br/> An entry point to the implementation, used for extending
- * functionality
+ * Created by The eXo Platform SAS .<br/>
+ * An entry point to the implementation, used for extending functionality
  * 
  * @author Gennady Azarenkov
- * @version $Id:$
+ * @version $Id$
  */
 
 public final class WorkspaceContainerFacade {

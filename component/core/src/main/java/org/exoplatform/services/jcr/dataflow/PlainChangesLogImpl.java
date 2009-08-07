@@ -27,7 +27,7 @@ import java.util.List;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: PlainChangesLogImpl.java 14464 2008-05-19 11:05:20Z pnedonosko $ Stores collection
+ * @version $Id$ Stores collection
  *          of ItemStates
  */
 public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
@@ -179,7 +179,7 @@ public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
     items = new ArrayList<ItemState>();
     int listSize = in.readInt();
     for (int i = 0; i < listSize; i++)
-      add((ItemState) in.readObject()); 
+      add((ItemState) in.readObject());
   }
   // ------------------ [ END ] ------------------
 }

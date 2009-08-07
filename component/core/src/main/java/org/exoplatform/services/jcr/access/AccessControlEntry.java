@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.access;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: AccessControlEntry.java 14464 2008-05-19 11:05:20Z pnedonosko $
+ * @version $Id$
  */
 public class AccessControlEntry {
 

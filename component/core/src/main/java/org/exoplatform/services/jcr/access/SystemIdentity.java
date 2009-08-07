@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.access;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SystemIdentity.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class SystemIdentity {

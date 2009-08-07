@@ -54,7 +54,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: QueryHandlerEntry.java 14931 2008-05-29 15:02:08Z ksm $
+ * @version $Id$
  */
 
 public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
@@ -129,8 +129,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   private static final String  DEFAULT_QUERY_IMPL_CLASS           = QueryImpl.class.getName();
 
   /**
-   * The number of documents that are pre fetched when a query is executed. <p/> Default value is:
-   * {@link Integer#MAX_VALUE}.
+   * The number of documents that are pre fetched when a query is executed.
+   * <p/>
+   * Default value is: {@link Integer#MAX_VALUE}.
    */
   private final static int     DEFAULT_RESULTFETCHSIZE            = Integer.MAX_VALUE;
 
@@ -172,7 +173,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   private final static String  PARAM_ERRORLOG_SIZE                = "errorlog-size";
 
   /**
-   * The location of the search index. <p/> Note: This is a <b>mandatory</b> parameter!
+   * The location of the search index.
+   * <p/>
+   * Note: This is a <b>mandatory</b> parameter!
    */
   private final static String  PARAM_INDEX_DIR                    = "index-dir";
 
@@ -232,9 +235,11 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Creates an excerpt provider for the given <code>query</code>.
    * 
-   * @param query the query.
+   * @param query
+   *          the query.
    * @return an excerpt provider for the given <code>query</code>.
-   * @throws IOException if the provider cannot be created.
+   * @throws IOException
+   *           if the provider cannot be created.
    */
   public ExcerptProvider createExcerptProvider(Query query) throws IOException {
     ExcerptProvider ep;
@@ -253,7 +258,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * @param namespaceMappings The namespace mappings
+   * @param namespaceMappings
+   *          The namespace mappings
    * @return the fulltext indexing configuration or <code>null</code> if there is no configuration.
    */
   public IndexingConfiguration createIndexingConfiguration(NamespaceMappings namespaceMappings,
@@ -339,8 +345,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
 
   /**
    * If set <code>true</code> errors detected by the consistency check are repaired. If
-   * <code>false</code> the errors are only reported in the log. <p/> Default value is:
-   * <code>true</code>.
+   * <code>false</code> the errors are only reported in the log.
+   * <p/>
+   * Default value is: <code>true</code>.
    */
   public boolean getAutoRepair() {
     return getParameterBoolean(PARAM_AUTO_REPAIR, DEFAULT_AUTOREPAIR);
@@ -545,8 +552,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * If set <code>true</code> the index is checked for consistency depending on the
    * {@link #forceConsistencyCheck} parameter. If set to <code>false</code>, no consistency check is
-   * performed, even if the redo log had been applied on startup. <p/> Default value is:
-   * <code>false</code>.
+   * performed, even if the redo log had been applied on startup.
+   * <p/>
+   * Default value is: <code>false</code>.
    * 
    * @return boolean
    */

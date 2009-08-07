@@ -32,36 +32,38 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
- * Created by The eXo Platform SAS.<br/> Etended Repository implementation
+ * Created by The eXo Platform SAS.<br/>
+ * Etended Repository implementation
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: ManageableRepository.java 13931 2008-05-06 12:10:00Z pnedonosko $
+ * @version $Id$
  */
 
 public interface ManageableRepository extends Repository {
-  
+
   /**
    * Repository OFFLINE status.
    */
-  final int OFFLINE = 0;
-  
+  final int OFFLINE  = 0;
+
   /**
    * Repository ONLINE status.
    */
-  final int ONLINE = 1;
-  
+  final int ONLINE   = 1;
+
   /**
    * Repository READONLY status.
    */
   final int READONLY = 2;
-  
+
   /**
    * Add the items persistence listener to the named workspace.
    * 
    * @param workspaceName
    *          - name of workspace
-   * @param listener Item persistence listener
-   * @deprecated 
+   * @param listener
+   *          Item persistence listener
+   * @deprecated
    */
   void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener);
 
@@ -176,15 +178,16 @@ public interface ManageableRepository extends Repository {
   /**
    * Set repository state.
    * 
-   * @param repository state
+   * @param repository
+   *          state
    */
   void setState(int state);
-  
+
   /**
    * Returns repository state.
    * 
    * @return repository state
    */
   int getState();
-  
+
 }

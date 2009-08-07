@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ExtendedNodeType.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface ExtendedNodeType extends NodeType {
