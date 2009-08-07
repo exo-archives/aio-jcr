@@ -20,12 +20,11 @@ package org.exoplatform.services.jcr.rmi.api.exceptions;
 import java.rmi.RemoteException;
 
 /**
- * JCR-RMI remote runtime exception. Used by the JCR-RMI client to wrap RMI
- * errors into RuntimeExceptions to avoid breaking the JCR interfaces.
+ * JCR-RMI remote runtime exception. Used by the JCR-RMI client to wrap RMI errors into
+ * RuntimeExceptions to avoid breaking the JCR interfaces.
  * <p>
- * Note that if a RemoteException is received by call that declares to throw
- * RepositoryExceptions, then the RemoteException is wrapped into a
- * RemoteRepositoryException.
+ * Note that if a RemoteException is received by call that declares to throw RepositoryExceptions,
+ * then the RemoteException is wrapped into a RemoteRepositoryException.
  */
 public class RemoteRuntimeException extends RuntimeException {
   /**
@@ -36,7 +35,8 @@ public class RemoteRuntimeException extends RuntimeException {
   /**
    * Creates a RemoteRuntimeException based on the given RemoteException.
    * 
-   * @param ex the remote exception
+   * @param ex
+   *          the remote exception
    */
   public RemoteRuntimeException(RemoteException ex) {
     super(ex);

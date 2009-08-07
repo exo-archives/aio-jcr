@@ -58,9 +58,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 /**
- * Local adapter for the JCR-RMI
- * {@link oorg.exoplatform.services.jcr.rmi.api.remote.RemoteSession RemoteSession}
- * inteface. This class makes a remote session locally available using the JCR
+ * Local adapter for the JCR-RMI {@link oorg.exoplatform.services.jcr.rmi.api.remote.RemoteSession
+ * RemoteSession} inteface. This class makes a remote session locally available using the JCR
  * {@link javax.jcr.Session Session} interface.
  * 
  * @author Jukka Zitting
@@ -74,10 +73,9 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
   private Repository    repository;
 
   /**
-   * Flag indicating whether the session is to be considered live of not. This
-   * flag is initially set to <code>true</code> and reset to
-   * <code>false</code> by the {@link #logout()} method. The {@link #isLive()}
-   * method first checks this flag before asking the remote session.
+   * Flag indicating whether the session is to be considered live of not. This flag is initially set
+   * to <code>true</code> and reset to <code>false</code> by the {@link #logout()} method. The
+   * {@link #isLive()} method first checks this flag before asking the remote session.
    */
   private boolean       live = true;
 
@@ -85,20 +83,22 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
   private RemoteSession remote;
 
   /**
-   * The adapted workspace of this session. This field is set on the first call
-   * to the {@link #getWorkspace()} method assuming, that a workspace instance
-   * is not changing during the lifetime of a session, that is, each call to the
-   * server-side <code>Session.getWorkspace()</code> allways returns the same
-   * object.
+   * The adapted workspace of this session. This field is set on the first call to the
+   * {@link #getWorkspace()} method assuming, that a workspace instance is not changing during the
+   * lifetime of a session, that is, each call to the server-side
+   * <code>Session.getWorkspace()</code> allways returns the same object.
    */
   private Workspace     workspace;
 
   /**
    * Creates a client adapter for the given remote session.
    * 
-   * @param repository current repository
-   * @param remote remote repository
-   * @param factory local adapter factory
+   * @param repository
+   *          current repository
+   * @param remote
+   *          remote repository
+   * @param factory
+   *          local adapter factory
    */
   public ClientSession(Repository repository, RemoteSession remote, LocalAdapterFactory factory) {
     super(factory);
@@ -107,8 +107,7 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
   }
 
   /**
-   * Returns the current repository without contacting the remote session.
-   * {@inheritDoc}
+   * Returns the current repository without contacting the remote session. {@inheritDoc}
    */
   public Repository getRepository() {
     return repository;
@@ -245,7 +244,7 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
 
   /** {@inheritDoc} */
   public void checkPermission(String path, String actions) throws AccessControlException,
-      RepositoryException {
+                                                          RepositoryException {
     try {
       remote.checkPermission(path, actions);
     } catch (RemoteException ex) {
@@ -255,7 +254,7 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
 
   /** {@inheritDoc} */
   public void importXML(String path, InputStream xml, int mode) throws IOException,
-      RepositoryException {
+                                                               RepositoryException {
     try {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
       byte[] bytes = new byte[4096];
@@ -355,14 +354,15 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
   }
 
   /**
-   * Exports the XML system view of the specified repository location to the
-   * given XML content handler. This method first requests the raw XML data from
-   * the remote session, and then uses an identity transformation to feed the
-   * data to the given XML content handler. Possible IO and transformer
-   * exceptions are thrown as SAXExceptions. {@inheritDoc}
+   * Exports the XML system view of the specified repository location to the given XML content
+   * handler. This method first requests the raw XML data from the remote session, and then uses an
+   * identity transformation to feed the data to the given XML content handler. Possible IO and
+   * transformer exceptions are thrown as SAXExceptions. {@inheritDoc}
    */
-  public void exportSystemView(String path, ContentHandler handler, boolean binaryAsLink,
-      boolean noRecurse) throws SAXException, RepositoryException {
+  public void exportSystemView(String path,
+                               ContentHandler handler,
+                               boolean binaryAsLink,
+                               boolean noRecurse) throws SAXException, RepositoryException {
     try {
       byte[] xml = remote.exportSystemView(path, binaryAsLink, noRecurse);
 
@@ -384,13 +384,14 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
   }
 
   /**
-   * Exports the XML system view of the specified repository location to the
-   * given output stream. This method first requests the raw XML data from the
-   * remote session, and then writes the data to the output stream.
-   * {@inheritDoc}
+   * Exports the XML system view of the specified repository location to the given output stream.
+   * This method first requests the raw XML data from the remote session, and then writes the data
+   * to the output stream. {@inheritDoc}
    */
-  public void exportSystemView(String path, OutputStream output, boolean binaryAsLink,
-      boolean noRecurse) throws IOException, RepositoryException {
+  public void exportSystemView(String path,
+                               OutputStream output,
+                               boolean binaryAsLink,
+                               boolean noRecurse) throws IOException, RepositoryException {
     try {
       byte[] xml = remote.exportSystemView(path, binaryAsLink, noRecurse);
       output.write(xml);
@@ -400,15 +401,15 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
   }
 
   /**
-   * Exports the XML document view of the specified repository location to the
-   * given XML content handler. This method first requests the raw XML data from
-   * the remote session, and then uses an identity transformation to feed the
-   * data to the given XML content handler. Possible IO and transformer
-   * exceptions are thrown as SAXExceptions. {@inheritDoc}
+   * Exports the XML document view of the specified repository location to the given XML content
+   * handler. This method first requests the raw XML data from the remote session, and then uses an
+   * identity transformation to feed the data to the given XML content handler. Possible IO and
+   * transformer exceptions are thrown as SAXExceptions. {@inheritDoc}
    */
-  public void exportDocumentView(String path, ContentHandler handler, boolean binaryAsLink,
-      boolean noRecurse) throws SAXException, RepositoryException {
-
+  public void exportDocumentView(String path,
+                                 ContentHandler handler,
+                                 boolean binaryAsLink,
+                                 boolean noRecurse) throws SAXException, RepositoryException {
 
     try {
       byte[] xml = remote.exportDocumentView(path, binaryAsLink, noRecurse);
@@ -418,7 +419,7 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
       XMLReader reader = parser.getXMLReader();
 
       reader.setContentHandler(handler);
-      reader.setFeature("http://apache.org/xml/features/allow-java-encodings",true);
+      reader.setFeature("http://apache.org/xml/features/allow-java-encodings", true);
       reader.parse(new InputSource(new ByteArrayInputStream(xml)));
     } catch (RemoteException e) {
       throw new RemoteRepositoryException(e);
@@ -427,17 +428,18 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
     } catch (ParserConfigurationException e) {
       throw new SAXException(e);
     }
-    
+
   }
 
   /**
-   * Exports the XML document view of the specified repository location to the
-   * given output stream. This method first requests the raw XML data from the
-   * remote session, and then writes the data to the output stream.
-   * {@inheritDoc}
+   * Exports the XML document view of the specified repository location to the given output stream.
+   * This method first requests the raw XML data from the remote session, and then writes the data
+   * to the output stream. {@inheritDoc}
    */
-  public void exportDocumentView(String path, OutputStream output, boolean binaryAsLink,
-      boolean noRecurse) throws IOException, RepositoryException {
+  public void exportDocumentView(String path,
+                                 OutputStream output,
+                                 boolean binaryAsLink,
+                                 boolean noRecurse) throws IOException, RepositoryException {
     try {
       byte[] xml = remote.exportDocumentView(path, binaryAsLink, noRecurse);
       output.write(xml);
@@ -477,7 +479,7 @@ public class ClientSession extends ClientObject implements Session, NamespaceAcc
   }
 
   public String getNamespaceURIByPrefix(String prefix) throws NamespaceException,
-      RepositoryException {
+                                                      RepositoryException {
 
     try {
       return remote.getNamespacePrefixByURI(prefix);

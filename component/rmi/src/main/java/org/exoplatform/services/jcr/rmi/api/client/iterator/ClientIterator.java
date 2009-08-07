@@ -26,10 +26,9 @@ import org.exoplatform.services.jcr.rmi.api.exceptions.RemoteRuntimeException;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteIterator;
 
 /**
- * A buffering local adapter for the JCR-RMI {@link RemoteIterator} interface.
- * This class makes the remote iterator locally available using the JCR
- * {@link RangeIterator} interface. The element arrays returned by the remote
- * iterator are buffered locally.
+ * A buffering local adapter for the JCR-RMI {@link RemoteIterator} interface. This class makes the
+ * remote iterator locally available using the JCR {@link RangeIterator} interface. The element
+ * arrays returned by the remote iterator are buffered locally.
  * <p>
  * See the subclasses for type-specific versions of this abstract class.
  */
@@ -39,8 +38,8 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   private final RemoteIterator remote;
 
   /**
-   * The cached number of elements in the iterator, -1 if the iterator size is
-   * unknown, or -2 if the size has not been retrieved from the remote iterator.
+   * The cached number of elements in the iterator, -1 if the iterator size is unknown, or -2 if the
+   * size has not been retrieved from the remote iterator.
    */
   private long                 size;
 
@@ -51,17 +50,17 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   private int                  positionInBuffer;
 
   /**
-   * The element buffer. Set to <code>null</code> when the end of the
-   * iteration has been reached.
+   * The element buffer. Set to <code>null</code> when the end of the iteration has been reached.
    */
   private Object[]             buffer;
 
   /**
-   * Creates a local adapter for the given remote iterator. The element buffer
-   * is initially empty.
+   * Creates a local adapter for the given remote iterator. The element buffer is initially empty.
    * 
-   * @param remote remote iterator
-   * @param factory local adapter factory
+   * @param remote
+   *          remote iterator
+   * @param factory
+   *          local adapter factory
    */
   public ClientIterator(RemoteIterator remote, LocalAdapterFactory factory) {
     super(factory);
@@ -83,14 +82,15 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   }
 
   /**
-   * Returns the size (the total number of elements) of this iteration. Returns
-   * <code>-1</code> if the size is unknown.
+   * Returns the size (the total number of elements) of this iteration. Returns <code>-1</code> if
+   * the size is unknown.
    * <p>
-   * To minimize the number of remote method calls, the size is retrieved when
-   * this method is first called and cached for subsequent invocations.
+   * To minimize the number of remote method calls, the size is retrieved when this method is first
+   * called and cached for subsequent invocations.
    * 
    * @return number of elements in the iteration, or <code>-1</code>
-   * @throws RemoteRuntimeException on RMI errors
+   * @throws RemoteRuntimeException
+   *           on RMI errors
    * @see RangeIterator#getSize()
    */
   public long getSize() throws RemoteRuntimeException {
@@ -107,13 +107,15 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   /**
    * Skips the given number of elements in this iteration.
    * <p>
-   * The elements in the local element buffer are skipped first, and a remote
-   * skip method call is made only if more elements are being skipped than
-   * remain in the local buffer.
+   * The elements in the local element buffer are skipped first, and a remote skip method call is
+   * made only if more elements are being skipped than remain in the local buffer.
    * 
-   * @param skipNum the number of elements to skip
-   * @throws NoSuchElementException if skipped past the last element
-   * @throws RemoteRuntimeException on RMI errors
+   * @param skipNum
+   *          the number of elements to skip
+   * @throws NoSuchElementException
+   *           if skipped past the last element
+   * @throws RemoteRuntimeException
+   *           on RMI errors
    * @see RangeIterator#skip(long)
    */
   public void skip(long skipNum) throws NoSuchElementException, RemoteRuntimeException {
@@ -139,11 +141,11 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   }
 
   /**
-   * Advances the element buffer if there are no more elements in it. The
-   * element buffer is set to <code>null</code> if the end of the iteration
-   * has been reached.
+   * Advances the element buffer if there are no more elements in it. The element buffer is set to
+   * <code>null</code> if the end of the iteration has been reached.
    * 
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   private void advance() throws RemoteException {
     if (buffer != null && positionInBuffer == buffer.length) {
@@ -159,9 +161,9 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   /**
    * Checks if there are more elements in this iteration.
    * 
-   * @return <code>true</code> if there are more elements, <code>false</code>
-   *         otherwise
-   * @throws RemoteRuntimeException on RMI errors
+   * @return <code>true</code> if there are more elements, <code>false</code> otherwise
+   * @throws RemoteRuntimeException
+   *           on RMI errors
    * @see Iterator#hasNext()
    */
   public boolean hasNext() throws RemoteRuntimeException {
@@ -174,14 +176,15 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   }
 
   /**
-   * Returns a local adapter for the given remote object. This abstract method
-   * is used by {@link #next()} to convert the remote references returned by the
-   * remote iterator to local adapters.
+   * Returns a local adapter for the given remote object. This abstract method is used by
+   * {@link #next()} to convert the remote references returned by the remote iterator to local
+   * adapters.
    * <p>
-   * Subclasses should implement this method to use the local adapter factory to
-   * create local adapters of the specific element type.
+   * Subclasses should implement this method to use the local adapter factory to create local
+   * adapters of the specific element type.
    * 
-   * @param remote remote object
+   * @param remote
+   *          remote object
    * @return local adapter
    */
   protected abstract Object getObject(Object remote);
@@ -190,8 +193,10 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
    * Returns the next element in this iteration.
    * 
    * @return next element
-   * @throws NoSuchElementException if there are no more elements
-   * @throws RemoteRuntimeException on RMI errors
+   * @throws NoSuchElementException
+   *           if there are no more elements
+   * @throws RemoteRuntimeException
+   *           on RMI errors
    * @see Iterator#next()
    */
   public Object next() throws NoSuchElementException, RemoteRuntimeException {
@@ -210,7 +215,8 @@ public abstract class ClientIterator extends ClientObject implements RangeIterat
   /**
    * Not supported.
    * 
-   * @throws UnsupportedOperationException always thrown
+   * @throws UnsupportedOperationException
+   *           always thrown
    * @see Iterator#remove()
    */
   public void remove() throws UnsupportedOperationException {

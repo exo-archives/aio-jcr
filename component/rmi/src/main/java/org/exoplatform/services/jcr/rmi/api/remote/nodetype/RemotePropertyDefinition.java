@@ -22,64 +22,62 @@ import java.rmi.RemoteException;
 import javax.jcr.Value;
 
 /**
- * Remote version of the JCR
- * {@link javax.jcr.nodetype.PropertyDefinition PropertyDefinition} interface.
- * Used by the
- * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerPropertyDefinition ServerPropertyDefinition}
- * and
- * {@link org.exoplatform.services.jcr.rmi.api.client.ClientPropertyDefinition ClientPropertyDefinition}
- * adapters to provide transparent RMI access to remote property definitions.
+ * Remote version of the JCR {@link javax.jcr.nodetype.PropertyDefinition PropertyDefinition}
+ * interface. Used by the
+ * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerPropertyDefinition
+ * ServerPropertyDefinition} and
+ * {@link org.exoplatform.services.jcr.rmi.api.client.ClientPropertyDefinition
+ * ClientPropertyDefinition} adapters to provide transparent RMI access to remote property
+ * definitions.
  * <p>
- * The methods in this interface are documented only with a reference to a
- * corresponding PropertyDef method. The remote object will simply forward the
- * method call to the underlying PropertyDef instance. Return values and
- * possible exceptions are copied over the network. RMI errors are signalled
- * with RemoteExceptions.
+ * The methods in this interface are documented only with a reference to a corresponding PropertyDef
+ * method. The remote object will simply forward the method call to the underlying PropertyDef
+ * instance. Return values and possible exceptions are copied over the network. RMI errors are
+ * signalled with RemoteExceptions.
  * <p>
- * Note that the returned Value objects must be serializable and implemented
- * using classes available on both the client and server side. The
- * {@link org.exoplatform.services.jcr.rmi.api.value.SerialValueFactory SerialValueFactory}
- * class provides two convenience methods to satisfy this requirement.
+ * Note that the returned Value objects must be serializable and implemented using classes available
+ * on both the client and server side. The
+ * {@link org.exoplatform.services.jcr.rmi.api.value.SerialValueFactory SerialValueFactory} class
+ * provides two convenience methods to satisfy this requirement.
  */
 public interface RemotePropertyDefinition extends RemoteItemDefinition {
   /**
-   * Remote version of the
-   * {@link javax.jcr.nodetype.PropertyDefinition#getRequiredType() PropertyDefinition.getRequiredType()}
-   * method.
+   * Remote version of the {@link javax.jcr.nodetype.PropertyDefinition#getRequiredType()
+   * PropertyDefinition.getRequiredType()} method.
    * 
    * @return required type
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   int getRequiredType() throws RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.nodetype.PropertyDefinition#getValueConstraints() PropertyDefinition.getValueConstraints()}
-   * method.
+   * Remote version of the {@link javax.jcr.nodetype.PropertyDefinition#getValueConstraints()
+   * PropertyDefinition.getValueConstraints()} method.
    * 
    * @return value constraints
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   String[] getValueConstraints() throws RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.nodetype.PropertyDefinition#getDefaultValues() PropertyDefinition.getDefaultValues()}
-   * method.
+   * Remote version of the {@link javax.jcr.nodetype.PropertyDefinition#getDefaultValues()
+   * PropertyDefinition.getDefaultValues()} method.
    * 
    * @return default values
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   Value[] getDefaultValues() throws RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.nodetype.PropertyDefinition#isMultiple() PropertyDefinition.isMultiple()}
-   * method.
+   * Remote version of the {@link javax.jcr.nodetype.PropertyDefinition#isMultiple()
+   * PropertyDefinition.isMultiple()} method.
    * 
-   * @return <code>true</code> if the property is multi-valued,
-   *         <code>false</code> otherwise
-   * @throws RemoteException on RMI errors
+   * @return <code>true</code> if the property is multi-valued, <code>false</code> otherwise
+   * @throws RemoteException
+   *           on RMI errors
    */
   boolean isMultiple() throws RemoteException;
 

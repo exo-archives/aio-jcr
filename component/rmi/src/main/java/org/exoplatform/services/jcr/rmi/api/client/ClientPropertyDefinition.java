@@ -27,10 +27,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemotePropertyDefini
 
 /**
  * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemotePropertyDefinition RemotePropertyDefinition}
- * inteface. This class makes a remote property definition locally available
- * using the JCR {@link javax.jcr.nodetype.PropertyDefinition PropertyDef}
- * interface.
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemotePropertyDefinition
+ * RemotePropertyDefinition} inteface. This class makes a remote property definition locally
+ * available using the JCR {@link javax.jcr.nodetype.PropertyDefinition PropertyDef} interface.
  * 
  * @see javax.jcr.nodetype.PropertyDefinition
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemotePropertyDefinition
@@ -43,8 +42,10 @@ public class ClientPropertyDefinition extends ClientItemDefinition implements Pr
   /**
    * Creates a local adapter for the given remote property definition.
    * 
-   * @param remote remote property definition
-   * @param factory local adapter factory
+   * @param remote
+   *          remote property definition
+   * @param factory
+   *          local adapter factory
    */
   public ClientPropertyDefinition(RemotePropertyDefinition remote, LocalAdapterFactory factory) {
     super(remote, factory);

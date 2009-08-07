@@ -73,49 +73,44 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemotePropertyDefini
 /**
  * Default implementation of the
  * {@link org.exoplatform.services.jcr.rmi.api.client.LocalAdapterFactory LocalAdapterFactory}
- * interface. This factory uses the client adapters defined in this package as
- * the default adapter implementations. Subclasses can easily override or extend
- * the default adapters by implementing the corresponding factory methods.
+ * interface. This factory uses the client adapters defined in this package as the default adapter
+ * implementations. Subclasses can easily override or extend the default adapters by implementing
+ * the corresponding factory methods.
  */
 public class LocalAdapterFactoryImpl implements LocalAdapterFactory {
 
   /**
-   * Creates and returns a {@link ClientRepository ClientRepository} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientRepository ClientRepository} instance. {@inheritDoc}
    */
   public Repository getRepository(RemoteRepository remote) {
     return new ClientRepository(remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientSession ClientSession} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientSession ClientSession} instance. {@inheritDoc}
    */
   public Session getSession(Repository repository, RemoteSession remote) {
     return new ClientSession(repository, remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientWorkspace ClientWorkspace} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientWorkspace ClientWorkspace} instance. {@inheritDoc}
    */
   public Workspace getWorkspace(Session session, RemoteWorkspace remote) {
     return new ClientWorkspace(session, remote, this);
   }
 
   /**
-   * Creates and returns a
-   * {@link ClientObservationManager ClientObservationManager} instance.
+   * Creates and returns a {@link ClientObservationManager ClientObservationManager} instance.
    * {@inheritDoc}
    */
   public ObservationManager getObservationManager(Workspace workspace,
-      RemoteObservationManager remote) {
+                                                  RemoteObservationManager remote) {
     return new ClientObservationManager(workspace, remote);
   }
 
   /**
-   * Creates and returns a
-   * {@link ClientNamespaceRegistry ClientClientNamespaceRegistry} instance.
+   * Creates and returns a {@link ClientNamespaceRegistry ClientClientNamespaceRegistry} instance.
    * {@inheritDoc}
    */
   public NamespaceRegistry getNamespaceRegistry(RemoteNamespaceRegistry remote) {
@@ -123,8 +118,8 @@ public class LocalAdapterFactoryImpl implements LocalAdapterFactory {
   }
 
   /**
-   * Creates and returns a {@link ClientNodeTypeManager ClienNodeTypeManager}
-   * instance. {@inheritDoc}
+   * Creates and returns a {@link ClientNodeTypeManager ClienNodeTypeManager} instance.
+   * {@inheritDoc}
    */
   public NodeTypeManager getNodeTypeManager(RemoteNodeTypeManager remote) {
     return new ClientNodeTypeManager(remote, this);
@@ -138,8 +133,7 @@ public class LocalAdapterFactoryImpl implements LocalAdapterFactory {
   }
 
   /**
-   * Creates and returns a {@link ClientProperty ClientProperty} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientProperty ClientProperty} instance. {@inheritDoc}
    */
   public Property getProperty(Session session, RemoteProperty remote) {
     return new ClientProperty(session, remote, this);
@@ -153,48 +147,42 @@ public class LocalAdapterFactoryImpl implements LocalAdapterFactory {
   }
 
   /**
-   * Creates and returns a {@link ClientVersion ClientVersion} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientVersion ClientVersion} instance. {@inheritDoc}
    */
   public Version getVersion(Session session, RemoteVersion remote) {
     return new ClientVersion(session, remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientVersionHistory ClientVersionHistory}
-   * instance. {@inheritDoc}
+   * Creates and returns a {@link ClientVersionHistory ClientVersionHistory} instance. {@inheritDoc}
    */
   public VersionHistory getVersionHistory(Session session, RemoteVersionHistory remote) {
     return new ClientVersionHistory(session, remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientNodeType ClientNodeType} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientNodeType ClientNodeType} instance. {@inheritDoc}
    */
   public NodeType getNodeType(RemoteNodeType remote) {
     return new ClientNodeType(remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientItemDefinition ClientItemDefinition}
-   * instance. {@inheritDoc}
+   * Creates and returns a {@link ClientItemDefinition ClientItemDefinition} instance. {@inheritDoc}
    */
   public ItemDefinition getItemDef(RemoteItemDefinition remote) {
     return new ClientItemDefinition(remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientNodeDefinition ClientNodeDefinition}
-   * instance. {@inheritDoc}
+   * Creates and returns a {@link ClientNodeDefinition ClientNodeDefinition} instance. {@inheritDoc}
    */
   public NodeDefinition getNodeDef(RemoteNodeDefinition remote) {
     return new ClientNodeDefinition(remote, this);
   }
 
   /**
-   * Creates and returns a
-   * {@link ClientPropertyDefinition ClientPropertyDefinition} instance.
+   * Creates and returns a {@link ClientPropertyDefinition ClientPropertyDefinition} instance.
    * {@inheritDoc}
    */
   public PropertyDefinition getPropertyDef(RemotePropertyDefinition remote) {
@@ -209,24 +197,21 @@ public class LocalAdapterFactoryImpl implements LocalAdapterFactory {
   }
 
   /**
-   * Creates and returns a {@link ClientQueryManager ClientQueryManager}
-   * instance. {@inheritDoc}
+   * Creates and returns a {@link ClientQueryManager ClientQueryManager} instance. {@inheritDoc}
    */
   public QueryManager getQueryManager(Session session, RemoteQueryManager remote) {
     return new ClientQueryManager(session, remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientQuery ClientQuery} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientQuery ClientQuery} instance. {@inheritDoc}
    */
   public Query getQuery(Session session, RemoteQuery remote) {
     return new ClientQuery(session, remote, this);
   }
 
   /**
-   * Creates and returns a {@link ClientQueryResult ClientQueryResult} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientQueryResult ClientQueryResult} instance. {@inheritDoc}
    */
   public QueryResult getQueryResult(Session session, RemoteQueryResult remote) {
     return new ClientQueryResult(session, remote, this);
@@ -247,8 +232,7 @@ public class LocalAdapterFactoryImpl implements LocalAdapterFactory {
   }
 
   /**
-   * Creates and returns a {@link ClientPropertyIterator} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientPropertyIterator} instance. {@inheritDoc}
    */
   public PropertyIterator getPropertyIterator(Session session, RemoteIterator remote) {
     return new ClientPropertyIterator(remote, session, this);
@@ -262,8 +246,7 @@ public class LocalAdapterFactoryImpl implements LocalAdapterFactory {
   }
 
   /**
-   * Creates and returns a {@link ClientNodeTypeIterator} instance.
-   * {@inheritDoc}
+   * Creates and returns a {@link ClientNodeTypeIterator} instance. {@inheritDoc}
    */
   public NodeTypeIterator getNodeTypeIterator(RemoteIterator remote) {
     return new ClientNodeTypeIterator(remote, this);

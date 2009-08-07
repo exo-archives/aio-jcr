@@ -20,9 +20,8 @@ package org.exoplatform.services.jcr.rmi.api.observation;
 import java.util.LinkedList;
 
 /**
- * The <code>Queue</code> class is a very simple queue assuming that there is
- * at least one consumer and potentially multiple producers. This class poses no
- * restrictions on the size of the queue.
+ * The <code>Queue</code> class is a very simple queue assuming that there is at least one consumer
+ * and potentially multiple producers. This class poses no restrictions on the size of the queue.
  */
 public class Queue {
 
@@ -39,10 +38,11 @@ public class Queue {
   /**
    * Appends the given <code>object</code> to the end of the queue.
    * <p>
-   * After appending the element, the queue is notified such that threads
-   * waiting to retrieve an element from the queue are woken up.
+   * After appending the element, the queue is notified such that threads waiting to retrieve an
+   * element from the queue are woken up.
    * 
-   * @param object the object to be added
+   * @param object
+   *          the object to be added
    */
   public void put(Object object) {
     synchronized (queue) {
@@ -52,16 +52,17 @@ public class Queue {
   }
 
   /**
-   * Returns the first element from the queue. If the queue is currently empty
-   * the method waits at most the given number of milliseconds.
+   * Returns the first element from the queue. If the queue is currently empty the method waits at
+   * most the given number of milliseconds.
    * 
-   * @param timeout The maximum number of milliseconds to wait for an entry in
-   *          the queue if the queue is empty. If zero, the method waits forever
-   *          for an element.
-   * @return The first element of the queue or <code>null</code> if the method
-   *         timed out waiting for an entry.
-   * @throws InterruptedException Is thrown if the current thread is interrupted
-   *           while waiting for the queue to get at least one entry.
+   * @param timeout
+   *          The maximum number of milliseconds to wait for an entry in the queue if the queue is
+   *          empty. If zero, the method waits forever for an element.
+   * @return The first element of the queue or <code>null</code> if the method timed out waiting for
+   *         an entry.
+   * @throws InterruptedException
+   *           Is thrown if the current thread is interrupted while waiting for the queue to get at
+   *           least one entry.
    */
   public Object get(long timeout) throws InterruptedException {
     synchronized (queue) {

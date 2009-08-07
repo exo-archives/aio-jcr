@@ -24,9 +24,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
 /**
- * The <code>ReferenceValue</code> class implements the committed value state
- * for Reference values as a part of the State design pattern (Gof) used by this
- * package.
+ * The <code>ReferenceValue</code> class implements the committed value state for Reference values
+ * as a part of the State design pattern (Gof) used by this package.
  * 
  * @since 0.16.4.1
  */
@@ -38,8 +37,9 @@ public class ReferenceValue extends BaseNonStreamValue implements Serializable, 
    * @see org.exoplatform.services.jcr.rmi.api.value.BaseNonStreamValue#getReference()
    */
   @Override
-  public String getReference() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public String getReference() throws ValueFormatException,
+                              IllegalStateException,
+                              RepositoryException {
     // TODO Auto-generated method stub
     return getString();
   }
@@ -60,11 +60,11 @@ public class ReferenceValue extends BaseNonStreamValue implements Serializable, 
   /**
    * Checks whether the string value adheres to the reference syntax.
    * 
-   * @param value The string to check for synthactical compliance with a
-   *          reference value.
+   * @param value
+   *          The string to check for synthactical compliance with a reference value.
    * @return The input value.
-   * @throws ValueFormatException if the string <code>value</code> is not a
-   *           synthactically correct reference.
+   * @throws ValueFormatException
+   *           if the string <code>value</code> is not a synthactically correct reference.
    */
   protected static String toReference(String value) throws ValueFormatException {
     // TODO: check syntax

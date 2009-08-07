@@ -30,11 +30,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemotePropertyDefinition;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.nodetype.NodeType NodeType}
- * interface. This class makes a local node type available as an RMI service
- * using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeType RemoteNodeType}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.nodetype.NodeType NodeType} interface. This class
+ * makes a local node type available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeType RemoteNodeType} interface.
  * 
  * @see javax.jcr.nodetype.NodeType
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeType
@@ -52,9 +50,12 @@ public class ServerNodeType extends ServerObject implements RemoteNodeType {
   /**
    * Creates a remote adapter for the given local node type.
    * 
-   * @param type local node type
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param type
+   *          local node type
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerNodeType(NodeType type, RemoteAdapterFactory factory) throws RemoteException {
     super(factory);
@@ -62,18 +63,18 @@ public class ServerNodeType extends ServerObject implements RemoteNodeType {
   }
 
   /**
-   * Utility method for creating an array of remote references for local node
-   * definitions. The remote references are created using the remote adapter
-   * factory.
+   * Utility method for creating an array of remote references for local node definitions. The
+   * remote references are created using the remote adapter factory.
    * <p>
    * A <code>null</code> input is treated as an empty array.
    * 
-   * @param defs local node definition array
+   * @param defs
+   *          local node definition array
    * @return remote node definition array
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  private RemoteNodeDefinition[] getRemoteNodeDefArray(NodeDefinition[] defs)
-      throws RemoteException {
+  private RemoteNodeDefinition[] getRemoteNodeDefArray(NodeDefinition[] defs) throws RemoteException {
     if (defs != null) {
       RemoteNodeDefinition[] remotes = new RemoteNodeDefinition[defs.length];
       for (int i = 0; i < defs.length; i++) {
@@ -86,18 +87,18 @@ public class ServerNodeType extends ServerObject implements RemoteNodeType {
   }
 
   /**
-   * Utility method for creating an array of remote references for local
-   * property definitions. The remote references are created using the remote
-   * adapter factory.
+   * Utility method for creating an array of remote references for local property definitions. The
+   * remote references are created using the remote adapter factory.
    * <p>
    * A <code>null</code> input is treated as an empty array.
    * 
-   * @param defs local property definition array
+   * @param defs
+   *          local property definition array
    * @return remote property definition array
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  private RemotePropertyDefinition[] getRemotePropertyDefArray(PropertyDefinition[] defs)
-      throws RemoteException {
+  private RemotePropertyDefinition[] getRemotePropertyDefArray(PropertyDefinition[] defs) throws RemoteException {
     if (defs != null) {
       RemotePropertyDefinition[] remotes = new RemotePropertyDefinition[defs.length];
       for (int i = 0; i < defs.length; i++) {

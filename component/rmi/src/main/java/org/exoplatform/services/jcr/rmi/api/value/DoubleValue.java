@@ -24,9 +24,8 @@ import javax.jcr.PropertyType;
 import javax.jcr.ValueFormatException;
 
 /**
- * The <code>DoubleValue</code> class implements the committed value state for
- * Double values as a part of the State design pattern (Gof) used by this
- * package.
+ * The <code>DoubleValue</code> class implements the committed value state for Double values as a
+ * part of the State design pattern (Gof) used by this package.
  * 
  * @since 0.16.4.1
  * @see org.exoplatform.services.jcr.rmi.api.value.SerialValue
@@ -49,11 +48,11 @@ public class DoubleValue extends BaseNonStreamValue implements Serializable, Sta
   /**
    * Creates an instance for the given string representation of a double.
    * <p>
-   * This implementation uses the <code>Double.valueOf(String)</code> method
-   * to convert the string to a double.
+   * This implementation uses the <code>Double.valueOf(String)</code> method to convert the string
+   * to a double.
    * 
-   * @throws ValueFormatException if the string <code>value</code> cannot be
-   *           parsed to double.
+   * @throws ValueFormatException
+   *           if the string <code>value</code> cannot be parsed to double.
    */
   protected DoubleValue(String value) throws ValueFormatException {
     this(toDouble(value));
@@ -62,8 +61,8 @@ public class DoubleValue extends BaseNonStreamValue implements Serializable, Sta
   /**
    * Returns the double value represented by the string <code>value</code>.
    * 
-   * @throws ValueFormatException if the string <code>value</code> cannot be
-   *           parsed to double.
+   * @throws ValueFormatException
+   *           if the string <code>value</code> cannot be parsed to double.
    */
   protected static double toDouble(String value) throws ValueFormatException {
     try {
@@ -81,8 +80,8 @@ public class DoubleValue extends BaseNonStreamValue implements Serializable, Sta
   }
 
   /**
-   * Returns a <code>Calendar</code> instance interpreting the double as the
-   * time in milliseconds since the epoch (1.1.1970, 0:00, UTC).
+   * Returns a <code>Calendar</code> instance interpreting the double as the time in milliseconds
+   * since the epoch (1.1.1970, 0:00, UTC).
    */
   @Override
   public Calendar getDate() throws ValueFormatException {
@@ -100,8 +99,7 @@ public class DoubleValue extends BaseNonStreamValue implements Serializable, Sta
   }
 
   /**
-   * Returns the double as a string converted by the
-   * <code>Double.toString(double)</code>.
+   * Returns the double as a string converted by the <code>Double.toString(double)</code>.
    */
   public String getString() {
     return Double.toString(value);

@@ -37,14 +37,12 @@ import javax.jcr.ValueFormatException;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * The <code>BinaryValue</code> class implements the committed value state for
- * Binary values as a part of the State design pattern (Gof) used by this
- * package.
+ * The <code>BinaryValue</code> class implements the committed value state for Binary values as a
+ * part of the State design pattern (Gof) used by this package.
  * <p>
- * NOTE: This class forwards the <code>InputStream</code> from which it was
- * created through the {@link #getStream()} method but does not close the
- * stream. It is the sole responsibility of the user of this value to close the
- * stream if not needed anymore to prevent memory loss.
+ * NOTE: This class forwards the <code>InputStream</code> from which it was created through the
+ * {@link #getStream()} method but does not close the stream. It is the sole responsibility of the
+ * user of this value to close the stream if not needed anymore to prevent memory loss.
  * <p>
  * This class implements {@link #readObject(ObjectInputStream)} and
  * {@link #writeObject(ObjectOutputStream)} methods to (de-)serialize the data.
@@ -52,51 +50,50 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @since 0.16.4.1
  * @see org.exoplatform.services.jcr.rmi.api.value.SerialValue
  */
-public class BinaryValue /*implements Serializable, StatefulValue*/ extends BaseNonStreamValue {
+public class BinaryValue /*implements Serializable, StatefulValue*/extends BaseNonStreamValue {
 
   /** The serial version UID */
   private static final long serialVersionUID = -2410070522924274051L;
 
   /** The <code>InputStream</code> providing the value */
   private InputStream       stream;
-  
 
-  
   /**
-   * Creates an instance on the given <code>InputStream</code>. This exact
-   * stream will be provided by the {@link #getStream()}, thus care must be
-   * taken to not inadvertendly read or close the stream.
+   * Creates an instance on the given <code>InputStream</code>. This exact stream will be provided
+   * by the {@link #getStream()}, thus care must be taken to not inadvertendly read or close the
+   * stream.
    * 
-   * @param stream The <code>InputStream</code> providing the value.
+   * @param stream
+   *          The <code>InputStream</code> providing the value.
    */
   protected BinaryValue(InputStream stream) {
     this.stream = stream;
   }
 
   /**
-   * Creates an instance providing the UTF-8 representation of the given string
-   * value.
+   * Creates an instance providing the UTF-8 representation of the given string value.
    * 
-   * @param value The string whose UTF-8 representation is provided as the value
-   *          of this instance.
-   * @throws ValueFormatException If the platform does not support UTF-8
-   *           encoding (which is unlikely as UTF-8 is required to be available
-   *           on all platforms).
+   * @param value
+   *          The string whose UTF-8 representation is provided as the value of this instance.
+   * @throws ValueFormatException
+   *           If the platform does not support UTF-8 encoding (which is unlikely as UTF-8 is
+   *           required to be available on all platforms).
    */
   protected BinaryValue(String value) throws ValueFormatException {
     this(toStream(value));
   }
 
   /**
-   * Helper method to convert a string value into an <code>InputStream</code>
-   * from which the UTF-8 representation can be read.
+   * Helper method to convert a string value into an <code>InputStream</code> from which the UTF-8
+   * representation can be read.
    * 
-   * @param value The string value to be made available through a stream.
-   * @return The <code>InputStream</code> from which the UTF-8 representation
-   *         of the <code>value</code> may be read.
-   * @throws ValueFormatException If the platform does not support UTF-8
-   *           encoding (which is unlikely as UTF-8 is required to be available
-   *           on all platforms).
+   * @param value
+   *          The string value to be made available through a stream.
+   * @return The <code>InputStream</code> from which the UTF-8 representation of the
+   *         <code>value</code> may be read.
+   * @throws ValueFormatException
+   *           If the platform does not support UTF-8 encoding (which is unlikely as UTF-8 is
+   *           required to be available on all platforms).
    */
   protected static InputStream toStream(String value) throws ValueFormatException {
     try {
@@ -107,8 +104,7 @@ public class BinaryValue /*implements Serializable, StatefulValue*/ extends Base
   }
 
   /**
-   * Returns the <code>InputStream</code> from which this instance has been
-   * created.
+   * Returns the <code>InputStream</code> from which this instance has been created.
    * 
    * @return value stream
    */
@@ -126,67 +122,72 @@ public class BinaryValue /*implements Serializable, StatefulValue*/ extends Base
   }
 
   /**
-   * Always throws <code>IllegalStateException</code> because only an
-   * <code>InputStream</code> is available from this implementation.
+   * Always throws <code>IllegalStateException</code> because only an <code>InputStream</code> is
+   * available from this implementation.
    * 
    * @return nothing
-   * @throws IllegalStateException as defined above.
+   * @throws IllegalStateException
+   *           as defined above.
    */
   public String getString() throws IllegalStateException {
     throw new IllegalStateException("Stream already retrieved");
   }
 
   /**
-   * Always throws <code>IllegalStateException</code> because only an
-   * <code>InputStream</code> is available from this implementation.
+   * Always throws <code>IllegalStateException</code> because only an <code>InputStream</code> is
+   * available from this implementation.
    * 
    * @return nothing
-   * @throws IllegalStateException as defined above.
+   * @throws IllegalStateException
+   *           as defined above.
    */
   public long getLong() throws IllegalStateException {
     throw new IllegalStateException("Stream already retrieved");
   }
 
   /**
-   * Always throws <code>IllegalStateException</code> because only an
-   * <code>InputStream</code> is available from this implementation.
+   * Always throws <code>IllegalStateException</code> because only an <code>InputStream</code> is
+   * available from this implementation.
    * 
    * @return nothing
-   * @throws IllegalStateException as defined above.
+   * @throws IllegalStateException
+   *           as defined above.
    */
   public double getDouble() throws IllegalStateException {
     throw new IllegalStateException("Stream already retrieved");
   }
 
   /**
-   * Always throws <code>IllegalStateException</code> because only an
-   * <code>InputStream</code> is available from this implementation.
+   * Always throws <code>IllegalStateException</code> because only an <code>InputStream</code> is
+   * available from this implementation.
    * 
    * @return nothing
-   * @throws IllegalStateException as defined above.
+   * @throws IllegalStateException
+   *           as defined above.
    */
   public Calendar getDate() throws IllegalStateException {
     throw new IllegalStateException("Stream already retrieved");
   }
 
   /**
-   * Always throws <code>IllegalStateException</code> because only an
-   * <code>InputStream</code> is available from this implementation.
+   * Always throws <code>IllegalStateException</code> because only an <code>InputStream</code> is
+   * available from this implementation.
    * 
    * @return nothing
-   * @throws IllegalStateException as defined above.
+   * @throws IllegalStateException
+   *           as defined above.
    */
   public boolean getBoolean() throws IllegalStateException {
     throw new IllegalStateException("Stream already retrieved");
   }
 
   /**
-   * Writes the contents of the underlying stream to the
-   * <code>ObjectOutputStream</code>.
+   * Writes the contents of the underlying stream to the <code>ObjectOutputStream</code>.
    * 
-   * @param out The <code>ObjectOutputStream</code> to where the binary data
-   *          is copied.
-   * @throws IOException If an error occurrs writing the binary data.
+   * @param out
+   *          The <code>ObjectOutputStream</code> to where the binary data is copied.
+   * @throws IOException
+   *           If an error occurrs writing the binary data.
    */
   private void writeObject(ObjectOutputStream out) throws IOException {
     byte[] buffer = new byte[4096];
@@ -205,14 +206,14 @@ public class BinaryValue /*implements Serializable, StatefulValue*/ extends Base
   }
 
   /**
-   * Reads the binary data from the <code>ObjectInputStream</code> into a
-   * temporary file that is used to back up the binary stream contents of the
-   * constructed value instance. The temporary file gets deleted when the binary
-   * stream is closed or garbage collected.
+   * Reads the binary data from the <code>ObjectInputStream</code> into a temporary file that is
+   * used to back up the binary stream contents of the constructed value instance. The temporary
+   * file gets deleted when the binary stream is closed or garbage collected.
    * 
-   * @param in The <code>ObjectInputStream</code> from where to get the binary
-   *          data.
-   * @throws IOException If an error occurrs reading the binary data.
+   * @param in
+   *          The <code>ObjectInputStream</code> from where to get the binary data.
+   * @throws IOException
+   *           If an error occurrs reading the binary data.
    */
   private void readObject(ObjectInputStream in) throws IOException {
     final File file = File.createTempFile("jcr-value", "bin");
@@ -266,8 +267,9 @@ public class BinaryValue /*implements Serializable, StatefulValue*/ extends Base
     return 0;
   }
 
-  public String getReference() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public String getReference() throws ValueFormatException,
+                              IllegalStateException,
+                              RepositoryException {
     // TODO Auto-generated method stub
     byte[] buff = new byte[IdGenerator.IDENTIFIER_LENGTH];
     try {
@@ -282,8 +284,7 @@ public class BinaryValue /*implements Serializable, StatefulValue*/ extends Base
 
   public void setOrderNumber(int arg0) {
     // TODO Auto-generated method stub
-    
-  }
 
+  }
 
 }

@@ -31,10 +31,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteSession;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.Repository Repository} interface.
- * This class makes a local repository available as an RMI service using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository RemoteRepository}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.Repository Repository} interface. This class makes a
+ * local repository available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository RemoteRepository} interface.
  * 
  * @see javax.jcr.Repository
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository
@@ -52,12 +51,14 @@ public class ServerRepository extends ServerObject implements RemoteRepository {
   /**
    * Creates a remote adapter for the given local repository.
    * 
-   * @param repository local repository
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param repository
+   *          local repository
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerRepository(Repository repository, RemoteAdapterFactory factory)
-      throws RemoteException {
+  public ServerRepository(Repository repository, RemoteAdapterFactory factory) throws RemoteException {
 
     super(factory);
     this.repository = repository;
@@ -114,7 +115,7 @@ public class ServerRepository extends ServerObject implements RemoteRepository {
    * @throws RepositoryException
    */
   public RemoteSession login(Credentials credentials, String workspace) throws RemoteException,
-      RepositoryException {
+                                                                       RepositoryException {
     try {
       Session session = repository.login(credentials, workspace);
       return getFactory().getRemoteSession(session);

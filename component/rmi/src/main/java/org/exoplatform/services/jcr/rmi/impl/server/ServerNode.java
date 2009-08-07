@@ -39,10 +39,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeDefinition
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.Node Node} interface. This class
- * makes a local node available as an RMI service using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNode RemoteNode}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.Node Node} interface. This class makes a local node
+ * available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNode RemoteNode} interface.
  * 
  * @see javax.jcr.Node
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteNode
@@ -60,9 +59,12 @@ public class ServerNode extends ServerItem implements RemoteNode {
   /**
    * Creates a remote adapter for the given local node.
    * 
-   * @param node local node
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param node
+   *          local node
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerNode(Node node, RemoteAdapterFactory factory) throws RemoteException {
     super(node, factory);
@@ -233,7 +235,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public RemoteProperty setProperty(String name, Value value) throws RepositoryException,
-      RemoteException {
+                                                             RemoteException {
     try {
       return getFactory().getRemoteProperty(node.setProperty(name, value));
     } catch (RepositoryException ex) {
@@ -243,7 +245,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public RemoteProperty setProperty(String name, Value value, int type) throws RepositoryException,
-      RemoteException {
+                                                                       RemoteException {
     try {
 
       Property property = node.setProperty(name, value, type);
@@ -295,7 +297,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public RemoteProperty setProperty(String name, Value[] values) throws RepositoryException,
-      RemoteException {
+                                                                RemoteException {
     try {
       Property property = node.setProperty(name, values);
       if (property == null) {
@@ -337,7 +339,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public String getCorrespondingNodePath(String workspace) throws RepositoryException,
-      RemoteException {
+                                                          RemoteException {
     try {
       return node.getCorrespondingNodePath(workspace);
     } catch (RepositoryException ex) {
@@ -356,7 +358,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public RemoteIterator merge(String workspace, boolean bestEffort) throws RepositoryException,
-      RemoteException {
+                                                                   RemoteException {
     try {
       return getFactory().getRemoteNodeIterator(node.merge(workspace, bestEffort));
     } catch (RepositoryException ex) {
@@ -384,7 +386,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public void restore(String version, boolean removeExisting) throws RepositoryException,
-      RemoteException {
+                                                             RemoteException {
     try {
       node.restore(version, removeExisting);
     } catch (RepositoryException ex) {
@@ -394,7 +396,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public void restoreByUUID(String versionUUID, boolean removeExisting) throws RepositoryException,
-      RemoteException {
+                                                                       RemoteException {
     try {
       node.restore(getVersionByUUID(versionUUID), removeExisting);
     } catch (RepositoryException ex) {
@@ -403,8 +405,8 @@ public class ServerNode extends ServerItem implements RemoteNode {
   }
 
   /** {@inheritDoc} */
-  public void restore(String versionUUID, String path, boolean removeExisting)
-      throws RepositoryException, RemoteException {
+  public void restore(String versionUUID, String path, boolean removeExisting) throws RepositoryException,
+                                                                              RemoteException {
     try {
       node.restore(getVersionByUUID(versionUUID), path, removeExisting);
     } catch (RepositoryException ex) {
@@ -414,7 +416,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public void restoreByLabel(String label, boolean removeExisting) throws RepositoryException,
-      RemoteException {
+                                                                  RemoteException {
     try {
       node.restoreByLabel(label, removeExisting);
     } catch (RepositoryException ex) {
@@ -477,8 +479,8 @@ public class ServerNode extends ServerItem implements RemoteNode {
   }
 
   /** {@inheritDoc} */
-  public RemoteProperty setProperty(String name, Value[] values, int type)
-      throws RepositoryException, RemoteException {
+  public RemoteProperty setProperty(String name, Value[] values, int type) throws RepositoryException,
+                                                                          RemoteException {
     try {
       Property property = node.setProperty(name, values, type);
       return getFactory().getRemoteProperty(property);
@@ -507,7 +509,7 @@ public class ServerNode extends ServerItem implements RemoteNode {
 
   /** {@inheritDoc} */
   public RemoteLock lock(boolean isDeep, boolean isSessionScoped) throws RepositoryException,
-      RemoteException {
+                                                                 RemoteException {
     try {
       Lock lock = node.lock(isDeep, isSessionScoped);
       return getFactory().getRemoteLock(lock);
@@ -521,10 +523,12 @@ public class ServerNode extends ServerItem implements RemoteNode {
   /**
    * Returns the {@link Version} instance for the given UUID.
    * 
-   * @param versionUUID The UUID of the version.
+   * @param versionUUID
+   *          The UUID of the version.
    * @return The version node.
-   * @throws RepositoryException if an error occurrs accessing the version node
-   *           or if the UUID does not denote a version.
+   * @throws RepositoryException
+   *           if an error occurrs accessing the version node or if the UUID does not denote a
+   *           version.
    */
   protected Version getVersionByUUID(String versionUUID) throws RepositoryException {
 

@@ -29,10 +29,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemotePropertyDefini
 import org.exoplatform.services.jcr.rmi.api.value.SerialValueFactory;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.Property Property} interface.
- * This class makes a local property available as an RMI service using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteProperty RemoteProperty}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.Property Property} interface. This class makes a
+ * local property available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteProperty RemoteProperty} interface.
  * 
  * @see javax.jcr.Property
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteProperty
@@ -50,9 +49,12 @@ public class ServerProperty extends ServerItem implements RemoteProperty {
   /**
    * Creates a remote adapter for the given local property.
    * 
-   * @param property local property
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param property
+   *          local property
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerProperty(Property property, RemoteAdapterFactory factory) throws RemoteException {
     super(property, factory);

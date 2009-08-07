@@ -42,9 +42,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteWorkspace;
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeTypeManager;
 
 /**
- * Remote adapter for the JCR {@link Workspace Workspace} interface. This class
- * makes a local workspace available as an RMI service using the
- * {@link RemoteWorkspace RemoteWorkspace} interface.
+ * Remote adapter for the JCR {@link Workspace Workspace} interface. This class makes a local
+ * workspace available as an RMI service using the {@link RemoteWorkspace RemoteWorkspace}
+ * interface.
  * 
  * @see Workspace
  * @see RemoteWorkspace
@@ -60,21 +60,23 @@ public class ServerWorkspace extends ServerObject implements RemoteWorkspace {
   private Workspace                workspace;
 
   /**
-   * The remote observation manager for this workspace. This field is assigned
-   * on demand by the first call to {@link #getObservationManager()}. The
-   * assumption is that there is only one observation manager instance per
-   * workspace and that each call to the
-   * <code>Workspace.getObservationManager()</code> method of a single
-   * workspace will allways return the same object.
+   * The remote observation manager for this workspace. This field is assigned on demand by the
+   * first call to {@link #getObservationManager()}. The assumption is that there is only one
+   * observation manager instance per workspace and that each call to the
+   * <code>Workspace.getObservationManager()</code> method of a single workspace will allways return
+   * the same object.
    */
   private RemoteObservationManager remoteObservationManager;
 
   /**
    * Creates a remote adapter for the given local workspace.
    * 
-   * @param workspace local workspace
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param workspace
+   *          local workspace
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerWorkspace(Workspace workspace, RemoteAdapterFactory factory) throws RemoteException {
     super(factory);
@@ -97,7 +99,7 @@ public class ServerWorkspace extends ServerObject implements RemoteWorkspace {
 
   /** {@inheritDoc} */
   public void copy(String workspace, String from, String to) throws RepositoryException,
-      RemoteException {
+                                                            RemoteException {
     try {
       this.workspace.copy(workspace, from, to);
     } catch (RepositoryException ex) {
@@ -106,8 +108,8 @@ public class ServerWorkspace extends ServerObject implements RemoteWorkspace {
   }
 
   /** {@inheritDoc} */
-  public void clone(String workspace, String from, String to, boolean removeExisting)
-      throws RepositoryException, RemoteException {
+  public void clone(String workspace, String from, String to, boolean removeExisting) throws RepositoryException,
+                                                                                     RemoteException {
     try {
       this.workspace.clone(workspace, from, to, removeExisting);
     } catch (RepositoryException ex) {
@@ -158,7 +160,7 @@ public class ServerWorkspace extends ServerObject implements RemoteWorkspace {
 
   /** {@inheritDoc} */
   public RemoteObservationManager getObservationManager() throws RepositoryException,
-      RemoteException {
+                                                         RemoteException {
     try {
       if (remoteObservationManager == null) {
         ObservationManager observationManager = workspace.getObservationManager();
@@ -182,7 +184,8 @@ public class ServerWorkspace extends ServerObject implements RemoteWorkspace {
 
   /** {@inheritDoc} */
   public void importXML(String path, byte[] xml, int uuidBehaviour) throws IOException,
-      RepositoryException, RemoteException {
+                                                                   RepositoryException,
+                                                                   RemoteException {
     try {
       workspace.importXML(path, new ByteArrayInputStream(xml), uuidBehaviour);
     } catch (RepositoryException ex) {
@@ -192,8 +195,12 @@ public class ServerWorkspace extends ServerObject implements RemoteWorkspace {
 
   /** {@inheritDoc} */
   public void restore(String[] versionUuids, boolean removeExisting) throws ItemExistsException,
-      UnsupportedRepositoryOperationException, VersionException, LockException,
-      InvalidItemStateException, RepositoryException, RemoteException {
+                                                                    UnsupportedRepositoryOperationException,
+                                                                    VersionException,
+                                                                    LockException,
+                                                                    InvalidItemStateException,
+                                                                    RepositoryException,
+                                                                    RemoteException {
 
     if (versionUuids != null) {
       // restore original array

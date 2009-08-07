@@ -29,9 +29,9 @@ import org.exoplatform.services.jcr.rmi.api.exceptions.RemoteRepositoryException
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryResult;
 
 /**
- * Local adapter for the JCR-RMI {@link RemoteQueryResult RemoteQueryResult}
- * inteface. This class makes a remote query result locally available using the
- * JCR {@link QueryResult QueryResult} interface.
+ * Local adapter for the JCR-RMI {@link RemoteQueryResult RemoteQueryResult} inteface. This class
+ * makes a remote query result locally available using the JCR {@link QueryResult QueryResult}
+ * interface.
  * 
  * @see javax.jcr.query.QueryResult QueryResult
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryResult
@@ -47,9 +47,12 @@ public class ClientQueryResult extends ClientObject implements QueryResult {
   /**
    * Creates a client adapter for the given remote query result.
    * 
-   * @param session current session
-   * @param remote remote query result
-   * @param factory adapter factory
+   * @param session
+   *          current session
+   * @param remote
+   *          remote query result
+   * @param factory
+   *          adapter factory
    */
   public ClientQueryResult(Session session, RemoteQueryResult remote, LocalAdapterFactory factory) {
     super(factory);

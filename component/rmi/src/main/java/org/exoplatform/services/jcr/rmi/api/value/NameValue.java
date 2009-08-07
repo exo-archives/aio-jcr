@@ -24,8 +24,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
 /**
- * The <code>NameValue</code> class implements the committed value state for
- * Name values as a part of the State design pattern (Gof) used by this package.
+ * The <code>NameValue</code> class implements the committed value state for Name values as a part
+ * of the State design pattern (Gof) used by this package.
  * 
  * @since 0.16.4.1
  */
@@ -47,11 +47,11 @@ public class NameValue extends BaseNonStreamValue implements Serializable, State
   /**
    * Checks whether the string value adheres to the name syntax.
    * 
-   * @param value The string to check for synthactical compliance with a name
-   *          value.
+   * @param value
+   *          The string to check for synthactical compliance with a name value.
    * @return The input value.
-   * @throws ValueFormatException if the string <code>value</code> is not a
-   *           synthactically correct name.
+   * @throws ValueFormatException
+   *           if the string <code>value</code> is not a synthactically correct name.
    */
   protected static String toName(String value) throws ValueFormatException {
     // TODO: check syntax

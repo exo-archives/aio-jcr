@@ -32,8 +32,10 @@ public class ClientRowIterator extends ClientIterator implements RowIterator {
   /**
    * Creates a ClientRowIterator instance.
    * 
-   * @param iterator remote iterator
-   * @param factory local adapter factory
+   * @param iterator
+   *          remote iterator
+   * @param factory
+   *          local adapter factory
    */
   public ClientRowIterator(RemoteIterator iterator, LocalAdapterFactory factory) {
     super(iterator, factory);
@@ -42,7 +44,8 @@ public class ClientRowIterator extends ClientIterator implements RowIterator {
   /**
    * Creates and returns a local adapter for the given remote row.
    * 
-   * @param remote remote reference
+   * @param remote
+   *          remote reference
    * @return local adapter
    * @see ClientIterator#getObject(Object)
    */

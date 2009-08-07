@@ -43,9 +43,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteProperty;
 import org.exoplatform.services.jcr.rmi.api.value.SerialValueFactory;
 
 /**
- * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNode RemoteNode}
- * inteface. This class makes a remote node locally available using the JCR
+ * Local adapter for the JCR-RMI {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNode
+ * RemoteNode} inteface. This class makes a remote node locally available using the JCR
  * {@link javax.jcr.Node Node} interface.
  * 
  * @see javax.jcr.Node
@@ -59,9 +58,12 @@ public class ClientNode extends ClientItem implements Node {
   /**
    * Creates a local adapter for the given remote node.
    * 
-   * @param session current session
-   * @param remote remote node
-   * @param factory local adapter factory
+   * @param session
+   *          current session
+   * @param remote
+   *          remote node
+   * @param factory
+   *          local adapter factory
    */
   public ClientNode(Session session, RemoteNode remote, LocalAdapterFactory factory) {
     super(session, remote, factory);
@@ -91,8 +93,7 @@ public class ClientNode extends ClientItem implements Node {
   }
 
   /**
-   * Returns <code>true</code> without contacting the remote node.
-   * {@inheritDoc}
+   * Returns <code>true</code> without contacting the remote node. {@inheritDoc}
    */
   @Override
   public boolean isNode() {
@@ -100,9 +101,9 @@ public class ClientNode extends ClientItem implements Node {
   }
 
   /**
-   * Calls the {@link ItemVisitor#visit(Node) ItemVisitor.visit(Node)} method of
-   * the given visitor. Does not contact the remote node, but the visitor may
-   * invoke other methods that do contact the remote node. {@inheritDoc}
+   * Calls the {@link ItemVisitor#visit(Node) ItemVisitor.visit(Node)} method of the given visitor.
+   * Does not contact the remote node, but the visitor may invoke other methods that do contact the
+   * remote node. {@inheritDoc}
    */
   @Override
   public void accept(ItemVisitor visitor) throws RepositoryException {
@@ -144,8 +145,8 @@ public class ClientNode extends ClientItem implements Node {
         remote.setProperty(name, (Value) null);
         return null;
       } else {
-        RemoteProperty property = remote.setProperty(name, SerialValueFactory
-            .makeSerialValue(value));
+        RemoteProperty property = remote.setProperty(name,
+                                                     SerialValueFactory.makeSerialValue(value));
         return getFactory().getProperty(getSession(), property);
       }
     } catch (RemoteException ex) {
@@ -506,8 +507,7 @@ public class ClientNode extends ClientItem implements Node {
   }
 
   /** {@inheritDoc} */
-  public void restore(Version version, String path, boolean removeExisting)
-      throws RepositoryException {
+  public void restore(Version version, String path, boolean removeExisting) throws RepositoryException {
     try {
       remote.restore(version.getUUID(), path, removeExisting);
     } catch (RemoteException ex) {
@@ -554,8 +554,9 @@ public class ClientNode extends ClientItem implements Node {
   /** {@inheritDoc} */
   public Property setProperty(String name, Value value, int type) throws RepositoryException {
     try {
-      RemoteProperty property = remote.setProperty(name, SerialValueFactory.makeSerialValue(value),
-          type);
+      RemoteProperty property = remote.setProperty(name,
+                                                   SerialValueFactory.makeSerialValue(value),
+                                                   type);
       return getFactory().getProperty(getSession(), property);
     } catch (RemoteException ex) {
       throw new RemoteRepositoryException(ex);

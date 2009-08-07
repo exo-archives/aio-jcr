@@ -31,9 +31,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteQuery;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryManager;
 
 /**
- * Local adapter for the JCR-RMI {@link RemoteQueryManager RemoteQueryManager}
- * inteface. This class makes a remote query manager locally available using the
- * JCR {@link QueryManager QueryManager} interface.
+ * Local adapter for the JCR-RMI {@link RemoteQueryManager RemoteQueryManager} inteface. This class
+ * makes a remote query manager locally available using the JCR {@link QueryManager QueryManager}
+ * interface.
  * 
  * @see javax.jcr.query.QueryManager QueryManager
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryManager
@@ -49,9 +49,12 @@ public class ClientQueryManager extends ClientObject implements QueryManager {
   /**
    * Creates a client adapter for the given remote query manager.
    * 
-   * @param session current session
-   * @param remote remote query manager
-   * @param factory adapter factory
+   * @param session
+   *          current session
+   * @param remote
+   *          remote query manager
+   * @param factory
+   *          adapter factory
    */
   public ClientQueryManager(Session session, RemoteQueryManager remote, LocalAdapterFactory factory) {
     super(factory);

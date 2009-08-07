@@ -28,21 +28,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The <code>ServerEventListenerProxy</code> class is the server-side event
- * listener proxy registered on behalf of a client-side event listener
- * identified with the unique identifier.
+ * The <code>ServerEventListenerProxy</code> class is the server-side event listener proxy
+ * registered on behalf of a client-side event listener identified with the unique identifier.
  * <p>
- * The term <i>Server</i> in this class indicates, that this is a server-side
- * class. In contrast to the classes in the
- * {@link org.exoplatform.services.jcr.rmi.impl.server} package, this class
- * neither extends the
- * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerObject} class nor
+ * The term <i>Server</i> in this class indicates, that this is a server-side class. In contrast to
+ * the classes in the {@link org.exoplatform.services.jcr.rmi.impl.server} package, this class
+ * neither extends the {@link org.exoplatform.services.jcr.rmi.impl.server.ServerObject} class nor
  * does it implement any of the remote interfaces in the
- * {@link org.exoplatform.services.jcr.rmi.api.remote} package because it only
- * is instantiated to be used on the server side.
+ * {@link org.exoplatform.services.jcr.rmi.api.remote} package because it only is instantiated to be
+ * used on the server side.
  * <p>
- * See the package overview for an explanation of the mechanisms implemented for
- * event dispatching.
+ * See the package overview for an explanation of the mechanisms implemented for event dispatching.
  */
 public class ServerEventListenerProxy implements EventListener {
 
@@ -53,14 +49,13 @@ public class ServerEventListenerProxy implements EventListener {
   private final RemoteAdapterFactory factory;
 
   /**
-   * The unique indentifier of the client-side event listener on whose behalf
-   * this listener proxy is registered.
+   * The unique indentifier of the client-side event listener on whose behalf this listener proxy is
+   * registered.
    */
   private final long                 listenerId;
 
   /**
-   * The queue to which remote events are queue for them to be picked up by
-   * calls to the
+   * The queue to which remote events are queue for them to be picked up by calls to the
    * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager#getNextEvent(long)}
    * method.
    */
@@ -69,13 +64,14 @@ public class ServerEventListenerProxy implements EventListener {
   /**
    * Creates a new instance of this listener proxy.
    * 
-   * @param factory The {@link RemoteAdapterFactory} used to convert the
-   *          {@link EventIterator} instances to {@link RemoteEventCollection}
-   *          objects.
-   * @param listenerId The unique identifier of the client-side event listener
-   *          on whose behalf this proxy works.
-   * @param queue The sink to which events to be dispatched to the client are
-   *          queued to be picked up.
+   * @param factory
+   *          The {@link RemoteAdapterFactory} used to convert the {@link EventIterator} instances
+   *          to {@link RemoteEventCollection} objects.
+   * @param listenerId
+   *          The unique identifier of the client-side event listener on whose behalf this proxy
+   *          works.
+   * @param queue
+   *          The sink to which events to be dispatched to the client are queued to be picked up.
    */
   public ServerEventListenerProxy(RemoteAdapterFactory factory, long listenerId, Queue queue) {
     this.factory = factory;
@@ -84,12 +80,11 @@ public class ServerEventListenerProxy implements EventListener {
   }
 
   /**
-   * Converts the {@link javax.jcr.observation.Event} instances in the given
-   * iterator to an instance of {@link RemoteEventCollection} for them to be
-   * dispatched to the client-side event listener.
+   * Converts the {@link javax.jcr.observation.Event} instances in the given iterator to an instance
+   * of {@link RemoteEventCollection} for them to be dispatched to the client-side event listener.
    * 
-   * @param events The {@link javax.jcr.observation.Event Events} to be
-   *          dispatched.
+   * @param events
+   *          The {@link javax.jcr.observation.Event Events} to be dispatched.
    */
   public void onEvent(EventIterator events) {
     try {
@@ -114,13 +109,13 @@ public class ServerEventListenerProxy implements EventListener {
   }
 
   /**
-   * Returns <code>true</code> if <code>obj</code> is either the same as
-   * this or a proxy for the same client-side listener, which is identicated by
-   * the same listener identifier.
+   * Returns <code>true</code> if <code>obj</code> is either the same as this or a proxy for the
+   * same client-side listener, which is identicated by the same listener identifier.
    * 
-   * @param obj The object to compare to.
-   * @return <code>true</code> if <code>obj</code> is the same or a proxy
-   *         for the same client-side listener.
+   * @param obj
+   *          The object to compare to.
+   * @return <code>true</code> if <code>obj</code> is the same or a proxy for the same client-side
+   *         listener.
    */
   @Override
   public boolean equals(Object obj) {
@@ -134,9 +129,8 @@ public class ServerEventListenerProxy implements EventListener {
   }
 
   /**
-   * Returns the a string representation of this instance, which is an
-   * indication of this class's name and the unique identifier of the real event
-   * listener.
+   * Returns the a string representation of this instance, which is an indication of this class's
+   * name and the unique identifier of the real event listener.
    * 
    * @return string representation
    */

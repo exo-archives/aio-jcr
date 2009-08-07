@@ -27,13 +27,11 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteItem;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteNode;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.Item Item} interface. This class
- * makes a local item available as an RMI service using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteItem RemoteItem}
- * interface. Used mainly as the base class for the
- * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerProperty ServerProperty}
- * and
- * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerNode ServerNode}
+ * Remote adapter for the JCR {@link javax.jcr.Item Item} interface. This class makes a local item
+ * available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteItem RemoteItem} interface. Used mainly
+ * as the base class for the {@link org.exoplatform.services.jcr.rmi.impl.server.ServerProperty
+ * ServerProperty} and {@link org.exoplatform.services.jcr.rmi.impl.server.ServerNode ServerNode}
  * adapters.
  */
 public class ServerItem extends ServerObject implements RemoteItem {
@@ -49,9 +47,12 @@ public class ServerItem extends ServerObject implements RemoteItem {
   /**
    * Creates a remote adapter for the given local item.
    * 
-   * @param item local item to be adapted
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param item
+   *          local item to be adapted
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerItem(Item item, RemoteAdapterFactory factory) throws RemoteException {
     super(factory);

@@ -36,9 +36,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteProperty;
 import org.exoplatform.services.jcr.rmi.api.value.SerialValueFactory;
 
 /**
- * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteProperty RemoteProperty}
- * inteface. This class makes a remote property locally available using the JCR
+ * Local adapter for the JCR-RMI {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteProperty
+ * RemoteProperty} inteface. This class makes a remote property locally available using the JCR
  * {@link javax.jcr.Property Property} interface.
  * 
  * @see javax.jcr.Property
@@ -53,9 +52,12 @@ public class ClientProperty extends ClientItem implements Property {
   /**
    * Creates a local adapter for the given remote property.
    * 
-   * @param session current session
-   * @param remote remote property
-   * @param factory local adapter factory
+   * @param session
+   *          current session
+   * @param remote
+   *          remote property
+   * @param factory
+   *          local adapter factory
    */
   public ClientProperty(Session session, RemoteProperty remote, LocalAdapterFactory factory) {
     super(session, remote, factory);
@@ -63,10 +65,9 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Calls the {@link ItemVisitor#visit(Property) ItemVisitor.visit(Property}
-   * method of the given visitor. Does not contact the remote property, but the
-   * visitor may invoke other methods that do contact the remote property.
-   * {@inheritDoc}
+   * Calls the {@link ItemVisitor#visit(Property) ItemVisitor.visit(Property} method of the given
+   * visitor. Does not contact the remote property, but the visitor may invoke other methods that do
+   * contact the remote property. {@inheritDoc}
    */
   @Override
   public void accept(ItemVisitor visitor) throws RepositoryException {
@@ -74,48 +75,43 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Returns the boolean value of this property. Implemented as
-   * getValue().getBoolean(). {@inheritDoc}
+   * Returns the boolean value of this property. Implemented as getValue().getBoolean().
+   * {@inheritDoc}
    */
   public boolean getBoolean() throws RepositoryException {
     return getValue().getBoolean();
   }
 
   /**
-   * Returns the date value of this property. Implemented as
-   * getValue().getDate(). {@inheritDoc}
+   * Returns the date value of this property. Implemented as getValue().getDate(). {@inheritDoc}
    */
   public Calendar getDate() throws RepositoryException {
     return getValue().getDate();
   }
 
   /**
-   * Returns the double value of this property. Implemented as
-   * getValue().getDouble(). {@inheritDoc}
+   * Returns the double value of this property. Implemented as getValue().getDouble(). {@inheritDoc}
    */
   public double getDouble() throws RepositoryException {
     return getValue().getDouble();
   }
 
   /**
-   * Returns the long value of this property. Implemented as
-   * getValue().getLong(). {@inheritDoc}
+   * Returns the long value of this property. Implemented as getValue().getLong(). {@inheritDoc}
    */
   public long getLong() throws RepositoryException {
     return getValue().getLong();
   }
 
   /**
-   * Returns the binary value of this property. Implemented as
-   * getValue().getStream(). {@inheritDoc}
+   * Returns the binary value of this property. Implemented as getValue().getStream(). {@inheritDoc}
    */
   public InputStream getStream() throws RepositoryException {
     return getValue().getStream();
   }
 
   /**
-   * Returns the string value of this property. Implemented as
-   * getValue().getString(). {@inheritDoc}
+   * Returns the string value of this property. Implemented as getValue().getString(). {@inheritDoc}
    */
   public String getString() throws RepositoryException {
     return getValue().getString();
@@ -140,16 +136,16 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Sets the boolean value of this property. Implemented as setValue(new
-   * BooleanValue(value)). {@inheritDoc}
+   * Sets the boolean value of this property. Implemented as setValue(new BooleanValue(value)).
+   * {@inheritDoc}
    */
   public void setValue(boolean value) throws RepositoryException {
     setValue(getSession().getValueFactory().createValue(value));
   }
 
   /**
-   * Sets the date value of this property. Implemented as setValue(new
-   * DateValue(value)). {@inheritDoc}
+   * Sets the date value of this property. Implemented as setValue(new DateValue(value)).
+   * {@inheritDoc}
    */
   public void setValue(Calendar value) throws RepositoryException {
     if (value == null) {
@@ -160,16 +156,16 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Sets the double value of this property. Implemented as setValue(new
-   * DoubleValue(value)). {@inheritDoc}
+   * Sets the double value of this property. Implemented as setValue(new DoubleValue(value)).
+   * {@inheritDoc}
    */
   public void setValue(double value) throws RepositoryException {
     setValue(getSession().getValueFactory().createValue(value));
   }
 
   /**
-   * Sets the binary value of this property. Implemented as setValue(new
-   * BinaryValue(value)). {@inheritDoc}
+   * Sets the binary value of this property. Implemented as setValue(new BinaryValue(value)).
+   * {@inheritDoc}
    */
   public void setValue(InputStream value) throws RepositoryException {
     if (value == null) {
@@ -180,16 +176,16 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Sets the long value of this property. Implemented as setValue(new
-   * LongValue(value)). {@inheritDoc}
+   * Sets the long value of this property. Implemented as setValue(new LongValue(value)).
+   * {@inheritDoc}
    */
   public void setValue(long value) throws RepositoryException {
     setValue(getSession().getValueFactory().createValue(value));
   }
 
   /**
-   * Sets the reference value of this property. Implemented as setValue(new
-   * ReferenceValue(value)). {@inheritDoc}
+   * Sets the reference value of this property. Implemented as setValue(new ReferenceValue(value)).
+   * {@inheritDoc}
    */
   public void setValue(Node value) throws RepositoryException {
     if (value == null) {
@@ -203,8 +199,8 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Sets the string value of this property. Implemented as setValue(new
-   * StringValue(value)). {@inheritDoc}
+   * Sets the string value of this property. Implemented as setValue(new StringValue(value)).
+   * {@inheritDoc}
    */
   public void setValue(String value) throws RepositoryException {
     if (value == null) {
@@ -215,8 +211,8 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Sets the string values of this property. Implemented as setValue(new
-   * Value[] { new StringValue(strings[0]), ... }). {@inheritDoc}
+   * Sets the string values of this property. Implemented as setValue(new Value[] { new
+   * StringValue(strings[0]), ... }). {@inheritDoc}
    */
   public void setValue(String[] strings) throws RepositoryException {
     if (strings == null) {
@@ -258,9 +254,8 @@ public class ClientProperty extends ClientItem implements Property {
   }
 
   /**
-   * Returns the reference value of this property. Implemented by converting the
-   * reference value to an UUID string and using the current session to look up
-   * the referenced node. {@inheritDoc}
+   * Returns the reference value of this property. Implemented by converting the reference value to
+   * an UUID string and using the current session to look up the referenced node. {@inheritDoc}
    */
   public Node getNode() throws RepositoryException {
     try {

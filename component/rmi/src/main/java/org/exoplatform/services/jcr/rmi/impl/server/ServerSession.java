@@ -38,10 +38,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteSession;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteWorkspace;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.Session Session} interface. This
- * class makes a local session available as an RMI service using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteSession RemoteSession}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.Session Session} interface. This class makes a local
+ * session available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteSession RemoteSession} interface.
  * 
  * @see javax.jcr.Session
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteSession
@@ -57,20 +56,22 @@ public class ServerSession extends ServerObject implements RemoteSession {
   private Session           session;
 
   /**
-   * The server workspace for this session. This field is assigned on demand by
-   * the first call to {@link #getWorkspace()}. The assumption is that there is
-   * only one workspace instance per session and that each call to the
-   * <code>Session.getWorkspace()</code> method of a single session will
-   * allways return the same object.
+   * The server workspace for this session. This field is assigned on demand by the first call to
+   * {@link #getWorkspace()}. The assumption is that there is only one workspace instance per
+   * session and that each call to the <code>Session.getWorkspace()</code> method of a single
+   * session will allways return the same object.
    */
   private RemoteWorkspace   remoteWorkspace;
 
   /**
    * Creates a remote adapter for the given local session.
    * 
-   * @param session local session
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param session
+   *          local session
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
 
   private LocationFactory   locationFactory;
@@ -98,7 +99,7 @@ public class ServerSession extends ServerObject implements RemoteSession {
 
   /** {@inheritDoc} */
   public RemoteSession impersonate(Credentials credentials) throws RepositoryException,
-      RemoteException {
+                                                           RemoteException {
     try {
       Session newSession = session.impersonate(credentials);
       return getFactory().getRemoteSession(newSession);
@@ -118,7 +119,8 @@ public class ServerSession extends ServerObject implements RemoteSession {
 
   /** {@inheritDoc} */
   public void checkPermission(String path, String actions) throws AccessControlException,
-      RepositoryException, RemoteException {
+                                                          RepositoryException,
+                                                          RemoteException {
     session.checkPermission(path, actions);
   }
 
@@ -151,7 +153,7 @@ public class ServerSession extends ServerObject implements RemoteSession {
 
   /** {@inheritDoc} */
   public void setNamespacePrefix(String prefix, String uri) throws RepositoryException,
-      RemoteException {
+                                                           RemoteException {
     try {
       session.setNamespacePrefix(prefix, uri);
     } catch (RepositoryException ex) {
@@ -238,8 +240,9 @@ public class ServerSession extends ServerObject implements RemoteSession {
   }
 
   /** {@inheritDoc} */
-  public void importXML(String path, byte[] xml, int mode) throws IOException, RepositoryException,
-      RemoteException {
+  public void importXML(String path, byte[] xml, int mode) throws IOException,
+                                                          RepositoryException,
+                                                          RemoteException {
     try {
       session.importXML(path, new ByteArrayInputStream(xml), mode);
     } catch (RepositoryException ex) {
@@ -263,8 +266,9 @@ public class ServerSession extends ServerObject implements RemoteSession {
   }
 
   /** {@inheritDoc} */
-  public byte[] exportDocumentView(String path, boolean binaryAsLink, boolean noRecurse)
-      throws IOException, RepositoryException, RemoteException {
+  public byte[] exportDocumentView(String path, boolean binaryAsLink, boolean noRecurse) throws IOException,
+                                                                                        RepositoryException,
+                                                                                        RemoteException {
     try {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
       session.exportDocumentView(path, buffer, binaryAsLink, noRecurse);
@@ -275,8 +279,9 @@ public class ServerSession extends ServerObject implements RemoteSession {
   }
 
   /** {@inheritDoc} */
-  public byte[] exportSystemView(String path, boolean binaryAsLink, boolean noRecurse)
-      throws IOException, RepositoryException, RemoteException {
+  public byte[] exportSystemView(String path, boolean binaryAsLink, boolean noRecurse) throws IOException,
+                                                                                      RepositoryException,
+                                                                                      RemoteException {
     try {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
       session.exportSystemView(path, buffer, binaryAsLink, noRecurse);
@@ -286,7 +291,6 @@ public class ServerSession extends ServerObject implements RemoteSession {
     }
   }
 
-
   public String[] getAllNamespacePrefixes() throws RepositoryException, RemoteException {
     if (session instanceof SessionImpl) {
       return ((SessionImpl) session).getAllNamespacePrefixes();
@@ -294,8 +298,9 @@ public class ServerSession extends ServerObject implements RemoteSession {
     return null;
   }
 
-  public String getNamespacePrefixByURI(String uri) throws NamespaceException, RepositoryException,
-      RemoteException {
+  public String getNamespacePrefixByURI(String uri) throws NamespaceException,
+                                                   RepositoryException,
+                                                   RemoteException {
     if (session instanceof SessionImpl) {
       return ((SessionImpl) session).getNamespacePrefixByURI(uri);
     }
@@ -303,7 +308,8 @@ public class ServerSession extends ServerObject implements RemoteSession {
   }
 
   public String getNamespaceURIByPrefix(String prefix) throws NamespaceException,
-      RepositoryException, RemoteException {
+                                                      RepositoryException,
+                                                      RemoteException {
     if (session instanceof SessionImpl) {
       return ((SessionImpl) session).getNamespacePrefixByURI(prefix);
     }

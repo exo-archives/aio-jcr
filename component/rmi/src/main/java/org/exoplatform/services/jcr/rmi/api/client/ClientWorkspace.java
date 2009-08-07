@@ -44,9 +44,8 @@ import org.exoplatform.services.jcr.rmi.api.xml.WorkspaceImportContentHandler;
 import org.xml.sax.ContentHandler;
 
 /**
- * Local adapter for the JCR-RMI {@link RemoteWorkspace RemoteWorkspace}
- * interface. This class makes a remote workspace locally available using the
- * JCR {@link Workspace Workspace} interface.
+ * Local adapter for the JCR-RMI {@link RemoteWorkspace RemoteWorkspace} interface. This class makes
+ * a remote workspace locally available using the JCR {@link Workspace Workspace} interface.
  * 
  * @see javax.jcr.Workspace
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteWorkspace
@@ -60,21 +59,22 @@ public class ClientWorkspace extends ClientObject implements Workspace {
   private RemoteWorkspace    remote;
 
   /**
-   * The adapted observation manager of this workspace. This field is set on the
-   * first call to the {@link #getObservationManager()()} method assuming, that
-   * the observation manager instance is not changing during the lifetime of a
-   * workspace instance, that is, each call to the server-side
-   * <code>Workspace.getObservationManager()</code> allways returns the same
-   * object.
+   * The adapted observation manager of this workspace. This field is set on the first call to the
+   * {@link #getObservationManager()()} method assuming, that the observation manager instance is
+   * not changing during the lifetime of a workspace instance, that is, each call to the server-side
+   * <code>Workspace.getObservationManager()</code> allways returns the same object.
    */
   private ObservationManager observationManager;
 
   /**
    * Creates a client adapter for the given remote workspace.
    * 
-   * @param session current session
-   * @param remote remote workspace
-   * @param factory local adapter factory
+   * @param session
+   *          current session
+   * @param remote
+   *          remote workspace
+   * @param factory
+   *          local adapter factory
    */
   public ClientWorkspace(Session session, RemoteWorkspace remote, LocalAdapterFactory factory) {
     super(factory);
@@ -83,8 +83,7 @@ public class ClientWorkspace extends ClientObject implements Workspace {
   }
 
   /**
-   * Returns the current session without contacting the remote workspace.
-   * {@inheritDoc}
+   * Returns the current session without contacting the remote workspace. {@inheritDoc}
    */
   public Session getSession() {
     return session;
@@ -163,7 +162,7 @@ public class ClientWorkspace extends ClientObject implements Workspace {
     if (observationManager == null) {
       try {
         observationManager = getFactory().getObservationManager(this,
-            remote.getObservationManager());
+                                                                remote.getObservationManager());
       } catch (RemoteException ex) {
         throw new RemoteRepositoryException(ex);
       }
@@ -173,8 +172,7 @@ public class ClientWorkspace extends ClientObject implements Workspace {
   }
 
   /** {@inheritDoc} */
-  public void clone(String workspace, String src, String dst, boolean removeExisting)
-      throws RepositoryException {
+  public void clone(String workspace, String src, String dst, boolean removeExisting) throws RepositoryException {
     try {
       remote.clone(workspace, src, dst, removeExisting);
     } catch (RemoteException ex) {
@@ -192,16 +190,17 @@ public class ClientWorkspace extends ClientObject implements Workspace {
   }
 
   /** {@inheritDoc} */
-  public ContentHandler getImportContentHandler(String path, int uuidBehaviour)
-      throws RepositoryException, PathNotFoundException, ConstraintViolationException,
-      VersionException {
+  public ContentHandler getImportContentHandler(String path, int uuidBehaviour) throws RepositoryException,
+                                                                               PathNotFoundException,
+                                                                               ConstraintViolationException,
+                                                                               VersionException {
     return new WorkspaceImportContentHandler(this, path, uuidBehaviour);
 
   }
 
   /** {@inheritDoc} */
   public void importXML(String path, InputStream xml, int uuidBehaviour) throws IOException,
-      RepositoryException {
+                                                                        RepositoryException {
     try {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
       byte[] bytes = new byte[4096];

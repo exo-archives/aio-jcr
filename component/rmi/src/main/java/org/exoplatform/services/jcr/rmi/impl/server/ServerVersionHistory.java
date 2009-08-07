@@ -29,9 +29,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteVersionHistory;
 
 /**
- * Remote adapter for the JCR
- * {@link javax.jcr.version.VersionHistory VersionHistory} interface. This class
- * makes a local version history available as an RMI service using the
+ * Remote adapter for the JCR {@link javax.jcr.version.VersionHistory VersionHistory} interface.
+ * This class makes a local version history available as an RMI service using the
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteVersionHistory RemoteVersionHistory}
  * interface.
  * 
@@ -51,12 +50,14 @@ public class ServerVersionHistory extends ServerNode implements RemoteVersionHis
   /**
    * Creates a remote adapter for the given local version history.
    * 
-   * @param versionHistory local version history
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param versionHistory
+   *          local version history
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerVersionHistory(VersionHistory versionHistory, RemoteAdapterFactory factory)
-      throws RemoteException {
+  public ServerVersionHistory(VersionHistory versionHistory, RemoteAdapterFactory factory) throws RemoteException {
     super(versionHistory, factory);
     this.versionHistory = versionHistory;
   }
@@ -100,8 +101,8 @@ public class ServerVersionHistory extends ServerNode implements RemoteVersionHis
   }
 
   /** {@inheritDoc} */
-  public void addVersionLabel(String versionName, String label, boolean moveLabel)
-      throws RepositoryException, RemoteException {
+  public void addVersionLabel(String versionName, String label, boolean moveLabel) throws RepositoryException,
+                                                                                  RemoteException {
     try {
       versionHistory.addVersionLabel(versionName, label, moveLabel);
     } catch (RepositoryException ex) {
@@ -125,7 +126,7 @@ public class ServerVersionHistory extends ServerNode implements RemoteVersionHis
 
   /** {@inheritDoc} */
   public boolean hasVersionLabel(String versionUUID, String label) throws RepositoryException,
-      RemoteException {
+                                                                  RemoteException {
     try {
       Version version = getVersionByUUID(versionUUID);
       return versionHistory.hasVersionLabel(version, label);

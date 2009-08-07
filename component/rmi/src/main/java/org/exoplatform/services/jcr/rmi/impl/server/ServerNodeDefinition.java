@@ -27,9 +27,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeDefinition
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 
 /**
- * Remote adapter for the JCR
- * {@link javax.jcr.nodetype.NodeDefinition NodeDefinition} interface. This
- * class makes a local node definition available as an RMI service using the
+ * Remote adapter for the JCR {@link javax.jcr.nodetype.NodeDefinition NodeDefinition} interface.
+ * This class makes a local node definition available as an RMI service using the
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeDefinition RemoteNodeDefinition}
  * interface.
  * 
@@ -49,12 +48,14 @@ public class ServerNodeDefinition extends ServerItemDefinition implements Remote
   /**
    * Creates a remote adapter for the given local node definition.
    * 
-   * @param def local node definition
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param def
+   *          local node definition
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerNodeDefinition(NodeDefinition def, RemoteAdapterFactory factory)
-      throws RemoteException {
+  public ServerNodeDefinition(NodeDefinition def, RemoteAdapterFactory factory) throws RemoteException {
     super(def, factory);
     this.def = def;
   }

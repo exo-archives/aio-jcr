@@ -33,23 +33,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The <code>ClientEventPoll</code> class is the registry for client-side
- * event listeners on behalf of the
- * {@link org.exoplatform.services.jcr.rmi.api.client.ClientObservationManager}
- * class. In addition this class extends the <code>java.lang.Thread</code>
- * class able to be run in a separate thread to constantly poll the server-side
- * observation manager for new events.
+ * The <code>ClientEventPoll</code> class is the registry for client-side event listeners on behalf
+ * of the {@link org.exoplatform.services.jcr.rmi.api.client.ClientObservationManager} class. In
+ * addition this class extends the <code>java.lang.Thread</code> class able to be run in a separate
+ * thread to constantly poll the server-side observation manager for new events.
  * <p>
  * Notes:
  * <ol>
- * <li>Only one instance of this class should be instantiated for each instance
- * of a
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager}
- * class.
- * <li><code>EventListener</code>s registered with this class must properly
- * implement the <code>Object.hashCode()</code> and
- * <code>Object.equals()</code> contracts for them to be handled correctly by
- * this class.
+ * <li>Only one instance of this class should be instantiated for each instance of a
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager} class.
+ * <li><code>EventListener</code>s registered with this class must properly implement the
+ * <code>Object.hashCode()</code> and <code>Object.equals()</code> contracts for them to be handled
+ * correctly by this class.
  * </ol>
  * 
  * @see #run()
@@ -57,12 +52,10 @@ import org.slf4j.LoggerFactory;
 public class ClientEventPoll extends Thread {
 
   /** logger */
-  private static final Logger            log          = LoggerFactory
-                                                          .getLogger(ClientEventPoll.class);
+  private static final Logger            log          = LoggerFactory.getLogger(ClientEventPoll.class);
 
   /**
-   * The time in milliseconds the {@link #run()} method should be waiting for
-   * remote events.
+   * The time in milliseconds the {@link #run()} method should be waiting for remote events.
    * 
    * @see #run()
    */
@@ -78,8 +71,8 @@ public class ClientEventPoll extends Thread {
   private final RemoteObservationManager remote;
 
   /**
-   * The <code>Session</code> checked by the {@link #run} method whether it is
-   * still alive or the thread should terminate.
+   * The <code>Session</code> checked by the {@link #run} method whether it is still alive or the
+   * thread should terminate.
    */
   private final Session                  session;
 
@@ -97,19 +90,18 @@ public class ClientEventPoll extends Thread {
   private boolean                        running      = true;
 
   /**
-   * Creates an instance of this class talking to the given
-   * {@link RemoteObservationManager}.
+   * Creates an instance of this class talking to the given {@link RemoteObservationManager}.
    * 
-   * @param remote The remote observation manager which is asked for new events.
-   *          This must not be <code>null</code>.
-   * @param session The <code>Session</code> which is asked whether it is
-   *          alive by the {@link #run()} method. This must not be
+   * @param remote
+   *          The remote observation manager which is asked for new events. This must not be
    *          <code>null</code>.
-   * @throws NullPointerException if <code>remote</code> or
-   *           <code>session</code> is <code>null</code>.
+   * @param session
+   *          The <code>Session</code> which is asked whether it is alive by the {@link #run()}
+   *          method. This must not be <code>null</code>.
+   * @throws NullPointerException
+   *           if <code>remote</code> or <code>session</code> is <code>null</code>.
    */
-  public ClientEventPoll(RemoteObservationManager remote, Session session)
-      throws NullPointerException {
+  public ClientEventPoll(RemoteObservationManager remote, Session session) throws NullPointerException {
     super(THREAD_NAME);
 
     // check remote and session
@@ -125,12 +117,12 @@ public class ClientEventPoll extends Thread {
   }
 
   /**
-   * Registers the given local listener with this instance and returns the
-   * unique identifier assigned to it.
+   * Registers the given local listener with this instance and returns the unique identifier
+   * assigned to it.
    * 
-   * @param listener The <code>EventListener</code> to register.
-   * @return The unique identifier assigned to the newly registered event
-   *         listener.
+   * @param listener
+   *          The <code>EventListener</code> to register.
+   * @return The unique identifier assigned to the newly registered event listener.
    */
   public synchronized long addListener(EventListener listener) {
     Long id = new Long(counter++);
@@ -140,12 +132,13 @@ public class ClientEventPoll extends Thread {
   }
 
   /**
-   * Unregisters the given local listener from this instance and returns the
-   * unique identifier assigned to it.
+   * Unregisters the given local listener from this instance and returns the unique identifier
+   * assigned to it.
    * 
-   * @param listener The <code>EventListener</code> to unregister.
-   * @return The unique identifier assigned to the unregistered event listener
-   *         or <code>-1</code> if the listener was not registered.
+   * @param listener
+   *          The <code>EventListener</code> to unregister.
+   * @return The unique identifier assigned to the unregistered event listener or <code>-1</code> if
+   *         the listener was not registered.
    */
   public synchronized long removeListener(EventListener listener) {
     Long key = (Long) idMap.remove(listener);
@@ -167,8 +160,7 @@ public class ClientEventPoll extends Thread {
   }
 
   /**
-   * Indicates to the {@link #run()} method, that asking for events should be
-   * terminated.
+   * Indicates to the {@link #run()} method, that asking for events should be terminated.
    * 
    * @see #run()
    */
@@ -179,19 +171,18 @@ public class ClientEventPoll extends Thread {
   // ---------- Thread overwrite ---------------------------------------------
 
   /**
-   * Checks for remote events and dispatches them to the locally registered
-   * event listeners. This is how this method works:
+   * Checks for remote events and dispatches them to the locally registered event listeners. This is
+   * how this method works:
    * <ol>
-   * <li>Continue with next step if {@link #terminate()} has not been called
-   * yet and the session is still alive.
-   * <li>Call the {@link RemoteObservationManager#getNextEvent(long)} method
-   * waiting for a specified time (5 seconds).
+   * <li>Continue with next step if {@link #terminate()} has not been called yet and the session is
+   * still alive.
+   * <li>Call the {@link RemoteObservationManager#getNextEvent(long)} method waiting for a specified
+   * time (5 seconds).
    * <li>If no event was received in the specified time go back to step #1.
-   * <li>Extract the unique listener identifier from the remote event and find
-   * it in the list of locally registered event listeners. Go back to step #1 if
-   * no such listener exists.
-   * <li>Convert the remote event list to an <code>EventIterator</code> and
-   * call the <code>EventListener.onEvent()</code> method.
+   * <li>Extract the unique listener identifier from the remote event and find it in the list of
+   * locally registered event listeners. Go back to step #1 if no such listener exists.
+   * <li>Convert the remote event list to an <code>EventIterator</code> and call the
+   * <code>EventListener.onEvent()</code> method.
    * <li>Go back to step #1.
    * </ol>
    */
@@ -237,16 +228,16 @@ public class ClientEventPoll extends Thread {
   // ---------- internal -----------------------------------------------------
 
   /**
-   * Converts an array of {@link RemoteEventCollection.RemoteEvent} instances to
-   * an instance of <code>EventIterator</code> suitable to be sent to the
-   * event listener.
+   * Converts an array of {@link RemoteEventCollection.RemoteEvent} instances to an instance of
+   * <code>EventIterator</code> suitable to be sent to the event listener.
    * 
-   * @param remoteEvents array of remote events
+   * @param remoteEvents
+   *          array of remote events
    * @return event iterator
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  private EventIterator toEvents(RemoteEventCollection.RemoteEvent[] remoteEvents)
-      throws RemoteException {
+  private EventIterator toEvents(RemoteEventCollection.RemoteEvent[] remoteEvents) throws RemoteException {
     Event[] events = new Event[remoteEvents.length];
     for (int i = 0; i < events.length; i++) {
       events[i] = new JCREvent(remoteEvents[i]);
@@ -255,9 +246,8 @@ public class ClientEventPoll extends Thread {
   }
 
   /**
-   * The <code>JCREvent</code> class is a simple implementation of the JCR
-   * <code>Event</code> interface to be sent to the locally registered event
-   * listeners.
+   * The <code>JCREvent</code> class is a simple implementation of the JCR <code>Event</code>
+   * interface to be sent to the locally registered event listeners.
    */
   private static class JCREvent implements Event {
 
@@ -271,12 +261,13 @@ public class ClientEventPoll extends Thread {
     private final String userID;
 
     /**
-     * Creates an instance of this class from the contents of the given
-     * <code>remoteEvent</code>.
+     * Creates an instance of this class from the contents of the given <code>remoteEvent</code>.
      * 
-     * @param remoteEvent The {@link RemoteEventCollection.RemoteEvent} instance
-     *          providing the data for this event.
-     * @throws RemoteException if an RMI error occurrs.
+     * @param remoteEvent
+     *          The {@link RemoteEventCollection.RemoteEvent} instance providing the data for this
+     *          event.
+     * @throws RemoteException
+     *           if an RMI error occurrs.
      */
     private JCREvent(RemoteEventCollection.RemoteEvent remoteEvent) throws RemoteException {
       type = remoteEvent.getType();

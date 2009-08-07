@@ -26,11 +26,10 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteAdapterFactory;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry;
 
 /**
- * Remote adapter for the JCR
- * {@link javax.jcr.NamespaceRegistry NamespaceRegistry} interface. This class
- * makes a local namespace registry available as an RMI service using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry RemoteNamespaceRegistry}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.NamespaceRegistry NamespaceRegistry} interface. This
+ * class makes a local namespace registry available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry
+ * RemoteNamespaceRegistry} interface.
  * 
  * @see javax.jcr.NamespaceRegistry
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry
@@ -48,19 +47,21 @@ public class ServerNamespaceRegistry extends ServerObject implements RemoteNames
   /**
    * Creates a remote adapter for the given local namespace registry.
    * 
-   * @param registry local namespace registry
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param registry
+   *          local namespace registry
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerNamespaceRegistry(NamespaceRegistry registry, RemoteAdapterFactory factory)
-      throws RemoteException {
+  public ServerNamespaceRegistry(NamespaceRegistry registry, RemoteAdapterFactory factory) throws RemoteException {
     super(factory);
     this.registry = registry;
   }
 
   /** {@inheritDoc} */
   public void registerNamespace(String prefix, String uri) throws RepositoryException,
-      RemoteException {
+                                                          RemoteException {
     try {
       registry.registerNamespace(prefix, uri);
     } catch (RepositoryException ex) {

@@ -32,22 +32,29 @@ public class ServerNodeTypeIterator extends ServerIterator {
   /**
    * Creates a ServerNodeTypeIterator instance.
    * 
-   * @param iterator local node type iterator
-   * @param factory remote adapter factory
-   * @param maxBufferSize maximum size of the element buffer
-   * @throws RemoteException on RMI errors
+   * @param iterator
+   *          local node type iterator
+   * @param factory
+   *          remote adapter factory
+   * @param maxBufferSize
+   *          maximum size of the element buffer
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerNodeTypeIterator(NodeTypeIterator iterator, RemoteAdapterFactory factory,
-      int maxBufferSize) throws RemoteException {
+  public ServerNodeTypeIterator(NodeTypeIterator iterator,
+                                RemoteAdapterFactory factory,
+                                int maxBufferSize) throws RemoteException {
     super(iterator, factory, maxBufferSize);
   }
 
   /**
    * Creates and returns a remote adapter for the given node type.
    * 
-   * @param object local object
+   * @param object
+   *          local object
    * @return remote adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    * @see ServerIterator#getRemoteObject(Object)
    */
   protected Object getRemoteObject(Object object) throws RemoteException {

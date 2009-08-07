@@ -31,40 +31,40 @@ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class PermissionValue extends BaseNonStreamValue implements Serializable, StatefulValue {
 
   private static final long serialVersionUID = 1475495561074957852L;
 
-  private String identity;
+  private String            identity;
 
-  private String permission;
-  
-  public PermissionValue(String identity, String permission)  {    
+  private String            permission;
+
+  public PermissionValue(String identity, String permission) {
     if (identity != null && identity.indexOf(" ") != -1)
       throw new RuntimeException("Identity should not contain ' '");
-    if(permission != null && !permission.equals(PermissionType.READ) &&
-       !permission.equals(PermissionType.ADD_NODE) &&
-       !permission.equals(PermissionType.REMOVE) &&
-       !permission.equals(PermissionType.SET_PROPERTY))
-      throw new RuntimeException("Permission should be one of defined in PermissionType. Have "+permission);
+    if (permission != null && !permission.equals(PermissionType.READ)
+        && !permission.equals(PermissionType.ADD_NODE) && !permission.equals(PermissionType.REMOVE)
+        && !permission.equals(PermissionType.SET_PROPERTY))
+      throw new RuntimeException("Permission should be one of defined in PermissionType. Have "
+          + permission);
     this.identity = identity;
     this.permission = permission;
   }
-  
+
   static public PermissionValue parseValue(String pstring) {
     String[] persArray = parse(pstring);
     return new PermissionValue(persArray[0], persArray[1]);
   }
-  
+
   static public String[] parse(String pstring) {
     StringTokenizer parser = new StringTokenizer(pstring, AccessControlList.DELIMITER);
     String identityString = parser.nextToken();
     String permissionString = parser.nextToken();
-    
-    String[] persArray = new String[2]; 
-    
+
+    String[] persArray = new String[2];
+
     if (identityString != null) {
       persArray[0] = identityString;
     } else {
@@ -77,11 +77,12 @@ public class PermissionValue extends BaseNonStreamValue implements Serializable,
     }
     return persArray;
   }
+
   public long getLength() {
     return getString().length();
   }
 
-  public String getString()  {
+  public String getString() {
     return asString(identity, permission);
   }
 
@@ -89,11 +90,12 @@ public class PermissionValue extends BaseNonStreamValue implements Serializable,
     // TODO Auto-generated method stub
     return ExtendedPropertyType.PERMISSION;
   }
+
   static protected String asString(String identity, String permission) {
-    if (identity != null || permission != null) //SystemIdentity.ANY, PermissionType.ALL
-      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlList.DELIMITER 
-        + (permission != null ? permission : PermissionType.READ);
-    else 
+    if (identity != null || permission != null) // SystemIdentity.ANY, PermissionType.ALL
+      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlList.DELIMITER
+          + (permission != null ? permission : PermissionType.READ);
+    else
       return "";
   }
 }

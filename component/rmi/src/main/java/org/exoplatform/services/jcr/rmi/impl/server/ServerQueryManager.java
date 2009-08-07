@@ -29,9 +29,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteQuery;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryManager;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.query.QueryManager QueryManager}
- * interface. This class makes a local query manager available as an RMI service
- * using the
+ * Remote adapter for the JCR {@link javax.jcr.query.QueryManager QueryManager} interface. This
+ * class makes a local query manager available as an RMI service using the
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryManager RemoteQueryManager}
  * interface.
  * 
@@ -53,12 +52,14 @@ public class ServerQueryManager extends ServerObject implements RemoteQueryManag
   /**
    * Creates a remote adapter for the given local query manager.
    * 
-   * @param manager local query manager
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param manager
+   *          local query manager
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerQueryManager(QueryManager manager, RemoteAdapterFactoryImpl factory, Session session)
-      throws RemoteException {
+  public ServerQueryManager(QueryManager manager, RemoteAdapterFactoryImpl factory, Session session) throws RemoteException {
     super(factory);
     this.session = session;
     this.manager = manager;
@@ -66,7 +67,7 @@ public class ServerQueryManager extends ServerObject implements RemoteQueryManag
 
   /** {@inheritDoc} */
   public RemoteQuery createQuery(String statement, String language) throws RepositoryException,
-      RemoteException {
+                                                                   RemoteException {
     try {
       Query query = manager.createQuery(statement, language);
       return getFactory().getRemoteQuery(query);

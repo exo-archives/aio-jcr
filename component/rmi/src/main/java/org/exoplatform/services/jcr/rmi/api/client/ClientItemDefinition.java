@@ -29,11 +29,10 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 /**
  * Local adapter for the JCR-RMI
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteItemDefinition RemoteItemDefinition}
- * inteface. This class makes a remote item definition locally available using
- * the JCR {@link javax.jcr.nodetype.ItemDefinition ItemDef} interface. Used
- * mainly as the base class for the
- * {@link org.exoplatform.services.jcr.rmi.api.client.ClientPropertyDefinition ClientPropertyDefinition}
- * and
+ * inteface. This class makes a remote item definition locally available using the JCR
+ * {@link javax.jcr.nodetype.ItemDefinition ItemDef} interface. Used mainly as the base class for
+ * the {@link org.exoplatform.services.jcr.rmi.api.client.ClientPropertyDefinition
+ * ClientPropertyDefinition} and
  * {@link org.exoplatform.services.jcr.rmi.api.client.ClientNodeDefinition ClientNodeDefinition}
  * adapters.
  * 
@@ -48,8 +47,10 @@ public class ClientItemDefinition extends ClientObject implements ItemDefinition
   /**
    * Creates a local adapter for the given remote item definition.
    * 
-   * @param remote remote item definition
-   * @param factory local adapter factory
+   * @param remote
+   *          remote item definition
+   * @param factory
+   *          local adapter factory
    */
   public ClientItemDefinition(RemoteItemDefinition remote, LocalAdapterFactory factory) {
     super(factory);

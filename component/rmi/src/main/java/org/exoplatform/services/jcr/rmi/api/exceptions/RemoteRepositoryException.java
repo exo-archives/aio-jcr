@@ -22,12 +22,11 @@ import java.rmi.RemoteException;
 import javax.jcr.RepositoryException;
 
 /**
- * JCR-RMI remote exception. Used by the JCR-RMI client to wrap RMI errors into
- * RepositoryExceptions to avoid breaking the JCR interfaces.
+ * JCR-RMI remote exception. Used by the JCR-RMI client to wrap RMI errors into RepositoryExceptions
+ * to avoid breaking the JCR interfaces.
  * <p>
- * Note that if a RemoteException is received by call with no declared
- * exceptions, then the RemoteException is wrapped into a
- * RemoteRuntimeException.
+ * Note that if a RemoteException is received by call with no declared exceptions, then the
+ * RemoteException is wrapped into a RemoteRuntimeException.
  */
 public class RemoteRepositoryException extends RepositoryException {
   /**
@@ -38,7 +37,8 @@ public class RemoteRepositoryException extends RepositoryException {
   /**
    * Creates a RemoteRepositoryException based on the given RemoteException.
    * 
-   * @param ex the remote exception
+   * @param ex
+   *          the remote exception
    */
   public RemoteRepositoryException(RemoteException ex) {
     super(ex);

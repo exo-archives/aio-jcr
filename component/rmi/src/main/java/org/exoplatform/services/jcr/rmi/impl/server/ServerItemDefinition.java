@@ -27,13 +27,12 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteItemDefinition
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 
 /**
- * Remote adapter for the JCR
- * {@link javax.jcr.nodetype.ItemDefinition ItemDefinition} interface. This
- * class makes a local item definition available as an RMI service using the
+ * Remote adapter for the JCR {@link javax.jcr.nodetype.ItemDefinition ItemDefinition} interface.
+ * This class makes a local item definition available as an RMI service using the
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteItemDefinition RemoteItemDefinition}
  * interface. Used mainly as the base class for the
- * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerPropertyDefinition ServerPropertyDefinition}
- * and
+ * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerPropertyDefinition
+ * ServerPropertyDefinition} and
  * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerNodeDefinition ServerNodeDefinition}
  * adapters.
  * 
@@ -53,12 +52,14 @@ public class ServerItemDefinition extends ServerObject implements RemoteItemDefi
   /**
    * Creates a remote adapter for the given local item definition.
    * 
-   * @param def local item definition
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param def
+   *          local item definition
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerItemDefinition(ItemDefinition def, RemoteAdapterFactory factory)
-      throws RemoteException {
+  public ServerItemDefinition(ItemDefinition def, RemoteAdapterFactory factory) throws RemoteException {
     super(factory);
     this.def = def;
   }

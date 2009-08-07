@@ -31,9 +31,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteSession;
 
 /**
  * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository RemoteRepository}
- * inteface. This class makes a remote repository locally available using the
- * JCR {@link javax.jcr.Repository Repository} interface.
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository RemoteRepository} inteface.
+ * This class makes a remote repository locally available using the JCR {@link javax.jcr.Repository
+ * Repository} interface.
  * 
  * @see javax.jcr.Repository
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository
@@ -46,8 +46,10 @@ public class ClientRepository extends ClientObject implements Repository {
   /**
    * Creates a client adapter for the given remote repository.
    * 
-   * @param remote remote repository
-   * @param factory local adapter factory
+   * @param remote
+   *          remote repository
+   * @param factory
+   *          local adapter factory
    */
   public ClientRepository(RemoteRepository remote, LocalAdapterFactory factory) {
     super(factory);

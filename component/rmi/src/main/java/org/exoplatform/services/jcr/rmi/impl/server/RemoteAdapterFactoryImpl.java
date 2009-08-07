@@ -82,14 +82,13 @@ import org.exoplatform.services.jcr.rmi.impl.server.iterator.ServerRowIterator;
 import org.exoplatform.services.jcr.rmi.impl.server.iterator.ServerVersionIterator;
 
 /**
- * Default implementation of the
- * {@link RemoteAdapterFactory RemoteAdapterFactory} interface. This factory
- * uses the server adapters defined in this package as the default adapter
- * implementations. Subclasses can override or extend the default adapters by
- * implementing the corresponding factory methods.
+ * Default implementation of the {@link RemoteAdapterFactory RemoteAdapterFactory} interface. This
+ * factory uses the server adapters defined in this package as the default adapter implementations.
+ * Subclasses can override or extend the default adapters by implementing the corresponding factory
+ * methods.
  * <p>
- * The <code>bufferSize</code> property can be used to configure the size of
- * the buffer used by iterators to speed up iterator traversal over the network.
+ * The <code>bufferSize</code> property can be used to configure the size of the buffer used by
+ * iterators to speed up iterator traversal over the network.
  */
 public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
 
@@ -118,7 +117,8 @@ public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
   /**
    * Sets the iterator buffer size.
    * 
-   * @param bufferSize iterator buffer size
+   * @param bufferSize
+   *          iterator buffer size
    */
   public void setBufferSize(int bufferSize) {
     this.bufferSize = bufferSize;
@@ -146,29 +146,23 @@ public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
   }
 
   /**
-   * Creates a {@link ServerObservationManager ServerObservationManager}
-   * instance. {@inheritDoc}
+   * Creates a {@link ServerObservationManager ServerObservationManager} instance. {@inheritDoc}
    */
-  public RemoteObservationManager getRemoteObservationManager(ObservationManager observationManager)
-      throws RemoteException {
+  public RemoteObservationManager getRemoteObservationManager(ObservationManager observationManager) throws RemoteException {
     return new ServerObservationManager(observationManager, this);
   }
 
   /**
-   * Creates a {@link ServerNamespaceRegistry ServerNamespaceRegistry} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerNamespaceRegistry ServerNamespaceRegistry} instance. {@inheritDoc}
    */
-  public RemoteNamespaceRegistry getRemoteNamespaceRegistry(NamespaceRegistry registry)
-      throws RemoteException {
+  public RemoteNamespaceRegistry getRemoteNamespaceRegistry(NamespaceRegistry registry) throws RemoteException {
     return new ServerNamespaceRegistry(registry, this);
   }
 
   /**
-   * Creates a {@link ServerNodeTypeManager ServerNodeTypeManager} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerNodeTypeManager ServerNodeTypeManager} instance. {@inheritDoc}
    */
-  public RemoteNodeTypeManager getRemoteNodeTypeManager(NodeTypeManager manager)
-      throws RemoteException {
+  public RemoteNodeTypeManager getRemoteNodeTypeManager(NodeTypeManager manager) throws RemoteException {
     return new ServerNodeTypeManager(manager, this);
   }
 
@@ -201,11 +195,9 @@ public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
   }
 
   /**
-   * Creates a {@link ServerVersionHistory ServerVersionHistory} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerVersionHistory ServerVersionHistory} instance. {@inheritDoc}
    */
-  public RemoteVersionHistory getRemoteVersionHistory(VersionHistory versionHistory)
-      throws RemoteException {
+  public RemoteVersionHistory getRemoteVersionHistory(VersionHistory versionHistory) throws RemoteException {
     return new ServerVersionHistory(versionHistory, this);
   }
 
@@ -217,27 +209,23 @@ public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
   }
 
   /**
-   * Creates a {@link ServerItemDefinition ServerItemDefinition} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerItemDefinition ServerItemDefinition} instance. {@inheritDoc}
    */
   public RemoteItemDefinition getRemoteItemDefinition(ItemDefinition def) throws RemoteException {
     return new ServerItemDefinition(def, this);
   }
 
   /**
-   * Creates a {@link ServerNodeDefinition ServerNodeDefinition} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerNodeDefinition ServerNodeDefinition} instance. {@inheritDoc}
    */
   public RemoteNodeDefinition getRemoteNodeDefinition(NodeDefinition def) throws RemoteException {
     return new ServerNodeDefinition(def, this);
   }
 
   /**
-   * Creates a {@link ServerPropertyDefinition ServerPropertyDefinition}
-   * instance. {@inheritDoc}
+   * Creates a {@link ServerPropertyDefinition ServerPropertyDefinition} instance. {@inheritDoc}
    */
-  public RemotePropertyDefinition getRemotePropertyDefinition(PropertyDefinition def)
-      throws RemoteException {
+  public RemotePropertyDefinition getRemotePropertyDefinition(PropertyDefinition def) throws RemoteException {
     return new ServerPropertyDefinition(def, this);
   }
 
@@ -249,11 +237,9 @@ public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
   }
 
   /**
-   * Creates a {@link ServerQueryManager ServerQueryManager} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerQueryManager ServerQueryManager} instance. {@inheritDoc}
    */
-  public RemoteQueryManager getRemoteQueryManager(QueryManager manager, Session session)
-      throws RemoteException {
+  public RemoteQueryManager getRemoteQueryManager(QueryManager manager, Session session) throws RemoteException {
     return new ServerQueryManager(manager, this, session);
   }
 
@@ -265,41 +251,37 @@ public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
   }
 
   /**
-   * Creates a {@link ServerQueryResult ServerQueryResult} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerQueryResult ServerQueryResult} instance. {@inheritDoc}
    */
   public RemoteQueryResult getRemoteQueryResult(QueryResult result) throws RemoteException {
     return new ServerQueryResult(result, this);
   }
 
   /**
-   * Creates a {@link ServerQueryResult ServerQueryResult} instance.
-   * {@inheritDoc}
+   * Creates a {@link ServerQueryResult ServerQueryResult} instance. {@inheritDoc}
    */
   public RemoteRow getRemoteRow(Row row) throws RemoteException {
     return new ServerRow(row, this);
   }
 
   /**
-   * Creates a {@link ServerEventCollection ServerEventCollection} instances.
-   * {@inheritDoc}
+   * Creates a {@link ServerEventCollection ServerEventCollection} instances. {@inheritDoc}
    */
-  public RemoteEventCollection getRemoteEvent(long listenerId, EventIterator events)
-      throws RemoteException {
+  public RemoteEventCollection getRemoteEvent(long listenerId, EventIterator events) throws RemoteException {
     RemoteEventCollection.RemoteEvent[] remoteEvents;
     if (events != null) {
       List eventList = new ArrayList();
       while (events.hasNext()) {
         try {
           Event event = events.nextEvent();
-          eventList.add(new ServerEventCollection.ServerEvent(event.getType(), event.getPath(),
-              event.getUserID()));
+          eventList.add(new ServerEventCollection.ServerEvent(event.getType(),
+                                                              event.getPath(),
+                                                              event.getUserID()));
         } catch (RepositoryException re) {
           throw new RemoteException(re.getMessage(), re);
         }
       }
-      remoteEvents = (RemoteEventCollection.RemoteEvent[]) eventList
-          .toArray(new RemoteEventCollection.RemoteEvent[eventList.size()]);
+      remoteEvents = (RemoteEventCollection.RemoteEvent[]) eventList.toArray(new RemoteEventCollection.RemoteEvent[eventList.size()]);
     } else {
       remoteEvents = new RemoteEventCollection.RemoteEvent[0]; // for safety
     }
@@ -308,22 +290,22 @@ public class RemoteAdapterFactoryImpl implements RemoteAdapterFactory {
   }
 
   /**
-   * Optimizes the given remote iterator for transmission across the network.
-   * This method retrieves the first set of elements from the iterator by
-   * calling {@link RemoteIterator#nextObjects()} and then asks for the total
-   * size of the iterator. If the size is unkown or greater than the length of
-   * the retrieved array, then the elements, the size, and the remote iterator
-   * reference are wrapped into a {@link BufferIterator} instance that gets
-   * passed over the network. If the retrieved array of elements contains all
-   * the elements in the iterator, then the iterator instance is discarded and
-   * just the elements are wrapped into a {@link ArrayIterator} instance to be
-   * passed to the client.
+   * Optimizes the given remote iterator for transmission across the network. This method retrieves
+   * the first set of elements from the iterator by calling {@link RemoteIterator#nextObjects()} and
+   * then asks for the total size of the iterator. If the size is unkown or greater than the length
+   * of the retrieved array, then the elements, the size, and the remote iterator reference are
+   * wrapped into a {@link BufferIterator} instance that gets passed over the network. If the
+   * retrieved array of elements contains all the elements in the iterator, then the iterator
+   * instance is discarded and just the elements are wrapped into a {@link ArrayIterator} instance
+   * to be passed to the client.
    * <p>
    * Subclasses can override this method to provide alternative optimizations.
    * 
-   * @param remote remote iterator
+   * @param remote
+   *          remote iterator
    * @return optimized remote iterator
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   protected RemoteIterator optimizeIterator(RemoteIterator remote) throws RemoteException {
     Object[] elements = remote.nextObjects();

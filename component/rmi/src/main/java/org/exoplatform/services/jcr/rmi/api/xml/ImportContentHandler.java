@@ -95,8 +95,10 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
    * <p>
    * Subclasses must implement this method to provide the actual import mechanism.
    * 
-   * @param xml the XML data to import
-   * @throws Exception on import errors
+   * @param xml
+   *          the XML data to import
+   * @throws Exception
+   *           on import errors
    */
   protected abstract void importXML(byte[] xml) throws Exception;
 

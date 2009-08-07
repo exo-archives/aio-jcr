@@ -28,11 +28,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteVersionHistory;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.version.Version Version}
- * interface. This class makes a local version available as an RMI service using
- * the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion RemoteVersion}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.version.Version Version} interface. This class makes
+ * a local version available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion RemoteVersion} interface.
  * 
  * @see javax.jcr.version.Version
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion
@@ -50,9 +48,12 @@ public class ServerVersion extends ServerNode implements RemoteVersion {
   /**
    * Creates a remote adapter for the given local version.
    * 
-   * @param version local version
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param version
+   *          local version
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerVersion(Version version, RemoteAdapterFactory factory) throws RemoteException {
     super(version, factory);
@@ -60,15 +61,16 @@ public class ServerVersion extends ServerNode implements RemoteVersion {
   }
 
   /**
-   * Utility method for creating an array of remote references for local
-   * versions. The remote references are created using the remote adapter
-   * factory.
+   * Utility method for creating an array of remote references for local versions. The remote
+   * references are created using the remote adapter factory.
    * <p>
    * A <code>null</code> input is treated as an empty array.
    * 
-   * @param versions local version array
+   * @param versions
+   *          local version array
    * @return remote version array
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   private RemoteVersion[] getRemoteVersionArray(Version[] versions) throws RemoteException {
     if (versions != null) {

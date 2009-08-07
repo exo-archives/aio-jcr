@@ -36,9 +36,12 @@ public class ClientVersionIterator extends ClientIterator implements VersionIter
   /**
    * Creates a ClientVersionIterator instance.
    * 
-   * @param iterator remote iterator
-   * @param session current session
-   * @param factory local adapter factory
+   * @param iterator
+   *          remote iterator
+   * @param session
+   *          current session
+   * @param factory
+   *          local adapter factory
    */
   public ClientVersionIterator(RemoteIterator iterator, Session session, LocalAdapterFactory factory) {
     super(iterator, factory);
@@ -48,7 +51,8 @@ public class ClientVersionIterator extends ClientIterator implements VersionIter
   /**
    * Creates and returns a local adapter for the given remote version.
    * 
-   * @param remote remote referecne
+   * @param remote
+   *          remote referecne
    * @return local adapter
    * @see ClientIterator#getObject(Object)
    */

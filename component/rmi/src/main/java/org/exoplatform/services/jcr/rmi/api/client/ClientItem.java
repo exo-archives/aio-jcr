@@ -31,12 +31,11 @@ import org.exoplatform.services.jcr.rmi.api.exceptions.RemoteRuntimeException;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteItem;
 
 /**
- * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.remote.RemoteItem RemoteItem}
- * inteface. This class makes a remote item locally available using the JCR
+ * Local adapter for the JCR-RMI {@link org.exoplatform.services.jcr.rmi.remote.RemoteItem
+ * RemoteItem} inteface. This class makes a remote item locally available using the JCR
  * {@link javax.jcr.Item Item} interface. Used mainly as the base class for the
- * {@link org.exoplatform.services.jcr.rmi.client.ClientProperty ClientProperty}
- * and {@link org.exoplatform.services.jcr.rmi.ClientNode ClientNode} adapters.
+ * {@link org.exoplatform.services.jcr.rmi.client.ClientProperty ClientProperty} and
+ * {@link org.exoplatform.services.jcr.rmi.ClientNode ClientNode} adapters.
  * 
  * @see javax.jcr.Item
  * @see org.exoplatform.services.jcr.rmi.remote.RemoteItem
@@ -52,9 +51,12 @@ public class ClientItem extends ClientObject implements Item {
   /**
    * Creates a local adapter for the given remote item.
    * 
-   * @param session current session
-   * @param remote remote item
-   * @param factory local adapter factory
+   * @param session
+   *          current session
+   * @param remote
+   *          remote item
+   * @param factory
+   *          local adapter factory
    */
   public ClientItem(Session session, RemoteItem remote, LocalAdapterFactory factory) {
     super(factory);
@@ -79,8 +81,7 @@ public class ClientItem extends ClientObject implements Item {
   }
 
   /**
-   * Returns the current session without contacting the remote item.
-   * {@inheritDoc}
+   * Returns the current session without contacting the remote item. {@inheritDoc}
    */
   public Session getSession() {
     return session;
@@ -132,8 +133,8 @@ public class ClientItem extends ClientObject implements Item {
   }
 
   /**
-   * Returns false by default without contacting the remote item. This method
-   * should be overridden by {@link Node Node} subclasses. {@inheritDoc}
+   * Returns false by default without contacting the remote item. This method should be overridden
+   * by {@link Node Node} subclasses. {@inheritDoc}
    * 
    * @return false
    */
@@ -160,12 +161,10 @@ public class ClientItem extends ClientObject implements Item {
   }
 
   /**
-   * Checks whether this instance represents the same repository item as the
-   * given other instance. A simple heuristic is used to first check some
-   * generic conditions (null values, instance equality, type equality), after
-   * which the <em>item paths</em> are compared to determine sameness. A
-   * RuntimeException is thrown if the item paths cannot be retrieved.
-   * {@inheritDoc}
+   * Checks whether this instance represents the same repository item as the given other instance. A
+   * simple heuristic is used to first check some generic conditions (null values, instance
+   * equality, type equality), after which the <em>item paths</em> are compared to determine
+   * sameness. A RuntimeException is thrown if the item paths cannot be retrieved. {@inheritDoc}
    * 
    * @see Item#getPath()
    */
@@ -182,10 +181,9 @@ public class ClientItem extends ClientObject implements Item {
   }
 
   /**
-   * Accepts the visitor to visit this item. {@link Node Node} and
-   * {@link Property Property} subclasses should override this method to call
-   * the appropriate {@link ItemVisitor ItemVisitor} methods, as the default
-   * implementation does nothing. {@inheritDoc}
+   * Accepts the visitor to visit this item. {@link Node Node} and {@link Property Property}
+   * subclasses should override this method to call the appropriate {@link ItemVisitor ItemVisitor}
+   * methods, as the default implementation does nothing. {@inheritDoc}
    */
   public void accept(ItemVisitor visitor) throws RepositoryException {
   }

@@ -26,14 +26,13 @@ import javax.jcr.ValueFormatException;
 import org.exoplatform.commons.utils.ISO8601;
 
 /**
- * The <code>DateValue</code> class implements the committed value state for
- * Date values as a part of the State design pattern (Gof) used by this package.
+ * The <code>DateValue</code> class implements the committed value state for Date values as a part
+ * of the State design pattern (Gof) used by this package.
  * <p>
- * To convert <code>Calendar</code> instances to and from strings, this class
- * uses a <code>SimpleDateFormat</code> instance with the pattern
- * <code>yyyy-MM-dd'T'HH:mm:ss'Z'</code>. The issue with this pattern is that
- * the era specification as defined in the JCR specification (+/- prefix) as
- * well as full time zone naming are not supported.
+ * To convert <code>Calendar</code> instances to and from strings, this class uses a
+ * <code>SimpleDateFormat</code> instance with the pattern <code>yyyy-MM-dd'T'HH:mm:ss'Z'</code>.
+ * The issue with this pattern is that the era specification as defined in the JCR specification
+ * (+/- prefix) as well as full time zone naming are not supported.
  * 
  * @since 0.16.4.1
  * @see org.exoplatform.services.jcr.rmi.api.value.SerialValue
@@ -57,26 +56,24 @@ public class DateValue extends BaseNonStreamValue implements Serializable, State
   }
 
   /**
-   * Creates an instance for the given string representation of a
-   * <code>Calendar</code>.
+   * Creates an instance for the given string representation of a <code>Calendar</code>.
    * <p>
-   * This implementation uses a <code>ISO8601.format</code> instance with the
-   * pattern <code>YYYY-MM-DDThh:mm:ss.sssTZD</code> to parse the string into
-   * a <code>Calendar</code> object. See the class comment for issues
-   * regarding this pattern.
+   * This implementation uses a <code>ISO8601.format</code> instance with the pattern
+   * <code>YYYY-MM-DDThh:mm:ss.sssTZD</code> to parse the string into a <code>Calendar</code>
+   * object. See the class comment for issues regarding this pattern.
    */
   protected DateValue(String value) throws ValueFormatException {
     this(toCalendar(value));
   }
 
   /**
-   * Returns the string <code>value</code> parsed into a <code>Calendar</code>
-   * instance.
+   * Returns the string <code>value</code> parsed into a <code>Calendar</code> instance.
    * 
-   * @param value The string value.
+   * @param value
+   *          The string value.
    * @return The <code>Calendar</code> instance parsed from the string value.
-   * @throws ValueFormatException if the string value cannot be parsed into a
-   *           <code>Calendar</code> instance.
+   * @throws ValueFormatException
+   *           if the string value cannot be parsed into a <code>Calendar</code> instance.
    */
   protected static Calendar toCalendar(String value) throws ValueFormatException {
     Calendar time = ISO8601.parse(value);
@@ -94,8 +91,8 @@ public class DateValue extends BaseNonStreamValue implements Serializable, State
   }
 
   /**
-   * Returns the time represented by this instance as the number of milliseconds
-   * since the epoch (1.1.1970, 0:00, UTC).
+   * Returns the time represented by this instance as the number of milliseconds since the epoch
+   * (1.1.1970, 0:00, UTC).
    */
   @Override
   public double getDouble() {
@@ -103,10 +100,9 @@ public class DateValue extends BaseNonStreamValue implements Serializable, State
   }
 
   /**
-   * Returns the string represented of this <code>Calendar</code> value
-   * formatted using a <code>ISO8601.format</code> with the pattern
-   * <code>YYYY-MM-DDThh:mm:ss.sssTZD</code>. See the class comment for
-   * issues regarding this pattern.
+   * Returns the string represented of this <code>Calendar</code> value formatted using a
+   * <code>ISO8601.format</code> with the pattern <code>YYYY-MM-DDThh:mm:ss.sssTZD</code>. See the
+   * class comment for issues regarding this pattern.
    * 
    * @throws ValueFormatException
    */
@@ -124,8 +120,8 @@ public class DateValue extends BaseNonStreamValue implements Serializable, State
   }
 
   /**
-   * Returns the time represented by this instance as the number of milliseconds
-   * since the epoch (1.1.1970, 0:00, UTC).
+   * Returns the time represented by this instance as the number of milliseconds since the epoch
+   * (1.1.1970, 0:00, UTC).
    */
   @Override
   public long getLong() {
@@ -133,9 +129,8 @@ public class DateValue extends BaseNonStreamValue implements Serializable, State
   }
 
   /**
-   * Returns (a copy) of this <code>Calendar</code> value. Modifying the
-   * returned <code>Calendar</code> does not change the value of this
-   * instance.
+   * Returns (a copy) of this <code>Calendar</code> value. Modifying the returned
+   * <code>Calendar</code> does not change the value of this instance.
    */
   @Override
   public Calendar getDate() {

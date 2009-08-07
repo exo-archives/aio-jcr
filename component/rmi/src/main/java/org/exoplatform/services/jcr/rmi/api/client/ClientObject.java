@@ -30,9 +30,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteVersionHistory;
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 
 /**
- * Base class for client adapter objects. The only purpose of this class is to
- * centralize the handling of the local adapter factory used by the client
- * adapters to instantiate new adapters.
+ * Base class for client adapter objects. The only purpose of this class is to centralize the
+ * handling of the local adapter factory used by the client adapters to instantiate new adapters.
  */
 public class ClientObject {
 
@@ -40,10 +39,10 @@ public class ClientObject {
   private LocalAdapterFactory factory;
 
   /**
-   * Creates a basic client adapter that uses the given factory to create new
-   * adapters.
+   * Creates a basic client adapter that uses the given factory to create new adapters.
    * 
-   * @param factory local adapter factory
+   * @param factory
+   *          local adapter factory
    */
   protected ClientObject(LocalAdapterFactory factory) {
     this.factory = factory;
@@ -59,16 +58,17 @@ public class ClientObject {
   }
 
   /**
-   * Utility method to create a local adapter for a remote item. This method
-   * introspects the remote reference to determine whether to instantiate a
-   * {@link javax.jcr.Property}, a {@link Node Node}, or an {@link Item Item}
-   * adapter using the local adapter factory.
+   * Utility method to create a local adapter for a remote item. This method introspects the remote
+   * reference to determine whether to instantiate a {@link javax.jcr.Property}, a {@link Node Node}
+   * , or an {@link Item Item} adapter using the local adapter factory.
    * <p>
    * If the remote item is a {@link RemoteNode}, this method delegates to
    * {@link #getNode(Session, RemoteNode)}.
    * 
-   * @param session current session
-   * @param remote remote item
+   * @param session
+   *          current session
+   * @param remote
+   *          remote item
    * @return local property, node, or item adapter
    */
   protected Item getItem(Session session, RemoteItem remote) {
@@ -82,14 +82,15 @@ public class ClientObject {
   }
 
   /**
-   * Utility method to create a local adapter for a remote node. This method
-   * introspects the remote reference to determine whether to instantiate a
-   * {@link Node Node}, a
-   * {@link javax.jcr.version.VersionHistory VersionHistory}, or a
-   * {@link Version Version} adapter using the local adapter factory.
+   * Utility method to create a local adapter for a remote node. This method introspects the remote
+   * reference to determine whether to instantiate a {@link Node Node}, a
+   * {@link javax.jcr.version.VersionHistory VersionHistory}, or a {@link Version Version} adapter
+   * using the local adapter factory.
    * 
-   * @param session current session
-   * @param remote remote node
+   * @param session
+   *          current session
+   * @param remote
+   *          remote node
    * @return local node, version, or version history adapter
    */
   protected Node getNode(Session session, RemoteNode remote) {
@@ -103,13 +104,13 @@ public class ClientObject {
   }
 
   /**
-   * Utility method for creating an array of local node type adapters for an
-   * array of remote node types. The node type adapters are created using the
-   * local adapter factory.
+   * Utility method for creating an array of local node type adapters for an array of remote node
+   * types. The node type adapters are created using the local adapter factory.
    * <p>
    * A <code>null</code> input is treated as an empty array.
    * 
-   * @param remotes remote node types
+   * @param remotes
+   *          remote node types
    * @return local node type array
    */
   protected NodeType[] getNodeTypeArray(RemoteNodeType[] remotes) {

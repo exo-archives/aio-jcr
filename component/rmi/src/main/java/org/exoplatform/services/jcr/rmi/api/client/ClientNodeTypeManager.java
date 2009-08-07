@@ -30,8 +30,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeTypeManage
 /**
  * Local adapter for the JCR-RMI
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeTypeManager RemoteNodeTypeManager}
- * inteface. This class makes a remote node type manager locally available using
- * the JCR {@link javax.jcr.nodetype.NodeTypeManager NodeTypeManager} interface.
+ * inteface. This class makes a remote node type manager locally available using the JCR
+ * {@link javax.jcr.nodetype.NodeTypeManager NodeTypeManager} interface.
  * 
  * @see javax.jcr.nodetype.NodeTypeManager
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeTypeManager
@@ -44,8 +44,10 @@ public class ClientNodeTypeManager extends ClientObject implements NodeTypeManag
   /**
    * Creates a local adapter for the given remote node type manager.
    * 
-   * @param remote remote node type manager
-   * @param factory local adapter factory
+   * @param remote
+   *          remote node type manager
+   * @param factory
+   *          local adapter factory
    */
   public ClientNodeTypeManager(RemoteNodeTypeManager remote, LocalAdapterFactory factory) {
     super(factory);

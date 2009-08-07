@@ -53,260 +53,302 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeTypeManage
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemotePropertyDefinition;
 
 /**
- * Factory interface for creating remote adapters for local resources. This
- * interface defines how the local JCR interfaces are adapted to remote JCR-RMI
- * references.
+ * Factory interface for creating remote adapters for local resources. This interface defines how
+ * the local JCR interfaces are adapted to remote JCR-RMI references.
  */
 public interface RemoteAdapterFactory {
   /**
    * Returns a remote adapter for the given local repository.
    * 
-   * @param repository local repository
+   * @param repository
+   *          local repository
    * @return remote repository adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteRepository getRemoteRepository(Repository repository) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local session.
    * 
-   * @param session local session
+   * @param session
+   *          local session
    * @return remote session adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteSession getRemoteSession(Session session) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local workspace.
    * 
-   * @param workspace local workspace
+   * @param workspace
+   *          local workspace
    * @return remote workspace adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteWorkspace getRemoteWorkspace(Workspace workspace) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local observation manager.
    * 
-   * @param observationManager local observation manager
+   * @param observationManager
+   *          local observation manager
    * @return remote observation manager adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  RemoteObservationManager getRemoteObservationManager(ObservationManager observationManager)
-      throws RemoteException;
+  RemoteObservationManager getRemoteObservationManager(ObservationManager observationManager) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local namespace registry.
    * 
-   * @param registry local namespace registry
+   * @param registry
+   *          local namespace registry
    * @return remote namespace registry adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  RemoteNamespaceRegistry getRemoteNamespaceRegistry(NamespaceRegistry registry)
-      throws RemoteException;
+  RemoteNamespaceRegistry getRemoteNamespaceRegistry(NamespaceRegistry registry) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local node type manager.
    * 
-   * @param manager local node type manager
+   * @param manager
+   *          local node type manager
    * @return remote node type manager adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteNodeTypeManager getRemoteNodeTypeManager(NodeTypeManager manager) throws RemoteException;
 
   /**
-   * Returns a remote adapter for the given local item. This method will return
-   * an adapter that implements <i>only</i> the {@link Item Item} interface.
-   * The caller may want to introspect the local item to determine whether to
-   * use either the {@link #getRemoteNode(Node) getRemoteNode} or the
-   * {@link #getRemoteProperty(Property) getRemoteProperty} method instead.
+   * Returns a remote adapter for the given local item. This method will return an adapter that
+   * implements <i>only</i> the {@link Item Item} interface. The caller may want to introspect the
+   * local item to determine whether to use either the {@link #getRemoteNode(Node) getRemoteNode} or
+   * the {@link #getRemoteProperty(Property) getRemoteProperty} method instead.
    * 
-   * @param item local item
+   * @param item
+   *          local item
    * @return remote item adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteItem getRemoteItem(Item item) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local property.
    * 
-   * @param property local property
+   * @param property
+   *          local property
    * @return remote property adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteProperty getRemoteProperty(Property property) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local node.
    * 
-   * @param node local node
+   * @param node
+   *          local node
    * @return remote node adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteNode getRemoteNode(Node node) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local version.
    * 
-   * @param version local version
+   * @param version
+   *          local version
    * @return remote version adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteVersion getRemoteVersion(Version version) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local version history.
    * 
-   * @param versionHistory local version history
+   * @param versionHistory
+   *          local version history
    * @return remote version history adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  RemoteVersionHistory getRemoteVersionHistory(VersionHistory versionHistory)
-      throws RemoteException;
+  RemoteVersionHistory getRemoteVersionHistory(VersionHistory versionHistory) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local node type.
    * 
-   * @param type local node type
+   * @param type
+   *          local node type
    * @return remote node type adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteNodeType getRemoteNodeType(NodeType type) throws RemoteException;
 
   /**
-   * Returns a remote adapter for the given local item definition. This method
-   * will return an adapter that implements <i>only</i> the
-   * {@link ItemDefinition ItemDefinition} interface. The caller may want to
-   * introspect the local item definition to determine whether to use either the
+   * Returns a remote adapter for the given local item definition. This method will return an
+   * adapter that implements <i>only</i> the {@link ItemDefinition ItemDefinition} interface. The
+   * caller may want to introspect the local item definition to determine whether to use either the
    * {@link #getRemoteNodeDefinition(NodeDefinition) getRemoteNodeDef} or the
-   * {@link #getRemotePropertyDefinition(PropertyDefinition) getRemotePropertyDef}
-   * method instead.
+   * {@link #getRemotePropertyDefinition(PropertyDefinition) getRemotePropertyDef} method instead.
    * 
-   * @param def local item definition
+   * @param def
+   *          local item definition
    * @return remote item definition adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteItemDefinition getRemoteItemDefinition(ItemDefinition def) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local node definition.
    * 
-   * @param def local node definition
+   * @param def
+   *          local node definition
    * @return remote node definition adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteNodeDefinition getRemoteNodeDefinition(NodeDefinition def) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local property definition.
    * 
-   * @param def local property definition
+   * @param def
+   *          local property definition
    * @return remote property definition adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  RemotePropertyDefinition getRemotePropertyDefinition(PropertyDefinition def)
-      throws RemoteException;
+  RemotePropertyDefinition getRemotePropertyDefinition(PropertyDefinition def) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local lock.
    * 
-   * @param lock local lock
+   * @param lock
+   *          local lock
    * @return remote lock adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteLock getRemoteLock(Lock lock) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local query manager.
    * 
-   * @param manager local query manager
+   * @param manager
+   *          local query manager
    * @return remote query manager adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  RemoteQueryManager getRemoteQueryManager(QueryManager manager, Session session)
-      throws RemoteException;
+  RemoteQueryManager getRemoteQueryManager(QueryManager manager, Session session) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local query.
    * 
-   * @param query local query
+   * @param query
+   *          local query
    * @return remote query adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteQuery getRemoteQuery(Query query) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local query result.
    * 
-   * @param result local query result
+   * @param result
+   *          local query result
    * @return remote query result adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteQueryResult getRemoteQueryResult(QueryResult result) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local query row.
    * 
-   * @param row local query row
+   * @param row
+   *          local query row
    * @return remote query row adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteRow getRemoteRow(Row row) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local events.
    * 
-   * @param listenerId The listener identifier to which the events are to be
-   *          dispatched.
-   * @param events the local events
+   * @param listenerId
+   *          The listener identifier to which the events are to be dispatched.
+   * @param events
+   *          the local events
    * @return remote event iterator adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
-  RemoteEventCollection getRemoteEvent(long listenerId, EventIterator events)
-      throws RemoteException;
+  RemoteEventCollection getRemoteEvent(long listenerId, EventIterator events) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local node iterator.
    * 
-   * @param iterator local node iterator
+   * @param iterator
+   *          local node iterator
    * @return remote iterator adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteIterator getRemoteNodeIterator(NodeIterator iterator) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local property iterator.
    * 
-   * @param iterator local property iterator
+   * @param iterator
+   *          local property iterator
    * @return remote iterator adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteIterator getRemotePropertyIterator(PropertyIterator iterator) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local version iterator.
    * 
-   * @param iterator local version iterator
+   * @param iterator
+   *          local version iterator
    * @return remote iterator adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteIterator getRemoteVersionIterator(VersionIterator iterator) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local node type iterator.
    * 
-   * @param iterator local node type iterator
+   * @param iterator
+   *          local node type iterator
    * @return remote iterator adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteIterator getRemoteNodeTypeIterator(NodeTypeIterator iterator) throws RemoteException;
 
   /**
    * Returns a remote adapter for the given local row iterator.
    * 
-   * @param iterator local row iterator
+   * @param iterator
+   *          local row iterator
    * @return remote iterator adapter
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteIterator getRemoteRowIterator(RowIterator iterator) throws RemoteException;
 }

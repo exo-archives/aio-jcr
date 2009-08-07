@@ -21,9 +21,8 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
 
 /**
- * Array implementation of the JCR
- * {@link javax.jcr.EventListenerIterator EventListenerIterator} interface. This
- * class is used by the JCR-RMI client adapters to convert listener arrays to
+ * Array implementation of the JCR {@link javax.jcr.EventListenerIterator EventListenerIterator}
+ * interface. This class is used by the JCR-RMI client adapters to convert listener arrays to
  * iterators.
  */
 public class ArrayEventListenerIterator extends ArrayIterator implements EventListenerIterator {
@@ -31,7 +30,8 @@ public class ArrayEventListenerIterator extends ArrayIterator implements EventLi
   /**
    * Creates an iterator for the given array of listeners.
    * 
-   * @param listeners the listeners to iterate
+   * @param listeners
+   *          the listeners to iterate
    */
   public ArrayEventListenerIterator(EventListener[] listeners) {
     super(listeners);

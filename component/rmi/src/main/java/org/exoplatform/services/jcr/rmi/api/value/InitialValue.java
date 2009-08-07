@@ -28,14 +28,12 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
 /**
- * Initial value state. This class implements the non-committed value state as a
- * part of the State design pattern (GoF) used by this package. The value
- * getters of this class perform the stream/non-stream state transition by
- * changing the state reference of the containing
- * {@link SerialValue SerialValue} instance. Once the state change is complete
- * (and the InitialValue state is no longer referenced by the SerialValue
- * instance), the calling SerialValue getter method is restarted to get the
- * actual underlying value.
+ * Initial value state. This class implements the non-committed value state as a part of the State
+ * design pattern (GoF) used by this package. The value getters of this class perform the
+ * stream/non-stream state transition by changing the state reference of the containing
+ * {@link SerialValue SerialValue} instance. Once the state change is complete (and the InitialValue
+ * state is no longer referenced by the SerialValue instance), the calling SerialValue getter method
+ * is restarted to get the actual underlying value.
  * 
  * @see SerialValue
  */
@@ -53,8 +51,10 @@ final class InitialValue implements Serializable, StatefulValue {
   /**
    * Creates an initial value state instance.
    * 
-   * @param general containing general value
-   * @param value underlying concrete value
+   * @param general
+   *          containing general value
+   * @param value
+   *          underlying concrete value
    */
   InitialValue(SerialValue general, StatefulValue value) {
     this.general = general;
@@ -62,19 +62,21 @@ final class InitialValue implements Serializable, StatefulValue {
   }
 
   /**
-   * Converts the given binary stream to a string. This utility method is used
-   * to convert stream values to non-stream values.
+   * Converts the given binary stream to a string. This utility method is used to convert stream
+   * values to non-stream values.
    * <p>
-   * Note that a RepositoryException is thrown instead of a ValueFormatException
-   * if the stream can not be converted to a string. This is because the string
-   * constructor used does not report encoding problems.
+   * Note that a RepositoryException is thrown instead of a ValueFormatException if the stream can
+   * not be converted to a string. This is because the string constructor used does not report
+   * encoding problems.
    * 
-   * @param input binary stream
+   * @param input
+   *          binary stream
    * @return string value
-   * @throws ValueFormatException if a stream decoding problem occurs
+   * @throws ValueFormatException
+   *           if a stream decoding problem occurs
    */
   private static String toString(InputStream input) throws ValueFormatException,
-      RepositoryException {
+                                                   RepositoryException {
     try {
       ByteArrayOutputStream output = new ByteArrayOutputStream();
       byte[] buffer = new byte[4096];
@@ -93,10 +95,9 @@ final class InitialValue implements Serializable, StatefulValue {
   }
 
   /**
-   * Commits the value into the stream state and returns the stream
-   * representation of the value. Implemented by changing the state reference of
-   * the containing general value and restarting the general value getter
-   * method.
+   * Commits the value into the stream state and returns the stream representation of the value.
+   * Implemented by changing the state reference of the containing general value and restarting the
+   * general value getter method.
    * 
    * @return stream value
    */
@@ -113,15 +114,17 @@ final class InitialValue implements Serializable, StatefulValue {
   }
 
   /**
-   * Commits the value into the non-stream state and returns the string
-   * representation of the value. Implemented by changing the state reference of
-   * the containing general value and restarting the general value getter
-   * method.
+   * Commits the value into the non-stream state and returns the string representation of the value.
+   * Implemented by changing the state reference of the containing general value and restarting the
+   * general value getter method.
    * 
    * @return string value
-   * @throws ValueFormatException if conversion to string is not possible
-   * @throws IllegalStateException not thrown by proper instances
-   * @throws RepositoryException if another error occurs
+   * @throws ValueFormatException
+   *           if conversion to string is not possible
+   * @throws IllegalStateException
+   *           not thrown by proper instances
+   * @throws RepositoryException
+   *           if another error occurs
    * @see Value#getString()
    */
   public String getString() throws ValueFormatException, RepositoryException {
@@ -137,15 +140,17 @@ final class InitialValue implements Serializable, StatefulValue {
   }
 
   /**
-   * Commits the value into the non-stream state and returns the long
-   * representation of the value. Implemented by changing the state reference of
-   * the containing general value and restarting the general value getter
-   * method.
+   * Commits the value into the non-stream state and returns the long representation of the value.
+   * Implemented by changing the state reference of the containing general value and restarting the
+   * general value getter method.
    * 
    * @return long value
-   * @throws ValueFormatException if conversion to long is not possible
-   * @throws IllegalStateException not thrown by proper instances
-   * @throws RepositoryException if another error occurs
+   * @throws ValueFormatException
+   *           if conversion to long is not possible
+   * @throws IllegalStateException
+   *           not thrown by proper instances
+   * @throws RepositoryException
+   *           if another error occurs
    * @see Value#getLong()
    */
   public long getLong() throws ValueFormatException, RepositoryException {
@@ -161,15 +166,17 @@ final class InitialValue implements Serializable, StatefulValue {
   }
 
   /**
-   * Commits the value into the non-stream state and returns the double
-   * representation of the value. Implemented by changing the state reference of
-   * the containing general value and restarting the general value getter
-   * method.
+   * Commits the value into the non-stream state and returns the double representation of the value.
+   * Implemented by changing the state reference of the containing general value and restarting the
+   * general value getter method.
    * 
    * @return double value
-   * @throws ValueFormatException if conversion to double is not possible
-   * @throws IllegalStateException not thrown by proper instances
-   * @throws RepositoryException if another error occurs
+   * @throws ValueFormatException
+   *           if conversion to double is not possible
+   * @throws IllegalStateException
+   *           not thrown by proper instances
+   * @throws RepositoryException
+   *           if another error occurs
    * @see Value#getDouble()
    */
   public double getDouble() throws ValueFormatException, RepositoryException {
@@ -185,15 +192,17 @@ final class InitialValue implements Serializable, StatefulValue {
   }
 
   /**
-   * Commits the value into the non-stream state and returns the date
-   * representation of the value. Implemented by changing the state reference of
-   * the containing general value and restarting the general value getter
-   * method.
+   * Commits the value into the non-stream state and returns the date representation of the value.
+   * Implemented by changing the state reference of the containing general value and restarting the
+   * general value getter method.
    * 
    * @return date value
-   * @throws ValueFormatException if conversion to date is not possible
-   * @throws IllegalStateException not thrown by proper instances
-   * @throws RepositoryException if another error occurs
+   * @throws ValueFormatException
+   *           if conversion to date is not possible
+   * @throws IllegalStateException
+   *           not thrown by proper instances
+   * @throws RepositoryException
+   *           if another error occurs
    * @see Value#getDate()
    */
   public Calendar getDate() throws ValueFormatException, RepositoryException {
@@ -209,15 +218,17 @@ final class InitialValue implements Serializable, StatefulValue {
   }
 
   /**
-   * Commits the value into the non-stream state and returns the long
-   * representation of the value. Implemented by changing the state reference of
-   * the containing general value and restarting the general value getter
-   * method.
+   * Commits the value into the non-stream state and returns the long representation of the value.
+   * Implemented by changing the state reference of the containing general value and restarting the
+   * general value getter method.
    * 
    * @return boolean value
-   * @throws ValueFormatException if conversion to boolean is not possible
-   * @throws IllegalStateException not thrown by proper instances
-   * @throws RepositoryException if another error occurs
+   * @throws ValueFormatException
+   *           if conversion to boolean is not possible
+   * @throws IllegalStateException
+   *           not thrown by proper instances
+   * @throws RepositoryException
+   *           if another error occurs
    * @see Value#getBoolean()
    */
   public boolean getBoolean() throws ValueFormatException, RepositoryException {
@@ -232,8 +243,9 @@ final class InitialValue implements Serializable, StatefulValue {
     return realValue.getBoolean();
   }
 
-  public String getReference() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public String getReference() throws ValueFormatException,
+                              IllegalStateException,
+                              RepositoryException {
     // StatefulValue realValue;
     general.setValue(value);
     return value.getReference();
@@ -257,7 +269,7 @@ final class InitialValue implements Serializable, StatefulValue {
 
   public int getOrderNumber() {
     // TODO Auto-generated method stub
-   
+
     return value.getOrderNumber();
   }
 

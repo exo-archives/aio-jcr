@@ -34,17 +34,15 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager;
  * The <code>ClientObservationManager</code> class
  * <p>
  * This class uses an instance of the
- * {@link org.exoplatform.services.jcr.rmi.api.observation.ClientEventPoll}
- * class for the actual registration and event dispatching.
+ * {@link org.exoplatform.services.jcr.rmi.api.observation.ClientEventPoll} class for the actual
+ * registration and event dispatching.
  * <p>
  * This class does not require the
- * {@link org.exoplatform.services.jcr.rmi.api.client.LocalAdapterFactory} and
- * consequently calls the base class constructor with a <code>null</code>
- * factory.
+ * {@link org.exoplatform.services.jcr.rmi.api.client.LocalAdapterFactory} and consequently calls
+ * the base class constructor with a <code>null</code> factory.
  * <p>
- * See the <a href="../observation/package.html><code>observation</code></a>
- * package comment for a description on how event listener registration and
- * notification is implemented.
+ * See the <a href="../observation/package.html><code>observation</code></a> package comment for a
+ * description on how event listener registration and notification is implemented.
  * 
  * @see org.exoplatform.services.jcr.rmi.api.observation.ClientEventPoll
  */
@@ -60,13 +58,12 @@ public class ClientObservationManager extends ClientObject implements Observatio
   private ClientEventPoll                poller;
 
   /**
-   * Creates an instance of this class talking to the given remote observation
-   * manager.
+   * Creates an instance of this class talking to the given remote observation manager.
    * 
-   * @param remote The {@link RemoteObservationManager} backing this client-side
-   *          observation manager.
-   * @param workspace The <code>Workspace</code> instance to which this
-   *          observation manager belongs.
+   * @param remote
+   *          The {@link RemoteObservationManager} backing this client-side observation manager.
+   * @param workspace
+   *          The <code>Workspace</code> instance to which this observation manager belongs.
    */
   public ClientObservationManager(Workspace workspace, RemoteObservationManager remote) {
     super(null);
@@ -75,9 +72,13 @@ public class ClientObservationManager extends ClientObject implements Observatio
   }
 
   /** {@inheritDoc} */
-  public void addEventListener(EventListener listener, int eventTypes, String absPath,
-      boolean isDeep, String[] uuid, String[] nodeTypeName, boolean noLocal)
-      throws RepositoryException {
+  public void addEventListener(EventListener listener,
+                               int eventTypes,
+                               String absPath,
+                               boolean isDeep,
+                               String[] uuid,
+                               String[] nodeTypeName,
+                               boolean noLocal) throws RepositoryException {
     try {
       long listenerId = getClientEventPoll().addListener(listener);
       remote.addEventListener(listenerId, eventTypes, absPath, isDeep, uuid, nodeTypeName, noLocal);
@@ -104,9 +105,9 @@ public class ClientObservationManager extends ClientObject implements Observatio
   // ---------- internal ------------------------------------------------------
 
   /**
-   * Returns the {@link ClientEventPoll} instance used by this (client-side)
-   * observation manager. This method creates the instance on the first call and
-   * starts the poller thread to wait for remote events.
+   * Returns the {@link ClientEventPoll} instance used by this (client-side) observation manager.
+   * This method creates the instance on the first call and starts the poller thread to wait for
+   * remote events.
    * 
    * @return poller instance
    */

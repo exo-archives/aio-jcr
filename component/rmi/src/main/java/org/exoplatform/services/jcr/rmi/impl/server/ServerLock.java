@@ -27,10 +27,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteLock;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteNode;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.lock.Lock Lock} interface. This
- * class makes a local lock available as an RMI service using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteLock RemoteLock}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.lock.Lock Lock} interface. This class makes a local
+ * lock available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteLock RemoteLock} interface.
  * 
  * @see javax.jcr.lock.Lock
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteLock
@@ -48,8 +47,10 @@ public class ServerLock extends ServerObject implements RemoteLock {
   /**
    * Creates a remote adapter for the given local lock.
    * 
-   * @param lock local lock
-   * @throws RemoteException on RMI errors
+   * @param lock
+   *          local lock
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerLock(Lock lock, RemoteAdapterFactory factory) throws RemoteException {
     super(factory);

@@ -33,16 +33,14 @@ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 
 /**
- * The <code>StatefullValueAdapter</code> class implements the committed value
- * state for some JCR <code>Value</code> as a part of the State design pattern
- * (Gof) used by this package.
+ * The <code>StatefullValueAdapter</code> class implements the committed value state for some JCR
+ * <code>Value</code> as a part of the State design pattern (Gof) used by this package.
  * <p>
  * This class implements {@link #readObject(ObjectInputStream)} and
- * {@link #writeObject(ObjectOutputStream)} overwriting the default behaviour.
- * The reason for this is, that we cannot guarantee delegatee value to be
- * serializable in which case the {@link #writeObject(ObjectOutputStream)} must
- * first create a serializable value. The {@link #readObject(ObjectInputStream)}
- * method is here just to guarantee symetric implementation.
+ * {@link #writeObject(ObjectOutputStream)} overwriting the default behaviour. The reason for this
+ * is, that we cannot guarantee delegatee value to be serializable in which case the
+ * {@link #writeObject(ObjectOutputStream)} must first create a serializable value. The
+ * {@link #readObject(ObjectInputStream)} method is here just to guarantee symetric implementation.
  * 
  * @see SerialValue
  */
@@ -55,11 +53,11 @@ final class StatefulValueAdapter implements Serializable, StatefulValue {
   private Value             delegatee;
 
   /**
-   * Creates an instance adapting the given JCR <code>ExtendedValue</code> to
-   * the State design pattern.
+   * Creates an instance adapting the given JCR <code>ExtendedValue</code> to the State design
+   * pattern.
    * 
-   * @param delegatee The JCR <code>ExtendedValue</code> providing the
-   *          ExtendedValue date.
+   * @param delegatee
+   *          The JCR <code>ExtendedValue</code> providing the ExtendedValue date.
    */
   StatefulValueAdapter(Value delegatee) {
     this.delegatee = delegatee;
@@ -100,24 +98,25 @@ final class StatefulValueAdapter implements Serializable, StatefulValue {
     return delegatee.getType();
   }
 
-  public String getReference() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public String getReference() throws ValueFormatException,
+                              IllegalStateException,
+                              RepositoryException {
     return ((ExtendedValue) delegatee).getReference();
     // TODO Auto-generated method stub
     // return delegatee;
   }
 
   /**
-   * Writes the delegate value to the given <code>ObjectOutputStream</code>.
-   * If the delegatee is {@link SerialValue} it is directly written. Otherwise
-   * the {@link SerialValueFactory} is asked to create a {@link StatefullValue}
-   * from the delegatee, which is then written. The newly created
-   * {@link StatefullValue} value also replaces the original delegatee
-   * internally.
+   * Writes the delegate value to the given <code>ObjectOutputStream</code>. If the delegatee is
+   * {@link SerialValue} it is directly written. Otherwise the {@link SerialValueFactory} is asked
+   * to create a {@link StatefullValue} from the delegatee, which is then written. The newly created
+   * {@link StatefullValue} value also replaces the original delegatee internally.
    * 
-   * @param out The destination to write the delegatee to.
-   * @throws IOException If an error occurrs writing the value or if an error
-   *           occurrs creating the {@link StatefullValue} from the delegatee.
+   * @param out
+   *          The destination to write the delegatee to.
+   * @throws IOException
+   *           If an error occurrs writing the value or if an error occurrs creating the
+   *           {@link StatefullValue} from the delegatee.
    */
   private void writeObject(ObjectOutputStream out) throws IOException {
     // if the delegatee value is a StatefullValue or SerialValue, serialize it
@@ -176,16 +175,15 @@ final class StatefulValueAdapter implements Serializable, StatefulValue {
   }
 
   /**
-   * Reads an reconstructs the delegatee from the given
-   * <code>ObjectInputStream</code>. The value read will either be an
-   * instance of {@link SerialValue} or a {@link StatefullValue} depending on
+   * Reads an reconstructs the delegatee from the given <code>ObjectInputStream</code>. The value
+   * read will either be an instance of {@link SerialValue} or a {@link StatefullValue} depending on
    * the original delegatee written.
    * 
-   * @param in The <code>ObjectInputStream</code> from which to read the
-   *          delegatee.
-   * @throws IOException If an error occurrs reading from the
-   *           <code>ObjectInputStream</code> or if the runtime class of the
-   *           value to be read cannot be found.
+   * @param in
+   *          The <code>ObjectInputStream</code> from which to read the delegatee.
+   * @throws IOException
+   *           If an error occurrs reading from the <code>ObjectInputStream</code> or if the runtime
+   *           class of the value to be read cannot be found.
    */
   private void readObject(ObjectInputStream in) throws IOException {
     try {
@@ -201,16 +199,16 @@ final class StatefulValueAdapter implements Serializable, StatefulValue {
   }
 
   public int getOrderNumber() {
-      
-    if (delegatee instanceof ExtendedValue ){
-      return ((ExtendedValue)delegatee).getOrderNumber();
+
+    if (delegatee instanceof ExtendedValue) {
+      return ((ExtendedValue) delegatee).getOrderNumber();
     }
-    return  0;
+    return 0;
   }
 
   public void setOrderNumber(int arg0) {
-    if (delegatee instanceof ExtendedValue ){
-      ((ExtendedValue)delegatee).setOrderNumber(arg0);
+    if (delegatee instanceof ExtendedValue) {
+      ((ExtendedValue) delegatee).setOrderNumber(arg0);
     }
   }
 

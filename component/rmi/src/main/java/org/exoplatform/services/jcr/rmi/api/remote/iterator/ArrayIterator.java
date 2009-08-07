@@ -23,28 +23,28 @@ import java.util.NoSuchElementException;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteIterator;
 
 /**
- * A simple array-based remote iterator. Used when the iteration is short enough
- * for all the elements to be sent over the network in one go.
+ * A simple array-based remote iterator. Used when the iteration is short enough for all the
+ * elements to be sent over the network in one go.
  */
 public class ArrayIterator implements RemoteIterator, Serializable {
 
   /**
-   * The elements in this iterator. Set to <code>null</code> when all elements
-   * have been iterated.
+   * The elements in this iterator. Set to <code>null</code> when all elements have been iterated.
    */
   private Object[] elements;
 
   /**
-   * The position of this iterator. Set to the size of the iterator when all
-   * elements have been iterated.
+   * The position of this iterator. Set to the size of the iterator when all elements have been
+   * iterated.
    */
   private int      position;
 
   /**
-   * Creates an array-based remote iterator from the given array of remote
-   * references or serializable objects.
+   * Creates an array-based remote iterator from the given array of remote references or
+   * serializable objects.
    * 
-   * @param elements elements of the iteration
+   * @param elements
+   *          elements of the iteration
    */
   public ArrayIterator(Object[] elements) {
     this.elements = elements;

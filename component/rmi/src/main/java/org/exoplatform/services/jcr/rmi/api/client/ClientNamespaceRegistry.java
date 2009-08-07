@@ -27,10 +27,9 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry;
 
 /**
  * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry RemoteNamespaceRegistry}
- * inteface. This class makes a remote namespace registry locally available
- * using the JCR {@link javax.jcr.NamespaceRegistry NamespaceRegistry}
- * interface.
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry
+ * RemoteNamespaceRegistry} inteface. This class makes a remote namespace registry locally available
+ * using the JCR {@link javax.jcr.NamespaceRegistry NamespaceRegistry} interface.
  * 
  * @see javax.jcr.NamespaceRegistry
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteNamespaceRegistry
@@ -43,8 +42,10 @@ public class ClientNamespaceRegistry extends ClientObject implements NamespaceRe
   /**
    * Creates a local adapter for the given remote namespace registry.
    * 
-   * @param remote remote namespace registry
-   * @param factory local adapter factory
+   * @param remote
+   *          remote namespace registry
+   * @param factory
+   *          local adapter factory
    */
   public ClientNamespaceRegistry(RemoteNamespaceRegistry remote, LocalAdapterFactoryImpl factory) {
     super(factory);

@@ -29,9 +29,8 @@ import org.exoplatform.services.jcr.rmi.api.exceptions.RemoteRepositoryException
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion;
 
 /**
- * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion RemoteVersion}
- * interface. This class makes a remote version locally available using the JCR
+ * Local adapter for the JCR-RMI {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteVersion
+ * RemoteVersion} interface. This class makes a remote version locally available using the JCR
  * {@link javax.jcr.version.Version Version} interface.
  * 
  * @see javax.jcr.version.Version
@@ -45,9 +44,12 @@ public class ClientVersion extends ClientNode implements Version {
   /**
    * Creates a local adapter for the given remote version.
    * 
-   * @param session current session
-   * @param remote remote version
-   * @param factory local adapter factory
+   * @param session
+   *          current session
+   * @param remote
+   *          remote version
+   * @param factory
+   *          local adapter factory
    */
   public ClientVersion(Session session, RemoteVersion remote, LocalAdapterFactory factory) {
     super(session, remote, factory);
@@ -55,13 +57,13 @@ public class ClientVersion extends ClientNode implements Version {
   }
 
   /**
-   * Utility method for creating a version array for an array of remote
-   * versions. The versions in the returned array are created using the local
-   * adapter factory.
+   * Utility method for creating a version array for an array of remote versions. The versions in
+   * the returned array are created using the local adapter factory.
    * <p>
    * A <code>null</code> input is treated as an empty array.
    * 
-   * @param remotes remote versions
+   * @param remotes
+   *          remote versions
    * @return local version array
    */
   private Version[] getVersionArray(RemoteVersion[] remotes) {

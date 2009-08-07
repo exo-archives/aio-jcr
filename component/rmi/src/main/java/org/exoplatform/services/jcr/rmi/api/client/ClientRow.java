@@ -27,9 +27,8 @@ import org.exoplatform.services.jcr.rmi.api.exceptions.RemoteRepositoryException
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteRow;
 
 /**
- * Local adapter for the JCR-RMI {@link RemoteRow RemoteRow} inteface. This
- * class makes a remote query row locally available using the JCR
- * {@link Row Row} interface.
+ * Local adapter for the JCR-RMI {@link RemoteRow RemoteRow} inteface. This class makes a remote
+ * query row locally available using the JCR {@link Row Row} interface.
  * 
  * @see javax.jcr.query.Row Row
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteRow
@@ -42,7 +41,8 @@ public class ClientRow implements Row {
   /**
    * Creates a client adapter for the given remote query row.
    * 
-   * @param remote remote query row
+   * @param remote
+   *          remote query row
    */
   public ClientRow(RemoteRow remote) {
     this.remote = remote;

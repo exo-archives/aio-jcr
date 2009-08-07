@@ -36,12 +36,16 @@ public class ClientPropertyIterator extends ClientIterator implements PropertyIt
   /**
    * Creates a ClientPropertyIterator instance.
    * 
-   * @param iterator remote iterator
-   * @param session current session
-   * @param factory local adapter factory
+   * @param iterator
+   *          remote iterator
+   * @param session
+   *          current session
+   * @param factory
+   *          local adapter factory
    */
-  public ClientPropertyIterator(RemoteIterator iterator, Session session,
-      LocalAdapterFactory factory) {
+  public ClientPropertyIterator(RemoteIterator iterator,
+                                Session session,
+                                LocalAdapterFactory factory) {
     super(iterator, factory);
     this.session = session;
   }
@@ -49,7 +53,8 @@ public class ClientPropertyIterator extends ClientIterator implements PropertyIt
   /**
    * Creates and returns a local adapter for the given remote property.
    * 
-   * @param remote remote referecne
+   * @param remote
+   *          remote referecne
    * @return local adapter
    * @see ClientIterator#getObject(Object)
    */

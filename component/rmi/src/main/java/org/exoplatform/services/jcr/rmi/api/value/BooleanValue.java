@@ -22,9 +22,8 @@ import java.io.Serializable;
 import javax.jcr.PropertyType;
 
 /**
- * The <code>BooleanValue</code> class implements the committed value state
- * for Boolean values as a part of the State design pattern (Gof) used by this
- * package.
+ * The <code>BooleanValue</code> class implements the committed value state for Boolean values as a
+ * part of the State design pattern (Gof) used by this package.
  * 
  * @since 0.16.4.1
  * @see org.exoplatform.services.jcr.rmi.api.value.SerialValue
@@ -56,8 +55,8 @@ public class BooleanValue extends BaseNonStreamValue implements Serializable, St
   /**
    * Returns the boolean value represented by the string <code>value</code>.
    * <p>
-   * This implementation uses the <code>Boolean.valueOf(String)</code> method
-   * to convert the string to a boolean.
+   * This implementation uses the <code>Boolean.valueOf(String)</code> method to convert the string
+   * to a boolean.
    */
   protected static boolean toBoolean(String value) {
     return Boolean.valueOf(value).booleanValue();
@@ -79,8 +78,7 @@ public class BooleanValue extends BaseNonStreamValue implements Serializable, St
   }
 
   /**
-   * Returns the boolean as a string converted by the
-   * <code>Boolean.toString(boolean)</code>.
+   * Returns the boolean as a string converted by the <code>Boolean.toString(boolean)</code>.
    */
   public String getString() {
     return Boolean.toString(value);

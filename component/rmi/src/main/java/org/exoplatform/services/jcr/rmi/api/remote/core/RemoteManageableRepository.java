@@ -29,9 +29,8 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository;
 
 /**
- * Remote version of the JCR
- * {@org.exoplatform.services.jcr.core.ManageableRepository Repository}
- * interface.
+ * Remote version of the JCR {@org.exoplatform.services.jcr.core.ManageableRepository
+ *  Repository} interface.
  */
 public interface RemoteManageableRepository extends Remote, RemoteRepository {
   /**

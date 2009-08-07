@@ -31,18 +31,15 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteEventCollection;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager;
 
 /**
- * Remote adapter for the JCR
- * {@link javax.jcr.observation.ObservationManager ObservationManager}
- * interface. This class makes a local item available as an RMI service using
- * the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager RemoteObservationManager}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.observation.ObservationManager ObservationManager}
+ * interface. This class makes a local item available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager
+ * RemoteObservationManager} interface.
  * <p>
  * This class works in conjunction with the
- * {@link org.exoplatform.services.jcr.rmi.api.client.ClientObservationManager}
- * class to implement the distributed the event listener registration described
- * in <a href="../observation/package.html><code>observation</code></a>
- * package comment.
+ * {@link org.exoplatform.services.jcr.rmi.api.client.ClientObservationManager} class to implement
+ * the distributed the event listener registration described in <a
+ * href="../observation/package.html><code>observation</code></a> package comment.
  * 
  * @see javax.jcr.observation.ObservationManager
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteObservationManager
@@ -71,20 +68,27 @@ public class ServerObservationManager extends ServerObject implements RemoteObse
   /**
    * Creates a remote adapter for the given local workspace.
    * 
-   * @param observationManager local observation manager
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param observationManager
+   *          local observation manager
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerObservationManager(ObservationManager observationManager,
-      RemoteAdapterFactory factory) throws RemoteException {
+                                  RemoteAdapterFactory factory) throws RemoteException {
     super(factory);
     this.observationManager = observationManager;
   }
 
   /** {@inheritDoc} */
-  public void addEventListener(long listenerId, int eventTypes, String absPath, boolean isDeep,
-      String[] uuid, String[] nodeTypeName, boolean noLocal) throws RepositoryException,
-      RemoteException {
+  public void addEventListener(long listenerId,
+                               int eventTypes,
+                               String absPath,
+                               boolean isDeep,
+                               String[] uuid,
+                               String[] nodeTypeName,
+                               boolean noLocal) throws RepositoryException, RemoteException {
 
     // find the proxy or create one
     ServerEventListenerProxy proxy;
@@ -102,8 +106,13 @@ public class ServerObservationManager extends ServerObject implements RemoteObse
     }
 
     // register the proxy with the observation manager
-    observationManager.addEventListener(proxy, eventTypes, absPath, isDeep, uuid, nodeTypeName,
-        noLocal);
+    observationManager.addEventListener(proxy,
+                                        eventTypes,
+                                        absPath,
+                                        isDeep,
+                                        uuid,
+                                        nodeTypeName,
+                                        noLocal);
   }
 
   /** {@inheritDoc} */

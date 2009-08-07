@@ -27,9 +27,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteIterator;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryResult;
 
 /**
- * Remote adapter for the JCR {@link javax.jcr.query.QueryResult QueryResult}
- * interface. This class makes a local session available as an RMI service using
- * the
+ * Remote adapter for the JCR {@link javax.jcr.query.QueryResult QueryResult} interface. This class
+ * makes a local session available as an RMI service using the
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteQueryResult RemoteQueryResult}
  * interface.
  * 
@@ -49,9 +48,12 @@ public class ServerQueryResult extends ServerObject implements RemoteQueryResult
   /**
    * Creates a remote adapter for the given local <code>QueryResult</code>.
    * 
-   * @param result local <code>QueryResult</code>
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param result
+   *          local <code>QueryResult</code>
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   public ServerQueryResult(QueryResult result, RemoteAdapterFactory factory) throws RemoteException {
     super(factory);

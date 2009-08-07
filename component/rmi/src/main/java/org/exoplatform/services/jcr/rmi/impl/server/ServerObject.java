@@ -52,9 +52,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteNode;
 import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 
 /**
- * Base class for remote adapters. The purpose of this class is to centralize
- * the handling of the RemoteAdapterFactory instance used to instantiate new
- * server adapters.
+ * Base class for remote adapters. The purpose of this class is to centralize the handling of the
+ * RemoteAdapterFactory instance used to instantiate new server adapters.
  */
 public class ServerObject extends UnicastRemoteObject {
 
@@ -64,11 +63,12 @@ public class ServerObject extends UnicastRemoteObject {
   private RemoteAdapterFactory factory;
 
   /**
-   * Creates a basic server adapter that uses the given factory to create new
-   * adapters.
+   * Creates a basic server adapter that uses the given factory to create new adapters.
    * 
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
   protected ServerObject(RemoteAdapterFactory factory) throws RemoteException {
     this.factory = factory;
@@ -84,16 +84,15 @@ public class ServerObject extends UnicastRemoteObject {
   }
 
   /**
-   * Returns a cleaned version of the given exception. In some cases the
-   * underlying repository implementation may throw exceptions that are either
-   * unserializable, use exception subclasses that are only locally available,
-   * contain references to unserializable or only locally available classes.
-   * This method returns a cleaned version of such an exception. The returned
-   * exception contains only the message string from the original exception, and
-   * uses the public JCR exception class that most specifically matches the
-   * original exception.
+   * Returns a cleaned version of the given exception. In some cases the underlying repository
+   * implementation may throw exceptions that are either unserializable, use exception subclasses
+   * that are only locally available, contain references to unserializable or only locally available
+   * classes. This method returns a cleaned version of such an exception. The returned exception
+   * contains only the message string from the original exception, and uses the public JCR exception
+   * class that most specifically matches the original exception.
    * 
-   * @param ex the original exception
+   * @param ex
+   *          the original exception
    * @return clean exception
    */
   protected RepositoryException getRepositoryException(RepositoryException ex) {
@@ -139,17 +138,18 @@ public class ServerObject extends UnicastRemoteObject {
   }
 
   /**
-   * Utility method for creating a remote reference for a local item. Unlike the
-   * factory method for creating remote item references, this method introspects
-   * the type of the local item and returns the corresponding node, property, or
-   * item remote reference using the remote adapter factory.
+   * Utility method for creating a remote reference for a local item. Unlike the factory method for
+   * creating remote item references, this method introspects the type of the local item and returns
+   * the corresponding node, property, or item remote reference using the remote adapter factory.
    * <p>
-   * If the <code>item</code>, this method calls the
-   * {@link #getRemoteNode(Node)} to return the correct remote type.
+   * If the <code>item</code>, this method calls the {@link #getRemoteNode(Node)} to return the
+   * correct remote type.
    * 
-   * @param item local node, property, or item
+   * @param item
+   *          local node, property, or item
    * @return remote node, property, or item reference
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   protected RemoteItem getRemoteItem(Item item) throws RemoteException {
     if (item instanceof Property) {
@@ -162,14 +162,16 @@ public class ServerObject extends UnicastRemoteObject {
   }
 
   /**
-   * Utility method for creating a remote reference for a local node. Unlike the
-   * factory method for creating remote node references, this method introspects
-   * the type of the local node and returns the corresponding node, version, or
-   * version history remote reference using the remote adapter factory.
+   * Utility method for creating a remote reference for a local node. Unlike the factory method for
+   * creating remote node references, this method introspects the type of the local node and returns
+   * the corresponding node, version, or version history remote reference using the remote adapter
+   * factory.
    * 
-   * @param node local version, versionhistory, or normal node
+   * @param node
+   *          local version, versionhistory, or normal node
    * @return remote node, property, or item reference
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   protected RemoteNode getRemoteNode(Node node) throws RemoteException {
     if (node instanceof Version) {
@@ -182,14 +184,16 @@ public class ServerObject extends UnicastRemoteObject {
   }
 
   /**
-   * Utility method for creating an array of remote references for local node
-   * types. The remote references are created using the remote adapter factory.
+   * Utility method for creating an array of remote references for local node types. The remote
+   * references are created using the remote adapter factory.
    * <p>
    * A <code>null</code> input is treated as an empty array.
    * 
-   * @param types local node type array
+   * @param types
+   *          local node type array
    * @return remote node type array
-   * @throws RemoteException on RMI errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   protected RemoteNodeType[] getRemoteNodeTypeArray(NodeType[] types) throws RemoteException {
     if (types != null) {

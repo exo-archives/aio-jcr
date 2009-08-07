@@ -30,12 +30,11 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
 
 /**
- * SAX content handler for importing XML data to a JCR {@link Session Session}.
- * This utility class can be used to implement the
- * {@link Session#getImportContentHandler(String, int) Session.getImportContentHandler(String, int)}
- * method in terms of the
- * {@link Session#importXML(String, java.io.InputStream, int) Session.importXML(String, InputStream, int)}
- * method.
+ * SAX content handler for importing XML data to a JCR {@link Session Session}. This utility class
+ * can be used to implement the {@link Session#getImportContentHandler(String, int)
+ * Session.getImportContentHandler(String, int)} method in terms of the
+ * {@link Session#importXML(String, java.io.InputStream, int) Session.importXML(String, InputStream,
+ * int)} method.
  */
 public class SessionImportContentHandler extends ImportContentHandler {
 
@@ -49,19 +48,23 @@ public class SessionImportContentHandler extends ImportContentHandler {
   private int     mode;
 
   /**
-   * Creates a SAX content handler for importing XML data to the given session
-   * and path.
+   * Creates a SAX content handler for importing XML data to the given session and path.
    * 
-   * @param session repository session
-   * @param path import content path
-   * @param uuidBehaviour UUID behaviour mode
+   * @param session
+   *          repository session
+   * @param path
+   *          import content path
+   * @param uuidBehaviour
+   *          UUID behaviour mode
    * @throws RepositoryException
    * @throws LockException
    * @throws ConstraintViolationException
    * @throws VersionException
    */
-  public SessionImportContentHandler(Session session, String path, int uuidBehaviour)
-      throws VersionException, ConstraintViolationException, LockException, RepositoryException {
+  public SessionImportContentHandler(Session session, String path, int uuidBehaviour) throws VersionException,
+      ConstraintViolationException,
+      LockException,
+      RepositoryException {
     super(session, path);
     this.session = session;
     this.path = path;
@@ -70,8 +73,8 @@ public class SessionImportContentHandler extends ImportContentHandler {
 
   /**
    * Imports the serialized XML stream using the standard
-   * {@link Session#importXML(String, java.io.InputStream, int) Session.importXML(String, InputStream, int)}
-   * method. {@inheritDoc}
+   * {@link Session#importXML(String, java.io.InputStream, int) Session.importXML(String,
+   * InputStream, int)} method. {@inheritDoc}
    * 
    * @throws RepositoryException
    * @throws IOException
@@ -83,9 +86,14 @@ public class SessionImportContentHandler extends ImportContentHandler {
    * @throws PathNotFoundException
    */
   @Override
-  protected void importXML(byte[] xml) throws PathNotFoundException, ItemExistsException,
-      ConstraintViolationException, VersionException, InvalidSerializedDataException,
-      LockException, IOException, RepositoryException {
+  protected void importXML(byte[] xml) throws PathNotFoundException,
+                                      ItemExistsException,
+                                      ConstraintViolationException,
+                                      VersionException,
+                                      InvalidSerializedDataException,
+                                      LockException,
+                                      IOException,
+                                      RepositoryException {
     session.importXML(path, new ByteArrayInputStream(xml), mode);
   }
 

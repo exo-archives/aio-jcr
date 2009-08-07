@@ -67,13 +67,14 @@ public interface RemoteExtendedNode extends RemoteNode {
    * @throws AccessControlException
    */
   void setChildrenPermission(String identity, String[] permission) throws RepositoryException,
-      AccessControlException;
+                                                                  AccessControlException;
 
   /**
    * Checks if there are permission to perform some actions
    * 
    * @param actions
-   * @throws AccessControlException if no such permissions found
+   * @throws AccessControlException
+   *           if no such permissions found
    * @throws RepositoryException
    */
   void checkChildrenPermission(String actions) throws AccessControlException, RepositoryException;

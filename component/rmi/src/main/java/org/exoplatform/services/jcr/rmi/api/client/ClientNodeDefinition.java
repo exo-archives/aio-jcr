@@ -29,8 +29,8 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
 /**
  * Local adapter for the JCR-RMI
  * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeDefinition RemoteNodeDefinition}
- * inteface. This class makes a remote node definition locally available using
- * the JCR {@link javax.jcr.nodetype.NodeDefinition NodeDef} interface.
+ * inteface. This class makes a remote node definition locally available using the JCR
+ * {@link javax.jcr.nodetype.NodeDefinition NodeDef} interface.
  * 
  * @see javax.jcr.nodetype.NodeDefinition
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeDefinition
@@ -59,8 +59,10 @@ public class ClientNodeDefinition extends ClientItemDefinition implements NodeDe
   /**
    * Creates a local adapter for the given remote node definition.
    * 
-   * @param remote remote node definition
-   * @param factory local adapter factory
+   * @param remote
+   *          remote node definition
+   * @param factory
+   *          local adapter factory
    */
   public ClientNodeDefinition(RemoteNodeDefinition remote, LocalAdapterFactory factory) {
     super(remote, factory);

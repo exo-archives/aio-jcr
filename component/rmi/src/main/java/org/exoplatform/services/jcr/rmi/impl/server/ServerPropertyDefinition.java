@@ -27,12 +27,10 @@ import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemotePropertyDefini
 import org.exoplatform.services.jcr.rmi.api.value.SerialValueFactory;
 
 /**
- * Remote adapter for the JCR
- * {@link javax.jcr.nodetype.PropertyDefinition PropertyDefinition} interface.
- * This class makes a local property definition available as an RMI service
- * using the
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemotePropertyDefinition RemotePropertyDefinition}
- * interface.
+ * Remote adapter for the JCR {@link javax.jcr.nodetype.PropertyDefinition PropertyDefinition}
+ * interface. This class makes a local property definition available as an RMI service using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemotePropertyDefinition
+ * RemotePropertyDefinition} interface.
  * 
  * @see javax.jcr.nodetype.PropertyDefinition
  * @see org.exoplatform.services.jcr.rmi.api.remote.RemotePropertyDefinition
@@ -51,12 +49,14 @@ public class ServerPropertyDefinition extends ServerItemDefinition implements
   /**
    * Creates a remote adapter for the given local property definition.
    * 
-   * @param def local property definition
-   * @param factory remote adapter factory
-   * @throws RemoteException on RMI errors
+   * @param def
+   *          local property definition
+   * @param factory
+   *          remote adapter factory
+   * @throws RemoteException
+   *           on RMI errors
    */
-  public ServerPropertyDefinition(PropertyDefinition def, RemoteAdapterFactory factory)
-      throws RemoteException {
+  public ServerPropertyDefinition(PropertyDefinition def, RemoteAdapterFactory factory) throws RemoteException {
     super(def, factory);
     this.def = def;
   }

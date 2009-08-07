@@ -23,10 +23,10 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 /**
- * Remote version of the JCR {@link javax.jcr.query.Row Row} interface. Used by
- * the {@link org.exoplatform.services.jcr.rmi.impl.server.ServerRow ServerRow}
- * and {@link org.exoplatform.services.jcr.rmi.api.client.ClientRow ClientRow}
- * adapter base classes to provide transparent RMI access to remote items.
+ * Remote version of the JCR {@link javax.jcr.query.Row Row} interface. Used by the
+ * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerRow ServerRow} and
+ * {@link org.exoplatform.services.jcr.rmi.api.client.ClientRow ClientRow} adapter base classes to
+ * provide transparent RMI access to remote items.
  * <p>
  * RMI errors are signalled with RemoteExceptions.
  * 
@@ -39,17 +39,22 @@ public interface RemoteRow extends Remote {
   /**
    * @see javax.jcr.query.Row#getValues()
    * @return row values
-   * @throws RepositoryException on repository errors
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           on repository errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   Value[] getValues() throws RepositoryException, RemoteException;
 
   /**
    * @see javax.jcr.query.Row#getValue(String)
-   * @param propertyName property name
+   * @param propertyName
+   *          property name
    * @return identified value
-   * @throws RepositoryException on repository errors
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           on repository errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   Value getValue(String propertyName) throws RepositoryException, RemoteException;
 }

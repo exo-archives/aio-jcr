@@ -22,21 +22,18 @@ import java.rmi.RemoteException;
 import javax.jcr.RepositoryException;
 
 /**
- * Remote version of the JC
- * {@link javax.jcr.version.VersionHistory VersionHistory} interface. Used by
- * the
- * {@link org.exoplatform.services.jcr.rmi.impl.server.ServerVersionHistory ServerVersionHistory}
- * and
+ * Remote version of the JC {@link javax.jcr.version.VersionHistory VersionHistory} interface. Used
+ * by the {@link org.exoplatform.services.jcr.rmi.impl.server.ServerVersionHistory
+ * ServerVersionHistory} and
  * {@link org.exoplatform.services.jcr.rmi.api.client.ClientVersionHistory ClientVersionHistory}
  * adapters to provide transparent RMI access to remote version histories.
  * <p>
- * The methods in this interface are documented only with a reference to a
- * corresponding VersionHistory method. The remote object will simply forward
- * the method call to the underlying VersionHistory instance. Argument and
- * return values, as well as possible exceptions, are copied over the network.
- * Complex return values (like Versions) are returned as remote references to
- * the corresponding remote interfaces. Iterator values are transmitted as
- * object arrays. RMI errors are signalled with RemoteExceptions.
+ * The methods in this interface are documented only with a reference to a corresponding
+ * VersionHistory method. The remote object will simply forward the method call to the underlying
+ * VersionHistory instance. Argument and return values, as well as possible exceptions, are copied
+ * over the network. Complex return values (like Versions) are returned as remote references to the
+ * corresponding remote interfaces. Iterator values are transmitted as object arrays. RMI errors are
+ * signalled with RemoteExceptions.
  * 
  * @see javax.jcr.version.Version
  * @see org.exoplatform.services.jcr.rmi.api.client.ClientVersionHistory
@@ -45,59 +42,65 @@ import javax.jcr.RepositoryException;
 public interface RemoteVersionHistory extends RemoteNode {
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getVersionableUUID() VersionHistory.getVersionableUUID()}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#getVersionableUUID()
+   * VersionHistory.getVersionableUUID()} method.
    * 
-   * @return the UUID of the versionable node for which this is the version
-   *         history.
-   * @throws RepositoryException if an error occurs.
-   * @throws RemoteException on RMI errors
+   * @return the UUID of the versionable node for which this is the version history.
+   * @throws RepositoryException
+   *           if an error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   // String getVersionableUUID() throws RepositoryException, RemoteException;
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getRootVersion() VersionHistory.getRootVersion()}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#getRootVersion()
+   * VersionHistory.getRootVersion()} method.
    * 
    * @return a <code>Version</code> object.
-   * @throws RepositoryException if an error occurs.
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           if an error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteVersion getRootVersion() throws RepositoryException, RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getAllVersions() VersionHistory.getAllVersions()}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#getAllVersions()
+   * VersionHistory.getAllVersions()} method.
    * 
    * @return remote versions
-   * @throws RepositoryException if an error occurs.
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           if an error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteIterator getAllVersions() throws RepositoryException, RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getVersion(String) VersionHistory.getVersion(String)}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#getVersion(String)
+   * VersionHistory.getVersion(String)} method.
    * 
-   * @param versionName a version name
+   * @param versionName
+   *          a version name
    * @return a <code>Version</code> object.
-   * @throws RepositoryException if an error occurs.
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           if an error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteVersion getVersion(String versionName) throws RepositoryException, RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getVersionByLabel(String) VersionHistory.getVersionByLabel(String)}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#getVersionByLabel(String)
+   * VersionHistory.getVersionByLabel(String)} method.
    * 
-   * @param label a version label
+   * @param label
+   *          a version label
    * @return a <code>Version</code> object.
-   * @throws RepositoryException if an error occurs.
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           if an error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   RemoteVersion getVersionByLabel(String label) throws RepositoryException, RemoteException;
 
@@ -106,101 +109,117 @@ public interface RemoteVersionHistory extends RemoteNode {
    * {@link javax.jcr.version.VersionHistory#addVersionLabel(String, String, boolean)
    * VersionHistory.addVersionLabel(String, String, boolean)} method.
    * 
-   * @param versionName the name of the version to which the label is to be
-   *          added.
-   * @param label the label to be added.
-   * @param moveLabel if <code>true</code>, then if <code>label</code> is
-   *          already assigned to a version in this version history, it is moved
-   *          to the new version specified; if <code>false</code>, then
-   *          attempting to assign an already used label will throw a
+   * @param versionName
+   *          the name of the version to which the label is to be added.
+   * @param label
+   *          the label to be added.
+   * @param moveLabel
+   *          if <code>true</code>, then if <code>label</code> is already assigned to a version in
+   *          this version history, it is moved to the new version specified; if <code>false</code>,
+   *          then attempting to assign an already used label will throw a
    *          <code>VersionException</code>.
-   * @throws RepositoryException if another error occurs.
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           if another error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
-  void addVersionLabel(String versionName, String label, boolean moveLabel)
-      throws RepositoryException, RemoteException;
+  void addVersionLabel(String versionName, String label, boolean moveLabel) throws RepositoryException,
+                                                                           RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#removeVersionLabel(String) VersionHistory.removeVersionLabel(String)}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#removeVersionLabel(String)
+   * VersionHistory.removeVersionLabel(String)} method.
    * 
-   * @param label a version label
-   * @throws RepositoryException if another error occurs.
-   * @throws RemoteException on RMI errors
+   * @param label
+   *          a version label
+   * @throws RepositoryException
+   *           if another error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   void removeVersionLabel(String label) throws RepositoryException, RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#hasVersionLabel(String) VersionHistory.hasVersionLabel(String)}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#hasVersionLabel(String)
+   * VersionHistory.hasVersionLabel(String)} method.
    * 
-   * @param label a version label
+   * @param label
+   *          a version label
    * @return a <code>boolean</code>
-   * @throws RepositoryException on repository errors
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           on repository errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   boolean hasVersionLabel(String label) throws RepositoryException, RemoteException;
 
   /**
    * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#hasVersionLabel(javax.jcr.version.Version, String) hasVersionLabel(Version, String)}
-   * method.
+   * {@link javax.jcr.version.VersionHistory#hasVersionLabel(javax.jcr.version.Version, String)
+   * hasVersionLabel(Version, String)} method.
    * 
-   * @param versionUUID The UUID of the version whose labels are to be returned.
-   * @param label a version label
+   * @param versionUUID
+   *          The UUID of the version whose labels are to be returned.
+   * @param label
+   *          a version label
    * @return a <code>boolean</code>.
-   * @throws RepositoryException if another error occurs.
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           if another error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   boolean hasVersionLabel(String versionUUID, String label) throws RepositoryException,
-      RemoteException;
+                                                           RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getVersionLabels() VersionHistory.getVersionLabels()}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#getVersionLabels()
+   * VersionHistory.getVersionLabels()} method.
    * 
-   * @return a <code>String</code> array containing all the labels of the
-   *         version history
-   * @throws RepositoryException on repository errors
-   * @throws RemoteException on RMI errors
+   * @return a <code>String</code> array containing all the labels of the version history
+   * @throws RepositoryException
+   *           on repository errors
+   * @throws RemoteException
+   *           on RMI errors
    */
   String[] getVersionLabels() throws RepositoryException, RemoteException;
 
   /**
    * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getVersionLabels(javax.jcr.version.Version) VersionHistory.getVersionLabels(Version)}
-   * method.
+   * {@link javax.jcr.version.VersionHistory#getVersionLabels(javax.jcr.version.Version)
+   * VersionHistory.getVersionLabels(Version)} method.
    * 
-   * @param versionUUID The UUID of the version whose labels are to be returned.
-   * @return a <code>String</code> array containing all the labels of the
-   *         given version
-   * @throws RepositoryException if another error occurs.
-   * @throws RemoteException on RMI errors
+   * @param versionUUID
+   *          The UUID of the version whose labels are to be returned.
+   * @return a <code>String</code> array containing all the labels of the given version
+   * @throws RepositoryException
+   *           if another error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   String[] getVersionLabels(String versionUUID) throws RepositoryException, RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#removeVersion(String) VersionHistory.removeVersion(String)}
-   * method.
+   * Remote version of the {@link javax.jcr.version.VersionHistory#removeVersion(String)
+   * VersionHistory.removeVersion(String)} method.
    * 
-   * @param versionName the name of a version in this version history.
-   * @throws RepositoryException if another error occurs.
-   * @throws RemoteException on RMI errors
+   * @param versionName
+   *          the name of a version in this version history.
+   * @throws RepositoryException
+   *           if another error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   void removeVersion(String versionName) throws RepositoryException, RemoteException;
 
   /**
-   * Remote version of the
-   * {@link javax.jcr.version.VersionHistory#getVersionableUUID()}
+   * Remote version of the {@link javax.jcr.version.VersionHistory#getVersionableUUID()}
    * VersionHistory.getVersionableUUID()} method.
    * 
    * @return the uuid of the versionable node
-   * @throws RepositoryException if another error occurs.
-   * @throws RemoteException on RMI errors
+   * @throws RepositoryException
+   *           if another error occurs.
+   * @throws RemoteException
+   *           on RMI errors
    */
   String getVersionableUUID() throws RepositoryException, RemoteException;
 

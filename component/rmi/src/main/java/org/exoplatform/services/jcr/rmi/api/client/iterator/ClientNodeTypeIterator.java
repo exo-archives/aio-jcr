@@ -32,8 +32,10 @@ public class ClientNodeTypeIterator extends ClientIterator implements NodeTypeIt
   /**
    * Creates a ClientNodeTypeIterator instance.
    * 
-   * @param iterator remote iterator
-   * @param factory local adapter factory
+   * @param iterator
+   *          remote iterator
+   * @param factory
+   *          local adapter factory
    */
   public ClientNodeTypeIterator(RemoteIterator iterator, LocalAdapterFactory factory) {
     super(iterator, factory);
@@ -42,7 +44,8 @@ public class ClientNodeTypeIterator extends ClientIterator implements NodeTypeIt
   /**
    * Creates and returns a local adapter for the given remote node.
    * 
-   * @param remote remote referecne
+   * @param remote
+   *          remote referecne
    * @return local adapter
    * @see ClientIterator#getObject(Object)
    */

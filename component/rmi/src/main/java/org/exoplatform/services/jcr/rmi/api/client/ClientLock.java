@@ -28,9 +28,8 @@ import org.exoplatform.services.jcr.rmi.api.exceptions.RemoteRuntimeException;
 import org.exoplatform.services.jcr.rmi.api.remote.RemoteLock;
 
 /**
- * Local adapter for the JCR-RMI
- * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteLock RemoteLock}
- * inteface. This class makes a remote lock locally available using the JCR
+ * Local adapter for the JCR-RMI {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteLock
+ * RemoteLock} inteface. This class makes a remote lock locally available using the JCR
  * {@link javax.jcr.lock.Lock Lock} interface.
  * 
  * @see javax.jcr.lock.Lock
@@ -47,8 +46,10 @@ public class ClientLock extends ClientObject implements Lock {
   /**
    * Creates a local adapter for the given remote lock.
    * 
-   * @param node current node
-   * @param remote remote lock
+   * @param node
+   *          current node
+   * @param remote
+   *          remote lock
    */
   public ClientLock(Node node, RemoteLock remote, LocalAdapterFactory factory) {
     super(factory);

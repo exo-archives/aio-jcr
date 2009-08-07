@@ -20,10 +20,9 @@ package org.exoplatform.services.jcr.rmi.api.iterator;
 import javax.jcr.RangeIterator;
 
 /**
- * Array implementation of the JCR {@link javax.jcr.RangeIterator RangeIterator}
- * interface. This class implements the RangeIterator functionality for an
- * underlying array of objects. Used as the base class for the type-specific
- * iterator classes defined in this package.
+ * Array implementation of the JCR {@link javax.jcr.RangeIterator RangeIterator} interface. This
+ * class implements the RangeIterator functionality for an underlying array of objects. Used as the
+ * base class for the type-specific iterator classes defined in this package.
  */
 public class ArrayIterator implements RangeIterator {
 
@@ -36,7 +35,8 @@ public class ArrayIterator implements RangeIterator {
   /**
    * Creates an iterator for the given array of objects.
    * 
-   * @param array the objects to iterate
+   * @param array
+   *          the objects to iterate
    */
   public ArrayIterator(Object[] array) {
     this.position = 0;
