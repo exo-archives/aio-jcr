@@ -86,7 +86,8 @@ import com.amazonaws.sdb.model.ReplaceableAttribute;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 30.09.2008
+ * <br/>
+ * Date: 30.09.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -984,7 +985,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
-   * NOT USED.<br/> PropertyData comparator. Order allways will be following
+   * NOT USED.<br/>
+   * PropertyData comparator. Order allways will be following
    * 
    * <pre>
    * 1. jcr:primaryType
@@ -1064,13 +1066,16 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
-   * Init SimpleDB storage. <br/> Check if domain exists. Will create one new if there is not. Write
-   * version value in special row.
+   * Init SimpleDB storage. <br/>
+   * Check if domain exists. Will create one new if there is not. Write version value in special
+   * row.
    * 
-   * <br/> If current storage (domain) contains version row (already initialized) will check if
-   * container name matches to the given.
+   * <br/>
+   * If current storage (domain) contains version row (already initialized) will check if container
+   * name matches to the given.
    * 
-   * <br/> If the given and stored container names are not same the WARNING will be printed.
+   * <br/>
+   * If the given and stored container names are not same the WARNING will be printed.
    * 
    * @param containerName
    *          - Workspace container name
@@ -1493,10 +1498,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     AmazonSimpleDBException ce = null;
     retry: do {
       try {
-        return service.queryWithAttributes(request); // TODO use class invoker with overriden method for diff opers
+        return service.queryWithAttributes(request); // TODO use class invoker with overriden method
+                                                     // for diff opers
       } catch (AmazonSimpleDBException e) {
         ce = e;
-        Throwable c = e.getCause(); 
+        Throwable c = e.getCause();
         while (c != null) {
           if (c instanceof SocketTimeoutException) {
             cycle++;
@@ -1512,7 +1518,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         break;
       }
     } while (cycle < SDB_OPERATION_COUNT);
-    
+
     throw new AmazonSimpleDBException(ce);
   }
 
@@ -1547,7 +1553,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   /**
    * Query Node references properties by node ID (QueryWithAttributes).
    * 
-   * <br/>NOTE: REFERENCE Properties SHOULD be stored in SimpleDB storage (not in External Values
+   * <br/>
+   * NOTE: REFERENCE Properties SHOULD be stored in SimpleDB storage (not in External Values
    * Storage).
    * 
    * @param service
@@ -1818,8 +1825,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * Property Values processing. Extract Value data into String representation. If Value is
    * multivalued return sequence of Strings.
    * 
-   * <br/> Each Value will be stored as a String with fixed prefix of 4 chars XNNN. Where X - 'D'
-   * for data or 'S' for external storage link; NNN - Value order number.
+   * <br/>
+   * Each Value will be stored as a String with fixed prefix of 4 chars XNNN. Where X - 'D' for data
+   * or 'S' for external storage link; NNN - Value order number.
    * 
    * @param data
    *          - Value data
@@ -2417,7 +2425,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       changedItems.clear();
     }
   }
-  
+
   /**
    * Same as roolback() method.
    */

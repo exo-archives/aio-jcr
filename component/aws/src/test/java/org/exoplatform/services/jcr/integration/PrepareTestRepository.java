@@ -48,7 +48,7 @@ public class PrepareTestRepository extends AbstractJCRTest {
 
   /**
    * LockFilter.
-   *
+   * 
    */
   class LockFilter implements FileFilter {
     public boolean accept(File pathname) {

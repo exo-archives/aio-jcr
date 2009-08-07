@@ -41,10 +41,11 @@ import com.amazonaws.sdb.model.QueryWithAttributesResult;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 22.10.2008
+ * <br/>
+ * Date: 22.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestChildProperties.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id$
  */
 public class TestChildProperties extends TestCase {
 
@@ -121,7 +122,8 @@ public class TestChildProperties extends TestCase {
    * @throws Exception
    */
   public void testSelect() throws Exception {
-    String queryPattern = "['PID' = '%s'] intersection ['IClass' = '" + 2 + "'] intersection ['ID' != 'D']";
+    String queryPattern = "['PID' = '%s'] intersection ['IClass' = '" + 2
+        + "'] intersection ['ID' != 'D']";
     //  
     String qpid = "252c58a90afcef204794f2e8c1d9a0d7";
 

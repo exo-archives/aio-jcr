@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.aws.StandaloneTestBase;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: TestBinaryValueS3.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestBinaryValueS3 extends StandaloneTestBase {
 

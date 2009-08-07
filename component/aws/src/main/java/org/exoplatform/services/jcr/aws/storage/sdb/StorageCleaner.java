@@ -27,13 +27,16 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/> It's a temporary solution... IMO. it will be better to delete after each commit in
- * independent thread. Comming soon...
+ * <br/>
+ * It's a temporary solution... IMO. it will be better to delete after each commit in independent
+ * thread. Comming soon...
  * 
- * <br/> The cleaner will runs with random (around container constant) time to prevent prbs in
- * cluster environment.
+ * <br/>
+ * The cleaner will runs with random (around container constant) time to prevent prbs in cluster
+ * environment.
  * 
- * <br/>Date: 15.10.2008
+ * <br/>
+ * Date: 15.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -93,7 +96,7 @@ public class StorageCleaner extends Thread {
       } catch (Throwable e) {
         LOG.error("Storage cleaner wait is interrupted " + e, e);
       }
-      
+
       try {
         sdbConn.runCleanup();
       } catch (Throwable e) {

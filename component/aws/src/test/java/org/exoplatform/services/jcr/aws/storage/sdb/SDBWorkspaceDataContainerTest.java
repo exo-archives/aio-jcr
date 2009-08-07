@@ -38,7 +38,8 @@ import com.amazonaws.sdb.model.GetAttributesResult;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 13.10.2008
+ * <br/>
+ * Date: 13.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -127,14 +128,15 @@ public class SDBWorkspaceDataContainerTest extends SDBWorkspaceTestBase {
 
       for (int i = 0; i < nodesCount; i++) {
         sdbConn.delete(new TransientNodeData(QPath.makeChildPath(jcrRoot.getQPath(),
-                                                              QPathEntry.parse("[]node" + i + ":1")),
-                                          ids[i],
-                                          2,
-                                          Constants.NT_UNSTRUCTURED,
-                                          new InternalQName[] { Constants.MIX_REFERENCEABLE },
-                                          1,
-                                          jcrRoot.getIdentifier(),
-                                          jcrRoot.getACL()));
+                                                                 QPathEntry.parse("[]node" + i
+                                                                     + ":1")),
+                                             ids[i],
+                                             2,
+                                             Constants.NT_UNSTRUCTURED,
+                                             new InternalQName[] { Constants.MIX_REFERENCEABLE },
+                                             1,
+                                             jcrRoot.getIdentifier(),
+                                             jcrRoot.getACL()));
       }
       sdbConn.commit();
     } catch (ItemExistsException e) {
@@ -151,26 +153,27 @@ public class SDBWorkspaceDataContainerTest extends SDBWorkspaceTestBase {
     StorageCleaner cleaner = new StorageCleaner("test", sdbConn, timeoutCleaner);
     try {
       cleaner.start();
-  
+
       Thread.sleep(timeoutCleaner + (timeoutPerItem * nodesCount)); // wait for SDB too here
-  
+
       // check
       GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, deletedProp.getIdentifier());
-      //readItem(sdbClient, SDB_DOMAIN_NAME, jcrRoot.getIdentifier()).getGetAttributesResult().getAttribute()
+      // readItem(sdbClient, SDB_DOMAIN_NAME,
+      // jcrRoot.getIdentifier()).getGetAttributesResult().getAttribute()
       if (resp.isSetGetAttributesResult()) {
         GetAttributesResult res = resp.getGetAttributesResult();
         assertTrue("Property should be actually deleted", res.getAttribute().size() == 0);
       } else
         fail("Not initialized");
-  
+
       resp = readItem(sdbClient, SDB_DOMAIN_NAME, deletedNode.getIdentifier());
-  
+
       if (resp.isSetGetAttributesResult()) {
         GetAttributesResult res = resp.getGetAttributesResult();
         assertTrue("Node should be actually deleted", res.getAttribute().size() == 0);
       } else
         fail("Not initialized");
-      
+
     } finally {
       cleaner.cancel();
     }
