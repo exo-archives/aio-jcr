@@ -45,7 +45,7 @@ import org.exoplatform.services.log.ExoLogger;
  * ValueData will use file/BLOB from workspace storage.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SpoolFile.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class SpoolFile extends File {
 

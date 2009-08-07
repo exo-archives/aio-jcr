@@ -39,7 +39,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * ObjectFactory to produce BindableRepositoryImpl objects
  * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
- * @version $Id: BindableRepositoryFactory.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class BindableRepositoryFactory implements ObjectFactory {

@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: SessionEventMatcher.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class SessionEventMatcher implements ActionMatcher {

@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.impl.core.SessionDataManager;
  * Created by The eXo Platform SAS. ItemDataKeeper for SessionDataManager. Used by XML import.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class ItemDataKeeperAdapter implements ItemDataKeeper {
   /**

@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ContentImporter.java 13888 2008-05-05 13:47:27Z ksm $
+ * @version $Id$
  */
 public interface ContentImporter {
   /**

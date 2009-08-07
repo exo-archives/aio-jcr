@@ -53,7 +53,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ExportImportFactory.java 14244 2008-05-14 11:44:54Z ksm $
+ * @version $Id$
  */
 public class ExportImportFactory {
 

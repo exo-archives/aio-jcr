@@ -26,7 +26,7 @@ import org.apache.ws.commons.util.Base64.Decoder;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: DecodedValue.java 11987 2008-03-17 09:06:06Z ksm $
+ * @version $Id$
  */
 
 /**

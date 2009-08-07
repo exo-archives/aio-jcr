@@ -71,13 +71,12 @@ import org.exoplatform.management.jmx.annotations.NamingContext;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id$
  */
 @Managed
-@NameTemplate({
-  @Property(key="container", value="repository"),
-  @Property(key="name", value="{Name}")})
-@NamingContext(@Property(key="repository", value="{Name}"))
+@NameTemplate( { @Property(key = "container", value = "repository"),
+    @Property(key = "name", value = "{Name}") })
+@NamingContext(@Property(key = "repository", value = "{Name}"))
 public class RepositoryContainer extends ExoContainer {
 
   /**
@@ -328,7 +327,7 @@ public class RepositoryContainer extends ExoContainer {
 
       load();
 
-      // TODO 
+      // TODO
       // doStart();
 
     } catch (RepositoryException e) {

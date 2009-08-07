@@ -43,7 +43,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceContentImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public class WorkspaceContentImporter extends SystemViewImporter {
   /**
@@ -58,9 +58,10 @@ public class WorkspaceContentImporter extends SystemViewImporter {
 
   /**
    * Class used to import content of workspace, using "System View XML Mapping", e.g. for restore
-   * data during backup. <br/> Assumes that root node of the workspace was already created,
-   * initialized and given as parent. <br/> If <b>system</b> workspace initialized from a scratch it
-   * will already contains root (/) and /jcr:system nodes, namespaces and nodetypes were registered.
+   * data during backup. <br/>
+   * Assumes that root node of the workspace was already created, initialized and given as parent. <br/>
+   * If <b>system</b> workspace initialized from a scratch it will already contains root (/) and
+   * /jcr:system nodes, namespaces and nodetypes were registered.
    * 
    * @param parent
    *          , should not be null

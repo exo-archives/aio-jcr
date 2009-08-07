@@ -39,14 +39,13 @@ import org.exoplatform.management.annotations.ManagedDescription;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: WorkspaceContainer.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 @Managed
-@NameTemplate({
-  @Property(key="container", value="workspace"),
-  @Property(key="name", value="{Name}")})
-@NamingContext(@Property(key="workspace", value="{Name}"))
+@NameTemplate( { @Property(key = "container", value = "workspace"),
+    @Property(key = "name", value = "{Name}") })
+@NamingContext(@Property(key = "workspace", value = "{Name}"))
 public class WorkspaceContainer extends ExoContainer {
 
   protected static Log              log = ExoLogger.getLogger("jcr.WorkspaceContainer");

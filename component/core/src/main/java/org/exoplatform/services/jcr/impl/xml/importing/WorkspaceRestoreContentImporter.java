@@ -42,7 +42,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: WorkspaceRestoreContentImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public class WorkspaceRestoreContentImporter extends WorkspaceContentImporter {
 
@@ -50,7 +50,8 @@ public class WorkspaceRestoreContentImporter extends WorkspaceContentImporter {
 
   /**
    * Class used to import content of workspace, using "System View XML Mapping", e.g. for restore
-   * data during backup. <br/> Assumes that there is not root, i.e. workspace not initialized.
+   * data during backup. <br/>
+   * Assumes that there is not root, i.e. workspace not initialized.
    * 
    * @param dataConsumer
    * @param ntManager

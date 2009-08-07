@@ -42,7 +42,7 @@ import javax.jcr.version.VersionIterator;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: EntityCollection.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class EntityCollection implements NodeIterator, PropertyIterator, NodeTypeIterator,
@@ -108,8 +108,10 @@ public class EntityCollection implements NodeIterator, PropertyIterator, NodeTyp
   /**
    * Returns the current position within the iterator. The number returned is the 0-based index of
    * the next element in the iterator, i.e. the one that will be returned on the subsequent
-   * <code>next</code> call. <p/> Note that this method does not check if there is a next element,
-   * i.e. an empty iterator will always return 0.
+   * <code>next</code> call.
+   * <p/>
+   * Note that this method does not check if there is a next element, i.e. an empty iterator will
+   * always return 0.
    * 
    * @return a long
    */

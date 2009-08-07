@@ -40,19 +40,19 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
- * Created by The eXo Platform SAS.<br/> Bindable implementation of Repository - ready to bind to
- * Naming Context
+ * Created by The eXo Platform SAS.<br/>
+ * Bindable implementation of Repository - ready to bind to Naming Context
  * 
  * @see BindableRepositoryFactory
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
- * @version $Id: BindableRepositoryImpl.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id$
  */
 
 public class BindableRepositoryImpl implements Serializable, Referenceable, ManageableRepository {
 
   private transient ManageableRepository delegatee = null;
-  
-    /**
+
+  /**
    * @param rep
    *          real repository impl
    */
@@ -207,7 +207,7 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   public WorkspaceContainerFacade getWorkspaceContainer(String workspaceName) {
     return delegatee.getWorkspaceContainer(workspaceName);
   }
-  
+
   public int getState() {
     return delegatee.getState();
   }
@@ -216,6 +216,4 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
     delegatee.setState(state);
   }
 
- 
-  
 }

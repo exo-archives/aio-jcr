@@ -64,7 +64,7 @@ import org.exoplatform.services.log.ExoLogger;
  * timezone
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JCRDateFormat.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class JCRDateFormat {
 

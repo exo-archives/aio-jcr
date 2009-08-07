@@ -33,7 +33,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ImportNodeData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ImportNodeData extends TransientNodeData implements ImportItemData {
   /**
@@ -217,21 +217,24 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param baseVersionIdentifier the baseVersionIdentifier to set
+   * @param baseVersionIdentifier
+   *          the baseVersionIdentifier to set
    */
   public void setBaseVersionIdentifier(String baseVersionIdentifier) {
     this.baseVersionIdentifier = baseVersionIdentifier;
   }
 
   /**
-   * @param isContainsVersionhistory the isContainsVersionhistory to set
+   * @param isContainsVersionhistory
+   *          the isContainsVersionhistory to set
    */
   public void setContainsVersionhistory(boolean isContainsVersionhistory) {
     this.isContainsVersionhistory = isContainsVersionhistory;
   }
 
   /**
-   * @param exoOwner the exoOwner to set
+   * @param exoOwner
+   *          the exoOwner to set
    */
   public void setExoOwner(String exoOwner) {
     this.exoOwner = exoOwner;
@@ -245,7 +248,8 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param exoPrivileges the exoPrivileges to set
+   * @param exoPrivileges
+   *          the exoPrivileges to set
    */
   public void setExoPrivileges(List<String> exoPrivileges) {
     this.exoPrivileges = exoPrivileges;
@@ -260,14 +264,16 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param isMixReferenceable the isMixReferenceable to set
+   * @param isMixReferenceable
+   *          the isMixReferenceable to set
    */
   public void setMixReferenceable(boolean isMixReferenceable) {
     this.isMixReferenceable = isMixReferenceable;
   }
 
   /**
-   * @param isMixVersionable the isMixVersionable to set
+   * @param isMixVersionable
+   *          the isMixVersionable to set
    */
   public void setMixVersionable(boolean isMixVersionable) {
     this.isMixVersionable = isMixVersionable;
@@ -300,7 +306,8 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param versionHistoryIdentifier the versionHistoryIdentifier to set
+   * @param versionHistoryIdentifier
+   *          the versionHistoryIdentifier to set
    */
   public void setVersionHistoryIdentifier(String versionHistoryIdentifier) {
     this.versionHistoryIdentifier = versionHistoryIdentifier;

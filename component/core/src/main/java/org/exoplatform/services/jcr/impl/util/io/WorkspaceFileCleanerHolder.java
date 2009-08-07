@@ -17,10 +17,11 @@
 package org.exoplatform.services.jcr.impl.util.io;
 
 /**
- * Created by The eXo Platform SAS. <br/> per workspace container file cleaner holder object
+ * Created by The eXo Platform SAS. <br/>
+ * per workspace container file cleaner holder object
  * 
  * @author Gennady Azarenkov
- * @version $Id: WorkspaceFileCleanerHolder.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class WorkspaceFileCleanerHolder {

@@ -33,7 +33,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: RawDataImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public interface RawDataImporter {
 

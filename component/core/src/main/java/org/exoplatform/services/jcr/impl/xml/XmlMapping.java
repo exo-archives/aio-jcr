@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.impl.xml;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: XmlMapping.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public enum XmlMapping {
   /**

@@ -43,7 +43,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS. Helper class for removing version history.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class VersionHistoryRemover {
   /**

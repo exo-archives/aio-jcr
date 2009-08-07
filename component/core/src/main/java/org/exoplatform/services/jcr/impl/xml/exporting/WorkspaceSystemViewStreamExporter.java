@@ -40,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceSystemViewStreamExporter.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id$
  */
 public class WorkspaceSystemViewStreamExporter extends SystemViewStreamExporter {
   /**

@@ -50,7 +50,7 @@ import org.exoplatform.services.security.ConversationState;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: StreamImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public class StreamImporter implements RawDataImporter {
 

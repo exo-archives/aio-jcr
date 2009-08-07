@@ -72,7 +72,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: DocumentViewImporter.java 14221 2008-05-14 08:27:41Z ksm $
+ * @version $Id$
  */
 public class DocumentViewImporter extends BaseXmlImporter {
   /**
@@ -93,10 +93,12 @@ public class DocumentViewImporter extends BaseXmlImporter {
   /**
    * Document view importer.
    * 
-   * @param parent - parent node
+   * @param parent
+   *          - parent node
    * @param uuidBehavior
    * @param saveType
-   * @param respectPropertyDefinitionsConstraints sdf;gkjwpeoirjtg
+   * @param respectPropertyDefinitionsConstraints
+   *          sdf;gkjwpeoirjtg
    */
   public DocumentViewImporter(NodeData parent,
                               QPath ancestorToSave,
@@ -371,10 +373,10 @@ public class DocumentViewImporter extends BaseXmlImporter {
     }
 
     nodeData.setACL(initAcl(parentNodeData.getACL(),
-                               nodeData.isExoOwneable(),
-                               nodeData.isExoPrivilegeable(),
-                               nodeData.getExoOwner(),
-                               nodeData.getExoPrivileges()));
+                            nodeData.isExoOwneable(),
+                            nodeData.isExoPrivilegeable(),
+                            nodeData.getExoOwner(),
+                            nodeData.getExoPrivileges()));
 
     if (nodeData.isMixVersionable()) {
       createVersionHistory(nodeData);

@@ -37,7 +37,7 @@ import org.exoplatform.services.security.ConversationState;
  * The main purpose of class is determinate of import document type
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: NeutralImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public class NeutralImporter extends BaseXmlImporter {
 

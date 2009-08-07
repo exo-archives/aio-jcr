@@ -52,7 +52,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: RepositoryServiceImpl.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id$
  */
 
 public class RepositoryServiceImpl implements RepositoryService, Startable {
@@ -140,7 +140,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
     addNamespaces(rEntry.getName());
     registerNodeTypes(rEntry.getName());
-    
+
     // turn on Repository ONLINE
     ManageableRepository mr = (ManageableRepository) repositoryContainer.getComponentInstanceOfType(ManageableRepository.class);
     mr.setState(ManageableRepository.ONLINE);

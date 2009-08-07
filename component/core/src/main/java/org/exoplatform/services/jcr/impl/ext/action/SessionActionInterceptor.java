@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: SessionActionInterceptor.java 11908 2008-03-13 16:00:12Z ksm $
+ * @version $Id$
  */
 
 public class SessionActionInterceptor {

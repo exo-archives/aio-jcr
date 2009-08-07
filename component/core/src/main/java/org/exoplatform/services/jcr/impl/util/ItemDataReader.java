@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
  * ItemData bulk reader (base class).
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataReader.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public abstract class ItemDataReader {
 
