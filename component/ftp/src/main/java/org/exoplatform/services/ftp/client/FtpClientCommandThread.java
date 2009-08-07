@@ -19,7 +19,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class FtpClientCommandThread extends Thread {
@@ -35,18 +35,20 @@ public class FtpClientCommandThread extends Thread {
 
   public void run() {
 
-    String portalContainerName = clientSession.getFtpServer().getConfiguration().getPortalContainerName();
+    String portalContainerName = clientSession.getFtpServer()
+                                              .getConfiguration()
+                                              .getPortalContainerName();
 
-    ExoContainer container = ExoContainerContext.getContainerByName(portalContainerName);                                                              
-    if (container == null) {                                                                                                                           
-      if (log.isDebugEnabled()) {                                                                                                                      
-        log.debug("Container " + portalContainerName + " not found.");                                                                                 
-      }                                                                                                                                                
-      container = ExoContainerContext.getTopContainer();                                                                                               
-    }     
-    
-    ExoContainerContext.setCurrentContainer(container); 
-    
+    ExoContainer container = ExoContainerContext.getContainerByName(portalContainerName);
+    if (container == null) {
+      if (log.isDebugEnabled()) {
+        log.debug("Container " + portalContainerName + " not found.");
+      }
+      container = ExoContainerContext.getTopContainer();
+    }
+
+    ExoContainerContext.setCurrentContainer(container);
+
     while (true) {
       try {
         String command = readLine();
@@ -97,8 +99,8 @@ public class FtpClientCommandThread extends Thread {
     } catch (Exception exc) {
       log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
-    
-    ExoContainerContext.setCurrentContainer(null);     
+
+    ExoContainerContext.setCurrentContainer(null);
 
   }
 

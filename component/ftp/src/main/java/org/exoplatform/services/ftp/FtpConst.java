@@ -19,7 +19,7 @@ package org.exoplatform.services.ftp;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>.
  * 
- * @version $Id: $
+ * @version $Id$
  */
 public class FtpConst {
 
@@ -46,7 +46,7 @@ public class FtpConst {
   /**
    * eXoPlatform Logo.
    */
-  public static final String[] EXO_LOGO                    = { "220- ",
+  public static final String[] EXO_LOGO                   = { "220- ",
       "              _/_/_/_/  *** eXo Platform JCR FTP Server        _/_/_/_/",
       "            _/                                                      _/",
       "           _/                          _/                          _/",
@@ -64,7 +64,7 @@ public class FtpConst {
   /**
    * Help info.
    */
-  public static final String[] EXO_HELP_INFO                = {
+  public static final String[] EXO_HELP_INFO              = {
       "214-The following commands are recognized:", "",
       "             _/_/_/_/  *** eXo Platform JCR FTP Server               _/_/_/_/",
       "            _/                                                            _/ ",
@@ -85,7 +85,7 @@ public class FtpConst {
    * Supported encodings.
    */
   public class Encoding {
-    
+
     /**
      * Windows NT encoding.
      */
@@ -101,7 +101,6 @@ public class FtpConst {
      */
     public static final String UNIX_L8    = "UNIX Type: L8";
   }
-
 
   /**
    * Command name constants.
@@ -242,7 +241,7 @@ public class FtpConst {
    * Reply messages.
    */
   public class Replyes {
-    
+
     /**
      * REPLY 125 - Data connection opened.
      */
@@ -408,7 +407,7 @@ public class FtpConst {
    * Supported OS types.
    */
   public class SystemTypes {
-    
+
     /**
      * Windows NT type.
      */
@@ -424,7 +423,7 @@ public class FtpConst {
    * Node types.
    */
   public class NodeTypes {
-    
+
     /**
      * nt:folder.
      */

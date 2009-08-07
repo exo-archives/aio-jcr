@@ -1,6 +1,5 @@
 package org.exoplatform.services.ftp;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,7 +29,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: BaseStandaloneTest.java 12004 2007-01-17 12:03:57Z geaz $
+ * @version $Id$
  */
 public abstract class BaseStandaloneTest extends TestCase {
 
@@ -66,7 +65,7 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   public void setUp() throws Exception {
-    
+
     String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml")
                                      .toString();
     String loginConf = Thread.currentThread()
@@ -122,7 +121,7 @@ public abstract class BaseStandaloneTest extends TestCase {
 
     super.tearDown();
   }
-  
+
   // ====== utils =======
 
   protected void checkItemsExisted(String[] exists, String[] notExists) throws RepositoryException {

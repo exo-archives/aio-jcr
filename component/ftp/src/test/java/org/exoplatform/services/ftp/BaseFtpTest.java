@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public abstract class BaseFtpTest extends BaseStandaloneTest {
 
@@ -175,7 +175,8 @@ public abstract class BaseFtpTest extends BaseStandaloneTest {
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     byte[] buff = new byte[1024];
-    InputStream input = null;;
+    InputStream input = null;
+    ;
     try {
       input = dataConn.getInputStream();
       int bytes = -1;
@@ -186,12 +187,12 @@ public abstract class BaseFtpTest extends BaseStandaloneTest {
         input.close();
       }
     }
-    
+
     response = readResponse();
     dataConn.close();
 
     assertTrue(response.startsWith("226 "));
-    
+
     return output.toByteArray();
   }
 
@@ -229,5 +230,5 @@ public abstract class BaseFtpTest extends BaseStandaloneTest {
     return Character.isDigit(line.charAt(0)) && Character.isDigit(line.charAt(1))
         && Character.isDigit(line.charAt(2)) && line.charAt(3) == ' ';
   }
-  
+
 }

@@ -25,7 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>.
  * 
- * @version $Id: $
+ * @version $Id$
  */
 public class FtpConfigImpl implements FtpConfig {
 
@@ -91,8 +91,7 @@ public class FtpConfigImpl implements FtpConfig {
    * "timeout".
    */
   public static final String INIT_PARAM_TIME_OUT             = "timeout";
-  
-  
+
   /**
    * Portal container name.
    */
@@ -177,7 +176,7 @@ public class FtpConfigImpl implements FtpConfig {
    * Is enable trace.
    */
   protected boolean          ENABLE_TRACE                    = true;
-  
+
   /**
    * Container name.
    */
@@ -252,7 +251,7 @@ public class FtpConfigImpl implements FtpConfig {
       _needTimeOut = true;
       _timeOutValue = new Integer(pTimeOut.getValue());
     }
-    
+
     ValueParam pPortalContainerName = params.getValueParam(PORTAL_CONTAINER_NAME);
     portalContainerName = pPortalContainerName != null ? pPortalContainerName.getValue() : "portal";
 
@@ -344,7 +343,7 @@ public class FtpConfigImpl implements FtpConfig {
   public int getTimeOut() {
     return _timeOutValue;
   }
-  
+
   public String getPortalContainerName() {
     return portalContainerName;
   }

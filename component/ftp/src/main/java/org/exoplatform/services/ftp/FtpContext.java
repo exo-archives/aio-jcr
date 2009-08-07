@@ -22,7 +22,7 @@ import org.exoplatform.services.ftp.client.FtpClientSession;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class FtpContext extends ContextBase {
