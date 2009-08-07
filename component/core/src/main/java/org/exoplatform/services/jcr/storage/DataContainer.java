@@ -22,7 +22,7 @@ package org.exoplatform.services.jcr.storage;
  * Abstract jcr data storage
  * 
  * @author Gennady Azarenkov
- * @version $Id: DataContainer.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public abstract interface DataContainer {

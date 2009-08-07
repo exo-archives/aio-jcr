@@ -22,7 +22,7 @@ import javax.jcr.observation.EventListener;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: ThrowableEventListener.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public abstract class ThrowableEventListener implements EventListener {

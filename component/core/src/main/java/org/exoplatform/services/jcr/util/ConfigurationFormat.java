@@ -25,7 +25,8 @@ import org.exoplatform.services.log.ExoLogger;
  * 
  * Date: 18.06.2008
  * 
- * <br/> For use with JiBX binding in eXo configuration.
+ * <br/>
+ * For use with JiBX binding in eXo configuration.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

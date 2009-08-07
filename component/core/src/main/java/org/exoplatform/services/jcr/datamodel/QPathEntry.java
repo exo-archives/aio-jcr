@@ -58,10 +58,11 @@ public class QPathEntry extends InternalQName implements Comparable<QPathEntry> 
   }
 
   /**
-   * Parse QPath entry in form of eXo-JCR names conversion string
-   * <br/><code>[name_space]item_name:item_index</code>.
+   * Parse QPath entry in form of eXo-JCR names conversion string <br/>
+   * <code>[name_space]item_name:item_index</code>.
    * 
-   * <br/> E.g. <code>[http://www.jcp.org/jcr/nt/1.0]system:1</code>.
+   * <br/>
+   * E.g. <code>[http://www.jcp.org/jcr/nt/1.0]system:1</code>.
    * 
    * @param qEntry
    *          - String to be parsed

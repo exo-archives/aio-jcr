@@ -30,7 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: QPath.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class QPath implements Comparable<QPath> {
@@ -38,7 +38,7 @@ public class QPath implements Comparable<QPath> {
   /**
    * Logger.
    */
-  protected static final Log       LOG              = ExoLogger.getLogger("jcr.QPath");
+  protected static final Log LOG              = ExoLogger.getLogger("jcr.QPath");
 
   /**
    * QPath prefix delimiter.
@@ -58,11 +58,11 @@ public class QPath implements Comparable<QPath> {
   /**
    * String representation of the path.
    */
-  private String             stringName;                                                     
+  private String             stringName;
 
   /**
-   * QPath  constructor.
-   *
+   * QPath constructor.
+   * 
    * @param names
    */
   public QPath(QPathEntry[] names) {
@@ -79,8 +79,8 @@ public class QPath implements Comparable<QPath> {
 
   /**
    * Tell if the path is absolute.
-   *
-   * @return boolean 
+   * 
+   * @return boolean
    */
   public boolean isAbsolute() {
     if (names[0].getIndex() == 1 && names[0].getName().length() == 0
@@ -456,7 +456,8 @@ public class QPath implements Comparable<QPath> {
    * Will replace <code>makeChildPath(final QPath parent, final InternalQName name)</code> for cases
    * when path entry already exists.
    * 
-   * <br/> NOTE: it's important for same-name-siblings Items too.
+   * <br/>
+   * NOTE: it's important for same-name-siblings Items too.
    * 
    * @param parent
    *          - parent QPath
@@ -482,10 +483,12 @@ public class QPath implements Comparable<QPath> {
 
   /**
    * Parse textual path entry.
-   *
-   * @param entry - String text
+   * 
+   * @param entry
+   *          - String text
    * @return QPathEntry
-   * @throws IllegalPathException if text is not a valid entry
+   * @throws IllegalPathException
+   *           if text is not a valid entry
    */
   private static QPathEntry parseEntry(final String entry) throws IllegalPathException {
 

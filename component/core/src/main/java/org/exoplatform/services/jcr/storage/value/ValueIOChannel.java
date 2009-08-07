@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: ValueIOChannel.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 
 public interface ValueIOChannel {

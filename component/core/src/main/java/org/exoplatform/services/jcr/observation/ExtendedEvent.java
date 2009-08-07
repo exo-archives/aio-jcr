@@ -22,7 +22,7 @@ import javax.jcr.observation.Event;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ExtendedEvent.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface ExtendedEvent extends Event {

@@ -24,11 +24,12 @@ import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 
 /**
- * Created by The eXo Platform SAS.<br/> The repository service
+ * Created by The eXo Platform SAS.<br/>
+ * The repository service
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @author <a href="mailto:benjamin.mestrallet@exoplatform.com">Benjamin Mestrallet</a>
- * @version $Id: RepositoryService.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public interface RepositoryService {
 

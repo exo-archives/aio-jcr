@@ -29,10 +29,15 @@ public class StringNumberParser {
   /**
    * Parse given text as long. <br/>
    * 
-   * <br/>E.g. '2k' will be returned as 2048 number.
+   * <br/>
+   * E.g. '2k' will be returned as 2048 number.
    * 
-   * <br/>Next formats are supported (case insensitive): <br/>kilobytes - k,kb <br/>megabytes - m,mb
-   * <br/>gigabytes - g,gb <br/>terabytes - t,tb
+   * <br/>
+   * Next formats are supported (case insensitive): <br/>
+   * kilobytes - k,kb <br/>
+   * megabytes - m,mb <br/>
+   * gigabytes - g,gb <br/>
+   * terabytes - t,tb
    * 
    * @param numberText
    * @return
@@ -45,10 +50,15 @@ public class StringNumberParser {
   /**
    * Parse given text as int. <br/>
    * 
-   * <br/>E.g. '2k' will be returned as 2048 number.
+   * <br/>
+   * E.g. '2k' will be returned as 2048 number.
    * 
-   * <br/>Next formats are supported (case insensitive): <br/>kilobytes - k,kb <br/>megabytes - m,mb
-   * <br/>gigabytes - g,gb <br/>terabytes - t,tb
+   * <br/>
+   * Next formats are supported (case insensitive): <br/>
+   * kilobytes - k,kb <br/>
+   * megabytes - m,mb <br/>
+   * gigabytes - g,gb <br/>
+   * terabytes - t,tb
    * 
    * @param numberText
    * @return
@@ -61,12 +71,18 @@ public class StringNumberParser {
   /**
    * Parse given text as double. <br/>
    * 
-   * <br/>E.g. '2k' will be returned as 2048 number.
+   * <br/>
+   * E.g. '2k' will be returned as 2048 number.
    * 
-   * <br/>Next formats are supported (case insensitive): <br/>kilobytes - k,kb <br/>megabytes - m,mb
-   * <br/>gigabytes - g,gb <br/>terabytes - t,tb
+   * <br/>
+   * Next formats are supported (case insensitive): <br/>
+   * kilobytes - k,kb <br/>
+   * megabytes - m,mb <br/>
+   * gigabytes - g,gb <br/>
+   * terabytes - t,tb
    * 
-   * <br/>NOTE: floating point supported, e.g. 1.5m = 1.5 * 1024 * 1024
+   * <br/>
+   * NOTE: floating point supported, e.g. 1.5m = 1.5 * 1024 * 1024
    * 
    * @param doubleText
    * @return
@@ -79,13 +95,19 @@ public class StringNumberParser {
   /**
    * Parse given text as number representation. <br/>
    * 
-   * <br/>E.g. '2k' will be returned as 2048 number.
+   * <br/>
+   * E.g. '2k' will be returned as 2048 number.
    * 
-   * <br/>Next formats are supported (case insensitive): <br/>kilobytes - k,kb <br/>megabytes - m,mb
-   * <br/>gigabytes - g,gb <br/>terabytes - t,tb
+   * <br/>
+   * Next formats are supported (case insensitive): <br/>
+   * kilobytes - k,kb <br/>
+   * megabytes - m,mb <br/>
+   * gigabytes - g,gb <br/>
+   * terabytes - t,tb
    * 
-   * <br/>NOTE: floating point supported, e.g. 1.5m = 1.5 * 1024 * 1024, <br/>WARN: floating point
-   * delimiter depends on OS settings
+   * <br/>
+   * NOTE: floating point supported, e.g. 1.5m = 1.5 * 1024 * 1024, <br/>
+   * WARN: floating point delimiter depends on OS settings
    * 
    * @param numberText
    * @return
@@ -119,11 +141,18 @@ public class StringNumberParser {
   }
 
   /**
-   * Parse given text as formated time and return a time in milliseconds. <br/> <br/>Formats
-   * supported: <br/>milliseconds - ms <br/>seconds - without sufix <br/>minutes - m <br/>hours - h
-   * <br/>days - d <br/>weeks - w
+   * Parse given text as formated time and return a time in milliseconds. <br/>
+   * <br/>
+   * Formats supported: <br/>
+   * milliseconds - ms <br/>
+   * seconds - without sufix <br/>
+   * minutes - m <br/>
+   * hours - h <br/>
+   * days - d <br/>
+   * weeks - w
    * 
-   * <br/>TODO handle strings like 2d+4h, 2h+30m+15s+500 etc.
+   * <br/>
+   * TODO handle strings like 2d+4h, 2h+30m+15s+500 etc.
    * 
    * @param timeText
    *          - String

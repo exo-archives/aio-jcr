@@ -41,7 +41,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * thread-safe object and normally SHOULD NOT be pooled/cached.
  * 
  * @author Gennady Azarenkov
- * @version $Id: WorkspaceStorageConnection.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface WorkspaceStorageConnection {
@@ -249,7 +249,7 @@ public interface WorkspaceStorageConnection {
    *           if some exception occured
    */
   void rollback() throws IllegalStateException, RepositoryException;
-  
+
   /**
    * Close connection.
    * 

@@ -27,7 +27,7 @@ import javax.jcr.RepositoryException;
  * objects, the implementation should support thread safety for openConnection() method;
  * 
  * @author Gennady Azarenkov
- * @version $Id: WorkspaceDataContainer.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public interface WorkspaceDataContainer extends DataContainer {

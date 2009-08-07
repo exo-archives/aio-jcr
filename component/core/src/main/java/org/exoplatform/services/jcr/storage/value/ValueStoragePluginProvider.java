@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
  * Created by The eXo Platform SAS 04.09.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ValueStoragePluginProvider.java 12843 2007-02-16 09:11:18Z peterit $
+ * @version $Id$
  */
 public interface ValueStoragePluginProvider {
 
