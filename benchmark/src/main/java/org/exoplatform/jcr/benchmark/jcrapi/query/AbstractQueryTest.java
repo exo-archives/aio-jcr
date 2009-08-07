@@ -18,7 +18,7 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: AbstractQueryTest.java 12446 2008-03-28 08:28:14Z pnedonosko $
+ * @version $Id$
  */
 
 public abstract class AbstractQueryTest extends JCRTestBase {

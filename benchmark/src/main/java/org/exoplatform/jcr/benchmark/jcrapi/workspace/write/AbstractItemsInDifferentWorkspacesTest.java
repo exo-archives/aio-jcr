@@ -28,7 +28,7 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: AbstractItemsTest.java 12432 2008-03-27 15:25:10Z pnedonosko $
+ * @version $Id$
  */
 
 public abstract class AbstractItemsInDifferentWorkspacesTest extends JCRTestBase {

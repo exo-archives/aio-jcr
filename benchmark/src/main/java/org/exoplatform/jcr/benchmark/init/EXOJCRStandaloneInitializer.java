@@ -26,7 +26,7 @@ import com.sun.japex.Params;
  * Standalone eXo Container
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class EXOJCRStandaloneInitializer extends JCRInitializer {

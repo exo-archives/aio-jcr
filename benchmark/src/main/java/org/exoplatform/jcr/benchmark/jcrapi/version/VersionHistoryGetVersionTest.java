@@ -12,7 +12,7 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: VersionHistoryGetVersionTest.java 13537 2008-04-22 08:22:36Z vetalok $
+ * @version $Id$
  */
 
 public class VersionHistoryGetVersionTest extends AbstractGetVersionTest {

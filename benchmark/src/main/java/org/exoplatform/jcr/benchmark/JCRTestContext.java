@@ -25,7 +25,7 @@ import javax.jcr.Session;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public final class JCRTestContext extends HashMap<String, Object> {

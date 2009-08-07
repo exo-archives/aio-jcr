@@ -58,7 +58,7 @@ public class NodeGetNodeWithPropertiesTest extends AbstractGetItemNameTest {
     // runIterations count. Each generated node name add to array list. Later
     // names can be accessed by calling nextName() method.
     Node node = parent.addNode(context.generateUniqueName("parentNode"));
-    addName(parent.getName()+"/"+node.getName());
+    addName(parent.getName() + "/" + node.getName());
 
     // when string and binary values ready and super.doPrepare() is invoked node
     // generation is started. This method createContent(..) is invoked each time
@@ -67,10 +67,10 @@ public class NodeGetNodeWithPropertiesTest extends AbstractGetItemNameTest {
     node.setProperty("stringProperty", stringValue, PropertyType.STRING);
     // setting binary property
     node.setProperty("binaryProperty",
-                       context.getSession()
-                              .getValueFactory()
-                              .createValue(new ByteArrayInputStream(binaryValue)),
-                       PropertyType.BINARY);
+                     context.getSession()
+                            .getValueFactory()
+                            .createValue(new ByteArrayInputStream(binaryValue)),
+                     PropertyType.BINARY);
   }
 
   @Override

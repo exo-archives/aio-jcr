@@ -34,7 +34,7 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class JCRDriver extends JapexDriverBase {

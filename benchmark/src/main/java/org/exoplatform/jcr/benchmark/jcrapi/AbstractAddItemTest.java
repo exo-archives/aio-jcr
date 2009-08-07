@@ -21,7 +21,7 @@ import com.sun.japex.TestCase;
  * 
  * @author Vitaliy Obmanyuk
  * 
- * @version $Id: AbstractAddItemTest.java 13537 2008-04-22 08:22:36Z vetalok $
+ * @version $Id$
  */
 
 public abstract class AbstractAddItemTest extends JCRTestBase {

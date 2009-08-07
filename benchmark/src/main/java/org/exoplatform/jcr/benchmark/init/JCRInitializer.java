@@ -25,7 +25,7 @@ import com.sun.japex.Params;
  * initialization
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public abstract class JCRInitializer {

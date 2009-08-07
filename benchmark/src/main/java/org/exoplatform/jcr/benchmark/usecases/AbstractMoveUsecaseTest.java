@@ -35,7 +35,8 @@ import com.sun.japex.TestCase;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 11.09.2008
+ * <br/>
+ * Date: 11.09.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -59,7 +60,7 @@ public abstract class AbstractMoveUsecaseTest extends JCRTestBase {
 
     long start = System.currentTimeMillis();
 
-    rootNode = context.getSession().getRootNode(); //.addNode(context.generateUniqueName("moveTest")
+    rootNode = context.getSession().getRootNode(); // .addNode(context.generateUniqueName("moveTest")
     // )
     context.getSession().save();
 

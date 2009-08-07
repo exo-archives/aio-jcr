@@ -15,7 +15,7 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: CheckoutTest.java 12320 2008-03-24 16:32:41Z pnedonosko $
+ * @version $Id$
  */
 
 public class NodeCheckoutTest extends AbstractGetItemTest {

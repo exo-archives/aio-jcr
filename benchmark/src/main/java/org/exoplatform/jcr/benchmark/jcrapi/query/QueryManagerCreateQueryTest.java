@@ -28,7 +28,7 @@ import com.sun.japex.TestCase;
  * Date: 28.03.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: QueryManagerCreateQueryTest.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class QueryManagerCreateQueryTest extends AbstractQueryTest {
 

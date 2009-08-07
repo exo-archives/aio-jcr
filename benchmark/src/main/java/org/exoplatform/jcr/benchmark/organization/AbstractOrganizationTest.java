@@ -32,23 +32,23 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id: AbstractOrganizationTest.java 111 2008-11-11 11:11:11Z $
+ * @version $Id$
  */
 public abstract class AbstractOrganizationTest extends JCRTestBase {
 
-  protected StandaloneContainer     container;
+  protected StandaloneContainer   container;
 
-  protected OrganizationService organizationService;
+  protected OrganizationService   organizationService;
 
-  protected GroupHandler            gHandler;
+  protected GroupHandler          gHandler;
 
-  protected MembershipTypeHandler   mtHandler;
+  protected MembershipTypeHandler mtHandler;
 
-  protected MembershipHandler       mHandler;
+  protected MembershipHandler     mHandler;
 
-  protected UserHandler             uHandler;
+  protected UserHandler           uHandler;
 
-  protected UserProfileHandler      upHandler;
+  protected UserProfileHandler    upHandler;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
