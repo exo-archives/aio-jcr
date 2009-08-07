@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: TestJcrSystemPropertyAmongSessions.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  * 
  *          Items under /jcr:system
  */

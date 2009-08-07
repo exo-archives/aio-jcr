@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
  * 
  * See http://jira.exoplatform.org/browse/JCR-340
  * 
- * @version $Id: RemoveSameNameSiblingTest.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
 

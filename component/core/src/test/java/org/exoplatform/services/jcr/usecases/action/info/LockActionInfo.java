@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: LockActionInfo.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class LockActionInfo extends ActionInfo {
 

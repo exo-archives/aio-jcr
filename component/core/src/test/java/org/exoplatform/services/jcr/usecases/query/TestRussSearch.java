@@ -33,42 +33,42 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * 
+ * @version $Id$
  */
 
 public class TestRussSearch extends BaseUsecasesTest {
-  
+
   private static String[] input;
-    
+
   public void testQuery() throws Exception {
-    
+
     File file = new File("src/test/resources/russ.txt");
     assertTrue("/test/resources/ArabicUTF8.txt not found", file.exists());
 
     FileInputStream is = new FileInputStream(file);
 
-    //Create nodes
+    // Create nodes
     Session session = repository.getSystemSession(repository.getSystemWorkspaceName());
-    
-    Node n = session.getRootNode().addNode("test_node","nt:file");
-    Node content = n.addNode("jcr:content","nt:resource");
+
+    Node n = session.getRootNode().addNode("test_node", "nt:file");
+    Node content = n.addNode("jcr:content", "nt:resource");
     content.setProperty("jcr:data", is);
     content.setProperty("jcr:encoding", "cp1251");
     content.setProperty("jcr:lastModified", Calendar.getInstance());
-    content.setProperty("jcr:mimeType", "text/plain");    
+    content.setProperty("jcr:mimeType", "text/plain");
     session.save();
-    
-    String sqlQuery = "select * from nt:resource where CONTAINS(., '\u0442\u0435\u0441\u0442')"; 
+
+    String sqlQuery = "select * from nt:resource where CONTAINS(., '\u0442\u0435\u0441\u0442')";
 
     QueryManager manager = session.getWorkspace().getQueryManager();
-    Query query = manager.createQuery(sqlQuery,Query.SQL) ;
-    QueryResult queryResult = query.execute() ;
-    NodeIterator iter = queryResult.getNodes() ;
-      
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+    QueryResult queryResult = query.execute();
+    NodeIterator iter = queryResult.getNodes();
+
     assertEquals(1, iter.getSize());
-    
-    assertEquals("jcr:content",iter.nextNode().getName());
+
+    assertEquals("jcr:content", iter.nextNode().getName());
   }
-  }
+}

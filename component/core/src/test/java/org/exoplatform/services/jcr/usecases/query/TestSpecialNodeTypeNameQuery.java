@@ -26,51 +26,49 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SAS Author : Do Ngoc Anh anh.do@exoplatform.com
- * anhdn86@gmail.com Dec 8, 2008
+ * Created by The eXo Platform SAS Author : Do Ngoc Anh anh.do@exoplatform.com anhdn86@gmail.com Dec
+ * 8, 2008
  */
 public class TestSpecialNodeTypeNameQuery extends BaseUsecasesTest {
 
-	public void testOnSpecialNodeType() throws Exception {
-		Session session = repository.getSystemSession(repository
-				.getSystemWorkspaceName());
-		Node root = session.getRootNode();
-		Node test = root.addNode("test", "nt:unstructured");
-		Node articleNode = test.addNode("article", "exo:article");
-		articleNode.setProperty("exo:title", "a article");
-		articleNode.setProperty("exo:text", " text");
-		articleNode.setProperty("exo:summary", " summary");
-		session.save();
-		
-		String sqlQuery = "select * from exo:rss-enable where jcr:path like '/test/%'";
-		QueryManager manager = session.getWorkspace().getQueryManager();
-		Query query = manager.createQuery(sqlQuery, Query.SQL);
-		QueryResult result = query.execute();		
-		assertEquals(1, result.getNodes().getSize());
-		
-		test.remove();
-		session.save();
-	}
+  public void testOnSpecialNodeType() throws Exception {
+    Session session = repository.getSystemSession(repository.getSystemWorkspaceName());
+    Node root = session.getRootNode();
+    Node test = root.addNode("test", "nt:unstructured");
+    Node articleNode = test.addNode("article", "exo:article");
+    articleNode.setProperty("exo:title", "a article");
+    articleNode.setProperty("exo:text", " text");
+    articleNode.setProperty("exo:summary", " summary");
+    session.save();
 
-	public void testCombainationSearch() throws Exception {
-		Session session = repository.getSystemSession(repository
-				.getSystemWorkspaceName());
-		Node root = session.getRootNode();
-		Node test = root.addNode("test", "nt:unstructured");
-		Node articleNode = test.addNode("article", "exo:article");
-		articleNode.setProperty("exo:title", "exo");
-		articleNode.setProperty("exo:text", "sea");
-		articleNode.setProperty("exo:summary", "summary");
-		session.save();
-		
-		String sqlQuery = "select * from nt:base where jcr:primaryType='exo:article' OR jcr:mixinTypes='exo:rss-enable' AND contains(., 'exo sea')";
-		QueryManager manager = session.getWorkspace().getQueryManager();
-		Query query = manager.createQuery(sqlQuery, Query.SQL);
-		QueryResult result = query.execute();
-		NodeIterator iterator = result.getNodes();
-		assertEquals(1, iterator.getSize());
-		
-		test.remove();
-		session.save();
-	}
+    String sqlQuery = "select * from exo:rss-enable where jcr:path like '/test/%'";
+    QueryManager manager = session.getWorkspace().getQueryManager();
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+    QueryResult result = query.execute();
+    assertEquals(1, result.getNodes().getSize());
+
+    test.remove();
+    session.save();
+  }
+
+  public void testCombainationSearch() throws Exception {
+    Session session = repository.getSystemSession(repository.getSystemWorkspaceName());
+    Node root = session.getRootNode();
+    Node test = root.addNode("test", "nt:unstructured");
+    Node articleNode = test.addNode("article", "exo:article");
+    articleNode.setProperty("exo:title", "exo");
+    articleNode.setProperty("exo:text", "sea");
+    articleNode.setProperty("exo:summary", "summary");
+    session.save();
+
+    String sqlQuery = "select * from nt:base where jcr:primaryType='exo:article' OR jcr:mixinTypes='exo:rss-enable' AND contains(., 'exo sea')";
+    QueryManager manager = session.getWorkspace().getQueryManager();
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+    QueryResult result = query.execute();
+    NodeIterator iterator = result.getNodes();
+    assertEquals(1, iterator.getSize());
+
+    test.remove();
+    session.save();
+  }
 }

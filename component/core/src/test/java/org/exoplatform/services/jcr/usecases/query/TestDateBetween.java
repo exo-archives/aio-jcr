@@ -28,9 +28,8 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 20.07.2007
- * 14:05:20
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 20.07.2007 14:05:20
  * 
  * @version $Id: TestDateBetween.java 20.07.2007 14:05:20 rainfox
  */

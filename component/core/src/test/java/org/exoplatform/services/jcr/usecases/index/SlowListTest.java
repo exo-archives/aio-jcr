@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:zagrebin_v@mail.ru">Victor Zagrebin</a>
- * @version $Id: SlowListTest.java 11907 2008-03-13 15:36:21Z ksm $ The test for indexing an excel
+ * @version $Id$ The test for indexing an excel
  *          .xls file which contained within jcr:data property
  */
 

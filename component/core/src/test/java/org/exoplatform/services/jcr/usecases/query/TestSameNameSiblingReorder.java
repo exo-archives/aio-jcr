@@ -35,8 +35,9 @@ public class TestSameNameSiblingReorder extends BaseUsecasesTest {
 
   /**
    * Test Nodes reorder on Node.remove() method.
-   *
-   * @throws Exception  on error
+   * 
+   * @throws Exception
+   *           on error
    */
   public void testOrderOnDelete() throws Exception {
     Node testRoot = root.addNode("testSameNameSiblingDelete");
@@ -50,27 +51,29 @@ public class TestSameNameSiblingReorder extends BaseUsecasesTest {
     subNode_2.setProperty("jcr:lastModified", Calendar.getInstance());
 
     session.save();
-    
-    // usecase - /testSameNameSiblingDelete/resource[2] will be UPDATED to /testSameNameSiblingDelete/resource[1] 
+
+    // usecase - /testSameNameSiblingDelete/resource[2] will be UPDATED to
+    // /testSameNameSiblingDelete/resource[1]
     subNode_1.remove();
     root.save();
-    
+
     String sqlQuery = "SELECT * FROM nt:resource WHERE jcr:mimeType='text/plain'";
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
 
     QueryResult queryResult = query.execute();
     NodeIterator iterator = queryResult.getNodes();
-    assertTrue("Node expected ",  iterator.getSize() == 1);
+    assertTrue("Node expected ", iterator.getSize() == 1);
     Node node = iterator.nextNode();
     assertEquals("Wrong id ", subNode_2.getUUID(), node.getUUID());
     assertEquals("Wrong path ", subNode_2.getPath(), node.getPath());
   }
-  
+
   /**
    * Test Node reorder using Node.orderBefore() method.
-   *
-   * @throws Exception on error
+   * 
+   * @throws Exception
+   *           on error
    */
   public void testOrderBefore() throws Exception {
     Node testRoot = root.addNode("testSameNameSiblingDelete");
@@ -86,22 +89,24 @@ public class TestSameNameSiblingReorder extends BaseUsecasesTest {
     subNode_3.setProperty("jcr:data", "data 3");
     subNode_3.setProperty("jcr:mimeType", "text/xml");
     subNode_3.setProperty("jcr:lastModified", Calendar.getInstance());
-    
+
     session.save();
-    
-    // usecase - order to the end, 
-    // i.e. /testSameNameSiblingDelete/resource[2] will be UPDATED to /testSameNameSiblingDelete/resource[1] 
-    // i.e. /testSameNameSiblingDelete/resource[3] will be UPDATED to /testSameNameSiblingDelete/resource[2]
+
+    // usecase - order to the end,
+    // i.e. /testSameNameSiblingDelete/resource[2] will be UPDATED to
+    // /testSameNameSiblingDelete/resource[1]
+    // i.e. /testSameNameSiblingDelete/resource[3] will be UPDATED to
+    // /testSameNameSiblingDelete/resource[2]
     subNode_1.getParent().orderBefore("resource", null);
     root.save();
-    
+
     String sqlQuery = "SELECT * FROM nt:resource WHERE jcr:path = '/testSameNameSiblingDelete/resource[2]'";
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
 
     QueryResult queryResult = query.execute();
     NodeIterator iterator = queryResult.getNodes();
-    assertTrue("Node expected ",  iterator.getSize() == 1);
+    assertTrue("Node expected ", iterator.getSize() == 1);
     Node node2 = iterator.nextNode();
     assertEquals("Wrong id ", subNode_3.getUUID(), node2.getUUID());
     assertEquals("Wrong path ", subNode_3.getPath(), node2.getPath());

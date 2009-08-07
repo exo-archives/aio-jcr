@@ -8,7 +8,7 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 /**
  * Created by The eXo Platform SAS
  * 
- * @version $Id: RemoveVersionAfterRestoreTest.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class RemoveVersionAfterRestoreTest extends BaseUsecasesTest {

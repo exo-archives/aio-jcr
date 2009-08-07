@@ -22,7 +22,7 @@ import org.apache.commons.chain.Context;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ActionInfo.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public abstract class ActionInfo {
   public abstract int getEventType();

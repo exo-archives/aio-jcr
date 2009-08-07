@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.load.blob.TestConcurrentItems;
  * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 24.10.2006
  * 
- * @version $Id: ReadThread.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ReadThread extends UserThread {
 

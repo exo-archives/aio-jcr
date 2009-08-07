@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
  * 09.07.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestNodeGetRequiredPrimaryTypes.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestNodeGetRequiredPrimaryTypes extends BaseUsecasesTest {
 

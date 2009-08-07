@@ -24,7 +24,7 @@ import org.exoplatform.services.command.action.Action;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: DummyAction.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class DummyAction implements Action {

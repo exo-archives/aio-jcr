@@ -100,13 +100,11 @@ public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
     registerNamespace("kfx", "http://www.exoplatform.com/jcr/kfx/1.1/");
     registerNamespace("dc", "http://purl.org/dc/elements/1.1/");
 
-    InputStream xml = this.getClass()
-                          .getResourceAsStream("/conf/test/ext-nodetypes-config.xml");
+    InputStream xml = this.getClass().getResourceAsStream("/conf/test/ext-nodetypes-config.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml1 = this.getClass()
-                           .getResourceAsStream("/conf/test/nodetypes-config.xml");
+    InputStream xml1 = this.getClass().getResourceAsStream("/conf/test/nodetypes-config.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml1, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
@@ -115,8 +113,7 @@ public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml2, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml3 = this.getClass()
-                           .getResourceAsStream("/conf/test/nodetypes-ecm.xml");
+    InputStream xml3 = this.getClass().getResourceAsStream("/conf/test/nodetypes-ecm.xml");
     repositoryService.getCurrentRepository()
                      .getNodeTypeManager()
                      .registerNodeTypes(xml3, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);

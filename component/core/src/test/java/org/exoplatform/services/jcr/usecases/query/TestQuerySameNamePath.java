@@ -31,62 +31,59 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * 
+ * @version $Id$
  */
 
-public class TestQuerySameNamePath extends BaseUsecasesTest{
-  
-  
+public class TestQuerySameNamePath extends BaseUsecasesTest {
+
   public void testQueryPathElemIndex() throws Exception {
-      String nodeName = "testNodeHi";
-      try {
-        Node folder = root.addNode("Departments");
+    String nodeName = "testNodeHi";
+    try {
+      Node folder = root.addNode("Departments");
 
-        Node node = folder.addNode(nodeName, "nt:file");
-        node.addMixin("mix:lockable");
-        NodeImpl cont = (NodeImpl) node.addNode("jcr:content", "nt:resource");
-        cont.setProperty("jcr:mimeType", "text/plain");
-        cont.setProperty("jcr:lastModified", Calendar.getInstance());
-        cont.setProperty("jcr:data", "test text");
-        
+      Node node = folder.addNode(nodeName, "nt:file");
+      node.addMixin("mix:lockable");
+      NodeImpl cont = (NodeImpl) node.addNode("jcr:content", "nt:resource");
+      cont.setProperty("jcr:mimeType", "text/plain");
+      cont.setProperty("jcr:lastModified", Calendar.getInstance());
+      cont.setProperty("jcr:data", "test text");
 
-        Node snode = folder.addNode(nodeName, "nt:file");
-        NodeImpl scont = (NodeImpl) snode.addNode("jcr:content", "nt:resource");
-        scont.setProperty("jcr:mimeType", "text/plain");
-        scont.setProperty("jcr:lastModified", Calendar.getInstance());
-        scont.setProperty("jcr:data", "test text second");
-        
-        Node thirdnode = folder.addNode(nodeName, "nt:file");
-        NodeImpl thirdcont = (NodeImpl) thirdnode.addNode("jcr:content", "nt:resource");
-        thirdcont.setProperty("jcr:mimeType", "text/plain");
-        thirdcont.setProperty("jcr:lastModified", Calendar.getInstance());
-        thirdcont.setProperty("jcr:data", "test text second");
-        
-        root.save();
-        
-        String sql = "SELECT *  FROM nt:file WHERE jcr:path = '/Departments/testNodeHi[3]'";
-        
-        QueryManager manager = session.getWorkspace().getQueryManager();
-        Query query = manager.createQuery(sql, Query.SQL);
+      Node snode = folder.addNode(nodeName, "nt:file");
+      NodeImpl scont = (NodeImpl) snode.addNode("jcr:content", "nt:resource");
+      scont.setProperty("jcr:mimeType", "text/plain");
+      scont.setProperty("jcr:lastModified", Calendar.getInstance());
+      scont.setProperty("jcr:data", "test text second");
 
-        QueryResult r = query.execute();
-        NodeIterator it = r.getNodes();
+      Node thirdnode = folder.addNode(nodeName, "nt:file");
+      NodeImpl thirdcont = (NodeImpl) thirdnode.addNode("jcr:content", "nt:resource");
+      thirdcont.setProperty("jcr:mimeType", "text/plain");
+      thirdcont.setProperty("jcr:lastModified", Calendar.getInstance());
+      thirdcont.setProperty("jcr:data", "test text second");
 
-        assertEquals(1, it.getSize());
-        Node n = it.nextNode();
-        
-        assertTrue(n.isSame(thirdnode));
-        
-        
-      } catch (InvalidQueryException e) {
-        // e.printStackTrace();
-        fail(e.getMessage());
-      } catch (RepositoryException e) {
-        // e.printStackTrace();
-        fail(e.getMessage());
-      }
+      root.save();
+
+      String sql = "SELECT *  FROM nt:file WHERE jcr:path = '/Departments/testNodeHi[3]'";
+
+      QueryManager manager = session.getWorkspace().getQueryManager();
+      Query query = manager.createQuery(sql, Query.SQL);
+
+      QueryResult r = query.execute();
+      NodeIterator it = r.getNodes();
+
+      assertEquals(1, it.getSize());
+      Node n = it.nextNode();
+
+      assertTrue(n.isSame(thirdnode));
+
+    } catch (InvalidQueryException e) {
+      // e.printStackTrace();
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      // e.printStackTrace();
+      fail(e.getMessage());
     }
+  }
 
 }

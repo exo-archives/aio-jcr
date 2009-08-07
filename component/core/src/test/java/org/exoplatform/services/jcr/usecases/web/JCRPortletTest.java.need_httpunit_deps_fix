@@ -11,7 +11,7 @@ import com.meterware.httpunit.*;
 /**
  * Created by The eXo Platform SARL        .
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: JCRPortletTest.java.need_httpunit_deps_fix 11837 2008-03-11 12:48:56Z gazarenkov $
+ * @version $Id$
  *
  * JCR Use Case test sample
  */
