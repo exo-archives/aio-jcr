@@ -335,12 +335,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       if (renameNode(data) <= 0)
         throw new JCRInvalidItemStateException("(rename) Node not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.RENAMED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.RENAMED);
     } catch (IOException e) {
       if (LOG.isDebugEnabled())
         LOG.error("Property add. IO error: " + e, e);
@@ -367,12 +363,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
         throw new JCRInvalidItemStateException("(delete) Node not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.DELETED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.DELETED);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier()
@@ -407,12 +399,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
         throw new JCRInvalidItemStateException("(delete) Property not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.DELETED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.DELETED);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Property deleted "
@@ -449,12 +437,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                  data.getOrderNumber(),
                                  cid) <= 0)
         throw new JCRInvalidItemStateException("(update) Node not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.UPDATED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.UPDATED);
 
       if (LOG.isDebugEnabled())
         LOG.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getIdentifier()
@@ -482,12 +466,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       // update type
       if (updatePropertyByIdentifier(data.getPersistedVersion(), data.getType(), cid) <= 0)
         throw new JCRInvalidItemStateException("(update) Property not found "
-                                                   + data.getQPath().getAsString()
-                                                   + " "
-                                                   + data.getIdentifier()
-                                                   + ". Probably was deleted by another session ",
-                                               data.getIdentifier(),
-                                               ItemState.UPDATED);
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + ". Probably was deleted by another session ", data.getIdentifier(), ItemState.UPDATED);
 
       // update reference
       try {
@@ -537,7 +517,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       List<NodeData> childrens = new ArrayList<NodeData>();
       while (node.next())
         childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE, parent.getACL()));
-      
+
       return childrens;
     } catch (SQLException e) {
       throw new RepositoryException(e);
