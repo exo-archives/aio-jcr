@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.impl.core.query.BaseQueryTest;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: TestAggregateRules.java 11931 2008-03-14 09:29:17Z serg $
+ * @version $Id$
  */
 
 public class TestAggregateRules extends BaseQueryTest {

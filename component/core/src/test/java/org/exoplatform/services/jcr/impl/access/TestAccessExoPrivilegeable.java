@@ -29,8 +29,8 @@ import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Created by The eXo Platform SAS.<br/> Prerequisite: enable access control i.e.
- * <access-control>optional</access-control>
+ * Created by The eXo Platform SAS.<br/>
+ * Prerequisite: enable access control i.e. <access-control>optional</access-control>
  * 
  * @author Gennady Azarenkov
  * @version $Id:TestAccessExoPrivilegeable.java 12535 2007-02-02 15:39:26Z peterit $

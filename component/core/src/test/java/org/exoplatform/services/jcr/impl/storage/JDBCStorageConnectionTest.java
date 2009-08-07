@@ -47,7 +47,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistent
  * 30.01.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JDBCStorageConnectionTest.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class JDBCStorageConnectionTest extends JcrImplBaseTest {
 

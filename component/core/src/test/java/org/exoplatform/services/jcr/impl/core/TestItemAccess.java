@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.impl.tools.tree.generator.WeightNodeGenerato
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestItemAccess.java 14508 2008-05-20 10:07:45Z ksm $
+ * @version $Id$
  */
 public class TestItemAccess extends JcrImplBaseTest {
 

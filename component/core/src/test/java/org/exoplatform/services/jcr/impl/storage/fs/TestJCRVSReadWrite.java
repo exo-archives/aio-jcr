@@ -46,7 +46,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS 10.07.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestJCRVSReadWrite.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestJCRVSReadWrite extends JcrImplBaseTest {
 

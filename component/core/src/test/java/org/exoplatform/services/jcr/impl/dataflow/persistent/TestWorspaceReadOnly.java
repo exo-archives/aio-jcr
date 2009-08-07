@@ -24,7 +24,8 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 15.08.2008
+ * <br/>
+ * Date: 15.08.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestMoveNode.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestMoveNode extends JcrImplBaseTest {
   private static int FILES_COUNT = 20;

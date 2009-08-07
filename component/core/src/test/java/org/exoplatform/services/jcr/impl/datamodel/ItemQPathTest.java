@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * 08.02.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemQPathTest.java 14508 2008-05-20 10:07:45Z ksm $
+ * @version $Id$
  */
 public class ItemQPathTest extends JcrImplBaseTest {
 

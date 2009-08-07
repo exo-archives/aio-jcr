@@ -44,7 +44,7 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
  * StorageUpdateManager.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: StorageUpdateTest.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class StorageUpdateTest extends JcrImplBaseTest {
 

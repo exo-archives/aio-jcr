@@ -39,7 +39,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestIndexingConfig.java 12051 2008-03-18 13:47:22Z serg $
+ * @version $Id$
  */
 public class TestIndexingConfig extends BaseQueryTest {
   public final String testString1 = "The quick brown fox jumped over the lazy dogs";

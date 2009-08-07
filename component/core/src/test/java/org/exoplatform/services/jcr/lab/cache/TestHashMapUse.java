@@ -26,7 +26,7 @@ import junit.framework.TestCase;
  * Date: 17.04.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestHashMapUse.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class TestHashMapUse extends TestCase {
 

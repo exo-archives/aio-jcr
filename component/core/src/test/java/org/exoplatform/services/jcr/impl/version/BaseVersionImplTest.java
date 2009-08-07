@@ -44,7 +44,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * 07.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: BaseVersionImplTest.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class BaseVersionImplTest extends JcrImplBaseTest {
 

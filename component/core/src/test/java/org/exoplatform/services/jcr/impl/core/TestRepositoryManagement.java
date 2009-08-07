@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestRepositoryManagement.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestRepositoryManagement extends JcrImplBaseTest {
 
@@ -77,9 +77,10 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs(defaultWs + IdGenerator.generate(),
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb ? null
-                                                                : workspaceEntry.getContainer()
-                                                                                .getParameterValue("sourceName"),
+                                              isDefaultWsMultiDb
+                                                  ? null
+                                                  : workspaceEntry.getContainer()
+                                                                  .getParameterValue("sourceName"),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
 
@@ -254,9 +255,10 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs("ws4testCanRemove2",
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb ? null
-                                                                : wsEntry.getContainer()
-                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                              isDefaultWsMultiDb
+                                                  ? null
+                                                  : wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
     // WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false,
@@ -450,9 +452,10 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs("ws4testRemove2",
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb ? null
-                                                                : wsEntry.getContainer()
-                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                              isDefaultWsMultiDb
+                                                  ? null
+                                                  : wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
     repositoryEntry.addWorkspace(secondWs);
@@ -487,9 +490,10 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs("ws4RemoveOtherThread2",
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb ? null
-                                                                : wsEntry.getContainer()
-                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                              isDefaultWsMultiDb
+                                                  ? null
+                                                  : wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
 

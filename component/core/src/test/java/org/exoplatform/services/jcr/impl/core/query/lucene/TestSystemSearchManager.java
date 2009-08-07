@@ -33,7 +33,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: TestSystemSearchManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  * 
  *          There is test of system Search Manager
  */

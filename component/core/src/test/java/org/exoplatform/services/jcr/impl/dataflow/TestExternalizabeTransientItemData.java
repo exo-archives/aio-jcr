@@ -28,27 +28,27 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 21.01.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: TestExternalizabeTransientItemData.java 111 2008-11-11 11:11:11Z rainf0x $
+ * <br/>
+ * Date: 21.01.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
 public class TestExternalizabeTransientItemData extends JcrImplBaseTest {
 
   public void testRootNode() throws Exception {
     ItemData idSrc = ((NodeImpl) root).getData();
-    
+
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(os);
-    
+
     oos.writeObject(idSrc);
-    
 
     ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
     ObjectInputStream ois = new ObjectInputStream(is);
-    
+
     ItemData idDest = (ItemData) ois.readObject();
-    
+
     assertNotNull(idDest);
   }
 

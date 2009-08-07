@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class TestDateSearch extends BaseQueryTest {

@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
  * Created by The eXo Platform SAS 22.01.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestDateValueFormat.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestDateValueFormat extends JcrImplBaseTest {
 

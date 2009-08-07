@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
  * For testing purpose
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SessionDataManagerTestWrapper.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class SessionDataManagerTestWrapper {
 

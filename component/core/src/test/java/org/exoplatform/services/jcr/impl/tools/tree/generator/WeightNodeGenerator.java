@@ -28,7 +28,7 @@ import javax.jcr.version.VersionException;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WeightNodeGenerator.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class WeightNodeGenerator implements NodeGenerator {
   private int                 maxDepth;

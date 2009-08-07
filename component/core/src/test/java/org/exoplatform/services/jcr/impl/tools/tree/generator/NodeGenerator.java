@@ -21,7 +21,7 @@ import javax.jcr.RepositoryException;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: NodeGenerator.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public interface NodeGenerator {
 

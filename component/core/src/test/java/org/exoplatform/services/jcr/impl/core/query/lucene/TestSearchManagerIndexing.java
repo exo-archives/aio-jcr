@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: TestSearchManagerIndexing.java 13111 2008-04-11 08:22:13Z serg $
+ * @version $Id$
  */
 
 public class TestSearchManagerIndexing extends JcrImplBaseTest {

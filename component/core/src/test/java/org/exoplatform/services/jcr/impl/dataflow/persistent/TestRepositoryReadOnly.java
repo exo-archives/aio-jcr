@@ -23,9 +23,9 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * 
+ * @version $Id$
  */
 
 public class TestRepositoryReadOnly extends JcrImplBaseTest {
@@ -34,8 +34,8 @@ public class TestRepositoryReadOnly extends JcrImplBaseTest {
   public void setUp() throws Exception {
     super.setUp();
 
-   repository.getWorkspaceContainer(session.getWorkspace().getName());
-    //dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
+    repository.getWorkspaceContainer(session.getWorkspace().getName());
+    // dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
   }
 
   @Override
@@ -47,10 +47,11 @@ public class TestRepositoryReadOnly extends JcrImplBaseTest {
   public void testRepositoryReadOnly() throws Exception {
 
     repository.setState(repository.READONLY);
-    
+
     assertEquals(repository.READONLY, repository.getState());
 
-    WorkspacePersistentDataManager dm = (WorkspacePersistentDataManager) (repository.getWorkspaceContainer(session.getWorkspace().getName())).getComponent(WorkspacePersistentDataManager.class);
+    WorkspacePersistentDataManager dm = (WorkspacePersistentDataManager) (repository.getWorkspaceContainer(session.getWorkspace()
+                                                                                                                  .getName())).getComponent(WorkspacePersistentDataManager.class);
 
     try {
       dm.save(new PlainChangesLogImpl());
@@ -61,4 +62,3 @@ public class TestRepositoryReadOnly extends JcrImplBaseTest {
   }
 
 }
-

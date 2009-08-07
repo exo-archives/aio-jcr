@@ -29,10 +29,11 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 16.10.2008
+ * <br/>
+ * Date: 16.10.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: TestAutoInitPermissions.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class TestAutoInitPermissions extends BaseStandaloneTest {
 
@@ -44,7 +45,7 @@ public class TestAutoInitPermissions extends BaseStandaloneTest {
   public void testCheckAutoInitPermissions() throws Exception {
     AccessControlList adminRootACL = ((NodeImpl) root).getACL();
     log.info(adminRootACL.dump());
-    
+
     assertTrue(root.hasProperties());
 
     try {
@@ -61,7 +62,7 @@ public class TestAutoInitPermissions extends BaseStandaloneTest {
 
       AccessControlList johnRootACL = ((NodeImpl) johnSession.getRootNode()).getACL();
       log.info(johnRootACL.dump());
-      
+
       assertTrue(johnSession.getRootNode().hasProperties());
 
     } catch (AccessControlException e) {

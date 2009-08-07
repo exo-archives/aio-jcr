@@ -22,7 +22,7 @@ package org.exoplatform.services.jcr.lab.cache;
  * Date: 25.04.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: CacheTestConstants.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class CacheTestConstants {
 

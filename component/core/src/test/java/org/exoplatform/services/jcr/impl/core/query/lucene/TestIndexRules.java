@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.impl.core.query.BaseQueryTest;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: TestIndexRules.java 11908 2008-03-13 16:00:12Z ksm $
+ * @version $Id$
  */
 
 public class TestIndexRules extends BaseQueryTest {

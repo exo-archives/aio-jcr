@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: TestNodeIndexer.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class TestNodeIndexer extends JcrImplBaseTest {

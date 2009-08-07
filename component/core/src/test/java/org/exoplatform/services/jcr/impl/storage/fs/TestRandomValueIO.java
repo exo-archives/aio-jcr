@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.core.value.ReadableBinaryValue;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestRandomValueIO.java 13062 2008-04-10 12:51:39Z pnedonosko $
+ * @version $Id$
  */
 public class TestRandomValueIO extends JcrImplBaseTest {
 

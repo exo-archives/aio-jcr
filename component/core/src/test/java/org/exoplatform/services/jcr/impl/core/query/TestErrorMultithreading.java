@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class TestErrorMultithreading extends BaseQueryTest {

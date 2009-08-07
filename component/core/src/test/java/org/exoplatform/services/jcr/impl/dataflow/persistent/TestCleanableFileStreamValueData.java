@@ -146,8 +146,8 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
   }
 
   public void testTransientFileNotCleaned() throws InterruptedException,
-                                                  IOException,
-                                                  RepositoryException {
+                                           IOException,
+                                           RepositoryException {
 
     assertTrue(testFile.exists());
 
@@ -169,8 +169,8 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
   }
 
   public void testTransientFileCleaned() throws InterruptedException,
-                                               IOException,
-                                               RepositoryException {
+                                        IOException,
+                                        RepositoryException {
 
     assertTrue(testFile.exists());
 
@@ -202,22 +202,22 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
   }
 
   public void testTransientSharedFileCleaned() throws InterruptedException,
-                                         IOException,
-                                         RepositoryException {
+                                              IOException,
+                                              RepositoryException {
 
     assertTrue(testFile.exists());
 
     System.gc();
     Thread.sleep(CLEANER_TIMEOUT / 2);
 
-    // file shared with TransientVD 
+    // file shared with TransientVD
     TransientValueData trvd = cleanableValueData.createTransientCopy();
 
     assertTrue(testFile.exists());
-    
+
     // 1st CleanableVD die
     cleanableValueData = null;
-    
+
     // allows GC to work
     System.gc();
     Thread.sleep(CLEANER_TIMEOUT + 500);
@@ -230,7 +230,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
                                                                           1,
                                                                           testCleaner);
     assertTrue(testFile.exists());
-    
+
     trvd = null; // TransientVD dies
 
     // allows GC to work
@@ -238,9 +238,9 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
     Thread.sleep(CLEANER_TIMEOUT + 500);
     Thread.yield();
     System.gc();
-    
+
     assertTrue(testFile.exists()); // still exists, aquired by 2nd CleanableVD
-    
+
     cfvd2 = null; // 2nd CleanableVD dies
 
     // allows GC to work
@@ -248,7 +248,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
     Thread.sleep(CLEANER_TIMEOUT + 500);
     Thread.yield();
     System.gc();
-    
+
     assertFalse(testFile.exists()); // file should be deleted
   }
 

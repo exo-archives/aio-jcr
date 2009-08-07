@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ValueSsh1Comparator.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ValueSsh1Comparator extends ItemDataTraversingVisitor {
   private Map<String, HashMap<Integer, byte[]>> propertysCheckSum = new HashMap<String, HashMap<Integer, byte[]>>();

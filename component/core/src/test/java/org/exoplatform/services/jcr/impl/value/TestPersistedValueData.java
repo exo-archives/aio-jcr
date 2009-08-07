@@ -33,7 +33,7 @@ import java.io.FileOutputStream;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: TestPersistedValueData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class TestPersistedValueData extends TestCase {
@@ -78,7 +78,9 @@ public class TestPersistedValueData extends TestCase {
     out.write(buf);
     out.close();
 
-    CleanableFileStreamValueData vd = new CleanableFileStreamValueData(file, 0, new FileCleaner(1000, true));
+    CleanableFileStreamValueData vd = new CleanableFileStreamValueData(file,
+                                                                       0,
+                                                                       new FileCleaner(1000, true));
     assertTrue(file.exists());
 
     vd = null;

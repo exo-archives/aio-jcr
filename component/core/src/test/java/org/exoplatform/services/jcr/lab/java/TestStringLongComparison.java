@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  * 09.11.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestStringLongComparison.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestStringLongComparison extends TestCase {
 

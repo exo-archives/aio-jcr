@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: TestValueImpl.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class TestValueImpl extends TestCase {

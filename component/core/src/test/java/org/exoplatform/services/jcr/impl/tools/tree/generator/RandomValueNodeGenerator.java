@@ -39,7 +39,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: RandomValueNodeGenerator.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class RandomValueNodeGenerator extends WeightNodeGenerator {
   private static final Random random = new Random();

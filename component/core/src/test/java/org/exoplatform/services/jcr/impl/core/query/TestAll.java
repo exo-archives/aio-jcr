@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestAll.java 12102 2008-03-19 13:16:27Z serg $
+ * @version $Id$
  */
 public class TestAll extends TestCase {
 

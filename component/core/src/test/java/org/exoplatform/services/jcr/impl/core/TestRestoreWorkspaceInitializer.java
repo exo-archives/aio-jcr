@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
  * Date: 08.05.2008 <br/>
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestRestoreWorkspaceInitializer.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id$
  */
 public class TestRestoreWorkspaceInitializer extends JcrImplBaseTest {
 

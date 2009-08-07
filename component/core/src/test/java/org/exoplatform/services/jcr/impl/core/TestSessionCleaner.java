@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestSessionCleaner.java 14508 2008-05-20 10:07:45Z ksm $
+ * @version $Id$
  */
 public class TestSessionCleaner extends JcrImplBaseTest {
   private final static int  AGENT_COUNT          = 10;
@@ -91,7 +91,7 @@ public class TestSessionCleaner extends JcrImplBaseTest {
 
   }
 
-    public void testSessionLoginLogoutSimultaneouslyMultiThread() throws Exception {
+  public void testSessionLoginLogoutSimultaneouslyMultiThread() throws Exception {
     assertNotNull(sessionRegistry);
 
     class AgentLogin extends Thread {
@@ -179,7 +179,6 @@ public class TestSessionCleaner extends JcrImplBaseTest {
 
     assertFalse(sessionRegistry.isInUse("ws"));
   }
-
 
   public void testSessionLoginLogoutMultiThread() throws InterruptedException {
     assertNotNull(sessionRegistry);

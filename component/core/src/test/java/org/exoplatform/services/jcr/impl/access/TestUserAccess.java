@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
  * Date: 19.05.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestUserAccess.java 14464 2008-05-19 11:05:20Z pnedonosko $
+ * @version $Id$
  */
 public class TestUserAccess extends JcrImplBaseTest {
 

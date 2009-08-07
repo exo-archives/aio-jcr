@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestWorkspaceManagement.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestWorkspaceManagement extends JcrImplBaseTest {
   private boolean                   isDefaultWsMultiDb = false;

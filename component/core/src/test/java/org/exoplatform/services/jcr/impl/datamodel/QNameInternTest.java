@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.util.SIDGenerator;
  * -XX:MaxPermSize=128m
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: QNameInternTest.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class QNameInternTest extends TestCase {
 

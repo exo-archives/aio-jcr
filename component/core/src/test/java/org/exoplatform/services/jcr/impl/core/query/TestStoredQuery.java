@@ -26,7 +26,7 @@ import javax.jcr.query.QueryResult;
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class TestStoredQuery extends BaseQueryTest {

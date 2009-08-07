@@ -43,11 +43,10 @@ import org.exoplatform.services.security.Identity;
 
 /**
  * Created by The eXo Platform SAS.<br/>
- * Prerequisite: enable access control i.e.
- * <access-control>optional</access-control>
+ * Prerequisite: enable access control i.e. <access-control>optional</access-control>
  * 
  * @author Gennady Azarenkov
- * @version $Id: TestAccess.java 14515 2008-05-20 11:45:21Z ksm $
+ * @version $Id$
  */
 
 public class TestAccess extends BaseStandaloneTest {
@@ -572,8 +571,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the setPermission(String identity, String[] permission) completely
-   * replace permissions of the identity.
+   * check if the setPermission(String identity, String[] permission) completely replace permissions
+   * of the identity.
    * 
    * @throws Exception
    */
@@ -597,8 +596,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the removePermission(String identity, String permission) remove
-   * specified permissions of the identity.
+   * check if the removePermission(String identity, String permission) remove specified permissions
+   * of the identity.
    * 
    * @throws Exception
    */

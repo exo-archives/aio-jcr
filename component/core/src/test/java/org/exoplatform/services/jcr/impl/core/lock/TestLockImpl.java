@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestLockImpl.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestLockImpl extends JcrImplBaseTest {
   private ExtendedNode      lockedNode        = null;

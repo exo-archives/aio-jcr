@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: NameTraversingVisitor.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class NameTraversingVisitor extends ItemDataTraversingVisitor {
   private HashSet<QPath>  validNames       = new HashSet<QPath>();

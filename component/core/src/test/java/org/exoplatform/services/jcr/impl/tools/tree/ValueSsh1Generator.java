@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ValueSsh1Generator.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ValueSsh1Generator extends ItemDataTraversingVisitor {
   private final OutputStream  ssh1ChecksumStream;
