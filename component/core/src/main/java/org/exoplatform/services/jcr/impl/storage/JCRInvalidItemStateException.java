@@ -85,13 +85,14 @@ public class JCRInvalidItemStateException extends InvalidItemStateException {
   }
 
   /**
-   * JCRInvalidItemStateException  constructor.
-   *
+   * JCRInvalidItemStateException constructor.
+   * 
    *@param message
    *          - context message
    * @param itemId
    *          - context Item id
-   * @param e - cause error
+   * @param e
+   *          - cause error
    */
   public JCRInvalidItemStateException(String message, String itemId, Throwable e) {
     super(message, e);
@@ -100,15 +101,16 @@ public class JCRInvalidItemStateException extends InvalidItemStateException {
   }
 
   /**
-   * JCRInvalidItemStateException  constructor.
-   *
+   * JCRInvalidItemStateException constructor.
+   * 
    * @param message
    *          - context message
    * @param itemId
    *          - context Item id
    * @param itemState
    *          - context Item state
-   * @param e - cause error
+   * @param e
+   *          - cause error
    */
   public JCRInvalidItemStateException(String message, String itemId, int itemState, Throwable e) {
     super(message, e);
@@ -118,7 +120,7 @@ public class JCRInvalidItemStateException extends InvalidItemStateException {
 
   /**
    * Get context Item Id.
-   *
+   * 
    * @return String Item id
    */
   public String getIdentifier() {
@@ -127,7 +129,7 @@ public class JCRInvalidItemStateException extends InvalidItemStateException {
 
   /**
    * Get context Item state.
-   *
+   * 
    * @return int state
    */
   public int getState() {

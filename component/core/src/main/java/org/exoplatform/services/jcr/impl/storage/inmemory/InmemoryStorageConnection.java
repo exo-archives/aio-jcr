@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: InmemoryStorageConnection.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class InmemoryStorageConnection implements WorkspaceStorageConnection {
@@ -197,7 +197,7 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
 
   public void rollback() throws IllegalStateException, RepositoryException {
   }
-  
+
   public void close() throws IllegalStateException, RepositoryException {
   }
 
