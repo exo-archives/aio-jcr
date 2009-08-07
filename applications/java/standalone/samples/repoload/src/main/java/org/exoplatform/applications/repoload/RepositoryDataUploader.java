@@ -21,15 +21,12 @@ import org.exoplatform.applications.scale.Scale;
 import org.exoplatform.applications.scale.ScaleBase;
 import org.exoplatform.services.log.ExoLogger;
 
-
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua reshetnyak.alex@gmail.com 23.03.2007
- * 13:20:00
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * reshetnyak.alex@gmail.com 23.03.2007 13:20:00
  * 
  * @version $Id: RepositoryDataUploader.java 23.03.2007 13:20:00 rainfox
  */
-
 
 public class RepositoryDataUploader {
 
@@ -140,4 +137,3 @@ public class RepositoryDataUploader {
     return false;
   }
 }
-

@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.rmi.impl.server.JCRServerImpl;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
- * @version $Id: RMIStarter.java 7175 2006-07-19 07:57:44Z peterit $
+ * @version $Id$
  */
 
 public class RMIStarter {

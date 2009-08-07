@@ -29,32 +29,33 @@ import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 06.04.2007
- * 10:26:43
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 06.04.2007 10:26:43
  * 
  * @version $Id: DataUploaderTh.java 06.04.2007 10:26:43 rainfox
  */
 public class DataUploaderTh extends DataUploader implements Runnable {
-  private int        nodeNumber;
-  
-  private long       start = 0, end =0, uploadTime = 0;             
-  
+  private int                        nodeNumber;
+
+  private long                       start = 0, end = 0, uploadTime = 0;
+
   private WorkspaceDataContainerBase wsDataContainer;
 
-  public DataUploaderTh(String[] args, WorkspaceDataContainerBase wsDataContainer, NodeImpl parentNode,int nodeNumber) {
+  public DataUploaderTh(String[] args,
+                        WorkspaceDataContainerBase wsDataContainer,
+                        NodeImpl parentNode,
+                        int nodeNumber) {
     super(args);
     this.nodeNumber = nodeNumber;
     this.workspaceDataContainer = wsDataContainer;
     rootTestNode = parentNode;
-    
+
     try {
       connection = getConnection();
     } catch (Exception e1) {
       e1.printStackTrace();
     }
-    
-    
+
     sConf = mapConfig.get("-conf");
     sRepository = mapConfig.get("-repo");
     sWorkspace = mapConfig.get("-ws");
@@ -82,7 +83,7 @@ public class DataUploaderTh extends DataUploader implements Runnable {
     date = Calendar.getInstance();
 
     countNodes = 1 * tree[1] * tree[2] * tree[3];
-    
+
     start = System.currentTimeMillis();
 
     int i = nodeNumber;
@@ -115,13 +116,13 @@ public class DataUploaderTh extends DataUploader implements Runnable {
       }
       System.out.println(">>>>>>>>>>>---------- Upload data Exception ----------<<<<<<<<<<<<");
     }
-    
+
     end = System.currentTimeMillis();
-    
+
     uploadTime = end - start;
-    
-    System.out.println("The time of the adding of " + countNodes + " nodes: " 
+
+    System.out.println("The time of the adding of " + countNodes + " nodes: "
         + (uploadTime / 1000.0) + " sec");
   }
-  
+
 }

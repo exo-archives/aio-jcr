@@ -20,9 +20,9 @@ package org.exoplatform.applications.ooplugin.dialog;
 import com.sun.star.awt.XControlContainer;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
+ * @version $Id$
  */
 
 public interface ComponentHandler {

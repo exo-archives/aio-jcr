@@ -27,8 +27,7 @@ import org.exoplatform.common.http.HTTPStatus;
 
 //___________________________________________________________________________
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
-//___________________________________________________________________________
+import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp; //___________________________________________________________________________
 
 import org.exoplatform.services.log.ExoLogger;
 
@@ -42,37 +41,41 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
+ * @version $Id$
  */
 
 public class OpenDialog extends BrowseDialog {
-  
-  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.BrowseDialog");
 
-    
-  private static final String DIALOGNAME = "_OpenDialog";
-  
-  public static final String BTN_VERSIONS = "btnVersions";
-  public static final String BTN_OPEN = "btnOpen";
-     
-  private Thread launchThread;
-  private Thread viewVersionEnableThread;
-  
-  public OpenDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
+  private static final Log    log          = ExoLogger.getLogger("jcr.ooplugin.BrowseDialog");
+
+  private static final String DIALOGNAME   = "_OpenDialog";
+
+  public static final String  BTN_VERSIONS = "btnVersions";
+
+  public static final String  BTN_OPEN     = "btnOpen";
+
+  private Thread              launchThread;
+
+  private Thread              viewVersionEnableThread;
+
+  public OpenDialog(WebDavConfig config,
+                    XComponentContext xComponentContext,
+                    XFrame xFrame,
+                    XToolkit xToolkit) {
     super(config, xComponentContext, xFrame, xToolkit);
     dialogName = DIALOGNAME;
-    
+
     addHandler(BTN_OPEN, Component.XTYPE_XBUTTON, new OpenClick());
-    
+
     addHandler(COMBO_PATH, Component.XTYPE_XCOMBOBOX, new PathChanged());
     addHandler(BTN_VERSIONS, Component.XTYPE_XBUTTON, new VersionsClick());
-    
+
     launchThread = new LaunchThread();
     launchThread.start();
-  }  
-  
+  }
+
   private class LaunchThread extends Thread {
     public void run() {
       try {
@@ -80,10 +83,10 @@ public class OpenDialog extends BrowseDialog {
           Thread.sleep(100);
         }
         Thread.sleep(100);
-        
+
         viewVersionEnableThread = new ViewVersionsButtonEnableThread();
         viewVersionEnableThread.start();
-        
+
         doPropFind();
       } catch (Exception exc) {
         log.info("Unhandled exception. " + exc.getMessage(), exc);
@@ -94,84 +97,82 @@ public class OpenDialog extends BrowseDialog {
 
   protected void enableVersionView(boolean isEnabled) {
     try {
-      ((XWindow)UnoRuntime.queryInterface(
-          XWindow.class, xControlContainer.getControl(BTN_VERSIONS))).setEnable(isEnabled);          
+      ((XWindow) UnoRuntime.queryInterface(XWindow.class,
+                                           xControlContainer.getControl(BTN_VERSIONS))).setEnable(isEnabled);
     } catch (NullPointerException nullExc) {
     }
   }
-  
+
   private class ViewVersionsButtonEnableThread extends Thread {
-    
+
     public void run() {
       while (true) {
         try {
-          Thread.sleep(100);          
+          Thread.sleep(100);
           int selectedPos = getSelectedItemPos();
-          
+
           if (selectedPos >= 0) {
-            ((XWindow)UnoRuntime.queryInterface(
-                XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(true);
+            ((XWindow) UnoRuntime.queryInterface(XWindow.class,
+                                                 xControlContainer.getControl(BTN_OPEN))).setEnable(true);
 
             ResponseDoc response = responses.get(selectedPos);
-            VersionNameProp versionNameProperty = 
-                (VersionNameProp)response.getProperty(WebDavProp.VERSIONNAME);
-            if (versionNameProperty != null && 
-                versionNameProperty.getStatus() == HTTPStatus.OK) {
+            VersionNameProp versionNameProperty = (VersionNameProp) response.getProperty(WebDavProp.VERSIONNAME);
+            if (versionNameProperty != null && versionNameProperty.getStatus() == HTTPStatus.OK) {
               enableVersionView(true);
               continue;
             }
-            
+
           } else {
-            ((XWindow)UnoRuntime.queryInterface(
-                XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(false);
+            ((XWindow) UnoRuntime.queryInterface(XWindow.class,
+                                                 xControlContainer.getControl(BTN_OPEN))).setEnable(false);
           }
-          
+
         } catch (Exception exc) {
         }
 
         enableVersionView(false);
       }
-      
+
     }
-    
+
   }
-  
+
   protected void disableAll() {
     super.disableAll();
-//    ((XWindow)UnoRuntime.queryInterface(
-//        XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(false);    
+    // ((XWindow)UnoRuntime.queryInterface(
+    // XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(false);
   }
-  
+
   protected void enableAll() {
     super.enableAll();
-  }  
-  
+  }
+
   private class PathChanged extends ItemListener {
-    
+
     public void itemStateChanged(ItemEvent arg0) {
-      XTextComponent xComboText = (XTextComponent)UnoRuntime.queryInterface(
-          XTextComponent.class, xControlContainer.getControl(COMBO_PATH));
+      XTextComponent xComboText = (XTextComponent) UnoRuntime.queryInterface(XTextComponent.class,
+                                                                             xControlContainer.getControl(COMBO_PATH));
       String path = xComboText.getText();
-      
+
       String serverPrefix = config.getServerPrefix();
-      
+
       if (!path.startsWith(serverPrefix)) {
         log.info("Can't connect remote WebDav server!!!");
         return;
       }
-      
+
       path = path.substring(serverPrefix.length());
       if ("".equals(path)) {
         path = "/";
       }
-      
+
       currentPath = path;
       doPropFind();
-    }    
+    }
   }
-  
+
   private class OpenClick extends ActionListener {
-    
+
     public void actionPerformed(ActionEvent arg0) {
       doSelectItem();
     }
@@ -179,41 +180,45 @@ public class OpenDialog extends BrowseDialog {
   }
 
   private class VersionsClick extends ActionListener {
-    
+
     public void actionPerformed(ActionEvent arg0) {
-      
+
       try {
         int selectedPos = getSelectedItemPos();
-        
+
         if (selectedPos < 0) {
           return;
         }
-        
+
         ResponseDoc response = responses.get(selectedPos);
         String href = TextUtils.UnEscape(response.getHref(), '%');
-        
+
         if (!href.startsWith(config.getServerPrefix())) {
           showMessageBox("Can't load version list.");
           return;
         }
-        
+
         String remoteHref = href.substring(config.getServerPrefix().length());
-        
+
         prepareTmpPath(currentPath);
-        
-        ViewVersions opVersions = new ViewVersions(config, xComponentContext, xFrame, xToolkit, remoteHref);
+
+        ViewVersions opVersions = new ViewVersions(config,
+                                                   xComponentContext,
+                                                   xFrame,
+                                                   xToolkit,
+                                                   remoteHref);
         boolean needClose = opVersions.createDialogEx();
-        
+
         if (needClose) {
           xDialog.endExecute();
         }
-        
+
       } catch (Exception exc) {
         log.info("Unhandled exception. " + exc.getMessage(), exc);
-      }      
-      
+      }
+
     }
 
   }
-  
+
 }

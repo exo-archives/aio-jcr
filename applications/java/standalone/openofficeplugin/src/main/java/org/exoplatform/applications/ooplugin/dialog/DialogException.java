@@ -18,9 +18,9 @@
 package org.exoplatform.applications.ooplugin.dialog;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
+ * @version $Id$
  */
 
 public class DialogException extends Exception {
@@ -28,6 +28,5 @@ public class DialogException extends Exception {
   public DialogException(String message) {
     super(message);
   }
-  
-}
 
+}

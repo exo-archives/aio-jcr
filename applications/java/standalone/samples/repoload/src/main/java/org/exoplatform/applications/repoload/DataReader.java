@@ -49,9 +49,8 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 12.04.2007
- * 11:42:21
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 12.04.2007 11:42:21
  * 
  * @version $Id: DataReader.java 12.04.2007 11:42:21 rainfox
  */
@@ -129,9 +128,9 @@ public class DataReader {
   private int                          ntFolderCount;
 
   private int                          ntFileCount;
-  
+
   private long                         end, start;
-  
+
   private boolean                      readProperty;
 
   public DataReader(String[] args) {
@@ -139,7 +138,7 @@ public class DataReader {
     this.mapConfig = parceCommandLine(args);
     this.args = args;
     this.readProperty = Boolean.valueOf(mapConfig.get("-readprop")).booleanValue();
-    
+
     try {
       this.initRepository();
     } catch (Exception e) {
@@ -198,11 +197,12 @@ public class DataReader {
         }
 
         start = System.currentTimeMillis();
-        
-        for (int i = 0; i < readers.length; i++){
+
+        for (int i = 0; i < readers.length; i++) {
           try {
             Thread.sleep(500);
-          } catch (InterruptedException e) {}
+          } catch (InterruptedException e) {
+          }
           readers[i].startRead();
         }
 
@@ -227,11 +227,11 @@ public class DataReader {
       }
 
       end = System.currentTimeMillis();
-      
-      for (int i = 0; i < readers.length; i++) 
+
+      for (int i = 0; i < readers.length; i++)
         log.info(readers[i].getThreadName() + ": " + "The time of reading of "
             + readers[i].getNTCount() + " nodes: " + (readers[i].getTimeAdding() / 1000.0) + " sec");
-      
+
       log.info("Total reading time " + ((end - start) / 1000.0) + " sec");
 
     } catch (Throwable e) {
@@ -256,12 +256,13 @@ public class DataReader {
 
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
-            .getContextClassLoader().getResource("login.conf").toString());
+                                                                    .getContextClassLoader()
+                                                                    .getResource("login.conf")
+                                                                    .toString());
 
       credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
-      repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+      repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
       repository = (RepositoryImpl) repositoryService.getRepository(sRepository);
       if (repository != null)
@@ -279,8 +280,7 @@ public class DataReader {
       if (dataManager != null)
         log.info("--->>> dataManager");
 
-      workspaceDataContainer = (WorkspaceDataContainerBase) (session.getContainer()
-          .getComponentInstanceOfType(WorkspaceDataContainerBase.class));
+      workspaceDataContainer = (WorkspaceDataContainerBase) (session.getContainer().getComponentInstanceOfType(WorkspaceDataContainerBase.class));
       connection = workspaceDataContainer.openConnection();
       if (connection != null)
         log.info("--->>> connection");
@@ -313,7 +313,7 @@ public class DataReader {
     DCPropertyQName.dcCreator = locationFactory.parseJCRName("dc:creator").getInternalName();
     DCPropertyQName.dcSubject = locationFactory.parseJCRName("dc:subject").getInternalName();
     DCPropertyQName.dcDescription = locationFactory.parseJCRName("dc:description")
-        .getInternalName();
+                                                   .getInternalName();
     DCPropertyQName.dcPublisher = locationFactory.parseJCRName("dc:publisher").getInternalName();
   }
 
@@ -362,7 +362,7 @@ public class DataReader {
     // show initial tree info
     NodeIterator ni = rootTestNode.getNodes();
     log.info("Reader root ls: ");
-    while (ni.hasNext()) 
+    while (ni.hasNext())
       readChilds(ni.nextNode());
   }
 
@@ -373,19 +373,19 @@ public class DataReader {
     if (primaryType.equals("nt:folder")) {
       ntFolderCount++;
       log.info("\t" + ntFolderCount + " nt:folder has been raed");
-        NodeIterator ni = parent.getNodes();
-        if (ni.hasNext()) {
-          while (ni.hasNext()) {
-            Node n1 = ni.nextNode();
-            readChilds(n1);
-          }
+      NodeIterator ni = parent.getNodes();
+      if (ni.hasNext()) {
+        while (ni.hasNext()) {
+          Node n1 = ni.nextNode();
+          readChilds(n1);
         }
+      }
     } else if (primaryType.equals("nt:file")) {
       ntFileCount++;
       log.info("\t" + ntFileCount + " nt:file has been raed");
       if (readProperty) {
         showDCProperty(parent);
-        
+
         NodeIterator ni = parent.getNodes();
         if (ni.hasNext()) {
           while (ni.hasNext()) {
@@ -458,9 +458,9 @@ public class DataReader {
   }
 
   public NodeImpl getNode(NodeImpl parentNode, String relPath) throws PathNotFoundException,
-      RepositoryException {
+                                                              RepositoryException {
     JCRPath itemPath = session.getLocationFactory()
-        .createJCRPath(parentNode.getLocation(), relPath);
+                              .createJCRPath(parentNode.getLocation(), relPath);
     NodeImpl node = (NodeImpl) dataManager.getItem(itemPath.getInternalPath(), true);
     if (node == null)
       throw new PathNotFoundException("Node not found " + itemPath.getAsString(true));
@@ -468,7 +468,7 @@ public class DataReader {
   }
 
   public Property getProperty(NodeImpl node, String relPath) throws PathNotFoundException,
-      RepositoryException {
+                                                            RepositoryException {
     JCRPath itemPath = locationFactory.createJCRPath(node.getLocation(), relPath);
 
     Item prop = dataManager.getItem(itemPath.getInternalPath(), true);
@@ -511,11 +511,11 @@ public class DataReader {
       map.remove(params[0]);
       if (params.length > 1)
         map.put(params[0], params[1]);
-      else if (params[0].equals("-readdc") || params[0].equals("-concurrent") || params[0].equals("-readprop")) {
+      else if (params[0].equals("-readdc") || params[0].equals("-concurrent")
+          || params[0].equals("-readprop")) {
         map.put(params[0], "true");
-	log.info(params[0] + " = true");
-        }
-      else
+        log.info(params[0] + " = true");
+      } else
         map.put(params[0], "");
 
       if (params.length > 1)

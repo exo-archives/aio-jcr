@@ -65,7 +65,7 @@ import com.sun.star.uno.XComponentContext;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class SaveDialog extends BrowseDialog {
@@ -496,10 +496,10 @@ public class SaveDialog extends BrowseDialog {
   protected boolean doSave(String localPath, String remotePath) {
     try {
       File inFile = new File(localPath);
-      
+
       remotePath = remotePath.replace("//", "/");
-      
-      if(remotePath.contains("?version")){
+
+      if (remotePath.contains("?version")) {
         remotePath = remotePath.substring(0, remotePath.lastIndexOf("?"));
       }
 

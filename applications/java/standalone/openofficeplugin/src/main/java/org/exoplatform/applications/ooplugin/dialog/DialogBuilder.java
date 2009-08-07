@@ -53,44 +53,56 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
+ * @version $Id$
  */
 
 public class DialogBuilder extends XmlConfig {
-  
-  public static final String DIALOG_CONFIG = "/config/dialogconfig.xml";
-  
-  public static final String XML_DIALOGCONFIG = "dialogconfig";
-  public static final String XML_DIALOG = "dialog";
-  public static final String XML_NAME = "name";
-  public static final String XML_COMPONENTS = "components";
-  public static final String XML_COMPONENT = "component";
-  public static final String XML_CLASS = "class";
-  public static final String XML_HANDLER = "handler";
-  public static final String XML_PROPERTIES = "properties";
-  public static final String XML_PROPERTY = "property";
-  public static final String XML_TYPE = "type";
-  public static final String XML_VALUE = "value";
-    
-  private ArrayList<DialogModel> dialogs = new ArrayList<DialogModel>();
-  
-  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.DialogBuilder");
-  
-  private PlugInDialog plugInDialog;
-  
-  private XComponentContext xComponentContext;
-  private XFrame xFrame;
-  private XToolkit xToolkit;
-  
+
+  public static final String     DIALOG_CONFIG    = "/config/dialogconfig.xml";
+
+  public static final String     XML_DIALOGCONFIG = "dialogconfig";
+
+  public static final String     XML_DIALOG       = "dialog";
+
+  public static final String     XML_NAME         = "name";
+
+  public static final String     XML_COMPONENTS   = "components";
+
+  public static final String     XML_COMPONENT    = "component";
+
+  public static final String     XML_CLASS        = "class";
+
+  public static final String     XML_HANDLER      = "handler";
+
+  public static final String     XML_PROPERTIES   = "properties";
+
+  public static final String     XML_PROPERTY     = "property";
+
+  public static final String     XML_TYPE         = "type";
+
+  public static final String     XML_VALUE        = "value";
+
+  private ArrayList<DialogModel> dialogs          = new ArrayList<DialogModel>();
+
+  private static final Log       log              = ExoLogger.getLogger("jcr.ooplugin.DialogBuilder");
+
+  private PlugInDialog           plugInDialog;
+
+  private XComponentContext      xComponentContext;
+
+  private XFrame                 xFrame;
+
+  private XToolkit               xToolkit;
+
   public DialogBuilder(PlugInDialog plugInDialog, XFrame xFrame, XToolkit xToolkit) {
     this.plugInDialog = plugInDialog;
     this.xComponentContext = plugInDialog.getConponentContext();
     this.xFrame = xFrame;
     this.xToolkit = xToolkit;
   }
-  
+
   public Object createDialog(String dialogName, ArrayList<EventHandler> eventHandlers) throws Exception {
     DialogModel xmlDialog = null;
     for (int i = 0; i < dialogs.size(); i++) {
@@ -100,34 +112,37 @@ public class DialogBuilder extends XmlConfig {
         break;
       }
     }
-    
+
     if (xmlDialog == null) {
       return null;
-    }    
-    
+    }
+
     XMultiComponentFactory xMultiComponentFactory = xComponentContext.getServiceManager();
-    Object dialogModel = xMultiComponentFactory.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", xComponentContext);
-    XPropertySet xPSetDialog = (XPropertySet)UnoRuntime.queryInterface(XPropertySet.class, dialogModel);
-    
+    Object dialogModel = xMultiComponentFactory.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel",
+                                                                          xComponentContext);
+    XPropertySet xPSetDialog = (XPropertySet) UnoRuntime.queryInterface(XPropertySet.class,
+                                                                        dialogModel);
+
     ArrayList<ComponentProperty> properties = xmlDialog.getProperties();
     for (int i = 0; i < properties.size(); i++) {
-      ComponentProperty property = properties.get(i);      
+      ComponentProperty property = properties.get(i);
       setProperty(xPSetDialog, property);
     }
 
-    XMultiServiceFactory xMultiServiceFactory = (XMultiServiceFactory)UnoRuntime.queryInterface(
-        XMultiServiceFactory.class, dialogModel);
+    XMultiServiceFactory xMultiServiceFactory = (XMultiServiceFactory) UnoRuntime.queryInterface(XMultiServiceFactory.class,
+                                                                                                 dialogModel);
 
-    XNameContainer xNameCont = (XNameContainer)UnoRuntime.queryInterface(
-        XNameContainer.class, dialogModel);
-    
+    XNameContainer xNameCont = (XNameContainer) UnoRuntime.queryInterface(XNameContainer.class,
+                                                                          dialogModel);
+
     ArrayList<Component> components = xmlDialog.getComponents();
     for (int i = 0; i < components.size(); i++) {
       Component component = components.get(i);
-      
+
       Object componentModel = xMultiServiceFactory.createInstance(component.getClassName());
-      XPropertySet propertySet = (XPropertySet)UnoRuntime.queryInterface(XPropertySet.class, componentModel);
-      
+      XPropertySet propertySet = (XPropertySet) UnoRuntime.queryInterface(XPropertySet.class,
+                                                                          componentModel);
+
       ArrayList<ComponentProperty> compProperties = component.getProperties();
       for (int propi = 0; propi < compProperties.size(); propi++) {
         ComponentProperty property = compProperties.get(propi);
@@ -137,12 +152,15 @@ public class DialogBuilder extends XmlConfig {
       xNameCont.insertByName(component.getPropertyValue("Name"), componentModel);
     }
 
-    Object dialog = xMultiComponentFactory.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", xComponentContext);
-    XControl xControl = (XControl)UnoRuntime.queryInterface(XControl.class, dialog);
-    XControlModel xControlModel = (XControlModel)UnoRuntime.queryInterface(XControlModel.class, dialogModel);
+    Object dialog = xMultiComponentFactory.createInstanceWithContext("com.sun.star.awt.UnoControlDialog",
+                                                                     xComponentContext);
+    XControl xControl = (XControl) UnoRuntime.queryInterface(XControl.class, dialog);
+    XControlModel xControlModel = (XControlModel) UnoRuntime.queryInterface(XControlModel.class,
+                                                                            dialogModel);
     xControl.setModel(xControlModel);
 
-    XControlContainer xControlCont = (XControlContainer)UnoRuntime.queryInterface(XControlContainer.class, dialog);
+    XControlContainer xControlCont = (XControlContainer) UnoRuntime.queryInterface(XControlContainer.class,
+                                                                                   dialog);
     plugInDialog.setControlContainer(xControlCont);
 
     for (int i = 0; i < eventHandlers.size(); i++) {
@@ -150,53 +168,54 @@ public class DialogBuilder extends XmlConfig {
 
       Object listener = eventHandler.getListener();
       Object compObject = xControlCont.getControl(eventHandler.getComponentName());
-      
-      switch (eventHandler.getComponentType()) {
-      
-        case Component.XTYPE_XBUTTON:
-          XButton xButtonObject = (XButton)UnoRuntime.queryInterface(XButton.class, compObject);
 
-          if (listener instanceof ActionListener) {
-            xButtonObject.addActionListener((XActionListener)listener);
-          }
-          
-          break;
-  
-        case Component.XTYPE_XCOMBOBOX:
-          XComboBox xComboBox = (XComboBox)UnoRuntime.queryInterface(XComboBox.class, compObject);
-          
-          if (listener instanceof ActionListener) {
-            xComboBox.addActionListener((XActionListener)listener);
-          } else if (listener instanceof ItemListener) {
-            xComboBox.addItemListener((XItemListener)listener);
-          }
-          
-          break;
-  
-        case Component.XTYPE_XLISTBOX:
-          XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, compObject);
-          if (listener instanceof XActionListener) {
-        	xListBox.addActionListener((XActionListener)listener);
-          }
-          
-          break;
-      }    
+      switch (eventHandler.getComponentType()) {
+
+      case Component.XTYPE_XBUTTON:
+        XButton xButtonObject = (XButton) UnoRuntime.queryInterface(XButton.class, compObject);
+
+        if (listener instanceof ActionListener) {
+          xButtonObject.addActionListener((XActionListener) listener);
+        }
+
+        break;
+
+      case Component.XTYPE_XCOMBOBOX:
+        XComboBox xComboBox = (XComboBox) UnoRuntime.queryInterface(XComboBox.class, compObject);
+
+        if (listener instanceof ActionListener) {
+          xComboBox.addActionListener((XActionListener) listener);
+        } else if (listener instanceof ItemListener) {
+          xComboBox.addItemListener((XItemListener) listener);
+        }
+
+        break;
+
+      case Component.XTYPE_XLISTBOX:
+        XListBox xListBox = (XListBox) UnoRuntime.queryInterface(XListBox.class, compObject);
+        if (listener instanceof XActionListener) {
+          xListBox.addActionListener((XActionListener) listener);
+        }
+
+        break;
+      }
     }
-    
-    Object toolkit = xMultiComponentFactory.createInstanceWithContext("com.sun.star.awt.ExtToolkit", xComponentContext);
-    xToolkit = (XToolkit)UnoRuntime.queryInterface(XToolkit.class, toolkit);
-    XWindow xWindow = (XWindow)UnoRuntime.queryInterface(XWindow.class, xControl);
+
+    Object toolkit = xMultiComponentFactory.createInstanceWithContext("com.sun.star.awt.ExtToolkit",
+                                                                      xComponentContext);
+    xToolkit = (XToolkit) UnoRuntime.queryInterface(XToolkit.class, toolkit);
+    XWindow xWindow = (XWindow) UnoRuntime.queryInterface(XWindow.class, xControl);
     xWindow.setVisible(false);
     xControl.createPeer(xToolkit, null);
-    return dialog;    
+    return dialog;
   }
-  
+
   private void setProperty(XPropertySet propertySet, ComponentProperty property) throws Exception {
     if (property.isType(ComponentProperty.TYPE_STRING)) {
       propertySet.setPropertyValue(property.getName(), property.getValue());
-      return;          
+      return;
     }
-    
+
     if (property.isType(ComponentProperty.TYPE_INTEGER)) {
       Integer intValue = new Integer(property.getValue());
       propertySet.setPropertyValue(property.getName(), intValue);
@@ -208,77 +227,78 @@ public class DialogBuilder extends XmlConfig {
       propertySet.setPropertyValue(property.getName(), shortValue);
       return;
     }
-    
+
     if (property.isType(ComponentProperty.TYPE_BOOLEAN)) {
       Boolean booleanValue = new Boolean(property.getValue());
       propertySet.setPropertyValue(property.getName(), booleanValue);
       return;
     }
-    
+
     if (property.isType(ComponentProperty.TYPE_IMAGE)) {
       String imagePath = "file:///" + Resources.getImage(property.getValue());
       propertySet.setPropertyValue(property.getName(), imagePath);
       return;
     }
-    
-    if (property.isType(ComponentProperty.TYPE_FONTDESCRIPTOR)) {      
+
+    if (property.isType(ComponentProperty.TYPE_FONTDESCRIPTOR)) {
       String fontValue = property.getValue();
-      String []fontsValues = fontValue.split(":");
-      
+      String[] fontsValues = fontValue.split(":");
+
       FontDescriptor fontDescriptor = new FontDescriptor();
       fontDescriptor.Name = fontsValues[0];
       fontDescriptor.CharacterWidth = new Float(fontsValues[1]);
       fontDescriptor.WordLineMode = true;
-      
+
       if (fontsValues.length > 2) {
         fontDescriptor.Weight = FontWeight.BOLD;
       }
-             
+
       propertySet.setPropertyValue(property.getName(), fontDescriptor);
     }
   }
-  
+
   public void init() {
     try {
       Document document = getDocumentFromResource(DIALOG_CONFIG);
-      
+
       Node dialogConfigNode = getChildNode(document, XML_DIALOGCONFIG);
-      
+
       NodeList nodes = dialogConfigNode.getChildNodes();
       for (int i = 0; i < nodes.getLength(); i++) {
         Node curNode = nodes.item(i);
         if (XML_DIALOG.equals(curNode.getLocalName())) {
           parseDialog(curNode);
         }
-      }      
-      
+      }
+
     } catch (Exception exc) {
-      log.info("Unhandled exception: " + exc.getMessage(), exc);      
+      log.info("Unhandled exception: " + exc.getMessage(), exc);
     }
   }
-  
+
   private void parseDialog(Node dialogNode) {
     Node nameNode = getChildNode(dialogNode, XML_NAME);
-    
+
     DialogModel dialog = new DialogModel(nameNode.getTextContent());
-    
+
     Node propertiesNode = getChildNode(dialogNode, XML_PROPERTIES);
     NodeList properties = propertiesNode.getChildNodes();
     for (int i = 0; i < properties.getLength(); i++) {
       Node curNode = properties.item(i);
       if (XML_PROPERTY.equals(curNode.getLocalName())) {
         NamedNodeMap nnm = curNode.getAttributes();
-        
+
         String propertyName = nnm.getNamedItem(XML_NAME).getTextContent();
         String propertyType = nnm.getNamedItem(XML_TYPE).getTextContent();
         String propertyValue = nnm.getNamedItem(XML_VALUE).getTextContent();
 
         ComponentProperty property = new ComponentProperty(propertyName,
-            propertyType, propertyValue);
-        dialog.getProperties().add(property);        
+                                                           propertyType,
+                                                           propertyValue);
+        dialog.getProperties().add(property);
       }
     }
-        
+
     Node componentsNode = getChildNode(dialogNode, XML_COMPONENTS);
     NodeList components = componentsNode.getChildNodes();
     for (int i = 0; i < components.getLength(); i++) {
@@ -288,38 +308,39 @@ public class DialogBuilder extends XmlConfig {
         dialog.getComponents().add(component);
       }
     }
-    
+
     dialogs.add(dialog);
   }
-  
+
   private Component parseComponent(Node componentNode) {
     Node classNode = getChildNode(componentNode, XML_CLASS);
-    
+
     String handler = "";
     Node handlerNode = getChildNode(componentNode, XML_HANDLER);
     if (handlerNode != null) {
       handler = handlerNode.getTextContent();
     }
-    
+
     Component component = new Component(classNode.getTextContent(), handler);
-    
+
     NodeList properties = componentNode.getChildNodes();
     for (int i = 0; i < properties.getLength(); i++) {
       Node curNode = properties.item(i);
       if (XML_PROPERTY.equals(curNode.getLocalName())) {
-        
+
         NamedNodeMap nnm = curNode.getAttributes();
-        
+
         String propertyName = nnm.getNamedItem(XML_NAME).getTextContent();
         String propertyType = nnm.getNamedItem(XML_TYPE).getTextContent();
         String propertyValue = nnm.getNamedItem(XML_VALUE).getTextContent();
-        
+
         ComponentProperty property = new ComponentProperty(propertyName,
-            propertyType, propertyValue);
+                                                           propertyType,
+                                                           propertyValue);
         component.getProperties().add(property);
       }
     }
-    
+
     return component;
   }
 

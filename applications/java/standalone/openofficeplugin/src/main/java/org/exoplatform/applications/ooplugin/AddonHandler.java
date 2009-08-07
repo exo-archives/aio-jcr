@@ -36,93 +36,92 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
+ * @version $Id$
  */
 
-public class AddonHandler extends WeakBase
-    implements  com.sun.star.lang.XServiceInfo,
-                com.sun.star.frame.XDispatchProvider,
-                com.sun.star.lang.XInitialization,
-                com.sun.star.frame.XDispatch {
-  
-  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.AddonHandler");
-  
-  public static final String MENU_OPEN = "open";
-  public static final String MENU_SAVE = "save";
-  public static final String MENU_SAVEAS = "saveas";
-  public static final String MENU_SEARCH = "search";
-  public static final String MENU_SETTINGS = "settings";
-  public static final String MENU_ABOUT = "about";
-    
-  private XComponentContext xComponentContext;
-  
-  private static XFrame xFrame;
-  private static XToolkit xToolkit;
-  private static final String m_implementationName = AddonHandler.class.getName();
-  
-  private static WebDavConfig config;
+public class AddonHandler extends WeakBase implements com.sun.star.lang.XServiceInfo,
+    com.sun.star.frame.XDispatchProvider, com.sun.star.lang.XInitialization,
+    com.sun.star.frame.XDispatch {
 
-  private static final String[] m_serviceNames = {
-    "com.sun.star.frame.ProtocolHandler"
-  };  
-  
+  private static final Log      log                  = ExoLogger.getLogger("jcr.ooplugin.AddonHandler");
+
+  public static final String    MENU_OPEN            = "open";
+
+  public static final String    MENU_SAVE            = "save";
+
+  public static final String    MENU_SAVEAS          = "saveas";
+
+  public static final String    MENU_SEARCH          = "search";
+
+  public static final String    MENU_SETTINGS        = "settings";
+
+  public static final String    MENU_ABOUT           = "about";
+
+  private XComponentContext     xComponentContext;
+
+  private static XFrame         xFrame;
+
+  private static XToolkit       xToolkit;
+
+  private static final String   m_implementationName = AddonHandler.class.getName();
+
+  private static WebDavConfig   config;
+
+  private static final String[] m_serviceNames       = { "com.sun.star.frame.ProtocolHandler" };
+
   public AddonHandler(XComponentContext xComponentContext) {
     try {
       this.xComponentContext = xComponentContext;
       if (config == null) {
         config = new WebDavConfig();
-      }      
+      }
     } catch (Throwable thr) {
-      log.info("Undandled exception: " + thr.getMessage() , thr);
+      log.info("Undandled exception: " + thr.getMessage(), thr);
     }
   }
-
 
   public static XSingleComponentFactory __getComponentFactory(String sImplementationName) {
     XSingleComponentFactory xFactory = null;
-    if ( sImplementationName.equals( m_implementationName ) ) {
+    if (sImplementationName.equals(m_implementationName)) {
       xFactory = Factory.createComponentFactory(AddonHandler.class, m_serviceNames);
-    }      
+    }
     return xFactory;
-  }  
-  
-  
+  }
+
   public static boolean __writeRegistryServiceInfo(XRegistryKey xRegistryKey) {
     try {
-      return Factory.writeRegistryServiceInfo(m_implementationName, m_serviceNames, xRegistryKey);          
+      return Factory.writeRegistryServiceInfo(m_implementationName, m_serviceNames, xRegistryKey);
     } catch (Throwable thr) {
-      log.info("Undandled exception: " + thr.getMessage() , thr);
+      log.info("Undandled exception: " + thr.getMessage(), thr);
     }
-    return false;    
+    return false;
   }
-  
+
   public String getImplementationName() {
     return m_implementationName;
   }
-  
-  public boolean supportsService( String sService ) {
+
+  public boolean supportsService(String sService) {
     int len = m_serviceNames.length;
-    for( int i=0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (sService.equals(m_serviceNames[i])) {
-        return true;        
-      }        
-    } 
+        return true;
+      }
+    }
     return false;
   }
 
   public String[] getSupportedServiceNames() {
     return m_serviceNames;
-  }  
-  
-  public com.sun.star.frame.XDispatch queryDispatch(
-        com.sun.star.util.URL aURL, 
-        String sTargetFrameName, 
-        int iSearchFlags)    
-  {        
-    if ( aURL.Protocol.compareTo("org.exoplatform.applications.ooplugin:") == 0 ) {            
-      if ( aURL.Path.compareTo(MENU_OPEN) == 0 ) {
+  }
+
+  public com.sun.star.frame.XDispatch queryDispatch(com.sun.star.util.URL aURL,
+                                                    String sTargetFrameName,
+                                                    int iSearchFlags) {
+    if (aURL.Protocol.compareTo("org.exoplatform.applications.ooplugin:") == 0) {
+      if (aURL.Path.compareTo(MENU_OPEN) == 0) {
         return this;
       }
       if (aURL.Path.compareTo(MENU_SAVE) == 0) {
@@ -142,121 +141,115 @@ public class AddonHandler extends WeakBase
       }
     }
     return null;
-  }  
+  }
 
-  public com.sun.star.frame.XDispatch[] queryDispatches(
-        com.sun.star.frame.DispatchDescriptor[] seqDescriptors )    
-  {        
+  public com.sun.star.frame.XDispatch[] queryDispatches(com.sun.star.frame.DispatchDescriptor[] seqDescriptors) {
     log.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
-    int nCount = seqDescriptors.length;        
-    com.sun.star.frame.XDispatch[] seqDispatcher = 
-          new com.sun.star.frame.XDispatch[seqDescriptors.length];         
-    for( int i=0; i < nCount; ++i ) {            
+    int nCount = seqDescriptors.length;
+    com.sun.star.frame.XDispatch[] seqDispatcher = new com.sun.star.frame.XDispatch[seqDescriptors.length];
+    for (int i = 0; i < nCount; ++i) {
       seqDispatcher[i] = queryDispatch(seqDescriptors[i].FeatureURL,
-            seqDescriptors[i].FrameName,                                             
-            seqDescriptors[i].SearchFlags );        
-    }        
-    return seqDispatcher; 
-  }  
-  
-  public void initialize( Object[] object ) throws com.sun.star.uno.Exception    
-  {
-    //log.info("public void initialize( Object[] object ) throws com.sun.star.uno.Exception...");
+                                       seqDescriptors[i].FrameName,
+                                       seqDescriptors[i].SearchFlags);
+    }
+    return seqDispatcher;
+  }
+
+  public void initialize(Object[] object) throws com.sun.star.uno.Exception {
+    // log.info("public void initialize( Object[] object ) throws com.sun.star.uno.Exception...");
     if (object.length > 0) {
-      xFrame = (XFrame)UnoRuntime.queryInterface(
-            XFrame.class, object[0]);
+      xFrame = (XFrame) UnoRuntime.queryInterface(XFrame.class, object[0]);
     }
 
-    xToolkit = (XToolkit)UnoRuntime.queryInterface(
-        XToolkit.class,
-        xComponentContext.getServiceManager().createInstanceWithContext(
-            "com.sun.star.awt.Toolkit", xComponentContext));    
+    xToolkit = (XToolkit) UnoRuntime.queryInterface(XToolkit.class,
+                                                    xComponentContext.getServiceManager()
+                                                                     .createInstanceWithContext("com.sun.star.awt.Toolkit",
+                                                                                                xComponentContext));
   }
-  
-  public void dispatch(com.sun.star.util.URL aURL,      
-        com.sun.star.beans.PropertyValue[] aArguments ) {
-    
-    //log.info("public void dispatch(com.sun.star.util.URL aURL,");
-    
+
+  public void dispatch(com.sun.star.util.URL aURL, com.sun.star.beans.PropertyValue[] aArguments) {
+
+    // log.info("public void dispatch(com.sun.star.util.URL aURL,");
+
     try {
-      if ( aURL.Protocol.compareTo("org.exoplatform.applications.ooplugin:") == 0 ) {
-        if ( aURL.Path.compareTo(MENU_OPEN) == 0 ) {
+      if (aURL.Protocol.compareTo("org.exoplatform.applications.ooplugin:") == 0) {
+        if (aURL.Path.compareTo(MENU_OPEN) == 0) {
           OpenDialog openDialog = new OpenDialog(config, xComponentContext, xFrame, xToolkit);
           openDialog.createDialog();
-          return;  
+          return;
         }
-        if ( aURL.Path.compareTo(MENU_SAVE) == 0 ) {
+        if (aURL.Path.compareTo(MENU_SAVE) == 0) {
           SaveDialog saveDialog = new SaveDialog(config, xComponentContext, xFrame, xToolkit, false);
           saveDialog.createDialog();
-          return;  
+          return;
         }
-        if ( aURL.Path.compareTo(MENU_SAVEAS) == 0 ) {
+        if (aURL.Path.compareTo(MENU_SAVEAS) == 0) {
           SaveDialog saveDialog = new SaveDialog(config, xComponentContext, xFrame, xToolkit, true);
           saveDialog.createDialog();
-          return;  
+          return;
         }
-        if ( aURL.Path.compareTo(MENU_SEARCH) == 0 ) {
+        if (aURL.Path.compareTo(MENU_SEARCH) == 0) {
           SearchDialog searchDialog = new SearchDialog(config, xComponentContext, xFrame, xToolkit);
           searchDialog.createDialog();
-          return;  
+          return;
         }
-        if ( aURL.Path.compareTo(MENU_SETTINGS) == 0 ) {
-          SettingsDialog settingsDialog = new SettingsDialog(config, xComponentContext, xFrame, xToolkit);
+        if (aURL.Path.compareTo(MENU_SETTINGS) == 0) {
+          SettingsDialog settingsDialog = new SettingsDialog(config,
+                                                             xComponentContext,
+                                                             xFrame,
+                                                             xToolkit);
           settingsDialog.createDialog();
-          return;  
+          return;
         }
-        if ( aURL.Path.compareTo(MENU_ABOUT) == 0 ) {
+        if (aURL.Path.compareTo(MENU_ABOUT) == 0) {
           AboutDialog aboutDialog = new AboutDialog(config, xComponentContext, xFrame, xToolkit);
           aboutDialog.createDialog();
-          return;  
+          return;
         }
-        
-      }      
+
+      }
     } catch (Exception exc) {
       log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
-    
+
   }
-  
+
   public void addStatusListener(com.sun.star.frame.XStatusListener xControl,
-      com.sun.star.util.URL aURL) {
-    //Log.info("public void addStatusListener(com.sun.star.frame.XStatusListener xControl,");
-  }     
-  
-  public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,
-      com.sun.star.util.URL aURL ) {
-    //Log.info("public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,");
+                                com.sun.star.util.URL aURL) {
+    // Log.info("public void addStatusListener(com.sun.star.frame.XStatusListener xControl,");
   }
-  
+
+  public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,
+                                   com.sun.star.util.URL aURL) {
+    // Log.info("public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,");
+  }
+
   public static void showMessageBox(String sTitle, String sMessage) {
     try {
-        if (null != xFrame && null != xToolkit) {
-            WindowDescriptor aDescriptor = new WindowDescriptor();
-            aDescriptor.Type              = WindowClass.MODALTOP;
-            aDescriptor.WindowServiceName = new String("infobox");
-            aDescriptor.ParentIndex       = -1;
-            aDescriptor.Parent            = (XWindowPeer)UnoRuntime.queryInterface(
-                XWindowPeer.class, xFrame.getContainerWindow());
-            aDescriptor.Bounds            = new Rectangle(0,0,300,200);
-            aDescriptor.WindowAttributes  = WindowAttribute.BORDER |
-            WindowAttribute.MOVEABLE |
-            WindowAttribute.CLOSEABLE;
-            
-            XWindowPeer xPeer = xToolkit.createWindow(aDescriptor);
-            if (null != xPeer) {
-              XMessageBox xMsgBox = (XMessageBox)UnoRuntime.queryInterface(
-                  XMessageBox.class, xPeer);
-              if (null != xMsgBox)
-              {
-                xMsgBox.setCaptionText(sTitle);
-                xMsgBox.setMessageText(sMessage);
-                xMsgBox.execute();
-              }
-            }
+      if (null != xFrame && null != xToolkit) {
+        WindowDescriptor aDescriptor = new WindowDescriptor();
+        aDescriptor.Type = WindowClass.MODALTOP;
+        aDescriptor.WindowServiceName = new String("infobox");
+        aDescriptor.ParentIndex = -1;
+        aDescriptor.Parent = (XWindowPeer) UnoRuntime.queryInterface(XWindowPeer.class,
+                                                                     xFrame.getContainerWindow());
+        aDescriptor.Bounds = new Rectangle(0, 0, 300, 200);
+        aDescriptor.WindowAttributes = WindowAttribute.BORDER | WindowAttribute.MOVEABLE
+            | WindowAttribute.CLOSEABLE;
+
+        XWindowPeer xPeer = xToolkit.createWindow(aDescriptor);
+        if (null != xPeer) {
+          XMessageBox xMsgBox = (XMessageBox) UnoRuntime.queryInterface(XMessageBox.class, xPeer);
+          if (null != xMsgBox) {
+            xMsgBox.setCaptionText(sTitle);
+            xMsgBox.setMessageText(sMessage);
+            xMsgBox.execute();
+          }
         }
+      }
     } catch (com.sun.star.uno.Exception e) {
       log.info("Unhandled exception. " + e.getMessage(), e);
     }
   }
-  
+
 }

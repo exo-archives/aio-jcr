@@ -53,9 +53,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 05.04.2007
- * 17:14:45
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 05.04.2007 17:14:45
  * 
  * @version $Id: DataUploader.java 05.04.2007 17:14:45 rainfox
  */
@@ -146,7 +145,7 @@ public class DataUploader {
     sVdfile = mapConfig.get("-vdfile");
     sReadTree = mapConfig.get("-readtree");
     sMimeType = mapConfig.get("-mimeType");
-    
+
     fileCleaner = new FileCleaner();
 
     if (!sVdfile.equals("")) {
@@ -161,12 +160,13 @@ public class DataUploader {
 
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
-            .getContextClassLoader().getResource("login.conf").toString());
+                                                                    .getContextClassLoader()
+                                                                    .getResource("login.conf")
+                                                                    .toString());
 
       credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
-      repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+      repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
       repository = (RepositoryImpl) repositoryService.getRepository(sRepository);
       if (repository != null)
@@ -184,8 +184,7 @@ public class DataUploader {
       if (dataManager != null)
         log.info("--->>> dataManager");
 
-      workspaceDataContainer = (WorkspaceDataContainerBase) (session.getContainer()
-          .getComponentInstanceOfType(WorkspaceDataContainerBase.class));
+      workspaceDataContainer = (WorkspaceDataContainerBase) (session.getContainer().getComponentInstanceOfType(WorkspaceDataContainerBase.class));
       connection = workspaceDataContainer.openConnection();
       if (connection != null)
         log.info("--->>> connection");
@@ -228,7 +227,7 @@ public class DataUploader {
     DCPropertyQName.dcCreator = locationFactory.parseJCRName("dc:creator").getInternalName();
     DCPropertyQName.dcSubject = locationFactory.parseJCRName("dc:subject").getInternalName();
     DCPropertyQName.dcDescription = locationFactory.parseJCRName("dc:description")
-        .getInternalName();
+                                                   .getInternalName();
     DCPropertyQName.dcPublisher = locationFactory.parseJCRName("dc:publisher").getInternalName();
   }
 
@@ -376,35 +375,54 @@ public class DataUploader {
 
     String uuid = IdGenerator.generate();
 
-    TransientNodeData nodeData = new TransientNodeData(path, uuid, -1, Constants.NT_FOLDER,
-        mixinTypeNames, orderNum, parentNode.getInternalIdentifier(), acl);
+    TransientNodeData nodeData = new TransientNodeData(path,
+                                                       uuid,
+                                                       -1,
+                                                       Constants.NT_FOLDER,
+                                                       mixinTypeNames,
+                                                       orderNum,
+                                                       parentNode.getInternalIdentifier(),
+                                                       acl);
 
     return nodeData;
   }
 
-  protected TransientNodeData addNode(WorkspaceStorageConnection con, String name, int orderNum,
-      NodeImpl parentNode, Calendar date) throws Exception {
+  protected TransientNodeData addNode(WorkspaceStorageConnection con,
+                                      String name,
+                                      int orderNum,
+                                      NodeImpl parentNode,
+                                      Calendar date) throws Exception {
     TransientNodeData nodeData = creteNodeData_nt_folder(name, orderNum, parentNode);
     con.add(nodeData);
 
-    TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getIdentifier(), false);
+    TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                          Constants.JCR_PRIMARYTYPE),
+                                                                      IdGenerator.generate(),
+                                                                      -1,
+                                                                      PropertyType.NAME,
+                                                                      nodeData.getIdentifier(),
+                                                                      false);
     primaryTypeData.setValue(new TransientValueData(Constants.NT_FOLDER));
     con.add(primaryTypeData);
 
-    TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_CREATED), IdGenerator.generate(), -1, PropertyType.DATE,
-        nodeData.getIdentifier(), false);
+    TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                      Constants.JCR_CREATED),
+                                                                  IdGenerator.generate(),
+                                                                  -1,
+                                                                  PropertyType.DATE,
+                                                                  nodeData.getIdentifier(),
+                                                                  false);
     createdData.setValue(new TransientValueData(date));
     con.add(createdData);
 
     return nodeData;
   }
 
-  private TransientNodeData creteNodeData(InternalQName iQName, int orderNum,
-      TransientNodeData parentNode, InternalQName primaryType, InternalQName mixinName)
-      throws Exception {
+  private TransientNodeData creteNodeData(InternalQName iQName,
+                                          int orderNum,
+                                          TransientNodeData parentNode,
+                                          InternalQName primaryType,
+                                          InternalQName mixinName) throws Exception {
 
     InternalQName[] mixinTypeNames = null;
 
@@ -421,97 +439,158 @@ public class DataUploader {
 
     String uuid = IdGenerator.generate();
 
-    TransientNodeData nodeData = new TransientNodeData(path, uuid, -1, primaryType, mixinTypeNames,
-        orderNum, parentNode.getIdentifier(), acl);
+    TransientNodeData nodeData = new TransientNodeData(path,
+                                                       uuid,
+                                                       -1,
+                                                       primaryType,
+                                                       mixinTypeNames,
+                                                       orderNum,
+                                                       parentNode.getIdentifier(),
+                                                       acl);
 
     return nodeData;
   }
 
-  protected TransientNodeData addNode(WorkspaceStorageConnection con, String name, int orderNum,
-      TransientNodeData parentNode, Calendar date) throws Exception {
+  protected TransientNodeData addNode(WorkspaceStorageConnection con,
+                                      String name,
+                                      int orderNum,
+                                      TransientNodeData parentNode,
+                                      Calendar date) throws Exception {
     TransientNodeData nodeData = creteNodeData(new InternalQName(Constants.NS_DEFAULT_URI, name),
-        orderNum, parentNode, Constants.NT_FOLDER, null);
+                                               orderNum,
+                                               parentNode,
+                                               Constants.NT_FOLDER,
+                                               null);
     con.add(nodeData);
 
-    TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getIdentifier(), false);
+    TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                          Constants.JCR_PRIMARYTYPE),
+                                                                      IdGenerator.generate(),
+                                                                      -1,
+                                                                      PropertyType.NAME,
+                                                                      nodeData.getIdentifier(),
+                                                                      false);
     primaryTypeData.setValue(new TransientValueData(Constants.NT_FOLDER));
     con.add(primaryTypeData);
 
-    TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_CREATED), IdGenerator.generate(), -1, PropertyType.DATE,
-        nodeData.getIdentifier(), false);
+    TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                      Constants.JCR_CREATED),
+                                                                  IdGenerator.generate(),
+                                                                  -1,
+                                                                  PropertyType.DATE,
+                                                                  nodeData.getIdentifier(),
+                                                                  false);
     createdData.setValue(new TransientValueData(date));
     con.add(createdData);
 
     return nodeData;
   }
 
-  protected void addNode_file(WorkspaceStorageConnection con, String name, int orderNum,
-      TransientNodeData parentNode, Calendar date, TransientValueData fData) throws Exception {
+  protected void addNode_file(WorkspaceStorageConnection con,
+                              String name,
+                              int orderNum,
+                              TransientNodeData parentNode,
+                              Calendar date,
+                              TransientValueData fData) throws Exception {
 
     TransientNodeData nodeData = creteNodeData(new InternalQName(Constants.NS_DEFAULT_URI, name),
-        orderNum, parentNode, Constants.NT_FILE, DCPropertyQName.dcElementSet);
+                                               orderNum,
+                                               parentNode,
+                                               Constants.NT_FILE,
+                                               DCPropertyQName.dcElementSet);
     con.add(nodeData);
 
-    TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getIdentifier(), false);
+    TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                          Constants.JCR_PRIMARYTYPE),
+                                                                      IdGenerator.generate(),
+                                                                      -1,
+                                                                      PropertyType.NAME,
+                                                                      nodeData.getIdentifier(),
+                                                                      false);
     primaryTypeData.setValue(new TransientValueData(Constants.NT_FILE));
     con.add(primaryTypeData);
 
-    TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_CREATED), IdGenerator.generate(), -1, PropertyType.DATE,
-        nodeData.getIdentifier(), false);
+    TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                      Constants.JCR_CREATED),
+                                                                  IdGenerator.generate(),
+                                                                  -1,
+                                                                  PropertyType.DATE,
+                                                                  nodeData.getIdentifier(),
+                                                                  false);
     createdData.setValue(new TransientValueData(date));
     con.add(createdData);
 
-    TransientPropertyData mixinTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_MIXINTYPES), IdGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getIdentifier(), true);
+    TransientPropertyData mixinTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                        Constants.JCR_MIXINTYPES),
+                                                                    IdGenerator.generate(),
+                                                                    -1,
+                                                                    PropertyType.NAME,
+                                                                    nodeData.getIdentifier(),
+                                                                    true);
     mixinTypeData.setValue(new TransientValueData(DCPropertyQName.dcElementSet));
     con.add(mixinTypeData);
 
-    TransientNodeData contentNode = creteNodeData(Constants.JCR_CONTENT, 0, nodeData,
-        Constants.NT_RESOURCE, null);
+    TransientNodeData contentNode = creteNodeData(Constants.JCR_CONTENT,
+                                                  0,
+                                                  nodeData,
+                                                  Constants.NT_RESOURCE,
+                                                  null);
     con.add(contentNode);
 
-    TransientPropertyData primaryTypeContenNode = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1,
-        PropertyType.NAME, contentNode.getIdentifier(), false);
+    TransientPropertyData primaryTypeContenNode = new TransientPropertyData(QPath.makeChildPath(contentNode.getQPath(),
+                                                                                                Constants.JCR_PRIMARYTYPE),
+                                                                            IdGenerator.generate(),
+                                                                            -1,
+                                                                            PropertyType.NAME,
+                                                                            contentNode.getIdentifier(),
+                                                                            false);
     primaryTypeContenNode.setValue(new TransientValueData(Constants.NT_RESOURCE));
     con.add(primaryTypeContenNode);
 
-    TransientPropertyData uuidPropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_UUID), IdGenerator.generate(), -1,
-        PropertyType.STRING, contentNode.getIdentifier(), false);
+    TransientPropertyData uuidPropertyData = new TransientPropertyData(QPath.makeChildPath(contentNode.getQPath(),
+                                                                                           Constants.JCR_UUID),
+                                                                       IdGenerator.generate(),
+                                                                       -1,
+                                                                       PropertyType.STRING,
+                                                                       contentNode.getIdentifier(),
+                                                                       false);
     uuidPropertyData.setValue(new TransientValueData(IdGenerator.generate()));
     con.add(uuidPropertyData);
 
-    TransientPropertyData mimeTypePropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_MIMETYPE), IdGenerator.generate(), -1,
-        PropertyType.STRING, contentNode.getIdentifier(), false);
+    TransientPropertyData mimeTypePropertyData = new TransientPropertyData(QPath.makeChildPath(contentNode.getQPath(),
+                                                                                               Constants.JCR_MIMETYPE),
+                                                                           IdGenerator.generate(),
+                                                                           -1,
+                                                                           PropertyType.STRING,
+                                                                           contentNode.getIdentifier(),
+                                                                           false);
     mimeTypePropertyData.setValue(new TransientValueData(sMimeType/* "image/tiff" */));
     con.add(mimeTypePropertyData);
 
-    TransientPropertyData lastModifiedPropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_LASTMODIFIED), IdGenerator.generate(), -1,
-        PropertyType.DATE, contentNode.getIdentifier(), false);
+    TransientPropertyData lastModifiedPropertyData = new TransientPropertyData(QPath.makeChildPath(contentNode.getQPath(),
+                                                                                                   Constants.JCR_LASTMODIFIED),
+                                                                               IdGenerator.generate(),
+                                                                               -1,
+                                                                               PropertyType.DATE,
+                                                                               contentNode.getIdentifier(),
+                                                                               false);
     lastModifiedPropertyData.setValue(new TransientValueData(date));
     con.add(lastModifiedPropertyData);
 
-    TransientPropertyData dataPropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_DATA), IdGenerator.generate(), -1,
-        PropertyType.BINARY, contentNode.getIdentifier(), false);
+    TransientPropertyData dataPropertyData = new TransientPropertyData(QPath.makeChildPath(contentNode.getQPath(),
+                                                                                           Constants.JCR_DATA),
+                                                                       IdGenerator.generate(),
+                                                                       -1,
+                                                                       PropertyType.BINARY,
+                                                                       contentNode.getIdentifier(),
+                                                                       false);
     dataPropertyData.setValue(fData);
     con.add(dataPropertyData);
 
     addDcElementSet(con, nodeData);
   }
 
-  private void addDcElementSet(WorkspaceStorageConnection con, TransientNodeData nodeData)
-      throws Exception {
+  private void addDcElementSet(WorkspaceStorageConnection con, TransientNodeData nodeData) throws Exception {
 
     addDCProperty(con, nodeData, DCPropertyQName.dcTitle, "T123456789");
     addDCProperty(con, nodeData, DCPropertyQName.dcCreator, "C123456789");
@@ -520,20 +599,26 @@ public class DataUploader {
     addDCProperty(con, nodeData, DCPropertyQName.dcPublisher, "P123456789");
   }
 
-  private void addDCProperty(WorkspaceStorageConnection con, TransientNodeData dcNode,
-      InternalQName propertyQName, String propertyContent) throws Exception {
+  private void addDCProperty(WorkspaceStorageConnection con,
+                             TransientNodeData dcNode,
+                             InternalQName propertyQName,
+                             String propertyContent) throws Exception {
 
-    TransientPropertyData dcPropertyData = new TransientPropertyData(QPath.makeChildPath(dcNode
-        .getQPath(), propertyQName), IdGenerator.generate(), -1, PropertyType.STRING, dcNode
-        .getIdentifier(), true);
+    TransientPropertyData dcPropertyData = new TransientPropertyData(QPath.makeChildPath(dcNode.getQPath(),
+                                                                                         propertyQName),
+                                                                     IdGenerator.generate(),
+                                                                     -1,
+                                                                     PropertyType.STRING,
+                                                                     dcNode.getIdentifier(),
+                                                                     true);
     dcPropertyData.setValue(new TransientValueData(propertyContent));
     con.add(dcPropertyData);
   }
 
   public NodeImpl getNode(NodeImpl parentNode, String relPath) throws PathNotFoundException,
-      RepositoryException {
+                                                              RepositoryException {
     JCRPath itemPath = session.getLocationFactory()
-        .createJCRPath(parentNode.getLocation(), relPath);
+                              .createJCRPath(parentNode.getLocation(), relPath);
     NodeImpl node = (NodeImpl) dataManager.getItem(itemPath.getInternalPath(), true);
     if (node == null)
       throw new PathNotFoundException("Node not found " + itemPath.getAsString(true));
@@ -541,7 +626,7 @@ public class DataUploader {
   }
 
   public Property getProperty(NodeImpl node, String relPath) throws PathNotFoundException,
-      RepositoryException {
+                                                            RepositoryException {
     JCRPath itemPath = locationFactory.createJCRPath(node.getLocation(), relPath);
 
     Item prop = dataManager.getItem(itemPath.getInternalPath(), true);

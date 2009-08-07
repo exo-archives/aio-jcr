@@ -30,9 +30,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 16.04.2007
- * 12:52:43
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 16.04.2007 12:52:43
  * 
  * @version $Id: DataReaderTh.java 16.04.2007 12:52:43 rainfox
  */
@@ -72,23 +71,23 @@ public class DataReaderTh implements Runnable {
 
     String primaryType = parent.getPrimaryNodeType().getName();
 
-    //TODO
+    // TODO
     if (primaryType.equals("nt:folder")) {
       ntFolderCount++;
       log.info("\t" + ntFolderCount + " nt:folder has been raed");
-        NodeIterator ni = parent.getNodes();
-        if (ni.hasNext()) {
-          while (ni.hasNext()) {
-            Node n1 = ni.nextNode();
-            readChilds(n1);
-          }
+      NodeIterator ni = parent.getNodes();
+      if (ni.hasNext()) {
+        while (ni.hasNext()) {
+          Node n1 = ni.nextNode();
+          readChilds(n1);
         }
+      }
     } else if (primaryType.equals("nt:file")) {
       ntFileCount++;
       log.info("\t" + ntFileCount + " nt:file has been raed");
       if (readProperty) {
         showDCProperty(parent);
-        
+
         NodeIterator ni = parent.getNodes();
         if (ni.hasNext()) {
           while (ni.hasNext()) {

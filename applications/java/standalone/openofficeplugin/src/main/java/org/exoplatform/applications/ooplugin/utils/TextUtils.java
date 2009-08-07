@@ -28,8 +28,7 @@ import org.exoplatform.applications.ooplugin.OOConstants.MimeTypes;
 import org.w3c.dom.Document;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev
- * work.visor.ck@gmail.com Aug 19, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 19, 2008
  */
 public class TextUtils {
 
@@ -100,7 +99,7 @@ public class TextUtils {
     }
     return sb.toString();
   }
-  
+
   public static String DecodePath(String path) throws Exception {
 
     if (path.startsWith("/")) {
@@ -116,15 +115,15 @@ public class TextUtils {
     }
     return sb.toString();
   }
-  
+
   public static String FilterFileName(String filename) {
-    
-    while(filename.startsWith(" ")){
+
+    while (filename.startsWith(" ")) {
       filename = filename.substring(1);
     }
-    
+
     filename = filename.substring(0, filename.indexOf("."));
-    
+
     return filename;
   }
 

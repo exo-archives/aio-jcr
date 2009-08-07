@@ -24,21 +24,19 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.org.ua
- *          reshetnyak.alex@gmail.com		
- * 07.05.2007 15:51:14 
- * @version $Id: Scale.java 07.05.2007 15:51:14 rainfox 
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 07.05.2007 15:51:14
+ * 
+ * @version $Id: Scale.java 07.05.2007 15:51:14 rainfox
  */
 public class Scale {
-  
+
   public static void main(String[] args) {
-    
+
     Log log = ExoLogger.getLogger("repload.Scale");
-   
+
     ScaleBase scaleBase = new ScaleBase(args);
-    
+
     try {
       scaleBase.createFolder();
     } catch (RepositoryException e) {

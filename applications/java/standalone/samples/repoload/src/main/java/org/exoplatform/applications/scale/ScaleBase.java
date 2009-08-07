@@ -35,48 +35,47 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 07.05.2007
- * 15:53:19
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 07.05.2007 15:53:19
  * 
  * @version $Id: ScaleBase.java 07.05.2007 15:53:19 rainfox
  */
 public class ScaleBase {
-  Log                                log = ExoLogger.getLogger("repload.ScaleBase");
+  Log                         log       = ExoLogger.getLogger("repload.ScaleBase");
 
-  String                             args[];
+  String                      args[];
 
-  private String                     sConf;
+  private String              sConf;
 
-  private String                     sRepository;
+  private String              sRepository;
 
-  private String                     sWorkspace;
+  private String              sWorkspace;
 
-  private String                     sRoot;
+  private String              sRoot;
 
-  private String                     sVdfile;
+  private String              sVdfile;
 
-  private String                     sMimeType;
+  private String              sMimeType;
 
-  private StandaloneContainer        container;
+  private StandaloneContainer container;
 
-  private CredentialsImpl            credentials;
+  private CredentialsImpl     credentials;
 
-  private RepositoryService          repositoryService;
+  private RepositoryService   repositoryService;
 
-  private RepositoryImpl             repository;
+  private RepositoryImpl      repository;
 
-  private SessionImpl                session;
+  private SessionImpl         session;
 
-  private Node                       root;
+  private Node                root;
 
-  private Node                       rootTestNode;
+  private Node                rootTestNode;
 
-  private long                       min, max, sum;
+  private long                min, max, sum;
 
-  private int                        iteration = 100;
+  private int                 iteration = 100;
 
-  private double                     avr;
+  private double              avr;
 
   public ScaleBase(String[] args) {
     this.args = args;
@@ -85,7 +84,7 @@ public class ScaleBase {
     } catch (Exception e) {
       log.error("Error init reposytory", e);
     }
-    
+
   }
 
   public void initRepository() throws Exception {
@@ -96,21 +95,22 @@ public class ScaleBase {
       sRoot = getPartam("-root", args);
       sVdfile = getPartam("-vdfile", args);
       sMimeType = getPartam("-mimeType", args);
-      
+
       log.info("-conf: " + sConf);
 
       StandaloneContainer.setConfigurationPath(sConf);
-      
+
       container = StandaloneContainer.getInstance();
 
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
-            .getContextClassLoader().getResource("login.conf").toString());
+                                                                    .getContextClassLoader()
+                                                                    .getResource("login.conf")
+                                                                    .toString());
 
       credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
-      repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+      repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
       repository = (RepositoryImpl) repositoryService.getRepository(sRepository);
       if (repository != null)
@@ -251,12 +251,12 @@ public class ScaleBase {
 
     for (int i = 0; i < iteration; i++) {
       long start = System.currentTimeMillis();
-        Node nodeFile = uploadBase.addNode("file" + i, "nt:file");
-        Node contentNode = nodeFile.addNode("jcr:content", "nt:resource");
-        contentNode.setProperty("jcr:data", new FileInputStream(sVdfile));
-        contentNode.setProperty("jcr:mimeType", sMimeType);
-        contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
-        session.save();
+      Node nodeFile = uploadBase.addNode("file" + i, "nt:file");
+      Node contentNode = nodeFile.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:data", new FileInputStream(sVdfile));
+      contentNode.setProperty("jcr:mimeType", sMimeType);
+      contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
+      session.save();
       long end = System.currentTimeMillis();
 
       long tmp = end - start;
@@ -265,12 +265,12 @@ public class ScaleBase {
         max = tmp;
       if (tmp < min)
         min = tmp;
-      
-      sum+=tmp;
+
+      sum += tmp;
     }
-    
-    avr = sum / (double)iteration;
-    
+
+    avr = sum / (double) iteration;
+
     System.out.println("\nUpload file:");
     System.out.println("\tavr: " + avr + " ms");
     System.out.println("\tmin: " + min + " ms");
@@ -314,4 +314,3 @@ public class ScaleBase {
     System.out.println("\tmax: " + max + " ms");
   }
 }
-  
