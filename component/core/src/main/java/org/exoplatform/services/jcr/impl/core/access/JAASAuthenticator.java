@@ -40,7 +40,7 @@ import org.exoplatform.services.security.jaas.BasicCallbackHandler;
  * Implements JAAS based authentication using LoginContext configured
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class JAASAuthenticator extends BaseAuthenticator {

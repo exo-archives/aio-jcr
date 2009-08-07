@@ -73,10 +73,10 @@ import org.exoplatform.management.jmx.annotations.Property;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: LockManagerImpl.java 12096 2008-03-19 11:42:40Z gazarenkov $
+ * @version $Id$
  */
 @Managed
-@NameTemplate(@Property(key="service",value="lockmanager"))
+@NameTemplate(@Property(key = "service", value = "lockmanager"))
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   /**
@@ -161,7 +161,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           ? config.getLockManager().getTimeout()
           : DEFAULT_LOCK_TIMEOUT;
     } else
-       lockTimeOut = DEFAULT_LOCK_TIMEOUT;
+      lockTimeOut = DEFAULT_LOCK_TIMEOUT;
 
     locks = new HashMap<String, LockData>();
     pendingLocks = new HashMap<String, LockData>();

@@ -61,7 +61,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: NodeTypeDataPersister.java 13962 2008-05-07 16:00:48Z pnedonosko $
+ * @version $Id$
  */
 
 public class NodeTypeDataPersister {
@@ -195,7 +195,7 @@ public class NodeTypeDataPersister {
     for (NodeType nt : nodetypes) {
       try {
         addNodeType(nt);
-        if(log.isDebugEnabled())
+        if (log.isDebugEnabled())
           log.debug("Node type " + nt.getName() + " is initialized. ");
       } catch (ItemExistsException e) {
         log.warn("Node exists " + nt.getName() + ". Error: " + e.getMessage());
@@ -251,7 +251,7 @@ public class NodeTypeDataPersister {
     TransientPropertyData name = TransientPropertyData.createPropertyData(ntNode,
                                                                           Constants.JCR_NODETYPENAME,
                                                                           PropertyType.NAME,
-                                                                          false); //jcr:nodeTypeName
+                                                                          false); // jcr:nodeTypeName
     name.setValue(new TransientValueData(parseName(nodeType.getName())));
 
     TransientPropertyData isMixin = TransientPropertyData.createPropertyData(ntNode,
@@ -278,7 +278,7 @@ public class NodeTypeDataPersister {
       TransientPropertyData primaryItemName = TransientPropertyData.createPropertyData(ntNode,
                                                                                        Constants.JCR_PRIMARYITEMNAME,
                                                                                        PropertyType.NAME,
-                                                                                       false); //jcr:
+                                                                                       false); // jcr:
       // primaryItemName
       primaryItemName.setValue(new TransientValueData(parseName(nodeType.getPrimaryItemName())));
       changesLog.add(ItemState.createAddedState(primaryItemName));
@@ -626,7 +626,7 @@ public class NodeTypeDataPersister {
                  // jcr:requiredType
                  .forProperty(Constants.JCR_VALUECONSTRAINTS, PropertyType.STRING)
                  // jcr:valueConstraints
-                 .forProperty(Constants.JCR_DEFAULTVALUES, PropertyType.STRING); //jcr:defaultValues
+                 .forProperty(Constants.JCR_DEFAULTVALUES, PropertyType.STRING); // jcr:defaultValues
               pdr.read();
               String[] valueConstraints = null;
               try {

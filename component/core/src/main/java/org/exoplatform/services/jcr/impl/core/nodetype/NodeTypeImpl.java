@@ -53,7 +53,7 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: NodeTypeImpl.java 12298 2008-03-24 08:04:52Z ksm $
+ * @version $Id$
  */
 public class NodeTypeImpl implements ExtendedNodeType {
 
@@ -368,7 +368,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
    */
   public boolean canSetProperty(String propertyName, Value value) {
     PropertyDefinition def = getPropertyDefinitions(propertyName).getDefinition(false);
-    
+
     if (def != null) {
       if (def.isProtected()) {
         return false;

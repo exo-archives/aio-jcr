@@ -25,7 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: LockRemover.java 11987 2008-03-17 09:06:06Z ksm $
+ * @version $Id$
  */
 public class LockRemover extends WorkerThread {
 
@@ -48,7 +48,7 @@ public class LockRemover extends WorkerThread {
     setPriority(Thread.MIN_PRIORITY);
     setDaemon(true);
     start();
-    if(log.isDebugEnabled())
+    if (log.isDebugEnabled())
       log.debug("LockRemover instantiated name= " + getName() + " timeout= " + timeout);
   }
 

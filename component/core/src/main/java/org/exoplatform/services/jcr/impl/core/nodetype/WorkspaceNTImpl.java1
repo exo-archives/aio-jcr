@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * Created by The eXo Platform SARL .
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: WorkspaceNTImpl.java1 11837 2008-03-11 12:48:56Z gazarenkov $
+ * @version $Id$
  */
 
 public class WorkspaceNTImpl implements ExtendedNodeType {

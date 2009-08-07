@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: LockManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public interface LockManager {
   /**
@@ -87,8 +87,10 @@ public interface LockManager {
 
   /**
    * Returns <code>true</code> if the specified session holds a lock on the given node; otherwise
-   * returns <code>false</code>. <p/> Note that <code>isLockHolder(session, node)==true</code>
-   * implies <code>holdsLock(node)==true</code>.
+   * returns <code>false</code>.
+   * <p/>
+   * Note that <code>isLockHolder(session, node)==true</code> implies
+   * <code>holdsLock(node)==true</code>.
    * 
    * @param session
    *          session
