@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS. Per-workspace factory object for ValueStoragePlugin
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: StandaloneStoragePluginProvider.java 13463 2007-03-16 09:17:29Z geaz $
+ * @version $Id$
  */
 
 public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugin> implements

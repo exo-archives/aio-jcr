@@ -20,7 +20,7 @@ import javax.jcr.RepositoryException;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ValueDataNotFoundException.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ValueDataNotFoundException extends RepositoryException {
 

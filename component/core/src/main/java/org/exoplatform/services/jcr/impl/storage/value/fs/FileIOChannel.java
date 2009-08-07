@@ -141,7 +141,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
       long fileSize = file.length();
 
       if (fileSize > maxBufferSize) {
-        return new FileStreamPersistedValueData(file, orderNum);        
+        return new FileStreamPersistedValueData(file, orderNum);
       } else {
         int buffSize = (int) fileSize;
         byte[] res = new byte[buffSize];
