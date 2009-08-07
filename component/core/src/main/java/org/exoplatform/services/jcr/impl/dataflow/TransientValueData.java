@@ -51,7 +51,7 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  * Created by The eXo Platform SAS.<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: TransientValueData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TransientValueData extends AbstractValueData implements Externalizable {
 
@@ -449,7 +449,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
         if (!spoolFile.delete())
           if (fileCleaner != null) {
             fileCleaner.addFile(spoolFile);
-            
+
             if (log.isDebugEnabled())
               log.debug("Could not remove file. Add to fileCleaner " + spoolFile.getAbsolutePath());
           } else {

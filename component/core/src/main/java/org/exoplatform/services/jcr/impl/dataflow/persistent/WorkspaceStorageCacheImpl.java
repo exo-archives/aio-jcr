@@ -56,7 +56,7 @@ import org.exoplatform.services.log.ExoLogger;
  * childs will be returned from getXXX() calls. [PN] 13.04.06
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov </a>
- * @version $Id: WorkspaceStorageCacheImpl.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 @Deprecated
 public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {

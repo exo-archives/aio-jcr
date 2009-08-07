@@ -28,16 +28,20 @@ import org.exoplatform.services.jcr.impl.core.XASessionImpl;
 import org.exoplatform.services.transaction.TransactionException;
 
 /**
- * Created by The eXo Platform SAS.<p/>
+ * Created by The eXo Platform SAS.
+ * <p/>
  * 
  * Manager provides consistency of transaction operations performed by same user but in different
- * Repository Sessions.<p/>
+ * Repository Sessions.
+ * <p/>
  * 
  * Manager stores list of XASessions involved in transaction by a user and then can be used to
- * broadcast transaction start/commit/rollback to all live Sessions of the user.<p/>
+ * broadcast transaction start/commit/rollback to all live Sessions of the user.
+ * <p/>
  * 
  * Broadcast of operations it's an atomic operation regarding to the Sessions list. Until operation
- * broadcast request is active other requests or list modifications will wait for.<p/>
+ * broadcast request is active other requests or list modifications will wait for.
+ * <p/>
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$

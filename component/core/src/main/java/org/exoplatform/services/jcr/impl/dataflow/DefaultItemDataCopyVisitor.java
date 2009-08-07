@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * list of <code>List&lt;ItemState&gt;</code> for copying new nodes and their properties.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: DefaultItemDataCopyVisitor.java 12306 2008-03-24 10:25:55Z ksm $
+ * @version $Id$
  */
 
 public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisitor {

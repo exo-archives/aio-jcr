@@ -121,7 +121,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   /**
    * Cache implementaion logger.
    */
-  protected static final Log                                  LOG                                 = ExoLogger.getLogger("jcr.LinkedWorkspaceStorageCacheImpl");
+  protected static final Log                            LOG                                 = ExoLogger.getLogger("jcr.LinkedWorkspaceStorageCacheImpl");
 
   /**
    * Cache C.
@@ -164,8 +164,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private CacheStatistic                                statistic;
 
   /**
-   * Tell if we haveto remove whole node subtree (true), or just remove cached childs lists (false).
-   * <br/> If true - it's more expensive operation.
+   * Tell if we haveto remove whole node subtree (true), or just remove cached childs lists (false). <br/>
+   * If true - it's more expensive operation.
    */
   private final boolean                                 deepDelete;
 
@@ -249,8 +249,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
 
     /**
-     * Remove in next reelase. Remove eldest item. <br/> Assuming that lock on write to C was placed
-     * in remove() which internaly call removeEldestEntry(). Synchronized by CP.
+     * Remove in next reelase. Remove eldest item. <br/>
+     * Assuming that lock on write to C was placed in remove() which internaly call
+     * removeEldestEntry(). Synchronized by CP.
      * 
      * @param item
      */
@@ -949,7 +950,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildProperties(final NodeData parentData, final List<PropertyData> childItems) {
-    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
+                                                               // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -999,7 +1001,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
-    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
+                                                               // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1039,7 +1042,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
-    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
+                                                               // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1394,9 +1398,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Unload (delete) given node (outdated) from cache to be cached again.<br/> For
-   * rename/update/remove usecase.<br/> The work does remove of all descendants of the item parent.
-   * I.e. the node and its siblings (for SNS case).<br/>
+   * Unload (delete) given node (outdated) from cache to be cached again.<br/>
+   * For rename/update/remove usecase.<br/>
+   * The work does remove of all descendants of the item parent. I.e. the node and its siblings (for
+   * SNS case).<br/>
    */
   @Deprecated
   private void unloadNode(final NodeData node) {
@@ -1423,8 +1428,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Unload (delete) given property (outdated) from cache to be cached again.<br/> For
-   * add/update/remove mixins usecase.<br/>
+   * Unload (delete) given property (outdated) from cache to be cached again.<br/>
+   * For add/update/remove mixins usecase.<br/>
    */
   @Deprecated
   private void unloadProperty(PropertyData property) {
@@ -1464,7 +1469,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Remove sibling's subtrees from cache C, CN, CP.<br/> For update (order-before) usecase.<br/>
+   * Remove sibling's subtrees from cache C, CN, CP.<br/>
+   * For update (order-before) usecase.<br/>
    * The work does remove of all descendants of the item parent. I.e. the node and its siblings (for
    * SNS case).<br/>
    */
@@ -1548,8 +1554,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             // we have to unload node and its parent child nodes to be loaded
             // back from the persistence
             ItemState prevState = itemStates.get(i - 1);
-            if (prevState.isDeleted() && 
-                prevState.getData().getParentIdentifier().equals(item.getParentIdentifier()))
+            if (prevState.isDeleted()
+                && prevState.getData().getParentIdentifier().equals(item.getParentIdentifier()))
               removeSiblings((NodeData) item);
           }
           put(item);
@@ -1605,9 +1611,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Remove item relations in the cache(C,CN,CP) by Identifier in case of item remove from cache.
-   * <br/>Relations for a node it's a child nodes, properties and item in node's parent childs list.
-   * <br/>Relations for a property it's a item in node's parent childs list.
+   * Remove item relations in the cache(C,CN,CP) by Identifier in case of item remove from cache. <br/>
+   * Relations for a node it's a child nodes, properties and item in node's parent childs list. <br/>
+   * Relations for a property it's a item in node's parent childs list.
    */
   @Deprecated
   protected void removeRelations(final ItemData item) {
@@ -1746,8 +1752,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Remove successors by parent path from C. <br/> Used to remove successors which are not cached
-   * in CN, CP.<br/> Outside must be sinchronyzed by cache(C).
+   * Remove successors by parent path from C. <br/>
+   * Used to remove successors which are not cached in CN, CP.<br/>
+   * Outside must be sinchronyzed by cache(C).
    */
   @Deprecated
   protected void removeSuccessors(final NodeData parent) {
@@ -1775,7 +1782,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Remove expired item with its properties and child nodes.<br/> Used in {@link getItem()}. <br/>
+   * Remove expired item with its properties and child nodes.<br/>
+   * Used in {@link getItem()}. <br/>
    * Aquire lock on-write to C.
    * 
    * @param item

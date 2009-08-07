@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TransientPropertyData.java 13962 2008-05-07 16:00:48Z pnedonosko $
+ * @version $Id$
  */
 
 public class TransientPropertyData extends TransientItemData implements MutablePropertyData,

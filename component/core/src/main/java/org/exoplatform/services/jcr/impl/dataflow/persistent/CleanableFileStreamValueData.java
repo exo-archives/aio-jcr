@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.impl.util.io.SwapFile;
  * object finalization
  * 
  * @author Gennady Azarenkov
- * @version $Id: CleanableFileStreamValueData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
@@ -70,8 +70,7 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
    */
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
-      return new TransientValueData(orderNumber, null, null, file, cleaner, -1, null, true); // was
-      // false
+      return new TransientValueData(orderNumber, null, null, file, cleaner, -1, null, true); // was false
     } catch (IOException e) {
       throw new RepositoryException(e);
     }

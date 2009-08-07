@@ -48,7 +48,7 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
  * Date: 13.05.2008 <br/>
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ValueDataConvertor.java 14464 2008-05-19 11:05:20Z pnedonosko $
+ * @version $Id$
  */
 public class ValueDataConvertor {
 

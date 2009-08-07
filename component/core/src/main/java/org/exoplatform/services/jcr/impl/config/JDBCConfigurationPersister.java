@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.DBConstants;
  * TODO use log.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JDBCConfigurationPersister.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class JDBCConfigurationPersister implements ConfigurationPersister {
 

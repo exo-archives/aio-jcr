@@ -32,11 +32,10 @@ import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
- * Created by The eXo Platform SAS. 
+ * Created by The eXo Platform SAS.
  * 
  * <br/>
- * Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
- * 13.04.2006
+ * Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua 13.04.2006
  * 
  * @version $Id$
  */

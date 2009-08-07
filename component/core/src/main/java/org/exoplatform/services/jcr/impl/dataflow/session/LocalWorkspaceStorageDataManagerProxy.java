@@ -45,14 +45,15 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 
 /**
- * Created by The eXo Platform SAS.<br/> proxy of local workspace storage. "local" means that
- * backended workspace data manager is located on the same JVM as session layer.
- * WorkspaceStorageDataManagerProxy can be pluggable in a case of other storage-session transport
- * applied (for ex RMI) this implementation is responsible for making copy of persisted (shared)
- * data objects for session data manager and pass it on top (to TransactionableDM) (and vice versa?)
+ * Created by The eXo Platform SAS.<br/>
+ * proxy of local workspace storage. "local" means that backended workspace data manager is located
+ * on the same JVM as session layer. WorkspaceStorageDataManagerProxy can be pluggable in a case of
+ * other storage-session transport applied (for ex RMI) this implementation is responsible for
+ * making copy of persisted (shared) data objects for session data manager and pass it on top (to
+ * TransactionableDM) (and vice versa?)
  * 
  * @author Gennady Azarenkov
- * @version $Id: LocalWorkspaceStorageDataManagerProxy.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDataManagerProxy {

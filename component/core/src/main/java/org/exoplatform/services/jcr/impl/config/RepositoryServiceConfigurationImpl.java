@@ -47,7 +47,7 @@ import org.exoplatform.services.naming.InitialContextInitializer;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: RepositoryServiceConfigurationImpl.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfiguration {

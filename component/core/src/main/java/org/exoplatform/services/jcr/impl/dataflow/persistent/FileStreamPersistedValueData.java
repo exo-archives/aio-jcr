@@ -30,11 +30,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: FileStreamPersistedValueData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class FileStreamPersistedValueData extends AbstractValueData {
 
-  protected final File    file;
+  protected final File file;
 
   public FileStreamPersistedValueData(File file, int orderNumber) {
     super(orderNumber);

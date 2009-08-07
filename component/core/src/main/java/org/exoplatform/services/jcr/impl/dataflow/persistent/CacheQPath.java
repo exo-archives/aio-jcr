@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * 15.06.07
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: CacheQPath.java 13869 2008-05-05 08:40:10Z pnedonosko $
+ * @version $Id$
  */
 class CacheQPath extends CacheKey {
 

@@ -23,7 +23,7 @@ package org.exoplatform.services.jcr.impl.dataflow;
  * Besides NodeData's methods includes child items adders
  *
  * @author Gennady Azarenkov
- * @version $Id: TransientNodeData.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 import java.io.Externalizable;

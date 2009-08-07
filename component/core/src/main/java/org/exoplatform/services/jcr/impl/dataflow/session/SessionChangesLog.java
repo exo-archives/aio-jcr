@@ -33,8 +33,9 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
 
 /**
- * Created by The eXo Platform SAS.<br/> Responsible for managing session changes log. Relying on
- * fact that ItemData inside ItemState SHOULD be TransientItemData
+ * Created by The eXo Platform SAS.<br/>
+ * Responsible for managing session changes log. Relying on fact that ItemData inside ItemState
+ * SHOULD be TransientItemData
  * 
  * @author Gennady Azarenkov
  * @version $Id$

@@ -45,7 +45,7 @@ import org.exoplatform.services.transaction.TransactionResource;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: TransactionableDataManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TransactionableDataManager implements TransactionResource, DataManager {
 

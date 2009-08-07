@@ -42,7 +42,7 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
  * <b>ItemDeletedExistingStates</b> list for remove existing nodes if <code>removeExisting</code> is
  * true.
  * 
- * @version $Id: ItemDataCloneVisitor.java 12306 2008-03-24 10:25:55Z ksm $
+ * @version $Id$
  */
 public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
 

@@ -45,7 +45,7 @@ import org.exoplatform.services.log.ExoLogger;
  * /jcr:system/jcr:versionStorage *adding version history for newly added/assigned mix:versionable
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: VersionableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWorkspaceDataManager {

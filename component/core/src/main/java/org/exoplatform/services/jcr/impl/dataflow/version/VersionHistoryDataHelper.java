@@ -48,7 +48,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * a VersionHistoryImpl.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: VersionHistoryDataHelper.java 17564 2007-07-06 15:26:07Z peterit $
+ * @version $Id$
  */
 public class VersionHistoryDataHelper extends TransientNodeData {
 
@@ -247,7 +247,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
     NodeData versionStorageData = (NodeData) dataManager.getItemData(rootItem,
                                                                      new QPathEntry(Constants.JCR_VERSIONSTORAGE,
-                                                                                    1)); //Constants.
+                                                                                    1)); // Constants.
     // JCR_VERSION_STORAGE_PATH
 
     InternalQName vhName = new InternalQName(null, versionHistoryIdentifier);

@@ -41,13 +41,13 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * list of <code>List&lt;ItemState&gt;</code> for copying new nodes and their properties and
  * <b>itemDeletedStates</b> for deleting existing nodes and properties.
  * 
- * @version $Id: ItemDataMoveVisitor.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
   /**
    * The list of added item states
    */
-  protected List<ItemState>     deleteStates = new ArrayList<ItemState>();
+  protected List<ItemState>     deleteStates   = new ArrayList<ItemState>();
 
   /**
    * Destination node name
@@ -62,8 +62,8 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
   /**
    * The list of added item states
    */
-  protected List<ItemState>     addStates     = new ArrayList<ItemState>();
-  
+  protected List<ItemState>     addStates      = new ArrayList<ItemState>();
+
   /**
    * The variable shows necessity of preservation <code>Identifier</code>, not generate new one, at
    * transformation of <code>Item</code>.
@@ -75,7 +75,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
    */
   protected NodeTypeManagerImpl ntManager;
 
-  protected QPath               ancestorToSave    = null;
+  protected QPath               ancestorToSave = null;
 
   /**
    * Creates an instance of this class.
@@ -142,7 +142,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
           if (dchild.getQPath().getName().equals(qname))
             destIndex++;
         }
-        
+
         // for fix SNSes on source
         srcParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
         if (srcParent == null)
@@ -171,11 +171,11 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
                                                               child.getParentIdentifier(),
                                                               child.getACL());
             addStates.add(new ItemState(sibling,
-                                            ItemState.UPDATED,
-                                            true,
-                                            ancestorToSave,
-                                            false,
-                                            true));
+                                        ItemState.UPDATED,
+                                        true,
+                                        ancestorToSave,
+                                        false,
+                                        true));
 
             srcIndex++;
           }
@@ -212,17 +212,17 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
     // ancestorToSave is a parent node
     // if level == 0 set internal createt as false for validating on save
     addStates.add(new ItemState(newNode,
-                                    ItemState.RENAMED,
-                                    level == 0,
-                                    ancestorToSave,
-                                    false,
-                                    level == 0));
+                                ItemState.RENAMED,
+                                level == 0,
+                                ancestorToSave,
+                                false,
+                                level == 0));
     deleteStates.add(new ItemState(node,
-                                        ItemState.DELETED,
-                                        level == 0,
-                                        ancestorToSave,
-                                        false,
-                                        false));
+                                   ItemState.DELETED,
+                                   level == 0,
+                                   ancestorToSave,
+                                   false,
+                                   false));
   }
 
   @Override
@@ -254,22 +254,12 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
                                                                   property.isMultiValued());
 
     newProperty.setValues(values);
-    addStates.add(new ItemState(newProperty,
-                                    ItemState.RENAMED,
-                                    false,
-                                    ancestorToSave,
-                                    false,
-                                    false));
+    addStates.add(new ItemState(newProperty, ItemState.RENAMED, false, ancestorToSave, false, false));
 
     // get last from super.entering(property, level)
     // ItemState copy = itemAddStates.get(itemAddStates.size() - 1);
 
-    deleteStates.add(new ItemState(property,
-                                        ItemState.DELETED,
-                                        false,
-                                        ancestorToSave,
-                                        false,
-                                        false));
+    deleteStates.add(new ItemState(property, ItemState.DELETED, false, ancestorToSave, false, false));
   }
 
   public List<ItemState> getAllStates() {
