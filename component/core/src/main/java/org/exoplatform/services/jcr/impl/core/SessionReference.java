@@ -33,15 +33,19 @@ import java.util.ArrayList;
 public class SessionReference extends WeakReference<Session> {
 
   //
-  private static final int INITIAL_DELAY = 10;
-  private static final int DELAY = 15;
+  private static final int                                   INITIAL_DELAY = 10;
+
+  private static final int                                   DELAY         = 15;
 
   //
-  private static ScheduledExecutorService executor;
+  private static ScheduledExecutorService                    executor;
+
   private static ConcurrentHashMap<Object, SessionReference> objects;
-  private static boolean started = false;
-  private static long maxAgeMillis_;
-  
+
+  private static boolean                                     started       = false;
+
+  private static long                                        maxAgeMillis_;
+
   public synchronized static void start(long maxAgeMillis) {
     if (!started) {
       if (maxAgeMillis < 0) {
@@ -59,55 +63,60 @@ public class SessionReference extends WeakReference<Session> {
     return started;
   }
 
-  private static final Runnable detectorTask = new Runnable() {
-    public void run() {
-      System.out.println("Starting detector task");
+  private static final Runnable     detectorTask = new Runnable() {
+                                                   public void run() {
+                                                     System.out.println("Starting detector task");
 
-      //
-      ArrayList<SessionReference> list;
-      synchronized (SessionReference.class) {
-        list = new ArrayList<SessionReference>(objects.values());
-      }
+                                                     //
+                                                     ArrayList<SessionReference> list;
+                                                     synchronized (SessionReference.class) {
+                                                       list = new ArrayList<SessionReference>(objects.values());
+                                                     }
 
-      //
-      for (SessionReference ref : list) {
+                                                     //
+                                                     for (SessionReference ref : list) {
 
-        // It is closed we remove it
-        if (ref.closed) {
-          objects.remove(ref.key);
-        } else {
-          // We get the maybe null session
-          Session session = ref.get();
+                                                       // It is closed we remove it
+                                                       if (ref.closed) {
+                                                         objects.remove(ref.key);
+                                                       } else {
+                                                         // We get the maybe null session
+                                                         Session session = ref.get();
 
-          //
-          String error = null;
-          if (session == null) {
-            // we can consider it is expired and was not closed
-            error = "garbagednotclosed";
-          } else if (ref.timestamp < System.currentTimeMillis()) {
-            // it was not closed but we consider it is way too old
-            error = "expired";
-          } 
+                                                         //
+                                                         String error = null;
+                                                         if (session == null) {
+                                                           // we can consider it is expired and was
+                                                           // not closed
+                                                           error = "garbagednotclosed";
+                                                         } else if (ref.timestamp < System.currentTimeMillis()) {
+                                                           // it was not closed but we consider it
+                                                           // is way too old
+                                                           error = "expired";
+                                                         }
 
-          //
-          if (error != null) {
-            objects.remove(ref.key);
-            Exception e = new Exception();
-            e.setStackTrace(ref.stack);
-            System.out.println("<" + error + ">");
-            e.printStackTrace();
-            System.out.println("</" + error + ">");
-          }
-        }
-      }
-      System.out.println("Finished detector task");
-    }
-  };
+                                                         //
+                                                         if (error != null) {
+                                                           objects.remove(ref.key);
+                                                           Exception e = new Exception();
+                                                           e.setStackTrace(ref.stack);
+                                                           System.out.println("<" + error + ">");
+                                                           e.printStackTrace();
+                                                           System.out.println("</" + error + ">");
+                                                         }
+                                                       }
+                                                     }
+                                                     System.out.println("Finished detector task");
+                                                   }
+                                                 };
 
-  private final StackTraceElement[] stack = new Exception().getStackTrace();
-  private final Object key = new Object();
-  private final long timestamp = System.currentTimeMillis() + maxAgeMillis_;
-  volatile boolean closed = false;
+  private final StackTraceElement[] stack        = new Exception().getStackTrace();
+
+  private final Object              key          = new Object();
+
+  private final long                timestamp    = System.currentTimeMillis() + maxAgeMillis_;
+
+  volatile boolean                  closed       = false;
 
   SessionReference(Session referent) {
     super(referent);

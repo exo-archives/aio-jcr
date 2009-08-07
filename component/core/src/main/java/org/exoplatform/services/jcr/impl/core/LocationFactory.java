@@ -33,7 +33,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Helper for creating namespace mapping dependent entities like JCR path, name, uuid
  * 
  * @author Gennady Azarenkov
- * @version $Id: LocationFactory.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class LocationFactory {
 

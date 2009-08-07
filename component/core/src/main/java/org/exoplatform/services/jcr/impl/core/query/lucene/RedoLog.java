@@ -38,7 +38,9 @@ import org.exoplatform.services.log.ExoLogger;
  * Implements a redo log for changes that have not been committed to disk. While nodes are added to
  * and removed from the volatile index (held in memory) a redo log is written to keep track of the
  * changes. In case the Jackrabbit process terminates unexpected the redo log is applied when
- * Jackrabbit is restarted the next time. <p/> This class is not thread-safe.
+ * Jackrabbit is restarted the next time.
+ * <p/>
+ * This class is not thread-safe.
  */
 class RedoLog {
 

@@ -78,8 +78,9 @@ public abstract class AbstractQueryImpl implements ExecutableQuery {
    * If set <code>true</code> the result nodes will be in document order per default (if no order by
    * clause is specified). If set to <code>false</code> the result nodes are returned in whatever
    * sequence the index has stored the nodes. That sequence is stable over multiple invocations of
-   * the same query, but will change when nodes get added or removed from the index. <p/> The
-   * default value for this property is <code>true</code>.
+   * the same query, but will change when nodes get added or removed from the index.
+   * <p/>
+   * The default value for this property is <code>true</code>.
    * 
    * @return the current value of this property.
    */

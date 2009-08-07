@@ -108,7 +108,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: NodeImpl.java 14520 2008-05-20 13:42:15Z pnedonosko $
+ * @version $Id$
  */
 
 public class NodeImpl extends ItemImpl implements ExtendedNode {

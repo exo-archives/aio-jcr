@@ -39,7 +39,7 @@ import org.exoplatform.services.log.ExoLogger;
  * All changes that must be in index but interrupted by IOException are here. Created by The eXo
  * Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class ErrorLog {

@@ -90,7 +90,7 @@ import org.exoplatform.services.security.Identity;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: SessionImpl.java 14244 2008-05-14 11:44:54Z ksm $ The implementation supported
+ * @version $Id$ The implementation supported
  *          CredentialsImpl
  */
 public class SessionImpl implements ExtendedSession, NamespaceAccessor {

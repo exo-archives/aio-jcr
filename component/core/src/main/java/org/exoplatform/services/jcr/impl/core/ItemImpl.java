@@ -70,7 +70,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ItemImpl.java 14590 2008-05-22 08:51:29Z pnedonosko $
+ * @version $Id$
  */
 
 public abstract class ItemImpl implements Item {
@@ -560,11 +560,13 @@ public abstract class ItemImpl implements Item {
           if (!am.hasPermission(acl, PermissionType.READ, session.getUserState().getIdentity())) {
             throw new AccessDeniedException("Can not delete node " + refNode.getQPath() + " ("
                 + refNode.getIdentifier() + ")"
-                + ". It is currently the target of a REFERENCE property and " + refProp.getQPath().getAsString());
+                + ". It is currently the target of a REFERENCE property and "
+                + refProp.getQPath().getAsString());
           }
           throw new ReferentialIntegrityException("Can not delete node " + refNode.getQPath()
               + " (" + refNode.getIdentifier() + ")"
-              + ". It is currently the target of a REFERENCE property " + refProp.getQPath().getAsString());
+              + ". It is currently the target of a REFERENCE property "
+              + refProp.getQPath().getAsString());
         }
       }
     }

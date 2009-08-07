@@ -56,12 +56,15 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
- * Default workspace intializer. <br/> Can be configured with root-nodetype and root-permissions
- * parameters. If root-nodetype and root-permissions are empty then <br/> root-nodetype =
- * nt:unstructured <br/> root-permissions = ACL default <br/> values will be applied.
+ * Default workspace intializer. <br/>
+ * Can be configured with root-nodetype and root-permissions parameters. If root-nodetype and
+ * root-permissions are empty then <br/>
+ * root-nodetype = nt:unstructured <br/>
+ * root-permissions = ACL default <br/>
+ * values will be applied.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ScratchWorkspaceInitializer.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id$
  */
 
 public class ScratchWorkspaceInitializer implements WorkspaceInitializer {

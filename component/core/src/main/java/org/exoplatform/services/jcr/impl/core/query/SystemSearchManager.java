@@ -37,8 +37,7 @@ import javax.jcr.RepositoryException;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: SystemSearchManager.java 13891 2008-05-05 16:02:30Z pnedonosko
- *          $
+ * @version $Id$
  */
 public class SystemSearchManager extends SearchManager {
 

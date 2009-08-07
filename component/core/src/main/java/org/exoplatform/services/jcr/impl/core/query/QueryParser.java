@@ -34,7 +34,9 @@ public class QueryParser {
 
   /**
    * Parses a query <code>statement</code> according to a query <code>language</code> into a query
-   * tree. <p/> <code>language</code> must be one of: {@link javax.jcr.query.Query#SQL},
+   * tree.
+   * <p/>
+   * <code>language</code> must be one of: {@link javax.jcr.query.Query#SQL},
    * {@link javax.jcr.query.Query#XPATH}.
    * 
    * @param statement

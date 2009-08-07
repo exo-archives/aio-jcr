@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
  * /jcr:versionStorage - search index root if configured
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: WorkspaceInitializer.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id$
  */
 public interface WorkspaceInitializer extends Startable {
 

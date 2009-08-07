@@ -17,11 +17,12 @@
 package org.exoplatform.services.jcr.impl.core.query;
 
 /**
- * Created by The eXo Platform SAS. <p/>
+ * Created by The eXo Platform SAS.
+ * <p/>
  * 
- * Holds SystemSearchManager instance to be accessible from RepositoryContainer.<br/> Prevent
- * SystemSearchManager instance to being started and stopped in RepositoryContainer.<br/> Holder is
- * placed in dependency for workspace SearchManagers. <br/>
+ * Holds SystemSearchManager instance to be accessible from RepositoryContainer.<br/>
+ * Prevent SystemSearchManager instance to being started and stopped in RepositoryContainer.<br/>
+ * Holder is placed in dependency for workspace SearchManagers. <br/>
  * 
  * Date: 06.06.2008
  * 

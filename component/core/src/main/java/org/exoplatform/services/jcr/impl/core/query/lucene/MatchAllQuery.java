@@ -32,7 +32,8 @@ class MatchAllQuery extends Query {
   private final String field;
 
   /**
-   * Creates a new <code>MatchAllQuery</code> . <p/>
+   * Creates a new <code>MatchAllQuery</code> .
+   * <p/>
    * 
    * @param field
    *          the field name.

@@ -38,7 +38,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS 14.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataCopyIgnoredVisitor.java 12306 2008-03-24 10:25:55Z ksm $
+ * @version $Id$
  */
 public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
 

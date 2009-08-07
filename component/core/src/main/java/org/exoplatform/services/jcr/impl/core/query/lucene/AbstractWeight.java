@@ -56,7 +56,9 @@ abstract class AbstractWeight implements Weight {
   protected abstract Scorer createScorer(IndexReader reader) throws IOException;
 
   /**
-   * {@inheritDoc} <p/> Returns a {@link MultiScorer} if the passed <code>reader</code> is of type
+   * {@inheritDoc}
+   * <p/>
+   * Returns a {@link MultiScorer} if the passed <code>reader</code> is of type
    * {@link MultiIndexReader}.
    */
   public Scorer scorer(IndexReader reader) throws IOException {

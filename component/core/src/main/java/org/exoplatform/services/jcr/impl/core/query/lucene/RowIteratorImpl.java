@@ -177,8 +177,10 @@ class RowIteratorImpl implements RowIterator {
   /**
    * Returns the current position within this iterator. The number returned is the 0-based index of
    * the next <code>Row</code> in the iterator, i.e. the one that will be returned on the subsequent
-   * <code>next</code> call. <p/> Note that this method does not check if there is a next element,
-   * i.e. an empty iterator will always return 0.
+   * <code>next</code> call.
+   * <p/>
+   * Note that this method does not check if there is a next element, i.e. an empty iterator will
+   * always return 0.
    * 
    * @return the current position withing this iterator.
    */
@@ -307,8 +309,9 @@ class RowIteratorImpl implements RowIterator {
     }
 
     /**
-     * Returns the value of the indicated property in this <code>Row</code>. <p/> If
-     * <code>propertyName</code> is not among the column names of the query result table, an
+     * Returns the value of the indicated property in this <code>Row</code>.
+     * <p/>
+     * If <code>propertyName</code> is not among the column names of the query result table, an
      * <code>ItemNotFoundException</code> is thrown.
      * 
      * @return a <code>Value</code>

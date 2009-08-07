@@ -66,7 +66,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.<br>
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: SessionDataManager.java 14590 2008-05-22 08:51:29Z pnedonosko $
+ * @version $Id$
  */
 public class SessionDataManager implements ItemDataConsumer {
 

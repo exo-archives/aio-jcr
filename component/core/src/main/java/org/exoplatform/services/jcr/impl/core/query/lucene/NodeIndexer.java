@@ -536,9 +536,10 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the binary value to the document as the named field. <p/> This implementation checks if
-   * this {@link #node} is of type nt:resource and if that is the case, tries to extract text from
-   * the binary property using the {@link #extractor}.
+   * Adds the binary value to the document as the named field.
+   * <p/>
+   * This implementation checks if this {@link #node} is of type nt:resource and if that is the
+   * case, tries to extract text from the binary property using the {@link #extractor}.
    * 
    * @param doc
    *          The document to which to add the field

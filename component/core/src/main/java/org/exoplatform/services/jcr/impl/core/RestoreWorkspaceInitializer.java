@@ -70,8 +70,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
- * Restores workspace from ready backupset. <br/> Should be configured with restore-path parameter.
- * The path to a backup result file.
+ * Restores workspace from ready backupset. <br/>
+ * Should be configured with restore-path parameter. The path to a backup result file.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -186,8 +186,9 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
   }
 
   protected class BinaryValueWriter extends ValueWriter {
-    boolean isWrited = false;
-    final Base64Decoder decoder = new Base64Decoder();
+    boolean             isWrited = false;
+
+    final Base64Decoder decoder  = new Base64Decoder();
 
     @Override
     void close() throws IOException {

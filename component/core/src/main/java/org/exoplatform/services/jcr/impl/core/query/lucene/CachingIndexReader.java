@@ -31,7 +31,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Implements an <code>IndexReader</code> that maintains caches to resolve
- * {@link #getParent(int, BitSet)} calls efficiently. <p/>
+ * {@link #getParent(int, BitSet)} calls efficiently.
+ * <p/>
  */
 class CachingIndexReader extends FilterIndexReader {
 
@@ -155,8 +156,9 @@ class CachingIndexReader extends FilterIndexReader {
    * If the field of <code>term</code> is {@link FieldNames#UUID} this
    * <code>CachingIndexReader</code> returns a <code>TermDocs</code> instance with a cached document
    * id. If <code>term</code> has any other field the call is delegated to the base
-   * <code>IndexReader</code>.<br/> If <code>term</code> is for a {@link FieldNames#UUID} field and
-   * this <code>CachingIndexReader</code> does not have such a document, {@link #EMPTY} is returned.
+   * <code>IndexReader</code>.<br/>
+   * If <code>term</code> is for a {@link FieldNames#UUID} field and this
+   * <code>CachingIndexReader</code> does not have such a document, {@link #EMPTY} is returned.
    * 
    * @param term
    *          the term to start the <code>TermDocs</code> enumeration.

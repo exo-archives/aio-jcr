@@ -431,8 +431,10 @@ public class QueryResultImpl implements QueryResult {
     }
 
     /**
-     * {@inheritDoc} <p/> This value may shrink when the query result encounters non-existing nodes
-     * or the session does not have access to a node.
+     * {@inheritDoc}
+     * <p/>
+     * This value may shrink when the query result encounters non-existing nodes or the session does
+     * not have access to a node.
      */
     public long getSize() {
       long size = getTotalSize() - offset;

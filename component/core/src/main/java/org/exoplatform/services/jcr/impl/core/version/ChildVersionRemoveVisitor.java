@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
  * used in repository. If the child version isn't used it will be removed immediately.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ChildVersionRemoveVisitor.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ChildVersionRemoveVisitor extends ItemDataTraversingVisitor {
 

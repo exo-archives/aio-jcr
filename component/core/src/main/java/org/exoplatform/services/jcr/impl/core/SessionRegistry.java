@@ -33,10 +33,10 @@ import org.exoplatform.management.jmx.annotations.Property;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: SessionRegistry.java 12049 2008-03-18 12:22:03Z gazarenkov $
+ * @version $Id$
  */
 @Managed
-@NameTemplate(@Property(key="service", value="SessionRegistry"))
+@NameTemplate(@Property(key = "service", value = "SessionRegistry"))
 public final class SessionRegistry implements Startable {
   private final Map<String, SessionImpl> sessionsMap;
 
@@ -66,8 +66,7 @@ public final class SessionRegistry implements Startable {
   public void runCleanup() {
     try {
       sessionCleaner.callPeriodically();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }

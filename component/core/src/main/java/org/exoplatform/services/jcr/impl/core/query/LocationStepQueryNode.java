@@ -19,7 +19,9 @@ package org.exoplatform.services.jcr.impl.core.query;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Defines a location step for querying the path of a node. <p/> <code>
+ * Defines a location step for querying the path of a node.
+ * <p/>
+ * <code>
  * /foo  -> descendants = false, nameTest = foo<br>
  * //foo -> descendants = true, nameTest = foo<br>
  * //*   -> descendants = true, nameTest = null<br>

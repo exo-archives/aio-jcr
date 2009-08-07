@@ -75,7 +75,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: WorkspaceImpl.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 
 public class WorkspaceImpl implements ExtendedWorkspace {
@@ -477,16 +477,16 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     srcNode.getData().accept(initializer);
 
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
-    //changes.addAll(initializer.getItemDeletedStates(true));
+    // changes.addAll(initializer.getItemDeletedStates(true));
     changes.addAll(initializer.getAllStates());
 
     // TODO remove it!
     // Reindex same-name siblings on the parent after deletion
-//    changes.addAll(session.getTransientNodesManager()
-//                          .reindexSameNameSiblings(srcNode.nodeData(),
-//                                                   session.getTransientNodesManager()
-//                                                          .getTransactManager()));
-//    changes.addAll(initializer.getItemAddStates());
+    // changes.addAll(session.getTransientNodesManager()
+    // .reindexSameNameSiblings(srcNode.nodeData(),
+    // session.getTransientNodesManager()
+    // .getTransactManager()));
+    // changes.addAll(initializer.getItemAddStates());
 
     session.getTransientNodesManager().getTransactManager().save(changes);
   }

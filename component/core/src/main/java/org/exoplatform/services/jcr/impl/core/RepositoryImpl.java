@@ -62,10 +62,11 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS.<br/> Implementation of javax.jcr.Repository
+ * Created by The eXo Platform SAS.<br/>
+ * Implementation of javax.jcr.Repository
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: RepositoryImpl.java 14487 2008-05-20 07:08:40Z gazarenkov $
+ * @version $Id$
  */
 public class RepositoryImpl implements ManageableRepository {
 
@@ -79,6 +80,7 @@ public class RepositoryImpl implements ManageableRepository {
    */
   private static final CredentialsImpl   SYSTEM_CREDENTIALS = new CredentialsImpl(SystemIdentity.SYSTEM,
                                                                                   "".toCharArray());
+
   /**
    * Logger.
    */
@@ -299,14 +301,14 @@ public class RepositoryImpl implements ManageableRepository {
   public SessionImpl getSystemSession(String workspaceName) throws RepositoryException {
     if (getState() == OFFLINE)
       LOG.warn("Repository " + getName() + " is OFFLINE.");
-    
+
     WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(workspaceName);
     if (workspaceContainer == null
         || !workspaceContainer.getWorkspaceInitializer().isWorkspaceInitialized()) {
       throw new RepositoryException("Workspace " + workspaceName
           + " not found or workspace is not initialized");
     }
-    
+
     SessionFactory sessionFactory = workspaceContainer.getSessionFactory();
 
     return sessionFactory.createSession(authenticationPolicy.authenticate(SYSTEM_CREDENTIALS));
@@ -471,7 +473,7 @@ public class RepositoryImpl implements ManageableRepository {
 
     if (getState() == OFFLINE)
       LOG.warn("Repository " + getName() + " is OFFLINE.");
-    
+
     ConversationState state;
 
     if (credentials != null)

@@ -31,10 +31,11 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.transaction.TransactionService;
 
 /**
- * Created by The eXo Platform SAS.<br/> the factory for jcr Session
+ * Created by The eXo Platform SAS.<br/>
+ * the factory for jcr Session
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SessionFactory.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 
 public class SessionFactory {
@@ -50,7 +51,6 @@ public class SessionFactory {
   private String                         workspaceName;
 
   private TransactionableResourceManager txResourceManager = null;
-
 
   /**
    * @param orgService
@@ -68,7 +68,8 @@ public class SessionFactory {
     this.txResourceManager = new TransactionableResourceManager();
 
     //
-    boolean tracking = "true".equalsIgnoreCase(System.getProperty("exo.jcr.session.tracking.active", "false"));
+    boolean tracking = "true".equalsIgnoreCase(System.getProperty("exo.jcr.session.tracking.active",
+                                                                  "false"));
     if (tracking) {
       long maxAgeMillis = 0;
 
@@ -76,8 +77,7 @@ public class SessionFactory {
       if (maxagevalue != null) {
         try {
           maxAgeMillis = Long.parseLong(maxagevalue) * 1000;
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
           //
         }
       }
@@ -88,8 +88,7 @@ public class SessionFactory {
       //
       try {
         SessionReference.start(maxAgeMillis);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         e.printStackTrace();
       }
     }
@@ -126,17 +125,9 @@ public class SessionFactory {
 
     XASessionImpl xaSession;
     if (SessionReference.isStarted()) {
-      xaSession = new TrackedXASession(workspaceName,
-        user,
-        container,
-        tService,
-        txResourceManager);
+      xaSession = new TrackedXASession(workspaceName, user, container, tService, txResourceManager);
     } else {
-      xaSession = new XASessionImpl(workspaceName,
-        user,
-        container,
-        tService,
-        txResourceManager);
+      xaSession = new XASessionImpl(workspaceName, user, container, tService, txResourceManager);
     }
 
     try {

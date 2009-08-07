@@ -31,9 +31,10 @@ import org.exoplatform.services.jcr.util.Text;
 
 /**
  * This is an adapted version of the <code>FulltextHighlighter</code> posted in issue: <a
- * href="http://issues.apache.org/jira/browse/LUCENE-644">LUCENE-644</a>. <p/> Important: for this
- * highlighter to function properly, field must be stored with token offsets.<br/> Use Field
- * constructor {@link Field#Field(String,String,Field.Store,Field.Index,Field.TermVector)
+ * href="http://issues.apache.org/jira/browse/LUCENE-644">LUCENE-644</a>.
+ * <p/>
+ * Important: for this highlighter to function properly, field must be stored with token offsets.<br/>
+ * Use Field constructor {@link Field#Field(String,String,Field.Store,Field.Index,Field.TermVector)
  * Field(String, String, Field.Store, Field.Index, Field.TermVector)} where the last argument is
  * either {@link Field.TermVector#WITH_POSITIONS_OFFSETS} or
  * {@link org.apache.lucene.document.Field.TermVector#WITH_OFFSETS}

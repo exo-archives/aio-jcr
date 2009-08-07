@@ -45,7 +45,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 13.09.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ValueConstraintsMatcher.java 12171 2008-03-20 15:37:28Z ksm $
+ * @version $Id$
  */
 public class ValueConstraintsMatcher {
 

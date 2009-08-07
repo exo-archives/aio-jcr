@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.impl.util.EntityCollection;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: ObservationManagerImpl.java 12096 2008-03-19 11:42:40Z gazarenkov $
+ * @version $Id$
  */
 
 public class ObservationManagerImpl implements ObservationManager, SessionLifecycleListener {

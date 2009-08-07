@@ -211,8 +211,9 @@ class ParentAxisQuery extends Query {
 
     /**
      * Map that contains the scores from matching documents from the context query. To save memory
-     * only scores that are not equal to 1.0f are put to this map. <p/> key=[Integer] id of selected
-     * document from context query<br>
+     * only scores that are not equal to 1.0f are put to this map.
+     * <p/>
+     * key=[Integer] id of selected document from context query<br>
      * value=[Float] score for that document
      */
     private final Map               scores  = new HashMap();

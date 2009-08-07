@@ -122,9 +122,10 @@ class SharedIndexReader extends FilterIndexReader {
   }
 
   /**
-   * Simply passes the call to the wrapped reader as is.<br/> If <code>term</code> is for a
-   * {@link FieldNames#UUID} field and this <code>SharedIndexReader</code> does not have such a
-   * document, {@link CachingIndexReader#EMPTY} is returned.
+   * Simply passes the call to the wrapped reader as is.<br/>
+   * If <code>term</code> is for a {@link FieldNames#UUID} field and this
+   * <code>SharedIndexReader</code> does not have such a document, {@link CachingIndexReader#EMPTY}
+   * is returned.
    * 
    * @param term
    *          the term to enumerate the docs for.

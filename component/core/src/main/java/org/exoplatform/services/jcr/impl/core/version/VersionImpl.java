@@ -49,7 +49,7 @@ import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelp
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: VersionImpl.java 12311 2008-03-24 12:30:51Z pnedonosko $
+ * @version $Id$
  */
 
 public class VersionImpl extends VersionStorageDescendantNode implements Version {

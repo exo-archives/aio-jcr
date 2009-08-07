@@ -30,12 +30,13 @@ import org.exoplatform.services.jcr.impl.core.query.lucene.SharedFieldCache.Stri
 
 /**
  * Implements a <code>SortComparator</code> which knows how to sort on a lucene field that contains
- * values for multiple properties. <p/> <b>Important:</b> The ScoreDocComparator returned by
- * {@link #newComparator} does not implement the contract for
- * {@link ScoreDocComparator#sortValue(ScoreDoc)} properly. The method will always return an empty
- * String to save memory consumption on large property ranges. Those values are only of relevance
- * when queries are executed with a <code>MultiSearcher</code>, which is currently not the case in
- * Jackrabbit.
+ * values for multiple properties.
+ * <p/>
+ * <b>Important:</b> The ScoreDocComparator returned by {@link #newComparator} does not implement
+ * the contract for {@link ScoreDocComparator#sortValue(ScoreDoc)} properly. The method will always
+ * return an empty String to save memory consumption on large property ranges. Those values are only
+ * of relevance when queries are executed with a <code>MultiSearcher</code>, which is currently not
+ * the case in Jackrabbit.
  */
 public class SharedFieldSortComparator extends SortComparator {
 

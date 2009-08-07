@@ -53,7 +53,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: NamespaceDataPersister.java 13962 2008-05-07 16:00:48Z pnedonosko $
+ * @version $Id$
  */
 
 public class NamespaceDataPersister {
@@ -149,10 +149,10 @@ public class NamespaceDataPersister {
     while (i.hasNext()) {
       String nsKey = i.next();
       if (nsKey != null) {
-        if(log.isDebugEnabled())
+        if (log.isDebugEnabled())
           log.debug("Namespace " + nsKey + " " + namespaces.get(nsKey));
         addNamespace(nsKey, namespaces.get(nsKey));
-        if(log.isDebugEnabled())
+        if (log.isDebugEnabled())
           log.debug("Namespace " + nsKey + " is initialized.");
       } else {
         log.warn("Namespace is " + nsKey + " " + namespaces.get(nsKey));
@@ -161,13 +161,15 @@ public class NamespaceDataPersister {
     saveChanges();
   }
 
-  
   /**
    * Add new namespace.
-   *
-   * @param prefix NS prefix
-   * @param uri NS URI
-   * @throws RepositoryException Repository error
+   * 
+   * @param prefix
+   *          NS prefix
+   * @param uri
+   *          NS URI
+   * @throws RepositoryException
+   *           Repository error
    */
   public void addNamespace(String prefix, String uri) throws RepositoryException {
 
@@ -280,7 +282,7 @@ public class NamespaceDataPersister {
         String exoPrefix = nsr.getPropertyValue(Constants.EXO_PREFIX).getString();
         namespacesMap.put(exoPrefix, exoUri);
         urisMap.put(exoUri, exoPrefix);
-        if(log.isDebugEnabled())
+        if (log.isDebugEnabled())
           log.debug("Namespace " + exoPrefix + " is loaded");
       }
 

@@ -101,7 +101,8 @@ class PersistentIndex extends AbstractIndex {
   }
 
   /**
-   * Merges the provided indexes into this index. After this completes, the index is optimized. <p/>
+   * Merges the provided indexes into this index. After this completes, the index is optimized.
+   * <p/>
    * The provided IndexReaders are not closed.
    * 
    * @param readers

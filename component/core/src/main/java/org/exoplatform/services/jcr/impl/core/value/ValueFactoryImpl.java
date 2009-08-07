@@ -45,10 +45,11 @@ import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
- * Created by The eXo Platform SAS.<br/> ValueFactory implementation
+ * Created by The eXo Platform SAS.<br/>
+ * ValueFactory implementation
  * 
  * @author Gennady Azarenkov
- * @version $Id: ValueFactoryImpl.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class ValueFactoryImpl implements ValueFactory {

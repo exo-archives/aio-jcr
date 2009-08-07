@@ -47,7 +47,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: ActionLauncher.java 15072 2008-06-02 13:01:26Z pnedonosko $
+ * @version $Id$
  */
 public class ActionLauncher implements ItemsPersistenceListener {
 

@@ -21,8 +21,8 @@ import java.io.IOException;
 import org.apache.lucene.index.TermPositionVector;
 
 /**
- * <code>DefaultXMLExcerpt</code> creates an XML excerpt of a matching node. <br/> E.g. if you
- * search for 'jackrabbit' and 'query' you may get the following result for a node:
+ * <code>DefaultXMLExcerpt</code> creates an XML excerpt of a matching node. <br/>
+ * E.g. if you search for 'jackrabbit' and 'query' you may get the following result for a node:
  * 
  * <pre>
  * &lt;excerpt&gt;

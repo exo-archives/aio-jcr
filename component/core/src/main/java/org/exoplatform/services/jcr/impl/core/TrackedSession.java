@@ -29,10 +29,7 @@ public class TrackedSession extends SessionImpl {
 
   private final SessionReference ref = new SessionReference(this);
 
-  public TrackedSession(
-    String workspaceName,
-    ConversationState userState,
-    ExoContainer container) throws RepositoryException {
+  public TrackedSession(String workspaceName, ConversationState userState, ExoContainer container) throws RepositoryException {
     super(workspaceName, userState, container);
   }
 

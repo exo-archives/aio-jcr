@@ -23,7 +23,7 @@ import javax.jcr.RangeIterator;
  * <code>skipBack</code> methods.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public interface TwoWayRangeIterator extends RangeIterator {
   /**

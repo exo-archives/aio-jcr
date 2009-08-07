@@ -56,7 +56,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Traverse through merging nodes (destenation) and do merge to correspondent version states.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataMergeVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 

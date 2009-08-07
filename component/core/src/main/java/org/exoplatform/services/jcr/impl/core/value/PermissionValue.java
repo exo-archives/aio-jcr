@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * 
  * @author Gennady Azarenkov
  * 
- * @version $Id: PermissionValue.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class PermissionValue extends BaseValue {

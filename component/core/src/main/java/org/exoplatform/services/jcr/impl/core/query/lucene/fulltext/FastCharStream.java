@@ -20,7 +20,9 @@ import java.io.IOException;
 
 /**
  * Modified version of <code>org.apache.lucene.queryParser.FastCharStream</code> based on a
- * <code>String</code> input. <p/> An efficient implementation of JavaCC's CharStream interface.
+ * <code>String</code> input.
+ * <p/>
+ * An efficient implementation of JavaCC's CharStream interface.
  * <p>
  * Note that this does not do line-number counting, but instead keeps track of the character
  * position of the token in the input, as required by Lucene's

@@ -40,8 +40,7 @@ import org.exoplatform.services.transaction.ExoResource;
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id$
  */
-public class XASessionImpl extends SessionImpl implements XASession, XAResource,
-  ExoResource {
+public class XASessionImpl extends SessionImpl implements XASession, XAResource, ExoResource {
 
   /**
    * Session logger.
@@ -247,7 +246,7 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
     // Rolling back this session only
     getTransientNodesManager().getTransactManager().rollback();
-    
+
     // Remove session from this user sessions list
     txResourceManager.remove(this);
 

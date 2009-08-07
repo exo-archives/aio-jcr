@@ -31,12 +31,11 @@ public class TrackedXASession extends XASessionImpl {
 
   private final SessionReference ref = new SessionReference(this);
 
-  public TrackedXASession(
-    String workspaceName,
-    ConversationState userState,
-    ExoContainer container,
-    TransactionService tService,
-    TransactionableResourceManager txResourceManager) throws RepositoryException {
+  public TrackedXASession(String workspaceName,
+                          ConversationState userState,
+                          ExoContainer container,
+                          TransactionService tService,
+                          TransactionableResourceManager txResourceManager) throws RepositoryException {
     super(workspaceName, userState, container, tService, txResourceManager);
   }
 

@@ -55,7 +55,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS 14.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataRestoreVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
 public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 

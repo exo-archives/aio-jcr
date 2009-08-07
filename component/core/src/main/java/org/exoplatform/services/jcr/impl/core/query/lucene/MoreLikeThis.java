@@ -846,9 +846,12 @@ public final class MoreLikeThis {
    * Find words for a more-like-this query former. The result is a priority queue of arrays with one
    * entry for <b>every word</b> in the document. Each array has 6 elements. The elements are:
    * <ol>
-   * <li> The word (String) <li> The top field that this word comes from (String) <li> The score for
-   * this word (Float) <li> The IDF value (Float) <li> The frequency of this word in the index
-   * (Integer) <li> The frequency of this word in the source document (Integer)
+   * <li>The word (String)
+   * <li>The top field that this word comes from (String)
+   * <li>The score for this word (Float)
+   * <li>The IDF value (Float)
+   * <li>The frequency of this word in the index (Integer)
+   * <li>The frequency of this word in the source document (Integer)
    * </ol>
    * This is a somewhat "advanced" routine, and in general only the 1st entry in the array is of
    * interest. This method is exposed so that you can identify the "interesting words" in a

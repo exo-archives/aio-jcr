@@ -105,9 +105,10 @@ class ReadOnlyIndexReader extends FilterIndexReader {
 
   /**
    * Updates the deleted documents in this index reader. When this method returns this index reader
-   * will have the same documents marked as deleted as the passed <code>reader</code>. <p/> This
-   * method is not thread-safe! Make sure no other thread is concurrently using this reader at the
-   * same time.
+   * will have the same documents marked as deleted as the passed <code>reader</code>.
+   * <p/>
+   * This method is not thread-safe! Make sure no other thread is concurrently using this reader at
+   * the same time.
    * 
    * @param reader
    *          the reader from where to obtain the deleted documents info.
@@ -217,8 +218,8 @@ class ReadOnlyIndexReader extends FilterIndexReader {
   }
 
   /**
-   * Wraps the underlying <code>TermDocs</code> and filters out documents marked as deleted.<br/> If
-   * <code>term</code> is for a {@link FieldNames#UUID} field and this
+   * Wraps the underlying <code>TermDocs</code> and filters out documents marked as deleted.<br/>
+   * If <code>term</code> is for a {@link FieldNames#UUID} field and this
    * <code>ReadOnlyIndexReader</code> does not have such a document,
    * {@link CachingIndexReader#EMPTY} is returned.
    * 
