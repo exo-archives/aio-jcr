@@ -22,7 +22,7 @@ import javax.jcr.Item;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanjuk
- * @version $Id: $
+ * @version $Id$
  */
 
 public class RemoveItemCommand extends AbstractCliCommand {

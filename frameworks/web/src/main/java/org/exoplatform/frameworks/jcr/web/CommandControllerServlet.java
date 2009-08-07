@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.ext.app.SessionProviderService;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: CommandControllerServlet.java 14756 2008-05-26 14:47:15Z pnedonosko $
+ * @version $Id$
  */
 
 public class CommandControllerServlet extends HttpServlet {

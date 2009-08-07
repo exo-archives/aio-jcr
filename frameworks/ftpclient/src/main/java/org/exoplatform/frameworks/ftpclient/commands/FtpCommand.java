@@ -22,7 +22,7 @@ import org.exoplatform.frameworks.ftpclient.client.FtpClientSession;
  * Created by The eXo Platform SAS .
  * 
  * @author Vitaly Guly
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface FtpCommand {

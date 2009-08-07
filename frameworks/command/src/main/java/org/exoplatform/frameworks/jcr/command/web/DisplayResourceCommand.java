@@ -34,15 +34,15 @@ import org.exoplatform.frameworks.jcr.command.DefaultKeys;
 import org.exoplatform.frameworks.jcr.command.JCRCommandHelper;
 
 /**
- * Created by The eXo Platform SAS .<br/> the command to output nt:resource to Servlet Response gets
- * DefaultKeys.PATH attrribute from the Context and acts as follow: - if there is nt:resource Node
- * on DefaultKeys.PATH displays it - otherwise recursively tries to get nt:resource from incoming
- * node's primary items and display it - throws PathNotFoundException if no such a node found
- * WARNING: this mechanizm is not suitable for big files streaming as uses byte arry buffer for data
- * transfer!
+ * Created by The eXo Platform SAS .<br/>
+ * the command to output nt:resource to Servlet Response gets DefaultKeys.PATH attrribute from the
+ * Context and acts as follow: - if there is nt:resource Node on DefaultKeys.PATH displays it -
+ * otherwise recursively tries to get nt:resource from incoming node's primary items and display it
+ * - throws PathNotFoundException if no such a node found WARNING: this mechanizm is not suitable
+ * for big files streaming as uses byte arry buffer for data transfer!
  * 
  * @author Gennady Azarenkov
- * @version $Id: DisplayResourceCommand.java 13861 2007-03-28 11:31:16Z vetal_ok $
+ * @version $Id$
  */
 
 public class DisplayResourceCommand implements Command {

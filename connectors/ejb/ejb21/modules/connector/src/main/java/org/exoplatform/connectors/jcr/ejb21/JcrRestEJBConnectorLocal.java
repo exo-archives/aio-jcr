@@ -26,10 +26,10 @@ import org.exoplatform.common.transport.SerialResponse;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public interface JcrRestEJBConnectorLocal extends EJBLocalObject {
-  
-  SerialResponse service (SerialRequest request) throws IOException;
+
+  SerialResponse service(SerialRequest request) throws IOException;
 
 }

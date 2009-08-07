@@ -25,7 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author Vitaly Guly
- * @version $Id: $
+ * @version $Id$
  */
 
 public class CmdRnTo extends FtpCommandImpl {

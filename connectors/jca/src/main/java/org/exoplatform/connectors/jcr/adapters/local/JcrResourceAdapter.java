@@ -34,7 +34,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
- * @version $Id: JcrResourceAdapter.java 7176 2006-07-19 07:59:47Z peterit $
+ * @version $Id$
  */
 
 public class JcrResourceAdapter implements ResourceAdapter {

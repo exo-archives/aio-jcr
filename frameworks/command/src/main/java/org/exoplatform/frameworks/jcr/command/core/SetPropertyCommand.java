@@ -31,7 +31,7 @@ import org.exoplatform.frameworks.jcr.command.JCRAppContext;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SetPropertyCommand.java 7137 2006-07-18 15:01:20Z vetal_ok $
+ * @version $Id$
  */
 
 public class SetPropertyCommand implements Command {

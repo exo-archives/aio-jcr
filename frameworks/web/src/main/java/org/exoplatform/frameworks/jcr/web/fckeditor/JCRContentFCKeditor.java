@@ -36,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: JCRContentFCKeditor.java 6944 2006-07-11 08:06:04Z peterit $
+ * @version $Id$
  */
 
 public class JCRContentFCKeditor extends FCKeditor {

@@ -24,7 +24,7 @@ import javax.jcr.Property;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanjuk
- * @version $Id: $
+ * @version $Id$
  */
 
 public class GetItemCommand extends AbstractCliCommand {

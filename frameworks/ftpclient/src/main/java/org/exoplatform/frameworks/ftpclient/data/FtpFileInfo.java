@@ -20,7 +20,7 @@ package org.exoplatform.frameworks.ftpclient.data;
  * Created by The eXo Platform SAS .
  * 
  * @author Vitaly Guly
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface FtpFileInfo {

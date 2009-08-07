@@ -30,7 +30,7 @@ import org.exoplatform.frameworks.jcr.command.DefaultKeys;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: FilterNodesByTypesCommand.java 5800 2006-05-28 18:03:31Z geaz $
+ * @version $Id$
  */
 
 public class FilterNodesByTypesCommand implements Command {

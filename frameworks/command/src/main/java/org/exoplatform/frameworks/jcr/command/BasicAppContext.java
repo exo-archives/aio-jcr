@@ -33,7 +33,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: BasicAppContext.java 10160 2006-11-08 09:14:24Z geaz $
+ * @version $Id$
  */
 
 public class BasicAppContext extends ContextBase implements JCRAppContext {

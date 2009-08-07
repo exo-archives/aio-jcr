@@ -25,7 +25,7 @@ import javax.jcr.PropertyIterator;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanjuk
- * @version $Id: $
+ * @version $Id$
  */
 
 public class GetNodesCommand extends AbstractCliCommand {

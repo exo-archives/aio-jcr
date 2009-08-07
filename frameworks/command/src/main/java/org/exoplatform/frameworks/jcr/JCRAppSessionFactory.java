@@ -22,14 +22,14 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 /**
- * Created by The eXo Platform SAS .<br/> Provides JCR Session for client program. Usually it is per
- * client thread object Session creates with Repository.login(..) method and then can be stored in
- * some cache if neccessary.
+ * Created by The eXo Platform SAS .<br/>
+ * Provides JCR Session for client program. Usually it is per client thread object Session creates
+ * with Repository.login(..) method and then can be stored in some cache if neccessary.
  * 
  * @deprecated use SessionProvider related mechanism instead
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: JCRAppSessionFactory.java 9129 2006-09-26 12:34:00Z gavrikvetal $
+ * @version $Id$
  */
 
 public interface JCRAppSessionFactory {

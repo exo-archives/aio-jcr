@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * @deprecated use SessionProvider related mechanism instead
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SingleRepositorySessionFactory.java 9129 2006-09-26 12:34:00Z gavrikvetal $
+ * @version $Id$
  */
 
 public class SingleRepositorySessionFactory implements JCRAppSessionFactory {

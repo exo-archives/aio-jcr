@@ -28,7 +28,7 @@ import javax.jcr.RepositoryException;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: JCRCommandHelper.java 9857 2006-10-28 20:49:03Z geaz $
+ * @version $Id$
  */
 
 public class JCRCommandHelper {

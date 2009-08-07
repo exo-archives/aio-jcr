@@ -33,15 +33,15 @@ import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS .<br/> Servlet Filter for initialization PortalContainer instance
- * in following way: - try to get current PortalContainer instance using
- * ExoContainerContext.getContainerByName(contextName) - if not found try to get RootContainer
- * instance using ExoContainerContext.getTopContainer() and then create PortalContainer after it -
- * if neither Portal nor Root Container found (possible if there is instantiated
- * StandaloneContainer) throws ServletException
+ * Created by The eXo Platform SAS .<br/>
+ * Servlet Filter for initialization PortalContainer instance in following way: - try to get current
+ * PortalContainer instance using ExoContainerContext.getContainerByName(contextName) - if not found
+ * try to get RootContainer instance using ExoContainerContext.getTopContainer() and then create
+ * PortalContainer after it - if neither Portal nor Root Container found (possible if there is
+ * instantiated StandaloneContainer) throws ServletException
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 public class PortalContainerInitializedFilter implements Filter {
 
@@ -62,15 +62,15 @@ public class PortalContainerInitializedFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
                                                                                            ServletException {
     PortalContainer pcontainer = (PortalContainer) ExoContainerContext.getContainerByName(contextName);
-    if (log.isDebugEnabled()) 
+    if (log.isDebugEnabled())
       log.debug("get-by-name");
     if (pcontainer == null) {
-      if (log.isInfoEnabled()) 
+      if (log.isInfoEnabled())
         log.info("get-from-root");
       ExoContainer container = ExoContainerContext.getTopContainer();
       if (container instanceof RootContainer) {
         pcontainer = ((RootContainer) container).getPortalContainer(contextName);
-        if (log.isDebugEnabled()) 
+        if (log.isDebugEnabled())
           log.debug("PortalContainer is created after RootContainer");
       }
     }

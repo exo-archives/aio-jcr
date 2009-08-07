@@ -22,7 +22,7 @@ import javax.jcr.Node;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanjuk
- * @version $Id: $
+ * @version $Id$
  */
 
 public class GetNodeCommand extends AbstractCliCommand {

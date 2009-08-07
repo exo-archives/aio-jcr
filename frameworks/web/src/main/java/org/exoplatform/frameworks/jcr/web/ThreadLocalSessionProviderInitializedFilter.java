@@ -37,13 +37,14 @@ import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS . <br/> Checks out if there are SessionProvider instance in
- * current thread using ThreadLocalSessionProviderService, if no, initializes it getting current
- * credentials from AuthenticationService and initializing ThreadLocalSessionProviderService with
- * newly created SessionProvider
+ * Created by The eXo Platform SAS . <br/>
+ * Checks out if there are SessionProvider instance in current thread using
+ * ThreadLocalSessionProviderService, if no, initializes it getting current credentials from
+ * AuthenticationService and initializing ThreadLocalSessionProviderService with newly created
+ * SessionProvider
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
@@ -114,7 +115,8 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         try {
           ConversationState.getCurrent().removeAttribute(SessionProvider.SESSION_PROVIDER);
         } catch (Exception e) {
-          log.warn("An error occured while removing the session provider from the conversation state", e);
+          log.warn("An error occured while removing the session provider from the conversation state",
+                   e);
         }
       }
       try {
@@ -122,7 +124,7 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         providerService.removeSessionProvider(null);
       } catch (Exception e) {
         log.warn("An error occured while cleaning the ThreadLocal", e);
-      }        
+      }
     }
   }
 

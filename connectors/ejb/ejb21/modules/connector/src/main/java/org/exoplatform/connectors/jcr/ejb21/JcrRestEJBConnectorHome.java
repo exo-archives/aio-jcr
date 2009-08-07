@@ -24,10 +24,10 @@ import javax.ejb.EJBHome;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public interface JcrRestEJBConnectorHome extends EJBHome {
-  
+
   JcrRestEJBConnector create() throws RemoteException, CreateException;
-  
+
 }

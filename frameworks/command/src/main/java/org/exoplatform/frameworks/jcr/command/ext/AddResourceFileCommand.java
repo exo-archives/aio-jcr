@@ -29,7 +29,7 @@ import org.exoplatform.frameworks.jcr.command.JCRCommandHelper;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: AddResourceFileCommand.java 5800 2006-05-28 18:03:31Z geaz $
+ * @version $Id$
  */
 
 public class AddResourceFileCommand implements Command {

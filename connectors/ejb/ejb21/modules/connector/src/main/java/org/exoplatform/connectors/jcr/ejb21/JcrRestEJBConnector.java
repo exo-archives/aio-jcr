@@ -27,7 +27,7 @@ import org.exoplatform.common.transport.SerialResponse;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public interface JcrRestEJBConnector extends EJBObject {
 

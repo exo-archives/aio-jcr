@@ -29,7 +29,7 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class STRUTest extends TestCase {

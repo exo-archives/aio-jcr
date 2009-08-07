@@ -25,7 +25,7 @@ import org.exoplatform.frameworks.ftpclient.data.FtpDataTransiver;
  * Created by The eXo Platform SAS .
  * 
  * @author Vitaly Guly
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface FtpClientSession {

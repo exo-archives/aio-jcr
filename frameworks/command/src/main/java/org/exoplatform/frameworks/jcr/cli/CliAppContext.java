@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class CliAppContext extends BasicAppContext {

@@ -21,9 +21,9 @@ import javax.ejb.Local;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 @Local
 public interface JcrRestEJBConnectorLocal extends JcrRestEJBConnectorRemote {
-  
+
 }

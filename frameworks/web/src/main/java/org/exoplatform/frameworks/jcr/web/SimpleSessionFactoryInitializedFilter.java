@@ -49,7 +49,7 @@ import org.exoplatform.services.security.ConversationState;
  * @deprecated use SessionProvider related mechanism instead TODO uses in exo.cs.web.portal
  *             exo.ecm.web.portal
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SimpleSessionFactoryInitializedFilter.java 7163 2006-07-19 07:30:39Z peterit $
+ * @version $Id$
  */
 
 public class SimpleSessionFactoryInitializedFilter implements Filter {

@@ -25,7 +25,7 @@ import java.util.TreeMap;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanjuk
- * @version $Id: $
+ * @version $Id$
  */
 
 public class HelpCommand extends AbstractCliCommand {

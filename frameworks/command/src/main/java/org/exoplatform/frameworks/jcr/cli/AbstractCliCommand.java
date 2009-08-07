@@ -23,7 +23,7 @@ import org.apache.commons.chain.Context;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public abstract class AbstractCliCommand implements Command {

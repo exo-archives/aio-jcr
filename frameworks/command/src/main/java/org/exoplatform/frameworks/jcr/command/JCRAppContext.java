@@ -27,7 +27,7 @@ import org.apache.commons.chain.Context;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: JCRAppContext.java 5800 2006-05-28 18:03:31Z geaz $
+ * @version $Id$
  */
 
 public interface JCRAppContext extends Context {

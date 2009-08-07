@@ -39,7 +39,7 @@ import org.exoplatform.services.jcr.ext.app.SessionProviderService;
  * http://localhost:8080/simple-cms/jcr?workspace=digital-assets&path=/Image.jpg
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: DisplayJCRContentServlet.java 14756 2008-05-26 14:47:15Z pnedonosko $
+ * @version $Id$
  */
 @Deprecated
 public class DisplayJCRContentServlet extends HttpServlet {

@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanjuk
- * @version $Id: $
+ * @version $Id$
  */
 
 public class GetContextInfoCommand extends AbstractCliCommand {

@@ -28,7 +28,7 @@ import org.exoplatform.frameworks.jcr.command.JCRAppContext;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: GetNodeCommand.java 5878 2006-05-31 09:44:14Z peterit $
+ * @version $Id$
  */
 
 public class GetNodeCommand implements Command {

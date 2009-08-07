@@ -45,7 +45,7 @@ import org.exoplatform.ws.rest.ejbconnector21.RestEJBConnectorLocalHome;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class JcrRestEJBConnectorBean implements SessionBean {
 
@@ -67,17 +67,17 @@ public class JcrRestEJBConnectorBean implements SessionBean {
   /**
    * Logger.
    */
-  private static final Log  LOG              = ExoLogger.getLogger(JcrRestEJBConnectorBean.class.getName()); 
+  private static final Log  LOG              = ExoLogger.getLogger(JcrRestEJBConnectorBean.class.getName());
 
   /**
-   * @param request wrapper for REST request that gives possibility transfer
-   *          request via RMI
-   * @return wrapper around REST response that gives possibility transfer
-   *         request via RMI
-   * @throws IOException if any i/o errors occurs
+   * @param request
+   *          wrapper for REST request that gives possibility transfer request via RMI
+   * @return wrapper around REST response that gives possibility transfer request via RMI
+   * @throws IOException
+   *           if any i/o errors occurs
    */
   public final SerialResponse service(final SerialRequest request) throws IOException {
-    
+
     try {
       InitialContext ctx = new InitialContext();
       containerName = (String) ctx.lookup("java:comp/env/exo.container.name");
@@ -86,16 +86,14 @@ public class JcrRestEJBConnectorBean implements SessionBean {
     }
 
     ExoContainer container = getContainer();
-    
-    IdentityRegistry identityRegistry =
-      (IdentityRegistry) container.getComponentInstanceOfType(IdentityRegistry.class);
 
-    ThreadLocalSessionProviderService sessionProviderService =
-      (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
+    IdentityRegistry identityRegistry = (IdentityRegistry) container.getComponentInstanceOfType(IdentityRegistry.class);
+
+    ThreadLocalSessionProviderService sessionProviderService = (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
 
     String userId = context.getCallerPrincipal().getName();
     Identity identity = identityRegistry.getIdentity(userId);
-    
+
     if (identity == null) {
       // Identity was not initialized yet. This happen when use remote
       // servlet for access to bean, but never happen when use standalone client
@@ -113,15 +111,15 @@ public class JcrRestEJBConnectorBean implements SessionBean {
       ConversationState state = new ConversationState(identity);
       SessionProvider provider = new SessionProvider(state);
       state.setAttribute(SessionProvider.SESSION_PROVIDER, provider);
-      
+
       ConversationState.setCurrent(state);
       sessionProviderService.setSessionProvider(null, provider);
-      
+
       InitialContext initialContext = new InitialContext();
       Object obj = initialContext.lookup("RestEJBConnectorLocal");
       RestEJBConnectorLocalHome bean = (RestEJBConnectorLocalHome) PortableRemoteObject.narrow(obj,
-          RestEJBConnectorLocalHome.class);
-      
+                                                                                               RestEJBConnectorLocalHome.class);
+
       return bean.create().service(request);
     } catch (NamingException e) {
       throw new EJBException("RestEJBConnectorLocal not found in jndi", e);
@@ -163,7 +161,7 @@ public class JcrRestEJBConnectorBean implements SessionBean {
   public void ejbCreate() {
     // nothing to do here
   }
-  
+
   /**
    * {@inheritDoc}
    */

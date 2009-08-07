@@ -19,7 +19,7 @@ package org.exoplatform.connectors.jcr.ejb30;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class Main {
 
@@ -31,7 +31,7 @@ public class Main {
       if (s.startsWith("--jcr-path"))
         c.setJcrUrl(s.substring(s.indexOf('=') + 1));
     }
-      
+
     System.out.println(c.run());
   }
 

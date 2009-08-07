@@ -32,13 +32,15 @@ import org.exoplatform.common.transport.SerialResponse;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class Client {
 
   // default rules for name easybeans container on Jonas
-  private static final String BEAN_NAME = "org.exoplatform.connectors.jcr.ejb30.JcrRestEJBConnector" +
-      "_" + JcrRestEJBConnectorRemote.class.getName() + "@Remote";
+  private static final String BEAN_NAME        = "org.exoplatform.connectors.jcr.ejb30.JcrRestEJBConnector"
+                                                   + "_"
+                                                   + JcrRestEJBConnectorRemote.class.getName()
+                                                   + "@Remote";
 
   private static final String DEFAULT_JCR_PATH = "/jcr/repository/production/";
 

@@ -27,11 +27,11 @@ import org.exoplatform.common.transport.SerialResponse;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 @Remote
 public interface JcrRestEJBConnectorRemote {
 
   SerialResponse service(SerialRequest request) throws RemoteException, IOException;
-  
+
 }

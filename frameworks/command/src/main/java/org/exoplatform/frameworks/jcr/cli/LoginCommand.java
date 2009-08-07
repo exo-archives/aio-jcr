@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanjuk
- * @version $Id: $
+ * @version $Id$
  */
 
 public class LoginCommand extends AbstractCliCommand {

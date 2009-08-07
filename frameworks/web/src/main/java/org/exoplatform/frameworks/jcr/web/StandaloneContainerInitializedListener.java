@@ -35,7 +35,7 @@ import org.exoplatform.services.naming.InitialContextInitializer;
  * 'org.exoplatform.container.standalone.config'
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: StandaloneContainerInitializedListener.java 6739 2006-07-04 14:34:49Z gavrikvetal $
+ * @version $Id$
  */
 
 public class StandaloneContainerInitializedListener implements ServletContextListener {

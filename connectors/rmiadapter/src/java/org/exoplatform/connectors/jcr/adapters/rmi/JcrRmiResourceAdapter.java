@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
- * @version $Id: JcrRmiResourceAdapter.java 11123 2006-12-12 15:52:22Z ksm $
+ * @version $Id$
  */
 
 public class JcrRmiResourceAdapter implements javax.resource.spi.ResourceAdapter
