@@ -31,4 +31,17 @@ public interface WorkspaceStorageConnectionFactory {
    *           if error occurs
    */
   Connection getJdbcConnection() throws RepositoryException;
+
+  /**
+   * Return native JDBC Connection to workspace storage (JDBC specific).
+   * 
+   * @param readOnly
+   *          boolean, if true the JDBC Connection will be maarked as read-only, see
+   *          {@link java.sql.Connection#setReadOnly(boolean)}
+   * 
+   * @return java.sql.Connection connection
+   * @throws RepositoryException
+   *           if error occurs
+   */
+  Connection getJdbcConnection(boolean readOnly) throws RepositoryException;
 }

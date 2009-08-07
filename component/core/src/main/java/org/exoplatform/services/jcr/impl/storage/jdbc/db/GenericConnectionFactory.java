@@ -249,13 +249,16 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
   /**
    * {@inheritDoc}
    */
-  public Connection getJdbcConnection() throws RepositoryException {
+  public Connection getJdbcConnection(boolean readOnly) throws RepositoryException {
     try {
       final Connection conn = dbDataSource != null
           ? dbDataSource.getConnection()
           : (dbUserName != null
               ? DriverManager.getConnection(dbUrl, dbUserName, dbPassword)
               : DriverManager.getConnection(dbUrl));
+
+      if (readOnly) // set this feature only if it asked
+        conn.setReadOnly(true);
 
       return monitorInterest == 0 ? conn : new ManagedConnection(conn, monitorInterest);
     } catch (SQLException e) {
@@ -266,8 +269,15 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public Connection getJdbcConnection() throws RepositoryException {
+    return getJdbcConnection(false);
+  }
+
+  /**
    * JDBC monitor init procedure.
-   *
+   * 
    */
   private void initMonitor() {
     String monitor = System.getProperty(ManagedConnection.JCR_JDBC_CONNECTION_MONITOR);

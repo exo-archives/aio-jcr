@@ -180,21 +180,34 @@ public class OracleConnectionFactory extends GenericConnectionFactory {
    * {@inheritDoc}
    */
   @Override
-  public Connection getJdbcConnection() throws RepositoryException {
+  public Connection getJdbcConnection(boolean readOnly) throws RepositoryException {
     if (ociDataSource != null)
       try {
-        return getCachedConnection();
+        Connection conn = getCachedConnection();
+        
+        if (readOnly) // set this feature only if it asked
+          conn.setReadOnly(true);
+        
+        return conn;
       } catch (Throwable e) {
         throw new RepositoryException("Oracle OCI cached connection open error " + e, e);
       }
 
-    return super.getJdbcConnection();
+    return super.getJdbcConnection(readOnly);
   }
 
   /**
-   * getCachedConnection.
-   *
-   * @return
+   * {@inheritDoc}
+   */
+  @Override
+  public Connection getJdbcConnection() throws RepositoryException {
+    return getJdbcConnection(false);
+  }
+  
+  /**
+   * Get CachedConnection.
+   * 
+   * @return Connection
    * @throws NoSuchMethodException
    * @throws IllegalArgumentException
    * @throws IllegalAccessException

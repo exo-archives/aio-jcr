@@ -88,8 +88,8 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
   }
 
   /**
-   * MySQLConnectionFactory  constructor.
-   *
+   * MySQLConnectionFactory constructor.
+   * 
    * @param dataSource
    *          - DataSource
    * @param containerName

@@ -162,20 +162,33 @@ public class OraclePoolConnectionFactory extends GenericConnectionFactory {
    * {@inheritDoc}
    */
   @Override
-  public Connection getJdbcConnection() throws RepositoryException {
+  public Connection getJdbcConnection(boolean readOnly) throws RepositoryException {
     if (ociPool != null)
       try {
-        return getPoolConnection();
+        Connection conn = getPoolConnection();
+        
+        if (readOnly) // set this feature only if it asked
+          conn.setReadOnly(true);
+        
+        return conn;
       } catch (Throwable e) {
         throw new RepositoryException("Oracle OCI pool connection open error " + e, e);
       }
 
-    return super.getJdbcConnection();
+    return super.getJdbcConnection(readOnly);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Connection getJdbcConnection() throws RepositoryException {
+    return getJdbcConnection(false); 
   }
 
   /**
    * getPoolConnection.
-   *
+   * 
    * @return
    * @throws NoSuchMethodException
    * @throws IllegalArgumentException
