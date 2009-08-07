@@ -51,7 +51,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ConfigurationHelper.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class ConfigurationHelper {
   private static Log                 log = ExoLogger.getLogger("jcr.ConfigurationHelper");
@@ -159,9 +159,9 @@ public class ConfigurationHelper {
     QueryHandlerEntry qEntry = new QueryHandlerEntry("org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex",
                                                      qParams);
 
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName
-                                                                     : IdGenerator.generate(),
-                                                       "nt:unstructured");
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null
+        ? wsName
+        : IdGenerator.generate(), "nt:unstructured");
     workspaceEntry.setContainer(containerEntry);
 
     ArrayList cacheParams = new ArrayList();

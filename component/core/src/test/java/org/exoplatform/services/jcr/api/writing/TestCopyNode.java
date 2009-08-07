@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestCopyNode.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id$
  */
 public class TestCopyNode extends JcrAPIBaseTest {
 

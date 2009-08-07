@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * 22.10.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestBinarySearch.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestBinarySearch extends JcrAPIBaseTest {
 

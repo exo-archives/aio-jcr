@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestSession.java 12108 2008-03-19 14:26:36Z gazarenkov $
+ * @version $Id$
  */
 public class TestSession extends JcrAPIBaseTest {
 

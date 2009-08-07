@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.impl.util.EntityCollection;
  * 27.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestOrderBefore.java 11962 2008-03-16 16:31:14Z gazarenkov $
+ * @version $Id$
  */
 public class TestOrderBefore extends JcrAPIBaseTest {
 
@@ -191,8 +191,7 @@ public class TestOrderBefore extends JcrAPIBaseTest {
    */
   private void checkOrderAnotherSession(String[] nodes) throws Exception {
 
-    Session newSession = repository.login(this.credentials,
-                                          session.getWorkspace().getName());
+    Session newSession = repository.login(this.credentials, session.getWorkspace().getName());
     Node testRoot = newSession.getRootNode().getNode(TEST_ROOT);
     checkOrder(testRoot, nodes);
     newSession.logout();

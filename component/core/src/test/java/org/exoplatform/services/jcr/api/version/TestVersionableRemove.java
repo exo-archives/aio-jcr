@@ -17,7 +17,7 @@ import javax.jcr.version.Version;
  * versionable node.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestVersionableRemove.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestVersionableRemove extends BaseVersionTest {
 

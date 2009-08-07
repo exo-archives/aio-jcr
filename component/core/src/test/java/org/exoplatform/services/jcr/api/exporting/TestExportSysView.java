@@ -45,7 +45,7 @@ import org.exoplatform.services.jcr.impl.util.StringConverter;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: TestExportSysView.java 11962 2008-03-16 16:31:14Z gazarenkov $
+ * @version $Id$
  */
 
 public class TestExportSysView extends ExportBase {

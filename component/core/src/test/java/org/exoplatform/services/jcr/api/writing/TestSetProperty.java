@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.impl.core.value.NameValue;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestSetProperty.java 14508 2008-05-20 10:07:45Z ksm $
+ * @version $Id$
  */
 public class TestSetProperty extends JcrAPIBaseTest {
 

@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestValue.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestValue extends JcrAPIBaseTest {
 

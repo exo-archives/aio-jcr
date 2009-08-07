@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
  * Created by The eXo Platform SAS 10.05.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestIsDeep.java 12336 2008-03-25 12:54:02Z ksm $
+ * @version $Id$
  */
 public class TestIsDeep extends JcrAPIBaseTest {
 

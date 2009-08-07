@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestRemove.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestRemove extends JcrAPIBaseTest {
 
@@ -78,7 +78,7 @@ public class TestRemove extends JcrAPIBaseTest {
 
     assertFalse(root.getNode("TestRemove").hasNodes());
     session.save();
-    //log.debug(">>> "+((ItemLocation)((NodeImpl)session.getItem("/childNode")).getChildNodeLocations
+    // log.debug(">>> "+((ItemLocation)((NodeImpl)session.getItem("/childNode")).getChildNodeLocations
     // ().get(0)).getPath());
 
     session = (SessionImpl) repository.login(credentials, WORKSPACE);

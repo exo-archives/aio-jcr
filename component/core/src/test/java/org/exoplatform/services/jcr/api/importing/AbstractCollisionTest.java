@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: BaseXmlImporter.java 12649 2008-04-02 12:46:37Z ksm $
+ * @version $Id$
  */
 public class AbstractCollisionTest extends AbstractImportTest {
 

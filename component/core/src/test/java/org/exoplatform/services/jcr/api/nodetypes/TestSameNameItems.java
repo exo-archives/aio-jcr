@@ -57,7 +57,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
  * 3.3.4 A Property and a Node Can Have the Same Name).
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestSameNameItems.java 12855 2008-04-07 14:47:20Z pnedonosko $
+ * @version $Id$
  */
 public class TestSameNameItems extends JcrAPIBaseTest {
 

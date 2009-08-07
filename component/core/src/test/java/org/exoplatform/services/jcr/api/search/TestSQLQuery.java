@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
  * Date: 17.04.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestSQLQuery.java 13418 2008-04-18 14:09:08Z pnedonosko $
+ * @version $Id$
  */
 public class TestSQLQuery extends JcrAPIBaseTest {
 

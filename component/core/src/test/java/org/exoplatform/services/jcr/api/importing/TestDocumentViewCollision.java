@@ -22,7 +22,7 @@ import javax.jcr.ImportUUIDBehavior;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class TestDocumentViewCollision extends AbstractCollisionTest {
 

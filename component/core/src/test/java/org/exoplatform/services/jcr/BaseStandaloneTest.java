@@ -31,7 +31,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: BaseStandaloneTest.java 11908 2008-03-13 16:00:12Z ksm $
+ * @version $Id$
  */
 public abstract class BaseStandaloneTest extends TestCase {
 
@@ -349,8 +349,7 @@ public abstract class BaseStandaloneTest extends TestCase {
       System.gc();
       try {
         Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
     }
   }

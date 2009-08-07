@@ -51,7 +51,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestSystemViewImport.java 14244 2008-05-14 11:44:54Z ksm $
+ * @version $Id$
  */
 public class TestSystemViewImport extends AbstractImportTest {
   static public final String    SOURCE_NAME          = "source node";

@@ -7,7 +7,7 @@ import javax.jcr.version.Version;
  * Created by The eXo Platform SAS 31.08.2006 [VO]
  * 
  * @author <a href="mailto:vitaliy.obmanjuk@exoplatform.com.ua">Vitaliy Obmanjuk</a>
- * @version $Id: TestMixRestore.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class TestMixRestore extends BaseVersionTest {

@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestObservationManager.java 15053 2008-06-02 10:31:38Z andrew00x $
+ * @version $Id$
  */
 public class TestObservationManager extends JcrAPIBaseTest {
 

@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
  * 21.09.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestLock.java 11908 2008-03-13 16:00:12Z ksm $
+ * @version $Id$
  */
 public class TestLock extends JcrAPIBaseTest {
 

@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
  * 
  * @author Benjamin Mestrallet
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestAccessRepository.java 12049 2008-03-18 12:22:03Z gazarenkov $ See 6.1.1
+ * @version $Id$ See 6.1.1
  */
 public class TestAccessRepository extends JcrAPIBaseTest {
 

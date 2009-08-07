@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
  * Created by The eXo Platform SAS 10.05.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SimpleListener.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class SimpleListener implements EventListener {
 

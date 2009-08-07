@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.api.importing;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: XmlSaveType.java 14244 2008-05-14 11:44:54Z ksm $
+ * @version $Id$
  */
 
 public enum XmlSaveType {

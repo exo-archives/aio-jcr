@@ -11,7 +11,7 @@ import javax.jcr.version.VersionHistory;
  * Created by The eXo Platform SAS 07.05.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestVersionHistory.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class TestVersionHistory extends BaseVersionTest {

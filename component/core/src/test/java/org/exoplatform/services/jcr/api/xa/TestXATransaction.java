@@ -36,7 +36,7 @@ import org.exoplatform.services.transaction.TransactionService;
  * Created by The eXo Platform SAS. <br>
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestXATransaction.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestXATransaction extends JcrAPIBaseTest {
 

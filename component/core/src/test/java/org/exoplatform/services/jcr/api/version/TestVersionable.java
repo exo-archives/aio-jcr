@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
  * 18.01.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestVersionable.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TestVersionable extends BaseVersionTest {
 

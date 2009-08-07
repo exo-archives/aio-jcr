@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestAddNode.java 12651 2008-04-02 15:26:26Z ksm $
+ * @version $Id$
  */
 public class TestAddNode extends JcrAPIBaseTest {
 

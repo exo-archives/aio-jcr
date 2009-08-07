@@ -15,7 +15,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestInitializingVersionHistory.java 11908 2008-03-13 16:00:12Z ksm $
+ * @version $Id$
  */
 
 public class TestInitializingVersionHistory extends JcrAPIBaseTest {

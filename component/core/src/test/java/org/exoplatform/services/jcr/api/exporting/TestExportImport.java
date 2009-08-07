@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: TestExportImport.java 13888 2008-05-05 13:47:27Z ksm $
+ * @version $Id$
  */
 public class TestExportImport extends ExportBase {
   private final int SNS_NODES_COUNT = 10;

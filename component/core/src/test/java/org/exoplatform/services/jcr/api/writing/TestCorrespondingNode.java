@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestCorrespondingNode.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id$
  */
 public class TestCorrespondingNode extends JcrAPIBaseTest {
 

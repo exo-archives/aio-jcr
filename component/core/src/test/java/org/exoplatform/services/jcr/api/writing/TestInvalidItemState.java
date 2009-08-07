@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
  * Date: 31.03.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestInvalidItemState.java 12967 2008-04-09 09:29:36Z pnedonosko $
+ * @version $Id$
  */
 public class TestInvalidItemState extends JcrAPIBaseTest {
 
