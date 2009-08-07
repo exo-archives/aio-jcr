@@ -12,7 +12,7 @@
  * See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 -->
 
-<!-- $Id: javacc.xsl 11837 2008-03-11 12:48:56Z gazarenkov $ -->
+<!-- $Id$ -->
 	
 <!-- Use spec=xpath to generate an XQuery grammar rather
      than an XQuery grammar. -->
