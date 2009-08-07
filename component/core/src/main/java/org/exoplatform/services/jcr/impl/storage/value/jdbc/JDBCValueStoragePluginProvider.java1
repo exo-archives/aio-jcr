@@ -28,7 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 04.09.2006
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JDBCValueStoragePluginProvider.java1 11837 2008-03-11 12:48:56Z gazarenkov $
+ * @version $Id$
  */
 public class JDBCValueStoragePluginProvider extends ArrayList<ValueStoragePlugin> implements ValueStoragePluginProvider {
 
