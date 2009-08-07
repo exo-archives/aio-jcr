@@ -51,7 +51,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Inits JCRBrowser instance in HTTP session.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JCRBrowserFilter.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class JCRBrowserFilter implements Filter {
 

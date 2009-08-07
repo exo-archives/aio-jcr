@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * JavaBean for JCRBrowser sample application.<br/>
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JCRBrowser.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class JCRBrowser {
 

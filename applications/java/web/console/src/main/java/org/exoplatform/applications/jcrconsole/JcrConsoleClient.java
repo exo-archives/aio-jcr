@@ -68,16 +68,19 @@ public class JcrConsoleClient {
     try {
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
-            .getContextClassLoader().getResource("login.conf").toString());
+                                                                    .getContextClassLoader()
+                                                                    .getResource("login.conf")
+                                                                    .toString());
 
-      String confPath = Thread.currentThread().getContextClassLoader().getResource(
-          "conf/standalone/jcr-console-configuration.xml").toString();
+      String confPath = Thread.currentThread()
+                              .getContextClassLoader()
+                              .getResource("conf/standalone/jcr-console-configuration.xml")
+                              .toString();
       StandaloneContainer.addConfigurationURL(confPath);
 
       container = StandaloneContainer.getInstance();
 
-      RepositoryService repService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+      RepositoryService repService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
       cservice = (CommandService) container.getComponentInstanceOfType(CommandService.class);
 
@@ -130,7 +133,8 @@ public class JcrConsoleClient {
       return;
     }
     String commandLine = input;
-    String command = commandLine.substring(0, (commandLine.indexOf(" ") < 0) ? commandLine.length()
+    String command = commandLine.substring(0, (commandLine.indexOf(" ") < 0)
+        ? commandLine.length()
         : commandLine.indexOf(" "));
     commandLine = commandLine.substring(commandLine.indexOf(command) + command.length());
     commandLine = commandLine.trim();
@@ -187,8 +191,9 @@ public class JcrConsoleClient {
       paramsss.clear();
       if (query.indexOf("\"") == -1) {
         while (!query.equals("")) {
-          String item = query.substring(0, (query.indexOf(" ") < 0) ? query.length() : query
-              .indexOf(" "));
+          String item = query.substring(0, (query.indexOf(" ") < 0)
+              ? query.length()
+              : query.indexOf(" "));
 
           paramsss.add(item);
           query = query.substring(query.indexOf(item) + item.length());
@@ -200,11 +205,13 @@ public class JcrConsoleClient {
         while (!query.equals("")) {
           String item = "";
           if (query.startsWith("\"")) {
-            item = query.substring(query.indexOf("\""), (query.indexOf("\"", 1) < 0) ? query
-                .length() : query.indexOf("\"", 1) + 1);
+            item = query.substring(query.indexOf("\""), (query.indexOf("\"", 1) < 0)
+                ? query.length()
+                : query.indexOf("\"", 1) + 1);
           } else {
-            item = query.substring(0, (query.indexOf(" ") < 0) ? query.length() : query
-                .indexOf(" "));
+            item = query.substring(0, (query.indexOf(" ") < 0)
+                ? query.length()
+                : query.indexOf(" "));
           }
           item = item.trim();
           if (item != null && item != "") {
