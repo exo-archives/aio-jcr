@@ -18,123 +18,119 @@
 package org.exoplatform.services.jcr.webdav;
 
 /**
- * Created by The eXo Platform SARL Author : <a
- * href="mailto:gavrik-vetal@gmail.com">Vitaly Guly</a>.
+ * Created by The eXo Platform SARL Author : <a href="mailto:gavrik-vetal@gmail.com">Vitaly
+ * Guly</a>.
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class WebDavHeaders {
 
   /**
-   * WebDav "Depth" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 9 for more information.
+   * WebDav "Depth" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9 for more information.
    */
-  public static final String DEPTH = "depth";
+  public static final String DEPTH                = "depth";
 
   /**
    * HTTP 1.1 "Accept-Ranges" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
+   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1 section 14
+   * "Header Field Definitions"</a> for more information.
    */
-  public static final String ACCEPT_RANGES = "Accept-Ranges";
+  public static final String ACCEPT_RANGES        = "Accept-Ranges";
 
   /**
-   * HTTP 1.1 "Allow" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
+   * HTTP 1.1 "Allow" header. See <a href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'>
+   * HTTP/1.1 section 14 "Header Field Definitions"</a> for more information.
    */
-  public static final String ALLOW = "Allow";
+  public static final String ALLOW                = "Allow";
 
   /**
    * HTTP 1.1 "Authorization" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
+   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1 section 14
+   * "Header Field Definitions"</a> for more information.
    */
-  public static final String AUTHORIZATION = "Authorization";
+  public static final String AUTHORIZATION        = "Authorization";
 
   /**
    * HTTP 1.1 "Content-Length" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
+   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1 section 14
+   * "Header Field Definitions"</a> for more information.
    */
-  public static final String CONTENTLENGTH = "Content-Length";
+  public static final String CONTENTLENGTH        = "Content-Length";
 
   /**
    * HTTP 1.1 "Content-Range" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
+   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1 section 14
+   * "Header Field Definitions"</a> for more information.
    */
-  public static final String CONTENTRANGE = "Content-Range";
+  public static final String CONTENTRANGE         = "Content-Range";
 
   /**
    * HTTP 1.1 "Content-type" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
+   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1 section 14
+   * "Header Field Definitions"</a> for more information.
    */
-  public static final String CONTENTTYPE = "Content-type";
+  public static final String CONTENTTYPE          = "Content-type";
 
   /**
-   * WebDav "DAV" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 9 for more information.
+   * WebDav "DAV" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9 for more information.
    */
-  public static final String DAV = "DAV";
+  public static final String DAV                  = "DAV";
 
   /**
-   * HTTP 1.1 "Allow" header. See <a
-   * href='http://msdn.microsoft.com/en-us/library/ms965954.aspx'> WebDAV/DASL
-   * Request and Response Syntax</a> for more information.
+   * HTTP 1.1 "Allow" header. See <a href='http://msdn.microsoft.com/en-us/library/ms965954.aspx'>
+   * WebDAV/DASL Request and Response Syntax</a> for more information.
    */
-  public static final String DASL = "DASL";
+  public static final String DASL                 = "DASL";
 
   /**
    * MS-Author-Via Response Header. See <a
-   * href='http://msdn.microsoft.com/en-us/library/cc250217.aspx'> MS-Author-Via
-   * Response Header</a> for more information.
+   * href='http://msdn.microsoft.com/en-us/library/cc250217.aspx'> MS-Author-Via Response Header</a>
+   * for more information.
    */
-  public static final String MSAUTHORVIA = "MS-Author-Via";
+  public static final String MSAUTHORVIA          = "MS-Author-Via";
 
   /**
    * JCR "Nodetype" header.
    */
-  public static final String NODETYPE = "NodeType";
+  public static final String NODETYPE             = "NodeType";
 
   /**
-   * HTTP 1.1 "Range" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
+   * HTTP 1.1 "Range" header. See <a href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'>
+   * HTTP/1.1 section 14 "Header Field Definitions"</a> for more information.
    */
-  public static final String RANGE = "Range";
+  public static final String RANGE                = "Range";
 
   /**
-   * WebDav "Destination" header. See <a
-   * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
-   * Authoring</a> section 9 for more information.
+   * WebDav "Destination" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers
+   * for Distributed Authoring</a> section 9 for more information.
    */
-  public static final String DESTINATION = "Destination";
+  public static final String DESTINATION          = "Destination";
 
   /**
    * JCR "MixType" header.
    */
-  public static final String MIXTYPE = "MixType";
+  public static final String MIXTYPE              = "MixType";
 
   /**
-   * WebDav "DAV" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 9 for more information.
+   * WebDav "DAV" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9 for more information.
    */
-  public static final String LOCKTOKEN = "lock-token";
+  public static final String LOCKTOKEN            = "lock-token";
 
   /**
-   * WebDav "If" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP
-   * Headers for Distributed Authoring</a> section 9 for more information.
+   * WebDav "If" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9 for more information.
    */
-  public static final String IF = "If";
+  public static final String IF                   = "If";
 
   /**
-   * WebDav "Timeout" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 9 for more information.
+   * WebDav "Timeout" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9 for more information.
    */
-  public static final String TIMEOUT = "Timeout";
+  public static final String TIMEOUT              = "Timeout";
 
   /**
    * WebDav multipart/byteranges header.
@@ -142,10 +138,9 @@ public class WebDavHeaders {
   public static final String MULTIPART_BYTERANGES = "multipart/byteranges; boundary=";
 
   /**
-   * WebDav "Overwrite" header. See <a
-   * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
-   * Authoring</a> section 9 for more information.
+   * WebDav "Overwrite" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9 for more information.
    */
-  public static final String OVERWRITE = "Overwrite";
+  public static final String OVERWRITE            = "Overwrite";
 
 }

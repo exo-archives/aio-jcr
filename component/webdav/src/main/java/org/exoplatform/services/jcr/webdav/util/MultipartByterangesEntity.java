@@ -32,7 +32,7 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class MultipartByterangesEntity implements SerializableEntity {
 

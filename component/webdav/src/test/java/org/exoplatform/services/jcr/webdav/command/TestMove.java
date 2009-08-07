@@ -31,19 +31,19 @@ import junit.framework.TestCase;
  */
 public class TestMove extends TestCase {
 
-  private final String    fileName     = TestUtils.getFileName();
+  private final String   fileName     = TestUtils.getFileName();
 
-  private final String    srcFileName  = TestUtils.getFullWorkSpacePath() + "/" + fileName;
+  private final String   srcFileName  = TestUtils.getFullWorkSpacePath() + "/" + fileName;
 
-  private final String    testFolder   = TestUtils.getFullUri() + "/test";
+  private final String   testFolder   = TestUtils.getFullUri() + "/test";
 
-  private final String    destFileName = testFolder + "/" + TestUtils.getFileName();
+  private final String   destFileName = testFolder + "/" + TestUtils.getFileName();
 
-  private final String    fileContent  = "TEST FILE CONTENT...";
+  private final String   fileContent  = "TEST FILE CONTENT...";
 
-//  InstalledLocalContainer container;
+  // InstalledLocalContainer container;
 
-  private HTTPConnection  connection;
+  private HTTPConnection connection;
 
   @Override
   protected void setUp() throws Exception {

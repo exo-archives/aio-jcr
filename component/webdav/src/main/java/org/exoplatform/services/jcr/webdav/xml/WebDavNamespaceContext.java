@@ -32,7 +32,7 @@ import javax.xml.namespace.QName;
 /**
  * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class WebDavNamespaceContext implements NamespaceContext {

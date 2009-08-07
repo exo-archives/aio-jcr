@@ -46,7 +46,7 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class PropFindResponseEntity implements SerializableEntity {

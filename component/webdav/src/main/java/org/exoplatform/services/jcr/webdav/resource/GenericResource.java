@@ -29,11 +29,12 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> Abstract WebDav Resource implementation It is recommended
- * to extend this class instead of implement Resource itself
+ * Created by The eXo Platform SARL .<br/>
+ * Abstract WebDav Resource implementation It is recommended to extend this class instead of
+ * implement Resource itself
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public abstract class GenericResource implements Resource {

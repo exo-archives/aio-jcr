@@ -25,7 +25,7 @@ import org.exoplatform.common.util.HierarchicalProperty;
  * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class PropFindRequestEntity {

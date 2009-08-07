@@ -49,10 +49,11 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/> Other than nt:file/jcr:content(nt:resource)
+ * Created by The eXo Platform SARL .<br/>
+ * Other than nt:file/jcr:content(nt:resource)
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class CollectionResource extends GenericResource {

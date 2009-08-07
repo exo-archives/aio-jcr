@@ -29,11 +29,11 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> Versioned file resource
- * (nt:file+mix:versionable/nt:resource )
+ * Created by The eXo Platform SARL .<br/>
+ * Versioned file resource (nt:file+mix:versionable/nt:resource )
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class VersionedFileResource extends FileResource implements VersionedResource {

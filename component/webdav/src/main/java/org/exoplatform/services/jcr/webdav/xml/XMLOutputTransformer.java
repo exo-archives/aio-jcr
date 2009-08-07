@@ -27,7 +27,7 @@ import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
  * Created by The eXo Platform SAS .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class XMLOutputTransformer extends OutputEntityTransformer {

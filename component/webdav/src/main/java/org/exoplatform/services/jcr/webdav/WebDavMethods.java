@@ -20,114 +20,101 @@ package org.exoplatform.services.jcr.webdav;
 import org.exoplatform.common.http.HTTPMethods;
 
 /**
- * Created by The eXo Platform SARL Author : <a
- * href="mailto:gavrik-vetal@gmail.com">Vitaly Guly</a>.
+ * Created by The eXo Platform SARL Author : <a href="mailto:gavrik-vetal@gmail.com">Vitaly
+ * Guly</a>.
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface WebDavMethods extends HTTPMethods {
 
   /**
-   * WebDav "PROPFIND" method. See <a
-   * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
-   * Authoring</a> section 8.1 for more information.
+   * WebDav "PROPFIND" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.1 for more information.
    */
-  String PROPFIND = "PROPFIND";
+  String PROPFIND       = "PROPFIND";
 
   /**
    * WebDav "REPORT" method.
    */
-  String REPORT = "REPORT";
+  String REPORT         = "REPORT";
 
   /**
-   * WebDav "COPY" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.8 for more
-   * information.
+   * WebDav "COPY" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.8 for more information.
    */
-  String COPY = "COPY";
+  String COPY           = "COPY";
 
   /**
-   * HTTP/1.1 "OPTIONS" method. See <a ftp://ftp.isi.edu/in-notes/rfc2616.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 9.2 for more
-   * information.
+   * HTTP/1.1 "OPTIONS" method. See <a ftp://ftp.isi.edu/in-notes/rfc2616.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9.2 for more information.
    */
-  String OPTIONS = "OPTIONS";
+  String OPTIONS        = "OPTIONS";
 
   /**
-   * WebDav "MKCOL" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.3 for more
-   * information.
+   * WebDav "MKCOL" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.3 for more information.
    */
-  String MKCOL = "MKCOL";
+  String MKCOL          = "MKCOL";
 
   /**
-   * WebDav "DELETE" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.6 for more
-   * information.
+   * WebDav "DELETE" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.6 for more information.
    */
-  String DELETE = "DELETE";
+  String DELETE         = "DELETE";
 
   /**
-   * WebDav "HEAD" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.4 for more
-   * information.
+   * WebDav "HEAD" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.4 for more information.
    */
-  String HEAD = "HEAD";
+  String HEAD           = "HEAD";
 
   /**
-   * WebDav "MOVE" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.9 for more
-   * information.
+   * WebDav "MOVE" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.9 for more information.
    */
-  String MOVE = "MOVE";
+  String MOVE           = "MOVE";
 
   /**
-   * WebDav "PUT" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.7 for more
-   * information.
+   * WebDav "PUT" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.7 for more information.
    */
-  String PUT = "PUT";
+  String PUT            = "PUT";
 
   /**
-   * WebDav "GET" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.4 for more
-   * information.
+   * WebDav "GET" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.4 for more information.
    */
-  String GET = "GET";
+  String GET            = "GET";
 
   /**
-   * WebDav "LOCK" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.10 for more
-   * information.
+   * WebDav "LOCK" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.10 for more information.
    */
-  String LOCK = "LOCK";
+  String LOCK           = "LOCK";
 
   /**
-   * WebDav "UNLOCK" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 8.11 for more
-   * information.
+   * WebDav "UNLOCK" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.11 for more information.
    */
-  String UNLOCK = "UNLOCK";
+  String UNLOCK         = "UNLOCK";
 
   /**
-   * WebDav "PROPPATCH" method. See <a
-   * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
-   * Authoring</a> section 8.2 for more information.
+   * WebDav "PROPPATCH" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 8.2 for more information.
    */
-  String PROPPATCH = "PROPPATCH";
+  String PROPPATCH      = "PROPPATCH";
 
   /**
-   * HTTP/1.1 "POST" method. See <a ftp://ftp.isi.edu/in-notes/rfc2616.txt'>
-   * HTTP Headers for Distributed Authoring</a> section 9.5 for more
-   * information.
+   * HTTP/1.1 "POST" method. See <a ftp://ftp.isi.edu/in-notes/rfc2616.txt'> HTTP Headers for
+   * Distributed Authoring</a> section 9.5 for more information.
    */
-  String POST = "POST";
+  String POST           = "POST";
 
   /**
    * WebDav "ORDERPATCH" method.
    */
-  String ORDERPATCH = "ORDERPATCH";
+  String ORDERPATCH     = "ORDERPATCH";
 
   /**
    * WebDav "VERSION-CONTROL" method.
@@ -137,26 +124,26 @@ public interface WebDavMethods extends HTTPMethods {
   /**
    * WebDav "CHECKIN" method.
    */
-  String CHECKIN = "CHECKIN";
+  String CHECKIN        = "CHECKIN";
 
   /**
    * WebDav "CHECKOUT" method.
    */
-  String CHECKOUT = "CHECKOUT";
+  String CHECKOUT       = "CHECKOUT";
 
   /**
    * WebDav "UNCHECKOUT" method.
    */
-  String UNCHECKOUT = "UNCHECKOUT";
+  String UNCHECKOUT     = "UNCHECKOUT";
 
   /**
    * WebDav "RESTORE" method.
    */
-  String RESTORE = "RESTORE";
+  String RESTORE        = "RESTORE";
 
   /**
    * WebDav "SEARCH" method.
    */
-  String SEARCH = "SEARCH";
+  String SEARCH         = "SEARCH";
 
 }

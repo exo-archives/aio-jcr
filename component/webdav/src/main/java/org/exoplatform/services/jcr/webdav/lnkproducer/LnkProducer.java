@@ -36,7 +36,7 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 @URITemplate("/lnkproducer/")

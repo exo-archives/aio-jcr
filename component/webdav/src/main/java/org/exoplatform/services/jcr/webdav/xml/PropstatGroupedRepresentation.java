@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.webdav.resource.Resource;
  * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class PropstatGroupedRepresentation {

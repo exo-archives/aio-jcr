@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Created by The eXo Platform SAS .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class NullResourceLocksHolder {

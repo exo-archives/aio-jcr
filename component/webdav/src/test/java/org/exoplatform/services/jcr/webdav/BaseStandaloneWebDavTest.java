@@ -41,7 +41,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
  * Created by The eXo Platform SARL .
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: BaseStandaloneTest.java 20657 2007-10-11 07:05:27Z vetal_ok $
+ * @version $Id$
  */
 public abstract class BaseStandaloneWebDavTest extends TestCase {
 

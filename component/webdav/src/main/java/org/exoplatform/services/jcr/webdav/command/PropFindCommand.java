@@ -48,7 +48,7 @@ import org.exoplatform.services.rest.Response;
  * 
  * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class PropFindCommand {

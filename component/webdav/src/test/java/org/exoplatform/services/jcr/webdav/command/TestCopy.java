@@ -33,19 +33,19 @@ import junit.framework.TestCase;
  */
 public class TestCopy extends TestCase {
 
-  private final String            fileName     = TestUtils.getFileName();
+  private final String   fileName     = TestUtils.getFileName();
 
-  private final String            srcFileName  = TestUtils.getFullWorkSpacePath() + "/" + fileName;
+  private final String   srcFileName  = TestUtils.getFullWorkSpacePath() + "/" + fileName;
 
-  private final String            testFolder   = TestUtils.getFullUri() + "/test";
+  private final String   testFolder   = TestUtils.getFullUri() + "/test";
 
-  private final String            destFileName = testFolder + "/" + TestUtils.getFileName();
+  private final String   destFileName = testFolder + "/" + TestUtils.getFileName();
 
-  private final String            fileContent  = "TEST FILE CONTENT...";
+  private final String   fileContent  = "TEST FILE CONTENT...";
 
-  private HTTPConnection          connection;
+  private HTTPConnection connection;
 
-//  private InstalledLocalContainer container;
+  // private InstalledLocalContainer container;
 
   @Override
   protected void setUp() throws Exception {

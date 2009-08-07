@@ -31,14 +31,14 @@ import junit.framework.TestCase;
  */
 public class TestHead extends TestCase {
 
-  private final String            fileName    = TestUtils.getFullWorkSpacePath() + "/"
-                                                  + TestUtils.getFileName();
+  private final String   fileName    = TestUtils.getFullWorkSpacePath() + "/"
+                                         + TestUtils.getFileName();
 
-  private final String            fileContent = "TEST FILE CONTENT...";
+  private final String   fileContent = "TEST FILE CONTENT...";
 
-//  private InstalledLocalContainer container;
+  // private InstalledLocalContainer container;
 
-  private HTTPConnection          connection;
+  private HTTPConnection connection;
 
   @Override
   protected void setUp() throws Exception {

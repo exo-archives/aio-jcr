@@ -21,7 +21,7 @@ package org.exoplatform.services.jcr.webdav;
  * Created by The eXo Platform SAS .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class Depth {
@@ -29,28 +29,30 @@ public class Depth {
   /**
    * String constant for depth "infinity" value.
    */
-  private static final String INFINITY_NAME = "Infinity";
+  private static final String INFINITY_NAME  = "Infinity";
 
   /**
    * Integer constant for depth "infinity" value.
    */
-  private static final int INFINITY_VALUE = -1;
+  private static final int    INFINITY_VALUE = -1;
 
   /**
    * Integer depth-value property.
    */
-  private int intValue;
+  private int                 intValue;
 
   /**
    * String depth-value property.
    */
-  private String stringValue;
+  private String              stringValue;
 
   /**
    * Creates a Depth object from the String.
    * 
-   * @param strValue depth string value
-   * @throws PreconditionException when some problems occurs.
+   * @param strValue
+   *          depth string value
+   * @throws PreconditionException
+   *           when some problems occurs.
    */
   public Depth(String strValue) throws PreconditionException {
     if (strValue == null || strValue.equalsIgnoreCase(INFINITY_NAME)) {

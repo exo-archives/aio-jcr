@@ -36,11 +36,12 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> Resource containing JCR's nt:file/jcr:content underneath.
- * Identified by nt:file's URI jcr:content's jcr:data property contains file's payload
+ * Created by The eXo Platform SARL .<br/>
+ * Resource containing JCR's nt:file/jcr:content underneath. Identified by nt:file's URI
+ * jcr:content's jcr:data property contains file's payload
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class FileResource extends GenericResource {

@@ -30,13 +30,14 @@ import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> WebDAV applicable abstraction of REST Resource definition
- * (by Fielding: "Any information that can be named can be a resource... Inother words: any concept
- * that might be the target of an author's hypertext reference must fit within the definition of a
- * resource") Here the REST resource abstraction is some narrowed to the WebDAV needs
+ * Created by The eXo Platform SARL .<br/>
+ * WebDAV applicable abstraction of REST Resource definition (by Fielding: "Any information that can
+ * be named can be a resource... Inother words: any concept that might be the target of an author's
+ * hypertext reference must fit within the definition of a resource") Here the REST resource
+ * abstraction is some narrowed to the WebDAV needs
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface Resource extends PropertyConstants {

@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class VersionResource extends GenericResource {

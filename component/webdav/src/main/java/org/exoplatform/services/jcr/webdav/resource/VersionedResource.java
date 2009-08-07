@@ -22,10 +22,11 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.webdav.util.DeltaVConstants;
 
 /**
- * Created by The eXo Platform SARL .<br/> Versioned resource (mix:versionable node)
+ * Created by The eXo Platform SARL .<br/>
+ * Versioned resource (mix:versionable node)
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface VersionedResource extends Resource, DeltaVConstants {

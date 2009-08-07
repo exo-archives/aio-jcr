@@ -45,7 +45,7 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  * Created by The eXo Platform SAS .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class LockCommand {

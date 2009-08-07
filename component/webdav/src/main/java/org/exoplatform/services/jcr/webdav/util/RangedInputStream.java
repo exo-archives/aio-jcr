@@ -23,7 +23,7 @@ import java.io.InputStream;
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class RangedInputStream extends InputStream {

@@ -23,12 +23,13 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SARL .<br/> JCR WebDAV entry point. Defines WebDav protocol methods:
- * RFC-2518 HTTP Extensions for Distributed Authoring -- WEBDAV RFC-3253 Versioning Extensions to
- * WebDAV RFC-3648: Web Distributed Authoring and Versioning (WebDAV) Ordered Collections Protocol
+ * Created by The eXo Platform SARL .<br/>
+ * JCR WebDAV entry point. Defines WebDav protocol methods: RFC-2518 HTTP Extensions for Distributed
+ * Authoring -- WEBDAV RFC-3253 Versioning Extensions to WebDAV RFC-3648: Web Distributed Authoring
+ * and Versioning (WebDAV) Ordered Collections Protocol
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface WebDavService {

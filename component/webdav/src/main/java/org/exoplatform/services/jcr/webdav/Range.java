@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.webdav;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class Range {
 
@@ -45,7 +45,8 @@ public class Range {
   /**
    * Start range setter property.
    * 
-   * @param start Range start value
+   * @param start
+   *          Range start value
    */
   public void setStart(long start) {
     this.start = start;
@@ -63,7 +64,8 @@ public class Range {
   /**
    * End Range setter property.
    * 
-   * @param end Range end value
+   * @param end
+   *          Range end value
    */
   public void setEnd(long end) {
     this.end = end;

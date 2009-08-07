@@ -24,7 +24,7 @@ import org.apache.commons.codec.binary.Base64;
 /**
  * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
- * @version $Id: $
+ * @version $Id$
  */
 
 public class NodeTypeUtil {

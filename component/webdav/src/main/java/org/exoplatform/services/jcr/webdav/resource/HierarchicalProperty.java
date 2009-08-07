@@ -28,10 +28,11 @@ import java.util.TimeZone;
 import javax.xml.namespace.QName;
 
 /**
- * Created by The eXo Platform SAS .<br/> DOM - like (but lighter) webdav property representation
+ * Created by The eXo Platform SAS .<br/>
+ * DOM - like (but lighter) webdav property representation
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class HierarchicalProperty {

@@ -21,7 +21,7 @@ package org.exoplatform.services.jcr.webdav.resource;
  * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class IllegalResourceTypeException extends Exception {
