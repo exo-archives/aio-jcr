@@ -36,16 +36,16 @@ public class RegistryTest extends BaseStandaloneTest {
   private ThreadLocalSessionProviderService sessionProviderService;
 
   private static final String               SERVICE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-    + "<exo_service xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" jcr:primaryType=\"exo:registryEntry\"/>";
+                                                            + "<exo_service xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" jcr:primaryType=\"exo:registryEntry\"/>";
 
   private static final String               NAV_XML     = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-    + "<node-navigation><owner-type>portal</owner-type><owner-id>portalone</owner-id>"
-    + "<access-permissions>*:/guest</access-permissions><page-nodes><node>"
-    + "<uri>portalone::home</uri><name>home</name><label>Home</label>"
-    + "<page-reference>portal::portalone::content</page-reference></node>"
-    + "<node><uri>portalone::register</uri><name>register</name><label>Register</label>"
-    + "<page-reference>portal::portalone::register</page-reference></node>"
-    + "</page-nodes></node-navigation>";
+                                                            + "<node-navigation><owner-type>portal</owner-type><owner-id>portalone</owner-id>"
+                                                            + "<access-permissions>*:/guest</access-permissions><page-nodes><node>"
+                                                            + "<uri>portalone::home</uri><name>home</name><label>Home</label>"
+                                                            + "<page-reference>portal::portalone::content</page-reference></node>"
+                                                            + "<node><uri>portalone::register</uri><name>register</name><label>Register</label>"
+                                                            + "<page-reference>portal::portalone::register</page-reference></node>"
+                                                            + "</page-nodes></node-navigation>";
 
   @Override
   public void setUp() throws Exception {
@@ -65,14 +65,14 @@ public class RegistryTest extends BaseStandaloneTest {
 
     assertNotNull(regService.getRegistry(sessionProviderService.getSessionProvider(null)).getNode());
     assertTrue(regService.getRegistry(sessionProviderService.getSessionProvider(null))
-               .getNode()
-               .hasNode(RegistryService.EXO_SERVICES));
+                         .getNode()
+                         .hasNode(RegistryService.EXO_SERVICES));
     assertTrue(regService.getRegistry(sessionProviderService.getSessionProvider(null))
-               .getNode()
-               .hasNode(RegistryService.EXO_APPLICATIONS));
+                         .getNode()
+                         .hasNode(RegistryService.EXO_APPLICATIONS));
     assertTrue(regService.getRegistry(sessionProviderService.getSessionProvider(null))
-               .getNode()
-               .hasNode(RegistryService.EXO_USERS));
+                         .getNode()
+                         .hasNode(RegistryService.EXO_USERS));
 
     session.getWorkspace().getNodeTypeManager().getNodeType("exo:registry");
     session.getWorkspace().getNodeTypeManager().getNodeType("exo:registryEntry");
@@ -125,7 +125,7 @@ public class RegistryTest extends BaseStandaloneTest {
 
     try {
       regService.getEntry(sessionProviderService.getSessionProvider(null), groupPath + "/"
-                          + entryName);
+          + entryName);
       fail("ItemNotFoundException should have been thrown");
     } catch (PathNotFoundException e) {
       // OK
@@ -193,7 +193,7 @@ public class RegistryTest extends BaseStandaloneTest {
    */
   public void testStoreAndReadXML() throws Exception {
     String category = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      + "<category name1=\"the_value\" name2=\"the_xvalue\"></category>";
+        + "<category name1=\"the_value\" name2=\"the_xvalue\"></category>";
 
     RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
 
@@ -214,10 +214,10 @@ public class RegistryTest extends BaseStandaloneTest {
   public void testCreateEntry() throws Exception {
     RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      +"<CategoryData xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" " 
-      +"xmlns:jcr=\"http://www.jcp.org/jcr/1.0\"/>";
-    String [] groups = new String [] {"aaa", "bbb", "aAaA", "bBbB", "AAA", "BBB", "aaaa"};
-    for(String g : groups) {
+        + "<CategoryData xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
+        + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\"/>";
+    String[] groups = new String[] { "aaa", "bbb", "aAaA", "bBbB", "AAA", "BBB", "aaaa" };
+    for (String g : groups) {
       String path = RegistryService.EXO_APPLICATIONS + "/ApplicationRegistry" + "/" + g;
       regService.createEntry(sessionProviderService.getSessionProvider(null),
                              path,
@@ -226,8 +226,7 @@ public class RegistryTest extends BaseStandaloneTest {
   }
 
   /**
-   * Throws exception when recreates entry continuous.
-   * Wrong test case, see JCR-765
+   * Throws exception when recreates entry continuous. Wrong test case, see JCR-765
    **/
   public void testRecreateEntryContinuous() throws Exception {
     RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
@@ -237,26 +236,30 @@ public class RegistryTest extends BaseStandaloneTest {
     DocumentBuilder db = dbf.newDocumentBuilder();
     Document document = db.parse(new ByteArrayInputStream(NAV_XML.getBytes()));
 
-    //Creates entry
+    // Creates entry
     regService.createEntry(sessionProviderService.getSessionProvider(null),
                            groupPath,
                            new RegistryEntry(document));
-    //Re-creates entry continuous
-    //    for(int i = 0; i < 20; i++){
-    //      new Thread(new Recreater(container,
-    //                               // FIXME returns same Session, see JCR-765
-    //                               sessionProviderService.getSessionProvider(null), 
-    //                               document)).start();
-    //    }
+    // Re-creates entry continuous
+    // for(int i = 0; i < 20; i++){
+    // new Thread(new Recreater(container,
+    // // FIXME returns same Session, see JCR-765
+    // sessionProviderService.getSessionProvider(null),
+    // document)).start();
+    // }
   }
 
-  static public class Recreater implements Runnable{
+  static public class Recreater implements Runnable {
 
     StandaloneContainer container;
-    SessionProvider sessionProvider;
-    Document document;
 
-    public Recreater(StandaloneContainer container, SessionProvider sessionProvider, Document document) {
+    SessionProvider     sessionProvider;
+
+    Document            document;
+
+    public Recreater(StandaloneContainer container,
+                     SessionProvider sessionProvider,
+                     Document document) {
       this.container = container;
       this.sessionProvider = sessionProvider;
       this.document = document;
@@ -266,9 +269,7 @@ public class RegistryTest extends BaseStandaloneTest {
       RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
       String groupPath = RegistryService.EXO_USERS + "/navigations";
       try {
-        regService.recreateEntry(sessionProvider,
-                                 groupPath,
-                                 new RegistryEntry(document));
+        regService.recreateEntry(sessionProvider, groupPath, new RegistryEntry(document));
       } catch (RepositoryException e) {
         e.printStackTrace();
       }

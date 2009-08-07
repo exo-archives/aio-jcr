@@ -68,7 +68,7 @@ public class NewUserListener extends UserEventListener {
     String userName = user.getUserName();
     List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations();
     // TODO [PN, 12.02.08] only default repository should contains user structure
-    if(isNew) {
+    if (isNew) {
       for (RepositoryEntry repo : repositories) {
         processUserStructure(repo.getName(), userName);
       }
@@ -85,7 +85,7 @@ public class NewUserListener extends UserEventListener {
     Node userNode = null;
     try {
       userNode = usersHome.getNode(userName);
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       userNode = usersHome.addNode(userName);
     }
     for (JcrPath jcrPath : jcrPaths) {
@@ -128,7 +128,7 @@ public class NewUserListener extends UserEventListener {
       nodeType = NT_UNSTRUCTURED;
     try {
       userNode = userNode.getNode(path);
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       userNode = userNode.addNode(path, nodeType);
     }
     if (userNode.canAddMixin("exo:privilegeable"))

@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class TestActions extends BaseStandaloneTest {
   public void testReadAction() throws ItemExistsException,

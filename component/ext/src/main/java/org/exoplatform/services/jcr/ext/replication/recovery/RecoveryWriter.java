@@ -57,7 +57,7 @@ public class RecoveryWriter extends AbstractFSAccess {
   /**
    * Definition the timeout to FileRemover.
    */
-  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;    // 2 hours
+  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;                       // 2 hours
 
   /**
    * The FileCleaner will delete the temporary files.
@@ -85,8 +85,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   private FileRemover       fileRemover;
 
   /**
-   * RecoveryWriter  constructor.
-   *
+   * RecoveryWriter constructor.
+   * 
    * @param recoveryDir
    *          the recovery directory
    * @param fileNameFactory
@@ -116,11 +116,10 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * save.
-   *
+   * 
    * @param confirmationChengesLog
    *          the PendingConfirmationChengesLog
-   * @return String
-   *           return the name of file
+   * @return String return the name of file
    * @throws IOException
    *           will be generated the IOException
    */
@@ -156,33 +155,32 @@ public class RecoveryWriter extends AbstractFSAccess {
     }
     return null;
   }
-  
+
   /**
    * save.
-   *
+   * 
    * @param f
-   *         the file to binary data 
+   *          the file to binary data
    * @param changesLog
    *          the ChangesLog
-   * @return String
-   *           return the name of file
+   * @return String return the name of file
    * @throws IOException
    *           will be generated the IOException
    */
   public String save(File f, TransactionChangesLog changesLog) throws IOException {
-      // save data
-      ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
+    // save data
+    ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
 
-      writeExternal(objectOutputStream,  changesLog);
+    writeExternal(objectOutputStream, changesLog);
 
-      objectOutputStream.flush();
-      objectOutputStream.close();
-      return f.getName();
+    objectOutputStream.flush();
+    objectOutputStream.close();
+    return f.getName();
   }
 
   /**
    * writeNotConfirmationInfo.
-   *
+   * 
    * @param dataFile
    *          the file to binary ChangesLog
    * @param participantsClusterList
@@ -208,7 +206,7 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * writeExternal.
-   *
+   * 
    * @param out
    *          the ObjectOutputStream to ChangesLog
    * @param changesLog
@@ -263,9 +261,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   /**
-   * writeContent.
-   *   Will be wrote the InputStream to ObjectOutputStream.
-   *
+   * writeContent. Will be wrote the InputStream to ObjectOutputStream.
+   * 
    * @param is
    *          the InputStream
    * @param oos
@@ -289,11 +286,11 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * removeChangesLog.
-   *
+   * 
    * @param identifier
    *          the identification string to ChangesLog
    * @param ownerName
-   *          the owner name 
+   *          the owner name
    * @throws IOException
    *           will be generated the IOException
    */
@@ -327,13 +324,12 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   /**
    * removeChangesLog.
-   *
+   * 
    * @param fileNameList
    *          the list of file name
    * @param ownerName
    *          the owner name
-   * @return long
-   *           return the how many files was deleted
+   * @return long return the how many files was deleted
    * @throws IOException
    *           will be generated the IOException
    */
@@ -378,8 +374,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   /**
-   * saveRemoveChangesLog.
-   *   Save the file name for deleting.
+   * saveRemoveChangesLog. Save the file name for deleting.
+   * 
    * @param fileName
    *          the file name
    * @throws IOException
@@ -405,8 +401,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   /**
-   * saveRemoveChangesLog.
-   *   Save the file name to deleting for a specific members.
+   * saveRemoveChangesLog. Save the file name to deleting for a specific members.
+   * 
    * @param fileNameList
    *          the lost of file names
    * @param ownerName
@@ -437,10 +433,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 }
 
-
 /**
- * FileRemover.
- *   The thread will be remove ChangesLog, saved as binary file.
+ * FileRemover. The thread will be remove ChangesLog, saved as binary file.
  */
 class FileRemover extends Thread {
   /**
@@ -449,7 +443,7 @@ class FileRemover extends Thread {
   private static Log          log        = ExoLogger.getLogger("ext.FileRemover");
 
   /**
-   * Definition the constants to one second. 
+   * Definition the constants to one second.
    */
   private static final double ONE_SECOND = 1000.0;
 
@@ -470,7 +464,7 @@ class FileRemover extends Thread {
 
   /**
    * The FilesFilter to removable files.
-   *
+   * 
    */
   class RemoveFilesFilter implements FileFilter {
     /**
@@ -482,8 +476,8 @@ class FileRemover extends Thread {
   }
 
   /**
-   * FileRemover  constructor.
-   *
+   * FileRemover constructor.
+   * 
    * @param period
    *          the sleep period
    * @param recoveryDir
@@ -551,11 +545,10 @@ class FileRemover extends Thread {
 
   /**
    * getAllRemoveFileName.
-   *
+   * 
    * @param array
    *          the array of file names to deleting
-   * @return  ArrayList
-   *            the list of deleting files
+   * @return ArrayList the list of deleting files
    * @throws IOException
    *           will be generated the IOException
    */
@@ -580,9 +573,8 @@ class FileRemover extends Thread {
 
   /**
    * getAllPendingBinaryFilePath.
-   *
-   * @return HashMap
-   *           return HashMap of file names per owner.
+   * 
+   * @return HashMap return HashMap of file names per owner.
    * @throws IOException
    *           will be generated the IOException
    */
@@ -598,11 +590,10 @@ class FileRemover extends Thread {
 
   /**
    * getFilePathList.
-   *
+   * 
    * @param f
-   *         the File with removable files
-   * @return List
-   *           return the list of file path  
+   *          the File with removable files
+   * @return List return the list of file path
    * @throws IOException
    *           will be generated the IOException
    */
@@ -622,11 +613,10 @@ class FileRemover extends Thread {
 
   /**
    * getAllSavedBinaryFile.
-   *
+   * 
    * @param recoveryDataDir
    *          The recovery data directory
-   * @return List
-   *           return the list of File 
+   * @return List return the list of File
    * @throws IOException
    *           will be generated the IOException
    */
@@ -644,9 +634,8 @@ class FileRemover extends Thread {
   }
 
   /**
-   * getFiles.
-   *   The recurcive parcing the directory.
-   *   Will be added to list all files from tree. 
+   * getFiles. The recurcive parcing the directory. Will be added to list all files from tree.
+   * 
    * @param f
    *          the directory
    * @param list

@@ -31,7 +31,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob implements

@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: AddOwneableAction.java 12017 2007-01-17 16:26:04Z ksm $
+ * @version $Id$
  */
 
 public class AddOwneableAction implements Action {

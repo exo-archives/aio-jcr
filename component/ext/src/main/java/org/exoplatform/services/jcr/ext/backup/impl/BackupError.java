@@ -25,7 +25,7 @@ import java.util.List;
  * 15.01.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: BackupError.java 627 2008-01-15 14:18:58Z pnedonosko $
+ * @version $Id$
  */
 public class BackupError extends BackupMessage {
   final List<StackTraceElement[]> stackTraces = new ArrayList<StackTraceElement[]>();

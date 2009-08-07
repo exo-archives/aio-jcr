@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.datamodel.Identifier;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 public class UnifiedNodeReference {
 
@@ -65,26 +65,32 @@ public class UnifiedNodeReference {
   private static URLStreamHandler handler;
 
   /**
-   * @param spec string for parsing as URL
-   * @throws URISyntaxException when string could not be parsed as URI reference
-   * @throws MalformedURLException if malformed URL occurs
+   * @param spec
+   *          string for parsing as URL
+   * @throws URISyntaxException
+   *           when string could not be parsed as URI reference
+   * @throws MalformedURLException
+   *           if malformed URL occurs
    */
   public UnifiedNodeReference(final String spec) throws URISyntaxException, MalformedURLException {
     this(new URL(null, spec, getURLStreamHandler()));
   }
 
   /**
-   * @param url URL
-   * @throws URISyntaxException if URL is not formated well to convert to URI
+   * @param url
+   *          URL
+   * @throws URISyntaxException
+   *           if URL is not formated well to convert to URI
    */
   public UnifiedNodeReference(final URL url) throws URISyntaxException {
     this(url.toURI());
   }
 
   /**
-   * @param uri URI
-   * @throws URISyntaxException if URI does not contains required parts, e.g.
-   *           scheme, path, fragment, etc
+   * @param uri
+   *          URI
+   * @throws URISyntaxException
+   *           if URI does not contains required parts, e.g. scheme, path, fragment, etc
    */
   public UnifiedNodeReference(final URI uri) throws URISyntaxException {
 
@@ -110,11 +116,14 @@ public class UnifiedNodeReference {
   }
 
   /**
-   * @param uri URI
-   * @param defaultRepository use this repository if it could not be parsed from URI
-   * @param defaultWorkspace use this workspace if it could not be parsed from URI
-   * @throws URISyntaxException if URI does not contains required parts, e.g.
-   *           scheme, path, fragment, etc
+   * @param uri
+   *          URI
+   * @param defaultRepository
+   *          use this repository if it could not be parsed from URI
+   * @param defaultWorkspace
+   *          use this workspace if it could not be parsed from URI
+   * @throws URISyntaxException
+   *           if URI does not contains required parts, e.g. scheme, path, fragment, etc
    */
   public UnifiedNodeReference(final URI uri,
                               final String defaultRepository,
@@ -146,9 +155,12 @@ public class UnifiedNodeReference {
   }
 
   /**
-   * @param repository repository name
-   * @param workspace workspace name
-   * @param identifier node identifier
+   * @param repository
+   *          repository name
+   * @param workspace
+   *          workspace name
+   * @param identifier
+   *          node identifier
    */
   public UnifiedNodeReference(final String repository,
                               final String workspace,
@@ -159,9 +171,12 @@ public class UnifiedNodeReference {
   }
 
   /**
-   * @param repository repository name
-   * @param workspace workspace name
-   * @param identifier node path
+   * @param repository
+   *          repository name
+   * @param workspace
+   *          workspace name
+   * @param identifier
+   *          node path
    */
   public UnifiedNodeReference(final String repository, final String workspace, final String path) {
     this.repository = repository;

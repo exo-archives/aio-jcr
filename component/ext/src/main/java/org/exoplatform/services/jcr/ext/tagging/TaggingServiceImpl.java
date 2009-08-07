@@ -37,7 +37,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS .
  * 
  * @author eXo Platform
- * @version $Id: $
+ * @version $Id$
  */
 
 public class TaggingServiceImpl implements TaggingService {

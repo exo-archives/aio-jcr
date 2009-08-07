@@ -49,7 +49,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: AddMetadataAction.java 12539 2007-02-04 19:15:49Z brice $
+ * @version $Id$
  */
 
 public class AddMetadataAction implements Action {

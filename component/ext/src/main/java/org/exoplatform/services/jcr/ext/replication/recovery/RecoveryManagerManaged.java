@@ -33,10 +33,8 @@ import java.util.ArrayList;
  */
 @Managed
 @ManagedDescription("JCR cluster recovery manager")
-@NameTemplate({
-  @Property(key="service", value="replication"),
-  @Property(key="workspace", value="{WorkspaceName}")
-})
+@NameTemplate( { @Property(key = "service", value = "replication"),
+    @Property(key = "workspace", value = "{WorkspaceName}") })
 public class RecoveryManagerManaged {
 
   /** . */

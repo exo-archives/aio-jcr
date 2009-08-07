@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: BasePriorityTestCase.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class BasePriorityTestCase extends BaseReplicationTestCase {
@@ -39,8 +39,8 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
   protected WorkspaceDataTransmitter dataTransmitter;
 
   /**
-   * BasePriorityTestCase  constructor.
-   *
+   * BasePriorityTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -67,9 +67,8 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * disconnectClusterNode.
-   *
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer disconnectClusterNode() {
     StringBuffer sb = new StringBuffer();
@@ -93,11 +92,10 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * disconnectClusterNode.
-   *
+   * 
    * @param id
-   *          the changed id 
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   *          the changed id
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer disconnectClusterNode(int id) {
     StringBuffer sb = new StringBuffer();
@@ -121,9 +119,8 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * allowConnect.
-   *
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer allowConnect() {
     StringBuffer sb = new StringBuffer();
@@ -142,9 +139,8 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * allowConnectForced.
-   *
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * 
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer allowConnectForced() {
     StringBuffer sb = new StringBuffer();
@@ -168,11 +164,10 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   /**
    * isReadOnly.
-   *
+   * 
    * @param workspaceName
    *          the workspace name
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer isReadOnly(String workspaceName) {
     StringBuffer sb = new StringBuffer();

@@ -28,7 +28,7 @@ import org.exoplatform.services.organization.UserHandler;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id: TestOrganizationService.java 111 2008-11-11 11:11:11Z $
+ * @version $Id$
  */
 public class TestUserHandlerImpl extends BaseStandaloneTest {
 

@@ -84,7 +84,7 @@ public class ReplicationLockTest extends BaseReplicationTest {
     for (int i = 0; i < 10; i++) {
       log.info("Lock node #" + i + " ...");
       String lockName = "Node Locked";
-      
+
       Node nodeLocked = root.addNode(lockName + i);
       nodeLocked.setProperty("jcr:data", "node data");
       nodeLocked.addMixin("mix:lockable");

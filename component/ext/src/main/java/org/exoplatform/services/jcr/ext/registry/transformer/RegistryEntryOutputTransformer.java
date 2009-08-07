@@ -27,7 +27,7 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class RegistryEntryOutputTransformer extends OutputEntityTransformer {
 

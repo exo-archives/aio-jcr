@@ -60,8 +60,8 @@ public class RecoveryReader extends AbstractFSAccess {
   private File        recoveryDir;
 
   /**
-   * RecoveryReader  constructor.
-   *
+   * RecoveryReader constructor.
+   * 
    * @param fileCleaner
    *          the FileCleaner
    * @param recoveryDir
@@ -74,11 +74,10 @@ public class RecoveryReader extends AbstractFSAccess {
 
   /**
    * getChangesLog.
-   *
+   * 
    * @param filePath
    *          full path to binary ChangesLog
-   * @return TransactionChangesLog
-   *           return the TransactionChangesLog 
+   * @return TransactionChangesLog return the TransactionChangesLog
    * @throws IOException
    *           will be generated the IOException
    * @throws ClassNotFoundException
@@ -95,15 +94,14 @@ public class RecoveryReader extends AbstractFSAccess {
 
   /**
    * readExternal.
-   *
+   * 
    * @param in
    *          the ObjctInputStream
-   * @return  TransactionChangesLog
-   *           return the TransactionChangesLog
+   * @return TransactionChangesLog return the TransactionChangesLog
    * @throws IOException
    *           will be generated the IOException
    * @throws ClassNotFoundException
-   *           will be generated the ClassNotFoundException          
+   *           will be generated the ClassNotFoundException
    */
   private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
                                                                   ClassNotFoundException {
@@ -154,17 +152,16 @@ public class RecoveryReader extends AbstractFSAccess {
     return transactionChangesLog;
   }
 
-   /**
+  /**
    * getFilePathList.
-   *
+   * 
    * @param timeStamp
    *          up to date
    * @param ownName
    *          owner name
-   * @return List
-   *           list of binary changes log up to date
+   * @return List list of binary changes log up to date
    * @throws IOException
-   *           will be generated IOException if fail. 
+   *           will be generated IOException if fail.
    */
   public List<String> getFilePathList(Calendar timeStamp, String ownName) throws IOException {
     File dataInfo = new File(recoveryDir.getAbsolutePath() + File.separator + ownName);
@@ -197,11 +194,10 @@ public class RecoveryReader extends AbstractFSAccess {
 
   /**
    * getTimeStamp.
-   *
+   * 
    * @param fileName
    *          name of file
-   * @return Calendar
-   *           TimeStamp from file name
+   * @return Calendar TimeStamp from file name
    */
   private Calendar getTimeStamp(String fileName) {
     // 20080415_090302_824_50e4cf9d7f000001009bb457938f425b

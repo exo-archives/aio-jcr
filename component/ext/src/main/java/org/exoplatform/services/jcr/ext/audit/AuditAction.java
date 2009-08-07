@@ -30,7 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class AuditAction implements Action {
   private final Log log = ExoLogger.getLogger("jcr.AuditAction");

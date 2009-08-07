@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ConcurrentModificationCheckerTest.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
 
@@ -72,7 +72,7 @@ public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
     }
 
     Thread.sleep(5000);
-    
+
     // start two threads for update the binary value
     for (int i = 0; i < 2; i++) {
       {

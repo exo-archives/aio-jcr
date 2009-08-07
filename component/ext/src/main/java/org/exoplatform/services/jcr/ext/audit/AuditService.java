@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: AuditService.java 12164 2007-01-22 08:39:22Z geaz $
+ * @version $Id$
  */
 
 public interface AuditService {

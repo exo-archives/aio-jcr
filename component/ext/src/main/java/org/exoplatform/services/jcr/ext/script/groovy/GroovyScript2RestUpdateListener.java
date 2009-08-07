@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class GroovyScript2RestUpdateListener implements EventListener {
 

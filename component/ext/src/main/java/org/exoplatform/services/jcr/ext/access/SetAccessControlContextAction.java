@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.access.AccessManager;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class SetAccessControlContextAction implements Action {

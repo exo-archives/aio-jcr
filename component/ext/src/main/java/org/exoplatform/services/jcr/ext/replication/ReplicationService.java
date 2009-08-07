@@ -65,7 +65,7 @@ import org.w3c.dom.Element;
  */
 @Managed
 @ManagedDescription("JCR replication service")
-@NameTemplate(@Property(key="service",value="replication"))
+@NameTemplate(@Property(key = "service", value = "replication"))
 public class ReplicationService implements Startable, ManagementAware {
 
   /**
@@ -94,11 +94,11 @@ public class ReplicationService implements Startable, ManagementAware {
    * Definition the static type for priority mechanism.
    */
   public static final String  PRIORITY_STATIC_TYPE  = "static";
-  
+
   /**
    * Definition the generic type for priority mechanism.
    */
-  public static final String  PRIORITY_GENERIC_TYPE  = "generic";
+  public static final String  PRIORITY_GENERIC_TYPE = "generic";
 
   /**
    * Definition the dynamic type for priority mechanism.
@@ -149,11 +149,11 @@ public class ReplicationService implements Startable, ManagementAware {
    * The channel configuration.
    */
   private String              channelConfig;
-  
+
   /**
    * The channel name.
    */
-  private String              channelName; 
+  private String              channelName;
 
   /**
    * The list of repositories. Fore this repositories will be worked replication.
@@ -352,7 +352,8 @@ public class ReplicationService implements Startable, ManagementAware {
               if (testMode != null && "true".equals(testMode))
                 uniqueNoame = "Test_Channel";
 
-              ChannelManager channelManager = new ChannelManager(props, channelName + (channelName.equals("") ? "" : "_") + uniqueNoame);
+              ChannelManager channelManager = new ChannelManager(props, channelName
+                  + (channelName.equals("") ? "" : "_") + uniqueNoame);
 
               // create the RecoveryManager
               RecoveryManager recoveryManager = new RecoveryManager(dir,
@@ -677,10 +678,10 @@ public class ReplicationService implements Startable, ManagementAware {
 
     if (channelConfig == null)
       throw new RuntimeException("channel-config not specified");
-    
+
     if (channelName == null)
       channelName = "";
-    
+
     if (testMode != null && "true".equals(testMode))
       channelName = IdGenerator.generate();
 
@@ -690,14 +691,14 @@ public class ReplicationService implements Startable, ManagementAware {
     recoveryDir = new File(recDir);
     if (!recoveryDir.exists())
       recoveryDir.mkdirs();
-    
+
     if (mode.equals(PERSISTENT_MODE)) {
       if (ownName == null)
         throw new RuntimeException("Node name not specified");
 
       if (participantsCluster == null)
         throw new RuntimeException("Other participants not specified");
-      
+
       participantsClusterList = new ArrayList<String>();
       String[] pc = participantsCluster.split(";");
       for (int i = 0; i < pc.length; i++)
@@ -707,10 +708,10 @@ public class ReplicationService implements Startable, ManagementAware {
       // for PROXY mode :
       boolean isMPing = isMPingConfigured();
       boolean isTCPPing = isTCPPingConfigured();
-      
+
       if (!(isMPing | isTCPPing))
         throw new RuntimeException("The discovery protocol should be configured MPING or TCPPING protocol.");
-        
+
       if (ownName == null && isMPing)
         throw new RuntimeException("Node name not specified");
 
@@ -727,20 +728,20 @@ public class ReplicationService implements Startable, ManagementAware {
       } else {
         // node-name == binf-ip-address
         // other-participants == initial_hosts
-        
+
         List<String> initialHosts = getInitialHosts();
-        
+
         if (participantsCluster != null)
           log.warn("The perameter 'other-participants' not use for TCPPING.");
         if (ownName != null)
           log.warn("The perameter 'node-name' not use for TCPPING.");
-        
+
         for (String host : initialHosts)
           if (!host.equals(bindIPAddress))
             participantsClusterList.add(host);
-        
+
         ownName = bindIPAddress;
-      }  
+      }
     }
 
     if (sWaitConfirmation == null)
@@ -779,19 +780,18 @@ public class ReplicationService implements Startable, ManagementAware {
         throw new RuntimeException("Own Priority not specified");
       ownPriority = Integer.valueOf(ownValue);
     } else {
-       if (priprityType != null && !priprityType.equals(PRIORITY_GENERIC_TYPE))
-         log.warn("The parameter 'replication-priority-properties' not use for proxy replication.");
-        
-       priprityType = PRIORITY_GENERIC_TYPE;
+      if (priprityType != null && !priprityType.equals(PRIORITY_GENERIC_TYPE))
+        log.warn("The parameter 'replication-priority-properties' not use for proxy replication.");
+
+      priprityType = PRIORITY_GENERIC_TYPE;
     }
-    
+
   }
 
   /**
    * getInitialHosts.
-   *
-   * @return List<String>
-   *           return list of initial hosts.
+   * 
+   * @return List<String> return list of initial hosts.
    */
   private List<String> getInitialHosts() {
     JChannel jChannel = null;
@@ -800,32 +800,31 @@ public class ReplicationService implements Startable, ManagementAware {
     } catch (ChannelException e) {
       throw new RuntimeException("Can not initialize the JChannel form 'channel-config'.", e);
     }
-    
+
     String initial_hosts = null;
-    
-    for ( Protocol p : jChannel.getProtocolStack().getProtocols()) {
+
+    for (Protocol p : jChannel.getProtocolStack().getProtocols()) {
       if (p.getName().equals("TCPPING")) {
         Properties props = p.getProperties();
-        initial_hosts =  props.getProperty("initial_hosts");
+        initial_hosts = props.getProperty("initial_hosts");
       }
     }
-    
-    if (initial_hosts == null) 
+
+    if (initial_hosts == null)
       throw new RuntimeException("The propery 'initial_hosts' not specified in TCPPING ");
-    
+
     List<String> initialHosts = new ArrayList<String>();
-    
+
     for (String host : initial_hosts.split(","))
       initialHosts.add(host.substring(0, host.indexOf("[")));
-    
+
     return initialHosts;
   }
 
   /**
    * isTCPPingConfigured.
-   *
-   * @return boolean
-   *           return 'true' if configured TCPPING. 
+   * 
+   * @return boolean return 'true' if configured TCPPING.
    */
   private boolean isTCPPingConfigured() {
     return channelConfig.contains("TCPPING");
@@ -833,9 +832,8 @@ public class ReplicationService implements Startable, ManagementAware {
 
   /**
    * isMPingConfigured.
-   *
-   * @return boolean
-   *           return 'true' if configured MPING.
+   * 
+   * @return boolean return 'true' if configured MPING.
    */
   private boolean isMPingConfigured() {
     return channelConfig.contains("MPING");

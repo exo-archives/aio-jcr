@@ -82,7 +82,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class BackupManagerImpl implements BackupManager, Startable {

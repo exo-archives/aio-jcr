@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
  * Created by The eXo Platform SAS .
  * 
  * @author eXo Platform
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface TaggingService {

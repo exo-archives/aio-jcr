@@ -23,7 +23,7 @@ import java.util.Calendar;
  * Created by The eXo Platform SAS .
  * 
  * @author eXo Platform
- * @version $Id: $
+ * @version $Id$
  */
 
 public class TagRate {

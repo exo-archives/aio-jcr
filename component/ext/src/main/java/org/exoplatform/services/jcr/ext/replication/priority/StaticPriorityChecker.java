@@ -27,7 +27,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: MasterPriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class StaticPriorityChecker extends AbstractPriorityChecker {
@@ -38,8 +38,8 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
   private static Log log = ExoLogger.getLogger("ext.StaticPriorityChecker");
 
   /**
-   * StaticPriorityChecker  constructor.
-   *
+   * StaticPriorityChecker constructor.
+   * 
    * @param channelManager
    *          the ChannelManager
    * @param ownPriority
@@ -47,7 +47,7 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
    * @param ownName
    *          the own name
    * @param otherParticipants
-   *          the list of names to other participants  
+   *          the list of names to other participants
    */
   public StaticPriorityChecker(ChannelManager channelManager,
                                int ownPriority,

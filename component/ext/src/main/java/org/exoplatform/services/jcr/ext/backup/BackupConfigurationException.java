@@ -21,7 +21,7 @@ package org.exoplatform.services.jcr.ext.backup;
  * 06.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: BackupConfigurationException.java 568 2008-01-09 16:48:40Z rainf0x $
+ * @version $Id$
  */
 public class BackupConfigurationException extends Exception {
   public BackupConfigurationException(String message) {

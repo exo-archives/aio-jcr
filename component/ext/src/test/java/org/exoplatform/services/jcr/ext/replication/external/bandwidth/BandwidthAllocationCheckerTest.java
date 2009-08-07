@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: BandwidthAllocationCheckerTest.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 /**
  * @author rainf0x
@@ -207,7 +207,7 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
 
     // add 128B string property (10*100 == 1000)
     for (int i = 0; i < baseNodesCount; i++) {
-      //Thread.sleep(300);
+      // Thread.sleep(300);
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()

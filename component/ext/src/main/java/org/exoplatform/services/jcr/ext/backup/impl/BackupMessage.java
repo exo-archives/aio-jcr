@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.ext.backup.impl.BackupManagerImpl.MessagesLi
  * messages in BackupMessagesLog
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: BackupMessage.java 760 2008-02-07 15:08:07Z pnedonosko $
+ * @version $Id$
  */
 public class BackupMessage {
 

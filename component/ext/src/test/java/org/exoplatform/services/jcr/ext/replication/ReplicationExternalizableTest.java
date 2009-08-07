@@ -27,8 +27,7 @@ import javax.jcr.RepositoryException;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ReplicationExternalizableTest.java 111 2008-11-11 11:11:11Z
- *          rainf0x $
+ * @version $Id$
  */
 public class ReplicationExternalizableTest extends BaseReplicationTest {
   private static final int BUFFER_SIZE = 1024;
@@ -48,14 +47,15 @@ public class ReplicationExternalizableTest extends BaseReplicationTest {
       relPath[i] = createRelPath(5);
       addBinaryPropertyOnly(relPath[i], "n_", size, files);
     }
-    
-    
+
     Thread.sleep(20000);
 
   }
 
-  private StringBuffer addBinaryPropertyOnly(String repoPath, String nodeName, Long size,
-      long iterations) throws Exception {
+  private StringBuffer addBinaryPropertyOnly(String repoPath,
+                                             String nodeName,
+                                             Long size,
+                                             long iterations) throws Exception {
     StringBuffer sb = new StringBuffer();
 
     long start, end;
@@ -80,8 +80,8 @@ public class ReplicationExternalizableTest extends BaseReplicationTest {
         baseNode.setProperty("d", new FileInputStream(tempFile));
 
         session.save();
-        
-//        Thread.sleep(10);
+
+        // Thread.sleep(10);
       }
 
       end = System.currentTimeMillis();

@@ -40,75 +40,64 @@ import org.jgroups.blocks.RequestHandler;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ChannelManager.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class ChannelManager implements RequestHandler {
 
   /**
-   * log.
-   *   the apache logger.
+   * log. the apache logger.
    */
   private static Log           log = ExoLogger.getLogger("ext.ChannelManager");
 
   /**
-   * channel.
-   *   The JChanel object of JGroups.
+   * channel. The JChanel object of JGroups.
    */
   private JChannel             channel;
 
   /**
-   * dispatcher.
-   *   The MessageDispatcher will be transmitted the Massage.    
+   * dispatcher. The MessageDispatcher will be transmitted the Massage.
    */
   private MessageDispatcher    dispatcher;
 
   /**
-   * channelConfig.
-   *   The configuration to JChannel. 
+   * channelConfig. The configuration to JChannel.
    */
   private final String         channelConfig;
 
   /**
-   * channelName.
-   *   The name to JChannel.
+   * channelName. The name to JChannel.
    */
   private final String         channelName;
 
   /**
-   * testChannelName.
-   *   The name to JChannel.
-   *   Using only testing. 
+   * testChannelName. The name to JChannel. Using only testing.
    */
   private String               testChannelName;
 
   /**
-   * membershipListener.
-   *   The listener to JChannel when channel-state changed.
+   * membershipListener. The listener to JChannel when channel-state changed.
    */
   private MembershipListener   membershipListener;
 
   /**
-   * messageListener.
-   *   The listener for Messages.
+   * messageListener. The listener for Messages.
    */
   private MessageListener      messageListener;
 
   /**
-   * packetListeners.
-   *   The packet listeners.
+   * packetListeners. The packet listeners.
    */
   private List<PacketListener> packetListeners;
 
   /**
-   * channelListener.
-   *   The listener to JChannel when channel-state changed.
+   * channelListener. The listener to JChannel when channel-state changed.
    */
   private ChannelListener      channelListener;
 
   /**
-   * ChannelManager  constructor.
-   *
+   * ChannelManager constructor.
+   * 
    * @param channelConfig
    *          channel configuration
    * @param channelName
@@ -121,9 +110,8 @@ public class ChannelManager implements RequestHandler {
   }
 
   /**
-   * init.
-   *   Will be initialized JChannel and MessageDispatcher.
-   *
+   * init. Will be initialized JChannel and MessageDispatcher.
+   * 
    * @throws ReplicationException
    *           Will be generated the ReplicationException.
    */
@@ -154,11 +142,10 @@ public class ChannelManager implements RequestHandler {
   }
 
   /**
-   * connect.
-   *   Connect to channel.
-   *
+   * connect. Connect to channel.
+   * 
    * @throws ReplicationException
-   *           Will be generated the ReplicationException.        
+   *           Will be generated the ReplicationException.
    */
   public synchronized void connect() throws ReplicationException {
 
@@ -178,8 +165,7 @@ public class ChannelManager implements RequestHandler {
   }
 
   /**
-   * closeChannel.
-   *   Close the channel.
+   * closeChannel. Close the channel.
    */
   public void closeChannel() {
     if (dispatcher != null) {
@@ -190,32 +176,32 @@ public class ChannelManager implements RequestHandler {
 
       if (log.isDebugEnabled())
         log.debug("dispatcher stopped");
-        try {
-          Thread.sleep(3000);
-        } catch (InterruptedException e) {
-          log.error("The interapted on disconnect : " + e, e);
-        }
+      try {
+        Thread.sleep(3000);
+      } catch (InterruptedException e) {
+        log.error("The interapted on disconnect : " + e, e);
+      }
+    }
+
+    if (channel != null) {
+      channel.disconnect();
+
+      if (log.isDebugEnabled())
+        log.debug("channel disconnected");
+      try {
+        Thread.sleep(5000);
+      } catch (InterruptedException e) {
+        log.error("The interapted on disconnect : " + e, e);
       }
 
-      if (channel != null) {
-        channel.disconnect();
-
-        if (log.isDebugEnabled())
-          log.debug("channel disconnected");
-        try {
-          Thread.sleep(5000);
-        } catch (InterruptedException e) {
-          log.error("The interapted on disconnect : " + e, e);
-        }
-
-        channel.close();
-        channel = null;
-      }
+      channel.close();
+      channel = null;
+    }
   }
 
   /**
    * setMembershipListener.
-   *
+   * 
    * @param membershipListener
    *          set the MembershipListener
    */
@@ -225,17 +211,17 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setMessageListener.
-   *
+   * 
    * @param messageListener
    *          set the MessageListener
-   */ 
+   */
   public void setMessageListener(MessageListener messageListener) {
     this.messageListener = messageListener;
   }
 
   /**
    * addPacketListener.
-   *
+   * 
    * @param packetListener
    *          add the PacketListener
    */
@@ -245,7 +231,7 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setChannelListener.
-   *
+   * 
    * @param channelListener
    *          set the ChannelListener
    */
@@ -255,9 +241,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * getDispatcher.
-   *
-   * @return MessageDispatcher
-   *           return the MessageDispatcher object
+   * 
+   * @return MessageDispatcher return the MessageDispatcher object
    */
   public MessageDispatcher getDispatcher() {
     return dispatcher;
@@ -265,7 +250,7 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * sendPacket.
-   *
+   * 
    * @param packet
    *          the Packet with content
    * @throws Exception
@@ -280,9 +265,8 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * getChannel.
-   *
-   * @return JChannel
-   *           return the JChannel object
+   * 
+   * @return JChannel return the JChannel object
    */
   public JChannel getChannel() {
     return channel;
@@ -290,7 +274,7 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * send.
-   *
+   * 
    * @param buffer
    *          the binary data
    */
@@ -301,7 +285,7 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * sendBigPacket.
-   *
+   * 
    * @param data
    *          the binary data
    * @param packet
@@ -363,11 +347,11 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * cutData.
-   *
+   * 
    * @param sourceData
    *          the binary data
    * @param startPos
-   *          the start position in  'sourceData'
+   *          the start position in 'sourceData'
    * @param destination
    *          destination datas
    */
@@ -378,7 +362,7 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * sendBinaryFile.
-   *
+   * 
    * @param filePath
    *          full path to file
    * @param ownerName
@@ -487,7 +471,7 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setAllowConnect.
-   *
+   * 
    * @param allowConnect
    *          allow connection state(true or false)
    */
@@ -500,7 +484,7 @@ public class ChannelManager implements RequestHandler {
 
   /**
    * setAllowConnect.
-   *
+   * 
    * @param allowConnect
    *          allow connection state(true or false)
    * @param id

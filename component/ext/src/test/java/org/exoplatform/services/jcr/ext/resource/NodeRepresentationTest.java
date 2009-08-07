@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepres
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class NodeRepresentationTest extends BaseStandaloneTest {
 

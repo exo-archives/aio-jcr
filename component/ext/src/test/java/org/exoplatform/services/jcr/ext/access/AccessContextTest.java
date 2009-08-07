@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class AccessContextTest extends BaseStandaloneTest {
   private final static int MULTI_THIARD_OPERATIONS = 100;

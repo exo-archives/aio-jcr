@@ -32,10 +32,10 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.<br/> Proxy of WorkspaceDataManager for "proxy" mode of
- * replication to let replicator not to make persistent changes but replicate cache, indexes etc
- * instead. This is the case if persistent replication is done with some external way (by
- * repliucation enabled RDB or AS etc)
+ * Created by The eXo Platform SAS.<br/>
+ * Proxy of WorkspaceDataManager for "proxy" mode of replication to let replicator not to make
+ * persistent changes but replicate cache, indexes etc instead. This is the case if persistent
+ * replication is done with some external way (by repliucation enabled RDB or AS etc)
  * 
  * @author Gennady Azarenkov
  * @version $Id$
@@ -54,8 +54,8 @@ public class WorkspaceDataManagerProxy implements ItemDataKeeper {
   private List<ItemsPersistenceListener> listeners;
 
   /**
-   * WorkspaceDataManagerProxy  constructor.
-   *
+   * WorkspaceDataManagerProxy constructor.
+   * 
    * @param dataManager
    *          the CacheableWorkspaceDataManager
    * @param searchIndex
@@ -78,9 +78,9 @@ public class WorkspaceDataManagerProxy implements ItemDataKeeper {
   /**
    * calls onSaveItems on all registered listeners.
    * 
-   * @throws RepositoryException, UnsupportedOperationException,
-   *         InvalidItemStateException
-   *               
+   * @throws RepositoryException
+   *           , UnsupportedOperationException, InvalidItemStateException
+   * 
    * @param changesLog
    *          the ChangesLog with data
    */

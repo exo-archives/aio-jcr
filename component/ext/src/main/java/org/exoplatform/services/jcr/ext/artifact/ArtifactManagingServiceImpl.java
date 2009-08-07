@@ -81,21 +81,21 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Created by The eXo Platform SAS .<br/> Service responsible for Administration Maven repository
- * the served JCR structure inside workspaceName is: rootPath (maven-root)/
- * ---part-of-group-folder1/ (nt:folder + exo:groupId) ---part-of-group-foldern/
- * ------artifact-root-folder/(nt:folder + exo:artifactId) ---------maven-metadata.xml(nt:file)
- * ---------maven-metadata.xml.sha1(nt:file) ---------artifact-version-folder/(nt:folder +
- * exo:versionId) ------------artifactId-version.jar (nt:file + exo:mavenjar / nt:resource)
- * ------------artifactId-version.jar.sha1 (nt:file + exo:mavensha1 / nt:resource )
- * ------------artifactId-version.pom (nt:file + exo:mavenpom / nt:resource)
- * ------------artifactId-version.pom.sha1 (nt:file + exo:mavensha1/ (nt:resource)
+ * Created by The eXo Platform SAS .<br/>
+ * Service responsible for Administration Maven repository the served JCR structure inside
+ * workspaceName is: rootPath (maven-root)/ ---part-of-group-folder1/ (nt:folder + exo:groupId)
+ * ---part-of-group-foldern/ ------artifact-root-folder/(nt:folder + exo:artifactId)
+ * ---------maven-metadata.xml(nt:file) ---------maven-metadata.xml.sha1(nt:file)
+ * ---------artifact-version-folder/(nt:folder + exo:versionId) ------------artifactId-version.jar
+ * (nt:file + exo:mavenjar / nt:resource) ------------artifactId-version.jar.sha1 (nt:file +
+ * exo:mavensha1 / nt:resource ) ------------artifactId-version.pom (nt:file + exo:mavenpom /
+ * nt:resource) ------------artifactId-version.pom.sha1 (nt:file + exo:mavensha1/ (nt:resource)
  * ------------maven-metadata.xml (nt:file +exo:mavenmetadata / (nt:resource )
  * ------------maven-metadata.xml.sha1(nt:file + exo:mavensha1 / (nt:resource)
  * 
  * @author Gennady Azarenkov
  * @author Volodymyr Krasnikov
- * @version $Id: $
+ * @version $Id$
  */
 public class ArtifactManagingServiceImpl implements ArtifactManagingService, Startable {
   private static final int    BUFFER            = 4096;
@@ -123,8 +123,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
   private static Log          LOGGER            = ExoLogger.getLogger(ArtifactManagingServiceImpl.class);
 
   private Map<String, String> mimeMap           = new Hashtable<String, String>();
-  
-  private List<String> listErrorPom = new ArrayList<String>();
+
+  private List<String>        listErrorPom      = new ArrayList<String>();
 
   /**
    * @param params
@@ -439,7 +439,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     try {
       this.listErrorPom.clear();
       importFilesToJCR(sp, folder);
-     } catch (Exception e) {
+    } catch (Exception e) {
       LOGGER.error("Exception during uploading local folder to JCR", e);
     }
   }
@@ -448,14 +448,12 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
    * This method provides adding to JCR artifacts. this means that jar-files and appropriate pom
    * files would be added. Main logic: scan all files & if it is a pair jar/pom -add it.
    */
-  private void  importFilesToJCR(SessionProvider sp, File folder) throws Exception {
-    
-    
+  private void importFilesToJCR(SessionProvider sp, File folder) throws Exception {
 
     for (File file : folder.listFiles(new DefaultFileFilter())) {
 
       if (file.isDirectory()) {
-         importFilesToJCR(sp, file);
+        importFilesToJCR(sp, file);
       }
 
       String ext = FilenameUtils.getExtension(file.getAbsolutePath());
@@ -466,12 +464,12 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
         if (jarfile.exists()) {
           // get descripting from pom file
           try {
-          ArtifactDescriptor artifact = ArtifactDescriptor.createFromPomfile(file);
-          InputStream jarIStream = new FileInputStream(jarfile);
-          InputStream pomIStream = new FileInputStream(file);
-          addArtifact(sp, artifact, jarIStream, pomIStream);
+            ArtifactDescriptor artifact = ArtifactDescriptor.createFromPomfile(file);
+            InputStream jarIStream = new FileInputStream(jarfile);
+            InputStream pomIStream = new FileInputStream(file);
+            addArtifact(sp, artifact, jarIStream, pomIStream);
           } catch (org.xml.sax.SAXParseException e) {
-//            throw new ArtifactDescriptorException(FilenameUtils.getName(file.getAbsolutePath()));
+            // throw new ArtifactDescriptorException(FilenameUtils.getName(file.getAbsolutePath()));
             this.listErrorPom.add(FilenameUtils.getName(file.getAbsolutePath()));
             continue;
           }
@@ -495,10 +493,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     if (rootNodePath.length() > 1) { // artifact root is some real node
       if (rootNodePath.endsWith("/"))
-         pathToRemove = rootNodePath + artifact.getAsPath();
-      else 
-         pathToRemove = rootNodePath + "/" + artifact.getAsPath();
-   } else {
+        pathToRemove = rootNodePath + artifact.getAsPath();
+      else
+        pathToRemove = rootNodePath + "/" + artifact.getAsPath();
+    } else {
       pathToRemove = "/" + artifact.getAsPath(); // "/" - is root path
     }
 
@@ -506,17 +504,16 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     Node rmNode = (Node) session.getItem(pathToRemove);
 
-//    while (rmNode != root) {
-//      Node parent = rmNode.getParent();
-      rmNode.remove();
-//      if (!parent.hasNodes())
-//        rmNode = parent;
-//      else
-//        break;
-//    }
+    // while (rmNode != root) {
+    // Node parent = rmNode.getParent();
+    rmNode.remove();
+    // if (!parent.hasNodes())
+    // rmNode = parent;
+    // else
+    // break;
+    // }
     session.save();
   }
-
 
   public List getPermission(SessionProvider sp, Descriptor artifact) throws RepositoryException {
 
@@ -537,8 +534,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     List<AccessControlEntry> list = rmNode.getACL().getPermissionEntries();
     return list;
   }
-  
-  
+
   public void changePermission(SessionProvider sp,
                                Descriptor artifact,
                                String identity,
@@ -585,7 +581,6 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     session.save();
   }
 
-
   /*
    * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#searchArtifacts
@@ -601,13 +596,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     String param = criteria.getContainsExpr();
     String pathConstraint = "";
     if (rootNodePath.length() > 1) { // artifact root is some real node
-   
-    if (rootNodePath.endsWith("/"))
-      pathConstraint = rootNodePath + "%/" + param + "[%]";
-    else
-      pathConstraint = rootNodePath + "/%/" + param + "[%]";
 
-    }  else {
+      if (rootNodePath.endsWith("/"))
+        pathConstraint = rootNodePath + "%/" + param + "[%]";
+      else
+        pathConstraint = rootNodePath + "/%/" + param + "[%]";
+
+    } else {
       pathConstraint = "/%/" + param + "[%]"; // artifact root is workspace root
     }
     // node !!
@@ -917,11 +912,11 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     if (nodeChecksumFile.canAddMixin(mixinType))
       nodeChecksumFile.addMixin(mixinType);
     try {
-      
+
       FileInputStream fileInputStream = new FileInputStream(srcFile);
-      
+
       String checksum = CRCGenerator.getChecksum(fileInputStream, algorithm);
-      
+
       InputStream checksum_is = new ByteArrayInputStream(checksum.getBytes());
       String mimeType = "text/plain";
 
@@ -1165,10 +1160,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     LOGGER.info("Workspace from configuration file: " + repoWorkspaceName);
     LOGGER.info("RootNode from configuration file: " + rootNodePath);
   }
-  
-  public List getListErrors () {
+
+  public List getListErrors() {
     return listErrorPom;
   }
-  
 
 }

@@ -58,14 +58,12 @@ public class PendingChangesLog {
    */
   public final class Type {
     /**
-     * CHANGESLOG_WITHOUT_STREAM.
-     *   The the type fore ChangesLog without streams.
+     * CHANGESLOG_WITHOUT_STREAM. The the type fore ChangesLog without streams.
      */
     public static final int CHANGESLOG_WITHOUT_STREAM = 1;
 
     /**
-     * CHANGESLOG_WITH_STREAM.
-     *   The the type fore ChangesLog with streams.
+     * CHANGESLOG_WITH_STREAM. The the type fore ChangesLog with streams.
      */
     public static final int CHANGESLOG_WITH_STREAM    = 2;
 
@@ -79,58 +77,58 @@ public class PendingChangesLog {
   /**
    * Minimal sleep timeout.
    */
-  private static final int                       SLEEP_TIME = 5;
+  private static final int       SLEEP_TIME = 5;
 
   /**
    * ChangesLog with data.
    */
-  private TransactionChangesLog                  itemDataChangesLog;
+  private TransactionChangesLog  itemDataChangesLog;
 
   /**
    * The list of input streams who are contains in ChangesLog.
    */
-  private List<InputStream>                      listInputStream;
+  private List<InputStream>      listInputStream;
 
   /**
    * The list of RandomAccessFiles who ate contains in ChangesLog.
    */
-  private List<RandomAccessFile>                 listRandomAccessFile;
+  private List<RandomAccessFile> listRandomAccessFile;
 
   /**
    * Type of ChangesLog (CHANGESLOG_WITHOUT_STREAM or CHANGESLOG_WITH_STREAM).
    */
-  private int                                    containerType;
+  private int                    containerType;
 
   /**
    * The list of FixupStreams who are indicate the location the input streams in ChangesLog.
    */
-  private List<FixupStream>                      listFixupStream;
+  private List<FixupStream>      listFixupStream;
 
-//  private HashMap<FixupStream, RandomAccessFile> mapFixupStream;
+  // private HashMap<FixupStream, RandomAccessFile> mapFixupStream;
 
   /**
    * The list of Files who are contains in ChangesLog.
    */
-  private List<File>                             listFile;
+  private List<File>             listFile;
 
   /**
    * The identification string for PendingChangesLog.
    */
-  private String                                 identifier;
+  private String                 identifier;
 
   /**
    * The FileCleaner will delete the temporary files.
    */
-  private FileCleaner                            fileCleaner;
+  private FileCleaner            fileCleaner;
 
   /**
    * The arrays of bytes for serialized ChangesLog without streams.
    */
-  private byte[]                                 data;
+  private byte[]                 data;
 
   /**
-   * PendingChangesLog  constructor.
-   *
+   * PendingChangesLog constructor.
+   * 
    * @param itemDataChangesLog
    *          ChangesLog with data
    * @param fileCleaner
@@ -149,14 +147,14 @@ public class PendingChangesLog {
   }
 
   /**
-   * PendingChangesLog  constructor.
-   *
+   * PendingChangesLog constructor.
+   * 
    * @param itemDataChangesLog
    *          ChangesLog with data
    * @param identifier
    *          identifier to this PendingChangesLog.
    * @param type
-   *          type of PendingChangesLog 
+   *          type of PendingChangesLog
    * @param fileCleaner
    *          the FileCleaner
    * @throws IOException
@@ -177,8 +175,8 @@ public class PendingChangesLog {
   }
 
   /**
-   * PendingChangesLog  constructor.
-   *
+   * PendingChangesLog constructor.
+   * 
    * @param identifier
    *          identifier to this PendingChangesLog.
    * @param dataLength
@@ -190,12 +188,12 @@ public class PendingChangesLog {
   }
 
   /**
-   * PendingChangesLog  constructor.
-   *
+   * PendingChangesLog constructor.
+   * 
    * @param transactionChangesLog
    *          ChangesLog with data
    * @param listFixupStreams
-   *          list of FixupStreams 
+   *          list of FixupStreams
    * @param listFiles
    *          list of Files
    * @param fileCleaner
@@ -213,7 +211,7 @@ public class PendingChangesLog {
 
   /**
    * putData.
-   *
+   * 
    * @param offset
    *          offset in 'data'
    * @param tempData
@@ -226,9 +224,8 @@ public class PendingChangesLog {
 
   /**
    * getData.
-   *
-   * @return byte[]
-   *           return the binary data 
+   * 
+   * @return byte[] return the binary data
    */
   public byte[] getData() {
     return data;
@@ -236,9 +233,8 @@ public class PendingChangesLog {
 
   /**
    * getItemDataChangesLog.
-   *
-   * @return TransactionChangesLog
-   *           return the ChangesLog
+   * 
+   * @return TransactionChangesLog return the ChangesLog
    */
   public TransactionChangesLog getItemDataChangesLog() {
     return itemDataChangesLog;
@@ -246,9 +242,8 @@ public class PendingChangesLog {
 
   /**
    * getInputStreams.
-   *
-   * @return List
-   *           return the list of input streams
+   * 
+   * @return List return the list of input streams
    */
   public List<InputStream> getInputStreams() {
     return listInputStream;
@@ -256,9 +251,8 @@ public class PendingChangesLog {
 
   /**
    * getListRandomAccessFiles.
-   *
-   * @return List
-   *           return the list of RandomAccessFiles
+   * 
+   * @return List return the list of RandomAccessFiles
    */
   public List<RandomAccessFile> getListRandomAccessFiles() {
     return listRandomAccessFile;
@@ -266,9 +260,8 @@ public class PendingChangesLog {
 
   /**
    * getListFile.
-   *
-   * @return List
-   *           return list of Files   
+   * 
+   * @return List return list of Files
    */
   public List<File> getListFile() {
     return listFile;
@@ -276,9 +269,8 @@ public class PendingChangesLog {
 
   /**
    * getFixupStreams.
-   *
-   * @return List
-   *           return list of FixupStreams
+   * 
+   * @return List return list of FixupStreams
    */
   public List<FixupStream> getFixupStreams() {
     return listFixupStream;
@@ -286,9 +278,8 @@ public class PendingChangesLog {
 
   /**
    * analysisItemDataChangesLog.
-   *
-   * @return int
-   *           type of ChangesLog (CHANGESLOG_WITHOUT_STREAM or CHANGESLOG_WITH_STREAM)
+   * 
+   * @return int type of ChangesLog (CHANGESLOG_WITHOUT_STREAM or CHANGESLOG_WITH_STREAM)
    * @throws IOException
    *           will be generated the IOException
    */
@@ -330,9 +321,8 @@ public class PendingChangesLog {
 
   /**
    * getConteinerType.
-   *
-   * @return int
-   *           return the type of ChangesLog
+   * 
+   * @return int return the type of ChangesLog
    */
   public int getConteinerType() {
     return containerType;
@@ -340,22 +330,19 @@ public class PendingChangesLog {
 
   /**
    * getIdentifier.
-   *
-   * @return String
-   *           return the identifier string
+   * 
+   * @return String return the identifier string
    */
   public String getIdentifier() {
     return identifier;
   }
 
   /**
-   * getAsByteArray.
-   *   Make the array of bytes from ChangesLog.
-   *
+   * getAsByteArray. Make the array of bytes from ChangesLog.
+   * 
    * @param dataChangesLog
    *          the ChangesLog with data
-   * @return byte[]
-   *           return the serialized ChangesLog
+   * @return byte[] return the serialized ChangesLog
    * @throws IOException
    *           will be generated the IOException
    */
@@ -369,13 +356,11 @@ public class PendingChangesLog {
   }
 
   /**
-   * getAsItemDataChangesLog.
-   *   Make the ChangesLog from array of bytes.
-   *
+   * getAsItemDataChangesLog. Make the ChangesLog from array of bytes.
+   * 
    * @param byteArray
    *          the serialized ChangesLog
-   * @return TransactionChangesLog
-   *           return the deserialized ChangesLog
+   * @return TransactionChangesLog return the deserialized ChangesLog
    * @throws IOException
    *           will be generated the IOException
    * @throws ClassNotFoundException
@@ -392,11 +377,10 @@ public class PendingChangesLog {
 
   /**
    * getRandomAccessFile.
-   *
+   * 
    * @param fs
    *          the FixupStream
-   * @return RandomAccessFile
-   *           return the RandomAccessFile by FixupStream
+   * @return RandomAccessFile return the RandomAccessFile by FixupStream
    * @throws IOException
    *           will be generated the IOException
    */
@@ -435,7 +419,7 @@ public class PendingChangesLog {
 
   /**
    * addNewStream.
-   *
+   * 
    * @param fs
    *          the FixupStream
    * @throws IOException
@@ -452,8 +436,8 @@ public class PendingChangesLog {
   }
 
   /**
-   * Restore ChangesLog(set the InputStreams to ValueData).  
-   *
+   * Restore ChangesLog(set the InputStreams to ValueData).
+   * 
    * @throws IOException
    *           will be generated the IOException
    */

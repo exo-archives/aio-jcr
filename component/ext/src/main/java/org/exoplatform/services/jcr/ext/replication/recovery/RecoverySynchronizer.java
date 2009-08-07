@@ -54,7 +54,7 @@ public class RecoverySynchronizer {
   /**
    * The apache logger.
    */
-  private static Log                         log = ExoLogger.getLogger("ext.RecoverySynchronizer");
+  private static Log                         log                  = ExoLogger.getLogger("ext.RecoverySynchronizer");
 
   /**
    * Definition the folder to ChangesLog.
@@ -115,16 +115,16 @@ public class RecoverySynchronizer {
    * The list of names other participants who was Synchronized successful.
    */
   private List<String>                       successfulSynchronizedList;
-  
+
   /**
    * The flag for local synchronization.
    */
   private volatile boolean                   localSynchronization = false;
 
   /**
-   * RecoverySynchronizer  constructor.
-   *
-   *
+   * RecoverySynchronizer constructor.
+   * 
+   * 
    * @param recoveryDir
    *          the recovery dir
    * @param fileNameFactory
@@ -167,8 +167,8 @@ public class RecoverySynchronizer {
   }
 
   /**
-   * Will be initialized the synchronization. 
-   *
+   * Will be initialized the synchronization.
+   * 
    */
   public void synchronizRepository() {
     try {
@@ -187,7 +187,7 @@ public class RecoverySynchronizer {
 
   /**
    * send.
-   *
+   * 
    * @param packet
    *          the Packet
    * @throws Exception
@@ -204,13 +204,12 @@ public class RecoverySynchronizer {
 
   /**
    * processingPacket.
-   *
+   * 
    * @param packet
    *          the Packet
    * @param status
    *          before status
-   * @return int
-   *           after status
+   * @return int after status
    * @throws Exception
    *           will be generated the Exception
    */
@@ -295,7 +294,7 @@ public class RecoverySynchronizer {
 
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
             List<String> failList = new ArrayList<String>();
-            
+
             for (FileDescriptor fileDescriptor : fileDescriptorList) {
               try {
                 TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
@@ -337,9 +336,9 @@ public class RecoverySynchronizer {
 
             // Send file name list
             List<String> fileNameList = new ArrayList<String>(mapPendingBinaryFile.get(packet.getIdentifier())
-                                                            .getFileNameList());
-            
-            if (failList.size() != 0) 
+                                                                                  .getFileNameList());
+
+            if (failList.size() != 0)
               fileNameList.removeAll(failList);
 
             Packet packetFileNameList = new Packet(Packet.PacketType.ALL_CHANGESLOG_SAVED_OK,
@@ -348,7 +347,8 @@ public class RecoverySynchronizer {
                                                    fileNameList);
             send(packetFileNameList);
 
-            log.info("The " + fileDescriptorList.size() + " changeslogs were received and " + fileNameList.size() + " saved");
+            log.info("The " + fileDescriptorList.size() + " changeslogs were received and "
+                + fileNameList.size() + " saved");
 
           } else if (log.isDebugEnabled()) {
             log.debug("Do not start save : " + fileDescriptorList.size() + " of "
@@ -412,9 +412,9 @@ public class RecoverySynchronizer {
       if (successfulSynchronizedList.contains(packet.getOwnerName()) == false)
         successfulSynchronizedList.add(packet.getOwnerName());
 
-      if (successfulSynchronizedList.size() == initedParticipantsClusterList.size()) 
+      if (successfulSynchronizedList.size() == initedParticipantsClusterList.size())
         stat = AbstractWorkspaceDataReceiver.NORMAL_MODE;
-      
+
       localSynchronization = false;
       break;
     default:
@@ -426,11 +426,11 @@ public class RecoverySynchronizer {
 
   /**
    * sendChangesLogUpDate.
-   *
+   * 
    * @param timeStamp
    *          the update to this date
    * @param ownerName
-   *          the member name who initialize synchronization  
+   *          the member name who initialize synchronization
    * @param identifier
    *          the operation identifier
    */
@@ -478,7 +478,7 @@ public class RecoverySynchronizer {
 
   /**
    * setDataKeeper.
-   *
+   * 
    * @param dataKeeper
    *          the ItemDataKeeper
    */
@@ -488,8 +488,8 @@ public class RecoverySynchronizer {
 
   /**
    * updateInitedParticipantsClusterList.
-   *
-   * @param list 
+   * 
+   * @param list
    *          the list of initialized members
    */
   public void updateInitedParticipantsClusterList(Collection<? extends String> list) {
@@ -498,13 +498,13 @@ public class RecoverySynchronizer {
 
   /**
    * saveChangesLog.
-   *
+   * 
    * @param dataManager
-   *          the ItemDataKeeper 
+   *          the ItemDataKeeper
    * @param changesLog
    *          the ChangesLog with data
    * @param cLogTime
-   *          the  date of ChangesLog
+   *          the date of ChangesLog
    * @throws ReplicationException
    *           will be generated the ReplicationException
    */
@@ -569,7 +569,7 @@ public class RecoverySynchronizer {
 
     return null;
   }
-  
+
   /**
    * localSynchronization.
    * 

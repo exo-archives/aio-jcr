@@ -55,7 +55,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   private String          systemId;
 
   /**
-   * The ChannalManager will be transmitted the Packets. 
+   * The ChannalManager will be transmitted the Packets.
    */
   private ChannelManager  channelManager;
 
@@ -80,8 +80,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   private String          ownName;
 
   /**
-   * WorkspaceDataTransmitter  constructor.
-   *
+   * WorkspaceDataTransmitter constructor.
+   * 
    * @param dataManager
    *          the CacheableWorkspaceDataManager
    * @throws RepositoryConfigurationException
@@ -94,7 +94,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * init.
-   *
+   * 
    * @param channelManager
    *          the ChannelManager
    * @param systemId
@@ -135,7 +135,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
             log.debug(pcl.dump());
           }
         }
-        
+
         String identifier = this.sendAsBinaryFile(changesLog);
 
         if (log.isDebugEnabled()) {
@@ -152,11 +152,10 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * send.
-   *
+   * 
    * @param isChangesLog
    *          the ChangegLog
-   * @return String
-   *           return the identification string for PendingChangesLog
+   * @return String return the identification string for PendingChangesLog
    * @throws Exception
    *           will be generated Exception
    */
@@ -232,11 +231,10 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * sendAsBinaryFile.
-   *
+   * 
    * @param isChangesLog
    *          the ChangesLog
-   * @return String
-   *           return the identification string for PendingChangesLog
+   * @return String return the identification string for PendingChangesLog
    * @throws Exception
    *           will be generated Exception
    */
@@ -296,7 +294,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * sendStream.
-   *
+   * 
    * @param in
    *          the InputStream
    * @param fixupStream
@@ -350,7 +348,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * sendBigItemDataChangesLog.
-   *
+   * 
    * @param data
    *          the array of bytes with data
    * @param identifier
@@ -408,7 +406,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * sendBigItemDataChangesLogWhithStream.
-   *
+   * 
    * @param data
    *          the array of bytes with data
    * @param identifier
@@ -466,13 +464,13 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * cutData.
-   *
+   * 
    * @param sourceData
    *          source data
    * @param startPos
    *          start position in 'sourceData'
    * @param destination
-   *          destination data 
+   *          destination data
    */
   private void cutData(byte[] sourceData, long startPos, byte[] destination) {
     for (int i = 0; i < destination.length; i++)
@@ -493,11 +491,10 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * isSessionNull.
-   *
+   * 
    * @param changesLog
    *          the ChangesLog
-   * @return boolean
-   *           return the 'false' if same 'SessionId' is null 
+   * @return boolean return the 'false' if same 'SessionId' is null
    */
   private boolean isSessionNull(TransactionChangesLog changesLog) {
     boolean isSessionNull = false;
@@ -532,9 +529,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   /**
    * getChannelManager.
-   *
-   * @return ChannelManager
-   *           return the ChannelManager
+   * 
+   * @return ChannelManager return the ChannelManager
    */
   public ChannelManager getChannelManager() {
     return channelManager;

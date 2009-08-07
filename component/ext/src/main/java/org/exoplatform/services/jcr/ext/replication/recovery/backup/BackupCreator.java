@@ -73,8 +73,8 @@ public class BackupCreator implements Runnable {
   private FileNameFactory      fileNameFactory;
 
   /**
-   * BackupCreator  constructor.
-   *
+   * BackupCreator constructor.
+   * 
    * @param delayTime
    *          the delay timeout
    * @param workspaceName

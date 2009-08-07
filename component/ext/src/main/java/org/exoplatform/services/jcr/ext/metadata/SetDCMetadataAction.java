@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
  * for node operations like addNode, checkin
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class SetDCMetadataAction implements Action {
 

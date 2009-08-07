@@ -34,11 +34,11 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Created by The eXo Platform SAS .<br/> Encapsulates registry entry (i.e services', applications'
- * etc settings)
+ * Created by The eXo Platform SAS .<br/>
+ * Encapsulates registry entry (i.e services', applications' etc settings)
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public final class RegistryEntry {

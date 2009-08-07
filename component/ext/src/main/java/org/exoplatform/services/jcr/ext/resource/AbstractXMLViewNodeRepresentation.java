@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 public abstract class AbstractXMLViewNodeRepresentation implements NodeRepresentation {
 

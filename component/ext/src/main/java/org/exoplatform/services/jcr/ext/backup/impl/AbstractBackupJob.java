@@ -36,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Date: 05.02.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: AbstrackBackupJob.java 760 2008-02-07 15:08:07Z pnedonosko $
+ * @version $Id$
  */
 public abstract class AbstractBackupJob implements BackupJob {
 

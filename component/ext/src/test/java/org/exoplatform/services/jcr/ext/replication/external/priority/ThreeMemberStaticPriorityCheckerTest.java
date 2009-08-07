@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ThreeMemberStaticPriorityCheckerTest.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
@@ -46,7 +46,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
     relPathArray = new String[filesSize.length];
     fileNameArray = new String[filesSize.length];
-    
+
     Thread.sleep(15000);
   }
 
@@ -72,7 +72,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(35000);
 
     // check is read-only min and middle member
@@ -180,7 +180,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(35000);
 
     // check is read-only middle member

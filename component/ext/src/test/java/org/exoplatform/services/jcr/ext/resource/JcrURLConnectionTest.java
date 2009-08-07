@@ -31,7 +31,7 @@ import org.exoplatform.services.security.ConversationState;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class JcrURLConnectionTest extends BaseStandaloneTest {
 
@@ -59,14 +59,14 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
     tlsp = (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
     tlsp.setSessionProvider(null, new SessionProvider(ConversationState.getCurrent()));
   }
-  
+
   public void tearDown() throws Exception {
     super.tearDown();
     tlsp.removeSessionProvider(null);
   }
-  
+
   private ThreadLocalSessionProviderService tlsp;
-  
+
   public void testURL() throws Exception {
     UnifiedNodeReference nodeRef = new UnifiedNodeReference("jcr://db1/ws/#/jcr:system/");
     URL url = nodeRef.getURL();
@@ -81,7 +81,7 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
     // default must work, by default work document view node representation.
     UnifiedNodeReference nodeRef = new UnifiedNodeReference("jcr://db1/ws/#/testRoot/");
     JcrURLConnection conn = (JcrURLConnection) nodeRef.getURL().openConnection();
-    
+
     conn.setDoOutput(false);
     Node content = (Node) conn.getContent();
     InputStream in = conn.getInputStream();
@@ -97,7 +97,8 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
 
   public void testNtFileNodeRepresentation() throws Exception {
     // should be work node representation for nt:file
-    UnifiedNodeReference nodeRef = new UnifiedNodeReference("jcr://db1/ws/#/testRoot/" + fname + "/");
+    UnifiedNodeReference nodeRef = new UnifiedNodeReference("jcr://db1/ws/#/testRoot/" + fname
+        + "/");
     JcrURLConnection conn = (JcrURLConnection) nodeRef.getURL().openConnection();
     conn.setDoOutput(false);
 

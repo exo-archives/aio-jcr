@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEventType;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class AuditRecord implements Comparable<AuditRecord> {
@@ -95,8 +95,7 @@ public class AuditRecord implements Comparable<AuditRecord> {
   }
 
   /**
-   * Returns version name related to this audit record. Version name for information purpose only.
-   * <br/>
+   * Returns version name related to this audit record. Version name for information purpose only. <br/>
    * 
    * NOTE: Version name can be helpful after the version will be removed.
    * 

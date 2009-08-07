@@ -30,7 +30,7 @@ import org.exoplatform.services.security.Identity;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: DenyAccessManager.java 14111 2008-05-12 15:04:28Z gazarenkov $
+ * @version $Id$
  */
 public class DenyAccessManager extends AccessManager {
   private String denyName = "";

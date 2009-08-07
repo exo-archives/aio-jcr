@@ -23,7 +23,7 @@ import java.net.URI;
  * Created by The eXo Platform SAS .
  * 
  * @author eXo Platform
- * @version $Id: $
+ * @version $Id$
  */
 
 public final class Tag {

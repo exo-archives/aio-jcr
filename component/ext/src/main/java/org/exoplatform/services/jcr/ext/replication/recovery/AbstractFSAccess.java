@@ -31,12 +31,12 @@ import java.io.ObjectInputStream;
 
 public class AbstractFSAccess {
   /**
-   * Definition the name for data folder. 
+   * Definition the name for data folder.
    */
   public static final String DATA_DIR_NAME       = "data";
 
   /**
-   * Definition the prefix string for removed data. 
+   * Definition the prefix string for removed data.
    */
   public static final String PREFIX_REMOVED_DATA = "---";
 
@@ -51,7 +51,7 @@ public class AbstractFSAccess {
   public static final String REMOVED_SUFFIX      = ".remove";
 
   /**
-   * Definition the constant for 1k buffer.  
+   * Definition the constant for 1k buffer.
    */
   protected static final int BUFFER_1KB          = 1024;
 
@@ -66,14 +66,13 @@ public class AbstractFSAccess {
   protected static final int BUFFER_20X          = 20;
 
   /**
-   * getAsFile.
-   *   The input stream will be spooled to file. 
+   * getAsFile. The input stream will be spooled to file.
+   * 
    * @param is
    *          the InputStream
-   * @return File
-   *           return the spooled file  
+   * @return File return the spooled file
    * @throws IOException
-   *           will be generated the IOExceprion 
+   *           will be generated the IOExceprion
    */
   protected File getAsFile(InputStream is) throws IOException {
     byte[] buf = new byte[BUFFER_1KB * BUFFER_20X];
@@ -93,13 +92,12 @@ public class AbstractFSAccess {
 
   /**
    * getAsFile.
-   *
+   * 
    * @param ois
    *          the ObjectInputStream
    * @param fileSize
    *          will be read 'fileSize' bytes from stream
-   * @return File
-   *           return the file with data 
+   * @return File return the file with data
    * @throws IOException
    *           will be generated the IOException
    */

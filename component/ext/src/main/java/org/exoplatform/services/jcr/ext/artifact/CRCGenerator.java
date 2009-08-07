@@ -34,12 +34,14 @@ import java.security.NoSuchAlgorithmException;
 public class CRCGenerator {
 
   private static final String HEX = "0123456789abcdef";
-  
+
   /**
    * Generates checksum for the InputStream.
    * 
-   * @param in stream to generate CheckSum
-   * @param algo algorithm name
+   * @param in
+   *          stream to generate CheckSum
+   * @param algo
+   *          algorithm name
    * @return hexadecimal string checksun representation
    * @throws NoSuchAlgorithmException
    * @throws IOException
@@ -62,14 +64,15 @@ public class CRCGenerator {
 
   /**
    * Converts the array of bytes into a HEX string.
-   *
-   * @param bytes byte array
+   * 
+   * @param bytes
+   *          byte array
    * @return HEX string
    */
   private static String generateString(byte[] bytes) {
-    
+
     StringBuffer sb = new StringBuffer();
-    
+
     for (byte b : bytes) {
 
       int v = b & 0xFF;
@@ -78,6 +81,6 @@ public class CRCGenerator {
       sb.append((char) HEX.charAt(v & 0x0f));
     }
 
-    return sb.toString(); 
+    return sb.toString();
   }
 }

@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: BandwidthAllocationTestCase.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
@@ -38,16 +38,16 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
   /**
    * The alphabet to content.
    */
-  private static final String ALPHABET = "qwertyuiop[]asdfghjkl;'zxcvbnm,./1234567890-=!@#$%^&*()_+|:?><";
-  
+  private static final String ALPHABET     = "qwertyuiop[]asdfghjkl;'zxcvbnm,./1234567890-=!@#$%^&*()_+|:?><";
+
   /**
    * The random value.
    */
-  private static final int RANDOM_VALUE = 1124517;
+  private static final int    RANDOM_VALUE = 1124517;
 
   /**
-   * BandwidthAllocationTestCase  constructor.
-   *
+   * BandwidthAllocationTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -69,13 +69,12 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
 
   /**
    * createBaseNode.
-   *
+   * 
    * @param repoPath
    *          the repository path
    * @param nodeName
    *          the node name
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer createBaseNode(String repoPath, String nodeName) {
     StringBuffer sb = new StringBuffer();
@@ -95,15 +94,14 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
 
   /**
    * addEmptyNode.
-   *
+   * 
    * @param repoPath
    *          the repository path
    * @param nodeName
    *          the node name
    * @param iterations
-   *          how many iterations adding the empty node 
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   *          how many iterations adding the empty node
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer addEmptyNode(String repoPath, String nodeName, long iterations) {
     StringBuffer sb = new StringBuffer();
@@ -129,7 +127,7 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
 
   /**
    * addStringPropertyOnly.
-   *
+   * 
    * @param repoPath
    *          the repository path
    * @param nodeName
@@ -137,9 +135,8 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
    * @param size
    *          the size of string property
    * @param iterations
-   *          how many iterations adding the string property 
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   *          how many iterations adding the string property
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer addStringPropertyOnly(String repoPath,
                                             String nodeName,
@@ -174,7 +171,7 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
 
   /**
    * addBinaryPropertyOnly.
-   *
+   * 
    * @param repoPath
    *          the repository path
    * @param nodeName
@@ -182,9 +179,8 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
    * @param size
    *          the size of binary property
    * @param iterations
-   *          how many iterations adding the binary property 
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   *          how many iterations adding the binary property
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer addBinaryPropertyOnly(String repoPath,
                                             String nodeName,

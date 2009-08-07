@@ -23,7 +23,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
  * 06.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: BackupSchedulerException.java 610 2008-01-11 17:01:49Z pnedonosko $
+ * @version $Id$
  */
 public class BackupSchedulerException extends BackupOperationException {
 

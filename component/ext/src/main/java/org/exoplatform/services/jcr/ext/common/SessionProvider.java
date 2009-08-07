@@ -34,14 +34,18 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 
 /**
- * Created by The eXo Platform SAS .<br/> Provides JCR Session for client program. Usually it is per
- * client thread object Session creates with Repository.login(..) method and then can be stored in
- * some cache if neccessary.<p/>
+ * Created by The eXo Platform SAS .<br/>
+ * Provides JCR Session for client program. Usually it is per client thread object Session creates
+ * with Repository.login(..) method and then can be stored in some cache if neccessary.
+ * <p/>
  * 
- * SessionProvider guaranties multithreading use of <code>close()</code> and <code>getSession()</code> methods.<br/>
- * <code>SessionLifecycleListener.onCloseSession()</code> implementation also is synchronized.<p/> 
+ * SessionProvider guaranties multithreading use of <code>close()</code> and
+ * <code>getSession()</code> methods.<br/>
+ * <code>SessionLifecycleListener.onCloseSession()</code> implementation also is synchronized.
+ * <p/>
  * 
- * To logout all cached Session use <code>close()</code> method.<p/>
+ * To logout all cached Session use <code>close()</code> method.
+ * <p/>
  * 
  * SessionProvider instance can handle
  * <code>getSession(), getCurrentRepository(), setCurrentRepository(), 
@@ -143,7 +147,7 @@ public class SessionProvider implements SessionLifecycleListener {
       throw new NullPointerException("Workspace Name is null");
 
     ExtendedSession session = cache.get(key(repository, workspaceName));
-    
+
     // create and cache new session
     if (session == null) {
 

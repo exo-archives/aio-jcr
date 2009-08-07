@@ -48,7 +48,7 @@ import org.w3c.dom.Element;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 @URITemplate("/registry/{repository}/")
 public class RESTRegistryService implements ResourceContainer {

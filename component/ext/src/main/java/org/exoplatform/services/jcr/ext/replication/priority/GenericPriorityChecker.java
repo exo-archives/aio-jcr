@@ -26,13 +26,14 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 29.05.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: GenericPriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
+ * <br/>
+ * Date: 29.05.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
 public class GenericPriorityChecker extends AbstractPriorityChecker {
-  
+
   /**
    * The apache logger.
    */
@@ -51,7 +52,7 @@ public class GenericPriorityChecker extends AbstractPriorityChecker {
   public boolean isMaxPriority() {
     return true;
   }
-  
+
   /**
    * {@inheritDoc}
    */

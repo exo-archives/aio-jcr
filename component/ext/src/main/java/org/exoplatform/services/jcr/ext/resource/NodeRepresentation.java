@@ -31,7 +31,7 @@ import org.exoplatform.common.util.HierarchicalProperty;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface NodeRepresentation {

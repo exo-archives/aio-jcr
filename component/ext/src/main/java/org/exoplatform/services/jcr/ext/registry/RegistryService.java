@@ -51,18 +51,18 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS . <br/> Centralized collector for JCR based entities (services,
- * apps, users) It contains info about the whole system, i.e. for all repositories used by system.
- * All operations performed in context of "current" repository, i.e.
- * RepositoryService.getCurrentRepository() Each repository has own Registry storage which is placed
- * in workspace configured in "locations" entry like: <properties-param> <name>locations</name>
- * <description>registry locations</description> <property name="repository1" value="workspace1"/>
- * <property name="repository2" value="workspace2"/> The implementation hides storage details from
- * end user
+ * Created by The eXo Platform SAS . <br/>
+ * Centralized collector for JCR based entities (services, apps, users) It contains info about the
+ * whole system, i.e. for all repositories used by system. All operations performed in context of
+ * "current" repository, i.e. RepositoryService.getCurrentRepository() Each repository has own
+ * Registry storage which is placed in workspace configured in "locations" entry like:
+ * <properties-param> <name>locations</name> <description>registry locations</description> <property
+ * name="repository1" value="workspace1"/> <property name="repository2" value="workspace2"/> The
+ * implementation hides storage details from end user
  * 
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class RegistryService extends Registry implements Startable {

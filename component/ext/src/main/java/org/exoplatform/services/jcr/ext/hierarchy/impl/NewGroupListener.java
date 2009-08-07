@@ -68,7 +68,7 @@ public class NewGroupListener extends GroupEventListener {
     else
       groupId = parentId + "/" + group.getGroupName();
     List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations();
-    if(isNew) {
+    if (isNew) {
       for (RepositoryEntry repo : repositories) {
         buildGroupStructure(repo.getName(), groupId);
       }
@@ -112,7 +112,7 @@ public class NewGroupListener extends GroupEventListener {
     Node groupNode = null;
     try {
       groupNode = groupsHome.getNode(groupId.substring(1, groupId.length()));
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       groupNode = groupsHome.addNode(groupId.substring(1, groupId.length()));
     }
     for (JcrPath jcrPath : (List<JcrPath>) jcrPaths) {
@@ -136,7 +136,7 @@ public class NewGroupListener extends GroupEventListener {
       nodeType = NT_UNSTRUCTURED;
     try {
       groupNode = groupNode.getNode(path);
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       groupNode = groupNode.addNode(path, nodeType);
     }
     if (groupNode.canAddMixin("exo:privilegeable"))

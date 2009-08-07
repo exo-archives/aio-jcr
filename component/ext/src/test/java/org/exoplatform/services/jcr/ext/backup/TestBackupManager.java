@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * 05.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestBackupManager.java 760 2008-02-07 15:08:07Z pnedonosko $
+ * @version $Id$
  */
 public class TestBackupManager extends AbstractBackupTestCase {
 

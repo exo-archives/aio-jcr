@@ -43,7 +43,7 @@ public class WaitConfirmation extends Thread {
   private long            timeOut;
 
   /**
-   * The RecoveryManager will be saved the ChangesLog. 
+   * The RecoveryManager will be saved the ChangesLog.
    */
   private RecoveryManager recoveryManager;
 
@@ -53,8 +53,8 @@ public class WaitConfirmation extends Thread {
   private String          identifier;
 
   /**
-   * WaitConfirmation  constructor.
-   *
+   * WaitConfirmation constructor.
+   * 
    * @param timeOut
    *          the wait timeout
    * @param recoveryManager

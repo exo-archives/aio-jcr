@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
  * Date: 21.04.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SessionProviderServiceTest.java 14112 2008-05-12 15:29:59Z gazarenkov $
+ * @version $Id$
  */
 public class SessionProviderServiceTest extends BaseStandaloneTest {
 

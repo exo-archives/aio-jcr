@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ThreeMemberDynamicPriorityCheckerTest.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
   long[] filesSize     = new long[] { 12314, 652125, 5212358, 9521358 };
@@ -45,7 +45,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
     relPathArray = new String[filesSize.length];
     fileNameArray = new String[filesSize.length];
-    
+
     Thread.sleep(15000);
   }
 
@@ -74,7 +74,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
     }
 
     Thread.sleep(35000);
-    
+
     // check is read-only max priority member
     {
       String disconnectUrl = "http://" + getMaxPriorityMember().getIpAddress() + ":"
@@ -184,7 +184,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
     }
 
     Thread.sleep(35000);
-    
+
     // check is read-only min priority member
     {
       String disconnectUrl = "http://" + getMinPriorityMember().getIpAddress() + ":"
@@ -292,7 +292,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(35000);
 
     // check is read-only middle priority member
@@ -404,7 +404,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(35000);
 
     // check is read-only max priority member
@@ -464,7 +464,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
-    
+
     Thread.sleep(35000);
 
     // check is read-only min priority member

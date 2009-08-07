@@ -40,39 +40,39 @@ import org.jgroups.View;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ConectionFailDetector.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class ConnectionFailDetector implements ChannelListener, MembershipListener, MemberListener {
   /**
    * The apache logger.
    */
-  private static Log                    log          = ExoLogger.getLogger("ext.ConnectionFailDetector");
+  private static Log                    log           = ExoLogger.getLogger("ext.ConnectionFailDetector");
 
   /**
    * Definition the VIEW_CHECK timeout.
    */
-  private static final int              VIEW_CHECK = 200;
-  
+  private static final int              VIEW_CHECK    = 200;
+
   /**
-   * The definition timeout for information. 
+   * The definition timeout for information.
    */
   private static final int              INFORM_TIMOUT = 5000;
-  
+
   /**
    * Definition the BEFORE_CHECK timeout.
    */
-  private static final int              BEFORE_CHECK = 10000;
+  private static final int              BEFORE_CHECK  = 10000;
 
   /**
    * Definition the BEFORE_INIT timeout.
    */
-  private static final int              BEFORE_INIT  = 60000;
+  private static final int              BEFORE_INIT   = 60000;
 
   /**
    * Definition the AFTER_INIT timeout.
    */
-  private static final int              AFTER_INIT   = 60000;
+  private static final int              AFTER_INIT    = 60000;
 
   /**
    * The ChannalManager will be transmitted or receive the Packets.
@@ -92,12 +92,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   /**
    * Start value for lastViewSize.
    */
-  private int                           lastViewSize = 2;
+  private int                           lastViewSize  = 2;
 
   /**
    * Start value for allInited.
    */
-  private boolean                       allInited    = false;
+  private boolean                       allInited     = false;
 
   /**
    * The WorkspaceDataContainer will be used to workspace for set state 'read-only'.
@@ -105,7 +105,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   private final WorkspaceDataContainer  dataContainer;
 
   /**
-   * The RecoveryManager will be initialized cluster node synchronization. 
+   * The RecoveryManager will be initialized cluster node synchronization.
    */
   private final RecoveryManager         recoveryManager;
 
@@ -120,7 +120,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   private final int                     ownPriority;
 
   /**
-   * The own name in cluster. 
+   * The own name in cluster.
    */
   private final String                  ownName;
 
@@ -133,15 +133,15 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * The priority checker (static or dynamic).
    */
   private final AbstractPriorityChecker priorityChecker;
-  
+
   /**
    * The view checker.
    */
-  private final ViewChecker viewChecker;
+  private final ViewChecker             viewChecker;
 
   /**
-   * ConnectionFailDetector  constructor.
-   *
+   * ConnectionFailDetector constructor.
+   * 
    * @param channelManager
    *          the ChannelManager
    * @param dataContainer
@@ -185,13 +185,13 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
                                                    ownPriority,
                                                    ownName,
                                                    otherParticipants);
-    else 
+    else
       priorityChecker = new GenericPriorityChecker(channelManager,
                                                    ownPriority,
                                                    ownName,
                                                    otherParticipants);
     priorityChecker.setMemberListener(this);
-    
+
     viewChecker = new ViewChecker();
     viewChecker.start();
   }
@@ -260,30 +260,30 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   public void viewAccepted(View view) {
     viewChecker.putView(view);
   }
-  
+
   private void viewAccepted(int viewSise) throws InterruptedException {
     priorityChecker.informAll();
-    
+
     Thread.sleep(INFORM_TIMOUT);
-    
+
     if (viewSise > 1)
       allInited = true;
 
     if (allInited == true)
       lastViewSize = viewSise;
-    
+
     if (priorityChecker.isAllOnline()) {
       if (reconectTtread != null) {
         reconectTtread.setStop(false);
         reconectTtread = null;
       }
-      
+
       memberRejoin();
       return;
     }
 
     if (priorityChecker instanceof GenericPriorityChecker) {
-      if ( lastViewSize == 1 && (reconectTtread == null || reconectTtread.isStoped() == true)) {
+      if (lastViewSize == 1 && (reconectTtread == null || reconectTtread.isStoped() == true)) {
         reconectTtread = new ReconectTtread(true);
         reconectTtread.start();
       }
@@ -324,23 +324,22 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
         reconectTtread.setStop(false);
         reconectTtread = null;
       }
-    }  
+    }
   }
-  
+
   /**
    * The view checker. Will be check View.
-   *
+   * 
    */
   private class ViewChecker extends Thread {
     private final ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<Integer>();
-    
-    public void putView (View view) {
+
+    public void putView(View view) {
       log.info(" Memebers view :" + view.printDetails());
-      
+
       queue.offer(view.size());
     }
-    
-    
+
     /**
      * {@inheritDoc}
      */
@@ -348,31 +347,31 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       while (true) {
         try {
           Integer viewSize = queue.poll();
-          
-          if (viewSize != null)  
-              viewAccepted(viewSize);
-          
-          sleep(VIEW_CHECK*2);
+
+          if (viewSize != null)
+            viewAccepted(viewSize);
+
+          sleep(VIEW_CHECK * 2);
         } catch (Throwable t) {
           log.error("View check error :", t);
-        } 
+        }
       }
-      
+
     }
   }
-  
+
   /**
    * The ReconectTtread will be initialized reconnect to cluster.
    */
   private class ReconectTtread extends Thread {
     /**
-     * The 'isStop' is a flag to run() stop. 
+     * The 'isStop' is a flag to run() stop.
      */
     private boolean isStop;
 
     /**
-     * ReconectTtread  constructor.
-     *
+     * ReconectTtread constructor.
+     * 
      * @param isStop
      *          the 'isStop' value
      */
@@ -396,11 +395,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
           if (channelManager.getChannel() != null) {
             while (channelManager.getChannel().getView() == null)
               Thread.sleep(VIEW_CHECK);
-            
+
             curruntOnlin = channelManager.getChannel().getView().size();
           }
 
-          if (isStop && (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline()))) {
+          if (isStop
+              && (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline()))) {
             channelManager.closeChannel();
 
             Thread.sleep(BEFORE_INIT);
@@ -419,7 +419,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
 
     /**
      * setStop.
-     *
+     * 
      * @param isStop
      *          the 'isStop' value
      */
@@ -429,9 +429,8 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
 
     /**
      * isStoped.
-     *
-     * @return boolean
-     *           return the 'isStop' value
+     * 
+     * @return boolean return the 'isStop' value
      */
     public boolean isStoped() {
       return !isStop;
@@ -446,7 +445,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       log.info(dataContainer.getName() + " set not read-only");
       dataContainer.setReadOnly(false);
     }
-    
+
     log.info(dataContainer.getName() + " recovery start ...");
     recoveryManager.startRecovery();
   }

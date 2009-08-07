@@ -64,7 +64,7 @@ import org.exoplatform.services.security.UsernameCredential;
 
 /**
  * @author Volodymyr Krasnikov volodymyr.krasnikov@exoplatform.com.ua
- * @version $Id: RESTArtifactLoaderService.java 11:37:47 andrew00x $
+ * @version $Id$
  */
 
 @URITemplate("/maven2/")
@@ -83,8 +83,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private NodeRepresentationService         nodeRepresentationService;
 
   /**
-   * Prepared JCR session. Can be null if username or password is not presents
-   * in configuration.
+   * Prepared JCR session. Can be null if username or password is not presents in configuration.
    */
   private Session                           session;
 
@@ -114,14 +113,19 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private RepositoryService                 repositoryService;
 
   /**
-   * @param initParams the initialized parameters. Set repository name,
-   *          workspace name, root node for Maven repository, username(optional)
-   *          and password (optional).
-   * @param sessionProviderService the ThreadLocalSessionProviderService.
-   * @param repositoryService the RepositoryService.
-   * @param nodeRepresentationService the NodeRepresentationService.
-   * @param authenticator the Authenticator.
-   * @throws Exception if any errors occur or not valid configuration.
+   * @param initParams
+   *          the initialized parameters. Set repository name, workspace name, root node for Maven
+   *          repository, username(optional) and password (optional).
+   * @param sessionProviderService
+   *          the ThreadLocalSessionProviderService.
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param nodeRepresentationService
+   *          the NodeRepresentationService.
+   * @param authenticator
+   *          the Authenticator.
+   * @throws Exception
+   *           if any errors occur or not valid configuration.
    */
   public RESTArtifactLoaderService(InitParams initParams,
                                    ThreadLocalSessionProviderService sessionProviderService,
@@ -164,11 +168,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   }
 
   /**
-   * Return Response with Maven artifact if it is file or HTML page for browsing
-   * if requested URL is folder.
+   * Return Response with Maven artifact if it is file or HTML page for browsing if requested URL is
+   * folder.
    * 
-   * @param mavenPath the relative part of requested URL.
-   * @param base the base URL.
+   * @param mavenPath
+   *          the relative part of requested URL.
+   * @param base
+   *          the base URL.
    * @return @see {@link Response}.
    */
   @HTTPMethod("GET")
@@ -182,9 +188,9 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                               final @QueryParam("gadget") String gadget) {
 
     String resourcePath = mavenRoot + mavenPath; // JCR resource
-    String shaResourcePath = mavenPath.endsWith(".sha1") ? mavenRoot + mavenPath : mavenRoot + mavenPath + ".sha1";
+    String shaResourcePath = mavenPath.endsWith(".sha1") ? mavenRoot + mavenPath : mavenRoot
+        + mavenPath + ".sha1";
 
-      
     mavenPath = base + getClass().getAnnotation(URITemplate.class).value() + mavenPath;
     Session ses = null;
     try {
@@ -196,16 +202,16 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       }
 
       ExtendedNode node = (ExtendedNode) ses.getRootNode().getNode(resourcePath);
-      
+
       if (isFile(node)) {
         if (view != null && view.equalsIgnoreCase("true")) {
           ExtendedNode shaNode = null;
-          try { 
+          try {
             shaNode = (ExtendedNode) ses.getRootNode().getNode(shaResourcePath);
-          } catch (RepositoryException e){ //no .sh1 file found
+          } catch (RepositoryException e) { // no .sh1 file found
           }
           return getArtifactInfo(node, mavenPath, gadget, shaNode);
-        }  else {
+        } else {
           return downloadArtifact(node);
         }
       } else {
@@ -239,7 +245,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Browsing of root node of Maven repository.
    * 
-   * @param base the base URL.
+   * @param base
+   *          the base URL.
    * @return @see {@link Response}.
    */
   @HTTPMethod("GET")
@@ -253,12 +260,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   }
 
   /**
-   * Create JCR session if SessionProvider is not null, otherwise return default
-   * session.
+   * Create JCR session if SessionProvider is not null, otherwise return default session.
    * 
-   * @param sessionProvider the SessionProvider.
+   * @param sessionProvider
+   *          the SessionProvider.
    * @return JCR session.
-   * @throws Exception if any errors occurs.
+   * @throws Exception
+   *           if any errors occurs.
    */
   private Session getSession(SessionProvider sessionProvider) throws Exception {
     // anonymous, user not authenticated or ThreadLocalSessionProvider was not
@@ -273,9 +281,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Check is node represents file.
    * 
-   * @param node the node.
+   * @param node
+   *          the node.
    * @return true if node represents file false otherwise.
-   * @throws RepositoryException in JCR errors occur.
+   * @throws RepositoryException
+   *           in JCR errors occur.
    */
   private static boolean isFile(Node node) throws RepositoryException {
     if (!node.isNodeType("nt:file"))
@@ -288,10 +298,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Create response for browsing Maven repository.
    * 
-   * @param node the root node for browsing.
-   * @param mavenPath the Maven path, used for creating &lt;a&gt; element.
+   * @param node
+   *          the root node for browsing.
+   * @param mavenPath
+   *          the Maven path, used for creating &lt;a&gt; element.
    * @return @see {@link Response}.
-   * @throws IOException if i/o error occurs.
+   * @throws IOException
+   *           if i/o error occurs.
    */
   private Response browseRepository(final Node node, final String mavenPath, final String gadget) throws IOException {
 
@@ -316,7 +329,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             xsw.writeStartElement("style");
             xsw.writeAttribute("type", "text/css");
             xsw.writeCharacters("a {text-decoration: none; color: #10409C; }"
-                + "a:hover {text-decoration: underline;}" + ".centered { text-align: center; }"
+                + "a:hover {text-decoration: underline;}"
+                + ".centered { text-align: center; }"
                 + ".underlined { border-bottom : 1px solid #cccccc;  font-weight: bold;  text-align: center; }\n");
             xsw.writeEndElement(); // style
             xsw.writeStartElement("title");
@@ -366,7 +380,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           String parent = mavenPath.substring(0, mavenPath.lastIndexOf('/'));
           xsw.writeStartElement("td");
           xsw.writeAttribute("class", "parenticon");
-          xsw.writeEndElement();//td
+          xsw.writeEndElement();// td
 
           xsw.writeStartElement("td");
           xsw.writeStartElement("a");
@@ -382,20 +396,21 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           while (iterator.hasNext()) {
             Node node = iterator.nextNode();
             xsw.writeStartElement("tr");
-            if (RESTArtifactLoaderService.isFile(node) ) {
+            if (RESTArtifactLoaderService.isFile(node)) {
               if (node.getName().endsWith("sha1"))
-                 continue;
-              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node, null);
+                continue;
+              NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
+                                                                                                      null);
               xsw.writeStartElement("td");
               xsw.writeAttribute("class", "fileicon");
-              xsw.writeEndElement();//td
+              xsw.writeEndElement();// td
 
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href",
-                                 (mavenPath.endsWith("/") ? mavenPath + node.getName() : mavenPath
-                                     + "/" + node.getName())
-                                     + "?view=true&gadget=" + gadget);
+              xsw.writeAttribute("href", (mavenPath.endsWith("/")
+                  ? mavenPath + node.getName()
+                  : mavenPath + "/" + node.getName())
+                  + "?view=true&gadget=" + gadget);
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -414,13 +429,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             } else {
               xsw.writeStartElement("td");
               xsw.writeAttribute("class", "foldericon");
-              xsw.writeEndElement();//td
+              xsw.writeEndElement();// td
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href",
-                                 (mavenPath.endsWith("/") ? mavenPath + node.getName() : mavenPath
-                                     + "/" + node.getName())
-                                     + "?view=true&gadget=" + gadget);
+              xsw.writeAttribute("href", (mavenPath.endsWith("/")
+                  ? mavenPath + node.getName()
+                  : mavenPath + "/" + node.getName())
+                  + "?view=true&gadget=" + gadget);
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -474,22 +489,23 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Get content of JCR node.
    * 
-   * @param node the node.
+   * @param node
+   *          the node.
    * @return @see {@link Response}.
-   * @throws Exception if any errors occurs.
+   * @throws Exception
+   *           if any errors occurs.
    */
   private Response downloadArtifact(Node node) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
                                                                                             null);
-    
-    
+
     if (node.canAddMixin("exo:mavencounter")) {
       node.addMixin("exo:mavencounter");
       node.getSession().save();
     }
-    node.setProperty("exo:downloadcounter",  node.getProperty("exo:downloadcounter").getLong() + 1l);
+    node.setProperty("exo:downloadcounter", node.getProperty("exo:downloadcounter").getLong() + 1l);
     node.getSession().save();
-    
+
     long lastModified = nodeRepresentation.getLastModified();
     String contentType = nodeRepresentation.getMediaType();
     long contentLength = nodeRepresentation.getContentLenght();
@@ -509,18 +525,22 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Get JCR node information.
    * 
-   * @param node the node.
+   * @param node
+   *          the node.
    * @return @see {@link Response}.
-   * @throws Exception if any errors occurs.
+   * @throws Exception
+   *           if any errors occurs.
    */
-  private Response getArtifactInfo(Node node, final String mavenPath, final String gadget, Node shaNode) throws Exception {
+  private Response getArtifactInfo(Node node,
+                                   final String mavenPath,
+                                   final String gadget,
+                                   Node shaNode) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
                                                                                             null);
-    
+
     NodeRepresentation shNodeRepresentation = null;
     if (shaNode != null)
-    shNodeRepresentation = nodeRepresentationService.getNodeRepresentation(shaNode,
-                                                                                            null);
+      shNodeRepresentation = nodeRepresentationService.getNodeRepresentation(shaNode, null);
 
     final PipedOutputStream po = new PipedOutputStream();
     final PipedInputStream pi = new PipedInputStream(po);
@@ -531,11 +551,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     try {
 
       if (node.canAddMixin("exo:mavencounter")) {
-            node.addMixin("exo:mavencounter");
-            node.getSession().save();
+        node.addMixin("exo:mavencounter");
+        node.getSession().save();
       }
-     int count = (int)node.getProperty("exo:downloadcounter").getLong();   
-      
+      int count = (int) node.getProperty("exo:downloadcounter").getLong();
+
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
       XMLStreamWriter xsw = factory.createXMLStreamWriter(po, Constants.DEFAULT_ENCODING);
@@ -572,29 +592,29 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       xsw.writeEmptyElement("br");
       xsw.writeCharacters("Download:  ");
       xsw.writeStartElement("a");
-      xsw.writeAttribute("href",
-                         mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length() - 1)
-                                                : mavenPath);
+      xsw.writeAttribute("href", mavenPath.endsWith("/")
+          ? mavenPath.substring(0, mavenPath.length() - 1)
+          : mavenPath);
       xsw.writeCharacters("Link");
       xsw.writeEndElement(); // a
-      
-      if (shNodeRepresentation != null){
-      xsw.writeEmptyElement("br");
-      xsw.writeCharacters("Checksum:  " +getStreamAsString(shNodeRepresentation.getInputStream()));
-      xsw.writeEmptyElement("br");
+
+      if (shNodeRepresentation != null) {
+        xsw.writeEmptyElement("br");
+        xsw.writeCharacters("Checksum:  "
+            + getStreamAsString(shNodeRepresentation.getInputStream()));
+        xsw.writeEmptyElement("br");
       }
-      
+
       xsw.writeEmptyElement("br");
       xsw.writeCharacters("Downloads count :  " + count);
       xsw.writeEmptyElement("br");
 
       xsw.writeEmptyElement("br");
       xsw.writeStartElement("a");
-      xsw.writeAttribute("href",
-                         (mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length() - 1)
-                                                             .substring(0, mavenPath.lastIndexOf("/"))
-                                                 : mavenPath.substring(0, mavenPath.lastIndexOf("/")))
-                             + "?view=true&gadget=" + gadget);
+      xsw.writeAttribute("href", (mavenPath.endsWith("/")
+          ? mavenPath.substring(0, mavenPath.length() - 1).substring(0, mavenPath.lastIndexOf("/"))
+          : mavenPath.substring(0, mavenPath.lastIndexOf("/")))
+          + "?view=true&gadget=" + gadget);
       xsw.writeCharacters("Back to browsing");
       xsw.writeEndElement(); // a
 
@@ -620,12 +640,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     return Response.Builder.ok().entity(pi, "text/html").build();
 
   }
-  
+
   protected String getStreamAsString(InputStream stream) throws IOException {
     byte[] buff = new byte[stream.available()];
     stream.read(buff);
     return new String(buff);
   }
-  
 
 }

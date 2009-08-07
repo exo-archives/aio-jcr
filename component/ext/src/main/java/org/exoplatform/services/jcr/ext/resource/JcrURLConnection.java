@@ -30,14 +30,14 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class JcrURLConnection extends URLConnection {
 
   /**
    * Logger.
    */
-  private static final Log          LOG    = ExoLogger.getLogger(JcrURLConnection.class.getName());
+  private static final Log          LOG = ExoLogger.getLogger(JcrURLConnection.class.getName());
 
   /**
    * JCR session.
@@ -60,10 +60,14 @@ public class JcrURLConnection extends URLConnection {
   private NodeRepresentation        nodeRepresentation;
 
   /**
-   * @param nodeReference node reference
-   * @param session jcr session
-   * @param nodeRepresentationService node representation service
-   * @throws MalformedURLException if URL syntax incorrect
+   * @param nodeReference
+   *          node reference
+   * @param session
+   *          jcr session
+   * @param nodeRepresentationService
+   *          node representation service
+   * @throws MalformedURLException
+   *           if URL syntax incorrect
    */
   public JcrURLConnection(UnifiedNodeReference nodeReference,
                           Session session,
@@ -78,7 +82,7 @@ public class JcrURLConnection extends URLConnection {
     useCaches = false;
     ifModifiedSince = 0;
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -88,7 +92,7 @@ public class JcrURLConnection extends URLConnection {
       return;
 
     try {
-      
+
       Node node = null;
       if (nodeReference.isPath())
         node = session.getRootNode().getNode(nodeReference.getPath().substring(1));
@@ -101,13 +105,13 @@ public class JcrURLConnection extends URLConnection {
 
       connected = true;
     } catch (Exception e) {
-      // if can't get node representation then close session no sense to continue 
+      // if can't get node representation then close session no sense to continue
       session.logout();
       LOG.error("connection refused.", e);
       throw new IOException();
     }
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -116,7 +120,7 @@ public class JcrURLConnection extends URLConnection {
   }
 
   /**
-   * Close JCR session. 
+   * Close JCR session.
    */
   public void disconnect() {
     session.logout();

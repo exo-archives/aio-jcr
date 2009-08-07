@@ -23,33 +23,30 @@ import java.io.RandomAccessFile;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: FileDescriptor.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class FileDescriptor implements Comparable<FileDescriptor> {
   /**
-   * file.
-   *   The File object to file.
+   * file. The File object to file.
    */
   private File             file;
 
   /**
-   * randomAccessFile.
-   *   The RandomAccessFile object to file.
+   * randomAccessFile. The RandomAccessFile object to file.
    */
   private RandomAccessFile randomAccessFile;
 
   /**
-   * systemId.
-   *   The system identification String.
+   * systemId. The system identification String.
    */
   private final String     systemId;
 
   /**
-   * FileDescriptor  constructor.
-   *
+   * FileDescriptor constructor.
+   * 
    * @param f
-   *         the File object
+   *          the File object
    * @param raf
    *          the RandomAccessFile object
    * @param systemId
@@ -63,9 +60,8 @@ public class FileDescriptor implements Comparable<FileDescriptor> {
 
   /**
    * getFile.
-   *
-   * @return File
-   *           return the File object
+   * 
+   * @return File return the File object
    */
   public File getFile() {
     return file;
@@ -73,9 +69,8 @@ public class FileDescriptor implements Comparable<FileDescriptor> {
 
   /**
    * getRandomAccessFile.
-   *
-   * @return RandomAccessFile
-   *           return the RandomAccessFile object
+   * 
+   * @return RandomAccessFile return the RandomAccessFile object
    */
   public RandomAccessFile getRandomAccessFile() {
     return randomAccessFile;
@@ -83,9 +78,8 @@ public class FileDescriptor implements Comparable<FileDescriptor> {
 
   /**
    * getSystemId.
-   *
-   * @return String
-   *           return the system identification String
+   * 
+   * @return String return the system identification String
    */
   public String getSystemId() {
     return systemId;

@@ -32,14 +32,14 @@ import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ConcurrentModificationTestCase.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
   /**
-   * ConcurrentModificationTestCase  constructor.
-   *
+   * ConcurrentModificationTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -61,7 +61,7 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
   /**
    * createContent.
-   *
+   * 
    * @param repoPath
    *          the repository path
    * @param fileName
@@ -70,8 +70,7 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
    *          how many iterations for simple content
    * @param simpleContent
    *          the simple content
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer createContent(String repoPath,
                                     String fileName,
@@ -105,7 +104,8 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
       end = System.currentTimeMillis();
 
-      log.info("The time of the adding of nt:file : " + ((end - start) / BaseReplicationTestCase.ONE_SECONDS) + " sec");
+      log.info("The time of the adding of nt:file : "
+          + ((end - start) / BaseReplicationTestCase.ONE_SECONDS) + " sec");
       sb.append("ok");
     } catch (Exception e) {
       log.error("Can't save nt:file : ", e);
@@ -119,7 +119,7 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
   /**
    * compareData.
-   *
+   * 
    * @param srcRepoPath
    *          the source repository path
    * @param srcFileName
@@ -128,8 +128,7 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
    *          the destination repository path
    * @param destFileName
    *          the destination file name
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer compareData(String srcRepoPath,
                                   String srcFileName,
@@ -158,9 +157,9 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
   /**
    * startThreadUpdater.
-   *
-   * * @param srcRepoPath
-   *          the source repository path
+   * 
+   * * @param srcRepoPath the source repository path
+   * 
    * @param srcFileName
    *          the source file name
    * @param destRepoPath
@@ -169,8 +168,7 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
    *          the destination file name
    * @param iterations
    *          how many iterations the thread
-   * @return StringBuffer
-   *           return the responds {'ok', 'fail'}
+   * @return StringBuffer return the responds {'ok', 'fail'}
    */
   public StringBuffer startThreadUpdater(String srcRepoPath,
                                          String srcFileName,
@@ -198,7 +196,7 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
   /**
    * The DataUpdaterThread will be update the specific property.
-   *
+   * 
    */
   class DataUpdaterThread extends Thread {
     /**
@@ -217,8 +215,8 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
     private final Long iterations;
 
     /**
-     * DataUpdaterThread  constructor.
-     *
+     * DataUpdaterThread constructor.
+     * 
      * @param srcNode
      *          the source node
      * @param destNode

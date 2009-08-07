@@ -174,7 +174,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * receive.
-   *
+   * 
    * @param itemStatechangesLog
    *          the received ChangesLog
    * @param identifier
@@ -496,9 +496,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * getDataKeeper.
-   *
-   * @return ItemDataKeeper
-   *           return the dataKeeper
+   * 
+   * @return ItemDataKeeper return the dataKeeper
    */
   public ItemDataKeeper getDataKeeper() {
     return dataKeeper;
@@ -506,7 +505,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   /**
    * saveChangesLog.
-   *
+   * 
    * @param fileDescriptor
    *          the FileDescriptor
    * @param identifire

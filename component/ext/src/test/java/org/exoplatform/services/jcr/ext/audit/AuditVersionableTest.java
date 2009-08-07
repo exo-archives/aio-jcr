@@ -36,10 +36,11 @@ import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
 /**
- * Created by The eXo Platform SAS. <br/> Date: 12.05.2008 <br/>
+ * Created by The eXo Platform SAS. <br/>
+ * Date: 12.05.2008 <br/>
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: AuditVersionableTest.java 15151 2008-06-03 10:12:37Z ksm $
+ * @version $Id$
  */
 
 public class AuditVersionableTest extends BaseStandaloneTest {

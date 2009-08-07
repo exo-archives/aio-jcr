@@ -27,10 +27,11 @@ import javax.jcr.PathNotFoundException;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 7 10 2008
+ * <br/>
+ * Date: 7 10 2008
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id: ReadHandler.java 111 2008-11-11 11:11:11Z $
+ * @version $Id$
  */
 public abstract class CommonHandler {
 

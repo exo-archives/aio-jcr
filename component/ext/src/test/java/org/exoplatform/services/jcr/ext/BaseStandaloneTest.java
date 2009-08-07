@@ -29,7 +29,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: BaseStandaloneTest.java 12004 2007-01-17 12:03:57Z geaz $
+ * @version $Id$
  */
 public abstract class BaseStandaloneTest extends TestCase {
 

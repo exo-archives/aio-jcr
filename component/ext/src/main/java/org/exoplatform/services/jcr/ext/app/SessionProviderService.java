@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
  * Created by The eXo Platform SAS . Session providers holder component
  * 
  * @author Gennady Azarenkov
- * @version $Id: SessionProviderService.java 13869 2008-05-05 08:40:10Z pnedonosko $
+ * @version $Id$
  */
 
 public interface SessionProviderService {

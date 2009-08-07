@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
  * Date: 05.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestBackupScheduler.java 760 2008-02-07 15:08:07Z pnedonosko $
+ * @version $Id$
  */
 public class TestBackupScheduler extends AbstractBackupTestCase {
 
@@ -321,7 +321,7 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     scheduler.schedule(config, startTime, stopTime, 20, 0, waiter); // 20 sec chain period
 
     // wait till backup #1 will be started
-    assertTrue("Full backup #1 start expired", waiter.await(0, BackupJob.STARTING, 20500)); //20.5sec
+    assertTrue("Full backup #1 start expired", waiter.await(0, BackupJob.STARTING, 20500)); // 20.5sec
     // to
     // start
 
@@ -333,7 +333,7 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     addContent(ws1TestRoot, 11, 10 + nodesCount, nodeTimeout);
 
     // wait till full backup #2 will be started
-    assertTrue("Full backup #2 start expired", waiter.await(0, BackupJob.STARTING, 20500)); //20.5sec
+    assertTrue("Full backup #2 start expired", waiter.await(0, BackupJob.STARTING, 20500)); // 20.5sec
     // for
     // next
 
@@ -343,7 +343,7 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     addContent(ws1TestRoot, 31, 30 + nodesCount, nodeTimeout);
 
     // wait till full backup #3 will be started
-    assertTrue("Full backup #3 start expired", waiter.await(0, BackupJob.STARTING, 20500)); //20.5sec
+    assertTrue("Full backup #3 start expired", waiter.await(0, BackupJob.STARTING, 20500)); // 20.5sec
     // for
     // next
 

@@ -21,7 +21,7 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $ Prerequisites: <value> <object
+ * @version $Id$ Prerequisites: <value> <object
  *          type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration"> <field
  *          name="eventTypes"><string>addNode</string></field> <field
  *          name="path"><string>/test</string></field> <field

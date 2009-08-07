@@ -45,14 +45,14 @@ import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 @URITemplate("/replication-test/")
 @OutputTransformer(StringOutputTransformer.class)
 public class ReplicationTestService implements ResourceContainer {
-  
+
   /**
    * Definition the constants to ReplicationTestService.
-   *
+   * 
    */
   public final class Constants {
     /**
-     * The base path to this service.  
+     * The base path to this service.
      */
     public static final String BASE_URL         = "/rest/replication-test";
 
@@ -63,11 +63,11 @@ public class ReplicationTestService implements ResourceContainer {
 
     /**
      * Definition the operation types.
-     *
+     * 
      */
     public final class OperationType {
       /**
-       * Add nt:file operation. 
+       * Add nt:file operation.
        */
       public static final String ADD_NT_FILE                   = "addNTFile";
 
@@ -92,7 +92,7 @@ public class ReplicationTestService implements ResourceContainer {
       public static final String CECK_LOCK                     = "checkLock";
 
       /**
-       * Add the versionable node.  
+       * Add the versionable node.
        */
       public static final String ADD_VERSIONODE                = "addVersionNode";
 
@@ -132,7 +132,7 @@ public class ReplicationTestService implements ResourceContainer {
       public static final String WORKSPACE_COPY                = "workspaceCopy";
 
       /**
-       * The move node by workspace. 
+       * The move node by workspace.
        */
       public static final String WORKSPASE_MOVE                = "workspaceMove";
 
@@ -205,19 +205,19 @@ public class ReplicationTestService implements ResourceContainer {
        * Add only binary property to existing node.
        */
       public static final String ADD_BINARY_PROPERTY_ONLY      = "addBinaryPropertyOnly";
-      
+
       /**
-       * OperationType  constructor.
-       *
+       * OperationType constructor.
+       * 
        */
       private OperationType() {
-        
+
       }
     }
-    
+
     /**
-     * Constants  constructor.
-     *
+     * Constants constructor.
+     * 
      */
     private Constants() {
     }
@@ -239,8 +239,8 @@ public class ReplicationTestService implements ResourceContainer {
   private BackupManager     backupManager;
 
   /**
-   * ReplicationTestService  constructor.
-   *
+   * ReplicationTestService constructor.
+   * 
    * @param repoService
    *          the RepositoryService
    * @param replicationService
@@ -261,8 +261,8 @@ public class ReplicationTestService implements ResourceContainer {
   }
 
   /**
-   * ReplicationTestService  constructor.
-   *
+   * ReplicationTestService constructor.
+   * 
    * @param repoService
    *          the RepositoryService
    * @param backupManager
@@ -278,7 +278,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * addNTFile.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -293,8 +293,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the file name
    * @param fileSize
    *          the file size
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=addNTFile")
   @HTTPMethod("GET")
@@ -318,7 +317,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * checkNTFile.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -333,8 +332,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the file name
    * @param fileSize
    *          the file size
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=checkNTFile")
   @HTTPMethod("GET")
@@ -358,7 +356,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * startBackup.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -369,8 +367,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the password
    * @param incementalPeriod
    *          the period for incremental backup (seconds)
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=startBackup")
   @HTTPMethod("GET")
@@ -401,7 +398,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * lock.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -412,8 +409,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the password
    * @param repoPath
    *          the repository path
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=lock")
   @HTTPMethod("GET")
@@ -435,7 +431,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * checkLock.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -446,8 +442,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the password
    * @param repoPath
    *          the repository path
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=checkLock")
   @HTTPMethod("GET")
@@ -469,7 +464,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * addVersionNode.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -482,8 +477,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the repository path
    * @param value
    *          value to versionable node
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=addVersionNode")
   @HTTPMethod("GET")
@@ -506,7 +500,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * checkVersionNode.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -519,8 +513,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the repository path
    * @param checkedValue
    *          checking value to versionable node
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=checkVersionNode")
   @HTTPMethod("GET")
@@ -543,7 +536,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * addNewVersion.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -556,8 +549,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the repository path
    * @param newValue
    *          new value to versionable node
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=addNewVersion")
   @HTTPMethod("GET")
@@ -580,7 +572,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * restorePreviousVersion.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -591,8 +583,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the password
    * @param repoPath
    *          the repository path
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=restorePreviousVersion")
   @HTTPMethod("GET")
@@ -614,7 +605,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * restoreBaseVersion.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -625,8 +616,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the password
    * @param repoPath
    *          the repository path
-   * @return Response
-   *            return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=restoreBaseVersion")
   @HTTPMethod("GET")
@@ -648,7 +638,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * delete.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -660,9 +650,8 @@ public class ReplicationTestService implements ResourceContainer {
    * @param repoPath
    *          the repository path
    * @param nodeName
-   *          the name of deleting node 
-   * @return Response
-   *            return the response
+   *          the name of deleting node
+   * @return Response return the response
    */
   @QueryTemplate("operation=delete")
   @HTTPMethod("GET")
@@ -685,7 +674,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * checkDelete.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -697,9 +686,8 @@ public class ReplicationTestService implements ResourceContainer {
    * @param repoPath
    *          the repository path
    * @param nodeName
-   *          the name of deleted node 
-   * @return Response
-   *            return the response
+   *          the name of deleted node
+   * @return Response return the response
    */
   @QueryTemplate("operation=checkDelete")
   @HTTPMethod("GET")
@@ -722,7 +710,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * workspaceCopy.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -734,13 +722,12 @@ public class ReplicationTestService implements ResourceContainer {
    * @param srcRepoPath
    *          the source repository path
    * @param nodeName
-   *          the source node name 
+   *          the source node name
    * @param destNodeName
-   *          the destination node name 
+   *          the destination node name
    * @param contentSize
    *          the content size
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=workspaceCopy")
   @HTTPMethod("GET")
@@ -768,7 +755,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * workspaceMove.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -780,13 +767,12 @@ public class ReplicationTestService implements ResourceContainer {
    * @param srcRepoPath
    *          the source repository path
    * @param nodeName
-   *          the source node name 
+   *          the source node name
    * @param destNodeName
-   *          the destination node name 
+   *          the destination node name
    * @param contentSize
    *          the content size
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=workspaceMove")
   @HTTPMethod("GET")
@@ -814,7 +800,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * sessionMove.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -826,13 +812,12 @@ public class ReplicationTestService implements ResourceContainer {
    * @param srcRepoPath
    *          the source repository path
    * @param nodeName
-   *          the source node name 
+   *          the source node name
    * @param destNodeName
-   *          the destination node name 
+   *          the destination node name
    * @param contentSize
    *          the content size
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=sessionMove")
   @HTTPMethod("GET")
@@ -857,7 +842,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * checkCopyMoveNode.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -869,13 +854,12 @@ public class ReplicationTestService implements ResourceContainer {
    * @param srcRepoPath
    *          the source repository path
    * @param nodeName
-   *          the source node name 
+   *          the source node name
    * @param destNodeName
-   *          the destination node name 
+   *          the destination node name
    * @param contentSize
    *          the content size
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=checkCopyMoveNode")
   @HTTPMethod("GET")
@@ -903,7 +887,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * disconnectClusterNode.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -912,8 +896,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the user name
    * @param password
    *          the password
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=disconnectClusterNode")
   @HTTPMethod("GET")
@@ -934,7 +917,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * disconnectClusterNodeById.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -944,9 +927,8 @@ public class ReplicationTestService implements ResourceContainer {
    * @param password
    *          the password
    * @param id
-   *         the id
-   * @return Response
-   *           return the response
+   *          the id
+   * @return Response return the response
    */
   @QueryTemplate("operation=disconnectClusterNodeById")
   @HTTPMethod("GET")
@@ -968,7 +950,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * allowConnect.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -977,8 +959,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the user name
    * @param password
    *          the password
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=allowConnect")
   @HTTPMethod("GET")
@@ -999,7 +980,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * allowConnectForced.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1008,8 +989,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the user name
    * @param password
    *          the password
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=allowConnectForced")
   @HTTPMethod("GET")
@@ -1030,7 +1010,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * workspaceIsReadOnly.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1039,8 +1019,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the user name
    * @param password
    *          the password
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=workspaceIsReadOnly")
   @HTTPMethod("GET")
@@ -1061,7 +1040,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * createContent.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1078,8 +1057,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          how many iterations for simple content
    * @param simpleContent
    *          the simple content
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=createContent")
   @HTTPMethod("GET")
@@ -1107,7 +1085,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * compareData.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1124,8 +1102,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the destination repository path
    * @param destFileName
    *          the destination file name
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=compareData")
   @HTTPMethod("GET")
@@ -1153,7 +1130,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * startThreadUpdater.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1172,8 +1149,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the destination file name
    * @param iterations
    *          how many iterations the thread
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=startThreadUpdater")
   @HTTPMethod("GET")
@@ -1203,7 +1179,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * createBaseNode.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1216,8 +1192,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the repository path
    * @param nodeName
    *          the node name
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=createBaseNode")
   @HTTPMethod("GET")
@@ -1240,7 +1215,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * addEmptyNode.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1255,8 +1230,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the node name
    * @param iterations
    *          how many adding the empty node
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=addEmptyNode")
   @HTTPMethod("GET")
@@ -1280,7 +1254,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * addStringPropertyOnly.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1297,8 +1271,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the size of string property
    * @param iterations
    *          how many adding the string property
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=addStringPropertyOnly")
   @HTTPMethod("GET")
@@ -1326,7 +1299,7 @@ public class ReplicationTestService implements ResourceContainer {
 
   /**
    * addBinaryPropertyOnly.
-   *
+   * 
    * @param repositoryName
    *          the repository name
    * @param workspaceName
@@ -1343,8 +1316,7 @@ public class ReplicationTestService implements ResourceContainer {
    *          the size of binary property
    * @param iterations
    *          how many adding the binary property
-   * @return Response
-   *           return the response
+   * @return Response return the response
    */
   @QueryTemplate("operation=addBinaryPropertyOnly")
   @HTTPMethod("GET")

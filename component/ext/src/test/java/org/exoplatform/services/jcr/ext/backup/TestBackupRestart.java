@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
  * 2. restart and run testPeriodicSchedulerRestore()
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestBackupRestart.java 11395 2008-02-27 16:19:37Z pnedonosko $
+ * @version $Id$
  */
 public class TestBackupRestart extends AbstractBackupTestCase {
 

@@ -36,7 +36,7 @@ import org.picocontainer.Startable;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  * 
  * @since 1.9
  */

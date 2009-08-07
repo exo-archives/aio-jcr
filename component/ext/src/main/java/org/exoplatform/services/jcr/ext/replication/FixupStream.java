@@ -31,33 +31,29 @@ import java.io.ObjectOutput;
 public class FixupStream implements Externalizable {
 
   /**
-   * serialVersionUID.
-   *   Determinate the version of serialization.
+   * serialVersionUID. Determinate the version of serialization.
    */
   private static final long serialVersionUID = 6453641729031051616L;
 
   /**
-   * iItemStateId.
-   *   Index of ItemState in ChangesLog.
+   * iItemStateId. Index of ItemState in ChangesLog.
    */
   private int               iItemStateId     = -1;
 
   /**
-   * iValueDataId.
-   *   Index of ValueData in ItemState.
+   * iValueDataId. Index of ValueData in ItemState.
    */
   private int               iValueDataId     = -1;
 
   /**
-   * FixupStream  constructor.
-   *  Empty constructor is necessary to Externalizable.  
+   * FixupStream constructor. Empty constructor is necessary to Externalizable.
    */
   public FixupStream() {
   }
 
   /**
-   * FixupStream  constructor.
-   *
+   * FixupStream constructor.
+   * 
    * @param itemState
    *          index of ItemState in ChangesLog
    * @param valueData
@@ -70,9 +66,8 @@ public class FixupStream implements Externalizable {
 
   /**
    * getItemSateId.
-   *
-   * @return int
-   *           return the iItemStateId
+   * 
+   * @return int return the iItemStateId
    */
   public int getItemSateId() {
     return iItemStateId;
@@ -80,9 +75,8 @@ public class FixupStream implements Externalizable {
 
   /**
    * getValueDataId.
-   *
-   * @return int
-   *           return the iValueDataId
+   * 
+   * @return int return the iValueDataId
    */
   public int getValueDataId() {
     return iValueDataId;
@@ -90,11 +84,10 @@ public class FixupStream implements Externalizable {
 
   /**
    * compare.
-   *
+   * 
    * @param fs
    *          FixupStream.
-   * @return boolean
-   *           return 'true' if this == fs
+   * @return boolean return 'true' if this == fs
    */
   public boolean compare(FixupStream fs) {
     boolean b = true;

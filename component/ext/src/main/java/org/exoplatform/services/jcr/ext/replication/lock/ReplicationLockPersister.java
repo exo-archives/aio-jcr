@@ -30,7 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ReplicationLockPersister.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public class ReplicationLockPersister extends FileSystemLockPersister {
@@ -50,15 +50,13 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
   private static final int         START_TIMEOUT = 250;
 
   /**
-   * Delay thread.
-   * The thread wait RrplicationService is successful start and 
-   * call super.start();
+   * Delay thread. The thread wait RrplicationService is successful start and call super.start();
    */
   private Thread                   delayStarterThread;
 
   /**
-   * ReplicationLockPersister  constructor.
-   *
+   * ReplicationLockPersister constructor.
+   * 
    * @param dataManager
    *          the WorkspacePersistentDataManager
    * @param config
@@ -66,9 +64,9 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
    * @param service
    *          the ReplicationService
    * @throws RepositoryConfigurationException
-   *           will be generated RepositoryConfigurationException 
+   *           will be generated RepositoryConfigurationException
    * @throws RepositoryException
-   *           will be generated RepositoryException 
+   *           will be generated RepositoryException
    */
   public ReplicationLockPersister(WorkspacePersistentDataManager dataManager,
                                   WorkspaceEntry config,
@@ -80,7 +78,6 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
     replicationService = service;
   }
 
-  
   /**
    * {@inheritDoc}
    */
@@ -92,8 +89,7 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
   }
 
   /**
-   * superStart.
-   *   will be called super.start()
+   * superStart. will be called super.start()
    */
   private void superStart() {
     super.start();
@@ -107,9 +103,8 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
   }
 
   /**
-   * DelaySatrter.
-   *   The DelaySatrter wait RrplicationService is successful start and 
-   * call super.start();
+   * DelaySatrter. The DelaySatrter wait RrplicationService is successful start and call
+   * super.start();
    */
   class DelaySatrter implements Runnable {
     /**

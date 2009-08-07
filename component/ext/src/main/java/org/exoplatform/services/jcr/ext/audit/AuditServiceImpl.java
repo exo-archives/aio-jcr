@@ -82,7 +82,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: AuditServiceImpl.java 14416 2008-05-16 13:04:06Z pnedonosko $
+ * @version $Id$
  */
 
 public class AuditServiceImpl implements AuditService, Startable {

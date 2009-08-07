@@ -28,7 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class RemoveAuditableAction implements Action {
   private final Log log = ExoLogger.getLogger("jcr.RemoveAuditableAction");

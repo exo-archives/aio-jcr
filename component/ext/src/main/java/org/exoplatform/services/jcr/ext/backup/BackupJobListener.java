@@ -22,7 +22,7 @@ package org.exoplatform.services.jcr.ext.backup;
  * Date: 05.02.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: BackupJobListener.java 760 2008-02-07 15:08:07Z pnedonosko $
+ * @version $Id$
  */
 public interface BackupJobListener {
 

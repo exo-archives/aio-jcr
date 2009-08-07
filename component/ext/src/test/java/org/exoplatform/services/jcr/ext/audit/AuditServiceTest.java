@@ -43,7 +43,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEventType;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: AuditServiceTest.java 12164 2007-01-22 08:39:22Z geaz $
+ * @version $Id$
  */
 
 public class AuditServiceTest extends BaseStandaloneTest {
