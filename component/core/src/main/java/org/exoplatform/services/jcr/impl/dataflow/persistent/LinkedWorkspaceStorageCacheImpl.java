@@ -951,7 +951,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    */
   public void addChildProperties(final NodeData parentData, final List<PropertyData> childItems) {
     if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
-                                                               // null && childItems != null
+      // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1002,7 +1002,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    */
   public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
     if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
-                                                               // null && childItems != null
+      // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1043,7 +1043,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    */
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
     if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
-                                                               // null && childItems != null
+      // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1549,14 +1549,25 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           put(item);
         } else if (state.isUpdated()) {
           // UPDATE occurs on reordered (no subtree!) and merged nodes (for each merged-updated)
-          if (item.isNode() && i > 0) {
-            // play only for reorder, UPDATE goes after DELETE of same path item
-            // we have to unload node and its parent child nodes to be loaded
-            // back from the persistence
-            ItemState prevState = itemStates.get(i - 1);
-            if (prevState.isDeleted()
-                && prevState.getData().getParentIdentifier().equals(item.getParentIdentifier()))
-              removeSiblings((NodeData) item);
+          if (item.isNode()) {
+            if (i > 0) {
+              // play only for reorder, UPDATE goes after DELETE of same path item
+              // we have to unload node and its parent child nodes to be loaded
+              // back from the persistence
+              ItemState prevState = itemStates.get(i - 1);
+              if (prevState.isDeleted()
+                  && prevState.getData().getParentIdentifier().equals(item.getParentIdentifier()))
+                removeSiblings((NodeData) item);
+            }
+          } else if (item.getQPath().getName().equals(Constants.EXO_PERMISSIONS)) {
+            // TODO JCR-1117 place to put workaround for JCR cache
+            // exo:permissions updated
+            // get parent Node
+            
+            // check if parent is mix:privilegeable
+            
+            // delete parent
+            //remove(parent);
           }
           put(item);
         } else if (state.isMixinChanged()) {
