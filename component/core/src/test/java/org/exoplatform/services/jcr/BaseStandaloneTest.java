@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 import java.lang.ref.WeakReference;
+import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -14,12 +14,9 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFactory;
 import javax.jcr.Workspace;
 
-import org.objectweb.jotm.Current;
-
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
