@@ -16,6 +16,18 @@
  */
 package org.exoplatform.services.jcr.impl.access;
 
+import org.exoplatform.services.jcr.BaseStandaloneTest;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.core.ExtendedNode;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.security.Identity;
+
 import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.HashMap;
@@ -29,21 +41,10 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.exoplatform.services.jcr.BaseStandaloneTest;
-import org.exoplatform.services.jcr.access.AccessControlEntry;
-import org.exoplatform.services.jcr.access.AccessControlList;
-import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.access.PermissionType;
-import org.exoplatform.services.jcr.access.SystemIdentity;
-import org.exoplatform.services.jcr.core.CredentialsImpl;
-import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.security.Identity;
-
 /**
  * Created by The eXo Platform SAS.<br/>
- * Prerequisite: enable access control i.e. <access-control>optional</access-control>
+ * Prerequisite: enable access control i.e.
+ * <access-control>optional</access-control>
  * 
  * @author Gennady Azarenkov
  * @version $Id$
@@ -228,6 +229,40 @@ public class TestAccess extends BaseStandaloneTest {
     // add grandchild node and test if acl is equal to grandparent
     NodeImpl node2 = (NodeImpl) node1.addNode("node1");
     assertEquals(node.getACL(), node2.getACL());
+  }
+
+  /**
+   * tests child-parent permission inheritance
+   * 
+   * @throws Exception
+   */
+  public void testPermissionInheritance1() throws Exception {
+    NodeImpl node = (NodeImpl) accessTestRoot.addNode("testPermissionInheritance");
+    node.addMixin("exo:owneable");
+    node.addMixin("exo:privilegeable");
+
+    // change permission
+    HashMap<String, String[]> perm = new HashMap<String, String[]>();
+    perm.put("exo1", new String[] { PermissionType.ADD_NODE, PermissionType.READ });
+    node.setPermissions(perm);
+    NodeImpl node1 = (NodeImpl) node.addNode("node1");
+    assertEquals(node.getACL(), node1.getACL());
+    // add grandchild node and test if acl is equal to grandparent
+    NodeImpl node2 = (NodeImpl) node1.addNode("node1");
+    assertEquals(node.getACL(), node2.getACL());
+    NodeImpl node3 = (NodeImpl) node1.addNode("node3");
+    session.save();
+    assertEquals(node3.getACL(), node1.getACL());
+    perm.put("exo2", new String[] { PermissionType.ADD_NODE, PermissionType.READ });
+    assertEquals(node3.getACL(), node.getACL());
+    node.setPermissions(perm);
+    session.save();
+    node1 = (NodeImpl) node.getNode("node1");
+    node3 = (NodeImpl) node1.getNode("node3");
+
+    assertEquals(node3.getACL(), node.getACL());
+    assertEquals(((ExtendedNode) node.getNode("node1")).getACL(), node.getACL());
+    assertEquals(((ExtendedNode) node.getNode("node1/node3")).getACL(), node.getACL());
   }
 
   /**
@@ -571,8 +606,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the setPermission(String identity, String[] permission) completely replace permissions
-   * of the identity.
+   * check if the setPermission(String identity, String[] permission) completely
+   * replace permissions of the identity.
    * 
    * @throws Exception
    */
@@ -596,8 +631,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the removePermission(String identity, String permission) remove specified permissions
-   * of the identity.
+   * check if the removePermission(String identity, String permission) remove
+   * specified permissions of the identity.
    * 
    * @throws Exception
    */
