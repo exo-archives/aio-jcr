@@ -48,7 +48,16 @@ public abstract class AbstractUserProfileTest extends AbstractOrganizationTest {
     userProfiles = new ArrayList<UserProfile>();
     users = new ArrayList<User>();
 
-    for (int i = 0; i < tc.getIntParam("japex.runIterations"); i++) {
+    int runIterations = tc.getIntParam("japex.runIterations");
+
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
+    
+    for (int i = 0; i < runIterations; i++) {
       User user = uHandler.createUserInstance(context.generateUniqueName("UserName"));
       user.setFirstName(context.generateUniqueName("First"));
       user.setLastName(context.generateUniqueName("Last"));

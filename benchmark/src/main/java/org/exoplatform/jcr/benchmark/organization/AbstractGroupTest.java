@@ -41,7 +41,15 @@ public abstract class AbstractGroupTest extends AbstractOrganizationTest {
     super.doPrepare(tc, context);
 
     groups = new ArrayList<Group>();
-    for (int i = 0; i < tc.getIntParam("japex.runIterations"); i++) {
+    int runIterations = tc.getIntParam("japex.runIterations");
+
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
+    for (int i = 0; i < runIterations; i++) {
       Group group = gHandler.createGroupInstance();
       group.setGroupName(context.generateUniqueName("group"));
       group.setLabel(context.generateUniqueName("label"));

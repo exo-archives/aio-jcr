@@ -49,6 +49,13 @@ public abstract class AbstractItemsInDifferentWorkspacesTest extends JCRTestBase
     if (runIterations <= 0)
       throw new Exception("japex.runIterations should be a positive number, but " + runIterations);
 
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
+    
     testRootNodeName = context.generateUniqueName("testRoot");
     // WS1
     Session ws1Session = context.getSession().getRepository().login(WS1);

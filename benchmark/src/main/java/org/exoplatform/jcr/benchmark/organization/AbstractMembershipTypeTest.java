@@ -41,7 +41,15 @@ public abstract class AbstractMembershipTypeTest extends AbstractOrganizationTes
     super.doPrepare(tc, context);
 
     mts = new ArrayList<MembershipType>();
-    for (int i = 0; i < tc.getIntParam("japex.runIterations"); i++) {
+    int runIterations = tc.getIntParam("japex.runIterations");
+
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
+    for (int i = 0; i < runIterations; i++) {
       MembershipType mt = mtHandler.createMembershipTypeInstance();
       mt.setName(context.generateUniqueName("membershiptype"));
       mts.add(mt);

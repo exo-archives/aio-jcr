@@ -39,7 +39,13 @@ public abstract class AbstractAddItemTest extends JCRTestBase {
     session.save();
 
     int runIterations = tc.getIntParam("japex.runIterations");
-
+    
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
     Node parent = null;
 
     for (int i = 0; i < runIterations; i++) {

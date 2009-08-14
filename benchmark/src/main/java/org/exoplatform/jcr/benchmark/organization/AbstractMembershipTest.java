@@ -58,6 +58,13 @@ public abstract class AbstractMembershipTest extends AbstractOrganizationTest {
     super.doPrepare(tc, context);
 
     runIterations = tc.getIntParam("japex.runIterations");
+    
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
 
     users = new ArrayList<User>();
     groups = new ArrayList<Group>();

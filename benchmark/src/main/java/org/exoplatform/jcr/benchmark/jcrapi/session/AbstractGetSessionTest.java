@@ -32,6 +32,13 @@ public abstract class AbstractGetSessionTest extends JCRTestBase {
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     int runIterations = tc.getIntParam("japex.runIterations");
+
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
     // 1. Create root node for this test using current session
     testRoot = context.getSession().getRootNode().addNode(context.generateUniqueName("testRoot"));
     context.getSession().save();

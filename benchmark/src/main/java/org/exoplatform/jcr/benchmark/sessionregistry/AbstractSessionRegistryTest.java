@@ -58,8 +58,16 @@ public abstract class AbstractSessionRegistryTest extends JCRTestBase {
 
     sessionList = new ArrayList<SessionImpl>();
     sessionIdList = new ArrayList<String>();
+    int runIterations = tc.getIntParam("japex.runIterations");
+
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
     int sessionCount = tc.getIntParam("japex.numberOfThreads")
-        * tc.getIntParam("japex.runIterations");
+        * runIterations;
     for (int i = 0; i < sessionCount; i++) {
       sessionList.add((SessionImpl) repository.login(credentials, "system"));
 

@@ -64,10 +64,17 @@ public abstract class AbstractMoveUsecaseTest extends JCRTestBase {
     // )
     context.getSession().save();
 
-    final int runIterations = tc.getIntParam("japex.runIterations");
+    int runIterations = tc.getIntParam("japex.runIterations");
     if (runIterations <= 0)
       throw new Exception("japex.runIterations should be a positive number, but " + runIterations);
 
+    if (tc.hasParam("japex.warmupIterations")){
+      int warmUpIterations = tc.getIntParam("japex.warmupIterations");
+      if (warmUpIterations>0) {
+        runIterations +=warmUpIterations;
+      }
+    }
+    
     // create source for move
     final int nodesCount = tc.getIntParam("usecase.nodesCount");
     if (nodesCount <= 0)
