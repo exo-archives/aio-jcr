@@ -19,6 +19,19 @@
               <property name="swap-directory" value="target/temp/swap/ws" />
             </properties>
             <value-storages>
+              <!-- This storage is used to check whether properties are removed correctly from each value-storage (TestRemoveFromValueStorage.java) -->
+              <!-- value-storage id="ws_big" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableTreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws_big" />
+									<property name="digest-algo" value="MD5" />
+									<property name="vcas-type" value="org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddressStorageImpl" />
+									<property name="jdbc-source-name" value="jdbcjcr" />
+									<property name="jdbc-dialect" value="hsqldb" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary"  min-value-size="1024K"/>
+                </filters>
+              </value-storage-->
               <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableTreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws" />
