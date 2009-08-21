@@ -27,7 +27,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.jcr.InvalidItemStateException;
@@ -1435,17 +1437,20 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
       final ResultSet valueRecords = findValuesByPropertyId(cid);
       try {
-        // [PN] 12.07.07 if (... instead while (...
-        // so, we don't need iterate throught each value of the property
-        // IO channel will do this work according the existed files on FS
-        if (valueRecords.next()) {
+        // using set to store value-storage ids to avoid duplicating.
+        Set<String> storages = new HashSet<String>();
+        while (valueRecords.next()) {
           final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
           if (!valueRecords.wasNull()) {
-            final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
-            try {
-              channel.delete(pdata.getIdentifier());
-            } finally {
-              channel.close();
+            // if not in set then delete from this channel
+            if (!storages.contains(storageId)){
+              storages.add(storageId);
+              final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
+              try {
+                channel.delete(pdata.getIdentifier());
+              } finally {
+                channel.close();
+              }
             }
           }
         }
