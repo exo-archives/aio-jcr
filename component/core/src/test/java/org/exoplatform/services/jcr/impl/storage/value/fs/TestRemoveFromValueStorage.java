@@ -24,6 +24,7 @@ import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.Value;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
@@ -67,7 +68,7 @@ public class TestRemoveFromValueStorage extends BaseStandaloneTest {
     // This test uses special workspace ("ws3"), with complex value storage. So
     // we need to login into another workspace.
     my_session = (SessionImpl) repository.login(credentials, "ws3");
-    my_root = session.getRootNode();
+    my_root = my_session.getRootNode();
 
     // creating property with binary values.
     testRoot = my_root.addNode("TestRoot");
@@ -125,7 +126,7 @@ public class TestRemoveFromValueStorage extends BaseStandaloneTest {
       try {
         channels.get(i).read(propertyId, i, 2100 * 1024);
       } catch (Exception e) {
-        fail("Poperty value can't be read!");
+        fail("Poperty value "+ i +" can't be read!");
       }
     }
 
