@@ -8,9 +8,9 @@ import java.sql.SQLException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
-public class HSQLSingleDbJDBCConnection extends SingleDbJDBCConnection{
+public class HSQLDBSingleDbJDBCConnection extends SingleDbJDBCConnection{
 
-	public HSQLSingleDbJDBCConnection(Connection dbConnection,
+	public HSQLDBSingleDbJDBCConnection(Connection dbConnection,
 			String containerName,
 			ValueStoragePluginProvider valueStorageProvider, 
 			int maxBufferSize,

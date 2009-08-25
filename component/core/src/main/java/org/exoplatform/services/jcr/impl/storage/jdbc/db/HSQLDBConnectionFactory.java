@@ -10,9 +10,9 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
-public class HSQLConnectionFactory extends GenericConnectionFactory {
+public class HSQLDBConnectionFactory extends GenericConnectionFactory {
 
-	public HSQLConnectionFactory(DataSource dataSource, String containerName,
+	public HSQLDBConnectionFactory(DataSource dataSource, String containerName,
 			boolean multiDb, ValueStoragePluginProvider valueStorageProvider,
 			int maxBufferSize, File swapDirectory, FileCleaner swapCleaner) {
 
@@ -20,7 +20,7 @@ public class HSQLConnectionFactory extends GenericConnectionFactory {
 				maxBufferSize, swapDirectory, swapCleaner);
 	}
 
-	public HSQLConnectionFactory(String dbDriver, String dbUrl,
+	public HSQLDBConnectionFactory(String dbDriver, String dbUrl,
 			String dbUserName, String dbPassword, String containerName,
 			boolean multiDb, ValueStoragePluginProvider valueStorageProvider,
 			int maxBufferSize, File swapDirectory, FileCleaner swapCleaner)
@@ -36,12 +36,12 @@ public class HSQLConnectionFactory extends GenericConnectionFactory {
 		try {
 
 			if (multiDb) {
-				return new HSQLMultiDbJDBCConnection(getJdbcConnection(),
+				return new HSQLDBMultiDbJDBCConnection(getJdbcConnection(),
 						containerName, valueStorageProvider, maxBufferSize,
 						swapDirectory, swapCleaner);
 			} 
 
-			return new HSQLSingleDbJDBCConnection(getJdbcConnection(),
+			return new HSQLDBSingleDbJDBCConnection(getJdbcConnection(),
 					containerName, valueStorageProvider, maxBufferSize,
 					swapDirectory, swapCleaner);
 

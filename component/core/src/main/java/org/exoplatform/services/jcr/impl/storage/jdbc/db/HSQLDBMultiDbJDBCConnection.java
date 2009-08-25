@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
-public class HSQLMultiDbJDBCConnection extends MultiDbJDBCConnection{
+public class HSQLDBMultiDbJDBCConnection extends MultiDbJDBCConnection{
 	
-	public HSQLMultiDbJDBCConnection(Connection dbConnection,
+	public HSQLDBMultiDbJDBCConnection(Connection dbConnection,
 			String containerName,
 			ValueStoragePluginProvider valueStorageProvider, 
 			int maxBufferSize,

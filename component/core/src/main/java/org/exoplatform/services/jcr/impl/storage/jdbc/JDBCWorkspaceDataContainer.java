@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.impl.storage.jdbc.db.GenericConnectionFactory;
-import org.exoplatform.services.jcr.impl.storage.jdbc.db.HSQLConnectionFactory;
+import org.exoplatform.services.jcr.impl.storage.jdbc.db.HSQLDBConnectionFactory;
 import org.exoplatform.services.jcr.impl.storage.jdbc.db.MySQLConnectionFactory;
 import org.exoplatform.services.jcr.impl.storage.jdbc.db.OracleConnectionFactory;
 import org.exoplatform.services.jcr.impl.storage.jdbc.db.WorkspaceStorageConnectionFactory;
@@ -559,14 +559,14 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase
 				DataSource ds = (DataSource) new InitialContext()
 						.lookup(dbSourceName);
 				if (ds != null)
-					this.connFactory = new HSQLConnectionFactory(ds,
+					this.connFactory = new HSQLDBConnectionFactory(ds,
 							containerName, multiDb, valueStorageProvider,
 							maxBufferSize, swapDirectory, swapCleaner);
 				else
 					throw new RepositoryException("Datasource '" + dbSourceName
 							+ "' is not bound in this context.");
 			} else
-				this.connFactory = new HSQLConnectionFactory(dbDriver, dbUrl,
+				this.connFactory = new HSQLDBConnectionFactory(dbDriver, dbUrl,
 						dbUserName, dbPassword, containerName, multiDb,
 						valueStorageProvider, maxBufferSize, swapDirectory,
 						swapCleaner);
