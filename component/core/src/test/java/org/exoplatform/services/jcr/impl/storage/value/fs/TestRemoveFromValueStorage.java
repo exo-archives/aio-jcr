@@ -43,33 +43,34 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  */
 public class TestRemoveFromValueStorage extends BaseStandaloneTest {
 
-  private Node     testRoot;
+  private Node        testRoot;
 
-  private Property prop           = null;
+  private Property    prop           = null;
 
-  private Value[]  values;
+  private Value[]     values;
 
-  private int      largeCount     = 5;
+  private int         largeCount     = 5;
 
-  private int      smallCount     = 5;
+  private int         smallCount     = 5;
 
-  private int      largeValueSize = 1024 * 1024 * 2;
+  private int         largeValueSize = 1024 * 1024 * 2;
 
-  private int      smallValueSize = 1000 * 1024;
+  private int         smallValueSize = 1000 * 1024;
+
+  private SessionImpl my_session;
+
+  private Node        my_root;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     // This test uses special workspace ("ws3"), with complex value storage. So
-    // we need to close current session and login into another workspace.
-    session.logout();
-    session = (SessionImpl) repository.login(credentials, "ws3");
-    workspace = session.getWorkspace();
-    root = session.getRootNode();
-    valueFactory = session.getValueFactory();
+    // we need to login into another workspace.
+    my_session = (SessionImpl) repository.login(credentials, "ws3");
+    my_root = session.getRootNode();
 
     // creating property with binary values.
-    testRoot = root.addNode("TestRoot");
+    testRoot = my_root.addNode("TestRoot");
 
     values = new Value[largeCount + smallCount];
 
@@ -99,14 +100,14 @@ public class TestRemoveFromValueStorage extends BaseStandaloneTest {
     } else {
       prop = testRoot.setProperty("binaryProperty", values);
     }
-    session.save();
+    my_session.save();
   }
 
   public void testRemoveValue() throws Exception {
     // reading values directly from value storage
     PropertyImpl propertyImpl = (PropertyImpl) prop;
-    ValueStoragePluginProvider storageProvider = (ValueStoragePluginProvider) session.getContainer()
-                                                                                     .getComponentInstanceOfType(ValueStoragePluginProvider.class);
+    ValueStoragePluginProvider storageProvider = (ValueStoragePluginProvider) my_session.getContainer()
+                                                                                        .getComponentInstanceOfType(ValueStoragePluginProvider.class);
 
     String propertyId = propertyImpl.getInternalIdentifier();
     int count = prop.getValues().length;
@@ -129,7 +130,7 @@ public class TestRemoveFromValueStorage extends BaseStandaloneTest {
     }
 
     prop.remove();
-    session.save();
+    my_session.save();
 
     // checking whether values are still in value storage.
     for (int i = 0; i < count; i++) {
@@ -146,6 +147,15 @@ public class TestRemoveFromValueStorage extends BaseStandaloneTest {
       }
     }
 
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    if (my_session != null) {
+      testRoot.remove();
+      my_session.logout();
+    }
+    super.tearDown();
   }
 
   @Override
