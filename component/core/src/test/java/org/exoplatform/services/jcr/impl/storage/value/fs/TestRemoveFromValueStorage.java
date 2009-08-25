@@ -29,6 +29,7 @@ import javax.jcr.Value;
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
@@ -59,6 +60,14 @@ public class TestRemoveFromValueStorage extends BaseStandaloneTest {
   @Override
   public void setUp() throws Exception {
     super.setUp();
+    // This test uses special workspace ("ws3"), with complex value storage. So
+    // we need to close current session and login into another workspace.
+    session.logout();
+    session = (SessionImpl) repository.login(credentials, "ws3");
+    workspace = session.getWorkspace();
+    root = session.getRootNode();
+    valueFactory = session.getValueFactory();
+
     // creating property with binary values.
     testRoot = root.addNode("TestRoot");
 
