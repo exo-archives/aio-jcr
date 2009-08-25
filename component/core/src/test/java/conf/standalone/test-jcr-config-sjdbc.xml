@@ -163,7 +163,7 @@
             </properties>
             <value-storages>
               <!-- This storage is used to check whether properties are removed correctly from each value-storage (TestRemoveFromValueStorage.java) -->
-              <value-storage id="ws_big" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws3_big" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws3_big" />
                 </properties>
@@ -171,7 +171,7 @@
                   <filter property-type="Binary"  min-value-size="1024K"/>
                 </filters>
               </value-storage>
-              <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableTreeFileValueStorage">
+              <value-storage id="ws3" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableTreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws3" />
 									<property name="digest-algo" value="MD5" />
