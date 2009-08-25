@@ -79,6 +79,8 @@ import org.exoplatform.services.security.ConversationState;
  * @version $Id$
  */
 public abstract class BaseXmlImporter implements ContentImporter {
+   
+  private static final String         SESSION_ID = "00base0xml0importer0session0id00";
 
   protected final AccessManager       accessManager;
 
@@ -142,7 +144,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     this.currentWorkspaceName = currentWorkspaceName;
     this.tree = new Stack<NodeData>();
     this.tree.push(parent);
-    this.changesLog = new PlainChangesLogImpl();
+    this.changesLog = new PlainChangesLogImpl(SESSION_ID);
     this.ancestorToSave = ancestorToSave;
     this.isNeedReloadAncestorToSave = false;
   }
