@@ -150,7 +150,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
    * {@inheritDoc}
    */
   @Override
-  protected final void prepareQueries() throws SQLException {
+  protected void prepareQueries() throws SQLException {
 
     JCR_PK_ITEM = "JCR_PK_SITEM";
     JCR_FK_ITEM_PARENT = "JCR_FK_SITEM_PARENT";
