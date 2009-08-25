@@ -35,13 +35,14 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
 /**
- * Created by The eXo Platform SAS. </br>
+ * Created by The eXo Platform SAS. </br> Concrete JDBC based data container
+ * that uses "table-set per Workspace policy" i.e each JCR Workspace storage is
+ * placed in dedicated DB.
  * 
- * Concrete JDBC based data container that uses "table-set per Workspace policy" i.e each JCR
- * Workspace storage is placed in dedicated DB.
- * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id$
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
+ * @version $Id: MultiDbJDBCConnection.java 20950 2008-10-06 14:23:07Z
+ *          pnedonosko $
  */
 
 public class MultiDbJDBCConnection extends JDBCStorageConnection {
@@ -80,7 +81,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement findValuesByPropertyId;
 
   protected PreparedStatement findValuesDataByPropertyId;
-
+  
+  protected PreparedStatement  findValuesStorageDescriptorsByPropertyId;
+  @Deprecated
   protected PreparedStatement findValueByPropertyIdOrderNumber;
 
   protected PreparedStatement findNodesByParentId;
@@ -118,20 +121,13 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   /**
    * Multidatabase JDBC Connection constructor.
    * 
-   * @param dbConnection
-   *          JDBC connection, shoudl be opened before
-   * @param containerName
-   *          Workspace Storage Container name (see configuration)
-   * @param valueStorageProvider
-   *          External Value Storages provider
-   * @param maxBufferSize
-   *          Maximum buffer size (see configuration)
-   * @param swapDirectory
-   *          Swap directory (see configuration)
-   * @param swapCleaner
-   *          Swap cleaner (internal FileCleaner).
+   * @param dbConnection JDBC connection, shoudl be opened before
+   * @param containerName Workspace Storage Container name (see configuration)
+   * @param valueStorageProvider External Value Storages provider
+   * @param maxBufferSize Maximum buffer size (see configuration)
+   * @param swapDirectory Swap directory (see configuration)
+   * @param swapCleaner Swap cleaner (internal FileCleaner).
    * @throws SQLException
-   * 
    * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
    */
   public MultiDbJDBCConnection(Connection dbConnection,
@@ -192,7 +188,10 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
         + " from JCR_MREF R, JCR_MITEM P"
         + " where R.NODE_ID=? and P.ID=R.PROPERTY_ID and P.I_CLASS=2";
 
-    FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
+    FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, DATA, STORAGE_DESC from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
+
+    FIND_VALUES_VSTORAGE_DESC_BY_PROPERTYID = "select distinct STORAGE_DESC from JCR_MVALUE where PROPERTY_ID=?";
+
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_MVALUE where PROPERTY_ID=? and ORDER_NUM=?";
 
     FIND_NODES_BY_PARENTID = "select * from JCR_MITEM" + " where I_CLASS=1 and PARENT_ID=?"
@@ -230,9 +229,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       insertNode.clearParameters();
 
     insertNode.setString(1, data.getIdentifier());
-    insertNode.setString(2, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : data.getParentIdentifier());
+    insertNode.setString(2, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                              : data.getParentIdentifier());
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setInt(4, data.getPersistedVersion());
     insertNode.setInt(5, data.getQPath().getIndex());
@@ -519,14 +517,27 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     else
       renameNode.clearParameters();
 
-    renameNode.setString(1, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : data.getParentIdentifier());
+    renameNode.setString(1, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                              : data.getParentIdentifier());
     renameNode.setString(2, data.getQPath().getName().getAsString());
     renameNode.setInt(3, data.getPersistedVersion());
     renameNode.setInt(4, data.getQPath().getIndex());
     renameNode.setInt(5, data.getOrderNumber());
     renameNode.setString(6, data.getIdentifier());
     return renameNode.executeUpdate();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected ResultSet findValuesStorageDescriptorsByPropertyId(String cid) throws SQLException {
+    if (findValuesStorageDescriptorsByPropertyId == null)
+      findValuesStorageDescriptorsByPropertyId = dbConnection.prepareStatement(FIND_VALUES_VSTORAGE_DESC_BY_PROPERTYID);
+    else
+      findValuesStorageDescriptorsByPropertyId.clearParameters();
+
+    findValuesStorageDescriptorsByPropertyId.setString(1, cid);
+    return findValuesStorageDescriptorsByPropertyId.executeQuery();
   }
 }

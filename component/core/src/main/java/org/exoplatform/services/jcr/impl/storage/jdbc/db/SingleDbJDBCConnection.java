@@ -16,6 +16,14 @@
  */
 package org.exoplatform.services.jcr.impl.storage.jdbc.db;
 
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,19 +34,13 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 
-import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
-
 /**
  * Created by The eXo Platform SAS 27.04.2006
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: SingleDbJDBCConnection.java 20950 2008-10-06 14:23:07Z
+ *          pnedonosko $
  */
 public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
@@ -59,6 +61,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement findReferences;
 
   protected PreparedStatement findValuesByPropertyId;
+  protected PreparedStatement findValuesStorageDescriptorsByPropertyId;
 
   protected PreparedStatement findValuesDataByPropertyId;
 
@@ -101,21 +104,13 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   /**
    * Singledatabase JDBC Connection constructor.
    * 
-   * @param dbConnection
-   *          JDBC connection, shoudl be opened before
-   * @param containerName
-   *          Workspace Storage Container name (see configuration)
-   * @param valueStorageProvider
-   *          External Value Storages provider
-   * @param maxBufferSize
-   *          Maximum buffer size (see configuration)
-   * @param swapDirectory
-   *          Swap directory (see configuration)
-   * @param swapCleaner
-   *          Swap cleaner (internal FileCleaner).
-   * @throws SQLException
-   *           in case of database error
-   * 
+   * @param dbConnection JDBC connection, shoudl be opened before
+   * @param containerName Workspace Storage Container name (see configuration)
+   * @param valueStorageProvider External Value Storages provider
+   * @param maxBufferSize Maximum buffer size (see configuration)
+   * @param swapDirectory Swap directory (see configuration)
+   * @param swapCleaner Swap cleaner (internal FileCleaner).
+   * @throws SQLException in case of database error
    * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
    */
   public SingleDbJDBCConnection(Connection dbConnection,
@@ -181,7 +176,10 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
         + " from JCR_SREF R, JCR_SITEM P"
         + " where R.NODE_ID=? and P.CONTAINER_NAME=? and P.ID=R.PROPERTY_ID and P.I_CLASS=2";
 
-    FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
+    FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, DATA, STORAGE_DESC from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
+
+    FIND_VALUES_VSTORAGE_DESC_BY_PROPERTYID = "select distinct STORAGE_DESC from JCR_SVALUE where PROPERTY_ID=?";
+
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_SVALUE where PROPERTY_ID=? and ORDER_NUM=?";
 
     FIND_NODES_BY_PARENTID = "select * from JCR_SITEM"
@@ -220,9 +218,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
     insertNode.setString(1, getInternalId(data.getIdentifier()));
     // if root then parent identifier equals space string
-    insertNode.setString(2, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : getInternalId(data.getParentIdentifier()));
+    insertNode.setString(2,
+                         data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                           : getInternalId(data.getParentIdentifier()));
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setString(4, containerName);
     insertNode.setInt(5, data.getPersistedVersion());
@@ -485,10 +483,23 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     findValuesByPropertyId.setString(1, cid);
     return findValuesByPropertyId.executeQuery();
   }
-
   /**
    * {@inheritDoc}
    */
+  @Override
+  protected ResultSet findValuesStorageDescriptorsByPropertyId(String cid) throws SQLException {
+    if (findValuesStorageDescriptorsByPropertyId == null)
+      findValuesStorageDescriptorsByPropertyId = dbConnection.prepareStatement(FIND_VALUES_VSTORAGE_DESC_BY_PROPERTYID);
+    else
+      findValuesStorageDescriptorsByPropertyId.clearParameters();
+
+    findValuesStorageDescriptorsByPropertyId.setString(1, cid);
+    return findValuesStorageDescriptorsByPropertyId.executeQuery();
+  }
+  /**
+   * {@inheritDoc}
+   */
+  @Deprecated
   protected ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException {
     if (findValueByPropertyIdOrderNumber == null)
       findValueByPropertyIdOrderNumber = dbConnection.prepareStatement(FIND_VALUE_BY_PROPERTYID_OREDERNUMB);
@@ -499,6 +510,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     findValueByPropertyIdOrderNumber.setInt(2, orderNumb);
     return findValueByPropertyIdOrderNumber.executeQuery();
   }
+  
 
   /**
    * {@inheritDoc}
@@ -510,9 +522,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       renameNode.clearParameters();
 
-    renameNode.setString(1, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : getInternalId(data.getParentIdentifier()));
+    renameNode.setString(1,
+                         data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                           : getInternalId(data.getParentIdentifier()));
     renameNode.setString(2, data.getQPath().getName().getAsString());
     renameNode.setInt(3, data.getPersistedVersion());
     renameNode.setInt(4, data.getQPath().getIndex());

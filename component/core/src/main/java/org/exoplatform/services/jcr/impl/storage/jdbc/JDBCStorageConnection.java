@@ -27,9 +27,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.jcr.InvalidItemStateException;
@@ -1435,22 +1433,19 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
     try {
 
-      final ResultSet valueRecords = findValuesByPropertyId(cid);
+      final ResultSet valueRecords = findValuesStorageDescriptorsByPropertyId(cid);
       try {
-        // using set to store value-storage ids to avoid duplicating.
-        Set<String> storages = new HashSet<String>();
+        // [PN] 12.07.07 if (... instead while (...
+        // so, we don't need iterate throught each value of the property
+        // IO channel will do this work according the existed files on FS
         while (valueRecords.next()) {
           final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
           if (!valueRecords.wasNull()) {
-            // if not in set then delete from this channel
-            if (!storages.contains(storageId)){
-              storages.add(storageId);
-              final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
-              try {
-                channel.delete(pdata.getIdentifier());
-              } finally {
-                channel.close();
-              }
+            final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
+            try {
+              channel.delete(pdata.getIdentifier());
+            } finally {
+              channel.close();
             }
           }
         }
@@ -1490,9 +1485,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         while (valueRecords.next()) {
           final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
           final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
-          ValueData vdata = valueRecords.wasNull()
-              ? readValueData(cid, orderNum, pdata.getPersistedVersion())
-              : readValueData(pdata, orderNum, storageId);
+          ValueData vdata = valueRecords.wasNull() ? readValueData(cid,
+                                                                   orderNum,
+                                                                   pdata.getPersistedVersion(),
+                                                                   valueRecords.getBinaryStream(COLUMN_VDATA))
+                                                  : readValueData(pdata, orderNum, storageId);
           data.add(vdata);
         }
       } finally {
@@ -1551,7 +1548,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @throws IOException
    *           I/O error (swap)
    */
-  protected ValueData readValueData(String cid, int orderNumber, int version) throws SQLException,
+  protected ValueData readValueData(String cid, int orderNumber, int version, final InputStream content) throws SQLException,
                                                                              IOException {
 
     ResultSet valueResultSet = null;
@@ -1565,39 +1562,36 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     SwapFile swapFile = null;
     try {
       // stream from database
-      valueResultSet = findValueByPropertyIdOrderNumber(cid, orderNumber);
-      if (valueResultSet.next()) {
-        final InputStream in = valueResultSet.getBinaryStream(COLUMN_VDATA);
-        if (in != null)
-          while ((read = in.read(spoolBuffer)) >= 0) {
-            if (out != null) {
-              // spool to temp file
-              out.write(spoolBuffer, 0, read);
-              len += read;
-            } else if (len + read > maxBufferSize) {
-              // threshold for keeping data in memory exceeded;
-              // create temp file and spool buffer contents
-              swapFile = SwapFile.get(swapDirectory, cid + orderNumber + "." + version);
-              if (swapFile.isSpooled()) {
-                // break, value already spooled
-                buffer = null;
-                break;
-              }
-              out = new FileOutputStream(swapFile);
-              out.write(buffer, 0, len);
-              out.write(spoolBuffer, 0, read);
+      if (content != null)
+        while ((read = content.read(spoolBuffer)) >= 0) {
+          if (out != null) {
+            // spool to temp file
+            out.write(spoolBuffer, 0, read);
+            len += read;
+          } else if (len + read > maxBufferSize) {
+            // threshold for keeping data in memory exceeded;
+            // create temp file and spool buffer contents
+            swapFile = SwapFile.get(swapDirectory, cid + orderNumber + "." + version);
+            if (swapFile.isSpooled()) {
+              // break, value already spooled
               buffer = null;
-              len += read;
-            } else {
-              // reallocate new buffer and spool old buffer contents
-              byte[] newBuffer = new byte[len + read];
-              System.arraycopy(buffer, 0, newBuffer, 0, len);
-              System.arraycopy(spoolBuffer, 0, newBuffer, len, read);
-              buffer = newBuffer;
-              len += read;
+              break;
             }
+            out = new FileOutputStream(swapFile);
+            out.write(buffer, 0, len);
+            out.write(spoolBuffer, 0, read);
+            buffer = null;
+            len += read;
+          } else {
+            // reallocate new buffer and spool old buffer contents
+            byte[] newBuffer = new byte[len + read];
+            System.arraycopy(buffer, 0, newBuffer, 0, len);
+            System.arraycopy(spoolBuffer, 0, newBuffer, len, read);
+            buffer = newBuffer;
+            len += read;
           }
-      }
+        }
+
     } finally {
       if (valueResultSet != null)
         valueResultSet.close();
@@ -1694,8 +1688,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                       String storageId) throws SQLException, IOException;
 
   protected abstract int deleteValues(String cid) throws SQLException;
-
+  
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
-
+  
+  protected abstract ResultSet findValuesStorageDescriptorsByPropertyId(String cid) throws SQLException;
+  
+  @Deprecated
   protected abstract ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException;
+  
+  
 }
