@@ -150,11 +150,11 @@
           </query-handler>
         </workspace>
         
-        <workspace name="ws3">
+       <workspace name="ws3">
           <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="source-name" value="jdbcjcr" />
+              <property name="source-name" value="jdbcjcr3" />
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
@@ -190,18 +190,10 @@
               <property name="root-nodetype" value="nt:unstructured"/>
             </properties>
           </initializer>
-          <!-- initializer class="org.exoplatform.services.jcr.impl.core.RestoreWorkspaceInitializer">
-            <properties>
-              <property name="restore-path" value="./sv_export_root.xml"/>
-              <property name="restore-path" value="./src/test/resources/import-export/restore_db1_ws1.xml"/>
-            </properties>
-          </initializer -->
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
-							<!-- property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" / -->
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -215,14 +207,6 @@
               <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
             </properties>
           </query-handler>
-          <lock-manager>
-            <time-out>15m</time-out>
-            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
-              <properties>
-                <property name="path" value="target/temp/lock" />
-              </properties>
-            </persister>
-          </lock-manager>
         </workspace>
       </workspaces>
     </repository>
