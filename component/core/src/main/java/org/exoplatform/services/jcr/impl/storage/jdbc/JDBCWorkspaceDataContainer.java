@@ -613,13 +613,19 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase
 
 		return connFactory.openConnection();
 	}
+	
+  /**
+   * {@inheritDoc}
+   */
+  public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public WorkspaceStorageConnection reuseConnection(
-			WorkspaceStorageConnection original) throws RepositoryException {
-
+    return connFactory.openConnection(readOnly);
+  }
+	
+  /**
+   * {@inheritDoc}
+   */
+  public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
 		if (original instanceof JDBCStorageConnection) {
 			WorkspaceStorageConnectionFactory cFactory = new SharedConnectionFactory(
 					((JDBCStorageConnection) original).getJdbcConnection(),

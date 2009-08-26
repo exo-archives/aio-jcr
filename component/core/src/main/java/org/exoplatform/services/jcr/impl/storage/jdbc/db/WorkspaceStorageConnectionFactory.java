@@ -24,6 +24,18 @@ public interface WorkspaceStorageConnectionFactory {
   WorkspaceStorageConnection openConnection() throws RepositoryException;
 
   /**
+   * Open connection to Workspace storage.
+   * 
+   * @param readOnly
+   *          boolean, if true the Connection will be marked as read-only
+   * 
+   * @return WorkspaceStorageConnection connection
+   * @throws RepositoryException
+   *           if error occurs
+   */
+  WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException;
+
+  /**
    * Return native JDBC Connection to workspace storage (JDBC specific).
    * 
    * @return java.sql.Connection connection
@@ -36,7 +48,7 @@ public interface WorkspaceStorageConnectionFactory {
    * Return native JDBC Connection to workspace storage (JDBC specific).
    * 
    * @param readOnly
-   *          boolean, if true the JDBC Connection will be maarked as read-only, see
+   *          boolean, if true the JDBC Connection will be marked as read-only, see
    *          {@link java.sql.Connection#setReadOnly(boolean)}
    * 
    * @return java.sql.Connection connection

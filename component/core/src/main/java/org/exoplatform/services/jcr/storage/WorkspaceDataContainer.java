@@ -89,6 +89,18 @@ public interface WorkspaceDataContainer extends DataContainer {
   WorkspaceStorageConnection openConnection() throws RepositoryException;
 
   /**
+   * Open connection and marked it as READ-ONLY if <code>readOnly</code> is true. <br/>
+   * EXPERIMENTAL! Use it with care.
+   * 
+   * @param readOnly
+   *          boolean, if true the Connection will be marked as READ-ONLY
+   * 
+   * @return the new connection to workspace storage normally implementation of this method should
+   *         be synchronized
+   */
+  WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException;
+
+  /**
    * @return the connection to workspace storage, if it possible the connection will use same
    *         physical resource (already obtained) as original connection, otherwise same behaviour
    *         will be used as for openConnection().

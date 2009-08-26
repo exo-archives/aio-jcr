@@ -222,11 +222,18 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
    * {@inheritDoc}
    */
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
+    return openConnection(false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
 
     try {
 
       if (multiDb) {
-        return new MultiDbJDBCConnection(getJdbcConnection(),
+        return new MultiDbJDBCConnection(getJdbcConnection(readOnly),
                                          containerName,
                                          valueStorageProvider,
                                          maxBufferSize,
@@ -234,7 +241,7 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
                                          swapCleaner);
       }
 
-      return new SingleDbJDBCConnection(getJdbcConnection(),
+      return new SingleDbJDBCConnection(getJdbcConnection(readOnly),
                                         containerName,
                                         valueStorageProvider,
                                         maxBufferSize,
@@ -257,8 +264,8 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
               ? DriverManager.getConnection(dbUrl, dbUserName, dbPassword)
               : DriverManager.getConnection(dbUrl));
 
-      if (readOnly) // set this feature only if it asked
-        conn.setReadOnly(true);
+      if (conn.isReadOnly() != readOnly) // set this feature only if it asked
+        conn.setReadOnly(readOnly);
 
       return monitorInterest == 0 ? conn : new ManagedConnection(conn, monitorInterest);
     } catch (SQLException e) {

@@ -78,4 +78,8 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
     return "1.0";
   }
 
+  public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
+    return new InmemoryStorageConnection(name);
+  }
+
 }

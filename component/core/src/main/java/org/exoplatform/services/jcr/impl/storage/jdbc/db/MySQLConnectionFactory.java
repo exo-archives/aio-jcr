@@ -127,10 +127,18 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
    */
   @Override
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
+    return openConnection(false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
     try {
 
       if (multiDb) {
-        return new MySQLMultiDbJDBCConnection(getJdbcConnection(),
+        return new MySQLMultiDbJDBCConnection(getJdbcConnection(readOnly),
                                               containerName,
                                               valueStorageProvider,
                                               maxBufferSize,
@@ -138,7 +146,7 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
                                               swapCleaner);
       }
 
-      return new MySQLSingleDbJDBCConnection(getJdbcConnection(),
+      return new MySQLSingleDbJDBCConnection(getJdbcConnection(readOnly),
                                              containerName,
                                              valueStorageProvider,
                                              maxBufferSize,
