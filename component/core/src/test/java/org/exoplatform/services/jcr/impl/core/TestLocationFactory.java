@@ -40,7 +40,7 @@ public class TestLocationFactory extends TestCase {
       "/path", "/vv/fff", "ff", "/", "..", "|fff"          };
 
   private static String         testJCRPathInvalid[]        = { "/.:./uuu", "/ ", "/./xml:name[0]",
-      "xxx//fff", "//", " sdfas/"                          };
+      "xxx//fff", "//", " sdfas/", ""                          };
 
   private LocationFactory       factory;
 
