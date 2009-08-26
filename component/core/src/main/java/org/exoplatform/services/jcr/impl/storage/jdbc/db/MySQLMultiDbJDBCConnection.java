@@ -41,6 +41,8 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
    * 
    * @param dbConnection
    *          JDBC connection, shoudl be opened before
+   * @param readOnly
+   *          boolean if true the dbConnection was marked as READ-ONLY.
    * @param containerName
    *          Workspace Storage Container name (see configuration)
    * @param valueStorageProvider
@@ -56,6 +58,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
    * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
    */
   public MySQLMultiDbJDBCConnection(Connection dbConnection,
+                                    boolean readOnly,
                                     String containerName,
                                     ValueStoragePluginProvider valueStorageProvider,
                                     int maxBufferSize,
@@ -63,6 +66,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
                                     FileCleaner swapCleaner) throws SQLException {
 
     super(dbConnection,
+          readOnly,
           containerName,
           valueStorageProvider,
           maxBufferSize,

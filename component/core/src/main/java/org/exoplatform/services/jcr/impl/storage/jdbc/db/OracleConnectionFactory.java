@@ -195,14 +195,6 @@ public class OracleConnectionFactory extends GenericConnectionFactory {
 
     return super.getJdbcConnection(readOnly);
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Connection getJdbcConnection() throws RepositoryException {
-    return getJdbcConnection(false);
-  }
   
   /**
    * Get CachedConnection.

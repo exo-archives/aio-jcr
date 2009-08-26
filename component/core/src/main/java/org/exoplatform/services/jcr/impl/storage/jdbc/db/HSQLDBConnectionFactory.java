@@ -12,41 +12,72 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
 public class HSQLDBConnectionFactory extends GenericConnectionFactory {
 
-	public HSQLDBConnectionFactory(DataSource dataSource, String containerName,
-			boolean multiDb, ValueStoragePluginProvider valueStorageProvider,
-			int maxBufferSize, File swapDirectory, FileCleaner swapCleaner) {
+  public HSQLDBConnectionFactory(DataSource dataSource,
+                                 String containerName,
+                                 boolean multiDb,
+                                 ValueStoragePluginProvider valueStorageProvider,
+                                 int maxBufferSize,
+                                 File swapDirectory,
+                                 FileCleaner swapCleaner) {
 
-		super(dataSource, containerName, multiDb, valueStorageProvider,
-				maxBufferSize, swapDirectory, swapCleaner);
-	}
+    super(dataSource,
+          containerName,
+          multiDb,
+          valueStorageProvider,
+          maxBufferSize,
+          swapDirectory,
+          swapCleaner);
+  }
 
-	public HSQLDBConnectionFactory(String dbDriver, String dbUrl,
-			String dbUserName, String dbPassword, String containerName,
-			boolean multiDb, ValueStoragePluginProvider valueStorageProvider,
-			int maxBufferSize, File swapDirectory, FileCleaner swapCleaner)
-			throws RepositoryException {
+  public HSQLDBConnectionFactory(String dbDriver,
+                                 String dbUrl,
+                                 String dbUserName,
+                                 String dbPassword,
+                                 String containerName,
+                                 boolean multiDb,
+                                 ValueStoragePluginProvider valueStorageProvider,
+                                 int maxBufferSize,
+                                 File swapDirectory,
+                                 FileCleaner swapCleaner) throws RepositoryException {
 
-		super(dbDriver, dbUrl, dbUserName, dbPassword, containerName, multiDb,
-				valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
-	}
+    super(dbDriver,
+          dbUrl,
+          dbUserName,
+          dbPassword,
+          containerName,
+          multiDb,
+          valueStorageProvider,
+          maxBufferSize,
+          swapDirectory,
+          swapCleaner);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
+    try {
 
-	@Override
-	public WorkspaceStorageConnection openConnection()
-			throws RepositoryException {
-		try {
+      if (multiDb) {
+        return new HSQLDBMultiDbJDBCConnection(getJdbcConnection(readOnly),
+                                               readOnly,
+                                               containerName,
+                                               valueStorageProvider,
+                                               maxBufferSize,
+                                               swapDirectory,
+                                               swapCleaner);
+      }
 
-			if (multiDb) {
-				return new HSQLDBMultiDbJDBCConnection(getJdbcConnection(),
-						containerName, valueStorageProvider, maxBufferSize,
-						swapDirectory, swapCleaner);
-			} 
+      return new HSQLDBSingleDbJDBCConnection(getJdbcConnection(readOnly),
+                                              readOnly,
+                                              containerName,
+                                              valueStorageProvider,
+                                              maxBufferSize,
+                                              swapDirectory,
+                                              swapCleaner);
 
-			return new HSQLDBSingleDbJDBCConnection(getJdbcConnection(),
-					containerName, valueStorageProvider, maxBufferSize,
-					swapDirectory, swapCleaner);
-
-		} catch (SQLException e) {
-			throw new RepositoryException(e);
-		}
-	}
+    } catch (SQLException e) {
+      throw new RepositoryException(e);
+    }
+  }
 }

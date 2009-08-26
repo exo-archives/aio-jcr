@@ -101,6 +101,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   protected final SQLExceptionHandler        exceptionHandler;
 
   /**
+   * Read-only flag, if true the connection is marked as READ-ONLY.
+   */
+  protected final boolean                    readOnly;
+
+  /**
    * JDBCStorageConnection constructor.
    * 
    * @param dbConnection
@@ -119,6 +124,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *           database error
    */
   protected JDBCStorageConnection(Connection dbConnection,
+                                  boolean readOnly,
                                   String containerName,
                                   ValueStoragePluginProvider valueStorageProvider,
                                   int maxBufferSize,
@@ -133,6 +139,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     this.containerName = containerName;
 
     this.dbConnection = dbConnection;
+    this.readOnly = readOnly;
 
     // Fix for Sybase jConnect JDBC driver bug.
     // Which throws SQLException(JZ016: The AutoCommit option is already set to
@@ -238,8 +245,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   public final void close() throws IllegalStateException, RepositoryException {
     checkIfOpened();
     try {
-      dbConnection.close();
+      // If READ-ONLY status back it to READ-WRITE (we assume it was original state)
+      if (readOnly)
+        dbConnection.setReadOnly(true);
 
+      dbConnection.close();
     } catch (SQLException e) {
       throw new RepositoryException(e);
     }
@@ -1485,11 +1495,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         while (valueRecords.next()) {
           final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
           final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
-          ValueData vdata = valueRecords.wasNull() ? readValueData(cid,
-                                                                   orderNum,
-                                                                   pdata.getPersistedVersion(),
-                                                                   valueRecords.getBinaryStream(COLUMN_VDATA))
-                                                  : readValueData(pdata, orderNum, storageId);
+          ValueData vdata = valueRecords.wasNull()
+              ? readValueData(cid,
+                              orderNum,
+                              pdata.getPersistedVersion(),
+                              valueRecords.getBinaryStream(COLUMN_VDATA))
+              : readValueData(pdata, orderNum, storageId);
           data.add(vdata);
         }
       } finally {
@@ -1548,8 +1559,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @throws IOException
    *           I/O error (swap)
    */
-  protected ValueData readValueData(String cid, int orderNumber, int version, final InputStream content) throws SQLException,
-                                                                             IOException {
+  protected ValueData readValueData(String cid,
+                                    int orderNumber,
+                                    int version,
+                                    final InputStream content) throws SQLException, IOException {
 
     ResultSet valueResultSet = null;
 
@@ -1688,13 +1701,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                       String storageId) throws SQLException, IOException;
 
   protected abstract int deleteValues(String cid) throws SQLException;
-  
+
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
-  
+
   protected abstract ResultSet findValuesStorageDescriptorsByPropertyId(String cid) throws SQLException;
-  
+
   @Deprecated
   protected abstract ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException;
-  
-  
+
 }

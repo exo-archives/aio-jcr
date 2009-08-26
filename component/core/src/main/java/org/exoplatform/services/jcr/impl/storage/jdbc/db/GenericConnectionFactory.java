@@ -234,6 +234,7 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
 
       if (multiDb) {
         return new MultiDbJDBCConnection(getJdbcConnection(readOnly),
+                                         readOnly,
                                          containerName,
                                          valueStorageProvider,
                                          maxBufferSize,
@@ -242,6 +243,7 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
       }
 
       return new SingleDbJDBCConnection(getJdbcConnection(readOnly),
+                                        readOnly,
                                         containerName,
                                         valueStorageProvider,
                                         maxBufferSize,
@@ -264,7 +266,7 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
               ? DriverManager.getConnection(dbUrl, dbUserName, dbPassword)
               : DriverManager.getConnection(dbUrl));
 
-      if (conn.isReadOnly() != readOnly) // set this feature only if it asked
+      if (readOnly) // set this feature only if it asked
         conn.setReadOnly(readOnly);
 
       return monitorInterest == 0 ? conn : new ManagedConnection(conn, monitorInterest);

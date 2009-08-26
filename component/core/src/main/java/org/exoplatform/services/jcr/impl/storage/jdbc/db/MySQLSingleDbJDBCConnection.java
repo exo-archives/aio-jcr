@@ -41,6 +41,8 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
    * 
    * @param dbConnection
    *          JDBC connection, shoudl be opened before
+   * @param readOnly
+   *          boolean if true the dbConnection was marked as READ-ONLY.
    * @param containerName
    *          Workspace Storage Container name (see configuration)
    * @param valueStorageProvider
@@ -56,6 +58,7 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
    * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
    */
   public MySQLSingleDbJDBCConnection(Connection dbConnection,
+                                     boolean readOnly,
                                      String containerName,
                                      ValueStoragePluginProvider valueStorageProvider,
                                      int maxBufferSize,
@@ -63,6 +66,7 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
                                      FileCleaner swapCleaner) throws SQLException {
 
     super(dbConnection,
+          readOnly,
           containerName,
           valueStorageProvider,
           maxBufferSize,

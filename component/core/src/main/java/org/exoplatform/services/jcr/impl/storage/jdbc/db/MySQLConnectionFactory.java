@@ -126,19 +126,12 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
    * {@inheritDoc}
    */
   @Override
-  public WorkspaceStorageConnection openConnection() throws RepositoryException {
-    return openConnection(false);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
     try {
 
       if (multiDb) {
         return new MySQLMultiDbJDBCConnection(getJdbcConnection(readOnly),
+                                              readOnly,
                                               containerName,
                                               valueStorageProvider,
                                               maxBufferSize,
@@ -147,6 +140,7 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
       }
 
       return new MySQLSingleDbJDBCConnection(getJdbcConnection(readOnly),
+                                             readOnly,
                                              containerName,
                                              valueStorageProvider,
                                              maxBufferSize,

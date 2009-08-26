@@ -83,6 +83,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement findValuesDataByPropertyId;
   
   protected PreparedStatement  findValuesStorageDescriptorsByPropertyId;
+  
   @Deprecated
   protected PreparedStatement findValueByPropertyIdOrderNumber;
 
@@ -122,6 +123,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
    * Multidatabase JDBC Connection constructor.
    * 
    * @param dbConnection JDBC connection, shoudl be opened before
+   * @param readOnly, boolean if true the dbConnection was marked as READ-ONLY. 
    * @param containerName Workspace Storage Container name (see configuration)
    * @param valueStorageProvider External Value Storages provider
    * @param maxBufferSize Maximum buffer size (see configuration)
@@ -131,6 +133,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
    * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
    */
   public MultiDbJDBCConnection(Connection dbConnection,
+                               boolean readOnly,
                                String containerName,
                                ValueStoragePluginProvider valueStorageProvider,
                                int maxBufferSize,
@@ -138,6 +141,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
                                FileCleaner swapCleaner) throws SQLException {
 
     super(dbConnection,
+          readOnly,
           containerName,
           valueStorageProvider,
           maxBufferSize,

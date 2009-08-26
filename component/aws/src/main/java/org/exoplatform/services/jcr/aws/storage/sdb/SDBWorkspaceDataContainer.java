@@ -195,6 +195,17 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
   /**
    * {@inheritDoc}
    */
+  public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
+    return new SDBWorkspaceStorageConnection(accessKey,
+                                             secretKey,
+                                             domainName,
+                                             maxBufferSize,
+                                             valueStorageProvider);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
     // There are no actual difference for the SimpleDB impl.
     return openConnection();
