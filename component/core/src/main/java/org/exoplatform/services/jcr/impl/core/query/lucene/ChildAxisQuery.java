@@ -25,6 +25,8 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.FieldSelector;
+import org.apache.lucene.document.FieldSelectorResult;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -334,7 +336,7 @@ class ChildAxisQuery extends Query {
         // read the uuids of the context nodes
         int i = contextHits.next();
         while (i > -1) {
-          String uuid = reader.document(i).get(FieldNames.UUID);
+          String uuid = reader.document(i, new UUIDFieldSelector()).get(FieldNames.UUID);
           uuids.add(uuid);
           i = contextHits.next();
         }
@@ -364,7 +366,7 @@ class ChildAxisQuery extends Query {
 
     private boolean indexIsValid(int i) throws IOException {
       if (position != LocationStepQueryNode.NONE) {
-        Document node = reader.document(i);
+        Document node = reader.document(i, new UUIDAndParentFieldSelector());
         String parentId = node.get(FieldNames.PARENT);
         String id = node.get(FieldNames.UUID);
         try {
@@ -422,4 +424,44 @@ class ChildAxisQuery extends Query {
       return true;
     }
   }
+  public class UUIDFieldSelector implements FieldSelector {
+
+     /**
+      * 
+      */
+     private static final long serialVersionUID = 5066344099410213457L;
+
+     /**
+      * {@inheritDoc}
+      */
+     public FieldSelectorResult accept(String fieldName) {
+       if (fieldName.equals(FieldNames.UUID))
+         return FieldSelectorResult.LOAD_AND_BREAK;
+       return FieldSelectorResult.NO_LOAD;
+
+     }
+   }
+
+   public class UUIDAndParentFieldSelector implements FieldSelector {
+     /**
+      * 
+      */
+     private static final long serialVersionUID = -7978264122965377378L;
+
+     /**
+      * Accepts {@link FieldNames#UUID} and {@link FieldNames#PARENT}.
+      * 
+      * @param fieldName the field name to check.
+      * @return result.
+      */
+     public FieldSelectorResult accept(String fieldName) {
+       if (FieldNames.UUID == fieldName) {
+         return FieldSelectorResult.LOAD;
+       } else if (FieldNames.PARENT == fieldName) {
+         return FieldSelectorResult.LOAD;
+       } else {
+         return FieldSelectorResult.NO_LOAD;
+       }
+     }
+   }
 }
