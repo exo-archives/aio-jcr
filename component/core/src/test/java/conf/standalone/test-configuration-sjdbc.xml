@@ -319,5 +319,4 @@
   </external-component-plugins>
 
   <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
-  <!--<import>jar:/conf/database-configuration.hsql.xml</import> -->
 </configuration>

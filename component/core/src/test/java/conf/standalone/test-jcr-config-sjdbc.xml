@@ -30,7 +30,7 @@
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
-              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
@@ -47,7 +47,7 @@
               <property name="support-highlighting" value="true" />
               <property name="indexing-configuration-path" value="../../indexing-configuration.xml" />
               <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
-              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval" />
             </properties>
           </query-handler>
           <lock-manager>
@@ -59,7 +59,7 @@
             </persister>
           </lock-manager>
         </workspace>
-				
+
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -83,7 +83,7 @@
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
-              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
@@ -100,11 +100,11 @@
               <property name="support-highlighting" value="true" />
               <property name="indexing-configuration-path" value="../../indexing-configuration.xml" />
               <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
-              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval" />
             </properties>
           </query-handler>
         </workspace>
-				
+
         <workspace name="ws2">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -128,7 +128,7 @@
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
-              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
@@ -145,12 +145,12 @@
               <property name="support-highlighting" value="true" />
               <property name="indexing-configuration-path" value="../../indexing-configuration.xml" />
               <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
-              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval" />
             </properties>
           </query-handler>
         </workspace>
-        
-       <workspace name="ws3">
+
+        <workspace name="ws3">
           <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -168,26 +168,26 @@
                   <property name="path" value="target/temp/values/ws3_big" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary"  min-value-size="1024K"/>
+                  <filter property-type="Binary" min-value-size="1024K" />
                 </filters>
               </value-storage>
               <value-storage id="ws3" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableTreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws3" />
-									<property name="digest-algo" value="MD5" />
-									<property name="vcas-type" value="org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddressStorageImpl" />
-									<property name="jdbc-source-name" value="jdbcjcr" />
-									<property name="jdbc-dialect" value="hsqldb" />
+                  <property name="digest-algo" value="MD5" />
+                  <property name="vcas-type" value="org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddressStorageImpl" />
+                  <property name="jdbc-source-name" value="jdbcjcr" />
+                  <property name="jdbc-dialect" value="hsqldb" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary"/>
+                  <filter property-type="Binary" />
                 </filters>
               </value-storage>
             </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
-              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
@@ -204,13 +204,13 @@
               <property name="support-highlighting" value="true" />
               <property name="indexing-configuration-path" value="../../indexing-configuration.xml" />
               <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
-              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval" />
             </properties>
           </query-handler>
         </workspace>
       </workspaces>
     </repository>
-    
+
     <repository name="db1tck" system-workspace="ws" default-workspace="ws">
       <security-domain>exo-domain</security-domain>
       <!-- access-control>optional</access-control -->
@@ -241,8 +241,8 @@
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
-              <property name="root-nodetype" value="nt:unstructured"/>
-              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+              <property name="root-nodetype" value="nt:unstructured" />
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove" />
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
@@ -259,7 +259,7 @@
               <property name="support-highlighting" value="true" />
               <property name="indexing-configuration-path" value="../../indexing-configuration.xml" />
               <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
-              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval" />
             </properties>
           </query-handler>
           <lock-manager>
@@ -271,7 +271,7 @@
             </persister>
           </lock-manager>
         </workspace>
-				
+
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -295,8 +295,8 @@
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
-              <property name="root-nodetype" value="nt:unstructured"/>
-              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+              <property name="root-nodetype" value="nt:unstructured" />
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove" />
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
@@ -313,11 +313,11 @@
               <property name="support-highlighting" value="true" />
               <property name="indexing-configuration-path" value="../../indexing-configuration.xml" />
               <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
-              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval" />
             </properties>
           </query-handler>
         </workspace>
-				
+
         <workspace name="ws2">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -329,8 +329,7 @@
               <property name="swap-directory" value="target/temp/swap/ws2tck" />
             </properties>
             <value-storages>
-              <value-storage id="ws2"
-                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws2" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws2tck" />
                 </properties>
@@ -342,8 +341,8 @@
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
-              <property name="root-nodetype" value="nt:unstructured"/>
-              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+              <property name="root-nodetype" value="nt:unstructured" />
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove" />
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
@@ -360,11 +359,11 @@
               <property name="support-highlighting" value="true" />
               <property name="indexing-configuration-path" value="../../indexing-configuration.xml" />
               <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
-              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval" />
             </properties>
           </query-handler>
         </workspace>
       </workspaces>
-    </repository>    
+    </repository>
   </repositories>
 </repository-service>
