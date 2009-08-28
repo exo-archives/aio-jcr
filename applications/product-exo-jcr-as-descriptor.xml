@@ -1,25 +1,25 @@
 <assembly>
-	<id>binary</id>
-	<formats>
-		<format>dir</format>
-	</formats>
-	<includeBaseDirectory>false</includeBaseDirectory>
-	<fileSets>
-		<fileSet>
-			<directory>target/classes</directory>
-			<outputDirectory>/</outputDirectory>
-		</fileSet>
-	</fileSets>
+  <id>binary</id>
+  <formats>
+    <format>dir</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>target/classes</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
 
-	<dependencySets>
-		<dependencySet>
-			<outputDirectory>/</outputDirectory>
-			<unpack>false</unpack>
-			<scope>runtime</scope>
-			<excludes>
-				<exclude>directory-naming:naming-core</exclude>
-				<exclude>javax.servlet:servlet-api</exclude>
-			</excludes>
-		</dependencySet>
-	</dependencySets>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <unpack>false</unpack>
+      <scope>runtime</scope>
+      <excludes>
+        <exclude>directory-naming:naming-core</exclude>
+        <exclude>javax.servlet:servlet-api</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
 </assembly>
