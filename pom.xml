@@ -8,7 +8,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
-  <artifactId>config</artifactId>
+  <artifactId>jcr-parent</artifactId>
   <name>eXo JCR Config</name>
   <version>1.10.5-SNAPSHOT</version>
   <packaging>pom</packaging>
