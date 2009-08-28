@@ -22,7 +22,7 @@
                   <property name="path" value="../temp/values/production" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary"/>
+                  <filter property-type="Binary" />
                 </filters>
               </value-storage>
             </value-storages>
@@ -43,7 +43,7 @@
               <property name="index-dir" value="../temp/jcrlucenedb/production" />
             </properties>
           </query-handler>
-					<lock-manager>
+          <lock-manager>
             <time-out>15m</time-out>
             <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
               <properties>
@@ -52,7 +52,7 @@
             </persister>
           </lock-manager>
         </workspace>
-				
+
         <workspace name="backup">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -63,13 +63,13 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="../temp/swap/backup" />
             </properties>
-						<value-storages>
+            <value-storages>
               <value-storage id="draft" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="../temp/values/backup" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary"/>
+                  <filter property-type="Binary" />
                 </filters>
               </value-storage>
             </value-storages>
@@ -91,8 +91,8 @@
             </properties>
           </query-handler>
         </workspace>
-        
-				<workspace name="digital-assets">
+
+        <workspace name="digital-assets">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr" />
@@ -102,13 +102,13 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="../temp/swap/digital-assets" />
             </properties>
-						<value-storages>
+            <value-storages>
               <value-storage id="digital-assets" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="../temp/values/digital-assets" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary"/>
+                  <filter property-type="Binary" />
                 </filters>
               </value-storage>
             </value-storages>

@@ -6,70 +6,70 @@
     <type>org.exoplatform.services.jcr.webdav.lnkproducer.LnkProducer</type>
   </component>
   <component>
-	<key>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</key>
-	<type>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</type>
-	<init-params>
-			
-		<value-param>
-			<name>auto-mix-lockable</name>
-			<value>false</value>
-		</value-param>
-			
-		<value-param>
-			<name>def-folder-node-type</name>
-			<value>nt:folder</value>
-		</value-param>
-			
-		<value-param>
-			<name>def-file-node-type</name>
-			<value>nt:file</value>
-		</value-param>
-			
-		<value-param>
-			<name>def-file-mimetype</name>
-			<value>text/plain</value>
-		</value-param>
-			
-		<value-param>
-			<name>update-policy</name>
-			<value>create-version</value>
-			<!--value>replace</value -->
-			<!-- value>add</value -->
-		</value-param>
-	</init-params>
-</component>
-	
-	<external-component-plugins>
+    <key>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</key>
+    <type>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</type>
+    <init-params>
 
-		<target-component>org.exoplatform.services.jcr.RepositoryService</target-component>
-		
-		<component-plugin>
-			<name>add.namespaces</name>
-			<set-method>addPlugin</set-method>
-			<type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
-			<init-params>
-				<properties-param>
-					<name>namespaces</name>
-					<property name="webdav" value="http://www.exoplatform.org/jcr/webdav"/>
-				</properties-param>
-			</init-params>
-		</component-plugin>		
-		
-		<component-plugin>
-			<name>add.nodeType</name>
-			<set-method>addPlugin</set-method>
-			<type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
-			<init-params>
-				<values-param>
-					<name>autoCreatedInNewRepository</name>
-					<description>Node types configuration file</description>
-					<value>jar:/conf/webdav-nodetypes.xml</value>
-				</values-param>
-			</init-params>
-		</component-plugin>
-		
-	</external-component-plugins>
-	
+      <value-param>
+        <name>auto-mix-lockable</name>
+        <value>false</value>
+      </value-param>
+
+      <value-param>
+        <name>def-folder-node-type</name>
+        <value>nt:folder</value>
+      </value-param>
+
+      <value-param>
+        <name>def-file-node-type</name>
+        <value>nt:file</value>
+      </value-param>
+
+      <value-param>
+        <name>def-file-mimetype</name>
+        <value>text/plain</value>
+      </value-param>
+
+      <value-param>
+        <name>update-policy</name>
+        <value>create-version</value>
+        <!--value>replace</value -->
+        <!-- value>add</value -->
+      </value-param>
+    </init-params>
+  </component>
+
+  <external-component-plugins>
+
+    <target-component>org.exoplatform.services.jcr.RepositoryService</target-component>
+
+    <component-plugin>
+      <name>add.namespaces</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
+      <init-params>
+        <properties-param>
+          <name>namespaces</name>
+          <property name="webdav" value="http://www.exoplatform.org/jcr/webdav" />
+        </properties-param>
+      </init-params>
+    </component-plugin>
+
+    <component-plugin>
+      <name>add.nodeType</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
+      <init-params>
+        <values-param>
+          <name>autoCreatedInNewRepository</name>
+          <description>Node types configuration file</description>
+          <value>jar:/conf/webdav-nodetypes.xml</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+
+  </external-component-plugins>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl</target-component>
     <component-plugin>
@@ -77,11 +77,11 @@
       <set-method>addPlugin</set-method>
       <type>org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesLoaderPlugin</type>
       <init-params>
-      <properties-param>
-        <name>xsl-source-urls</name>
-        <property name="get.method.template" value="xslt/get-method.xsl"/>
-      </properties-param>
-    </init-params>
+        <properties-param>
+          <name>xsl-source-urls</name>
+          <property name="get.method.template" value="xslt/get-method.xsl" />
+        </properties-param>
+      </init-params>
     </component-plugin>
   </external-component-plugins>
 

@@ -9,21 +9,20 @@
           <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="source-name" value="jdbcjcr"/>
-              <property name="multi-db" value="true"/>
+              <property name="source-name" value="jdbcjcr" />
+              <property name="multi-db" value="true" />
             </properties>
           </container>
           <cache enabled="true">
             <properties>
-              <property name="max-size" value="1000"/>
-              <property name="live-time" value="1800"/><!-- 30 min -->
+              <property name="max-size" value="1000" />
+              <property name="live-time" value="1800" /><!-- 30 min -->
             </properties>
           </cache>
-          <!-- query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
-            <properties>
-              <property name="index-dir" value="target/temp/index"/>
-            </properties>
-          </query-handler -->
+          <!--
+            query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex"> <properties> <property name="index-dir"
+            value="target/temp/index"/> </properties> </query-handler
+          -->
         </workspace>
       </workspaces>
     </repository>

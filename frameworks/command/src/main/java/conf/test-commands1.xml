@@ -1,42 +1,28 @@
 <catalog>
   <!-- Core JCR commands -->
-  <command   name="addNode"
-        className="org.exoplatform.frameworks.jcr.command.core.AddNodeCommand"/>
-  <command   name="save"
-        className="org.exoplatform.frameworks.jcr.command.core.SaveCommand"/>
-  <command   name="setProperty"
-        className="org.exoplatform.frameworks.jcr.command.core.SetPropertyCommand"/>
-  <command   name="remove"
-        className="org.exoplatform.frameworks.jcr.command.core.RemoveItemCommand"/>
-  <command   name="getProperty"
-        className="org.exoplatform.frameworks.jcr.command.core.GetPropertyCommand"/>
-  <command   name="getNode"
-        className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand"/>
-  <command   name="getNodes"
-        className="org.exoplatform.frameworks.jcr.command.core.GetChildNodesCommand"/>
-  <command   name="getProperties"
-        className="org.exoplatform.frameworks.jcr.command.core.GetChildPropertiesCommand"/>
+  <command name="addNode" className="org.exoplatform.frameworks.jcr.command.core.AddNodeCommand" />
+  <command name="save" className="org.exoplatform.frameworks.jcr.command.core.SaveCommand" />
+  <command name="setProperty" className="org.exoplatform.frameworks.jcr.command.core.SetPropertyCommand" />
+  <command name="remove" className="org.exoplatform.frameworks.jcr.command.core.RemoveItemCommand" />
+  <command name="getProperty" className="org.exoplatform.frameworks.jcr.command.core.GetPropertyCommand" />
+  <command name="getNode" className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand" />
+  <command name="getNodes" className="org.exoplatform.frameworks.jcr.command.core.GetChildNodesCommand" />
+  <command name="getProperties" className="org.exoplatform.frameworks.jcr.command.core.GetChildPropertiesCommand" />
 
 
-  <command   name="filterNodesByTypes"
-        className="org.exoplatform.frameworks.jcr.command.ext.FilterNodesByTypesCommand"/>
-  <command   name="addResourceFile"
-        className="org.exoplatform.frameworks.jcr.command.ext.AddResourceFileCommand"/>
+  <command name="filterNodesByTypes" className="org.exoplatform.frameworks.jcr.command.ext.FilterNodesByTypesCommand" />
+  <command name="addResourceFile" className="org.exoplatform.frameworks.jcr.command.ext.AddResourceFileCommand" />
 
 
   <!-- Chains with nested commands -->
-  <chain     name="retrieveNodeCommand">
-    <command   id="1"
-        className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand"/>
-    <command   id="2"
-        className="org.exoplatform.frameworks.jcr.command.GetNodeAsXMLCommand"/>
+  <chain name="retrieveNodeCommand">
+    <command id="1" className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand" />
+    <command id="2" className="org.exoplatform.frameworks.jcr.command.GetNodeAsXMLCommand" />
   </chain>
 
-  <chain     name="displayResource">
-    <command   id="1"
-        className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand"/>
-    <command   id="2"
-        className="org.exoplatform.frameworks.jcr.command.web.DisplayResourceCommand"/>
+  <chain name="displayResource">
+    <command id="1" className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand" />
+    <command id="2" className="org.exoplatform.frameworks.jcr.command.web.DisplayResourceCommand" />
   </chain>
 
 </catalog>

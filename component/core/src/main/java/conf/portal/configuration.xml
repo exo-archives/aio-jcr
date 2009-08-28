@@ -10,10 +10,10 @@
         <value>jar:/conf/portal/exo-jcr-config.xml</value>
       </value-param>
     </init-params>
-   </component>
+  </component>
 
   <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
-   </component>
+  </component>
 </configuration>
