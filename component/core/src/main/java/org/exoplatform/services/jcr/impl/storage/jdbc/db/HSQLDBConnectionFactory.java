@@ -32,28 +32,27 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * 20.08.2009
  * 
  * @author <a href="mailto:dezder@bk.ru">Denis Grebenyuk</a>
- * @version $Id: HSQLDBConnectionFactory.java 36070 2009-08-26 11:01:14Z
- *          pnedonosko $
+ * @version $Id$
  */
 public class HSQLDBConnectionFactory extends GenericConnectionFactory {
-	/**
-	   * HSQLDBConnectionFactory constructor.
-	   * 
-	   * @param dataSource
-	   *          - DataSource
-	   * @param containerName
-	   *          - Container name (see configuration)
-	   * @param multiDb
-	   *          - multidatabase state flag
-	   * @param valueStorageProvider
-	   *          - external Value Storages provider
-	   * @param maxBufferSize
-	   *          - Maximum buffer size (see configuration)
-	   * @param swapDirectory
-	   *          - Swap directory (see configuration)
-	   * @param swapCleaner
-	   *          - Swap cleaner (internal FileCleaner).
-	   */	
+  /**
+   * HSQLDBConnectionFactory constructor.
+   * 
+   * @param dataSource
+   *          - DataSource
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   */
   public HSQLDBConnectionFactory(DataSource dataSource,
                                  String containerName,
                                  boolean multiDb,
@@ -70,7 +69,7 @@ public class HSQLDBConnectionFactory extends GenericConnectionFactory {
           swapDirectory,
           swapCleaner);
   }
-  
+
   /**
    * HSQLDBConnectionFactory constructor.
    * 
@@ -121,10 +120,10 @@ public class HSQLDBConnectionFactory extends GenericConnectionFactory {
           swapDirectory,
           swapCleaner);
   }
-  
-	/**
-	 * {@inheritDoc}
-	 */
+
+  /**
+   * {@inheritDoc}
+   */
   public WorkspaceStorageConnection openConnection(boolean readOnly) throws RepositoryException {
     try {
 

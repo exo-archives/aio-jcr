@@ -29,32 +29,39 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * 20.08.2009
  * 
  * @author <a href="mailto:dezder@bk.ru">Denis Grebenyuk</a>
- * @version $Id: HSQLDBMultiDbJDBCConnection.java 36070 2009-08-26 11:01:14Z
- *          pnedonosko $
+ * @version $Id$
  */
 public class HSQLDBMultiDbJDBCConnection extends MultiDbJDBCConnection {
 
-	public HSQLDBMultiDbJDBCConnection(Connection dbConnection,
-			boolean readOnly, String containerName,
-			ValueStoragePluginProvider valueStorageProvider, int maxBufferSize,
-			File swapDirectory, FileCleaner swapCleaner) throws SQLException {
-		super(dbConnection, readOnly, containerName, valueStorageProvider,
-				maxBufferSize, swapDirectory, swapCleaner);
-	}
+  public HSQLDBMultiDbJDBCConnection(Connection dbConnection,
+                                     boolean readOnly,
+                                     String containerName,
+                                     ValueStoragePluginProvider valueStorageProvider,
+                                     int maxBufferSize,
+                                     File swapDirectory,
+                                     FileCleaner swapCleaner) throws SQLException {
+    super(dbConnection,
+          readOnly,
+          containerName,
+          valueStorageProvider,
+          maxBufferSize,
+          swapDirectory,
+          swapCleaner);
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void prepareQueries() throws SQLException {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected void prepareQueries() throws SQLException {
 
-		super.prepareQueries();
-		FIND_PROPERTY_BY_NAME = "select V.DATA"
-				+ " from JCR_MITEM I, JCR_MVALUE V"
-				+ " where I.PARENT_ID=? and I.I_CLASS=2 and I.NAME=? and I.ID=V.PROPERTY_ID order by V.ORDER_NUM";
-		FIND_NODES_BY_PARENTID = "select * from JCR_MITEM"
-				+ " where PARENT_ID=? and I_CLASS=1" + " order by N_ORDER_NUM";
-		FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MITEM"
-				+ " where PARENT_ID=? and I_CLASS=2" + " order by ID";
-	}
+    super.prepareQueries();
+    FIND_PROPERTY_BY_NAME = "select V.DATA"
+        + " from JCR_MITEM I, JCR_MVALUE V"
+        + " where I.PARENT_ID=? and I.I_CLASS=2 and I.NAME=? and I.ID=V.PROPERTY_ID order by V.ORDER_NUM";
+    FIND_NODES_BY_PARENTID = "select * from JCR_MITEM" + " where PARENT_ID=? and I_CLASS=1"
+        + " order by N_ORDER_NUM";
+    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MITEM" + " where PARENT_ID=? and I_CLASS=2"
+        + " order by ID";
+  }
 }
