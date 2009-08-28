@@ -22,15 +22,15 @@
       <artifactId>exo.jcr.component.core</artifactId>
       <version>1.10.5-SNAPSHOT</version>
       <exclusions>
-	              <exclusion>
-	                  <groupId>com.sun.xml.parsers</groupId>
-	                  <artifactId>jaxp-ri</artifactId>
-	              </exclusion>
-	              <exclusion>
-				      <groupId>javax.servlet</groupId>
-				      <artifactId>servlet-api</artifactId>
-	              </exclusion>
-        </exclusions>
+        <exclusion>
+          <groupId>com.sun.xml.parsers</groupId>
+          <artifactId>jaxp-ri</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>
+        </exclusion>
+      </exclusions>
       <scope>runtime</scope>
     </dependency>
 
@@ -96,13 +96,13 @@
       <version>${org.exoplatform.kernel.version}</version>
       <exclusions>
         <exclusion>
-	  <groupId>javax.servlet</groupId>
-	  <artifactId>servlet-api</artifactId>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>
         </exclusion>
       </exclusions>
       <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>javax.resource</groupId>
       <artifactId>connector</artifactId>
@@ -128,7 +128,9 @@
         <executions>
           <execution>
             <phase>compile</phase>
-            <goals><goal>jar</goal></goals>
+            <goals>
+              <goal>jar</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>
@@ -139,17 +141,17 @@
           </archive>
         </configuration>
       </plugin>
-            <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-rar-plugin</artifactId>
-                 <configuration>
-                     <archive>
-                         <manifest>
-                             <addClasspath>true</addClasspath>
-                         </manifest>
-                     </archive>
-                 </configuration>
-            </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-rar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

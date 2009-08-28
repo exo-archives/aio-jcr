@@ -8,7 +8,7 @@
   <artifactId>exo.jcr.connectors.ejb21.client</artifactId>
   <version>1.10.5-SNAPSHOT</version>
   <name>Client jcr-ejb connector ejb2.1</name>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -35,6 +35,6 @@
           </archive>
         </configuration>
       </plugin>
-    </plugins>  
+    </plugins>
   </build>
 </project>

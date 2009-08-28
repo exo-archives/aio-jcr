@@ -16,10 +16,10 @@
   <dependencies>
 
     <dependency>
-        <groupId>org.exoplatform.jcr</groupId>
-        <artifactId>exo.jcr.component.ext</artifactId>
-        <version>1.10.5-SNAPSHOT</version>
-        <scope>compile</scope>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ext</artifactId>
+      <version>1.10.5-SNAPSHOT</version>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -60,7 +60,9 @@
         <executions>
           <execution>
             <phase>compile</phase>
-            <goals><goal>jar</goal></goals>
+            <goals>
+              <goal>jar</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>

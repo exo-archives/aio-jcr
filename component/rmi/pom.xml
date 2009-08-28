@@ -23,10 +23,10 @@
     </dependency>
 
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.0</version>
-        <scope>compile</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
     </dependency>
 
   </dependencies>
@@ -67,23 +67,18 @@
         <!--<version>2.0</version>-->
         <!--Please use the newest version of maven-surefire-plugin, see jcr/component/core/pom.xml-->
         <configuration>
-         <skip>${exo.test.skip}</skip>
+          <skip>${exo.test.skip}</skip>
           <includes>
             <!-- include>**/core/TestInitRepository.java</include -->
-      <!-- TCK includes
-            <include>**/init/TestAll.java</include>
-
-            <include>**/api/*Test.java</include>
-            <include>**/api/observation/TestAll.java</include>
-            <include>**/api/version/TestAll.java</include>
-            <include>**/api/lock/TestAll.java</include>
-            <include>**/api/nodetype/TestAll.java</include>
-            <include>**/api/query/TestAll.java</include>
-                              -->
-            <!-- eXo tests
-            <include>**/api/Document*Test.java</include>
-            <include>**/impl/storage/ValueStoragePluginTest.java</include>
-            <include>**/impl/jndi/RepositoryBindingTest.java</include>-->
+            <!--
+              TCK includes <include>**/init/TestAll.java</include> <include>**/api/*Test.java</include> <include>**/api/observation/TestAll.java</include>
+              <include>**/api/version/TestAll.java</include> <include>**/api/lock/TestAll.java</include> <include>**/api/nodetype/TestAll.java</include>
+              <include>**/api/query/TestAll.java</include>
+            -->
+            <!--
+              eXo tests <include>**/api/Document*Test.java</include> <include>**/impl/storage/ValueStoragePluginTest.java</include>
+              <include>**/impl/jndi/RepositoryBindingTest.java</include>
+            -->
 
             <!-- usecases includes -->
             <!-- include>**/usecases/common/*Test.java</include>
@@ -113,18 +108,9 @@
       </plugin>
     </plugins>
   </build>
-<!--
-  <reporting>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <configuration>
-            <configLocation>${exo.projects.directory.config}/exo-checkstyle-checker.xml</configLocation>
-            <suppressionsLocation>exo-checkstyle-suppressions.xml</suppressionsLocation>
-          </configuration>
-        </plugin>
-      </plugins>
-  </reporting>
--->
+  <!--
+    <reporting> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> <configuration>
+    <configLocation>${exo.projects.directory.config}/exo-checkstyle-checker.xml</configLocation>
+    <suppressionsLocation>exo-checkstyle-suppressions.xml</suppressionsLocation> </configuration> </plugin> </plugins> </reporting>
+  -->
 </project>

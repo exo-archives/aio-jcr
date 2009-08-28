@@ -38,12 +38,11 @@
               <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
-          <!-- initializer class="org.exoplatform.services.jcr.impl.core.RestoreWorkspaceInitializer">
-            <properties>
-              <property name="restore-path" value="./sv_export_root.xml"/>
-              <property name="restore-path" value="./src/test/resources/import-export/restore_db1_ws1.xml"/>
-            </properties>
-          </initializer -->
+          <!--
+            initializer class="org.exoplatform.services.jcr.impl.core.RestoreWorkspaceInitializer"> <properties> <property name="restore-path"
+            value="./sv_export_root.xml"/> <property name="restore-path" value="./src/test/resources/import-export/restore_db1_ws1.xml"/> </properties>
+            </initializer
+          -->
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />

@@ -4,14 +4,14 @@
     <format>zip</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
-  
+
   <fileSets>
     <fileSet>
       <directory>src/main/addon</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>
-  
+
   <dependencySets>
     <dependencySet>
       <outputDirectory>/</outputDirectory>

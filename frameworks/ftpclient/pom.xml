@@ -32,7 +32,9 @@
         <executions>
           <execution>
             <phase>compile</phase>
-            <goals><goal>jar</goal></goals>
+            <goals>
+              <goal>jar</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>
@@ -48,7 +50,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
-	
+
           </includes>
         </configuration>
       </plugin>

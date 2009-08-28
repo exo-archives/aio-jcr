@@ -41,29 +41,29 @@
   <build>
     <plugins>
 
-    <plugin>
-      <artifactId>maven-assembly-plugin</artifactId>
-      <version>2.1</version>
-      <executions>
-        <execution>
-          <phase>package</phase>
-          <goals>
-            <goal>directory-inline</goal>
-          </goals>
-        </execution>
-      </executions>
-      <configuration>
-      <archive>
-        <manifest>
-          <mainClass>org/exoplatform/applications/jcrconsole/JcrConsoleClient</mainClass>
-        </manifest>
-      </archive>
-      <descriptor>jar-with-dependencies.xml</descriptor>
-        <finalName>eXoJCRConcoleClient</finalName>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>directory-inline</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>org/exoplatform/applications/jcrconsole/JcrConsoleClient</mainClass>
+            </manifest>
+          </archive>
+          <descriptor>jar-with-dependencies.xml</descriptor>
+          <finalName>eXoJCRConcoleClient</finalName>
           <outputDirectory>bin</outputDirectory>
           <workDirectory>target/assembly/work</workDirectory>
-      </configuration>
-    </plugin>
+        </configuration>
+      </plugin>
 
     </plugins>
   </build>

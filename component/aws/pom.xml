@@ -11,7 +11,7 @@
   <name>eXo JCR Amazon WS support</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Amazon WS support (SimpleDB, S3)</description>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -25,14 +25,14 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>com.amazonaws.sdb</groupId>
       <artifactId>simpledb</artifactId>
       <version>2007-11-07</version>
       <scope>compile</scope>
     </dependency>
-    
+
     <!-- S3Plugin dependency -->
     <dependency>
       <groupId>com.amazon</groupId>
@@ -40,23 +40,23 @@
       <version>0.1</version>
       <scope>compile</scope>
     </dependency>
-    
+
     <!-- slf4j-log4j12 for TCK -->
-	<dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.0</version>
       <scope>test</scope>
     </dependency>
-	
-	<dependency>
+
+    <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
       <version>1.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
@@ -85,11 +85,11 @@
         <directory>src/test/java</directory>
         <includes>
           <include>**/*.xml</include>
-		  <include>**/*.txt</include>
+          <include>**/*.txt</include>
         </includes>
       </testResource>
     </testResources>
-    
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -110,11 +110,11 @@
           </archive>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-		<version>2.4.3</version>
+        <version>2.4.3</version>
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -142,14 +142,14 @@
               </systemProperties>
               <includes>
                 <include>**/SDBWorkspace*Test_.java</include>
-				
+
                 <include>**/SDBWorkspaceStorageConnectionWriteTest_.java</include>
                 <include>**/SDBWorkspaceStorageConnectionReadTest_.java</include>
                 <include>**/TestBinaryValueS3_.java</include>
-				
-				<include>**/TestDeleteDomain_.java</include>
-				
-				<include>**/TestChildProperties_.java</include>
+
+                <include>**/TestDeleteDomain_.java</include>
+
+                <include>**/TestChildProperties_.java</include>
               </includes>
               <excludes>
                 <exclude>**/apache/**</exclude>
@@ -272,8 +272,8 @@
       </activation>
       <properties>
         <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
-		<exo.test.skip>true</exo.test.skip>
-		<jcr.tck.skip>true</jcr.tck.skip>
+        <exo.test.skip>true</exo.test.skip>
+        <jcr.tck.skip>true</jcr.tck.skip>
       </properties>
     </profile>
   </profiles>

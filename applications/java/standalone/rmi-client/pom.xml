@@ -38,18 +38,18 @@
 
   <build>
     <plugins>
-	<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-jar-plugin</artifactId>
-			<configuration>
-			  <archive>
-				<manifest>
-				  <addClasspath>true</addClasspath>
-				  <mainClass>org/exoplatform/jcr/JcrRMIDemo</mainClass>
-				</manifest>
-			  </archive>
-			</configuration>
-		  </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>org/exoplatform/jcr/JcrRMIDemo</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.1</version>
@@ -71,21 +71,11 @@
           <finalName>rmi-client</finalName>
         </configuration>
       </plugin>
-      <!--plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <configuration>
-          <tasks>
-            <java dir="${basedir}" className="org.exoplatform.jcr.JcrRMIDemo" fork="true" failonerror="true" maxmemory="128m">
-              <classpath>
-                <pathelement path="${classpath}" />
-                <fileset dir="${basedir}/target">
-                  <include name="**/rmi-client-binary.dir/*.jar" />
-                </fileset>
-              </classpath>
-            </java>
-          </tasks>
-        </configuration>
-      </plugin-->
+      <!--
+        plugin> <artifactId>maven-antrun-plugin</artifactId> <configuration> <tasks> <java dir="${basedir}" className="org.exoplatform.jcr.JcrRMIDemo"
+        fork="true" failonerror="true" maxmemory="128m"> <classpath> <pathelement path="${classpath}" /> <fileset dir="${basedir}/target"> <include
+        name="**/rmi-client-binary.dir/*.jar" /> </fileset> </classpath> </java> </tasks> </configuration> </plugin
+      -->
     </plugins>
   </build>
 
