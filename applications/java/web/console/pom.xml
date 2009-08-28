@@ -2,12 +2,12 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
-    <version>1.10.5</version>
+    <version>1.10.5-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.console</artifactId>
-  <version>1.10.5</version>
+  <version>1.10.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>eXo JCR-console client</name>
   <url>http://www.exoplatform.org</url>
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.5</version>
+      <version>1.10.5-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
 
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.command</artifactId>
-      <version>1.10.5</version>
+      <version>1.10.5-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
 
