@@ -11,6 +11,7 @@ import javax.jcr.Session;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
+import org.exoplatform.services.jcr.impl.core.JCRPath;
 
 import com.sun.japex.TestCase;
 
@@ -45,6 +46,7 @@ public class NodeMergeTest extends AbstractGetItemTest {
       Node ctxNode = sysSession.getRootNode();
       for (String nname : vnode.getParent().getPath().split("/")) {
         try {
+          if (nname.equals("")) nname = JCRPath.THIS_RELPATH;
           ctxNode = ctxNode.getNode(nname);
         } catch (PathNotFoundException e) {
           ctxNode = ctxNode.addNode(nname);
