@@ -18,8 +18,10 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
@@ -321,7 +323,66 @@ class ChildAxisQuery extends Query {
       throw new UnsupportedOperationException();
     }
 
+
     private void calculateChildren() throws IOException {
+      if (hits == null) {
+
+        // collect all context nodes
+        Map<Integer,String> uuids = new HashMap<Integer,String>();
+        final Hits contextHits = new AdaptingHits();
+        contextScorer.score(new HitCollector() {
+          public void collect(int doc, float score) {
+            contextHits.set(doc);
+          }
+        });
+
+        // read the uuids of the context nodes
+        for (int i = contextHits.next(); i > -1; i = contextHits.next()) {
+          String uuid = reader.document(i, new UUIDFieldSelector()).get(FieldNames.UUID);
+          uuids.put(new Integer(i), uuid);
+        }
+
+        // collect all children of the context nodes
+        Hits childrenHits = new AdaptingHits();
+        if (nameTestScorer != null && reader instanceof HierarchyResolver) {
+          Hits nameHits = new ScorerHits(nameTestScorer);
+          for (int h = nameHits.next(); h > -1; h = nameHits.next()) {
+            if (uuids.containsKey(new Integer(((HierarchyResolver) reader).getParent(h)))) {
+              childrenHits.set(h);
+            }
+          }
+        } else {
+          // get child node entries for each hit
+          for (Iterator<String> it = uuids.values().iterator(); it.hasNext();) {
+            String uuid = it.next();
+            // NodeId id = new NodeId(UUID.fromString(uuid));
+            try {
+              NodeData state = (NodeData) itemMgr.getItemData(uuid);
+              Iterator<NodeData> entries = itemMgr.getChildNodesData(state).iterator();
+              while (entries.hasNext()) {
+                String childId = entries.next().getIdentifier();
+                Term uuidTerm = new Term(FieldNames.UUID, childId);
+                TermDocs docs = reader.termDocs(uuidTerm);
+                try {
+                  if (docs.next()) {
+                    childrenHits.set(docs.doc());
+                  }
+                } finally {
+                  docs.close();
+                }
+              }
+            } catch (RepositoryException e) {
+              // does not exist anymore -> ignore
+            }
+          }
+        }
+
+        hits = childrenHits;
+      }
+    }
+
+    // TODO remove me
+    private void calculateChildrenOldVersion() throws IOException {
       if (hits == null) {
 
         // collect all context nodes
