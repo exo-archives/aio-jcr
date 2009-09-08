@@ -208,7 +208,7 @@ public class LocationFactory {
   private JCRPath parseNames(String path, boolean absolute) throws PathNotFoundException,
                                                            RepositoryException {
 
-    if ((path == null)||(path.equals(""))) {
+    if (path == null) {
       throw new RepositoryException("Illegal relPath: \"" + path + "\"");
     }
 
