@@ -39,6 +39,8 @@ import javax.jcr.RepositoryException;
 public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
   private static final int             CLEANER_TIMEOUT = 4000;                          // 4sec
+  
+  private static final int             WAIT_TIMEOUT = 1000;                          // 1sec
 
   private static final String          FILE_NAME       = "testFileCleaned";
 
@@ -114,7 +116,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to call finalize on vd
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
@@ -138,7 +140,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to call finalize on vd
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
@@ -161,7 +163,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to call finalize on vd
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
@@ -184,7 +186,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to work
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
@@ -194,7 +196,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to call finalize on vd
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
@@ -220,7 +222,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to work
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
@@ -235,7 +237,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to work
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
@@ -245,7 +247,7 @@ public class TestCleanableFileStreamValueData extends JcrImplBaseTest {
 
     // allows GC to work
     System.gc();
-    Thread.sleep(CLEANER_TIMEOUT + 500);
+    Thread.sleep(CLEANER_TIMEOUT + WAIT_TIMEOUT);
     Thread.yield();
     System.gc();
 
