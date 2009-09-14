@@ -130,6 +130,7 @@ namespace exo_jcr.msofficeplugin.common
                 exo_jcr.webdav.csclient.Response.DavResponse response = (exo_jcr.webdav.csclient.Response.DavResponse)resplist[i];
 
                 String href = response.getHref().getHref();
+                
                 if (href == null)
                 {
                     href = "";
