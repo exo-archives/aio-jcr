@@ -88,20 +88,22 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
                           Map permissions) throws Exception {
     Node node = rootNode;
     for (String token : path.split("/")) {
-      try {
-        node = node.getNode(token);
-      } catch (PathNotFoundException e) {
-        if (nodeType == null || nodeType.length() == 0)
-          nodeType = NT_UNSTRUCTURED;
-        node = node.addNode(token, nodeType);
-        if (node.canAddMixin("exo:privilegeable"))
-          node.addMixin("exo:privilegeable");
-        if (permissions != null && !permissions.isEmpty())
-          ((ExtendedNode) node).setPermissions(permissions);
-        if (mixinTypes.size() > 0) {
-          for (String mixin : mixinTypes) {
-            if (node.canAddMixin(mixin))
-              node.addMixin(mixin);
+      if(token.length() > 0) {
+        try {
+          node = node.getNode(token);
+        } catch (PathNotFoundException e) {
+          if (nodeType == null || nodeType.length() == 0)
+            nodeType = NT_UNSTRUCTURED;
+          node = node.addNode(token, nodeType);
+          if (node.canAddMixin("exo:privilegeable"))
+            node.addMixin("exo:privilegeable");
+          if (permissions != null && !permissions.isEmpty())
+            ((ExtendedNode) node).setPermissions(permissions);
+          if (mixinTypes.size() > 0) {
+            for (String mixin : mixinTypes) {
+              if (node.canAddMixin(mixin))
+                node.addMixin(mixin);
+            }
           }
         }
       }
