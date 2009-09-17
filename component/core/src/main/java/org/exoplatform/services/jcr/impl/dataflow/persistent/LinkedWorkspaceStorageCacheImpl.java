@@ -1563,13 +1563,15 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             // TODO JCR-1117 place to put workaround for JCR cache
             // exo:permissions updated
             // get parent Node
-
-            // check if parent is mix:privilegeable
             ItemData parent = get(item.getParentIdentifier());
+            
             // delete parent
             remove(parent);
+            
+            // delete parent containing child nodes list
+            nodesCache.remove(parent.getParentIdentifier());
+            
             // traverse itemCache
-
             Iterator<CacheValue> cacheIterator = cache.values().iterator();
             while (cacheIterator.hasNext()) {
               ItemData cachedItem = cacheIterator.next().getItem();
