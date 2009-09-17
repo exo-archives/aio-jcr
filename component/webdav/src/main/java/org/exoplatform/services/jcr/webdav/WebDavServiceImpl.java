@@ -18,6 +18,7 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -726,11 +727,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     log.debug("PUT " + repoName + "/" + repoPath);
 
-    // try {
-    // repoPath = URLEncoder.encode(repoPath, "UTF-8");
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
+    try {
+      repoPath = URLDecoder.decode(repoPath, "UTF-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
