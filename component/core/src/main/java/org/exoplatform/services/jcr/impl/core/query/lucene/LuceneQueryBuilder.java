@@ -19,8 +19,10 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.PropertyType;
@@ -1036,7 +1038,7 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
    */
   private String[] getStringValues(InternalQName propertyName, String literal) {
     PropertyTypeRegistry.TypeMapping[] types = propRegistry.getPropertyTypes(propertyName);
-    List<String> values = new ArrayList<String>();
+    Set<String> values = new HashSet<String>();
     for (int i = 0; i < types.length; i++) {
       switch (types[i].type) {
       case PropertyType.NAME:
