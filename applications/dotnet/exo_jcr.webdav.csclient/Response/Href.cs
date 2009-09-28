@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Web;
 
 /**
  * Created by The eXo Platform SARL
@@ -43,7 +44,7 @@ namespace exo_jcr.webdav.csclient.Response
                     case XmlNodeType.CDATA:
                         {
                             href = reader.Value;
-
+                            href = HttpUtility.UrlDecode(href);
                             href = TextUtils.unEscape(href);// href.Replace("%3a", ":");
 
                             break;

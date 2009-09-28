@@ -70,6 +70,9 @@ namespace exo_jcr.webdav.csclient.Commands
 
         private void addResponseHeader(String headerName, String headerValue)
         {
+            if(responseHeaders.Contains(headerName)){
+                responseHeaders.Remove(headerName);
+            }
             responseHeaders.Add(headerName, headerValue);
         }
 
