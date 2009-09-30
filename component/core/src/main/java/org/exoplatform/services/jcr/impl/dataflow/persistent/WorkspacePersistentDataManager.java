@@ -192,10 +192,15 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    */
   public ItemData getItemData(final String identifier) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
+    ItemData result = null;
     try {
-      return con.getItemData(identifier);
+      return result = con.getItemData(identifier);
     } finally {
       con.close();
+
+      if (log.isDebugEnabled())
+        log.debug("GET " + identifier + " => "
+            + (result != null ? result.getQPath().getAsString() : null));
     }
   }
 
@@ -204,10 +209,15 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    */
   public ItemData getItemData(final NodeData parentData, final QPathEntry name) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
+    ItemData result = null;
     try {
-      return con.getItemData(parentData, name);
+      return result = con.getItemData(parentData, name);
     } finally {
       con.close();
+
+      if (log.isDebugEnabled())
+        log.debug("GET " + parentData.getQPath().getAsString() + name.getAsString(true) + " => "
+            + (result != null ? result.getQPath().getAsString() : null));
     }
   }
 
@@ -217,9 +227,9 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   public List<PropertyData> getReferencesData(final String identifier, boolean skipVersionStorage) throws RepositoryException {
 
     final WorkspaceStorageConnection con = dataContainer.openConnection();
+    final List<PropertyData> refProps = new ArrayList<PropertyData>();
     try {
       final List<PropertyData> allRefs = con.getReferencesData(identifier);
-      final List<PropertyData> refProps = new ArrayList<PropertyData>();
       for (int i = 0; i < allRefs.size(); i++) {
         PropertyData ref = allRefs.get(i);
         if (skipVersionStorage) {
@@ -231,6 +241,9 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       return refProps;
     } finally {
       con.close();
+
+      if (log.isDebugEnabled())
+        log.debug("GET REF " + identifier + " => " + (refProps != null ? refProps.size() : null));
     }
   }
 
@@ -240,10 +253,15 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   public List<NodeData> getChildNodesData(final NodeData nodeData) throws RepositoryException {
 
     final WorkspaceStorageConnection con = dataContainer.openConnection();
+    List<NodeData> result = null;
     try {
-      return con.getChildNodesData(nodeData);
+      return result = con.getChildNodesData(nodeData);
     } finally {
       con.close();
+
+      if (log.isDebugEnabled())
+        log.debug("GET CN " + nodeData.getQPath().getAsString() + " => "
+            + (result != null ? result.size() : null));
     }
   }
 
@@ -252,10 +270,15 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    */
   public List<PropertyData> getChildPropertiesData(final NodeData nodeData) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
+    List<PropertyData> result = null;
     try {
-      return con.getChildPropertiesData(nodeData);
+      return result = con.getChildPropertiesData(nodeData);
     } finally {
       con.close();
+
+      if (log.isDebugEnabled())
+        log.debug("GET CP " + nodeData.getQPath().getAsString() + " => "
+            + (result != null ? result.size() : null));
     }
   }
 
@@ -264,10 +287,15 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    */
   public List<PropertyData> listChildPropertiesData(final NodeData nodeData) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
+    List<PropertyData> result = null;
     try {
-      return con.listChildPropertiesData(nodeData);
+      return result = con.listChildPropertiesData(nodeData);
     } finally {
       con.close();
+      
+      if (log.isDebugEnabled())
+        log.debug("GET CP LIST " + nodeData.getQPath().getAsString() + " => "
+            + (result != null ? result.size() : null));
     }
   }
 
