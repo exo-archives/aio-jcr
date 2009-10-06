@@ -18,6 +18,7 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -553,7 +554,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       String serverURI = baseURI + "/jcr/" + repoName;
 
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
-      destinationHeader = escapePath(destinationHeader);
+      destinationHeader = serverURI + escapePath(destinationHeader.substring(serverURI.length()));
+      
 
       if (!destinationHeader.startsWith(serverURI)) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();

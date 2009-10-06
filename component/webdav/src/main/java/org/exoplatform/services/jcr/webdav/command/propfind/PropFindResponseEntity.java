@@ -19,7 +19,9 @@ package org.exoplatform.services.jcr.webdav.command.propfind;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
@@ -41,7 +43,8 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
- * @version $Id$
+ * @version $Id: PropFindResponseEntity.java 38172 2009-10-06 07:40:39Z dkatayev
+ *          $
  */
 
 public class PropFindResponseEntity implements SerializableEntity {
@@ -108,15 +111,16 @@ public class PropFindResponseEntity implements SerializableEntity {
   private void traverseResources(Resource resource, int counter) throws XMLStreamException,
                                                                 RepositoryException,
                                                                 IllegalResourceTypeException,
-                                                                URISyntaxException {
+                                                                URISyntaxException, UnsupportedEncodingException {
 
     xmlStreamWriter.writeStartElement("DAV:", "response");
 
     xmlStreamWriter.writeStartElement("DAV:", "href");
+    String asciiString = URLDecoder.decode(resource.getIdentifier().toASCIIString(), "UTF-8");
     if (resource.isCollection()) {
-      xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString() + "/");
+      xmlStreamWriter.writeCharacters(asciiString + "/");
     } else {
-      xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
+      xmlStreamWriter.writeCharacters(asciiString);
     }
 
     xmlStreamWriter.writeEndElement();
