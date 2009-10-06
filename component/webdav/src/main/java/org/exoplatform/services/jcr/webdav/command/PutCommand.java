@@ -20,7 +20,6 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
@@ -29,6 +28,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 
+import org.exoplatform.services.jcr.util.Text;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
@@ -91,6 +91,7 @@ public class PutCommand {
       return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
 
     } catch (RepositoryException exc) {
+      exc.printStackTrace();
       return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
     }
 

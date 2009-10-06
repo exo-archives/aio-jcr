@@ -18,7 +18,7 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
-import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,6 +182,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                           HierarchicalProperty body) {
 
     log.debug("CHECKIN " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     Session session;
     try {
@@ -204,6 +206,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     log.debug("CHECKOUT " + repoName + "/" + repoPath);
 
+    repoPath = escapePath(repoPath);
+    
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
@@ -230,6 +234,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     log.debug("COPY " + repoName + "/" + repoPath);
 
+    repoPath = escapePath(repoPath);
+    
     try {
       String serverURI = baseURI + "/jcr/" + repoName;
 
@@ -311,6 +317,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     log.debug("DELETE " + repoName + "/" + repoPath);
 
+    repoPath = escapePath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -333,6 +341,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
 
     log.debug("GET " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
@@ -391,6 +401,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     log.debug("HEAD " + repoName + "/" + repoPath);
 
+    repoPath = escapePath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
@@ -416,6 +428,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     log.debug("LOCK " + repoName + "/" + repoPath);
 
+    repoPath = escapePath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -463,6 +477,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                          HierarchicalProperty body) {
 
     log.debug("UNLOCK " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     Session session;
     List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
@@ -491,6 +507,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                         @HeaderParam(WebDavHeaders.MIXTYPE) String mixinTypesHeader) {
 
     log.debug("MKCOL " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
@@ -528,11 +546,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                        HierarchicalProperty body) {
 
     log.debug("MOVE " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       String serverURI = baseURI + "/jcr/" + repoName;
 
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
+      destinationHeader = escapePath(destinationHeader);
 
       if (!destinationHeader.startsWith(serverURI)) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
@@ -641,6 +662,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                         HierarchicalProperty body) {
 
     log.debug("ORDERPATCH " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);    
 
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
@@ -663,6 +686,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                            HierarchicalProperty body) {
 
     log.debug("PROPFIND " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
@@ -693,6 +718,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                             HierarchicalProperty body) {
 
     log.debug("PROPPATCH " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
@@ -726,12 +753,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                       InputStream inputStream) {
 
     log.debug("PUT " + repoName + "/" + repoPath);
-
-    try {
-      repoPath = URLDecoder.decode(repoPath, "UTF-8");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    
+    repoPath = escapePath(repoPath);
 
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
@@ -748,8 +771,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         mimeType = mimeTypeResolver.getMimeType(TextUtil.nameOnly(repoPath));
       }
 
-      // ArrayList<String> mixinTypes =
-      // NodeTypeUtil.getMixinTypes(mixinTypesHeader);
       return new PutCommand(nullResourceLocks).put(session,
                                                    path(repoPath),
                                                    inputStream,
@@ -777,6 +798,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                          HierarchicalProperty body) {
 
     log.debug("REPORT " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       Depth depth = new Depth(depthHeader);
@@ -800,6 +823,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                          HierarchicalProperty body) {
 
     log.debug("SEARCH " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
@@ -824,6 +849,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                              HierarchicalProperty body) {
 
     log.debug("UNCHECKOUT " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
@@ -848,6 +875,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                  @HeaderParam(WebDavHeaders.IF) String ifHeader) {
 
     log.debug("VERSION-CONTROL " + repoName + "/" + repoPath);
+    
+    repoPath = escapePath(repoPath);
 
     Session session;
     try {
@@ -886,6 +915,36 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   protected String workspaceName(String repoPath) {
     return repoPath.split("/")[0];
+  }
+
+  private String escapePath(String repoPath) {
+    String[] pathElements = repoPath.split("/");
+    StringBuffer escapedPath = new StringBuffer();
+    for (String element : pathElements) {
+      try {
+        if (element.contains(":")) {
+          element = element.replaceAll(":", URLEncoder.encode(":", "UTF-8"));
+        }
+        if (element.contains("[")) {
+          element = element.replaceAll("\\[", URLEncoder.encode("[", "UTF-8"));
+        }
+        if (element.contains("]")) {
+          element = element.replaceAll("]", URLEncoder.encode("]", "UTF-8"));
+        }
+        if (element.contains("'")) {
+          element = element.replaceAll("'", URLEncoder.encode("'", "UTF-8"));
+        }
+        if (element.contains("\"")) {
+          element = element.replaceAll("\"", URLEncoder.encode("\"", "UTF-8"));
+        }
+        escapedPath.append(element + "/");
+      } catch (Exception e) {
+        log.warn(e.getMessage());
+      }
+    }
+
+    return escapedPath.toString().substring(0, escapedPath.length() - 1);
+
   }
 
   protected String path(String repoPath) {

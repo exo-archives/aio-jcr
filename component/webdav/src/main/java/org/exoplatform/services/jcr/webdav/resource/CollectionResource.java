@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -282,7 +284,7 @@ public class CollectionResource extends GenericResource {
           writer.writeStartElement(XML_NODE);
           writer.writeAttribute(PREFIX_XMLNS, PREFIX_LINK);
           writer.writeAttribute(XLINK_XMLNS, XLINK_LINK);
-          String itemName = node.getName();
+          String itemName = URLDecoder.decode(node.getName(), "UTF-8");
           writer.writeAttribute(XML_NAME, itemName);
           String itemPath = node.getPath();
           writer.writeAttribute(XML_HREF, rootHref + itemPath);
@@ -299,7 +301,7 @@ public class CollectionResource extends GenericResource {
           for (NodeIterator ni = node.getNodes(); ni.hasNext();) {
             Node childNode = ni.nextNode();
             writer.writeStartElement(XML_NODE);
-            writer.writeAttribute(XML_NAME, childNode.getName());
+            writer.writeAttribute(XML_NAME, URLDecoder.decode(childNode.getName(), "UTF-8"));
             String childNodeHref = rootHref + childNode.getPath();
             writer.writeAttribute(XML_HREF, childNodeHref);
             writer.writeEndElement();
@@ -310,6 +312,8 @@ public class CollectionResource extends GenericResource {
           LOGGER.error("Error has occured : ", e);
         } catch (XMLStreamException e) {
           LOGGER.error("Error has occured while xml processing : ", e);
+        } catch (UnsupportedEncodingException e) {
+          LOGGER.error(e.getMessage());
         } finally {
           try {
             po.flush();
