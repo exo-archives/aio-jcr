@@ -16,6 +16,20 @@
  */
 package org.exoplatform.services.jcr.api.importing;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.BaseStandaloneTest;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.core.ExtendedNode;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.util.VersionHistoryImporter;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.Identity;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -33,20 +47,6 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.util.TraversingItemVisitor;
-import org.apache.commons.logging.Log;
-
-import org.exoplatform.services.jcr.BaseStandaloneTest;
-import org.exoplatform.services.jcr.access.AccessControlEntry;
-import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.access.PermissionType;
-import org.exoplatform.services.jcr.access.SystemIdentity;
-import org.exoplatform.services.jcr.core.CredentialsImpl;
-import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.util.VersionHistoryImporter;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.security.Identity;
 
 /**
  * Created by The eXo Platform SAS.
@@ -591,6 +591,72 @@ public class TestImport extends AbstractImportTest {
     versionHistoryImporter.doImport();
 
     assertEquals(nodeDump, dumpVersionable(helloImport));
+
+  }
+
+  /**
+   * Test for http://jira.exoplatform.org/browse/JCR-1247
+   * 
+   * @throws Exception
+   */
+  public void testJCR1247() throws Exception {
+
+    Node testRoot = root.addNode("testRoot");
+    Node fileNode = testRoot.addNode("TestJCR1247", "nt:file");
+    Node contentNode = fileNode.addNode("jcr:content", "nt:resource");
+    contentNode.setProperty("jcr:data", new ByteArrayInputStream("".getBytes()));
+    contentNode.setProperty("jcr:mimeType", "image/jpg");
+    contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
+    session.save();
+    Node contentNodeBeforeAddVersion = fileNode.getNode("jcr:content");
+    assertNotNull(contentNodeBeforeAddVersion.getProperty("jcr:lastModified"));
+    if (fileNode.canAddMixin("mix:versionable")) {
+      fileNode.addMixin("mix:versionable");
+    }
+    fileNode.save();
+    fileNode.checkin();
+    fileNode.checkout();
+    session.save();
+
+    String nodeDump = dumpVersionable(fileNode);
+    // Export VersionHistory
+
+    assertTrue(fileNode.isNodeType("mix:versionable"));
+
+    VersionableNodeInfo nodeInfo = new VersionableNodeInfo(fileNode);
+
+    // node content
+    byte[] versionableNode = serialize(fileNode, false, true);
+    // version history
+    byte[] versionHistory = serialize(fileNode.getVersionHistory(), false, true);
+    System.out.println(new String(versionHistory));
+    fileNode.remove();
+    session.save();
+    assertFalse(testRoot.hasNode("TestJCR1247"));
+
+    // restore node content
+    deserialize(testRoot,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                new ByteArrayInputStream(versionableNode));
+    session.save();
+
+    assertTrue(testRoot.hasNode("TestJCR1247"));
+
+    Node fileImport = testRoot.getNode("TestJCR1247");
+    assertTrue(fileImport.isNodeType("mix:versionable"));
+
+    VersionHistoryImporter versionHistoryImporter = new VersionHistoryImporter((NodeImpl) fileImport,
+                                                                               new ByteArrayInputStream(versionHistory),
+                                                                               nodeInfo.getBaseVersion(),
+                                                                               nodeInfo.getPredecessorsHistory(),
+                                                                               nodeInfo.getVersionHistory());
+    versionHistoryImporter.doImport();
+    fileImport.checkin();
+    fileImport.checkout();
+    session.save();
+    // assertEquals(nodeDump, dumpVersionable(fileImport));
 
   }
 
