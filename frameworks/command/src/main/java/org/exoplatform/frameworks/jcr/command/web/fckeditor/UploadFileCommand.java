@@ -107,7 +107,7 @@ public class UploadFileCommand extends AbstractFCKConnector implements Command {
     FileItem uplFile = (FileItem) fields.get("NewFile");
 
     // On IE, the file name is specified as an absolute path.
-    String fileName = new File(uplFile.getName()).getName();
+    String fileName = org.apache.commons.io.FilenameUtils.getName(uplFile.getName()); 
 
     Node file = JCRCommandHelper.createResourceFile(parentFolder,
                                                     fileName,
