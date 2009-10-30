@@ -56,6 +56,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
+import org.exoplatform.services.jcr.impl.storage.JCRItemExistsException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
@@ -176,6 +177,16 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
     try {
       dataManager.save(changesLog);
     } catch (JCRInvalidItemStateException e) {
+      TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(),
+                                                                          e.getState(),
+                                                                          changesLog);
+      if (normalizeChangesLog != null)
+        saveChangesLog(normalizeChangesLog);
+      else
+        throw new RepositoryException("Collisions found during save of restore changes log, but caused item is not found by ID "
+                                          + e.getIdentifier() + ". " + e,
+                                      e);
+    } catch (JCRItemExistsException e) {
       TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(),
                                                                           e.getState(),
                                                                           changesLog);

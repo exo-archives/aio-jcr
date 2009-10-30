@@ -74,6 +74,7 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
+import org.exoplatform.services.jcr.impl.storage.JCRItemExistsException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.log.ExoLogger;
@@ -479,6 +480,16 @@ public class BackupManagerImpl implements BackupManager, Startable {
         throw new BackupOperationException("Collisions found during save of restore changes log, but caused item is not found by ID "
                                                + e.getIdentifier() + ". " + e,
                                            e);
+    } catch (JCRItemExistsException e) {
+      TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(),
+                                                                          e.getState(),
+                                                                          changesLog);
+      if (normalizeChangesLog != null)
+        saveChangesLog(dataManager, normalizeChangesLog);
+      else
+        throw new RepositoryException("Collisions found during save of restore changes log, but caused item is not found by ID "
+                                          + e.getIdentifier() + ". " + e,
+                                      e);
     }
   }
 

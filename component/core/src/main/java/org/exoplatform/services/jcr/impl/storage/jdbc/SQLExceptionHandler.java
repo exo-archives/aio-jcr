@@ -25,6 +25,7 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
+import org.exoplatform.services.jcr.impl.storage.JCRItemExistsException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -148,7 +149,7 @@ public class SQLExceptionHandler {
           if (me != null) {
             // item already exists
             message += "Item already exists in storage: " + itemInfo;
-            ownException = new ItemExistsException(message, e);
+            ownException = new JCRItemExistsException(message, me.getIdentifier(), ItemState.ADDED, e);
             throw ownException;
           }
 
@@ -156,7 +157,7 @@ public class SQLExceptionHandler {
                                                                                       .getIndex()));
           if (me != null) {
             message += "Item already exists in storage: " + itemInfo;
-            ownException = new ItemExistsException(message, e);
+            ownException = new JCRItemExistsException(message, me.getIdentifier(), ItemState.ADDED, e);
             throw ownException;
           }
 
