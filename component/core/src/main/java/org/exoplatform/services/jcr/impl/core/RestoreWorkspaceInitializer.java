@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -273,7 +274,9 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   protected class SVNodeData extends TransientNodeData {
 
-    List<InternalQName> childNodes = new LinkedList<InternalQName>();
+    int                             orderNumber   = 0;
+
+    HashMap<InternalQName, Integer> childNodesMap = new HashMap<InternalQName, Integer>();
 
     SVNodeData(QPath path, String identifier, String parentIdentifier, int version, int orderNum) {
       super(path, identifier, version, null, null, orderNum, parentIdentifier, null);
@@ -289,14 +292,14 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
      * @return array of added node orderNumber and index
      */
     int[] addChildNode(InternalQName childName) {
-      int orderNumber = childNodes.size();
-      int index = 1;
-      for (int i = 0; i < childNodes.size(); i++) {
-        if (childName.equals(childNodes.get(i)))
-          index++;
-      }
-      childNodes.add(childName);
-      return new int[] { orderNumber, index };
+      Integer count = childNodesMap.get(childName);
+      if (count != null) {
+        childNodesMap.put(childName, count + 1);
+      } else
+        childNodesMap.put(childName, 1);
+
+      int index = childNodesMap.get(childName);
+      return new int[] { orderNumber++, index };
     }
   }
 
