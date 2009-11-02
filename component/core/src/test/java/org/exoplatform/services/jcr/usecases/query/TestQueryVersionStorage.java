@@ -56,6 +56,15 @@ public class TestQueryVersionStorage extends BaseUsecasesTest {
     image.setProperty("lastModified", Calendar.getInstance());
     image.setProperty("data", new ByteArrayInputStream("jpeg content #1".getBytes()));
     root.save();
+    
+    Node style = content.addNode("style", "nt:base");
+    content.save();
+    
+    style.addMixin("exo:cssFile");
+    style.setProperty("exo:active", true);
+    style.setProperty("exo:priority", 10);
+    style.setProperty("exo:sharedCSS", false);
+    style.save();
 
     versionable.addMixin("mix:versionable");
     versionable.save();
@@ -66,14 +75,30 @@ public class TestQueryVersionStorage extends BaseUsecasesTest {
 
     text.setProperty("lastModified", Calendar.getInstance());
     text.setProperty("data", new ByteArrayInputStream("text content #2".getBytes()));
+    
     image.setProperty("lastModified", Calendar.getInstance());
     image.setProperty("data", new ByteArrayInputStream("jpeg content #2".getBytes()));
+    
+    style.setProperty("exo:priority", 50);
+    
     versionable.save();
 
     // version 2
     versionable.checkin();
     versionable.checkout();
   }
+
+  
+  
+  @Override
+  protected void tearDown() throws Exception {
+    versionable.remove();
+    root.save();
+    
+    super.tearDown();
+  }
+
+
 
   public void testPathSearch() throws InvalidQueryException, RepositoryException {
 
@@ -117,6 +142,55 @@ public class TestQueryVersionStorage extends BaseUsecasesTest {
                    .createQuery("select * from nt:unstructured where jcr:path like '/jcr:system/jcr:versionStorage/"
                                     + versionable.getVersionHistory().getName()
                                     + "/2/jcr:frozenNode/%' and mimeType='text/plain'",
+                                Query.SQL);
+
+    QueryResult res4 = q4.execute();
+    NodeIterator niter4 = res4.getNodes();
+    assertEquals(1, niter4.getSize());
+  }
+  
+  public void testPathMixinSearch() throws InvalidQueryException, RepositoryException {
+
+    Query q = root.getSession()
+                  .getWorkspace()
+                  .getQueryManager()
+                  .createQuery("select * from exo:cssFile where jcr:path like '/jcr:system/%' and exo:active='true' order by exo:priority DESC",
+                               Query.SQL);
+
+    QueryResult res = q.execute();
+    NodeIterator niter = res.getNodes();
+    assertEquals(2, niter.getSize());
+
+    Query q2 = root.getSession()
+                   .getWorkspace()
+                   .getQueryManager()
+                   .createQuery("select * from exo:cssFile where jcr:path like '/jcr:system/jcr:versionStorage/"
+                                    + versionable.getVersionHistory().getName()
+                                    + "/%' and exo:active='true' order by exo:priority DESC",
+                                Query.SQL);
+
+    QueryResult res2 = q2.execute();
+    NodeIterator niter2 = res2.getNodes();
+    assertEquals(2, niter2.getSize());
+
+    Query q3 = root.getSession()
+                   .getWorkspace()
+                   .getQueryManager()
+                   .createQuery("select * from exo:cssFile where jcr:path like '/jcr:system/jcr:versionStorage/"
+                                    + versionable.getVersionHistory().getName()
+                                    + "/1/jcr:frozenNode/%' and exo:active='true' order by exo:priority DESC",
+                                Query.SQL);
+
+    QueryResult res3 = q3.execute();
+    NodeIterator niter3 = res3.getNodes();
+    assertEquals(1, niter3.getSize());
+
+    Query q4 = root.getSession()
+                   .getWorkspace()
+                   .getQueryManager()
+                   .createQuery("select * from exo:cssFile where jcr:path like '/jcr:system/jcr:versionStorage/"
+                                    + versionable.getVersionHistory().getName()
+                                    + "/2/jcr:frozenNode/%' and exo:active='true' order by exo:priority DESC",
                                 Query.SQL);
 
     QueryResult res4 = q4.execute();
