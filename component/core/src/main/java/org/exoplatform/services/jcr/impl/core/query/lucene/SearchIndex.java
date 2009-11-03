@@ -941,7 +941,7 @@ public class SearchIndex implements QueryHandler {
         CachingMultiIndexReader subReader = subReaders[i];
         int realDoc = subReader.getDocumentNumber(docId);
         if (realDoc >= 0) {
-          return realDoc;
+          return realDoc + starts[i];
         }
       }
       return -1;
