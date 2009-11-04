@@ -2,13 +2,13 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
-    <version>1.10.5</version>
+    <version>1.10.5.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>exo.jcr.connectors.ejb21.config</artifactId>
   <name>Config jcr-ejb connector ejb2.1</name>
-  <version>1.10.5</version>
+  <version>1.10.5.1</version>
   <packaging>pom</packaging>
   
   <modules>

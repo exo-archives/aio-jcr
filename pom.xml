@@ -10,7 +10,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.10.5</version>
+  <version>1.10.5.1</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -19,9 +19,9 @@
   </properties>
 
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.5</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.5</developerConnection>
-    <url>http://fisheye.exoplatform.org/browse/projects/jcr/tags/1.10.5</url>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.5.1</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.5.1</developerConnection>
+    <url>http://fisheye.exoplatform.org/browse/projects/jcr/tags/1.10.5.1</url>
   </scm>
 
   <modules>
@@ -198,8 +198,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.10.x/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.x/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/tags/1.10.5.1/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.10.5.1/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -208,15 +208,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.10.x/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/tags/1.10.5.1/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.x/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.10.5.1/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.10.x/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.10.x/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/tags/1.10.5.1/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/tags/1.10.5.1/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
