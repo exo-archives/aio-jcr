@@ -8,10 +8,11 @@ JDBC connection rework of logic. See all changes in logs below.
 
 Changes log of v.1.10.5:
 
-Bug fixes:
+Bug
 
     * [JCR-875] - ConcurrentModificationException on org.exoplatform.services.jcr.impl.dataflow.session.TransactionableResourceManager
     * [JCR-1034] - Check the status of user is addNew or updating in method preSave
+    * [JCR-1047] - Lose data when import version history
     * [JCR-1049] - Little issue in the Lock Manager configuration about the timeout
     * [JCR-1107] - SystemSearchManager does not clean its changesLogBuffer
     * [JCR-1109] - CleanableFileStreamValueData points to deleted SpoolFile.
@@ -19,27 +20,28 @@ Bug fixes:
     * [JCR-1171] - Values are not removed from value storage in some cases
     * [JCR-1173] - The changes is not replicated over WorkspaceImpl.importXML(...)
     * [JCR-1174] - Close session after get user node
-    * [JCR-1175] - Node.getNode("") returns node itself instead of throwing PathNotFoundException
     * [JCR-1193] - javax.jcr.RepositoryException: Illegal relPath in BaseReplicationTestCase.addNodePath
+    * [JCR-1220] - Problem with URL decoding in PUT method.
 
-Improvements:
+Improvement
 
     * [JCR-951] - [Performance] rollback statement executed twice
     * [JCR-1038] - Faster hsqldb queries
     * [JCR-1119] - [Perf] JDBCStorageConnection#readValues(String cid, PropertyData pdata) issues additional query per value
     * [JCR-1120] - Use maven plugins version from parent pom.
 
-New Features:
+New Feature
 
     * [JCR-1158] - HSQLDB dialect
 
-Task:
+Task
 
     * [JCR-1085] - Find a way to improve query performances
     * [JCR-1116] - Use Maven JAR plugin of version 2.2.
     * [JCR-1140] - Simple performance usecases for JCR load
     * [JCR-1150] - JCR 1.10.x code formatting with eXo format
     * [JCR-1045] - Port TransactionableResourceManager synchronization to 1.10.x
+
 
 
 Changes log of v.1.10.4:
