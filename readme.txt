@@ -1,10 +1,13 @@
-JCR 1.10.5 release notes
+JCR 1.10.5.1 release notes
 ========================
 
 This is a Enterprise Edition version of 1.10 JCR. 
                                                                
-Version 1.10.5 includes performance tuned HSQLDB dialect, empty rel-path bugfix, Value Storage bugfixes and Data container
-JDBC connection rework of logic. See all changes in logs below.
+Version 1.10.5.1 includes Search indexer bugfix JCR-1266 (#39572) for System node search.
+
+Version 1.10.5 comes with performance tuned HSQLDB dialect and Search indexer, empty rel-path bugfix, 
+Value Storage bugfixes and Data container JDBC connection rework of logic. See all changes in logs below.
+
 
 Changes log of v.1.10.5:
 
