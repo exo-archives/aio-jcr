@@ -18,7 +18,6 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -183,14 +182,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                           HierarchicalProperty body) {
 
     log.debug("CHECKIN " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
     return new CheckInCommand().checkIn(session, path(repoPath));
   }
@@ -208,12 +207,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("CHECKOUT " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
-    
+
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
 
     return new CheckOutCommand().checkout(session, path(repoPath));
@@ -236,14 +235,16 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("COPY " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
-    
+
     try {
       String serverURI = baseURI + "/jcr/" + repoName;
 
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
 
       if (!destinationHeader.startsWith(serverURI)) {
-        return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
+        return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY)
+                               .errorMessage("Bad Gateway")
+                               .build();
       }
 
       String destPath = destinationHeader.substring(serverURI.length() + 1);
@@ -298,12 +299,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                          lockTokens);
 
       } else {
-        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).build();
+        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST)
+                               .errorMessage("Bad Request")
+                               .build();
       }
 
-    } catch (Exception e) {
-      e.printStackTrace();
-      return Response.Builder.serverError().build();
+    } catch (Exception exc) {
+      exc.printStackTrace();
+      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
   }
 
@@ -319,13 +322,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("DELETE " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
-    
+
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
       return new DeleteCommand().delete(session, path(repoPath));
-    } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
+    } catch (NoSuchWorkspaceException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
     } catch (Exception exc) {
       return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
@@ -342,7 +345,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
 
     log.debug("GET " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -364,7 +367,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
             int dash = token.indexOf("-");
             if (dash == -1) {
               return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+                                     .errorMessage("Requested Range Not Satisfiable")
                                      .build();
+
             } else if (dash == 0) {
               range.setStart(Long.parseLong(token));
               range.setEnd(-1L);
@@ -382,12 +387,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new GetCommand().get(session, path(repoPath), version, uri, ranges);
 
-    } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+    } catch (PathNotFoundException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
 
-    } catch (Exception exc) {
-      exc.printStackTrace();
-      return Response.Builder.serverError().build();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 
@@ -403,15 +408,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("HEAD " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
-    
+
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new HeadCommand().head(session, path(repoPath), uri);
-    } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (NoSuchWorkspaceException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 
@@ -430,7 +435,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("LOCK " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
-    
+
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -478,7 +483,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                          HierarchicalProperty body) {
 
     log.debug("UNLOCK " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     Session session;
@@ -492,7 +497,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                              .errorMessage("Workspace not found for " + repoPath)
                              .build();
     } catch (Exception e) {
-      return Response.Builder.serverError().build();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 
@@ -508,7 +513,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                         @HeaderParam(WebDavHeaders.MIXTYPE) String mixinTypesHeader) {
 
     log.debug("MKCOL " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -547,7 +552,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                        HierarchicalProperty body) {
 
     log.debug("MOVE " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -555,10 +560,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
       destinationHeader = serverURI + escapePath(destinationHeader.substring(serverURI.length()));
-      
 
       if (!destinationHeader.startsWith(serverURI)) {
-        return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
+        return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).errorMessage("Bad Gateway").build();
       }
 
       String destPath = destinationHeader.substring(serverURI.length() + 1);
@@ -600,11 +604,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         Session destSession = session(repoName, destWorkspace, lockTokens);
         return new MoveCommand().move(srcSession, destSession, path(repoPath), path(destPath));
       } else {
-        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).build();
+        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).errorMessage("Bad Reuest").build();
       }
 
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
 
   }
@@ -664,16 +668,16 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                         HierarchicalProperty body) {
 
     log.debug("ORDERPATCH " + repoName + "/" + repoPath);
-    
-    repoPath = escapePath(repoPath);    
+
+    repoPath = escapePath(repoPath);
 
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new OrderPatchCommand().orderPatch(session, path(repoPath), body, uri);
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 
@@ -688,7 +692,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                            HierarchicalProperty body) {
 
     log.debug("PROPFIND " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -698,7 +702,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new PropFindCommand().propfind(session, path(repoPath), body, depth.getIntValue(), uri);
     } catch (NoSuchWorkspaceException e) {
       e.printStackTrace();
-      return Response.Builder.notFound().build();
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
     } catch (PreconditionException e) {
       e.printStackTrace();
       return Response.Builder.badRequest().errorMessage(e.getMessage()).build();
@@ -720,7 +724,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                             HierarchicalProperty body) {
 
     log.debug("PROPPATCH " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -734,10 +738,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                                uri);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspace. " + exc.getMessage());
-      return Response.Builder.notFound().build();
+      return Response.Builder.notFound().errorMessage(exc.getMessage()).build();
     } catch (Exception exc) {
       log.error("Unhandled exception. " + exc.getMessage());
-      return Response.Builder.serverError().build();
+      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
   }
 
@@ -755,7 +759,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                       InputStream inputStream) {
 
     log.debug("PUT " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -800,7 +804,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                          HierarchicalProperty body) {
 
     log.debug("REPORT " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -808,10 +812,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new ReportCommand().report(session, path(repoPath), body, depth, uri);
-    } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (NoSuchWorkspaceException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 
@@ -825,7 +829,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                          HierarchicalProperty body) {
 
     log.debug("SEARCH " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -851,7 +855,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                              HierarchicalProperty body) {
 
     log.debug("UNCHECKOUT " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     try {
@@ -859,11 +863,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                                               ifHeader));
       return new UnCheckOutCommand().uncheckout(session, path(repoPath));
 
-    } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
+    } catch (NoSuchWorkspaceException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
 
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 
@@ -877,14 +881,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                  @HeaderParam(WebDavHeaders.IF) String ifHeader) {
 
     log.debug("VERSION-CONTROL " + repoName + "/" + repoPath);
-    
+
     repoPath = escapePath(repoPath);
 
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
     return new VersionControlCommand().versionControl(session, path(repoPath));
   }

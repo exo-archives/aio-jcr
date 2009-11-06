@@ -196,15 +196,15 @@ public class GetCommand {
 
       }
 
-    } catch (PathNotFoundException exc) {
-      exc.printStackTrace();
-      return Response.Builder.notFound().build();
-    } catch (RepositoryException exc) {
-      exc.printStackTrace();
-      return Response.Builder.serverError().build();
-    } catch (Exception exc) {
-      exc.printStackTrace();
-      return Response.Builder.serverError().build();
+    } catch (PathNotFoundException e) {
+      e.printStackTrace();
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 

@@ -66,19 +66,19 @@ public class MkColCommand {
       session.save();
 
     } catch (ItemExistsException e) {
-      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();
 
     } catch (PathNotFoundException e) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).errorMessage(e.getMessage()).build();
 
     } catch (AccessDeniedException e) {
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
 
     } catch (LockException e) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
 
     } catch (RepositoryException e) {
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).errorMessage(e.getMessage()).build();
     }
 
     return Response.Builder.withStatus(WebDavStatus.CREATED).build();

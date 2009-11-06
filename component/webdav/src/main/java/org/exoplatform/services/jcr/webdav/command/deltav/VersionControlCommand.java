@@ -43,14 +43,14 @@ public class VersionControlCommand {
       }
       return Response.Builder.ok().build();
 
-    } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+    } catch (LockException e) {
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
 
-    } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+    } catch (PathNotFoundException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
 
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 

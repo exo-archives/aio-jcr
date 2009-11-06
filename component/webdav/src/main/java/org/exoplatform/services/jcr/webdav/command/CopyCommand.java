@@ -41,16 +41,16 @@ public class CopyCommand {
       return Response.Builder.withStatus(WebDavStatus.CREATED).build();
     } catch (ItemExistsException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();
     } catch (PathNotFoundException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).errorMessage(e.getMessage()).build();
     } catch (AccessDeniedException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
     } catch (LockException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
     } catch (RepositoryException e) {
       e.printStackTrace();
       return Response.Builder.serverError().errorMessage(e.getMessage()).build();
@@ -66,16 +66,16 @@ public class CopyCommand {
       return Response.Builder.withStatus(WebDavStatus.CREATED).build();
     } catch (ItemExistsException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();
     } catch (PathNotFoundException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).errorMessage(e.getMessage()).build();
     } catch (AccessDeniedException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
     } catch (LockException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
     } catch (RepositoryException e) {
       e.printStackTrace();
       return Response.Builder.serverError().errorMessage(e.getMessage()).build();

@@ -42,17 +42,17 @@ public class CheckInCommand {
       node.checkin();
       return Response.Builder.ok().build();
 
-    } catch (UnsupportedRepositoryOperationException e) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+    } catch (UnsupportedRepositoryOperationException exc) {
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).errorMessage(exc.getMessage()).build();
 
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(exc.getMessage()).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      return Response.Builder.notFound().errorMessage(exc.getMessage()).build();
 
     } catch (RepositoryException exc) {
-      return Response.Builder.serverError().build();
+      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
 
   }

@@ -53,14 +53,14 @@ public class SearchCommand {
                                                                                baseURI);
 
       return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(searchResult).build();
-    } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+    } catch (PathNotFoundException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
 
-    } catch (UnsupportedQueryException exc) {
-      return Response.Builder.badRequest().build();
+    } catch (UnsupportedQueryException e) {
+      return Response.Builder.badRequest().errorMessage(e.getMessage()).build();
 
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
 
   }

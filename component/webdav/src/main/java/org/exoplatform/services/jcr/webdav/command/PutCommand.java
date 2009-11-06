@@ -84,15 +84,15 @@ public class PutCommand {
 
       session.save();
 
-    } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+    } catch (LockException e) {
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
 
     } catch (AccessDeniedException e) {
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
 
-    } catch (RepositoryException exc) {
-      exc.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).errorMessage(e.getMessage()).build();
     }
 
     return Response.Builder.withStatus(WebDavStatus.CREATED).build();

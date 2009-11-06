@@ -72,15 +72,15 @@ public class MoveCommand {
                              .cacheControl(cacheControl)
                              .build();
 
-    } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+    } catch (LockException e) {
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
 
-    } catch (PathNotFoundException exc) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+    } catch (PathNotFoundException e) {
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).errorMessage(e.getMessage()).build();
 
-    } catch (RepositoryException exc) {
-      exc.printStackTrace();
-      return Response.Builder.serverError().build();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
 
   }

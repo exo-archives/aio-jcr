@@ -92,13 +92,13 @@ public class LockCommand {
                                  "text/xml").header("Lock-Token", "<" + lockToken + ">").build();
 
       // TODO 412 Precondition Failed ?
-    } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+    } catch (LockException e) {
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
     } catch (AccessDeniedException e) {
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
-    } catch (Exception exc) {
-      exc.printStackTrace();
-      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
 
   }

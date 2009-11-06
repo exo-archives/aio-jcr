@@ -40,11 +40,11 @@ public class DeleteCommand {
       session.save();
       return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).build();
 
-    } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+    } catch (PathNotFoundException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
 
-    } catch (RepositoryException exc) {
-      return Response.Builder.forbidden().build();
+    } catch (RepositoryException e) {
+      return Response.Builder.forbidden().errorMessage(e.getMessage()).build();
     }
   }
 

@@ -79,12 +79,12 @@ public class ReportCommand {
                              .entity(response, "text/xml")
                              .build();
 
-    } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
-    } catch (RepositoryException exc) {
-      return Response.Builder.serverError().build();
-    } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+    } catch (PathNotFoundException e) {
+      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
+    } catch (RepositoryException e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+    } catch (Exception e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 

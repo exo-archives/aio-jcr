@@ -70,7 +70,7 @@ public class PropFindCommand {
     try {
       node = (Node) session.getItem(path);
     } catch (PathNotFoundException e) {
-      return Response.Builder.withStatus(WebDavStatus.NOT_FOUND).build();
+      return Response.Builder.withStatus(WebDavStatus.NOT_FOUND).errorMessage(e.getMessage()).build();
     } catch (RepositoryException e) {
       e.printStackTrace();
       return Response.Builder.serverError().errorMessage(e.getMessage()).build();
