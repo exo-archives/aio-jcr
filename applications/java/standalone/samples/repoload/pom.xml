@@ -10,8 +10,11 @@
   <name>repoload</name>
   <description>Repository Uploader</description>
 
-  <dependencies>
+  <properties>
+    <maven.test.skip>true</maven.test.skip>
+  </properties>
 
+  <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
@@ -47,9 +50,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib</classpathPrefix>
-              <mainClass>
-                org.exoplatform.applications.repoload.RepositoryDataUploader
-							</mainClass>
+              <mainClass>org.exoplatform.applications.repoload.RepositoryDataUploader</mainClass>
             </manifest>
           </archive>
         </configuration>
