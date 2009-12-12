@@ -9,7 +9,6 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>exo.jcr.applications.config</artifactId>
   <name>eXo JCR product config</name>
-  <version>1.10.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <dependencies>

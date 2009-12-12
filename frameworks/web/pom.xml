@@ -8,9 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.framework.web</artifactId>
   <packaging>jar</packaging>
-  <version>1.10.6-SNAPSHOT</version>
   <name>eXo JCR Web framework</name>
-  <url>http://www.exoplatform.org</url>
   <description>eXo JCR REST adapter</description>
 
   <dependencies>

@@ -7,7 +7,6 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.rmi-client</artifactId>
-  <version>1.10.6-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>eXo JCR RMI demo</name>
 
@@ -71,8 +70,6 @@
           <finalName>rmi-client</finalName>
         </configuration>
       </plugin>
-      <!--
-        plugin> <artifactId>maven-antrun-plugin</artifactId> <configuration> <tasks> <java dir="${basedir}" className="org.exoplatform.jcr.JcrRMIDemo" fork="true" failonerror="true" maxmemory="128m"> <classpath> <pathelement path="${classpath}" /> <fileset dir="${basedir}/target"> <include name="**/rmi-client-binary.dir/*.jar" /> </fileset> </classpath> </java> </tasks> </configuration> </plugin -->
     </plugins>
   </build>
 

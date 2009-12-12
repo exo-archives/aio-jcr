@@ -7,10 +7,8 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.rmi-server</artifactId>
-  <version>1.10.6-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>eXo JCR RMI server</name>
-  <url>http://www.exoplatform.org</url>
   <description>eXo JCR RMI server</description>
 
   <dependencies>
@@ -76,9 +74,7 @@
         </executions>
         <configuration>
           <descriptors>
-            <descriptor>
-              assembly-descriptor.xml
-                      </descriptor>
+            <descriptor>assembly-descriptor.xml</descriptor>
           </descriptors>
           <finalName>rmi-server</finalName>
         </configuration>

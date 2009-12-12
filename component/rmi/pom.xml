@@ -8,9 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.component.rmi</artifactId>
   <packaging>jar</packaging>
-  <version>1.10.6-SNAPSHOT</version>
   <name>eXo JCR RMI Service component</name>
-  <url>http://www.exoplatform.org</url>
   <description>eXo JCR RMI Service component</description>
 
   <dependencies>
@@ -35,7 +33,7 @@
     <sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
 
-    <testSourceDirectory>src/notest/java</testSourceDirectory>
+    <testSourceDirectory>src/notest/java</testSourceDirectory><!-- TODO EXCLUDE THE TESTS -->
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
     <resources>
@@ -67,7 +65,6 @@
         <!--<version>2.0</version>-->
         <!--Please use the newest version of maven-surefire-plugin, see jcr/component/core/pom.xml-->
         <configuration>
-          <skip>${exo.test.skip}</skip>
           <includes>
             <!-- include>**/core/TestInitRepository.java</include -->
             <!--
@@ -108,9 +105,4 @@
       </plugin>
     </plugins>
   </build>
-  <!--
-    <reporting> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> <configuration>
-    <configLocation>${exo.projects.directory.config}/exo-checkstyle-checker.xml</configLocation>
-    <suppressionsLocation>exo-checkstyle-suppressions.xml</suppressionsLocation> </configuration> </plugin> </plugins> </reporting>
-  -->
 </project>

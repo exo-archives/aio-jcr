@@ -7,9 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.repoload</artifactId>
   <packaging>jar</packaging>
-  <version>1.10.6-SNAPSHOT</version>
   <name>repoload</name>
-  <url>http://www.exoplatform.org</url>
   <description>Repository Uploader</description>
 
   <dependencies>
@@ -36,12 +34,8 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.0</version>
         <configuration>
           <childDelegation>true</childDelegation>
-          <includes>
-            <include>**/TestUpload.java</include>
-          </includes>
         </configuration>
       </plugin>
 
@@ -63,7 +57,6 @@
 
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.1</version>
         <executions>
           <execution>
             <id>binary</id>
@@ -75,9 +68,7 @@
         </executions>
 
         <configuration>
-          <descriptor>
-            ${basedir}/src/main/assemblies/binary-assembly.xml
-					</descriptor>
+          <descriptor>${basedir}/src/main/assemblies/binary-assembly.xml</descriptor>
           <finalName>repoload</finalName>
         </configuration>
       </plugin>

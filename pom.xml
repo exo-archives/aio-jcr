@@ -2,20 +2,27 @@
 
   <parent>
     <groupId>org.exoplatform</groupId>
-    <artifactId>parent</artifactId>
-    <version>1.1.1</version>
+    <artifactId>exo.parent</artifactId>
+    <version>6</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
-  <name>eXo JCR Config</name>
   <version>1.10.6-SNAPSHOT</version>
+  <name>eXo JCR Config</name>
   <packaging>pom</packaging>
 
   <properties>
-     <exo.product.name>exo-jcr</exo.product.name>
-     <exo.product.specification>1.10</exo.product.specification>
+    <exo.product.name>exo-jcr</exo.product.name>
+    <exo.product.specification>1.10</exo.product.specification>
+    <org.exoplatform.kernel.version>2.0.8</org.exoplatform.kernel.version>
+    <org.exoplatform.core.version>2.1.6</org.exoplatform.core.version>
+    <org.exoplatform.ws.version>1.3.4</org.exoplatform.ws.version>
+    
+    <!-- surefire failing test do not break the build (to allow the release) -->
+    <maven.test.failure.ignore>true</maven.test.failure.ignore> 
+    <exo.tck.skip>true</exo.tck.skip>
   </properties>
 
   <scm>
@@ -23,7 +30,7 @@
     <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.10.x</developerConnection>
     <url>http://fisheye.exoplatform.org/browse/projects/jcr/branches/1.10.x</url>
   </scm>
-
+  
   <modules>
     <module>component/core</module>
     <module>component/ext</module>
@@ -58,15 +65,17 @@
 
     <module>benchmark</module>
   </modules>
-  <dependencies>
-    <dependency>
-      <groupId>emma</groupId>
-      <artifactId>emma</artifactId>
-      <version>2.0.5312</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>javacc-maven-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+      </plugins>
+   </pluginManagement>
     <resources>
       <resource>
         <directory>src/main/java</directory>
@@ -115,200 +124,6 @@
         </includes>
       </testResource>
     </testResources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-            <source>1.5</source>
-            <target>1.5</target>
-            <optimize>${exo.compile.optimize}</optimize>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <skip>${exo.test.skip}</skip>
-          <useFile>${exo.test.use.file}</useFile>
-          <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
-          <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
-          <forkMode>${exo.test.forkMode}</forkMode>
-          <includes>
-            <include>**/${exo.test.includes}.java</include>
-          </includes>
-          <excludes>
-            <exclude>**/ftpclient/**/${exo.test.includes}.java</exclude>
-            <exclude>**/cifs/**/${exo.test.includes}.java</exclude>
-          </excludes>
-          <systemProperties>
-            <property>
-              <name>emma.coverage.out.file</name>
-              <value>target/emma/coverage.ec</value>
-            </property>
-          </systemProperties>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>emma1</id>
-            <phase>test-compile</phase>
-            <configuration>
-              <tasks if="emma.run">
-                <echo message="[EMMA] Start classes instrumentation ..." />
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
-                <mkdir dir="target" />
-                <mkdir dir="target/classes" />
-                <mkdir dir="target/emma/classes" />
-                <!-- Do nothing if the directory already exist-->
-                <copy todir="target/emma/classes" verbose="false" overwrite="true">
-                  <fileset dir="target/classes" />
-                </copy>
-                <emma enabled="true">
-                  <instr mode="overwrite" metadatafile="target/emma/metadata.em">
-                    <filter excludes="*JiBX*" />
-                    <filter excludes="*Entry*" />
-                    <filter excludes="*Value*" />
-                    <filter excludes="*RepositoryServiceConfiguration*" />
-                    <filter excludes="*.query*" />
-                    <instrpath>
-                      <dirset dir="target">
-                        <include name="emma/classes" />
-                      </dirset>
-                    </instrpath>
-                  </instr>
-                </emma>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>emma2</id>
-            <phase>test</phase>
-            <configuration>
-              <tasks if="emma.run">
-                <echo message="[EMMA] Start report generation..." />
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
-                <emma enabled="true">
-                  <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.10.x/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.x/">
-                      <include name="**/target/emma/*.e*" />
-                      <include name="**/target/emma/*.e*" />
-                    </fileset>
-                    <!-- just for the first launnch -->
-                    <fileset file="${exo.projects.directory.config}/coverage.es" />
-                  </merge>
-                  <report>
-                    <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.10.x/">
-                        <include name="**/src/**/java" />
-                      </dirset>
-                    </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.x/target/">
-                      <include name="*.es" />
-                    </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.10.x/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.10.x/target/coverage.xml" />
-                  </report>
-                </emma>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>emma</groupId>
-            <artifactId>emma</artifactId>
-            <version>2.0.5312</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>emma</groupId>
-            <artifactId>emma_ant</artifactId>
-            <version>2.0.5312</version>
-            <scope>test</scope>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-        <configLocation>${exo.projects.directory.config}/exo-checkstyle-checker.xml</configLocation>
-          <suppressionsLocation>exo-checkstyle-suppressions.xml</suppressionsLocation>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <aggregate>true</aggregate>
-          <reportOutputDirectory>target/javadoc</reportOutputDirectory>
-          <maxmemory>512m</maxmemory>
-          <minmemory>256m</minmemory>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <repositories>
-    <!--repository>
-      <id>maven.org</id>
-      <url>http://repo1.maven.org/maven2</url>
-    </repository>
-    <repository>
-      <id>ibiblio.org</id>
-      <url>http://www.ibiblio.org/maven2</url>
-    </repository>
-    <repository>
-      <id>exo-vietnam</id>
-      <url>http://vnserver.exoplatform.org/maven2</url>
-    </repository>
-    <repository>
-      <id>objectweb.org</id>
-      <url>http://maven.objectweb.org/maven2</url>
-    </repository>
-    <repository>
-      <id>objectweb.org-snapshot</id>
-      <url>http://maven.objectweb.org/maven2-snapshot/</url>
-    </repository -->
-    <repository>
-      <id>java.net</id>
-      <url>https://maven-repository.dev.java.net/nonav/repository</url>
-      <layout>legacy</layout>
-    </repository>
-  </repositories>
-
-  <profiles>
-    <profile>
-      <id>default</id>
-      <activation>
-        <property><name>default</name></property>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <org.exoplatform.kernel.version>2.0.8</org.exoplatform.kernel.version>
-        <org.exoplatform.core.version>2.1.6</org.exoplatform.core.version>
-        <org.exoplatform.ws.version>1.3.4</org.exoplatform.ws.version>
-        <exo.tck.skip>true</exo.tck.skip>
-        <exo.test.forkMode>once</exo.test.forkMode>
-      </properties>
-    </profile>
-  </profiles>
 </project>

@@ -6,7 +6,6 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.connectors.ejb30.client</artifactId>
-  <version>1.10.6-SNAPSHOT</version>
   <name>Client rest-ejb connector ejb3.0</name>
 
   <dependencies>

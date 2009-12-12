@@ -7,10 +7,9 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.component.ext</artifactId>
   <packaging>jar</packaging>
-  <version>1.10.6-SNAPSHOT</version>
   <name>eXo JCR Services extension</name>
-  <url>http://www.exoplatform.org</url>
   <description>eXo JCR Services extension</description>
+
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -26,25 +25,20 @@
     </dependency>
     <dependency>
       <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.resources.api
-			</artifactId>
-      <version>${org.exoplatform.core.version}
-			</version>
+      <artifactId>exo.core.component.resources.api</artifactId>
+      <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.script.groovy
-			</artifactId>
-      <version>${org.exoplatform.core.version}
-			</version>
+      <artifactId>exo.core.component.script.groovy</artifactId>
+      <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.ws</groupId>
       <artifactId>exo.ws.rest.core</artifactId>
-      <version>${org.exoplatform.ws.version}
-			</version>
+      <version>${org.exoplatform.ws.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -56,8 +50,7 @@
     <dependency>
       <groupId>org.exoplatform.ws</groupId>
       <artifactId>exo.ws.commons</artifactId>
-      <version>${org.exoplatform.ws.version}
-			</version>
+      <version>${org.exoplatform.ws.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -88,11 +81,6 @@
     </dependency>
   </dependencies>
   <build>
-    <sourceDirectory>src/main/java</sourceDirectory>
-    <outputDirectory>target/classes</outputDirectory>
-    <testSourceDirectory>src/test/java</testSourceDirectory>
-    <testOutputDirectory>target/test-classes
-		</testOutputDirectory>
     <resources>
       <resource>
         <directory>src/main/java</directory>
@@ -156,9 +144,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <testFailureIgnore>${exo.test.failure.ignore}
-					</testFailureIgnore>
-          <forkMode>${exo.test.forkMode}</forkMode>
           <includes>
             <include>**/audit/*Test.java</include>
             <include>**/actions/*Test.java</include>
@@ -174,16 +159,11 @@
           </includes>
           <excludes>
             <exclude>**/*$*</exclude>
-            <!--
-							nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288
-						-->
-            <exclude>**/BaseStandaloneTest.java
-						</exclude>
+            <!--	nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288 -->
+            <exclude>**/BaseStandaloneTest.java</exclude>
             <exclude>**/replication/*.java</exclude>
-            <exclude>**/replication/external/*.java
-						</exclude>
-            <exclude>**/replication/external/BaseTestCaseChecker.java
-						</exclude>
+            <exclude>**/replication/external/*.java</exclude>
+            <exclude>**/replication/external/BaseTestCaseChecker.java</exclude>
             <exclude>**/backup/*.java</exclude>
             <exclude>**/access/*.java</exclude>
           </excludes>

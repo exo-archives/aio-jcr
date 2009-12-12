@@ -7,10 +7,8 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.webdav</artifactId>
-  <version>1.10.6-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>eXO JCR Webdav web application</name>
-  <url>http://www.exoplatform.org</url>
   <description>eXO JCR Webdav web application</description>
 
   <dependencies>
