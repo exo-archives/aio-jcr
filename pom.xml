@@ -60,7 +60,7 @@
     <module>applications/java/standalone/rmi-client</module>
 
     <module>applications/java/standalone/openofficeplugin</module>
-    <module>applications/java/standalone/samples/repoload</module>
+    <!--module>applications/java/standalone/samples/repoload</module-->
     <module>applications/java/web/console</module>
 
     <module>benchmark</module>
