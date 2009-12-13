@@ -11,9 +11,7 @@
 
   <properties>
     <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
-
-    <!-- surefire failing test do not break the build (to allow the release) -->
-    <maven.test.failure.ignore>true</maven.test.failure.ignore> 
+    <jcr.tck.skip>true</jcr.tck.skip>
   </properties>
 
   <dependencies>

@@ -22,7 +22,6 @@
     
     <!-- surefire failing test do not break the build (to allow the release) -->
     <maven.test.failure.ignore>true</maven.test.failure.ignore> 
-    <exo.tck.skip>true</exo.tck.skip>
   </properties>
 
   <scm>

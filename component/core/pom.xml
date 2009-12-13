@@ -10,6 +10,10 @@
   <name>eXo JCR Service core</name>
   <description>eXo JCR Service core component</description>
 
+  <properties>
+      <exo.tck.skip>true</exo.tck.skip>
+  </properties>
+  
   <dependencies>
 
     <!-- JCR API -->
@@ -366,11 +370,6 @@
               <goal>test</goal>
             </goals>
             <configuration>
-<!-- Use default maven values
-              <skip>${exo.devtest.skip}</skip>
-              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
-              <forkMode>${exo.test.forkMode}</forkMode>
--->
               <systemProperties>
                 <property>
                   <name>jcr.test.configuration.file</name>
@@ -457,11 +456,6 @@
               <goal>test</goal>
             </goals>
             <configuration>
-   <!-- Use default maven values
-              <skip>${exo.test.skip}</skip>
-              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
-              <forkMode>${exo.test.forkMode}</forkMode>
-   -->
               <argLine>-Xmx512M</argLine>
               <systemProperties>
                 <property>
@@ -495,10 +489,6 @@
             </goals>
             <configuration>
               <skip>${exo.tck.skip}</skip>
-   <!--
-              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
-              <forkMode>${exo.test.forkMode}</forkMode>
-   -->
               <argLine>-Xmx512M</argLine>
               <systemProperties>
                 <property>
