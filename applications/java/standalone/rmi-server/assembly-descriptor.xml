@@ -1,8 +1,8 @@
 <assembly>
   <id>binary</id>
   <formats>
-    <format>dir</format>
-    <!--<format>jar</format>-->
+    <!--format>dir</format dir can't be atached + deployed in maven -->
+    <format>zip</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
