@@ -1,8 +1,8 @@
 <assembly>
   <id>binary</id>
   <formats>
-    <format>dir</format>
-    <!--<format>jar</format>-->
+    <format>zip</format>
+    <!-- <format>dir</format> : dir can't be deployed in a maven repo -->
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
