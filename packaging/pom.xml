@@ -1,0 +1,14 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>jcr-parent</artifactId>
+    <version>1.10.6-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.packaging</artifactId>
+  <packaging>pom</packaging>
+  <name>eXo PC Packaging</name>
+  <modules>
+    <module>module</module>
+  </modules>
+</project>

@@ -10,8 +10,8 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
   <version>1.10.6-SNAPSHOT</version>
-  <name>eXo JCR Config</name>
   <packaging>pom</packaging>
+  <name>eXo JCR Config</name>
 
   <properties>
     <exo.product.name>exo-jcr</exo.product.name>
@@ -63,6 +63,7 @@
     <module>applications/java/web/console</module>
 
     <module>benchmark</module>
+    <module>packaging</module>
   </modules>
 
   <build>
