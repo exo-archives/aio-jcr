@@ -928,20 +928,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     StringBuffer escapedPath = new StringBuffer();
     for (String element : pathElements) {
       try {
-        if (element.contains(":")) {
-          element = element.replaceAll(":", URLEncoder.encode(":", "UTF-8"));
-        }
-        if (element.contains("[")) {
-          element = element.replaceAll("\\[", URLEncoder.encode("[", "UTF-8"));
-        }
-        if (element.contains("]")) {
-          element = element.replaceAll("]", URLEncoder.encode("]", "UTF-8"));
-        }
         if (element.contains("'")) {
           element = element.replaceAll("'", URLEncoder.encode("'", "UTF-8"));
-        }
-        if (element.contains("\"")) {
-          element = element.replaceAll("\"", URLEncoder.encode("\"", "UTF-8"));
         }
         escapedPath.append(element + "/");
       } catch (Exception e) {
