@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
@@ -35,6 +36,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -94,12 +97,18 @@ public class VersionHistoryImporter {
   /**
    * VersionHistoryImporter constructor.
    * 
-   * @param versionableNode - versionable node.
-   * @param versionHistoryStream - Version history data.
-   * @param baseVersionUuid - jcr:baseVersion - uuid.
-   * @param predecessors - predecessors uuids.
-   * @param versionHistory - Version history - uuid
-   * @throws RepositoryException -if an error occurs while getting NodeTypesHolder.
+   * @param versionableNode
+   *          - versionable node.
+   * @param versionHistoryStream
+   *          - Version history data.
+   * @param baseVersionUuid
+   *          - jcr:baseVersion - uuid.
+   * @param predecessors
+   *          - predecessors uuids.
+   * @param versionHistory
+   *          - Version history - uuid
+   * @throws RepositoryException
+   *           -if an error occurs while getting NodeTypesHolder.
    */
   public VersionHistoryImporter(NodeImpl versionableNode,
                                 InputStream versionHistoryStream,
@@ -120,8 +129,10 @@ public class VersionHistoryImporter {
   /**
    * Do import.
    * 
-   * @throws RepositoryException -if an error occurs while importing.
-   * @throws IOException -i f an error occurs while importing.
+   * @throws RepositoryException
+   *           -if an error occurs while importing.
+   * @throws IOException
+   *           -i f an error occurs while importing.
    */
   public void doImport() throws RepositoryException, IOException {
     String path = versionableNode.getVersionHistory().getParent().getPath();
@@ -147,9 +158,11 @@ public class VersionHistoryImporter {
                                                                         Constants.JCR_PREDECESSORS,
                                                                         PropertyType.REFERENCE,
                                                                         true);
+    List<ValueData> values = new ArrayList<ValueData>();
     for (int i = 0; i < predecessors.length; i++) {
-      pd.setValue(new TransientValueData(new Identifier(predecessors[i])));
+      values.add(new TransientValueData(new Identifier(predecessors[i])));
     }
+    pd.setValues(values);
 
     PlainChangesLog changesLog = new PlainChangesLogImpl();
     RemoveVisitor rv = new RemoveVisitor();
@@ -182,7 +195,8 @@ public class VersionHistoryImporter {
     /**
      * Default constructor.
      * 
-     * @throws RepositoryException - exception.
+     * @throws RepositoryException
+     *           - exception.
      */
     RemoveVisitor() throws RepositoryException {
       super(userSession.getTransientNodesManager(), null,
