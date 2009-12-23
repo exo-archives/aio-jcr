@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.packaging</artifactId>
   <packaging>pom</packaging>
-  <name>eXo PC Packaging</name>
+  <name>eXo JCR Packaging</name>
   <modules>
     <module>module</module>
   </modules>
