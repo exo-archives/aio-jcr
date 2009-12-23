@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
-    <version>1.10.6-SNAPSHOT</version>
+    <version>1.10.6</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.component.webdav</artifactId>
@@ -27,14 +27,14 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
-      <version>1.10.6-SNAPSHOT</version>
+      <version>1.10.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core
         </artifactId>
-      <version>1.10.6-SNAPSHOT</version>
+      <version>1.10.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
-  <version>1.10.6-SNAPSHOT</version>
+  <version>1.10.6</version>
   <packaging>pom</packaging>
   <name>eXo JCR Config</name>
 
@@ -27,9 +27,9 @@
   </properties>
 
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.10.x</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/branches/1.10.x</developerConnection>
-    <url>http://fisheye.exoplatform.org/browse/projects/jcr/branches/1.10.x</url>
+    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</developerConnection>
+    <url>http://fisheye.exoplatform.org/browse/projects/jcr/tags/1.10.6</url>
   </scm>
   
   <modules>
