@@ -16,6 +16,13 @@
       <outputDirectory>/</outputDirectory>
       <unpack>true</unpack>
       <scope>runtime</scope>
+      <!-- In some environments the assembly plugin fails -->
+      <!-- It tries to copy some files to a subdirectory "license" which doesn't exist -->
+      <unpackOptions>
+        <excludes>
+          <exclude>license/**</exclude>
+        </excludes>
+      </unpackOptions>
       <excludes>
         <exclude>bcel:bcel</exclude>
         <exclude>mail:mail</exclude>
