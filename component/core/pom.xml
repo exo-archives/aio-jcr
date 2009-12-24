@@ -370,6 +370,8 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>${exo.devtest.skip}</skip>
+              <forkMode>${exo.test.forkMode}</forkMode>
               <systemProperties>
                 <property>
                   <name>jcr.test.configuration.file</name>
@@ -396,10 +398,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
-   <!-- Use default maven values
               <skip>${exo.test.skip}</skip>
-              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
               <forkMode>${exo.test.forkMode}</forkMode>
+   <!-- Use default maven values
+              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
    -->
               <argLine>-Xmx512M</argLine>
               <systemProperties>
@@ -444,6 +446,7 @@
             </goals>
             <configuration>
               <skip>${exo.tck.skip}</skip>
+              <forkMode>${exo.test.forkMode}</forkMode>
               <includes>
                 <include>**/util/Sleeping10Seconds.java</include>
               </includes>
@@ -456,6 +459,8 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <forkMode>${exo.test.forkMode}</forkMode>
               <argLine>-Xmx512M</argLine>
               <systemProperties>
                 <property>
@@ -476,6 +481,7 @@
             </goals>
             <configuration>
               <skip>${exo.tck.skip}</skip>
+              <forkMode>${exo.test.forkMode}</forkMode>
               <includes>
                 <include>**/util/Sleeping10Seconds.java</include>
               </includes>
