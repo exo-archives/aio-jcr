@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.exoplatform</groupId>
     <artifactId>exo.parent</artifactId>
     <version>6</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
-  <version>1.10.7-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo JCR Config</name>
-  <properties>
-    <exo.product.name>exo-jcr</exo.product.name>
-    <exo.product.specification>1.10</exo.product.specification>
-    <org.exoplatform.kernel.version>2.0.10-SNAPSHOT</org.exoplatform.kernel.version>
-    <org.exoplatform.core.version>2.1.8-SNAPSHOT</org.exoplatform.core.version>
-    <org.exoplatform.ws.version>1.3.6-SNAPSHOT</org.exoplatform.ws.version>
-  </properties>
+  <version>1.10.7-SNAPSHOT</version>
   <scm>
     <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</connection>
     <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</developerConnection>
@@ -52,15 +45,6 @@
     <module>packaging</module>
   </modules>
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>javacc-maven-plugin</artifactId>
-          <version>2.6</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <resources>
       <resource>
         <directory>src/main/java</directory>
@@ -108,5 +92,21 @@
         </includes>
       </testResource>
     </testResources>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>javacc-maven-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
+  <properties>
+    <exo.product.name>exo-jcr</exo.product.name>
+    <exo.product.specification>1.10</exo.product.specification>
+    <org.exoplatform.kernel.version>2.0.10-SNAPSHOT</org.exoplatform.kernel.version>
+    <org.exoplatform.core.version>2.1.8-SNAPSHOT</org.exoplatform.core.version>
+    <org.exoplatform.ws.version>1.3.6-SNAPSHOT</org.exoplatform.ws.version>
+  </properties>
 </project>

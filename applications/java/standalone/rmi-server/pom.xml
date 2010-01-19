@@ -1,36 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.rmi-server</artifactId>
   <packaging>jar</packaging>
   <name>eXo JCR RMI server</name>
   <description>eXo JCR RMI server</description>
-  <dependencies>
-    <!-- JCR API -->
-    <dependency>
-      <groupId>jcr</groupId>
-      <artifactId>jcr</artifactId>
-      <version>1.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.rmi</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
   <build>
     <plugins>
       <plugin>
@@ -58,6 +37,12 @@
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.1</version>
+        <configuration>
+          <descriptors>
+            <descriptor>assembly-descriptor.xml</descriptor>
+          </descriptors>
+          <finalName>rmi-server</finalName>
+        </configuration>
         <executions>
           <execution>
             <phase>install</phase>
@@ -66,13 +51,28 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <descriptors>
-            <descriptor>assembly-descriptor.xml</descriptor>
-          </descriptors>
-          <finalName>rmi-server</finalName>
-        </configuration>
       </plugin>
     </plugins>
   </build>
+  <dependencies>
+    <!-- JCR API -->
+    <dependency>
+      <groupId>jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
 </project>
