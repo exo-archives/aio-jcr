@@ -440,52 +440,7 @@
     <tck.src.directory>${project.build.directory}/generated-sources/tck</tck.src.directory>
   </properties>
   <profiles>
-    <!-- Use "mvn -Prun-devtests" to launch them -->
-    <profile>
-      <id>run-devtests</id>
-      <properties>
-        <!-- Build and launch tests -->
-        <maven.test.skip>false</maven.test.skip>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-            <executions>
-              <execution>
-                <id>execution0 - developers tests</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <skip>false</skip>
-                  <systemProperties>
-                    <property>
-                      <name>jcr.test.configuration.file</name>
-                      <value>${jcr.test.configuration.file}</value>
-                    </property>
-                  </systemProperties>
-                  <includes>
-                    <include>**/**/TestErrorMultithreading__.java</include>
-                    <include>**/**/TestConcurrentItems__.java</include>
-                    <include>**/**/TestJDBCValueContentAddressStorageImpl__.java</include>
-                    <include>**/**/TestCASableSimpleFileIOChannel__.java</include>
-                    <include>**/**/TestCASableTreeFileIOChannel__.java</include>
-                    <include>**/**/TestInvalidItemState__.java</include>
-                    <include>**/**/TestCleanableFileStreamValueData.java</include>
-                  </includes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+    <!--  TAKE CARE : The order of profiles is important to allow devtests to override default-tests -->
     <!-- ***************** -->
     <!-- DEFAULT TESTS     -->
     <!-- ***************** -->
@@ -549,6 +504,64 @@
                     <exclude>**/apache/**</exclude>
                     <exclude>**/api/**/TestSameNameItems.java</exclude>
                     <exclude>**/api/**/TestVersionRestore.java</exclude>
+                  </excludes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- Use "mvn -Prun-devtests" to launch them -->
+    <profile>
+      <id>run-devtests</id>
+      <properties>
+        <!-- Build and launch tests -->
+        <maven.test.skip>false</maven.test.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+            <executions>
+              <execution>
+                <id>execution0 - developers tests</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <skip>false</skip>
+                  <systemProperties>
+                    <property>
+                      <name>jcr.test.configuration.file</name>
+                      <value>${jcr.test.configuration.file}</value>
+                    </property>
+                  </systemProperties>
+                  <includes>
+                    <include>**/TestErrorMultithreading__.java</include>
+                    <include>**/TestConcurrentItems__.java</include>
+                    <include>**/TestJDBCValueContentAddressStorageImpl__.java</include>
+                    <include>**/TestCASableSimpleFileIOChannel__.java</include>
+                    <include>**/TestCASableTreeFileIOChannel__.java</include>
+                    <include>**/TestInvalidItemState__.java</include>
+                    <include>**/TestCleanableFileStreamValueData.java</include>
+                  </includes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>execution1 - exo tests</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <excludes>
+                    <exclude>**/*.java</exclude>
                   </excludes>
                 </configuration>
               </execution>
