@@ -21,9 +21,6 @@
     <org.exoplatform.core.version>2.1.8-SNAPSHOT</org.exoplatform.core.version>
     <org.exoplatform.ws.version>1.3.6-SNAPSHOT</org.exoplatform.ws.version>
     
-    <!-- surefire failing test do not break the build (to allow the release) -->
-    <maven.test.skip>true</maven.test.skip> 
-    <maven.test.failure.ignore>true</maven.test.failure.ignore> 
   </properties>
 
   <scm>
