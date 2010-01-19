@@ -1,70 +1,56 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform</groupId>
     <artifactId>exo.parent</artifactId>
     <version>6</version>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
   <version>1.10.7-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo JCR Config</name>
-
   <properties>
     <exo.product.name>exo-jcr</exo.product.name>
     <exo.product.specification>1.10</exo.product.specification>
-    
     <org.exoplatform.kernel.version>2.0.10-SNAPSHOT</org.exoplatform.kernel.version>
     <org.exoplatform.core.version>2.1.8-SNAPSHOT</org.exoplatform.core.version>
     <org.exoplatform.ws.version>1.3.6-SNAPSHOT</org.exoplatform.ws.version>
-    
   </properties>
-
   <scm>
     <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</connection>
     <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</developerConnection>
     <url>http://fisheye.exoplatform.org/browse/projects/jcr/tags/1.10.6</url>
   </scm>
-  
   <modules>
     <module>component/core</module>
     <module>component/ext</module>
-
     <module>component/aws</module>
     <module>component/rmi</module>
     <module>component/ftp</module>
     <module>component/webdav</module>
-
     <module>frameworks/command</module>
     <module>frameworks/web</module>
     <module>frameworks/ftpclient</module>
-
     <module>connectors/ejb/ejb21</module>
     <module>connectors/ejb/ejb30</module>
     <module>connectors/rmiadapter</module>
     <module>connectors/jca</module>
-
     <module>applications/config</module>
     <module>applications/java/web/samples/browser</module>
     <module>applications/java/web/samples/fckeditor</module>
     <module>applications/java/web/webdav</module>
     <module>applications/java/web/rest</module>
-
     <module>applications/java/web/ear</module>
     <module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
-
     <module>applications/java/standalone/openofficeplugin</module>
     <!--module>applications/java/standalone/samples/repoload</module-->
     <module>applications/java/web/console</module>
-
     <module>benchmark</module>
     <module>packaging</module>
   </modules>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -74,7 +60,7 @@
           <version>2.6</version>
         </plugin>
       </plugins>
-   </pluginManagement>
+    </pluginManagement>
     <resources>
       <resource>
         <directory>src/main/java</directory>
@@ -100,7 +86,6 @@
         </includes>
       </resource>
     </resources>
-
     <testResources>
       <testResource>
         <directory>src/test/java</directory>
@@ -124,5 +109,4 @@
       </testResource>
     </testResources>
   </build>
-
 </project>

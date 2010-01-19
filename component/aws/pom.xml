@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
@@ -8,12 +9,10 @@
   <artifactId>exo.jcr.component.aws</artifactId>
   <name>eXo JCR Amazon WS support</name>
   <description>eXo JCR Amazon WS support (SimpleDB, S3)</description>
-
   <properties>
     <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
     <jcr.tck.skip>true</jcr.tck.skip>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -27,14 +26,12 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>com.amazonaws.sdb</groupId>
       <artifactId>simpledb</artifactId>
       <version>2007-11-07</version>
       <scope>compile</scope>
     </dependency>
-
     <!-- S3Plugin dependency -->
     <dependency>
       <groupId>com.amazon</groupId>
@@ -42,7 +39,6 @@
       <version>0.1</version>
       <scope>compile</scope>
     </dependency>
-
     <!-- slf4j-log4j12 for TCK -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -50,7 +46,6 @@
       <version>1.0</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
@@ -58,7 +53,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
@@ -91,7 +85,6 @@
         </includes>
       </testResource>
     </testResources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -112,7 +105,6 @@
           </archive>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -136,13 +128,10 @@
               </systemProperties>
               <includes>
                 <include>**/SDBWorkspace*Test_.java</include>
-
                 <include>**/SDBWorkspaceStorageConnectionWriteTest_.java</include>
                 <include>**/SDBWorkspaceStorageConnectionReadTest_.java</include>
                 <include>**/TestBinaryValueS3_.java</include>
-
                 <include>**/TestDeleteDomain_.java</include>
-
                 <include>**/TestChildProperties_.java</include>
               </includes>
               <excludes>
@@ -204,7 +193,7 @@
             </goals>
             <configuration>
               <skip>${jcr.tck.skip}</skip>
-<!-- Use default maven values
+              <!-- Use default maven values
               <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
               <forkMode>${exo.test.forkMode}</forkMode>
 -->
@@ -216,8 +205,7 @@
                 </property>
                 <property>
                   <name>known.issues</name>
-                  <value>
-                    org.apache.jackrabbit.test.api.nodetype.PropertyDefTest#testIsRequiredType
+                  <value>org.apache.jackrabbit.test.api.nodetype.PropertyDefTest#testIsRequiredType
                     org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionImportXml
                     org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceImportXml
                     org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceGetImportContentHandler
@@ -227,8 +215,7 @@
                     org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testBooleanProperty
                     org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreName
                     org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder
-                    org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder2
-                  </value>
+                    org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder2</value>
                 </property>
               </systemProperties>
               <includes>
@@ -251,5 +238,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

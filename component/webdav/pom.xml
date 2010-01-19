@@ -1,5 +1,5 @@
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
@@ -10,7 +10,6 @@
   <packaging>jar</packaging>
   <name>eXo JCR Webdav Service</name>
   <description>eXo JCR Webdav Service</description>
-
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.ws</groupId>
@@ -32,8 +31,7 @@
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core
-        </artifactId>
+      <artifactId>exo.jcr.component.core</artifactId>
       <version>1.10.7-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
@@ -76,14 +74,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <skip>true</skip>
-          <forkMode>never</forkMode><!--once , pertest-->
-          <includes>
-            <!--
-              <include>**/Test*.java</include> <include>**/TestGet.java</include> <include>**/TestHead.java</include> <include>**/TestMkCol.java</include>
-              <include>**/TestPut.java</include> <include>**/TestDelete.java</include> <include>**/TestCopy.java</include> <include>**/TestMove.java</include>
-              <include>**/TestPropFind.java</include> <include>**/TestLock.java</include> <include>**/TestUnLock.java</include>
-            -->
-          </includes>
+          <forkMode>never</forkMode>
+          <!--once , pertest-->
+          <includes/>
         </configuration>
       </plugin>
     </plugins>

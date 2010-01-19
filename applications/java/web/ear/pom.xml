@@ -1,17 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.ear</artifactId>
   <packaging>ear</packaging>
   <name>eXo JCR EAR</name>
-
   <dependencies>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.connectors.localadapter</artifactId>
@@ -19,7 +17,6 @@
       <type>rar</type>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.applications.rest</artifactId>
@@ -27,7 +24,6 @@
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.applications.browser</artifactId>
@@ -35,7 +31,6 @@
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.applications.fckeditor</artifactId>
@@ -43,23 +38,19 @@
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.webdav</artifactId>
       <version>1.10.7-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
-
   </dependencies>
-
   <build>
     <finalName>exo-jcr-ear</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
         <configuration>
-
           <security>
             <security-role id="ID_EXO_USER">
               <description>a simple user role</description>
@@ -70,7 +61,6 @@
               <role-name>admin</role-name>
             </security-role>
           </security>
-
           <!-- all deps jars inside the rar, so copy all jars in-self -->
           <defaultLibBundleDir>../APP-INF/lib</defaultLibBundleDir>
           <archive>
@@ -79,7 +69,6 @@
             </manifest>
           </archive>
           <modules>
-
             <rarModule>
               <groupId>org.exoplatform.jcr</groupId>
               <artifactId>exo.jcr.connectors.localadapter</artifactId>
@@ -109,5 +98,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

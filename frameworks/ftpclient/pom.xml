@@ -1,26 +1,22 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.framework.ftpclient</artifactId>
   <name>eXo JCR FTP Client</name>
   <description>eXo JCR FTP Client</description>
-
   <dependencies>
-
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.component.command</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
       <scope>compile</scope>
     </dependency>
-
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -46,11 +42,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <includes>
-          </includes>
+          <includes/>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
 </project>

@@ -1,15 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.benchmark</artifactId>
   <packaging>jar</packaging>
   <name>eXo JCR benchmark</name>
-
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -59,7 +58,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <!-- For MySQL support -->
     <dependency>
       <groupId>mysql</groupId>
@@ -67,7 +65,6 @@
       <version>5.0.5</version>
       <scope>compile</scope>
     </dependency>
-
     <!-- For PostgresSQL support -->
     <dependency>
       <groupId>postgresql</groupId>
@@ -75,7 +72,6 @@
       <version>8.2-504.jdbc3</version>
       <scope>compile</scope>
     </dependency>
-
     <!-- For Oracle 10g support (local-jcr repository) -->
     <dependency>
       <groupId>ojdbc</groupId>
@@ -83,7 +79,6 @@
       <version>14</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>ojdbc</groupId>
       <artifactId>orai18n</artifactId>
@@ -91,7 +86,6 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
-
   <build>
     <resources>
       <resource>

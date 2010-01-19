@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
@@ -9,11 +10,9 @@
   <packaging>jar</packaging>
   <name>eXo JCR Repoload</name>
   <description>Repository Uploader</description>
-
   <properties>
     <maven.test.skip>true</maven.test.skip>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -21,18 +20,14 @@
       <version>1.10.6-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.security.core</artifactId>
       <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
     </dependency>
-
   </dependencies>
-
   <build>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -41,7 +36,6 @@
           <childDelegation>true</childDelegation>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -55,7 +49,6 @@
           </archive>
         </configuration>
       </plugin>
-
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -67,7 +60,6 @@
             </goals>
           </execution>
         </executions>
-
         <configuration>
           <descriptor>${basedir}/src/main/assemblies/binary-assembly.xml</descriptor>
           <finalName>repoload</finalName>
@@ -75,6 +67,4 @@
       </plugin>
     </plugins>
   </build>
-
-
 </project>

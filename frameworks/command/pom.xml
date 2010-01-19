@@ -1,55 +1,47 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.framework.command</artifactId>
   <packaging>jar</packaging>
   <name>eXo JCR command framework</name>
   <description>eXo JCR command framework</description>
-
   <dependencies>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
       <version>1.10.7-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
-    
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
       <version>1.10.7-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.component.command</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.2.1</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.4</version>
       <scope>provided</scope>
     </dependency>
-
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -64,5 +56,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

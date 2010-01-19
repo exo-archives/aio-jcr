@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
@@ -7,7 +8,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.connectors.ejb21.client</artifactId>
   <name>eXo JCR Client jcr-ejb connector ejb2.1</name>
-
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -20,7 +20,6 @@
       <version>${org.exoplatform.ws.version}</version>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
