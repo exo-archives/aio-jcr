@@ -1,3 +1,3 @@
-@set MAVEN_OPTS=-Duser.language=en -Duser.region=us %MAVEN_OPTS% -Dexo.test.skip=true -Dexo.tck.skip=true -Dexo.devtest.skip=false -Dexo.test.forkMode=once 
+@set MAVEN_OPTS=-Duser.language=en -Duser.region=us %MAVEN_OPTS% 
 
-@start mvn clean test
+@start mvn clean test -Prun-devtests,-run-default-tests

@@ -1,1 +1,1 @@
-@start mvn -Dmaven.test.skip=true clean install
+@start mvn -Dmaven.test.skip=true -P-default-tests clean install
