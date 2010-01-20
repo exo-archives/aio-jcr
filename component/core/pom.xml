@@ -486,6 +486,8 @@
     <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
     <!--  Where are stored jackrabbit TCK sources -->
     <tck.src.directory>${project.build.directory}/generated-sources/tck</tck.src.directory>
+    <!-- We cannot analyze with clover these classes - code too large error -->
+    <maven.clover.excludesList>**/xpath/**/*.java</maven.clover.excludesList>     
   </properties>
   <profiles>
     <!-- Use "mvn -Prun-devtests" to launch them -->
