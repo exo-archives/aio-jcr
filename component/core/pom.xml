@@ -218,25 +218,7 @@
                   <overWrite>false</overWrite>
                 </artifactItem>
               </artifactItems>
-              <outputDirectory>${tck.src.directory}</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-test-source</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${tck.src.directory}</source>
-              </sources>
+              <outputDirectory>${project.build.testSourceDirectory}</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -493,8 +475,6 @@
   </dependencies>
   <properties>
     <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
-    <!--  Where are stored jackrabbit TCK sources -->
-    <tck.src.directory>${project.build.directory}/generated-sources/tck</tck.src.directory>
     <!-- We cannot analyze with clover these classes - code too large error -->
     <maven.clover.excludesList>**/xpath/**/*.java</maven.clover.excludesList>     
   </properties>
@@ -562,7 +542,7 @@
       <build>
         <testResources>
           <testResource>
-            <directory>${tck.src.directory}</directory>
+            <directory>${project.build.testSourceDirectory}</directory>
             <includes>
               <include>**/org/apache/jackrabbit/test/api/nodetype/spec/*.txt</include>
             </includes>
@@ -668,6 +648,24 @@
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>delete-tck</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>${project.build.testSourceDirectory}/org/apache/</directory>
+                </fileset>
+              </filesets>
+            </configuration>
           </plugin>
         </plugins>
       </build>
