@@ -9,7 +9,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
   <packaging>pom</packaging>
-  <name>eXo JCR Config</name>
+  <name>eXo JCR</name>
   <version>1.10.7-SNAPSHOT</version>
   <scm>
     <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</connection>
