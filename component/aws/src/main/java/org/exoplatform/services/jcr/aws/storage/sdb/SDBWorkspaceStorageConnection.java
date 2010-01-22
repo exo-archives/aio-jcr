@@ -1499,7 +1499,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     retry: do {
       try {
         return service.queryWithAttributes(request); // TODO use class invoker with overriden method
-                                                     // for diff opers
+        // for diff opers
       } catch (AmazonSimpleDBException e) {
         ce = e;
         Throwable c = e.getCause();
@@ -2528,6 +2528,30 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       throw new SDBRepositoryException("(child nodes) Parent " + parent.getQPath().getAsString()
           + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     } catch (IllegalACLException e) {
+      throw new SDBRepositoryException("(child nodes) Parent " + parent.getQPath().getAsString()
+          + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+    }
+  }
+
+  public int getChildNodesCount(NodeData parent) throws RepositoryException {
+    try {
+      QueryWithAttributesResponse resp = queryChildNodesAttr(sdbService,
+                                                             domainName,
+                                                             parent.getIdentifier(),
+                                                             ID,
+                                                             PID,
+                                                             NAME,
+                                                             ICLASS,
+                                                             IDATA);
+
+      return resp.isSetQueryWithAttributesResult() ? resp.getQueryWithAttributesResult()
+                                                         .getItem()
+                                                         .size() : 0;
+
+    } catch (AmazonSimpleDBException e) {
+      throw new SDBStorageException("(child nodes) Parent " + parent.getQPath().getAsString() + " "
+          + parent.getIdentifier() + ". Read request fails " + e, e);
+    } catch (NumberFormatException e) {
       throw new SDBRepositoryException("(child nodes) Parent " + parent.getQPath().getAsString()
           + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     }

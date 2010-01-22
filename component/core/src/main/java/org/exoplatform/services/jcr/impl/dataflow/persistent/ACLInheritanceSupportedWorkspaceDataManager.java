@@ -116,6 +116,13 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
     return nodes;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public int getChildNodesCount(final NodeData parent) throws RepositoryException {
+    return persistentManager.getChildNodesCount(parent);
+  }
+
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
     final ItemData item = persistentManager.getItemData(parent, name);
     return item != null && item.isNode() ? initACL(parent, (NodeData) item) : item;

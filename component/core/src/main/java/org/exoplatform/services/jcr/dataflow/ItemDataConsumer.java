@@ -33,8 +33,8 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * 
  *          Basic (Level 1) data flow inmemory operations
  * 
- *          Common Rule for Read : If there is some storage in this manager � try to get the data
- *          from here first, if not found � call super.someMethod
+ *          Common Rule for Read : If there is some storage in this manager try to get the data from
+ *          here first, if not found call super.someMethod
  */
 public interface ItemDataConsumer {
 
@@ -57,6 +57,15 @@ public interface ItemDataConsumer {
    * @return children data
    */
   List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException;
+
+  /**
+   * Get children nodes count of the parent node.
+   * 
+   * @param parent
+   *          NodeData
+   * @return int, child nodes count
+   */
+  int getChildNodesCount(NodeData parent) throws RepositoryException;
 
   /**
    * @param parentIdentifier

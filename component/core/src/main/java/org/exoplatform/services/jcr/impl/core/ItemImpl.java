@@ -89,19 +89,16 @@ public abstract class ItemImpl implements Item {
 
   protected ValueFactoryImpl   valueFactory;
 
-  protected final int          itemHashCode;
+  protected Integer            itemHashCode;
 
   ItemImpl(ItemData data, SessionImpl session) throws RepositoryException {
 
     this.session = session;
     this.data = data;
-    this.location = session.getLocationFactory().createJCRPath(data.getQPath());
 
     this.dataManager = session.getTransientNodesManager();
     this.locationFactory = session.getLocationFactory();
     this.valueFactory = session.getValueFactory();
-
-    itemHashCode = (session.getWorkspace().getName() + data.getIdentifier()).hashCode();
   }
 
   protected void invalidate() {
@@ -692,6 +689,9 @@ public abstract class ItemImpl implements Item {
    */
   @Override
   public int hashCode() {
+    if (itemHashCode == null)
+      itemHashCode = (session.getWorkspace().getName() + data.getIdentifier()).hashCode();
+
     return itemHashCode;
   }
 

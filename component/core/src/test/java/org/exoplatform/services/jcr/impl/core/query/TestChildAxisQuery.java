@@ -83,6 +83,7 @@ public class TestChildAxisQuery extends BaseQueryTest {
       lavelRoot.addMixin("mix:versionable");
       session.save();
       for (int j = 0; j < l2NodesCount; j++) {
+
         lavelRoot.checkin();
         lavelRoot.checkout();
 

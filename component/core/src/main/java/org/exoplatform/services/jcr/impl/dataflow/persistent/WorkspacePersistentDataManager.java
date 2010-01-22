@@ -250,6 +250,18 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   /**
    * {@inheritDoc}
    */
+  public int getChildNodesCount(NodeData parent) throws RepositoryException {
+    final WorkspaceStorageConnection con = dataContainer.openConnection();
+    try {
+      return con.getChildNodesCount(parent);
+    } finally {
+      con.close();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public List<NodeData> getChildNodesData(final NodeData nodeData) throws RepositoryException {
 
     final WorkspaceStorageConnection con = dataContainer.openConnection();
@@ -292,7 +304,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       return result = con.listChildPropertiesData(nodeData);
     } finally {
       con.close();
-      
+
       if (log.isDebugEnabled())
         log.debug("GET CP LIST " + nodeData.getQPath().getAsString() + " => "
             + (result != null ? result.size() : null));

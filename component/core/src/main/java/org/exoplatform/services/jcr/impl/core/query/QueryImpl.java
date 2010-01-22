@@ -219,7 +219,7 @@ public class QueryImpl extends AbstractQueryImpl {
     NodeImpl queryNode = (NodeImpl) session.getTransientNodesManager()
                                            .update(ItemState.createAddedState(queryData), false);
 
-    queryNode.addAutoCreatedItems(Constants.NT_QUERY);
+    queryNode.addAutoCreatedItems(Constants.NT_QUERY, false);
     // set properties
     TransientValueData value = new TransientValueData(language);
     TransientPropertyData jcrLanguage = TransientPropertyData.createPropertyData(queryData,

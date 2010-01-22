@@ -421,17 +421,12 @@ public class SessionDataManager implements ItemDataConsumer {
    */
   public boolean isNew(String identifier) {
 
-    List<ItemState> states = changesLog.getItemStates(identifier);
-    ItemState lastState = states.size() > 0 ? states.get(states.size() - 1) : null;
+    ItemState lastState = changesLog.getItemState(identifier);
 
     if (lastState == null || lastState.isDeleted())
       return false;
 
-    for (ItemState state : states) {
-      if (state.isAdded())
-        return true;
-    }
-    return false;
+    return changesLog.getItemState(identifier, ItemState.ADDED) != null;
   }
 
   /**
@@ -476,8 +471,9 @@ public class SessionDataManager implements ItemDataConsumer {
       // [PN] 21.12.07 use item data
       NodeData parent = (NodeData) getItemData(data.getParentIdentifier());
       // skip not permitted
-      if (accessManager.hasPermission(parent.getACL(), PermissionType.READ, session.getUserState()
-                                                                                   .getIdentity())) {
+      if (accessManager.hasPermission(parent.getACL(),
+                                      new String[] { PermissionType.READ },
+                                      session.getUserState().getIdentity())) {
         PropertyImpl item = null;
         ItemState state = changesLog.getItemState(identifier);
         if (state != null) {
@@ -521,8 +517,9 @@ public class SessionDataManager implements ItemDataConsumer {
 
         session.getActionHandler().postRead(item);
 
-        if (accessManager.hasPermission(data.getACL(), PermissionType.READ, session.getUserState()
-                                                                                   .getIdentity())) {
+        if (accessManager.hasPermission(data.getACL(),
+                                        new String[] { PermissionType.READ },
+                                        session.getUserState().getIdentity())) {
           if (pool)
             item = (NodeImpl) itemsPool.get(item);
 
@@ -559,7 +556,7 @@ public class SessionDataManager implements ItemDataConsumer {
         ItemImpl item = itemFactory.createItem(data);
         session.getActionHandler().postRead(item);
         if (accessManager.hasPermission(parent.getACL(),
-                                        PermissionType.READ,
+                                        new String[] { PermissionType.READ },
                                         session.getUserState().getIdentity())) {
           if (pool)
             item = itemsPool.get(item);
@@ -592,6 +589,22 @@ public class SessionDataManager implements ItemDataConsumer {
         log.debug("getChildNodesData(" + parent.getQPath().getAsString() + ") <<<<< "
             + ((System.currentTimeMillis() - start) / 1000d) + "sec");
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getChildNodesCount(NodeData parent) throws RepositoryException {
+
+    int childsCount = transactionableManager.getChildNodesCount(parent)
+        + changesLog.getChildNodesCount(parent.getIdentifier());
+
+    if (childsCount < 0) {
+      throw new InvalidItemStateException("Node's child nodes were changed in another Session "
+          + parent.getQPath().getAsString());
+    }
+
+    return childsCount;
   }
 
   /*
@@ -1124,7 +1137,7 @@ public class SessionDataManager implements ItemDataConsumer {
       // Remove propery or node
       if (changedItem.isDeleted()) {
         if (!accessManager.hasPermission(parent.getACL(),
-                                         PermissionType.REMOVE,
+                                         new String[] { PermissionType.REMOVE },
                                          session.getUserState().getIdentity()))
           throw new AccessDeniedException("Access denied: REMOVE "
               + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
@@ -1133,7 +1146,7 @@ public class SessionDataManager implements ItemDataConsumer {
         // add node
         if (changedItem.isAdded()) {
           if (!accessManager.hasPermission(parent.getACL(),
-                                           PermissionType.ADD_NODE,
+                                           new String[] { PermissionType.ADD_NODE },
                                            session.getUserState().getIdentity())) {
             throw new AccessDeniedException("Access denied: ADD_NODE "
                 + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
@@ -1143,7 +1156,7 @@ public class SessionDataManager implements ItemDataConsumer {
       } else if (changedItem.isAdded() || changedItem.isUpdated()) {
         // add or update property
         if (!accessManager.hasPermission(parent.getACL(),
-                                         PermissionType.SET_PROPERTY,
+                                         new String[] { PermissionType.SET_PROPERTY },
                                          session.getUserState().getIdentity()))
           throw new AccessDeniedException("Access denied: SET_PROPERTY "
               + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
@@ -1453,10 +1466,6 @@ public class SessionDataManager implements ItemDataConsumer {
         for (ItemState childNode : childNodes) {
           ret.add(childNode);
 
-          if (log.isDebugEnabled())
-            log.debug("Traverse transient (N) " + childNode.getData().getQPath().getAsString()
-                + " " + ItemState.nameFromValue(childNode.getState()));
-
           if (deep)
             traverseTransientDescendants(childNode.getData(), deep, action, ret);
         }
@@ -1465,9 +1474,6 @@ public class SessionDataManager implements ItemDataConsumer {
         Collection<ItemState> childProps = changesLog.getLastChildrenStates(parent, false);
         for (ItemState childProp : childProps) {
           ret.add(childProp);
-
-          if (log.isDebugEnabled())
-            log.debug("Traverse transient  (P) " + childProp.getData().getQPath().getAsString());
         }
       }
     }

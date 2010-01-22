@@ -122,6 +122,13 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     return copyNodes(storageDataManager.getChildNodesData(parent));
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public int getChildNodesCount(final NodeData parent) throws RepositoryException {
+    return storageDataManager.getChildNodesCount(parent);
+  }
+
   /*
    * (non-Javadoc)
    * @seeorg.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#

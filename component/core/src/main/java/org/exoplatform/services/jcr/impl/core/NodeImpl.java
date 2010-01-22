@@ -699,9 +699,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     InternalQName[] mixinTypeNames = new InternalQName[0];
     String identifier = IdGenerator.generate();
 
-    List<NodeData> siblings = dataManager.getChildNodesData(parentNode.nodeData());
-    int orderNum = parentNode.getNextChildOrderNum(siblings);
-    int index = parentNode.getNextChildIndex(name, siblings, parentNode.nodeData());
+    // List<NodeData> siblings = dataManager.getChildNodesData(parentNode.nodeData());
+    int orderNum = parentNode.getNextChildOrderNum();
+    int index = parentNode.getNextChildIndex(name, parentNode.nodeData());
 
     QPath path = QPath.makeChildPath(parentNode.getInternalPath(), name, index);
 
@@ -721,7 +721,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     ItemState state = ItemState.createAddedState(nodeData, false);
     NodeImpl node = (NodeImpl) dataManager.update(state, true);
 
-    addAutoCreatedItems(node.nodeData(), primaryTypeName);
+    addAutoCreatedItems(node.nodeData(), primaryTypeName, true);
 
     if (log.isDebugEnabled())
       log.debug("new node : " + node.getPath() + " name: " + " primaryType: "
@@ -733,16 +733,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     return node;
 
-  }
-
-  public int getNextChildOrderNum(List<NodeData> siblings) throws RepositoryException {
-    int max = -1;
-    for (NodeData sibling : siblings) {
-      int cur = sibling.getOrderNumber();
-      if (cur > max)
-        max = cur;
-    }
-    return ++max;
   }
 
   private int getNextChildIndex(InternalQName nameToAdd,
@@ -1359,7 +1349,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     updateMixin(newMixin);
     dataManager.update(state, false);
 
-    addAutoCreatedItems(mixinName);
+    addAutoCreatedItems(mixinName, false);
 
     // launch event
     session.getActionHandler().postAddMixin(this, mixinName);
@@ -2378,13 +2368,15 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * Add autocreated items to this node. No checks will be passed for autocreated items.
    */
-  public void addAutoCreatedItems(InternalQName nodeTypeName) throws RepositoryException,
-                                                             ConstraintViolationException {
-    addAutoCreatedItems(nodeData(), nodeTypeName);
+  public void addAutoCreatedItems(InternalQName nodeTypeName, boolean avoidCheckExistedChildItems) throws RepositoryException,
+                                                                                                  ConstraintViolationException {
+    addAutoCreatedItems(nodeData(), nodeTypeName, avoidCheckExistedChildItems);
   }
 
-  public void addAutoCreatedItems(NodeData parent, InternalQName nodeTypeName) throws RepositoryException,
-                                                                              ConstraintViolationException {
+  public void addAutoCreatedItems(NodeData parent,
+                                  InternalQName nodeTypeName,
+                                  boolean avoidCheckExistedChildItems) throws RepositoryException,
+                                                                      ConstraintViolationException {
 
     ExtendedNodeType type = nodeType(nodeTypeName);
     NodeDefinition[] nodeDefs = type.getChildNodeDefinitions();
@@ -2399,7 +2391,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       if (propDefs[i].isAutoCreated()) {
         PropertyDefinitionImpl pdImpl = (PropertyDefinitionImpl) propDefs[i];
 
-        ItemData pdata = dataManager.getItemData(parent, new QPathEntry(pdImpl.getQName(), 0));
+        final ItemData pdata = avoidCheckExistedChildItems
+            ? null
+            : dataManager.getItemData(parent, new QPathEntry(pdImpl.getQName(), 0));
+
         if (pdata == null || pdata.isNode()) {
 
           List<ValueData> listAutoCreateValue = autoCreatedValue(parent, type, pdImpl);
@@ -2432,7 +2427,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                            ((ExtendedNodeType) ndImpl.getDefaultPrimaryType()).getQName(),
                                                                            IdGenerator.generate());
         dataManager.update(ItemState.createAddedState(childNodeData), false);
-        addAutoCreatedItems(childNodeData, childNodeData.getPrimaryTypeName());
+        addAutoCreatedItems(childNodeData,
+                            childNodeData.getPrimaryTypeName(),
+                            avoidCheckExistedChildItems);
 
       }
     }
@@ -2533,10 +2530,69 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   // ----------------------------- ExtendedNode -----------------------------
 
+  private int getNextChildOrderNum() throws RepositoryException {
+    // int max = -1;
+    // for (NodeData sibling : siblings)
+    // {
+    // int cur = sibling.getOrderNumber();
+    // if (cur > max)
+    // max = cur;
+    // }
+    // return ++max;
+
+    // return siblings.size();
+
+    return dataManager.getChildNodesCount(nodeData());
+  }
+
+  private int getNextChildIndex(InternalQName nameToAdd, NodeData parentNode) throws RepositoryException,
+                                                                             ItemExistsException {
+
+    NodeDefinition def = session.getWorkspace()
+                                .getNodeTypeManager()
+                                .findNodeDefinition(nameToAdd,
+                                                    parentNode.getPrimaryTypeName(),
+                                                    parentNode.getMixinTypeNames());
+
+    boolean allowSns = def.allowsSameNameSiblings();
+
+    int ind = 1;
+
+    NodeData sibling = (NodeData) dataManager.getItemData(parentNode,
+                                                          new QPathEntry(nameToAdd, ind));
+    while (sibling != null) {
+      if (allowSns) {
+        ind++;
+        sibling = (NodeData) dataManager.getItemData(parentNode, new QPathEntry(nameToAdd, ind));
+      } else {
+        throw new ItemExistsException("The node " + nameToAdd + " already exists in " + getPath()
+            + " and same name sibling is not allowed ");
+      }
+    }
+    ;
+
+    return ind;
+
+    // int ind = 0;
+    // for (NodeData sibling : siblings)
+    // {
+    // if (sibling.getQPath().getName().equals(nameToAdd))
+    // {
+    // if (allowSns)
+    // ind++;
+    // else
+    // throw new ItemExistsException("The node " + nameToAdd + " already exists in " + getPath()
+    // + " and same name sibling is not allowed ");
+    // }
+    // }
+    // return ind + 1;
+
+  }
+
   /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedNode#setPermissions(java.util.Map)
-   */
+  * (non-Javadoc)
+  * @see org.exoplatform.services.jcr.core.ExtendedNode#setPermissions(java.util.Map)
+  */
   public void setPermissions(Map permissions) throws RepositoryException,
                                              AccessDeniedException,
                                              AccessControlException {

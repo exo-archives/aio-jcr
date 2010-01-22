@@ -87,6 +87,17 @@ public interface WorkspaceStorageConnection {
                                                    IllegalStateException;
 
   /**
+   * Reads count of <code>parent<code/> child nodes.
+   * 
+   * @param parent
+   *          NodeData
+   * @return long, childs count
+   * @throws RepositoryException
+   *           if error occurs
+   */
+  int getChildNodesCount(NodeData parent) throws RepositoryException;
+
+  /**
    * @param parent
    *          node data
    * @return child properties data or empty list

@@ -80,6 +80,17 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
     return super.getChildNodesData(nodeData);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getChildNodesCount(final NodeData parent) throws RepositoryException {
+    if (isSystemDescendant(parent.getQPath()) && !this.equals(versionDataManager)) {
+      return versionDataManager.getChildNodesCount(parent);
+    }
+    return super.getChildNodesCount(parent);
+  }
+
   /*
    * (non-Javadoc)
    * @see

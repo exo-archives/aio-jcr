@@ -539,6 +539,24 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   /**
    * {@inheritDoc}
    */
+  public int getChildNodesCount(NodeData parent) throws RepositoryException {
+    checkIfOpened();
+    try {
+      ResultSet count = findChildNodesCountByParentIdentifier(getInternalId(parent.getIdentifier()));
+      if (count.next()) {
+        return count.getInt(1);
+      } else {
+        throw new RepositoryException("FATAL No resulton childNodes count for "
+            + parent.getQPath().getAsString());
+      }
+    } catch (SQLException e) {
+      throw new RepositoryException(e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException,
                                                                    IllegalStateException {
     checkIfOpened();
@@ -706,9 +724,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @throws IllegalNameException
    *           - if name on the path is wrong
    */
-  private QPath traverseQPath(String cpid) throws SQLException,
-                                          InvalidItemStateException,
-                                          IllegalNameException {
+  protected QPath traverseQPath(String cpid) throws SQLException,
+                                            InvalidItemStateException,
+                                            IllegalNameException {
     // get item by Identifier usecase
     List<QPathEntry> qrpath = new ArrayList<QPathEntry>(); // reverted path
     String caid = cpid; // container ancestor id
@@ -1059,7 +1077,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * Mixin types description (internal use).
    * 
    */
-  class MixinInfo {
+  public class MixinInfo {
 
     /**
      * OWNEABLE constant.
@@ -1106,7 +1124,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
      * @param privilegeable
      *          exo:privilegeable flag
      */
-    MixinInfo(List<InternalQName> mixinTypes, boolean owneable, boolean privilegeable) {
+    public MixinInfo(List<InternalQName> mixinTypes, boolean owneable, boolean privilegeable) {
       this.mixinTypes = mixinTypes;
       this.owneable = owneable;
       this.privilegeable = privilegeable;
@@ -1117,7 +1135,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
      * 
      * @return InternalQName[] Mixin names array
      */
-    InternalQName[] mixinNames() {
+    public InternalQName[] mixinNames() {
       if (mixinTypes != null) {
         InternalQName[] mns = new InternalQName[mixinTypes.size()];
         mixinTypes.toArray(mns);
@@ -1131,7 +1149,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
      * 
      * @return boolean
      */
-    boolean hasPrivilegeable() {
+    public boolean hasPrivilegeable() {
       return privilegeable;
     }
 
@@ -1140,8 +1158,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
      * 
      * @return boolean
      */
-    boolean hasOwneable() {
+    public boolean hasOwneable() {
       return owneable;
+    }
+
+    public String getParentId() {
+      return parentId;
     }
   }
 
@@ -1500,7 +1522,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                               orderNum,
                               pdata.getPersistedVersion(),
                               valueRecords.getBinaryStream(COLUMN_VDATA))
-              : readValueData(pdata, orderNum, storageId);
+              : readValueData(pdata.getIdentifier(), orderNum, storageId);
           data.add(vdata);
         }
       } finally {
@@ -1519,8 +1541,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   /**
    * Read ValueData from External Storage.
    * 
-   * @param pdata
-   *          PropertyData
+   * @param identifier
+   *          PropertyData identifier
    * @param orderNumber
    *          Value order number
    * @param storageId
@@ -1533,12 +1555,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * @throws ValueDataNotFoundException
    *           if no ValueData found for Property
    */
-  protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageId) throws SQLException,
-                                                                                          IOException,
-                                                                                          ValueDataNotFoundException {
+  protected ValueData readValueData(String identifier, int orderNumber, String storageId) throws SQLException,
+                                                                                         IOException,
+                                                                                         ValueDataNotFoundException {
     ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
     try {
-      return channel.read(pdata.getIdentifier(), orderNumber, maxBufferSize);
+      return channel.read(identifier, orderNumber, maxBufferSize);
     } finally {
       channel.close();
     }
@@ -1673,6 +1695,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   protected abstract ResultSet findItemByName(String parentId, String name, int index) throws SQLException;
 
   protected abstract ResultSet findChildNodesByParentIdentifier(String parentIdentifier) throws SQLException;
+
+  protected abstract ResultSet findChildNodesCountByParentIdentifier(String parentIdentifier) throws SQLException;
 
   protected abstract ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException;
 

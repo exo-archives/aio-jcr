@@ -94,6 +94,35 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     return nodes;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public int getChildNodesCount(final NodeData parent) throws RepositoryException {
+    if (txStarted()) {
+      int txChildsCount = 0;
+      for (ItemState change : transactionLog.getAllStates()) {
+        if (change.isNode() && change.isPersisted()
+            && change.getData().getParentIdentifier().equals(parent.getIdentifier())) {
+          if (change.isDeleted()) {
+            txChildsCount--;
+          } else if (change.isAdded()) {
+            txChildsCount++;
+          }
+        }
+      }
+
+      final int childsCount = storageDataManager.getChildNodesCount(parent) + txChildsCount;
+      if (childsCount < 0) {
+        throw new InvalidItemStateException("Node's child nodes were changed in another Transaction "
+            + parent.getQPath().getAsString());
+      }
+
+      return childsCount;
+    } else {
+      return storageDataManager.getChildNodesCount(parent);
+    }
+  }
+
   /*
    * (non-Javadoc)
    * @see
