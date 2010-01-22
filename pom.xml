@@ -39,9 +39,12 @@
     <module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
     <module>applications/java/standalone/openofficeplugin</module>
-    <!--module>applications/java/standalone/samples/repoload</module-->
+    <!-- TO FIX AND TO REACTIVATE BEFORE TO RELEASE -->
+    <!--
+    <module>applications/java/standalone/samples/repoload</module>
     <module>applications/java/web/console</module>
     <module>benchmark</module>
+    -->
     <module>packaging</module>
   </modules>
   <build>
