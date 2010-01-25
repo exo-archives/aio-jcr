@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2003-2010 eXo Platform SAS.
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public License
+    as published by the Free Software Foundation; either version 3
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -9,6 +27,42 @@
   <artifactId>exo.jcr.ear</artifactId>
   <packaging>ear</packaging>
   <name>eXo JCR EAR</name>
+  <dependencies>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.connectors.localadapter</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>runtime</scope>
+      <type>rar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.rest</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>runtime</scope>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.browser</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>runtime</scope>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.fckeditor</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>runtime</scope>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.webdav</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
   <build>
     <finalName>exo-jcr-ear</finalName>
     <plugins>
@@ -62,40 +116,4 @@
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.connectors.localadapter</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>runtime</scope>
-      <type>rar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.applications.rest</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>runtime</scope>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.applications.browser</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>runtime</scope>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.applications.fckeditor</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>runtime</scope>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.webdav</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
 </project>

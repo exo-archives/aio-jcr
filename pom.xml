@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2003-2010 eXo Platform SAS.
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public License
+    as published by the Free Software Foundation; either version 3
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -8,45 +26,25 @@
   </parent>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
+  <version>1.10.7-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo JCR</name>
-  <version>1.10.7-SNAPSHOT</version>
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/svnroot/exoplatform/projects/jcr/tags/1.10.6</developerConnection>
-    <url>http://fisheye.exoplatform.org/browse/projects/jcr/tags/1.10.6</url>
+    <connection>scm:svn:http://svn.exoplatform.org/projects/jcr/branches/1.10.x</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/projects/jcr/branches/1.10.x</developerConnection>
+    <url>http://fisheye.exoplatform.org/browse/projects/jcr/branches/1.10.x</url>
   </scm>
-  <modules>
-    <module>component/core</module>
-    <module>component/ext</module>
-    <module>component/aws</module>
-    <module>component/rmi</module>
-    <module>component/ftp</module>
-    <module>component/webdav</module>
-    <module>frameworks/command</module>
-    <module>frameworks/web</module>
-    <module>frameworks/ftpclient</module>
-    <module>connectors/ejb/ejb21</module>
-    <module>connectors/ejb/ejb30</module>
-    <module>connectors/rmiadapter</module>
-    <module>connectors/jca</module>
-    <module>applications/config</module>
-    <module>applications/java/web/samples/browser</module>
-    <module>applications/java/web/samples/fckeditor</module>
-    <module>applications/java/web/webdav</module>
-    <module>applications/java/web/rest</module>
-    <module>applications/java/web/ear</module>
-    <module>applications/java/standalone/rmi-server</module>
-    <module>applications/java/standalone/rmi-client</module>
-    <module>applications/java/standalone/openofficeplugin</module>
-    <!-- TO FIX AND TO REACTIVATE BEFORE TO RELEASE -->
-    <!--
-    <module>applications/java/standalone/samples/repoload</module>
-    <module>applications/java/web/console</module>
-    <module>benchmark</module>
-    -->
-    <module>packaging</module>
-  </modules>
+  <ciManagement>
+    <system>hudson</system>
+    <url>http://builder.exoplatform.org/hudson/job/jcr-1.10.x-ci/</url>
+  </ciManagement>
+  <properties>
+    <exo.product.name>exo-jcr</exo.product.name>
+    <exo.product.specification>1.10</exo.product.specification>
+    <org.exoplatform.kernel.version>2.0.10-SNAPSHOT</org.exoplatform.kernel.version>
+    <org.exoplatform.core.version>2.1.8-SNAPSHOT</org.exoplatform.core.version>
+    <org.exoplatform.ws.version>1.3.6-SNAPSHOT</org.exoplatform.ws.version>
+  </properties>
   <build>
     <resources>
       <resource>
@@ -105,11 +103,35 @@
       </plugins>
     </pluginManagement>
   </build>
-  <properties>
-    <exo.product.name>exo-jcr</exo.product.name>
-    <exo.product.specification>1.10</exo.product.specification>
-    <org.exoplatform.kernel.version>2.0.10-SNAPSHOT</org.exoplatform.kernel.version>
-    <org.exoplatform.core.version>2.1.8-SNAPSHOT</org.exoplatform.core.version>
-    <org.exoplatform.ws.version>1.3.6-SNAPSHOT</org.exoplatform.ws.version>
-  </properties>
+  <modules>
+    <module>component/core</module>
+    <module>component/ext</module>
+    <module>component/aws</module>
+    <module>component/rmi</module>
+    <module>component/ftp</module>
+    <module>component/webdav</module>
+    <module>frameworks/command</module>
+    <module>frameworks/web</module>
+    <module>frameworks/ftpclient</module>
+    <module>connectors/ejb/ejb21</module>
+    <module>connectors/ejb/ejb30</module>
+    <module>connectors/rmiadapter</module>
+    <module>connectors/jca</module>
+    <module>applications/config</module>
+    <module>applications/java/web/samples/browser</module>
+    <module>applications/java/web/samples/fckeditor</module>
+    <module>applications/java/web/webdav</module>
+    <module>applications/java/web/rest</module>
+    <module>applications/java/web/ear</module>
+    <module>applications/java/standalone/rmi-server</module>
+    <module>applications/java/standalone/rmi-client</module>
+    <module>applications/java/standalone/openofficeplugin</module>
+    <!-- TO FIX AND TO REACTIVATE BEFORE TO RELEASE -->
+    <!--
+    <module>applications/java/standalone/samples/repoload</module>
+    <module>applications/java/web/console</module>
+    <module>benchmark</module>
+    -->
+    <module>packaging</module>
+  </modules>
 </project>

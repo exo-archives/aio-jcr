@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2003-2010 eXo Platform SAS.
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public License
+    as published by the Free Software Foundation; either version 3
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -9,6 +27,50 @@
   <artifactId>exo.jcr.component.aws</artifactId>
   <name>eXo JCR Amazon WS support</name>
   <description>eXo JCR Amazon WS support (SimpleDB, S3)</description>
+  <properties>
+    <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
+    <jcr.tck.skip>true</jcr.tck.skip>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>1.10.7-SNAPSHOT</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xerces</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws.sdb</groupId>
+      <artifactId>simpledb</artifactId>
+      <version>2007-11-07</version>
+      <scope>compile</scope>
+    </dependency>
+    <!-- S3Plugin dependency -->
+    <dependency>
+      <groupId>com.amazon</groupId>
+      <artifactId>s3</artifactId>
+      <version>0.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <!-- slf4j-log4j12 for TCK -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-jcr-tests</artifactId>
+      <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
   <build>
     <resources>
       <resource>
@@ -194,48 +256,4 @@
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <testOutputDirectory>target/test-classes</testOutputDirectory>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.7-SNAPSHOT</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>xerces</groupId>
-          <artifactId>xerces</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.amazonaws.sdb</groupId>
-      <artifactId>simpledb</artifactId>
-      <version>2007-11-07</version>
-      <scope>compile</scope>
-    </dependency>
-    <!-- S3Plugin dependency -->
-    <dependency>
-      <groupId>com.amazon</groupId>
-      <artifactId>s3</artifactId>
-      <version>0.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <!-- slf4j-log4j12 for TCK -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>jackrabbit-jcr-tests</artifactId>
-      <version>1.4</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  <properties>
-    <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
-    <jcr.tck.skip>true</jcr.tck.skip>
-  </properties>
 </project>
