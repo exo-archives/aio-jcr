@@ -121,6 +121,9 @@ public class SystemViewImporter extends BaseXmlImporter {
     // property values
     if (propertyInfo.getValues().size() > 0) {
       DecodedValue curPropValue = propertyInfo.getValues().get(propertyInfo.getValues().size() - 1);
+      if(curPropValue.isComplete())
+    	  return;
+      
       if (propertyInfo.getType() == PropertyType.BINARY) {
         try {
           curPropValue.getBinaryDecoder().write(ch, start, length);
@@ -131,7 +134,7 @@ public class SystemViewImporter extends BaseXmlImporter {
         curPropValue.getStringBuffer().append(ch, start, length);
       }
     } else {
-      log.warn("Wrong XML content. Element 'sv:value' expected,"
+      log.debug("Wrong(possibly formatted) XML content. Element 'sv:value' expected,"
           + " but SAX event 'characters' occured. characters:[" + new String(ch, start, length)
           + "]");
     }
@@ -157,6 +160,9 @@ public class SystemViewImporter extends BaseXmlImporter {
         changesLog.add(new ItemState(propertyData, ItemState.ADDED, true, getAncestorToSave()));
     } else if (Constants.SV_VALUE_NAME.equals(elementName)) {
       // sv:value element
+      //mark current value as completed
+    	DecodedValue curPropValue = propertyInfo.getValues().get(propertyInfo.getValues().size() - 1);
+    	curPropValue.setComplete(true);
     } else {
       throw new RepositoryException("invalid element in system view xml document: " + localName);
     }

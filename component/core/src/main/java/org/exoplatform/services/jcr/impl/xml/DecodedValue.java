@@ -44,6 +44,11 @@ public class DecodedValue {
    * String buffer.
    */
   private StringBuffer    stringBuffer;
+  
+  /**
+   * true if DecodedValue is completed
+   */
+  private boolean complete;
 
   /**
    * Dafault constructor.
@@ -98,6 +103,14 @@ public class DecodedValue {
       decoder.remove();
       decoder = null;
     }
+  }
+  
+  public void setComplete(boolean complete) {
+	  this.complete = complete;
+  }
+  
+  public boolean isComplete() {
+	  return complete;
   }
 
   /**

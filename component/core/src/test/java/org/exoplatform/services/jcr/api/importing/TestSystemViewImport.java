@@ -51,111 +51,169 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id$
+ * @version $Id: TestSystemViewImport.java 35189 2009-08-07 14:35:29Z pnedonosko$
  */
 public class TestSystemViewImport extends AbstractImportTest {
-  static public final String    SOURCE_NAME          = "source node";
+  static public final String    SOURCE_NAME                   = "source node";
 
-  static protected final String BIN_STRING           = "222222222222222222<=Any binary=>22222222222222222222";
+  static protected final String BIN_STRING                    = "222222222222222222<=Any binary=>22222222222222222222";
 
-  private static Log            log                  = ExoLogger.getLogger("jcr.TestSystemViewImport");
+  private static Log            log                           = ExoLogger.getLogger("jcr.TestSystemViewImport");
 
   private Node                  sysview;
 
   private File                  xmlContent;
 
-  public static final String    SYSTEM_VIEW_CONTENT  = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
-                                                         + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
-                                                         + "xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" "
-                                                         + "xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
-                                                         + "xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" sv:name=\"exo:test\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:unstructured</sv:value></sv:property>"
-                                                         +
+  public static final String    SYSTEM_VIEW_CONTENT           = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
+                                                                  + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
+                                                                  + "xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" "
+                                                                  + "xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
+                                                                  + "xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" sv:name=\"exo:test\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:unstructured</sv:value></sv:property>"
+                                                                  +
 
-                                                         "<sv:node sv:name=\"childNode\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:folder</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         + "<sv:node sv:name=\"childNode3\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         + "<sv:node sv:name=\"jcr:content\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020617_</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>application/unknown</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         + "</sv:node>"
-                                                         + "</sv:node>"
-                                                         + "<sv:node sv:name=\"childNode2\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         + "<sv:node sv:name=\"jcr:content\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020616_</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>text/text</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         + "</sv:node>"
-                                                         + "</sv:node>"
-                                                         + "</sv:node>"
-                                                         +
+                                                                  "<sv:node sv:name=\"childNode\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:folder</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  + "<sv:node sv:name=\"childNode3\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  + "<sv:node sv:name=\"jcr:content\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020617_</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>application/unknown</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  + "</sv:node>"
+                                                                  + "</sv:node>"
+                                                                  + "<sv:node sv:name=\"childNode2\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  + "<sv:node sv:name=\"jcr:content\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020616_</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>text/text</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  + "</sv:node>"
+                                                                  + "</sv:node>"
+                                                                  + "</sv:node>"
+                                                                  +
 
-                                                         "<sv:node sv:name='uuidNode1'>"
-                                                         + "<sv:property sv:name='jcr:primaryType' sv:type='Name'><sv:value>nt:unstructured</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'>"
-                                                         + "<sv:value>mix:referenceable</sv:value>"
-                                                         + "<!-- sv:value>exo:accessControllable</sv:value -->"
-                                                         + "</sv:property>"
-                                                         + "<sv:property sv:name='jcr:test' sv:type='String'><sv:value>val1</sv:value><sv:value>val1</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='source' sv:type='String'><sv:value>sysView</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:uuid' sv:type='String'><sv:value>id_uuidNode1</sv:value></sv:property>"
-                                                         + "</sv:node>"
-                                                         +
+                                                                  "<sv:node sv:name='uuidNode1'>"
+                                                                  + "<sv:property sv:name='jcr:primaryType' sv:type='Name'><sv:value>nt:unstructured</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'>"
+                                                                  + "<sv:value>mix:referenceable</sv:value>"
+                                                                  + "<!-- sv:value>exo:accessControllable</sv:value -->"
+                                                                  + "</sv:property>"
+                                                                  + "<sv:property sv:name='jcr:test' sv:type='String'><sv:value>val1</sv:value><sv:value>val1</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='source' sv:type='String'><sv:value>sysView</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:uuid' sv:type='String'><sv:value>id_uuidNode1</sv:value></sv:property>"
+                                                                  + "</sv:node>"
+                                                                  +
 
-                                                         "<sv:node sv:name='uuidNode2'>"
-                                                         + "<sv:property sv:name='jcr:primaryType' sv:type='Name'><sv:value>nt:unstructured</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'><sv:value>mix:referenceable</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:test' sv:type='String'><sv:value>val2</sv:value><sv:value>val1</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:uuid' sv:type='String'><sv:value>uuidNode2</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='ref_to_1' sv:type='Reference'><sv:value>id_uuidNode1</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='ref_to_1_and_3' sv:type='Reference'><sv:value>id_uuidNode1</sv:value><sv:value>id_uuidNode3</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='ref_to_3' sv:type='Reference'><sv:value>id_uuidNode3</sv:value></sv:property>"
-                                                         + "</sv:node>"
-                                                         +
+                                                                  "<sv:node sv:name='uuidNode2'>"
+                                                                  + "<sv:property sv:name='jcr:primaryType' sv:type='Name'><sv:value>nt:unstructured</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'><sv:value>mix:referenceable</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:test' sv:type='String'><sv:value>val2</sv:value><sv:value>val1</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:uuid' sv:type='String'><sv:value>uuidNode2</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='ref_to_1' sv:type='Reference'><sv:value>id_uuidNode1</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='ref_to_1_and_3' sv:type='Reference'><sv:value>id_uuidNode1</sv:value><sv:value>id_uuidNode3</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='ref_to_3' sv:type='Reference'><sv:value>id_uuidNode3</sv:value></sv:property>"
+                                                                  + "</sv:node>"
+                                                                  +
 
-                                                         "<sv:node sv:name='uuidNode3'>"
-                                                         + "<sv:property sv:name='jcr:primaryType' sv:type='Name'><sv:value>nt:unstructured</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'><sv:value>mix:referenceable</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='ref_to_1' sv:type='Reference'><sv:value>id_uuidNode1</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:test' sv:type='String'><sv:value>val1</sv:value><sv:value>va31</sv:value></sv:property>"
-                                                         + "<sv:property sv:name='jcr:uuid' sv:type='String'><sv:value>id_uuidNode3</sv:value></sv:property>"
-                                                         + "</sv:node>"
-                                                         +
+                                                                  "<sv:node sv:name='uuidNode3'>"
+                                                                  + "<sv:property sv:name='jcr:primaryType' sv:type='Name'><sv:value>nt:unstructured</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'><sv:value>mix:referenceable</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='ref_to_1' sv:type='Reference'><sv:value>id_uuidNode1</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:test' sv:type='String'><sv:value>val1</sv:value><sv:value>va31</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name='jcr:uuid' sv:type='String'><sv:value>id_uuidNode3</sv:value></sv:property>"
+                                                                  + "</sv:node>"
+                                                                  +
 
-                                                         "<sv:node sv:name=\"childNode4\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:unstructured</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:test\" sv:type=\"String\"><sv:value>val1</sv:value><sv:value>val1</sv:value></sv:property>"
-                                                         + "</sv:node>" +
+                                                                  "<sv:node sv:name=\"childNode4\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:unstructured</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:test\" sv:type=\"String\"><sv:value>val1</sv:value><sv:value>val1</sv:value></sv:property>"
+                                                                  + "</sv:node>" +
 
-                                                         "</sv:node>";
+                                                                  "</sv:node>";
 
-  public static final String    SYSTEM_VIEW_CONTENT2 = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
-                                                         + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
-                                                         + "xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" "
-                                                         + "xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
-                                                         + "xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" sv:name=\"childNode2\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         + "<sv:node sv:name=\"jcr:content\">"
-                                                         + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020616_</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>text/text</sv:value></sv:property>"
-                                                         + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         // Special unexisting
-                                                         // property
-                                                         + "<sv:property sv:name=\"jcr:lastModified2\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
-                                                         + "</sv:node>" + "</sv:node>";
+  public static final String    SYSTEM_VIEW_CONTENT_FORMATTED = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" xmlns:jcr=\"http://www.jcp.org/jcr/1.0\"\n "
+                                                                  + "xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\"\n  "
+                                                                  + "xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" sv:name=\"exo:test\">\n "
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\">\n      <sv:value>nt:unstructured</sv:value>\n    </sv:property>\n\n   "
+                                                                  + "<sv:node sv:name=\"childNode\">\n      "
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\">\n         <sv:value>nt:folder</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\">\n       <sv:value>2004-08-18T15:17:00.856+01:00</sv:value>\n     </sv:property>\n     "
+                                                                  + "<sv:node sv:name=\"childNode3\">\n        "
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\">\n            <sv:value>nt:file</sv:value>\n         </sv:property>\n        "
+                                                                  + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\">\n          <sv:value>2004-08-18T15:17:00.856+01:00</sv:value>\n        </sv:property>\n        "
+                                                                  + "<sv:node sv:name=\"jcr:content\">\n          "
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\">\n               <sv:value>nt:resource</sv:value>\n           </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\">\n              <sv:value>1092835020617_</sv:value>\n           </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\">\n              <sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value>\n          </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\">\n             <sv:value>application/unknown</sv:value>\n            </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\">\n              <sv:value>2004-08-18T15:17:00.856+01:00</sv:value>\n           </sv:property>\n        "
+                                                                  + "</sv:node>\n      "
+                                                                  + "</sv:node>\n      "
+                                                                  + "<sv:node sv:name=\"childNode2\">\n        "
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\">\n            <sv:value>nt:file</sv:value>\n         </sv:property>\n        "
+                                                                  + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\">\n          <sv:value>2004-08-18T15:17:00.856+01:00</sv:value>\n        </sv:property>\n        "
+                                                                  + "<sv:node sv:name=\"jcr:content\">\n          "
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\">\n               <sv:value>nt:resource</sv:value>\n           </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\">\n              <sv:value>1092835020616_</sv:value>\n           </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\">\n              <sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value>\n          </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\">\n             <sv:value>text/text</sv:value>\n          </sv:property>\n           "
+                                                                  + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\">\n              <sv:value>2004-08-18T15:17:00.856+01:00</sv:value>\n           </sv:property>\n        "
+                                                                  + "</sv:node>\n      "
+                                                                  + "</sv:node>\n   "
+                                                                  + "</sv:node>\n\n "
+                                                                  + "<sv:node sv:name='uuidNode1'>\n     "
+                                                                  + "<sv:property sv:name='jcr:primaryType' sv:type='Name'>\n       <sv:value>nt:unstructured</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'>\n        <sv:value>mix:referenceable</sv:value>\n        "
+                                                                  + "<!-- sv:value>exo:accessControllable</sv:value -->\n     "
+                                                                  + "</sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:test' sv:type='String'>\n         <sv:value>val1</sv:value>\n         <sv:value>val1</sv:value>\n      </sv:property>\n     "
+                                                                  + "<sv:property sv:name='source' sv:type='String'>\n        <sv:value>sysView</sv:value>\n      </sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:uuid' sv:type='String'>\n         <sv:value>id_uuidNode1</sv:value>\n    </sv:property>\n  </sv:node>\n\n "
+                                                                  + "<sv:node sv:name='uuidNode2'>\n     "
+                                                                  + "<sv:property sv:name='jcr:primaryType' sv:type='Name'>\n       <sv:value>nt:unstructured</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'>\n        <sv:value>mix:referenceable</sv:value>\n     </sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:test' sv:type='String'>\n         <sv:value>val2</sv:value>\n         <sv:value>val1</sv:value>\n      </sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:uuid' sv:type='String'>\n         <sv:value>uuidNode2</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name='ref_to_1' sv:type='Reference'>\n         <sv:value>id_uuidNode1</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name='ref_to_1_and_3' sv:type='Reference'>\n         <sv:value>id_uuidNode1</sv:value>\n       <sv:value>id_uuidNode3</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name='ref_to_3' sv:type='Reference'>\n         <sv:value>id_uuidNode3</sv:value>\n    </sv:property>\n  </sv:node>\n\n <sv:node sv:name='uuidNode3'>\n     "
+                                                                  + "<sv:property sv:name='jcr:primaryType' sv:type='Name'>\n       <sv:value>nt:unstructured</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:mixinTypes' sv:type='Name'>\n        <sv:value>mix:referenceable</sv:value>\n     </sv:property>\n     "
+                                                                  + "<sv:property sv:name='ref_to_1' sv:type='Reference'>\n         <sv:value>id_uuidNode1</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name='jcr:test' sv:type='String'>\n         <sv:value>val1</sv:value>\n         <sv:value>va31</sv:value>\n      </sv:property>\n     <sv:property sv:name='jcr:uuid' sv:type='String'>\n         <sv:value>id_uuidNode3</sv:value>\n    </sv:property>\n  "
+                                                                  + "</sv:node>\n\n "
+                                                                  + "<sv:node sv:name=\"childNode4\">\n     "
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\">\n         "
+                                                                  + "<sv:value>nt:unstructured</sv:value>\n    </sv:property>\n     "
+                                                                  + "<sv:property sv:name=\"jcr:test\" sv:type=\"String\">\n        <sv:value>val1</sv:value>\n         <sv:value>val1</sv:value>\n      </sv:property>\n  "
+                                                                  + "</sv:node>\n\n" + "</sv:node>";
+
+  public static final String    SYSTEM_VIEW_CONTENT2          = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
+                                                                  + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
+                                                                  + "xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" "
+                                                                  + "xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
+                                                                  + "xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" sv:name=\"childNode2\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  + "<sv:node sv:name=\"jcr:content\">"
+                                                                  + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020616_</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>text/text</sv:value></sv:property>"
+                                                                  + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  // Special
+                                                                  // unexisting
+                                                                  // property
+                                                                  + "<sv:property sv:name=\"jcr:lastModified2\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+                                                                  + "</sv:node>" + "</sv:node>";
 
   @Override
   public void setUp() throws Exception {
@@ -421,6 +479,38 @@ public class TestSystemViewImport extends AbstractImportTest {
     session.save();
 
     Node testRoot = session.getRootNode().getNode("test");
+    NodeIterator iterator = testRoot.getNodes();
+    assertEquals(1, iterator.getSize());
+
+    // log.debug(">>"+session.getWorkspaceDataContainer());
+
+    iterator = testRoot.getNode("exo:test/childNode").getNodes();
+    assertEquals(2, iterator.getSize());
+
+    Property property = testRoot.getProperty("exo:test/childNode/childNode3/jcr:content/jcr:data");
+    assertEquals("this is the binary content", property.getString());
+
+    property = testRoot.getProperty("exo:test/childNode/childNode2/jcr:content/jcr:data");
+    assertEquals("this is the binary content", property.getString());
+
+    property = testRoot.getProperty("exo:test/childNode4/jcr:test");
+    assertEquals(2, property.getValues().length);
+    assertEquals("val1", property.getValues()[0].getString());
+  }
+
+  public void testImportSysViewFormatted() throws RepositoryException,
+                                          InvalidSerializedDataException,
+                                          ConstraintViolationException,
+                                          IOException,
+                                          ItemExistsException {
+
+    root.addNode("testFormatted");
+    session.importXML("/testFormatted",
+                      new ByteArrayInputStream(SYSTEM_VIEW_CONTENT_FORMATTED.getBytes()),
+                      0);
+    session.save();
+
+    Node testRoot = session.getRootNode().getNode("testFormatted");
     NodeIterator iterator = testRoot.getNodes();
     assertEquals(1, iterator.getSize());
 
