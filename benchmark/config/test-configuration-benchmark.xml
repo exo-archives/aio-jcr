@@ -216,7 +216,7 @@
                     <field  name="email"><string>root@localhost</string></field>
                     <field  name="groups">
                       <string>
-                      	*:/platform/administrators
+                      	member:/platform/administrators
                       </string>
                     </field>
                   </object>
