@@ -474,19 +474,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
 
     try {
-      // create membership type '*'
-      if (m.getName().equals("*")
-          && !session.itemExists(service.getStoragePath() + "/"
-              + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + m.getName())) {
-
-        MembershipType mt = service.getMembershipTypeHandler().createMembershipTypeInstance();
-        mt.setName("*");
-        mt.setDescription("any membership type");
-        ((MembershipTypeHandlerImpl) service.getMembershipTypeHandler()).createMembershipType(session,
-                                                                                              mt,
-                                                                                              broadcast);
-      }
-
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName());
 

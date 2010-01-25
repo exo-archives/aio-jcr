@@ -78,7 +78,7 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
   public void testFindMembershipTypes() {
     try {
       Collection mts = mtHandler.findMembershipTypes();
-      assertTrue("Membership type count must be equal 4 but equal " + mts.size(), mts.size() == 4);
+      assertTrue("Membership type count must be equal 3 but equal " + mts.size(), mts.size() == 3);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");

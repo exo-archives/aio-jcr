@@ -138,7 +138,7 @@ public class TestOrganizationService extends BaseStandaloneTest {
 
     Query query = new Query();
     PageList users = userHandler_.findUsers(query);
-    assertTrue("Expect 6 user found ", users.getAvailable() == 6);
+    assertTrue("Expect 5 user found ", users.getAvailable() == 5);
 
     /* Update user's information */
     u.setFirstName("Exo(Update)");
@@ -152,7 +152,7 @@ public class TestOrganizationService extends BaseStandaloneTest {
 
     PageList piterator = userHandler_.getUserPageList(10);
     // assertTrue (piterator.currentPage().size() == 2) ;
-    assertEquals(6, piterator.currentPage().size()); // [PN] was 2, but from
+    assertEquals(5, piterator.currentPage().size()); // [PN] was 2, but from
     // where?
 
     /*
@@ -260,19 +260,19 @@ public class TestOrganizationService extends BaseStandaloneTest {
      * "testmembership", "anothertype" and "member"(default membership type)
      */
     Collection ms = mtHandler_.findMembershipTypes();
-    assertEquals("Expect 6 membership in collection: ", 6, ms.size());
+    assertEquals("Expect 5 membership in collection: ", 5, ms.size());
 
     /* remove "testmembership" */
     mtHandler_.removeMembershipType(testType, true);
     assertEquals("Membership type has been removed:", null, mtHandler_.findMembershipType(testType));
-    assertEquals("Expect 5 membership in collection: ", 5, mtHandler_.findMembershipTypes().size());
+    assertEquals("Expect 4 membership in collection: ", 4, mtHandler_.findMembershipTypes().size());
 
     /* remove "anothertype" */
     mtHandler_.removeMembershipType("anothertype", true);
     assertEquals("Membership type has been removed:",
                  null,
                  mtHandler_.findMembershipType("anothertype"));
-    assertEquals("Expect 4 membership in collection: ", 4, mtHandler_.findMembershipTypes().size());
+    assertEquals("Expect 3 membership in collection: ", 3, mtHandler_.findMembershipTypes().size());
     /* All membershipType was removed(except default membership) */
   }
 

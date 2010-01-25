@@ -153,8 +153,8 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
   public void testGetUserPageList() {
     try {
       PageList pList = (ObjectPageList) uHandler.getUserPageList(10);
-      assertTrue("Found " + pList.getAll().size() + " users but present only 5", pList.getAll()
-                                                                                      .size() == 5);
+      assertTrue("Found " + pList.getAll().size() + " users but present only 4", pList.getAll()
+                                                                                      .size() == 4);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown.");

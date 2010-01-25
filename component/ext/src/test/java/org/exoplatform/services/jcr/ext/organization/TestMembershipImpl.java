@@ -70,7 +70,7 @@ public class TestMembershipImpl extends BaseStandaloneTest {
     try {
       Group g = gHandler.findGroupById("/platform/users");
       Collection list = mHandler.findMembershipsByGroup(g);
-      assertTrue("Found " + list.size() + " memberships but 5 is present", list.size() == 5);
+      assertTrue("Found " + list.size() + " memberships but 4 is present", list.size() == 4);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -109,7 +109,7 @@ public class TestMembershipImpl extends BaseStandaloneTest {
   public void testFindMembershipsByUser() {
     try {
       Collection list = mHandler.findMembershipsByUser("john");
-      assertTrue("Found " + list.size() + " memberships but 5 is present", list.size() == 5);
+      assertTrue("Found " + list.size() + " memberships but 3 is present", list.size() == 3);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -190,7 +190,7 @@ public class TestMembershipImpl extends BaseStandaloneTest {
   public void testFindGroupByMembership() {
     try {
       Collection list = gHandler.findGroupByMembership("john", "manager");
-      assertTrue("Found " + list.size() + " memberships but 2 is present", list.size() == 2);
+      assertTrue("Found " + list.size() + " memberships but 1 is present", list.size() == 1);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -202,8 +202,8 @@ public class TestMembershipImpl extends BaseStandaloneTest {
    */
   public void testFindGroupsOfUser() throws Exception {
     try {
-      Collection list = gHandler.findGroupByMembership("james", null);
-      assertTrue("Found " + list.size() + " memberships but 2 is present", list.size() == 2);
+      Collection list = gHandler.findGroupByMembership("john", null);
+      assertTrue("Found " + list.size() + " memberships but 3 is present", list.size() == 3);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -218,8 +218,8 @@ public class TestMembershipImpl extends BaseStandaloneTest {
       PageList pList = uHandler.findUsersByGroup("/platform/users");
       Object list[] = pList.getAll().toArray();
 
-      assertTrue("Found " + pList.getAll().size() + " users but 5 is present", pList.getAll()
-                                                                                    .size() == 5);
+      assertTrue("Found " + pList.getAll().size() + " users but 4 is present", pList.getAll()
+                                                                                    .size() == 4);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
