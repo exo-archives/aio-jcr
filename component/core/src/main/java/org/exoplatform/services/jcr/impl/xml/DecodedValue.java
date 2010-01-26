@@ -44,11 +44,11 @@ public class DecodedValue {
    * String buffer.
    */
   private StringBuffer    stringBuffer;
-  
+
   /**
    * true if DecodedValue is completed
    */
-  private boolean complete;
+  private boolean         complete;
 
   /**
    * Dafault constructor.
@@ -59,9 +59,9 @@ public class DecodedValue {
   }
 
   /**
-   * @return Base64 decoder. It is write decoded incoming data into the temporary file.
-   * @exception IOException
-   *              if an I/O error occurs.
+   * @return Base64 decoder. It is write decoded incoming data into the
+   *         temporary file.
+   * @exception IOException if an I/O error occurs.
    */
   public Decoder getBinaryDecoder() throws IOException {
     if (decoder == null) {
@@ -73,8 +73,7 @@ public class DecodedValue {
 
   /**
    * @return InputStream from decoded file.
-   * @exception IOException
-   *              if an I/O error occurs.
+   * @exception IOException if an I/O error occurs.
    */
   public InputStream getInputStream() throws IOException {
     if (decoder == null) {
@@ -94,8 +93,7 @@ public class DecodedValue {
   /**
    * Removes all temporary variables and files.
    * 
-   * @throws IOException
-   *           if file can't be removed.
+   * @throws IOException if file can't be removed.
    */
   public void remove() throws IOException {
 
@@ -104,13 +102,23 @@ public class DecodedValue {
       decoder = null;
     }
   }
-  
+
+  /**
+   * Used to determine the end of value tag in system view import.
+   * 
+   * @param complete
+   */
   public void setComplete(boolean complete) {
-	  this.complete = complete;
+    this.complete = complete;
   }
-  
+
+  /**
+   * Used to determine the end of value tag in system view import.
+   * 
+   * @return
+   */
   public boolean isComplete() {
-	  return complete;
+    return complete;
   }
 
   /**
