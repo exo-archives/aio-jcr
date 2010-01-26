@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.api.writing;
 
+import org.exoplatform.services.jcr.JcrAPIBaseTest;
+
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
@@ -23,8 +25,6 @@ import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
-
-import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * Created by The eXo Platform SAS.
@@ -59,8 +59,9 @@ public class TestNodeReference extends JcrAPIBaseTest {
     root.save();
 
     PropertyIterator refs = testNode.getReferences();
-    while (refs.hasNext())
+    while (refs.hasNext()) {
       log.info("ref >>>" + refs.nextProperty());
+    }
 
     assertEquals(2, testNode.getReferences().getSize());
     assertEquals(1, testNode1.getReferences().getSize());
@@ -255,6 +256,30 @@ public class TestNodeReference extends JcrAPIBaseTest {
       n4.getProperty("p1_multiple").remove();
       root.save();
     }
+  }
+
+  /**
+   * Test for http://jira.exoplatform.org/browse/JCR-1320
+   * 
+   * @throws Exception
+   */
+  public void testGetRegerencesOnChangedNode() throws Exception {
+
+    Node testNode = root.addNode("testGetReferences", "nt:unstructured");
+    Node refNode = root.addNode("refNode", "nt:unstructured");
+    assertTrue(testNode.canAddMixin("mix:referenceable"));
+
+    testNode.addMixin("mix:referenceable");
+    refNode.setProperty("p", refNode.getSession().getValueFactory().createValue(testNode));
+    session.save();
+
+    // change node
+    assertTrue(testNode.canAddMixin("mix:lockable"));
+    testNode.addMixin("mix:lockable");
+
+    PropertyIterator refs = testNode.getReferences();
+    assertEquals(1, refs.getSize());
+
   }
 
 }

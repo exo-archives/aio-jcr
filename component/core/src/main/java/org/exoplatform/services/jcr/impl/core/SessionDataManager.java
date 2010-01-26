@@ -475,7 +475,7 @@ public class SessionDataManager implements ItemDataConsumer {
                                       new String[] { PermissionType.READ },
                                       session.getUserState().getIdentity())) {
         PropertyImpl item = null;
-        ItemState state = changesLog.getItemState(identifier);
+        ItemState state = changesLog.getItemState(data.getIdentifier());
         if (state != null) {
           if (state.isDeleted()) // skip deleted
             continue;
