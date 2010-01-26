@@ -34,7 +34,6 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
 import org.exoplatform.services.jcr.impl.storage.jdbc.PrimaryTypeNotFoundException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
-import org.exoplatform.services.log.ExoLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,8 +52,10 @@ import javax.jcr.RepositoryException;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id$
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
+ * @version $Id: CQJDBCStorageConnection.java 42817 2010-01-22 08:01:06Z tolusha
+ *          $
  */
 abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
 
@@ -84,7 +85,8 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   protected String FIND_ITEM_QPATH_BY_ID_CQ;
 
   /**
-   * Class needed to store node details (property also) since result set is not sorted in valid way.
+   * Class needed to store node details (property also) since result set is not
+   * sorted in valid way.
    */
   private static class TempNodeData {
     String                    cid;
@@ -114,20 +116,13 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   /**
    * JDBCStorageConnection constructor.
    * 
-   * @param dbConnection
-   *          JDBC connection
-   * @param containerName
-   *          Workspace container name
-   * @param valueStorageProvider
-   *          External Value Storage provider
-   * @param maxBufferSize
-   *          maximum buffer size (configuration)
-   * @param swapDirectory
-   *          swap directory (configuration)
-   * @param swapCleaner
-   *          swap cleaner (FileCleaner)
-   * @throws SQLException
-   *           database error
+   * @param dbConnection JDBC connection
+   * @param containerName Workspace container name
+   * @param valueStorageProvider External Value Storage provider
+   * @param maxBufferSize maximum buffer size (configuration)
+   * @param swapDirectory swap directory (configuration)
+   * @param swapCleaner swap cleaner (FileCleaner)
+   * @throws SQLException database error
    */
   protected CQJDBCStorageConnection(Connection dbConnection,
                                     boolean readOnly,
@@ -151,9 +146,10 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException,
                                                           IllegalStateException {
     checkIfOpened();
+    ResultSet resultSet = null;
     try {
       // query will return nodes and properties in same result set
-      ResultSet resultSet = findChildNodesByParentIdentifierCQ(getInternalId(parent.getIdentifier()));
+      resultSet = findChildNodesByParentIdentifierCQ(getInternalId(parent.getIdentifier()));
       TempNodeData data = null;
       List<NodeData> childNodes = new ArrayList<NodeData>();
       while (resultSet.next()) {
@@ -166,6 +162,7 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
           childNodes.add(nodeData);
           data = new TempNodeData(resultSet);
         }
+
         Map<String, List<byte[]>> properties = data.properties;
         String key = resultSet.getString("PROP_NAME");
         List<byte[]> values = properties.get(key);
@@ -175,15 +172,25 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
         }
         values.add(resultSet.getBytes(COLUMN_VDATA));
       }
+
       if (data != null) {
         NodeData nodeData = loadNodeFromTemporaryNodeData(data, parent.getQPath(), parent.getACL());
         childNodes.add(nodeData);
       }
+
       return childNodes;
     } catch (SQLException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
       throw new RepositoryException(e);
+    } finally {
+      if (resultSet != null) {
+        try {
+          resultSet.close();
+        } catch (SQLException e) {
+          LOG.error(e.getMessage(), e);
+        }
+      }
     }
   }
 
@@ -193,19 +200,81 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException,
                                                                    IllegalStateException {
     checkIfOpened();
+    ResultSet resultSet = null;
     try {
-      ResultSet resultSet = findChildPropertiesByParentIdentifierCQ(getInternalId(parent.getIdentifier()));
+      resultSet = findChildPropertiesByParentIdentifierCQ(getInternalId(parent.getIdentifier()));
       List<PropertyData> children = new ArrayList<PropertyData>();
+
+      QPath parentPath = parent.getQPath();
+
       if (resultSet.next()) {
-        while (!resultSet.isAfterLast())
-          children.add(loadPropertyRecord(resultSet, parent.getQPath()));
+        boolean isNotLast = true;
+
+        do {
+          // read property data
+          String cid = resultSet.getString(COLUMN_ID);
+          String identifier = getIdentifier(cid);
+
+          String cname = resultSet.getString(COLUMN_NAME);
+          int cversion = resultSet.getInt(COLUMN_VERSION);
+
+          String cpid = resultSet.getString(COLUMN_PARENTID);
+          // if parent ID is empty string - it's a root node
+
+          int cptype = resultSet.getInt(COLUMN_PTYPE);
+          boolean cpmultivalued = resultSet.getBoolean(COLUMN_PMULTIVALUED);
+          QPath qpath;
+          try {
+            qpath = QPath.makeChildPath(parentPath == null ? traverseQPath(cpid) : parentPath,
+                                        InternalQName.parse(cname));
+          } catch (IllegalNameException e) {
+            throw new RepositoryException(e.getMessage(), e);
+          }
+
+          PersistedPropertyData pdata = new PersistedPropertyData(identifier,
+                                                                  qpath,
+                                                                  getIdentifier(cpid),
+                                                                  cversion,
+                                                                  cptype,
+                                                                  cpmultivalued);
+
+          // read values
+          List<ValueData> data = new ArrayList<ValueData>();
+          do {
+            int orderNum = resultSet.getInt(COLUMN_VORDERNUM);
+            // check is there value columns
+            if (!resultSet.wasNull()) {
+              final String storageId = resultSet.getString(COLUMN_VSTORAGE_DESC);
+              ValueData vdata = resultSet.wasNull() ? readValueData(cid,
+                                                                    orderNum,
+                                                                    cversion,
+                                                                    resultSet.getBinaryStream(COLUMN_VDATA))
+                                                   : readValueData(identifier, orderNum, storageId);
+              data.add(vdata);
+            }
+
+            isNotLast = resultSet.next();
+          } while (isNotLast && resultSet.getString(COLUMN_ID).equals(cid));
+
+          pdata.setValues(data);
+          children.add(pdata);
+        } while (isNotLast);
       }
       return children;
     } catch (SQLException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
       throw new RepositoryException(e);
+    } finally {
+      if (resultSet != null) {
+        try {
+          resultSet.close();
+        } catch (SQLException e) {
+          LOG.error(e.getMessage(), e);
+        }
+      }
     }
+
   }
 
   /**
@@ -282,9 +351,11 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
         } else if (values.size() <= valueOrderNum) {
           // read value and put into values buffer
           final String storageId = resultSet.getString(COLUMN_VSTORAGE_DESC);
-          ValueData vdata = resultSet.wasNull()
-              ? readValueData(cid, valueOrderNum, cversion, resultSet.getBinaryStream(COLUMN_VDATA))
-              : readValueData(identifier, valueOrderNum, storageId);
+          ValueData vdata = resultSet.wasNull() ? readValueData(cid,
+                                                                valueOrderNum,
+                                                                cversion,
+                                                                resultSet.getBinaryStream(COLUMN_VDATA))
+                                               : readValueData(identifier, valueOrderNum, storageId);
 
           values.add(vdata);
           valuesBuffer.put(identifier, values);
@@ -330,10 +401,8 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   /**
    * Read ACL Permissions from properties set.
    * 
-   * @param cid
-   *          node id (used only for error messages)
-   * @param properties
-   *          - Property name and property values
+   * @param cid node id (used only for error messages)
+   * @param properties - Property name and property values
    * @return list ACL
    * @throws SQLException
    * @throws IllegalACLException
@@ -360,10 +429,8 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   /**
    * Read ACL owner.
    * 
-   * @param cid
-   *          - node id (used only in exception message)
-   * @param properties
-   *          - Proeprty name and property values
+   * @param cid - node id (used only in exception message)
+   * @param properties - Proeprty name and property values
    * @return ACL owner
    * @throws IllegalACLException
    */
@@ -516,9 +583,9 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
                                         readACLPermisions(cid, properties));
           } else if (parentACL != null) {
             // use permissions from existed parent
-            acl = new AccessControlList(readACLOwner(cid, properties), parentACL.hasPermissions()
-                ? parentACL.getPermissionEntries()
-                : null);
+            acl = new AccessControlList(readACLOwner(cid, properties),
+                                        parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                                  : null);
           } else {
             // have to search nearest ancestor permissions in ACL manager
             acl = new AccessControlList(readACLOwner(cid, properties), null);
@@ -534,17 +601,19 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
             acl = new AccessControlList(parentACL.getOwner(), readACLPermisions(cid, properties));
           } else {
             // have to search nearest ancestor owner in ACL manager
-            // acl = new AccessControlList(traverseACLOwner(cpid), readACLPermisions(cid));
+            // acl = new AccessControlList(traverseACLOwner(cpid),
+            // readACLPermisions(cid));
             acl = new AccessControlList(null, readACLPermisions(cid, properties));
           }
         } else {
           if (parentACL != null)
             // construct ACL from existed parent ACL
-            acl = new AccessControlList(parentACL.getOwner(), parentACL.hasPermissions()
-                ? parentACL.getPermissionEntries()
-                : null);
+            acl = new AccessControlList(parentACL.getOwner(),
+                                        parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                                  : null);
           else
-            // have to search nearest ancestor owner and permissions in ACL manager
+            // have to search nearest ancestor owner and permissions in ACL
+            // manager
             // acl = traverseACL(cpid);
             acl = null;
         }
@@ -564,66 +633,6 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
       }
     } catch (IllegalNameException e) {
       throw new RepositoryException(e);
-    }
-  }
-
-  /**
-   * Load property record from result set. Result set must be ordered by property id. In other way
-   * there may be mistaces.
-   * 
-   * @param resultSet
-   *          - Result set
-   * @param parentPath
-   *          - parent qpath - needed to create property qpath. May be null.
-   * @return PersistedPropertyData
-   * @throws RepositoryException
-   * @throws SQLException
-   * @throws IOException
-   */
-  protected PersistedPropertyData loadPropertyRecord(ResultSet resultSet, QPath parentPath) throws RepositoryException,
-                                                                                           SQLException,
-                                                                                           IOException {
-    String cid = resultSet.getString(COLUMN_ID);
-    String cname = resultSet.getString(COLUMN_NAME);
-    int cversion = resultSet.getInt(COLUMN_VERSION);
-
-    String cpid = resultSet.getString(COLUMN_PARENTID);
-    // if parent ID is empty string - it's a root node
-    try {
-      int cptype = resultSet.getInt(COLUMN_PTYPE);
-      boolean cpmultivalued = resultSet.getBoolean(COLUMN_PMULTIVALUED);
-      QPath qpath = QPath.makeChildPath(parentPath == null ? traverseQPath(cpid) : parentPath,
-                                        InternalQName.parse(cname));
-
-      List<ValueData> data = new ArrayList<ValueData>();
-      String identifier = getIdentifier(cid);
-
-      do {
-        int orderNum = resultSet.getInt(COLUMN_VORDERNUM);
-        // check is there value columns
-        if (!resultSet.wasNull()) {
-          final String storageId = resultSet.getString(COLUMN_VSTORAGE_DESC);
-          ValueData vdata = resultSet.wasNull()
-              ? readValueData(cid, orderNum, cversion, resultSet.getBinaryStream(COLUMN_VDATA))
-              : readValueData(identifier, orderNum, storageId);
-          data.add(vdata);
-        }
-      } while (resultSet.next() && resultSet.getString(COLUMN_ID).equals(cid));
-
-      PersistedPropertyData pdata = new PersistedPropertyData(identifier,
-                                                              qpath,
-                                                              getIdentifier(cpid),
-                                                              cversion,
-                                                              cptype,
-                                                              cpmultivalued);
-      pdata.setValues(data);
-
-      return pdata;
-    } catch (IllegalNameException e) {
-      throw new RepositoryException(e);
-    } catch (InvalidItemStateException e) {
-      throw new InvalidItemStateException("FATAL: Can't build item path for name " + cname
-          + " id: " + getIdentifier(cid) + ". " + e);
     }
   }
 
