@@ -1,1 +1,1 @@
-@start mvn -P-run-default-tests clean install
+@start mvn -P-run-tests clean install
