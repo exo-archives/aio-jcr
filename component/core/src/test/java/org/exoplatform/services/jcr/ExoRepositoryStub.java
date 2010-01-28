@@ -145,8 +145,6 @@ public class ExoRepositoryStub extends RepositoryStub {
   
   private void prepareTestContent(Session session) throws RepositoryException, IOException {
      
-     System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>> Preparing test content <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-     
      NodeTypeManagerImpl manager = (NodeTypeManagerImpl) session.getWorkspace()
      .getNodeTypeManager();
 
