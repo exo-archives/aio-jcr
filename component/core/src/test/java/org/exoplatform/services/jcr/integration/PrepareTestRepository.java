@@ -82,26 +82,26 @@ public class PrepareTestRepository extends AbstractJCRTest {
     }
   }
 
-  public void testPrepareTestRepository() throws RepositoryException, IOException {
-    NodeTypeManagerImpl manager = (NodeTypeManagerImpl) superuser.getWorkspace()
-                                                                 .getNodeTypeManager();
-
-    // if (!manager.hasNodeType("test:versionable")) {
-    // InputStream xml = getClass().getResourceAsStream("test-nodetypes.xml");
-    // try {
-    // manager.registerNodeTypes(xml, JackrabbitNodeTypeManager.TEXT_XML);
-    // } finally {
-    // xml.close();
-    // }
-    // }
-
-    Node data = getOrAddNode(superuser.getRootNode(), "testdata");
-    addPropertyTestData(getOrAddNode(data, "property"));
-    addQueryTestData(getOrAddNode(data, "query"));
-    addNodeTestData(getOrAddNode(data, "node"));
-    addExportTestData(getOrAddNode(data, "docViewTest"));
-    superuser.save();
-  }
+//  public void testPrepareTestRepository() throws RepositoryException, IOException {
+//    NodeTypeManagerImpl manager = (NodeTypeManagerImpl) superuser.getWorkspace()
+//                                                                 .getNodeTypeManager();
+//
+//    // if (!manager.hasNodeType("test:versionable")) {
+//    // InputStream xml = getClass().getResourceAsStream("test-nodetypes.xml");
+//    // try {
+//    // manager.registerNodeTypes(xml, JackrabbitNodeTypeManager.TEXT_XML);
+//    // } finally {
+//    // xml.close();
+//    // }
+//    // }
+//
+//    Node data = getOrAddNode(superuser.getRootNode(), "testdata");
+//    addPropertyTestData(getOrAddNode(data, "property"));
+//    addQueryTestData(getOrAddNode(data, "query"));
+//    addNodeTestData(getOrAddNode(data, "node"));
+//    addExportTestData(getOrAddNode(data, "docViewTest"));
+//    superuser.save();
+//  }
 
   private Node getOrAddNode(Node node, String name) throws RepositoryException {
     try {

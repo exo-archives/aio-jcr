@@ -603,7 +603,7 @@
               <skip>true</skip>
             </configuration>
             <executions>
-              <execution>
+              <!--execution>
                 <id>execution2 - pause 10 sec</id>
                 <phase>test</phase>
                 <goals>
@@ -615,8 +615,8 @@
                     <include>**/util/Sleeping10Seconds.java</include>
                   </includes>
                 </configuration>
-              </execution>
-              <execution>
+              </execution-->
+              <!--execution>
                 <id>execution3 - TCK init section</id>
                 <phase>test</phase>
                 <goals>
@@ -635,8 +635,8 @@
                     <include>org/exoplatform/services/jcr/integration/PrepareTestRepository.java</include>
                   </includes>
                 </configuration>
-              </execution>
-              <execution>
+              </execution-->
+              <!--execution>
                 <id>execution4 - pause 10 sec</id>
                 <phase>test</phase>
                 <goals>
@@ -648,7 +648,7 @@
                     <include>**/util/Sleeping10Seconds.java</include>
                   </includes>
                 </configuration>
-              </execution>
+              </execution-->
               <execution>
                 <id>execution5 - integration tests (TCK)</id>
                 <phase>test</phase>
