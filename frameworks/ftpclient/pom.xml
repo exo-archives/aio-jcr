@@ -23,6 +23,7 @@
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>exo.jcr.framework.ftpclient</artifactId>
   <name>eXo JCR FTP Client</name>

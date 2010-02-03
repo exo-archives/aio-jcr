@@ -23,6 +23,7 @@
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
+    <relativePath>../../../../../pom.xml</relativePath>
   </parent>
   <artifactId>exo.jcr.connectors.ejb21.client</artifactId>
   <name>eXo JCR Client jcr-ejb connector ejb2.1</name>

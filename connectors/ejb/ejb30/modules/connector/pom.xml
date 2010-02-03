@@ -23,6 +23,7 @@
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
     <version>1.10.7-SNAPSHOT</version>
+    <relativePath>../../../../../pom.xml</relativePath>
   </parent>
   <artifactId>exo.jcr.connectors.ejb30.bean</artifactId>
   <name>eXo JCR Enterprice bean rest-ejb connector ejb3.0</name>
