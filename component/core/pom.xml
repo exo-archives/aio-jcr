@@ -518,20 +518,8 @@
     <!-- TCK -->
     <!-- *** -->
     <!-- Use "mvn -Prun-tck" to launch only them -->
-    <!-- Use "mvn -Prun-tck -Drun-default=true" to launch them with default tests -->
     <profile>
       <id>run-tck</id>
-      <activation>
-        <property>
-          <name>run-tck</name>
-        </property>
-      </activation>
-      <properties>
-        <!-- This is a big maven hack to change 
-      the execution id of tests to override 
-      default tests by tck or not (thus launching both of them) -->
-        <run-default>default-test</run-default>
-      </properties>
       <build>
         <testResources>
           <testResource>
@@ -545,52 +533,129 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <!-- Launch tck in another execution -->
-            <executions>
-              <execution>
-                <id>${run-default}</id>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <argLine>${env.MAVEN_OPTS}</argLine>
-                  <systemProperties>
-                    <property>
-                      <name>jcr.test.configuration.file</name>
-                      <value>${jcr.test.configuration.file}</value>
-                    </property>
-                    <property>
-                      <name>known.issues</name>
-                      <value>org.apache.jackrabbit.test.api.nodetype.PropertyDefTest#testIsRequiredType
-                        org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionImportXml
-                        org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceImportXml
-                        org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceGetImportContentHandler
-                        org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionGetImportContentHandler
-                        org.apache.jackrabbit.test.api.SetPropertyConstraintViolationExceptionTest#testBooleanProperty
-                        org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testMultipleBooleanProperty
-                        org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testBooleanProperty
-                        org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreName
-                        org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder
-                        org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder2</value>
-                    </property>
-                  </systemProperties>
-                  <includes>
-                    <include>org/apache/jackrabbit/test/api/*Test.java</include>
-                    <include>org/apache/jackrabbit/test/api/observation/*Test.java</include>
-                    <include>org/apache/jackrabbit/test/api/lock/*Test.java</include>
-                    <include>org/apache/jackrabbit/test/api/nodetype/*Test.java</include>
-                    <include>org/apache/jackrabbit/test/api/query/*Test.java</include>
-                    <include>org/apache/jackrabbit/test/api/version/*Test.java</include>
-                  </includes>
-                  <excludes>
-                    <exclude>org/apache/jackrabbit/test/api/TestAll.java</exclude>
-                    <exclude>org/apache/jackrabbit/test/api/**/Abstract*.java</exclude>
-                    <exclude>org/apache/jackrabbit/test/api/**/FrozenNodeTest.java</exclude>
-                    <exclude>**/exoplatform/**</exclude>
-                  </excludes>
-                </configuration>
-              </execution>
-            </executions>
+            <configuration>
+            <!-- TAKE CARE TO UPDATE ALSO run-all PROFILE -->
+              <argLine>${env.MAVEN_OPTS}</argLine>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>${jcr.test.configuration.file}</value>
+                </property>
+                <property>
+                  <name>known.issues</name>
+                  <value>org.apache.jackrabbit.test.api.nodetype.PropertyDefTest#testIsRequiredType
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionImportXml
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceImportXml
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceGetImportContentHandler
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionGetImportContentHandler
+                      org.apache.jackrabbit.test.api.SetPropertyConstraintViolationExceptionTest#testBooleanProperty
+                      org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testMultipleBooleanProperty
+                      org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testBooleanProperty
+                      org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreName
+                      org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder
+                      org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder2</value>
+                </property>
+              </systemProperties>
+              <includes>
+                <include>org/apache/jackrabbit/test/api/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/observation/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/lock/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/nodetype/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/query/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/version/*Test.java</include>
+              </includes>
+              <excludes>
+                <exclude>org/apache/jackrabbit/test/api/TestAll.java</exclude>
+                <exclude>org/apache/jackrabbit/test/api/**/Abstract*.java</exclude>
+                <exclude>org/apache/jackrabbit/test/api/**/FrozenNodeTest.java</exclude>
+                <exclude>**/exoplatform/**</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- *** -->
+    <!-- ALL -->
+    <!-- *** -->
+    <!-- Use "mvn -Prun-all" to launch default tests and TCK -->
+    <profile>
+      <id>run-all</id>
+      <build>
+        <testResources>
+          <testResource>
+            <directory>${project.build.testSourceDirectory}</directory>
+            <includes>
+              <include>**/org/apache/jackrabbit/test/api/nodetype/spec/*.txt</include>
+            </includes>
+          </testResource>
+        </testResources>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+            <!-- TAKE CARE TO UPDATE ALSO run-tck PROFILE -->
+              <argLine>${env.MAVEN_OPTS}</argLine>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>${jcr.test.configuration.file}</value>
+                </property>
+                <property>
+                  <name>known.issues</name>
+                  <value>org.apache.jackrabbit.test.api.nodetype.PropertyDefTest#testIsRequiredType
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionImportXml
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceImportXml
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceGetImportContentHandler
+                      org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionGetImportContentHandler
+                      org.apache.jackrabbit.test.api.SetPropertyConstraintViolationExceptionTest#testBooleanProperty
+                      org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testMultipleBooleanProperty
+                      org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testBooleanProperty
+                      org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreName
+                      org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder
+                      org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder2</value>
+                </property>
+              </systemProperties>
+              <includes>
+                <!-- From default tests -->
+                <include>org/exoplatform/services/jcr/**/api/**/Test*.java</include>
+                <include>org/exoplatform/services/jcr/**/usecases/**/Test*.java</include>
+                <include>org/exoplatform/services/jcr/**/usecases/**/*Test.java</include>
+                <include>org/exoplatform/services/jcr/**/impl/**/Test*.java</include>
+                <!-- From TCK -->
+                <include>org/apache/jackrabbit/test/api/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/observation/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/lock/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/nodetype/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/query/*Test.java</include>
+                <include>org/apache/jackrabbit/test/api/version/*Test.java</include>
+              </includes>
+              <excludes>
+                <!-- From default tests -->
+                <exclude>org/exoplatform/services/jcr/**/TestErrorMultithreading.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/api/**/TestSameNameItems.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/api/**/TestVersionRestore.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/impl/**/TestWorkspaceManagement.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/impl/**/TestRepositoryManagement.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/impl/**/TestSaveConfiguration.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/impl/**/ValueStoragePluginTest.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/impl/**/TestWorkspaceRestore.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/impl/**/TestSessionCleaner.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/impl/**/Base*.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/api/TestAll.java</exclude>
+                <!--exclude>org/exoplatform/services/jcr/**/usecases/**/TestDateBetween.java</exclude-->
+                <exclude>org/exoplatform/services/jcr/**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/usecases/BaseUsecasesTest.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/api/**/TestSameNameItems.java</exclude>
+                <exclude>org/exoplatform/services/jcr/**/api/**/TestVersionRestore.java</exclude>
+                <!-- From TCK -->
+                <exclude>org/apache/jackrabbit/test/api/TestAll.java</exclude>
+                <exclude>org/apache/jackrabbit/test/api/**/Abstract*.java</exclude>
+                <exclude>org/apache/jackrabbit/test/api/**/FrozenNodeTest.java</exclude>
+              </excludes>
+            </configuration>
           </plugin>
         </plugins>
       </build>
