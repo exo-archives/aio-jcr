@@ -245,10 +245,6 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     // before save ChangesLog
     recoveryManager.save(isChangesLog, container.getIdentifier());
 
-    File f = File.createTempFile("cl_", ".tmp");
-
-    recoveryManager.getRecoveryWriter().save(f, changesLog);
-
     switch (container.getConteinerType()) {
     case PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM:
       byte[] buf1 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
@@ -274,6 +270,11 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
     case PendingChangesLog.Type.CHANGESLOG_WITH_STREAM:
       // send the serializabe Changeslog
+       
+      File f = File.createTempFile("cl_", ".tmp");
+
+      recoveryManager.getRecoveryWriter().save(f, changesLog);
+       
       channelManager.sendBinaryFile(f.getCanonicalPath(),
                                     ownName,
                                     container.getIdentifier(),
