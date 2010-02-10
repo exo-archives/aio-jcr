@@ -58,27 +58,44 @@ public class MkColCommand {
     Node node;
     try {
       nullResourceLocks.checkLock(session, path, tokens);
-      node = session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
 
-      if (mixinTypes != null) {
-        addMixins(node, mixinTypes);
+      try {
+        node = session.getRootNode().getNode(TextUtil.relativizePath(path));
+        return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED)
+                               .entity("MKCOL can only be executed on a deleted/non-existent resource")
+                               .build();
+      } catch (PathNotFoundException e) {
+        node = session.getRootNode().addNode(TextUtil.relativizePath(path), nodeType);
+
+        if (mixinTypes != null) {
+          addMixins(node, mixinTypes);
+        }
+        session.save();
       }
-      session.save();
 
     } catch (ItemExistsException e) {
-      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED)
+                             .errorMessage(e.getMessage())
+                             .build();
 
     } catch (PathNotFoundException e) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).errorMessage(e.getMessage()).build();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT)
+                             .errorMessage(e.getMessage())
+                             .build();
 
     } catch (AccessDeniedException e) {
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN)
+                             .errorMessage(e.getMessage())
+                             .build();
 
     } catch (LockException e) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
 
     } catch (RepositoryException e) {
-      return Response.Builder.serverError().errorMessage(e.getMessage()).errorMessage(e.getMessage()).build();
+      return Response.Builder.serverError()
+                             .errorMessage(e.getMessage())
+                             .errorMessage(e.getMessage())
+                             .build();
     }
 
     return Response.Builder.withStatus(WebDavStatus.CREATED).build();
