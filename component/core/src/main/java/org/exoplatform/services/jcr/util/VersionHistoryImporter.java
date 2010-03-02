@@ -136,6 +136,11 @@ public class VersionHistoryImporter {
    */
   public void doImport() throws RepositoryException, IOException {
     String path = versionableNode.getVersionHistory().getParent().getPath();
+    
+    if (versionableNode.getVersionHistory().getParent().hasNode(versionHistory))
+    {
+       throw new RepositoryException("Can't import version history for node with identifier '"+versionHistory+"', because it already exists in version storage.");
+    }
 
     NodeData versionable = (NodeData) versionableNode.getData();
     // ----- VERSIONABLE properties -----

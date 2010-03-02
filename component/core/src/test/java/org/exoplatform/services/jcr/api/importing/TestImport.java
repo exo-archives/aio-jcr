@@ -841,6 +841,9 @@ public class TestImport extends AbstractImportTest {
     ByteArrayOutputStream bosHello = new ByteArrayOutputStream();
     hello.getSession().exportDocumentView(hello.getPath(), bosHello, false, false);
     ByteArrayInputStream isHello = new ByteArrayInputStream(bosHello.toByteArray());
+    // Remove node "/aaa/hello" and it's version history, before importing it again!
+    hello.remove();
+    session.save();
     ccc.getSession().importXML(ccc.getPath(), isHello, 1);
     session.save();
         
