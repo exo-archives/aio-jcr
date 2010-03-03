@@ -129,7 +129,7 @@
     <!-- TO FIX AND TO REACTIVATE BEFORE TO RELEASE -->
     <!--
     <module>applications/java/standalone/samples/repoload</module>
-    --> 
+    -->
     <module>applications/java/web/console</module>
     <module>benchmark</module>
     <module>packaging</module>
