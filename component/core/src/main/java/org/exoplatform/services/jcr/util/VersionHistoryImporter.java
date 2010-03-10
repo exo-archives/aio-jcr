@@ -46,7 +46,8 @@ import javax.jcr.RepositoryException;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id$
+ * @version $Id: VersionHistoryImporter.java 44109 2010-03-02 14:37:19Z
+ *          NZamosenchuk $
  */
 public class VersionHistoryImporter {
   /**
@@ -97,18 +98,13 @@ public class VersionHistoryImporter {
   /**
    * VersionHistoryImporter constructor.
    * 
-   * @param versionableNode
-   *          - versionable node.
-   * @param versionHistoryStream
-   *          - Version history data.
-   * @param baseVersionUuid
-   *          - jcr:baseVersion - uuid.
-   * @param predecessors
-   *          - predecessors uuids.
-   * @param versionHistory
-   *          - Version history - uuid
-   * @throws RepositoryException
-   *           -if an error occurs while getting NodeTypesHolder.
+   * @param versionableNode - versionable node.
+   * @param versionHistoryStream - Version history data.
+   * @param baseVersionUuid - jcr:baseVersion - uuid.
+   * @param predecessors - predecessors uuids.
+   * @param versionHistory - Version history - uuid
+   * @throws RepositoryException -if an error occurs while getting
+   *           NodeTypesHolder.
    */
   public VersionHistoryImporter(NodeImpl versionableNode,
                                 InputStream versionHistoryStream,
@@ -129,18 +125,11 @@ public class VersionHistoryImporter {
   /**
    * Do import.
    * 
-   * @throws RepositoryException
-   *           -if an error occurs while importing.
-   * @throws IOException
-   *           -i f an error occurs while importing.
+   * @throws RepositoryException -if an error occurs while importing.
+   * @throws IOException -i f an error occurs while importing.
    */
   public void doImport() throws RepositoryException, IOException {
     String path = versionableNode.getVersionHistory().getParent().getPath();
-    
-    if (versionableNode.getVersionHistory().getParent().hasNode(versionHistory))
-    {
-       throw new RepositoryException("Can't import version history for node with identifier '"+versionHistory+"', because it already exists in version storage.");
-    }
 
     NodeData versionable = (NodeData) versionableNode.getData();
     // ----- VERSIONABLE properties -----
@@ -183,9 +172,9 @@ public class VersionHistoryImporter {
     changesLogDeltete.add(ItemState.createDeletedState(((PropertyImpl) versionableNode.getProperty("jcr:baseVersion")).getData()));
     changesLogDeltete.add(ItemState.createDeletedState(((PropertyImpl) versionableNode.getProperty("jcr:predecessors")).getData()));
     dataKeeper.save(changesLogDeltete);
-    userSession.save();
     // remove version history
     dataKeeper.save(changesLog);
+    userSession.save();
     // import new version history
     userSession.getWorkspace().importXML(path, versionHistoryStream, 0);
     userSession.save();
@@ -200,8 +189,7 @@ public class VersionHistoryImporter {
     /**
      * Default constructor.
      * 
-     * @throws RepositoryException
-     *           - exception.
+     * @throws RepositoryException - exception.
      */
     RemoveVisitor() throws RepositoryException {
       super(userSession.getTransientNodesManager(), null,
