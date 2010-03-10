@@ -63,7 +63,7 @@ public class TreeFile extends File {
     if (fpPath.startsWith(rootPath) && fpPath.length() > rootPath.length())
       if (fp.isDirectory()) {
         String[] ls = fp.list();
-        if (ls.length <= 0) {
+        if (ls!=null && ls.length <= 0) {
           if (res = fp.delete()) {
             res = deleteParent(new File(fp.getParent()));
           } else {
