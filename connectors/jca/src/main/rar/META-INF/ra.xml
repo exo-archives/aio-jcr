@@ -6,7 +6,7 @@
  <display-name>JCR repository</display-name>
  <vendor-name>exoplatform</vendor-name>
  <eis-type/>
- <resourceadapter-version>1.10.7-SNAPSHOT</resourceadapter-version>
+ <resourceadapter-version>1.10.8-SNAPSHOT</resourceadapter-version>
  <license>
   <license-required>false</license-required>
  </license>
