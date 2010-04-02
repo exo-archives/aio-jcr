@@ -1,7 +1,7 @@
 #!/bin/sh
 
 java -Duser.language=en -Duser.region=us \
-    -jar repoload-1.10.2-SNAPSHOT.jar \
+    -jar repoload-1.10.7.jar \
     -conf="configuration-oci.xml" \
     -root="/testStorage/root3" \
     -tree="10-100-100-100" \
