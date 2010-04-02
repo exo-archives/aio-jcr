@@ -260,10 +260,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     spoolInputStream();
 
     if (data == null) {
-      log.debug("getLength spoolFile : " + spoolFile.length());
       return spoolFile.length();
     } else {
-      log.debug("getLength data : " + data.length);
       return data.length;
     }
   }
@@ -408,7 +406,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @throws IOException
    */
   public String getString() throws IOException {
-    log.debug("getString");
     return new String(getAsByteArray(), Constants.DEFAULT_ENCODING);
   }
 
