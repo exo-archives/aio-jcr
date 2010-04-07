@@ -55,5 +55,10 @@ public interface FtpConfig {
   int getTimeOut();
 
   String getPortalContainerName();
-
+  
+  boolean isReplaceForbiddenChars();
+  
+  String getForbiddenChars();
+  
+  char getReplaceChar();
 }

@@ -469,5 +469,4 @@ public class FtpConst {
      */
     public static final String MIX_VERSIONABLE  = "mix:versionable";
   }
-
 }

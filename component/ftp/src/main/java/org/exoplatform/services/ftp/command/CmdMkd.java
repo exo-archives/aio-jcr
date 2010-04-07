@@ -25,6 +25,8 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.ftp.FtpConst;
+import org.exoplatform.services.ftp.FtpTextUtils;
+import org.exoplatform.services.ftp.config.FtpConfig;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -56,13 +58,22 @@ public class CmdMkd extends FtpCommandImpl {
       return;
     }
 
+    FtpConfig ftpConfig = clientSession().getFtpServer().getConfiguration();
+    boolean replaceForbiddenChars =ftpConfig.isReplaceForbiddenChars(); 
+    
     try {
       Session curSession = clientSession().getSession(newPath.get(0));
 
       Node parentNode = curSession.getRootNode();
 
+      
       for (int i = 1; i < newPath.size(); i++) {
         String curPathName = newPath.get(i);
+        
+        if (replaceForbiddenChars)
+        {
+          curPathName = FtpTextUtils.replaceForbiddenChars(curPathName, ftpConfig.getForbiddenChars(), ftpConfig.getReplaceChar());
+        }
 
         if (parentNode.hasNode(curPathName)) {
           parentNode = parentNode.getNode(curPathName);

@@ -86,6 +86,21 @@ public class FtpConfigImpl implements FtpConfig {
    * "download-speed-limit".
    */
   public static final String INIT_PARAM_DOWNLOAD_SPEED_LIMIT = "download-speed-limit";
+  
+  /**
+   * replace-forbidden-chars
+   */
+  public static final String INIT_PARAM_REPLACE_FORBIDDEN_CHARS = "replace-forbidden-chars";
+  
+  /**
+   * forbidden-chars 
+   */
+  public static final String INIT_PARAM_FORBIDDEN_CHARS      = "forbidden-chars"; 
+  
+  /**
+   * replace-char
+   */
+  public static final String INIT_PARAM_REPLACE_CHAR         = "replace-char";
 
   /**
    * "timeout".
@@ -96,6 +111,38 @@ public class FtpConfigImpl implements FtpConfig {
    * Portal container name.
    */
   public static final String PORTAL_CONTAINER_NAME           = "portalContainerName";
+  
+  /**
+   * According JCR specification  JSR-170 .
+   * See 4.6 Path Syntax:
+   * Any Unicode character except: '/', ':', '[', ']', '*', ''', '"', '|' 
+   */
+  public static final String DEFAULT_JCR_FORBIDDEN_CHARS     = ":[]*'\"|"; 
+     
+  /**
+   * The all forbidden chars will replaced '_' by default.
+   */
+  public static final char DEFAULT_REPLACE_CHAR              = '_';
+    
+  /**
+   * The replace forbidden chars is enable by default.
+   */
+  public static final boolean DEFAULT_REPLACE_FORBIDDEN_CHARS = true;
+  
+  /**
+   * Forbidden chars.
+   */
+  public String              _forbiddenChars                 = DEFAULT_JCR_FORBIDDEN_CHARS;
+  
+  /**
+   * Replace char.
+   */
+  public char                _replaceChar                    = DEFAULT_REPLACE_CHAR;
+  
+  /**
+   * Replace forbidden chars.
+   */
+  public boolean             _replaceForbiddenChars          = DEFAULT_REPLACE_FORBIDDEN_CHARS;
 
   /**
    * Command port.
@@ -181,7 +228,7 @@ public class FtpConfigImpl implements FtpConfig {
    * Container name.
    */
   protected String           portalContainerName             = null;
-
+  
   /**
    * Constructor.
    * 
@@ -251,6 +298,21 @@ public class FtpConfigImpl implements FtpConfig {
       _needTimeOut = true;
       _timeOutValue = new Integer(pTimeOut.getValue());
     }
+    
+    ValueParam pReplaceForbiddenChars = params.getValueParam(INIT_PARAM_REPLACE_FORBIDDEN_CHARS);
+    if (pReplaceForbiddenChars != null) {
+      _replaceForbiddenChars = new Boolean(pReplaceForbiddenChars.getValue());
+    }
+    
+    ValueParam pForbiddenChars = params.getValueParam(INIT_PARAM_FORBIDDEN_CHARS);
+    if (pForbiddenChars != null) {
+      _forbiddenChars = pForbiddenChars.getValue();
+    }
+    
+    ValueParam pReplaceChar = params.getValueParam(INIT_PARAM_REPLACE_CHAR);
+    if (pReplaceChar != null) {
+      _replaceChar = pReplaceChar.getValue().charAt(0);
+    }
 
     ValueParam pPortalContainerName = params.getValueParam(PORTAL_CONTAINER_NAME);
     portalContainerName = pPortalContainerName != null ? pPortalContainerName.getValue() : "portal";
@@ -280,6 +342,10 @@ public class FtpConfigImpl implements FtpConfig {
       if (_needTimeOut) {
         log.debug(INIT_PARAM_TIME_OUT + ".value = " + _timeOutValue);
       }
+      
+      log.debug(INIT_PARAM_REPLACE_FORBIDDEN_CHARS + " = " + _replaceForbiddenChars);
+      log.debug(INIT_PARAM_FORBIDDEN_CHARS + " = " + _forbiddenChars);
+      log.debug(INIT_PARAM_REPLACE_CHAR + " = " + _replaceChar);
     }
 
   }
@@ -348,4 +414,18 @@ public class FtpConfigImpl implements FtpConfig {
     return portalContainerName;
   }
 
+  public String getForbiddenChars()
+  {
+    return _forbiddenChars;
+  }
+   
+  public char getReplaceChar()
+  {
+    return _replaceChar;
+  }
+   
+  public boolean isReplaceForbiddenChars()
+  {
+    return _replaceForbiddenChars;
+  }
 }
