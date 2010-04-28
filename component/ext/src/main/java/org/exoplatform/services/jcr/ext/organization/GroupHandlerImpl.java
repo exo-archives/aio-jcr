@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -32,15 +33,18 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
+import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
 
 /**
  * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id$
  */
-public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
+public class GroupHandlerImpl extends CommonHandler implements GroupHandler,
+    GroupEventListenerHandler {
 
   /**
    * The group property that contain description.
@@ -85,8 +89,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * GroupHandlerImpl constructor.
    * 
-   * @param service
-   *          The initialization data
+   * @param service The initialization data
    */
   GroupHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
@@ -107,19 +110,16 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Use this method to create a new group.
    * 
-   * @param session
-   *          The current session
-   * @param parent
-   *          The parent group of the new group. use 'null' if you want to create the group at the
-   *          root level.
-   * @param child
-   *          The group that you want to create.
-   * @param broadcast
-   *          Broacast the new group event to all the registered listener if broadcast is true
-   * @throws Exception
-   *           An exception is throwed if the method fail to persist the new group or there is
-   *           already one child group with the same group name in the database or any registered
-   *           listener fail to handle the event.
+   * @param session The current session
+   * @param parent The parent group of the new group. use 'null' if you want to
+   *          create the group at the root level.
+   * @param child The group that you want to create.
+   * @param broadcast Broacast the new group event to all the registered
+   *          listener if broadcast is true
+   * @throws Exception An exception is throwed if the method fail to persist the
+   *           new group or there is already one child group with the same group
+   *           name in the database or any registered listener fail to handle
+   *           the event.
    */
   private void addChild(Session session, Group parent, Group child, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -193,14 +193,11 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Use this method to search for a group.
    * 
-   * @param session
-   *          The current session
-   * @param groupId
-   *          the id of the group that you want to search for
+   * @param session The current session
+   * @param groupId the id of the group that you want to search for
    * @return null if no record matched the group id or the found group
-   * @throws Exception
-   *           An exception is throwed if the method cannot access the database or more than one
-   *           group is found.
+   * @throws Exception An exception is throwed if the method cannot access the
+   *           database or more than one group is found.
    */
   Group findGroupById(Session session, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
@@ -232,19 +229,17 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   }
 
   /**
-   * Use this method to find all the groups of an user with the specified membership type.
+   * Use this method to find all the groups of an user with the specified
+   * membership type.
    * 
-   * @param session
-   *          The current session
-   * @param userName
-   *          The user that the method should search for.
-   * @param membershipType
-   *          The type of the membership. Since an user can have one or more membership in a group,
-   *          this parameter is necessary. If the membershipType is null, it should mean any
-   *          membership type.
+   * @param session The current session
+   * @param userName The user that the method should search for.
+   * @param membershipType The type of the membership. Since an user can have
+   *          one or more membership in a group, this parameter is necessary. If
+   *          the membershipType is null, it should mean any membership type.
    * @return A collection of the found groups
-   * @throws Exception
-   *           An exception is thrown if the method cannot access the database.
+   * @throws Exception An exception is thrown if the method cannot access the
+   *           database.
    */
   private Collection findGroupByMembership(Session session, String userName, String membershipType) throws Exception {
     if (log.isDebugEnabled()) {
@@ -258,12 +253,16 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       // : ((Node) session.getItem(service.getStoragePath() + "/"
       // + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" +
       // membershipType)).getUUID();
-      // String whereStatement = (mtUUID == null) ? "" : " where exo:membershipType='" + mtUUID +
+      // String whereStatement = (mtUUID == null) ? "" :
+      // " where exo:membershipType='" + mtUUID +
       // "'";
       //
       // // find memberships
-      // String mStatement = "select * from exo:userMembership" + whereStatement;
-      // Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
+      // String mStatement = "select * from exo:userMembership" +
+      // whereStatement;
+      // Query mQuery =
+      // session.getWorkspace().getQueryManager().createQuery(mStatement,
+      // Query.SQL);
       // QueryResult mRes = mQuery.execute();
       // for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
       // Node mNode = mNodes.nextNode();
@@ -321,16 +320,14 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Use this method to find all the children group of a group.
    * 
-   * @param session
-   *          The current session
-   * @param parent
-   *          The group that you want to search. Use null if you want to search from the root.
-   * @param recursive
-   *          Recursive search groups
+   * @param session The current session
+   * @param parent The group that you want to search. Use null if you want to
+   *          search from the root.
+   * @param recursive Recursive search groups
    * @param recurent
    * @return A collection of the children group
-   * @throws Exception
-   *           An exception is throwed is the method cannot access the database
+   * @throws Exception An exception is throwed is the method cannot access the
+   *           database
    */
   private Collection findGroups(Session session, Group parent) throws Exception {
     if (log.isDebugEnabled()) {
@@ -381,11 +378,10 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Use this method to get all the groups.
    * 
-   * @param session
-   *          The current session
+   * @param session The current session
    * @return The collection of groups
-   * @throws Exception
-   *           An exception is thrown is the method cannot access the database
+   * @throws Exception An exception is thrown is the method cannot access the
+   *           database
    */
   private Collection getAllGroups(Session session) throws Exception {
     if (log.isDebugEnabled()) {
@@ -423,18 +419,16 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Use this method to remove a group from the group database.
    * 
-   * @param session
-   *          The current session
-   * @param group
-   *          The group to be removed. The group parameter should be obtained form the
-   *          findGroupId(..) method. When the groupn is removed, the memberships of the group
-   *          should be removed as well.
-   * @param broadcast
-   *          Broadcast the event to the registered listener if the broadcast value is 'true'
+   * @param session The current session
+   * @param group The group to be removed. The group parameter should be
+   *          obtained form the findGroupId(..) method. When the groupn is
+   *          removed, the memberships of the group should be removed as well.
+   * @param broadcast Broadcast the event to the registered listener if the
+   *          broadcast value is 'true'
    * @return Return the removed group.
-   * @throws Exception
-   *           An exception is throwed if the method fail to remove the group from the database, the
-   *           group is not existed in the database, or any listener fail to handle the event.
+   * @throws Exception An exception is throwed if the method fail to remove the
+   *           group from the database, the group is not existed in the
+   *           database, or any listener fail to handle the event.
    */
   private Group removeGroup(Session session, Group group, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -487,9 +481,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Remove registered listener.
    * 
-   * @param listener
-   *          The registered listener for removing
-   * 
+   * @param listener The registered listener for removing
    */
   public void removeGroupEventListener(GroupEventListener listener) {
     listeners.remove(listener);
@@ -510,15 +502,12 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Use this method to update the properties of an existed group.
    * 
-   * @param session
-   *          The current session
-   * @param group
-   *          The group object with the updated information.
-   * @param broadcast
-   *          Broadcast the event to all the registered listener if the broadcast value is true
-   * @throws Exception
-   *           An exception is thorwed if the method cannot access the database or any listener fail
-   *           to handle the event
+   * @param session The current session
+   * @param group The group object with the updated information.
+   * @param broadcast Broadcast the event to all the registered listener if the
+   *          broadcast value is true
+   * @throws Exception An exception is thorwed if the method cannot access the
+   *           database or any listener fail to handle the event
    */
   private void saveGroup(Session session, Group group, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -548,11 +537,10 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Read group properties from node.
    * 
-   * @param node
-   *          The node in the storage to read from
+   * @param node The node in the storage to read from
    * @return The group
-   * @throws Exception
-   *           An exception is thrown if the method can not get access to the database
+   * @throws Exception An exception is thrown if the method can not get access
+   *           to the database
    */
   private Group readObjectFromNode(Node node) throws Exception {
     try {
@@ -571,12 +559,10 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * Write group properties to the node in the storage.
    * 
-   * @param group
-   *          The group to write
-   * @param node
-   *          The node in the storage
-   * @throws Exception
-   *           An exception is thrown if the method can not get access to the database
+   * @param group The group to write
+   * @param node The node in the storage
+   * @throws Exception An exception is thrown if the method can not get access
+   *           to the database
    */
   private void writeObjectToNode(Group group, Node node) throws Exception {
     try {
@@ -592,12 +578,9 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * PreSave event.
    * 
-   * @param group
-   *          The group to save
-   * @param isNew
-   *          Is it new group or not
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param group The group to save
+   * @param isNew Is it new group or not
+   * @throws Exception If listeners fail to handle the user event
    */
   private void preSave(Group group, boolean isNew) throws Exception {
     for (GroupEventListener listener : listeners)
@@ -607,12 +590,9 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * PostSave event.
    * 
-   * @param group
-   *          The group to save
-   * @param isNew
-   *          Is it new group or not
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param group The group to save
+   * @param isNew Is it new group or not
+   * @throws Exception If listeners fail to handle the user event
    */
   private void postSave(Group group, boolean isNew) throws Exception {
     for (GroupEventListener listener : listeners)
@@ -622,10 +602,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * PreDelete event.
    * 
-   * @param group
-   *          The group to delete
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param group The group to delete
+   * @throws Exception If listeners fail to handle the user event
    */
   private void preDelete(Group group) throws Exception {
     for (GroupEventListener listener : listeners)
@@ -635,13 +613,19 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   /**
    * PostDelete event.
    * 
-   * @param group
-   *          The group to delete
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param group The group to delete
+   * @throws Exception If listeners fail to handle the user event
    */
   private void postDelete(Group group) throws Exception {
     for (GroupEventListener listener : listeners)
       listener.postDelete(group);
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<GroupEventListener> getGroupListeners() {
+    return Collections.unmodifiableList(listeners);
+  }
+
 }

@@ -17,17 +17,23 @@
 package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupEventListener;
+import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserEventListenerHandler;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id$
+ * @version $Id: TestGroupHandlerImpl.java 35186 2009-08-07 14:23:43Z pnedonosko
+ *          $
  */
 public class TestGroupHandlerImpl extends BaseStandaloneTest {
 
@@ -76,7 +82,8 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
     try {
       // Hibernate org service returns
       // [Group[/organization/management/executive-board|executive-board],
-      // Group[/platform/administrators|administrators], Group[/platform/users|users]]
+      // Group[/platform/administrators|administrators],
+      // Group[/platform/users|users]]
       // JCR returns
       // [[groupId=/platform/administrators][groupName=administrators][parentId=/platform],
       // [groupId=/platform/users][groupName=users][parentId=/platform],
@@ -185,6 +192,15 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown.");
+    }
+  }
+
+  public void getListeners() throws Exception {
+    List<GroupEventListener> list = ((GroupEventListenerHandler) gHandler).getGroupListeners();
+    try {
+      list.clear();
+      fail("Exception should be thrown");
+    } catch (Exception e) {
     }
   }
 

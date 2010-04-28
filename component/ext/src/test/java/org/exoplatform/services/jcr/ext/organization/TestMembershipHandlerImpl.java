@@ -20,25 +20,30 @@
 package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id$
+ * @version $Id: TestMembershipImpl.java 42911 2010-01-25 14:16:32Z tolusha $
  */
-public class TestMembershipImpl extends BaseStandaloneTest {
+public class TestMembershipHandlerImpl extends BaseStandaloneTest {
   private GroupHandler               gHandler;
 
   private MembershipHandler          mHandler;
@@ -225,6 +230,15 @@ public class TestMembershipImpl extends BaseStandaloneTest {
       fail("Exception should not be thrown");
     }
 
+  }
+
+  public void getListeners() throws Exception {
+    List<MembershipEventListener> list = ((MembershipEventListenerHandler) mHandler).getMembershipListeners();
+    try {
+      list.clear();
+      fail("Exception should be thrown");
+    } catch (Exception e) {
+    }
   }
 
   /**

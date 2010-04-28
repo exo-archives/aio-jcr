@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -32,15 +33,19 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
+import org.exoplatform.services.organization.UserProfileEventListenerHandler;
 import org.exoplatform.services.organization.UserProfileHandler;
 
 /**
  * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: UserProfileHandlerImpl.java 22908 2008-11-11 15:24:52Z tolusha
+ *          $
  */
-public class UserProfileHandlerImpl extends CommonHandler implements UserProfileHandler {
+public class UserProfileHandlerImpl extends CommonHandler implements UserProfileHandler,
+    UserProfileEventListenerHandler {
 
   /**
    * The child not to storage users profile properties.
@@ -65,8 +70,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * UserProfileHandlerImpl constructor.
    * 
-   * @param service
-   *          The initialization data
+   * @param service The initialization data
    */
   UserProfileHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
@@ -114,17 +118,15 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   }
 
   /**
-   * This method should search for and return UserProfile record according to the username.
+   * This method should search for and return UserProfile record according to
+   * the username.
    * 
-   * @param session
-   *          The current session
-   * @param userName
-   *          The user name
-   * @return return null if no record match the userName. return an UserProfile instance if a record
-   *         match the username.
-   * @throws Exception
-   *           Throw Exception if the method fail to access the database or find more than one
-   *           record that match the username.
+   * @param session The current session
+   * @param userName The user name
+   * @return return null if no record match the userName. return an UserProfile
+   *         instance if a record match the username.
+   * @throws Exception Throw Exception if the method fail to access the database
+   *           or find more than one record that match the username.
    */
   private UserProfile findUserProfileByName(Session session, String userName) throws Exception {
     if (log.isDebugEnabled()) {
@@ -173,11 +175,9 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * Find and return all the UserProfile record in the database.
    * 
-   * @param session
-   *          The current session
+   * @param session The current session
    * @return The collection of user profiles
-   * @throws Exception
-   *           Throw exception if the method fail to access the database
+   * @throws Exception Throw exception if the method fail to access the database
    */
   private Collection findUserProfiles(Session session) throws Exception {
     if (log.isDebugEnabled()) {
@@ -218,16 +218,13 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * This method should remove the user profile record in the database.
    * 
-   * @param session
-   *          The current session
-   * @param userName
-   *          The user profile record with the username should be removed from the database
-   * @param broadcast
-   *          Broadcast the event the listeners if broadcast is true.
+   * @param session The current session
+   * @param userName The user profile record with the username should be removed
+   *          from the database
+   * @param broadcast Broadcast the event the listeners if broadcast is true.
    * @return The UserProfile instance that has been removed.
-   * @throws Exception
-   *           Throw exception if the method fail to remove the record or any listener fail to
-   *           handle the event
+   * @throws Exception Throw exception if the method fail to remove the record
+   *           or any listener fail to handle the event
    */
   private UserProfile removeUserProfile(Session session, String userName, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -264,8 +261,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * Remove registered listener.
    * 
-   * @param listener
-   *          The registered listener for removing
+   * @param listener The registered listener for removing
    */
   public void removeUserProfileEventListener(UserProfileEventListener listener) {
     listeners.remove(listener);
@@ -284,19 +280,16 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   }
 
   /**
-   * This method should persist the profile instance to the database. If the profile is not existed
-   * yet. the method should create a new user profile record. If there is an existed record. The
-   * method should merge the data with the existed record.
+   * This method should persist the profile instance to the database. If the
+   * profile is not existed yet. the method should create a new user profile
+   * record. If there is an existed record. The method should merge the data
+   * with the existed record.
    * 
-   * @param session
-   *          The current session
-   * @param profile
-   *          the profile instance to persist.
-   * @param broadcast
-   *          broadcast the event to the listener if broadcast is true
-   * @throws Exception
-   *           throw exception if the method fail to access the database or any listener fail to
-   *           handle the event.
+   * @param session The current session
+   * @param profile the profile instance to persist.
+   * @param broadcast broadcast the event to the listener if broadcast is true
+   * @throws Exception throw exception if the method fail to access the database
+   *           or any listener fail to handle the event.
    */
   private void saveUserProfile(Session session, UserProfile profile, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -346,12 +339,9 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * PreSave event.
    * 
-   * @param userProfile
-   *          The userProfile to save
-   * @param isNew
-   *          Is it new profile or not
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param userProfile The userProfile to save
+   * @param isNew Is it new profile or not
+   * @throws Exception If listeners fail to handle the user event
    */
   private void preSave(UserProfile userProfile, boolean isNew) throws Exception {
     for (UserProfileEventListener listener : listeners)
@@ -361,12 +351,9 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * PostSave event.
    * 
-   * @param userProfile
-   *          The user profile to save
-   * @param isNew
-   *          Is it new profile or not
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param userProfile The user profile to save
+   * @param isNew Is it new profile or not
+   * @throws Exception If listeners fail to handle the user event
    */
   private void postSave(UserProfile userProfile, boolean isNew) throws Exception {
     for (UserProfileEventListener listener : listeners)
@@ -376,10 +363,8 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * PreDelete event.
    * 
-   * @param userProfile
-   *          The user profile to delete
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param userProfile The user profile to delete
+   * @throws Exception If listeners fail to handle the user event
    */
   private void preDelete(UserProfile userProfile) throws Exception {
     for (UserProfileEventListener listener : listeners)
@@ -389,13 +374,19 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * PostDelete event.
    * 
-   * @param userProfile
-   *          The user profile to delete
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param userProfile The user profile to delete
+   * @throws Exception If listeners fail to handle the user event
    */
   private void postDelete(UserProfile userProfile) throws Exception {
     for (UserProfileEventListener listener : listeners)
       listener.postDelete(userProfile);
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<UserProfileEventListener> getUserProfileListeners() {
+    return Collections.unmodifiableList(listeners);
+  }
+
 }

@@ -21,18 +21,24 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.List;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.services.organization.UserProfileEventListener;
+import org.exoplatform.services.organization.UserProfileEventListenerHandler;
 import org.exoplatform.services.organization.UserProfileHandler;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id$
+ * @version $Id: TestUserProfileHandlerImpl.java 35186 2009-08-07 14:23:43Z
+ *          pnedonosko $
  */
 public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
   private JCROrganizationServiceImpl organizationService;
@@ -163,6 +169,15 @@ public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
+    }
+  }
+
+  public void getListeners() throws Exception {
+    List<UserProfileEventListener> list = ((UserProfileEventListenerHandler) upHandler).getUserProfileListeners();
+    try {
+      list.clear();
+      fail("Exception should be thrown");
+    } catch (Exception e) {
     }
   }
 
