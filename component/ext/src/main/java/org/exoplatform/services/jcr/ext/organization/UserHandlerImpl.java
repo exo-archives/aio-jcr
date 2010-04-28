@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -34,17 +35,17 @@ import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id$
  */
-public class UserHandlerImpl extends CommonHandler implements UserHandler {
+public class UserHandlerImpl extends CommonHandler implements UserHandler, UserEventListenerHandler {
 
   /**
    * The user property that contain the date of creation.
@@ -109,8 +110,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * UserHandlerImpl constructor.
    * 
-   * @param service
-   *          The initialization data.
+   * @param service The initialization data.
    */
   UserHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
@@ -138,16 +138,12 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * Check if the username and the password of an user is valid.
    * 
-   * @param session
-   *          The current session
-   * @param username
-   *          The user name
-   * @param password
-   *          The password
-   * @return return true if the username and the password is match with an user record in the
-   *         database, else return false.
-   * @throws Exception
-   *           throw an exception if cannot access the database
+   * @param session The current session
+   * @param username The user name
+   * @param password The password
+   * @return return true if the username and the password is match with an user
+   *         record in the database, else return false.
+   * @throws Exception throw an exception if cannot access the database
    */
   private boolean authenticate(Session session, String username, String password) throws Exception {
     if (log.isDebugEnabled()) {
@@ -185,16 +181,14 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * This method is used to persist a new user object.
    * 
-   * @param session
-   *          The current session
-   * @param user
-   *          The user object to save
-   * @param broadcast
-   *          If the broadcast value is true , then the UserHandler should broadcast the event to
-   *          all the listener that register with the organization service.
-   * @throws Exception
-   *           The exception can be thrown if the the UserHandler cannot persist the user object or
-   *           any listeners fail to handle the user event.
+   * @param session The current session
+   * @param user The user object to save
+   * @param broadcast If the broadcast value is true , then the UserHandler
+   *          should broadcast the event to all the listener that register with
+   *          the organization service.
+   * @throws Exception The exception can be thrown if the the UserHandler cannot
+   *           persist the user object or any listeners fail to handle the user
+   *           event.
    */
   private void createUser(Session session, User user, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -251,16 +245,14 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * Find user by specific name.
    * 
-   * 
-   * @param session
-   *          The current session
-   * @param userName
-   *          the user that the user handler should search for
-   * @return The method return null if there no user matches the given username. The method return
-   *         an User object if an user that match the username.
-   * @throws Exception
-   *           The exception is thrown if the method fail to access the user database or more than
-   *           one user object with the same username is found
+   * @param session The current session
+   * @param userName the user that the user handler should search for
+   * @return The method return null if there no user matches the given username.
+   *         The method return an User object if an user that match the
+   *         username.
+   * @throws Exception The exception is thrown if the method fail to access the
+   *           user database or more than one user object with the same username
+   *           is found
    */
   User findUserByName(Session session, String userName) throws Exception {
     if (log.isDebugEnabled()) {
@@ -306,13 +298,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * This method search for the users according to a search criteria.
    * 
-   * @param session
-   *          The current session
-   * @param query
-   *          The query object contains the search criteria.
+   * @param session The current session
+   * @param query The query object contains the search criteria.
    * @return return the found users in a page list according to the query.
-   * @throws Exception
-   *           throw exception if the service cannot access the database
+   * @throws Exception throw exception if the service cannot access the database
    */
   private PageList findUsers(Session session, org.exoplatform.services.organization.Query query) throws Exception {
     if (log.isDebugEnabled()) {
@@ -367,15 +356,14 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   }
 
   /**
-   * This method should search and return the list of the users in a given group.
+   * This method should search and return the list of the users in a given
+   * group.
    * 
-   * @param session
-   *          The current session
-   * @param groupId
-   *          id of the group. The return users list should be in this group
+   * @param session The current session
+   * @param groupId id of the group. The return users list should be in this
+   *          group
    * @return return a page list iterator of a group of the user in the database
-   * @throws Exception
-   *           If method can not get access to the database
+   * @throws Exception If method can not get access to the database
    */
   private PageList findUsersByGroup(Session session, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
@@ -429,14 +417,12 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * This method is used to get all the users in the database.
    * 
-   * @param session
-   *          The current session
-   * @param pageSize
-   *          The number of user in each page
-   * @return return a page list iterator. The page list should allow the developer get all the users
-   *         or get a page of users if the return number of users is too large.
-   * @throws Exception
-   *           If method can not get access to the database
+   * @param session The current session
+   * @param pageSize The number of user in each page
+   * @return return a page list iterator. The page list should allow the
+   *         developer get all the users or get a page of users if the return
+   *         number of users is too large.
+   * @throws Exception If method can not get access to the database
    */
   private PageList getUserPageList(Session session, int pageSize) throws Exception {
     if (log.isDebugEnabled()) {
@@ -470,20 +456,18 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   }
 
   /**
-   * Remove an user and broadcast the event to all the registered listener. When the user is removed
-   * , the user profile and all the membership of the user should be removed as well.
+   * Remove an user and broadcast the event to all the registered listener. When
+   * the user is removed , the user profile and all the membership of the user
+   * should be removed as well.
    * 
-   * @param session
-   *          The current session
-   * @param userName
-   *          The user should be removed from the user database
-   * @param broadcast
-   *          If broadcast is true, the the delete user event should be broadcasted to all
-   *          registered listener
-   * @return return the User object after that user has beed removed from database
-   * @throws Exception
-   *           If method can not get access to the database or any listeners fail to handle the user
-   *           event.
+   * @param session The current session
+   * @param userName The user should be removed from the user database
+   * @param broadcast If broadcast is true, the the delete user event should be
+   *          broadcasted to all registered listener
+   * @return return the User object after that user has beed removed from
+   *         database
+   * @throws Exception If method can not get access to the database or any
+   *           listeners fail to handle the user event.
    */
   private User removeUser(Session session, String userName, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -523,8 +507,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * Remove registered listener.
    * 
-   * @param listener
-   *          The registered listener for remove
+   * @param listener The registered listener for remove
    */
   public void removeUserEventListener(UserEventListener listener) {
     listeners.remove(listener);
@@ -545,16 +528,14 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * This method is used to update an existing User object.
    * 
-   * @param session
-   *          The current session
-   * @param user
-   *          The user object to update
-   * @param broadcast
-   *          If the broadcast is true , then all the user event listener that register with the
-   *          organization service will be called
-   * @throws Exception
-   *           The exception can be thrown if the the UserHandler cannot save the user object or any
-   *           listeners fail to handle the user event.
+   * @param session The current session
+   * @param user The user object to update
+   * @param broadcast If the broadcast is true , then all the user event
+   *          listener that register with the organization service will be
+   *          called
+   * @throws Exception The exception can be thrown if the the UserHandler cannot
+   *           save the user object or any listeners fail to handle the user
+   *           event.
    */
   private void saveUser(Session session, User user, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
@@ -563,9 +544,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
     try {
       UserImpl userImpl = (UserImpl) user;
-      String userUUID = userImpl.getUUId() != null
-          ? userImpl.getUUId()
-          : ((UserImpl) findUserByName(session, user.getUserName())).getUUId();
+      String userUUID = userImpl.getUUId() != null ? userImpl.getUUId()
+                                                  : ((UserImpl) findUserByName(session,
+                                                                               user.getUserName())).getUUId();
       Node uNode = session.getNodeByUUID(userUUID);
 
       String srcPath = uNode.getPath();
@@ -597,11 +578,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * Read user properties from the node in the storage.
    * 
-   * @param node
-   *          The node to read from
+   * @param node The node to read from
    * @return The user
-   * @throws Exception
-   *           An exception is thrown if method can not get access to the database
+   * @throws Exception An exception is thrown if method can not get access to
+   *           the database
    */
   private User readObjectFromNode(Node node) throws Exception {
     try {
@@ -621,12 +601,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * Write user properties to the node.
    * 
-   * @param user
-   *          The user
-   * @param node
-   *          The node in the storage
-   * @throws Exception
-   *           An exception is thrown if method can not get access to the database
+   * @param user The user
+   * @param node The node in the storage
+   * @throws Exception An exception is thrown if method can not get access to
+   *           the database
    */
   private void writeObjectToNode(User user, Node node) throws Exception {
     try {
@@ -656,12 +634,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * PreSave Event.
    * 
-   * @param user
-   *          The user to save
-   * @param isNew
-   *          It is new user or not
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param user The user to save
+   * @param isNew It is new user or not
+   * @throws Exception If listeners fail to handle the user event
    */
   private void preSave(User user, boolean isNew) throws Exception {
     for (UserEventListener listener : listeners)
@@ -671,12 +646,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * PostSave Event.
    * 
-   * @param user
-   *          The user to save
-   * @param isNew
-   *          It is new user or not
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param user The user to save
+   * @param isNew It is new user or not
+   * @throws Exception If listeners fail to handle the user event
    */
   private void postSave(User user, boolean isNew) throws Exception {
     for (UserEventListener listener : listeners)
@@ -686,10 +658,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * PreDelete Event.
    * 
-   * @param user
-   *          The user to delete
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param user The user to delete
+   * @throws Exception If listeners fail to handle the user event
    */
   private void preDelete(User user) throws Exception {
     for (UserEventListener listener : listeners)
@@ -699,10 +669,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * PostDelete Event.
    * 
-   * @param user
-   *          The user to delete
-   * @throws Exception
-   *           If listeners fail to handle the user event
+   * @param user The user to delete
+   * @throws Exception If listeners fail to handle the user event
    */
   private void postDelete(User user) throws Exception {
     for (UserEventListener listener : listeners)
@@ -710,10 +678,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   }
 
   /**
-   * RemoveAsterix remove char '*' from start and end if string starts and ends with '*'.
+   * RemoveAsterix remove char '*' from start and end if string starts and ends
+   * with '*'.
    * 
-   * @param str
-   *          String to remove char
+   * @param str String to remove char
    * @return String with removed chars or the same string
    */
   private String removeAsterix(String str) {
@@ -726,4 +694,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     return str;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public List<UserEventListener> getUserListeners() {
+    return Collections.unmodifiableList(listeners);
+  }
 }
