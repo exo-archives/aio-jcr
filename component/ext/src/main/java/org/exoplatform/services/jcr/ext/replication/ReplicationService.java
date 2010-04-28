@@ -17,9 +17,12 @@
 package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jcr.RepositoryException;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -297,6 +300,8 @@ public class ReplicationService implements Startable, ManagementAware {
    * {@inheritDoc}
    */
   public void start() {
+    clearTemp(); 
+     
     if (registryService != null && !registryService.getForceXMLConfigurationValue(initParams)) {
       SessionProvider sessionProvider = SessionProvider.createSystemProvider();
       try {
@@ -425,6 +430,35 @@ public class ReplicationService implements Startable, ManagementAware {
   }
 
   /**
+   * Clean temp directory
+   */
+  private void clearTemp() {
+     class SynchronizationFilter implements FileFilter {
+
+        public boolean accept(File pathname) {
+           Pattern pattern = Pattern.compile("[0-9]{8}_[0-9]{6}_[0-9]{3}_[0-9abcdef]+");
+           Matcher matcher = pattern.matcher(pathname.getName());
+           
+          return matcher.matches();
+        }
+      }
+     
+     try {
+        File tFile = File.createTempFile("ttt", "tmp");
+        File fTemp = tFile.getParentFile();
+        tFile.delete();
+        
+        File[] files = fTemp.listFiles(new SynchronizationFilter());
+        
+        for (File f : files) {
+           f.delete();
+        }
+     } catch (Exception e) {
+       log.error("Can not clean temp directory" , e);
+     }
+  }
+
+  /**
    * initWorkspaceBackup. Will be initialized BackupCreator.
    * 
    * @param repositoryName
@@ -451,6 +485,7 @@ public class ReplicationService implements Startable, ManagementAware {
    * {@inheritDoc}
    */
   public void stop() {
+     clearTemp();
   }
 
   /**

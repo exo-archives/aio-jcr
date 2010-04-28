@@ -174,6 +174,11 @@ public class RecoverySynchronizer {
     try {
       if (localSynchronization) {
         log.info("Synchronization init...");
+        
+        if (mapPendingBinaryFile.size() > 0) {
+           cleanPendingBinaryFileMap();
+        }
+        
         Packet packet = new Packet(Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE,
                                    IdGenerator.generate(),
                                    ownName,
@@ -182,6 +187,26 @@ public class RecoverySynchronizer {
       }
     } catch (Exception e) {
       log.error("Synchronization error", e);
+    }
+  }
+
+  
+  /**
+   * Clean mapPendingBinaryFile.
+   */
+  private void cleanPendingBinaryFileMap() {
+    synchronized (mapPendingBinaryFile) {
+      for (String id : mapPendingBinaryFile.keySet()) {
+        PendingBinaryFile pFile = mapPendingBinaryFile.get(id);
+        
+        for (FileDescriptor fd : pFile.getSortedFilesDescriptorList()) {
+           if (!fd.getFile().delete()) {
+             fileCleaner.addFile(fd.getFile());
+           }
+        }
+      }
+      
+      mapPendingBinaryFile.clear();
     }
   }
 
@@ -286,74 +311,9 @@ public class RecoverySynchronizer {
             log.debug("The signal ALL_BinaryFile_transferred_OK has been received  from "
                 + packet.getOwnerName());
 
-          List<FileDescriptor> fileDescriptorList = pbf.getSortedFilesDescriptorList();
-
-          if (log.isDebugEnabled())
-            log.debug("fileDescriptorList.size() == pbf.getNeedTransferCounter() : "
-                + fileDescriptorList.size() + "== " + pbf.getNeedTransferCounter());
-
-          if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
-            List<String> failList = new ArrayList<String>();
-
-            for (FileDescriptor fileDescriptor : fileDescriptorList) {
-              try {
-                TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
-                                                                                                         .getAbsolutePath());
-
-                transactionChangesLog.setSystemId(fileDescriptor.getSystemId());
-
-                Calendar cLogTime = fileNameFactory.getDateFromFileName(fileDescriptor.getFile()
-                                                                                      .getName());
-
-                if (log.isDebugEnabled()) {
-                  log.debug("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
-                  log.debug("SystemID : " + transactionChangesLog.getSystemId());
-                  log.debug("list size : " + fileDescriptorList.size());
-                }
-
-                // dump log
-                if (log.isDebugEnabled()) {
-                  ChangesLogIterator logIterator = transactionChangesLog.getLogIterator();
-                  while (logIterator.hasNextLog()) {
-                    PlainChangesLog pcl = logIterator.nextLog();
-                    log.debug(pcl.dump());
-                  }
-                }
-
-                saveChangesLog(dataKeeper, transactionChangesLog, cLogTime);
-
-                if (log.isDebugEnabled()) {
-                  log.debug("After save message: the owner systemId --> "
-                      + transactionChangesLog.getSystemId());
-                  log.debug("After save message: --> " + systemId);
-                }
-
-              } catch (Exception e) {
-                failList.add(fileDescriptor.getFile().getName());
-                log.error("Can't save to JCR ", e);
-              }
-            }
-
-            // Send file name list
-            List<String> fileNameList = new ArrayList<String>(mapPendingBinaryFile.get(packet.getIdentifier())
-                                                                                  .getFileNameList());
-
-            if (failList.size() != 0)
-              fileNameList.removeAll(failList);
-
-            Packet packetFileNameList = new Packet(Packet.PacketType.ALL_CHANGESLOG_SAVED_OK,
-                                                   packet.getIdentifier(),
-                                                   ownName,
-                                                   fileNameList);
-            send(packetFileNameList);
-
-            log.info("The " + fileDescriptorList.size() + " changeslogs were received and "
-                + fileNameList.size() + " saved");
-
-          } else if (log.isDebugEnabled()) {
-            log.debug("Do not start save : " + fileDescriptorList.size() + " of "
-                + pbf.getNeedTransferCounter());
-          }
+          
+          ThreadSave threadSave = new ThreadSave(pbf, packet);
+          threadSave.start();
         }
       }
       break;
@@ -423,8 +383,98 @@ public class RecoverySynchronizer {
 
     return stat;
   }
+  
+  class ThreadSave extends Thread {
+    private final PendingBinaryFile pbf;
+    private final Packet packet;
+    
+    public ThreadSave(PendingBinaryFile pbf, Packet packet) {
+      this.pbf = pbf;
+      this.packet = packet;
+    }
+    
+    public void run() {
+      try {
+        saveChanges(pbf, packet);
+      } catch (Exception e) {
+        log.error("The received changes was not saved.", e);
+      }
+    } 
+  }
 
-  /**
+  private void saveChanges(PendingBinaryFile pbf, Packet packet) throws Exception {
+     List<FileDescriptor> fileDescriptorList = pbf.getSortedFilesDescriptorList();
+
+     if (log.isDebugEnabled())
+       log.debug("fileDescriptorList.size() == pbf.getNeedTransferCounter() : "
+           + fileDescriptorList.size() + "== " + pbf.getNeedTransferCounter());
+
+     if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
+       List<String> failList = new ArrayList<String>();
+
+       for (FileDescriptor fileDescriptor : fileDescriptorList) {
+         try {
+           TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
+                                                                                                    .getAbsolutePath());
+
+           transactionChangesLog.setSystemId(fileDescriptor.getSystemId());
+
+           Calendar cLogTime = fileNameFactory.getDateFromFileName(fileDescriptor.getFile()
+                                                                                 .getName());
+
+           if (log.isDebugEnabled()) {
+             log.debug("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
+             log.debug("SystemID : " + transactionChangesLog.getSystemId());
+             log.debug("list size : " + fileDescriptorList.size());
+           }
+
+           // dump log
+           if (log.isDebugEnabled()) {
+             ChangesLogIterator logIterator = transactionChangesLog.getLogIterator();
+             while (logIterator.hasNextLog()) {
+               PlainChangesLog pcl = logIterator.nextLog();
+               log.debug(pcl.dump());
+             }
+           }
+
+           saveChangesLog(dataKeeper, transactionChangesLog, cLogTime);
+
+           if (log.isDebugEnabled()) {
+             log.debug("After save message: the owner systemId --> "
+                 + transactionChangesLog.getSystemId());
+             log.debug("After save message: --> " + systemId);
+           }
+
+         } catch (Exception e) {
+           failList.add(fileDescriptor.getFile().getName());
+           log.error("Can't save to JCR ", e);
+         }
+       }
+
+       // Send file name list
+       List<String> fileNameList = new ArrayList<String>(mapPendingBinaryFile.get(packet.getIdentifier())
+                                                                             .getFileNameList());
+
+       if (failList.size() != 0)
+         fileNameList.removeAll(failList);
+
+       Packet packetFileNameList = new Packet(Packet.PacketType.ALL_CHANGESLOG_SAVED_OK,
+                                              packet.getIdentifier(),
+                                              ownName,
+                                              fileNameList);
+       send(packetFileNameList);
+
+       log.info("The " + fileDescriptorList.size() + " changeslogs were received and "
+           + fileNameList.size() + " saved");
+
+     } else if (log.isDebugEnabled()) {
+       log.debug("Do not start save : " + fileDescriptorList.size() + " of "
+           + pbf.getNeedTransferCounter());
+     }
+   
+  }
+
+/**
    * sendChangesLogUpDate.
    * 
    * @param timeStamp
