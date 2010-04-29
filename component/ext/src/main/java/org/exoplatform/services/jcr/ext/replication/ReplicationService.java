@@ -433,15 +433,6 @@ public class ReplicationService implements Startable, ManagementAware {
    * Clean temp directory
    */
   private void clearTemp() {
-     class SynchronizationFilter implements FileFilter {
-
-        public boolean accept(File pathname) {
-           Pattern pattern = Pattern.compile("[0-9]{8}_[0-9]{6}_[0-9]{3}_[0-9abcdef]+");
-           Matcher matcher = pattern.matcher(pathname.getName());
-           
-          return matcher.matches();
-        }
-      }
      
      try {
         File tFile = File.createTempFile("ttt", "tmp");
@@ -457,6 +448,16 @@ public class ReplicationService implements Startable, ManagementAware {
        log.error("Can not clean temp directory" , e);
      }
   }
+  
+  private class SynchronizationFilter implements FileFilter {
+
+     public boolean accept(File pathname) {
+        Pattern pattern = Pattern.compile("[0-9]{8}_[0-9]{6}_[0-9]{3}_[0-9abcdef]+");
+        Matcher matcher = pattern.matcher(pathname.getName());
+        
+       return matcher.matches();
+     }
+   }
 
   /**
    * initWorkspaceBackup. Will be initialized BackupCreator.
