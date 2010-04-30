@@ -29,20 +29,6 @@
   <packaging>rar</packaging>
   <name>eXo JCR RMI resource adapter</name>
   <description>eXo JCR RMI resource adapter</description>
-  <dependencies>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.8-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.rmi</artifactId>
-      <version>1.10.8-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
   <build>
     <plugins>
       <plugin>

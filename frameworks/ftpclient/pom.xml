@@ -30,10 +30,19 @@
   <description>eXo JCR FTP Client</description>
   <dependencies>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.exoplatform.kernel</groupId>
-      <artifactId>exo.kernel.component.command</artifactId>
+      <artifactId>exo.kernel.component.common</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
-      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>

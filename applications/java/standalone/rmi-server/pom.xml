@@ -30,24 +30,16 @@
   <name>eXo JCR RMI server</name>
   <description>eXo JCR RMI server</description>
   <dependencies>
-    <!-- JCR API -->
-    <dependency>
-      <groupId>jcr</groupId>
-      <artifactId>jcr</artifactId>
-      <version>1.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.8-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.rmi</artifactId>
       <version>1.10.8-SNAPSHOT</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.kernel</groupId>
+      <artifactId>exo.kernel.container</artifactId>
+      <version>${org.exoplatform.kernel.version}</version>
     </dependency>
   </dependencies>
   <build>
