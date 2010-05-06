@@ -221,6 +221,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <forkMode>${exo.test.forkmode}</forkMode>
           <includes>
             <include>**/audit/*Test.java</include>
             <include>**/actions/*Test.java</include>
