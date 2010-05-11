@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
-    <version>1.10.8-SNAPSHOT</version>
+    <version>1.10.8</version>
     <relativePath>../../../../pom.xml</relativePath>
   </parent>
   <artifactId>exo.jcr.applications.webdav</artifactId>
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.web</artifactId>
-      <version>1.10.8-SNAPSHOT</version>
+      <version>1.10.8</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
