@@ -26,13 +26,13 @@
   </parent>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>jcr-parent</artifactId>
-  <version>1.10.8</version>
+  <version>1.10.9-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo JCR</name>
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/projects/jcr/tags/1.10.8</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/projects/jcr/tags/1.10.8</developerConnection>
-    <url>http://fisheye.exoplatform.org/browse/projects/jcr/tags/1.10.8</url>
+    <connection>scm:svn:http://svn.exoplatform.org/projects/jcr/branches/1.10.x</connection>
+    <developerConnection>scm:svn:http://svn.exoplatform.org/projects/jcr/branches/1.10.x</developerConnection>
+    <url>http://fisheye.exoplatform.org/browse/projects/jcr/branches/1.10.x</url>
   </scm>
   <ciManagement>
     <system>hudson</system>
