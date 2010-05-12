@@ -44,7 +44,7 @@ public class SQLQuery implements DavQuery {
   }
 
   public Element toXml(Document xmlDocument) {
-    Element sqlElement = xmlDocument.createElementNS(WebDavConstants.Dav.NAMESPACE,
+    Element sqlElement = xmlDocument.createElementNS(WebDavConstants.Dav.NAMESPACE_SQL,
                                                      WebDavConstants.Dav.PREFIX + "sql");
     sqlElement.setTextContent(query);
     return sqlElement;

@@ -32,7 +32,7 @@ public class WebDavConstants {
 
     public static final String NAMESPACE_XPATH = "XPATH:";
 
-    public static final String NAMESPACE_SQL   = "SQL";
+    public static final String NAMESPACE_SQL   = "SQL:";
 
     public static final String PREFIX          = "A:";
 

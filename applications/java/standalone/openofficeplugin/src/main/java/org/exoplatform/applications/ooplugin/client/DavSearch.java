@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
 public class DavSearch extends MultistatusCommand {
 
   private DavQuery query;
-
+  
   public DavSearch(WebDavContext context) throws Exception {
     super(context);
     commandName = WebDavConstants.DavCommand.SEARCH;
