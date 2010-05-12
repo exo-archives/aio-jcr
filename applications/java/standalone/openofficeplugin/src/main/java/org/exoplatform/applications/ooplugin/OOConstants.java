@@ -17,7 +17,8 @@
 package org.exoplatform.applications.ooplugin;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 28, 2008
+ * Created by The eXo Platform SAS.
+ * @author <a href="mailto:work.visor.ck@gmail.com">Dmytro Katayev</a>
  */
 public class OOConstants {
 

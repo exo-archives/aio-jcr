@@ -18,19 +18,18 @@ package org.exoplatform.applications.ooplugin.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import org.exoplatform.common.http.client.CookieModule;
-import org.exoplatform.common.http.client.HTTPConnection;
-import org.exoplatform.common.http.client.HttpOutputStream;
 import org.exoplatform.applications.ooplugin.WebDavConfig;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDav;
-import org.w3c.dom.Document;
+import org.exoplatform.common.http.client.CookieModule;
+import org.exoplatform.common.http.client.HTTPConnection;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 18, 2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:work.visor.ck@gmail.com">Dmytro Katayev</a>
  */
 public class WebDavUtils {
 

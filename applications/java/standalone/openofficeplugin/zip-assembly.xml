@@ -16,8 +16,11 @@
     <dependencySet>
       <outputDirectory>/</outputDirectory>
       <unpack>false</unpack>
+      <scope>runtime</scope>
       <excludes>
-        <exclude>commons-collections:commons-collections</exclude>
+        <exclude>
+          commons-collections:commons-collections
+				</exclude>
         <exclude>javax.transaction:jta</exclude>
         <exclude>commons-lang:commons-lang</exclude>
         <exclude>bcel:bcel</exclude>
@@ -27,7 +30,6 @@
         <exclude>javax.portlet:portlet-api</exclude>
         <exclude>drools:drools-java</exclude>
         <exclude>drools:drools-core</exclude>
-        <exclude>log4j:log4j</exclude>
         <exclude>quartz:quartz</exclude>
         <exclude>exo-platform:exo-platform.container</exclude>
         <exclude>mail:activation</exclude>
@@ -52,6 +54,11 @@
         <exclude>com.sun.star:beans</exclude>
         <exclude>com.sun.star:unoil</exclude>
         <exclude>com.sun.star:comp</exclude>
+        <exclude>org.exoplatform.kernel:exo.kernel.container</exclude>
+        
+        <exclude>org.exoplatform.tool:exo.tool.framework.junit</exclude>
+        <exclude>javax.portlet:portlet-api</exclude>
+        <exclude>javax.faces:jsf-api</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>

@@ -17,6 +17,8 @@
 
 package org.exoplatform.applications.ooplugin;
 
+
+
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -36,8 +38,8 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
- * 
+ * Created by The eXo Platform SAS.
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id$
  */
 
@@ -45,7 +47,7 @@ public class AddonHandler extends WeakBase implements com.sun.star.lang.XService
     com.sun.star.frame.XDispatchProvider, com.sun.star.lang.XInitialization,
     com.sun.star.frame.XDispatch {
 
-  private static final Log      log                  = ExoLogger.getLogger("jcr.ooplugin.AddonHandler");
+  private static final Log      LOG                  = ExoLogger.getLogger(AddonHandler.class);
 
   public static final String    MENU_OPEN            = "open";
 
@@ -78,7 +80,7 @@ public class AddonHandler extends WeakBase implements com.sun.star.lang.XService
         config = new WebDavConfig();
       }
     } catch (Throwable thr) {
-      log.info("Undandled exception: " + thr.getMessage(), thr);
+      LOG.info("Undandled exception: " + thr.getMessage(), thr);
     }
   }
 
@@ -94,7 +96,7 @@ public class AddonHandler extends WeakBase implements com.sun.star.lang.XService
     try {
       return Factory.writeRegistryServiceInfo(m_implementationName, m_serviceNames, xRegistryKey);
     } catch (Throwable thr) {
-      log.info("Undandled exception: " + thr.getMessage(), thr);
+      LOG.info("Undandled exception: " + thr.getMessage(), thr);
     }
     return false;
   }
@@ -144,7 +146,7 @@ public class AddonHandler extends WeakBase implements com.sun.star.lang.XService
   }
 
   public com.sun.star.frame.XDispatch[] queryDispatches(com.sun.star.frame.DispatchDescriptor[] seqDescriptors) {
-    log.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
+    LOG.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
     int nCount = seqDescriptors.length;
     com.sun.star.frame.XDispatch[] seqDispatcher = new com.sun.star.frame.XDispatch[seqDescriptors.length];
     for (int i = 0; i < nCount; ++i) {
@@ -209,7 +211,7 @@ public class AddonHandler extends WeakBase implements com.sun.star.lang.XService
 
       }
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception. " + exc.getMessage(), exc);
     }
 
   }
@@ -248,7 +250,7 @@ public class AddonHandler extends WeakBase implements com.sun.star.lang.XService
         }
       }
     } catch (com.sun.star.uno.Exception e) {
-      log.info("Unhandled exception. " + e.getMessage(), e);
+      LOG.info("Unhandled exception. " + e.getMessage(), e);
     }
   }
 

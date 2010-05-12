@@ -15,39 +15,39 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin.dialog;
+package org.exoplatform.applications.ooplugin.search;
 
-import java.util.ArrayList;
+import org.exoplatform.applications.ooplugin.WebDavConstants;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
- * @version $Id$
+ * @version $Id: $
  */
 
-public class DialogModel {
+public class SQLQuery implements DavQuery {
 
-  private String                       dialogName = "";
+  private String query = "";
 
-  private ArrayList<ComponentProperty> properties = new ArrayList<ComponentProperty>();
-
-  private ArrayList<Component>         components = new ArrayList<Component>();
-
-  public DialogModel(String dialogName) {
-    this.dialogName = dialogName;
+  public SQLQuery() {
   }
 
-  public String getDialogName() {
-    return dialogName;
+  public SQLQuery(String query) {
+    this.query = query;
   }
 
-  public ArrayList<ComponentProperty> getProperties() {
-    return properties;
+  public void setQuery(String query) {
+    this.query = query;
   }
 
-  public ArrayList<Component> getComponents() {
-    return components;
+  public Element toXml(Document xmlDocument) {
+    Element sqlElement = xmlDocument.createElementNS(WebDavConstants.Dav.NAMESPACE_SQL,
+                                                     WebDavConstants.Dav.PREFIX + "sql");
+    sqlElement.setTextContent(query);
+    return sqlElement;
   }
 
 }

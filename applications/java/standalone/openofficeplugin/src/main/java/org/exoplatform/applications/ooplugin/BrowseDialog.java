@@ -19,37 +19,27 @@ package org.exoplatform.applications.ooplugin;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
+import org.exoplatform.applications.ooplugin.client.CommonProp;
+import org.exoplatform.applications.ooplugin.client.DavPropFind;
+import org.exoplatform.applications.ooplugin.client.Multistatus;
+import org.exoplatform.applications.ooplugin.client.ResponseDoc;
+import org.exoplatform.applications.ooplugin.client.TimeOutException;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.applications.ooplugin.utils.DavPropFind;
+import org.exoplatform.applications.ooplugin.props.ContentLengthProp;
+import org.exoplatform.applications.ooplugin.props.DisplayNameProp;
+import org.exoplatform.applications.ooplugin.props.LastModifiedProp;
+import org.exoplatform.applications.ooplugin.props.ResourceTypeProp;
+import org.exoplatform.applications.ooplugin.props.VersionNameProp;
 import org.exoplatform.applications.ooplugin.utils.TextUtils;
 import org.exoplatform.common.http.HTTPStatus;
-
-//___________________________________________________________________________
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.http.TimeOutException;
-import org.exoplatform.frameworks.webdavclient.properties.CommonProp;
-import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
-import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
-import org.exoplatform.frameworks.webdavclient.properties.LastModifiedProp;
-import org.exoplatform.frameworks.webdavclient.properties.ResourceTypeProp;
-import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp; //___________________________________________________________________________
-
 import org.exoplatform.services.log.ExoLogger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import sun.util.calendar.BaseCalendar;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XComboBox;
@@ -61,17 +51,17 @@ import com.sun.star.awt.XWindow;
 import com.sun.star.frame.XFrame;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
-import com.sun.star.util.Time;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id$
  */
 
 public abstract class BrowseDialog extends PlugInDialog {
 
-  private static final Log         log               = ExoLogger.getLogger("jcr.ooplugin.PlugInDialog");
+  private static final Log         LOG               = ExoLogger.getLogger(BrowseDialog.class);
 
   public static final int          VNAME_LEN         = 3;
 
@@ -158,7 +148,7 @@ public abstract class BrowseDialog extends PlugInDialog {
       xLabelHead.setText(headerValue);
 
     } catch (Exception exc) {
-      log.info("Unhandled exception: " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception: " + exc.getMessage(), exc);
     }
 
     return true;
@@ -231,7 +221,8 @@ public abstract class BrowseDialog extends PlugInDialog {
         // if (displayName.indexOf(".") > 0) {
         // String name = displayName.substring(0, displayName.lastIndexOf("."));
         // Log.info("NAME: " + name);
-        // String extension = displayName.substring(displayName.lastIndexOf("."));
+        // String extension =
+        // displayName.substring(displayName.lastIndexOf("."));
         // name = name.substring(0, NAME_LEN - extension.length() - 8);
         // fileItem += (name + "... " + extension);
         // } else {
@@ -291,7 +282,6 @@ public abstract class BrowseDialog extends PlugInDialog {
 
     LastModifiedProp lastModifiedProperty = (LastModifiedProp) response.getProperty(WebDavProp.GETLASTMODIFIED);
     if (lastModifiedProperty != null) {
-      String time = lastModifiedProperty.getLastModified();
 
       Date d = new Date();
 
@@ -375,16 +365,6 @@ public abstract class BrowseDialog extends PlugInDialog {
           return;
         }
 
-        // _
-
-        Document responseDoc = TextUtils.getXmlFromBytes(davPropFind.getResponseDataBuffer());
-        NodeList nodes = responseDoc.getFirstChild().getChildNodes();
-        Node n = nodes.item(1);
-
-        String s = new String(davPropFind.getResponseDataBuffer());
-
-        // _
-
         Multistatus multistatus = davPropFind.getMultistatus();
 
         responses.clear();
@@ -414,7 +394,7 @@ public abstract class BrowseDialog extends PlugInDialog {
 
         enableAll();
       } catch (Throwable exc) {
-        log.info("Unhandled exception: " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception: " + exc.getMessage(), exc);
       }
     }
 
@@ -470,7 +450,7 @@ public abstract class BrowseDialog extends PlugInDialog {
     } catch (Exception exc) {
       showMessageBox("Can't open remote file!");
 
-      log.info("Can't open remote file... " + exc.getMessage(), exc);
+      LOG.info("Can't open remote file... " + exc.getMessage(), exc);
     }
 
   }

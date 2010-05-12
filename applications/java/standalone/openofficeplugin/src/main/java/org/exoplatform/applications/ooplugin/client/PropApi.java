@@ -15,39 +15,29 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin.dialog;
+package org.exoplatform.applications.ooplugin.client;
 
-import java.util.ArrayList;
+import org.w3c.dom.Node;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
- * @version $Id$
+ * @version $Id: $
  */
 
-public class DialogModel {
+public interface PropApi {
 
-  private String                       dialogName = "";
+  public void setStatus(String httpStatus);
 
-  private ArrayList<ComponentProperty> properties = new ArrayList<ComponentProperty>();
+  public void setStatus(int status);
 
-  private ArrayList<Component>         components = new ArrayList<Component>();
+  public int getStatus();
 
-  public DialogModel(String dialogName) {
-    this.dialogName = dialogName;
-  }
+  public String getName();
 
-  public String getDialogName() {
-    return dialogName;
-  }
+  public String getValue();
 
-  public ArrayList<ComponentProperty> getProperties() {
-    return properties;
-  }
-
-  public ArrayList<Component> getComponents() {
-    return components;
-  }
+  public boolean init(Node node);
 
 }

@@ -23,21 +23,19 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
-
-//___________________________________________________________________________
-import org.exoplatform.frameworks.webdavclient.WebDavContext; //___________________________________________________________________________
-
+import org.exoplatform.applications.ooplugin.client.WebDavContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id$
  */
 
 public class WebDavConfig {
 
-  private static final Log   log         = ExoLogger.getLogger("jcr.ooplugin.AddonHandler");
+  private static final Log   LOG         = ExoLogger.getLogger(WebDavConfig.class);
 
   public static final String WHOST       = "Host";
 
@@ -195,7 +193,7 @@ public class WebDavConfig {
       File configFile = new File(configFileName);
 
       if (!configFile.exists()) {
-        log.info("Config file not exist!!!!!! USE DEFAULT !!!");
+        LOG.info("Config file not exist!!!!!! USE DEFAULT !!!");
         return;
       }
 
@@ -220,7 +218,7 @@ public class WebDavConfig {
       user_id = hParams.get(WUSER);
       user_pass = hParams.get(WPASS);
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception. " + exc.getMessage(), exc);
     }
 
   }

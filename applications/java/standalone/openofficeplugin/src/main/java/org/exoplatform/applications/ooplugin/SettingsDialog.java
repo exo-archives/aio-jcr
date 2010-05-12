@@ -35,14 +35,15 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id$
  */
 
 public class SettingsDialog extends PlugInDialog {
 
-  private static final Log   log            = ExoLogger.getLogger("jcr.ooplugin.PlugInDialog");
+  private static final Log   LOG            = ExoLogger.getLogger(SettingsDialog.class);
 
   public static final String NAME           = "_SettingsDialog";
 
@@ -102,7 +103,7 @@ public class SettingsDialog extends PlugInDialog {
         setTextBoxValue(EDT_PASS, config.getUserPass());
 
       } catch (Exception exc) {
-        log.info("Unhandled exception: " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception: " + exc.getMessage(), exc);
       }
     }
   }
@@ -201,7 +202,7 @@ public class SettingsDialog extends PlugInDialog {
         String filePath = WebDavUtils.getFullPath(testConfig);
         HTTPResponse response = connection.Head(filePath);
 
-        log.info("Testing connection....");
+        LOG.info("Testing connection....");
 
         int status = response.getStatusCode();
 
@@ -211,7 +212,7 @@ public class SettingsDialog extends PlugInDialog {
         }
 
       } catch (Exception exc) {
-        log.info("Unhandled exception: " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception: " + exc.getMessage(), exc);
       }
 
       showMessageBox(" Can not connect to repository!");
@@ -241,7 +242,7 @@ public class SettingsDialog extends PlugInDialog {
 
         config.saveConfig();
       } catch (Exception exc) {
-        log.info("Unhandled exception. " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception. " + exc.getMessage(), exc);
         showMessageBox("Parameters incorrect!!!");
       }
 

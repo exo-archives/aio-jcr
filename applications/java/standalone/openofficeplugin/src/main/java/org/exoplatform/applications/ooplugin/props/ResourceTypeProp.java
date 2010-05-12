@@ -15,29 +15,44 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
+package org.exoplatform.applications.ooplugin.props;
 
+import org.exoplatform.applications.ooplugin.WebDavConstants;
+import org.exoplatform.applications.ooplugin.XmlUtil;
+import org.exoplatform.applications.ooplugin.client.CommonProp;
+import org.exoplatform.common.http.HTTPStatus;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
- * @version $Id$
+ * @version $Id: $
  */
 
-public class XmlUtil {
+public class ResourceTypeProp extends CommonProp {
 
-  public static Node getChildNode(Node node, String childName) {
-    NodeList nodes = node.getChildNodes();
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node curNode = nodes.item(i);
-      if (curNode.getLocalName() != null && curNode.getLocalName().equals(childName)) {
-        return curNode;
-      }
+  protected boolean isCollection = true;
+
+  public ResourceTypeProp() {
+    this.propertyName = WebDavConstants.WebDavProp.RESOURCETYPE;
+  }
+
+  public boolean init(Node node) {
+    if (status != HTTPStatus.OK) {
+      return false;
     }
-    return null;
+
+    Node collectionNode = XmlUtil.getChildNode(node, WebDavConstants.WebDavProp.COLLECTION);
+    if (collectionNode == null) {
+      isCollection = false;
+    }
+
+    return true;
+  }
+
+  public boolean isCollection() {
+    return isCollection;
   }
 
 }

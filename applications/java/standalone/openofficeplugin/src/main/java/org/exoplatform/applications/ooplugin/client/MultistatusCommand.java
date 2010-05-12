@@ -15,31 +15,32 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin.utils;
+package org.exoplatform.applications.ooplugin.client;
 
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.WebDavContext;
-import org.exoplatform.frameworks.webdavclient.documents.DocumentApi;
-import org.exoplatform.frameworks.webdavclient.documents.DocumentManager;
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.http.Log;
-import org.exoplatform.frameworks.webdavclient.request.PropertyList;
+import org.apache.commons.logging.Log;
+import org.exoplatform.applications.ooplugin.WebDavConstants;
+import org.exoplatform.applications.ooplugin.props.PropertyList;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
  * 
- * @version $Id$
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
+ * @version $Id: $
  */
 
 public abstract class MultistatusCommand extends DavCommand {
 
-  protected PropertyList propList            = new PropertyList();
+  private static final Log LOG                 = ExoLogger.getLogger(MultistatusCommand.class);
 
-  protected String       xmlName             = Const.StreamDocs.PROPFIND;
+  protected PropertyList   propList            = new PropertyList();
 
-  protected DocumentApi  multistatusDocument = null;
+  protected String         xmlName             = WebDavConstants.StreamDocs.PROPFIND;
+
+  protected DocumentApi    multistatusDocument = null;
 
   public MultistatusCommand(WebDavContext context) throws Exception {
     super(context);
@@ -62,8 +63,8 @@ public abstract class MultistatusCommand extends DavCommand {
   }
 
   public Element toXml(Document xmlDocument) {
-    Element propFindEl = xmlDocument.createElementNS(Const.Dav.NAMESPACE, Const.Dav.PREFIX
-        + xmlName);
+    Element propFindEl = xmlDocument.createElementNS(WebDavConstants.Dav.NAMESPACE,
+                                                     WebDavConstants.Dav.PREFIX + xmlName);
     xmlDocument.appendChild(propFindEl);
 
     propFindEl.appendChild(propList.toXml(xmlDocument));
@@ -73,11 +74,11 @@ public abstract class MultistatusCommand extends DavCommand {
 
   public void finalExecute() {
     try {
-      if (client.getReplyCode() != Const.HttpStatus.MULTISTATUS) {
+      if (client.getReplyCode() != HTTPStatus.MULTISTATUS) {
         return;
       }
     } catch (Exception exc) {
-      Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception. " + exc.getMessage(), exc);
     }
 
     multistatusDocument = DocumentManager.getResponseDocument(client.getResponseStream());

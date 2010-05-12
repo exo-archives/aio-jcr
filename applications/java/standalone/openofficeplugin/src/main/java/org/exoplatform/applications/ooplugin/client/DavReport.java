@@ -15,39 +15,35 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin.dialog;
+package org.exoplatform.applications.ooplugin.client;
 
-import java.util.ArrayList;
+import org.exoplatform.applications.ooplugin.WebDavConstants;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
- * @version $Id$
+ * @version $Id: $
  */
 
-public class DialogModel {
+public class DavReport extends MultistatusCommand {
 
-  private String                       dialogName = "";
+  private int depth = 0;
 
-  private ArrayList<ComponentProperty> properties = new ArrayList<ComponentProperty>();
-
-  private ArrayList<Component>         components = new ArrayList<Component>();
-
-  public DialogModel(String dialogName) {
-    this.dialogName = dialogName;
+  public DavReport(WebDavContext context) throws Exception {
+    super(context);
+    commandName = WebDavConstants.DavCommand.REPORT;
+    xmlName = WebDavConstants.StreamDocs.VERSION_TREE;
   }
 
-  public String getDialogName() {
-    return dialogName;
+  public void setDepth(int depth) {
+    this.depth = depth;
   }
 
-  public ArrayList<ComponentProperty> getProperties() {
-    return properties;
-  }
-
-  public ArrayList<Component> getComponents() {
-    return components;
+  @Override
+  public int execute() throws Exception {
+    client.setRequestHeader(WebDavHeaders.DEPTH, "" + depth);
+    return super.execute();
   }
 
 }

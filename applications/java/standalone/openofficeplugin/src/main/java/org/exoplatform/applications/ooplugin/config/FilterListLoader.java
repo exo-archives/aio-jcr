@@ -27,14 +27,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id$
  */
 
 public class FilterListLoader extends XmlConfig {
 
-  private static final Log      log               = ExoLogger.getLogger("jcr.ooplugin.FilterListLoader");
+  private static final Log      LOG               = ExoLogger.getLogger(FilterListLoader.class);
 
   public static final String    FILTERLIST_CONFIG = "/config/filterlist.xml";
 
@@ -65,7 +66,7 @@ public class FilterListLoader extends XmlConfig {
       }
 
     } catch (Exception exc) {
-      log.info("Unhandled exception ", exc);
+      LOG.info("Unhandled exception ", exc);
     }
   }
 

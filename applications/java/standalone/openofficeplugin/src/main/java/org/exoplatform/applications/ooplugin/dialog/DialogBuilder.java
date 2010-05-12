@@ -25,7 +25,6 @@ import org.exoplatform.applications.ooplugin.Resources;
 import org.exoplatform.applications.ooplugin.config.XmlConfig;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
-import org.exoplatform.applications.ooplugin.dialog.DialogModel;
 import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -53,8 +52,9 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id$
  */
 
@@ -86,7 +86,7 @@ public class DialogBuilder extends XmlConfig {
 
   private ArrayList<DialogModel> dialogs          = new ArrayList<DialogModel>();
 
-  private static final Log       log              = ExoLogger.getLogger("jcr.ooplugin.DialogBuilder");
+  private static final Log       LOG              = ExoLogger.getLogger(DialogBuilder.class);
 
   private PlugInDialog           plugInDialog;
 
@@ -272,7 +272,7 @@ public class DialogBuilder extends XmlConfig {
       }
 
     } catch (Exception exc) {
-      log.info("Unhandled exception: " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception: " + exc.getMessage(), exc);
     }
   }
 

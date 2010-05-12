@@ -30,14 +30,15 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id$
  */
 
 public class OOUtils {
 
-  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.OOUtils");
+  private static final Log LOG = ExoLogger.getLogger(OOUtils.class);
 
   public static XComponent loadFromFile(XComponentContext xComponentContext,
                                         String url,
@@ -81,7 +82,7 @@ public class OOUtils {
       // xStorable.store();
 
     } catch (Exception exc) {
-      log.info("Can't store info to opened file...");
+      LOG.info("Can't store info to opened file...");
     }
 
     return (xComponent);

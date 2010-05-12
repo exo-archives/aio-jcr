@@ -20,7 +20,8 @@ package org.exoplatform.applications.ooplugin;
 import java.io.File;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * 
  * @version $Id$
  */

@@ -17,12 +17,98 @@
 package org.exoplatform.applications.ooplugin;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 18, 2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:work.visor.ck@gmail.com">Dmytro Katayev</a>
  */
 public class WebDavConstants {
 
   public class WebDav {
     public static final String REALM = "eXo REST services";
+  }
+
+  public class Dav {
+    public static final String NAMESPACE       = "DAV:";
+
+    public static final String NAMESPACE_XPATH = "XPATH:";
+
+    public static final String NAMESPACE_SQL   = "SQL:";
+
+    public static final String PREFIX          = "A:";
+
+    public static final String NAMESPACEATTR   = "xmlns:A";
+  }
+
+  public class StreamDocs {
+    public static final String OPTIONS        = "options";
+
+    public static final String PROPFIND       = "propfind";
+
+    public static final String MULTISTATUS    = "multistatus";
+
+    public static final String LOCKINFO       = "lockinfo";
+
+    public static final String PROP           = "prop";
+
+    public static final String PROPERTYUPDATE = "propertyupdate";
+
+    public static final String VERSION_TREE   = "version-tree";
+
+    public static final String ORDERPATCH     = "orderpatch";
+
+    public static final String SEARCHREQUEST  = "searchrequest";
+
+    public static final String LABEL          = "label";
+  }
+
+  public class DavCommand {
+    public static final String CHECKIN        = "CHECKIN";
+
+    public static final String CHECKOUT       = "CHECKOUT";
+
+    public static final String COPY           = "COPY";
+
+    public static final String DELETE         = "DELETE";
+
+    public static final String GET            = "GET";
+
+    public static final String HEAD           = "HEAD";
+
+    public static final String LABEL          = "LABEL";
+
+    public static final String LOCK           = "LOCK";
+
+    public static final String MERGE          = "MERGE";
+
+    public static final String MKCOL          = "MKCOL";
+
+    public static final String MKWORKSPACE    = "MKWORKSPACE";
+
+    public static final String MOVE           = "MOVE";
+
+    public static final String OPTIONS        = "OPTIONS";
+
+    public static final String ORDERPATCH     = "ORDERPATCH";
+
+    public static final String PROPFIND       = "PROPFIND";
+
+    public static final String PROPPATCH      = "PROPPATCH";
+
+    public static final String PUT            = "PUT";
+
+    public static final String REPORT         = "REPORT";
+
+    public static final String RESTORE        = "RESTORE";
+
+    public static final String UNCHECKOUT     = "UNCHECKOUT";
+
+    public static final String UNLOCK         = "UNLOCK";
+
+    public static final String UPDATE         = "UPDATE";
+
+    public static final String VERSIONCONTROL = "VERSION-CONTROL";
+
+    public static final String SEARCH         = "SEARCH";
   }
 
   public class WebDavProp {

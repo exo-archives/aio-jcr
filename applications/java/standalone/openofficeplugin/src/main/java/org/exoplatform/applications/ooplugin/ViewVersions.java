@@ -23,19 +23,16 @@ import java.util.Comparator;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
+import org.exoplatform.applications.ooplugin.client.DavReport;
+import org.exoplatform.applications.ooplugin.client.Multistatus;
+import org.exoplatform.applications.ooplugin.client.ResponseDoc;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.applications.ooplugin.utils.TextUtils;
+import org.exoplatform.applications.ooplugin.props.ContentLengthProp;
+import org.exoplatform.applications.ooplugin.props.CreationDateProp;
+import org.exoplatform.applications.ooplugin.props.CreatorDisplayNameProp;
+import org.exoplatform.applications.ooplugin.props.DisplayNameProp;
 import org.exoplatform.common.http.HTTPStatus;
-
-//___________________________________________________________________________
-import org.exoplatform.frameworks.webdavclient.commands.DavReport;
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
-import org.exoplatform.frameworks.webdavclient.properties.CreationDateProp;
-import org.exoplatform.frameworks.webdavclient.properties.CreatorDisplayNameProp;
-import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp; //___________________________________________________________________________
 import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.ActionEvent;
@@ -47,14 +44,15 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id$
  */
 
 public class ViewVersions extends PlugInDialog {
 
-  private static final Log       log           = ExoLogger.getLogger("jcr.ooplugin.ViewVersions");
+  private static final Log       LOG           = ExoLogger.getLogger(ViewVersions.class);
 
   private static final String    DIALOG_NAME   = "_ViewVersionsDialog";
 
@@ -120,7 +118,7 @@ public class ViewVersions extends PlugInDialog {
       xLabelHead.setText(headerValue);
 
     } catch (Exception exc) {
-      log.info("Unhandled exception: " + exc.getMessage(), exc);
+      LOG.info("Unhandled exception: " + exc.getMessage(), exc);
     }
 
     return true;
@@ -135,7 +133,7 @@ public class ViewVersions extends PlugInDialog {
         Thread.sleep(100);
         doReport();
       } catch (Exception exc) {
-        log.info("Unhandled exception. " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception. " + exc.getMessage(), exc);
       }
     }
   }
@@ -199,8 +197,10 @@ public class ViewVersions extends PlugInDialog {
       //        
       // }
       //      
-      // ResourceTypeProp rt1 = (ResourceTypeProp)resp1.getProperty(Const.DavProp.RESOURCETYPE);
-      // ResourceTypeProp rt2 = (ResourceTypeProp)resp2.getProperty(Const.DavProp.RESOURCETYPE);
+      // ResourceTypeProp rt1 =
+      // (ResourceTypeProp)resp1.getProperty(Const.DavProp.RESOURCETYPE);
+      // ResourceTypeProp rt2 =
+      // (ResourceTypeProp)resp2.getProperty(Const.DavProp.RESOURCETYPE);
       //      
       // if (rt1.isCollection() && !rt2.isCollection()) {
       // return 0;
@@ -210,8 +210,10 @@ public class ViewVersions extends PlugInDialog {
       // return 1;
       // }
       //      
-      // DisplayNameProp dn1 = (DisplayNameProp)resp1.getProperty(Const.DavProp.DISPLAYNAME);
-      // DisplayNameProp dn2 = (DisplayNameProp)resp2.getProperty(Const.DavProp.DISPLAYNAME);
+      // DisplayNameProp dn1 =
+      // (DisplayNameProp)resp1.getProperty(Const.DavProp.DISPLAYNAME);
+      // DisplayNameProp dn2 =
+      // (DisplayNameProp)resp2.getProperty(Const.DavProp.DISPLAYNAME);
       //      
       // return dn1.getDisplayName().compareToIgnoreCase(dn2.getDisplayName());
     }
@@ -269,7 +271,7 @@ public class ViewVersions extends PlugInDialog {
       xDialog.endExecute();
 
     } catch (Exception exc) {
-      log.info("Unhandled exception.", exc);
+      LOG.info("Unhandled exception.", exc);
       showMessageBox("Can't open selected version.");
     }
   }

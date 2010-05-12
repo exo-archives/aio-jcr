@@ -15,16 +15,15 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin.utils;
+package org.exoplatform.applications.ooplugin.client;
 
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.WebDavContext;
-import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
+import org.exoplatform.applications.ooplugin.WebDavConstants;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS.
  * 
- * @version $Id$
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
+ * @version $Id: $
  */
 
 public class DavPropFind extends MultistatusCommand {
@@ -33,8 +32,8 @@ public class DavPropFind extends MultistatusCommand {
 
   public DavPropFind(WebDavContext context) throws Exception {
     super(context);
-    commandName = Const.DavCommand.PROPFIND;
-    xmlName = Const.StreamDocs.PROPFIND;
+    commandName = WebDavConstants.DavCommand.PROPFIND;
+    xmlName = WebDavConstants.StreamDocs.PROPFIND;
 
     client.setRequestHeader("connection", "TE");
     client.setRequestHeader("te", "trailers");
@@ -47,7 +46,7 @@ public class DavPropFind extends MultistatusCommand {
 
   @Override
   public int execute() throws Exception {
-    client.setRequestHeader(HttpHeader.DEPTH, "" + depth);
+    client.setRequestHeader(WebDavHeaders.DEPTH, "" + depth);
     return super.execute();
   }
 

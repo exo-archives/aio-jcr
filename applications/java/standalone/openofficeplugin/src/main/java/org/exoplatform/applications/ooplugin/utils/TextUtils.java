@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.BitSet;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -28,9 +29,47 @@ import org.exoplatform.applications.ooplugin.OOConstants.MimeTypes;
 import org.w3c.dom.Document;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 19, 2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:work.visor.ck@gmail.com">Dmytro Katayev</a>
  */
 public class TextUtils {
+
+  public static final char[] hexTable = "0123456789abcdef".toCharArray();
+
+  public static BitSet       URISave;
+
+  public static BitSet       URISaveEx;
+
+  static {
+    URISave = new BitSet(256);
+    int i;
+    for (i = 'a'; i <= 'z'; i++) {
+      URISave.set(i);
+    }
+    for (i = 'A'; i <= 'Z'; i++) {
+      URISave.set(i);
+    }
+    for (i = '0'; i <= '9'; i++) {
+      URISave.set(i);
+    }
+    URISave.set('-');
+    URISave.set('_');
+    URISave.set('.');
+    URISave.set('!');
+    URISave.set('~');
+    URISave.set('*');
+    URISave.set('\'');
+    URISave.set('(');
+    URISave.set(')');
+    URISave.set(':');
+
+    URISave.set('?');
+    URISave.set('=');
+
+    URISaveEx = (BitSet) URISave.clone();
+    URISaveEx.set('/');
+  }
 
   public static Document getXmlFromBytes(byte[] xmlBytes) throws Exception {
 
@@ -38,6 +77,27 @@ public class TextUtils {
     InputStream inputStream = new ByteArrayInputStream(xmlBytes);
     return builderFactory.newDocumentBuilder().parse(inputStream);
 
+  }
+
+  public static String Escape(String string, char escape, boolean isPath) {
+    try {
+      BitSet validChars = isPath ? URISaveEx : URISave;
+      byte[] bytes = string.getBytes("utf-8");
+      StringBuffer out = new StringBuffer(bytes.length);
+      for (int i = 0; i < bytes.length; i++) {
+        int c = bytes[i] & 0xff;
+        if (validChars.get(c) && c != escape) {
+          out.append((char) c);
+        } else {
+          out.append(escape);
+          out.append(hexTable[(c >> 4) & 0x0f]);
+          out.append(hexTable[(c) & 0x0f]);
+        }
+      }
+      return out.toString();
+    } catch (Exception exc) {
+      throw new InternalError(exc.toString());
+    }
   }
 
   public static String UnEscape(String string, char escape) {

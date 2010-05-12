@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin.utils;
+package org.exoplatform.applications.ooplugin.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -31,17 +31,15 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
-import org.exoplatform.frameworks.webdavclient.WebDavContext;
-import org.exoplatform.frameworks.webdavclient.http.HttpClient;
-import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.ls.LSOutput;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
  * 
- * @version $Id$
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
+ * @version $Id: $
  */
 
 public abstract class DavCommand {
@@ -92,7 +90,7 @@ public abstract class DavCommand {
 
   public void setRequestInputStream(InputStream inStream, long streamLength) throws Exception {
     this.inStream = inStream;
-    client.setRequestHeader(HttpHeader.CONTENTLENGTH, "" + streamLength);
+    client.setRequestHeader(WebDavHeaders.CONTENTLENGTH, "" + streamLength);
   }
 
   public void setXmlEnabled(boolean enableXml) {
@@ -100,7 +98,7 @@ public abstract class DavCommand {
   }
 
   public void setLockToken(String lockToken) throws Exception {
-    client.setRequestHeader(HttpHeader.LOCKTOKEN, "<" + lockToken + ">");
+    client.setRequestHeader(WebDavHeaders.LOCKTOKEN, "<" + lockToken + ">");
   }
 
   public String getResponseHeader(String headerName) {
@@ -153,7 +151,7 @@ public abstract class DavCommand {
 
       byte[] encoded = Base64.encodeBase64(new String(userId + ":" + userPass).getBytes());
       String encodedAuth = new String(encoded);
-      client.setRequestHeader(HttpHeader.AUTHORIZATION, AUTH_BASIC + " " + encodedAuth);
+      client.setRequestHeader(WebDavHeaders.AUTHORIZATION, AUTH_BASIC + " " + encodedAuth);
     }
 
     if (rangeStart >= 0) {
@@ -161,7 +159,7 @@ public abstract class DavCommand {
       if (rangeEnd >= 0) {
         rangeHeader += rangeEnd;
       }
-      client.setRequestHeader(HttpHeader.RANGE, rangeHeader);
+      client.setRequestHeader(WebDavHeaders.RANGE, rangeHeader);
     }
 
     client.conect();

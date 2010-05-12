@@ -19,17 +19,16 @@ package org.exoplatform.applications.ooplugin;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
+import org.exoplatform.applications.ooplugin.client.ResponseDoc;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
+import org.exoplatform.applications.ooplugin.props.VersionNameProp;
 import org.exoplatform.applications.ooplugin.utils.TextUtils;
 import org.exoplatform.common.http.HTTPStatus;
-
-//___________________________________________________________________________
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp; //___________________________________________________________________________
-
 import org.exoplatform.services.log.ExoLogger;
+
+import java.net.URLEncoder;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.ItemEvent;
@@ -41,14 +40,15 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author.
  * 
+ * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
  * @version $Id$
  */
 
 public class OpenDialog extends BrowseDialog {
 
-  private static final Log    log          = ExoLogger.getLogger("jcr.ooplugin.BrowseDialog");
+  private static final Log    LOG          = ExoLogger.getLogger(OpenDialog.class);
 
   private static final String DIALOGNAME   = "_OpenDialog";
 
@@ -89,7 +89,7 @@ public class OpenDialog extends BrowseDialog {
 
         doPropFind();
       } catch (Exception exc) {
-        log.info("Unhandled exception. " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception. " + exc.getMessage(), exc);
         exc.printStackTrace(System.out);
       }
     }
@@ -157,7 +157,7 @@ public class OpenDialog extends BrowseDialog {
       String serverPrefix = config.getServerPrefix();
 
       if (!path.startsWith(serverPrefix)) {
-        log.info("Can't connect remote WebDav server!!!");
+        LOG.info("Can't connect remote WebDav server!!!");
         return;
       }
 
@@ -191,14 +191,14 @@ public class OpenDialog extends BrowseDialog {
         }
 
         ResponseDoc response = responses.get(selectedPos);
-        String href = TextUtils.UnEscape(response.getHref(), '%');
+        String href = response.getHref();
 
         if (!href.startsWith(config.getServerPrefix())) {
           showMessageBox("Can't load version list.");
           return;
         }
 
-        String remoteHref = href.substring(config.getServerPrefix().length());
+        String remoteHref =  "/" + href.substring(config.getServerPrefix().length() + 1);
 
         prepareTmpPath(currentPath);
 
@@ -214,7 +214,7 @@ public class OpenDialog extends BrowseDialog {
         }
 
       } catch (Exception exc) {
-        log.info("Unhandled exception. " + exc.getMessage(), exc);
+        LOG.info("Unhandled exception. " + exc.getMessage(), exc);
       }
 
     }

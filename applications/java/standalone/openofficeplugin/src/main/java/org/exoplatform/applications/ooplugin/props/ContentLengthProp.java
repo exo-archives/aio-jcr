@@ -15,39 +15,40 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin.dialog;
+package org.exoplatform.applications.ooplugin.props;
 
-import java.util.ArrayList;
+import org.exoplatform.applications.ooplugin.WebDavConstants;
+import org.exoplatform.applications.ooplugin.client.CommonProp;
+import org.exoplatform.common.http.HTTPStatus;
+import org.w3c.dom.Node;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gavrikvetal@gmail.com">Vitaly Guly</a>
- * @version $Id$
+ * @version $Id: $
  */
 
-public class DialogModel {
+public class ContentLengthProp extends CommonProp {
 
-  private String                       dialogName = "";
+  protected int contentLength = 0;
 
-  private ArrayList<ComponentProperty> properties = new ArrayList<ComponentProperty>();
-
-  private ArrayList<Component>         components = new ArrayList<Component>();
-
-  public DialogModel(String dialogName) {
-    this.dialogName = dialogName;
+  public ContentLengthProp() {
+    this.propertyName = WebDavConstants.WebDavProp.GETCONTENTLENGTH;
   }
 
-  public String getDialogName() {
-    return dialogName;
+  public boolean init(Node node) {
+    if (status != HTTPStatus.OK) {
+      return false;
+    }
+
+    String contLen = node.getTextContent();
+    contentLength = new Integer(contLen);
+    return true;
   }
 
-  public ArrayList<ComponentProperty> getProperties() {
-    return properties;
-  }
-
-  public ArrayList<Component> getComponents() {
-    return components;
+  public long getContentLength() {
+    return contentLength;
   }
 
 }
