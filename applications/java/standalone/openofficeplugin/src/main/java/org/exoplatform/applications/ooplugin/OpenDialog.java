@@ -28,6 +28,8 @@ import org.exoplatform.applications.ooplugin.utils.TextUtils;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.log.ExoLogger;
 
+import java.net.URLEncoder;
+
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.ItemEvent;
 import com.sun.star.awt.XTextComponent;
@@ -189,14 +191,14 @@ public class OpenDialog extends BrowseDialog {
         }
 
         ResponseDoc response = responses.get(selectedPos);
-        String href = TextUtils.UnEscape(response.getHref(), '%');
+        String href = response.getHref();
 
         if (!href.startsWith(config.getServerPrefix())) {
           showMessageBox("Can't load version list.");
           return;
         }
 
-        String remoteHref = href.substring(config.getServerPrefix().length());
+        String remoteHref =  "/" + href.substring(config.getServerPrefix().length() + 1);
 
         prepareTmpPath(currentPath);
 
