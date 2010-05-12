@@ -19,10 +19,9 @@ package org.exoplatform.applications.ooplugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.dialog.DialogBuilder;
 import org.exoplatform.applications.ooplugin.dialog.EventHandler;
 import org.exoplatform.applications.ooplugin.utils.TextUtils;
@@ -56,7 +55,7 @@ import com.sun.star.uno.XComponentContext;
 
 public class PlugInDialog {
 
-  private static final org.apache.commons.logging.Log          LOG           = ExoLogger.getLogger(PlugInDialog.class);
+  private static final Log          LOG           = ExoLogger.getLogger(PlugInDialog.class);
 
   protected String                  dialogName    = "";
 
@@ -179,12 +178,13 @@ public class PlugInDialog {
       sb.append(TextUtils.DecodePath(segment));
     }
     resourcePath = sb.toString();
-   
 
-    String decodedPath = URLEncoder.encode(resourcePath.substring(resourcePath.lastIndexOf("/") + 1), "UTF-8");
-    
+    if (!resourcePath.startsWith("/")) {
+      resourcePath = "/" + resourcePath;
+    }
+
     HTTPConnection connection = WebDavUtils.getAuthConnection(config);
-    HTTPResponse response = connection.Get(serverPrefix + "/" + decodedPath);
+    HTTPResponse response = connection.Get(href);
 
     int status = response.getStatusCode();
 
@@ -192,10 +192,6 @@ public class PlugInDialog {
       showMessageBox("Can't open remote file. ErrorCode: " + status);
       return;
     }
-    
-    if (!resourcePath.startsWith("/")) {
-       resourcePath = "/" + resourcePath;
-     }
 
     prepareTmpPath(resourcePath);
 
