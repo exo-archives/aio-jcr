@@ -19,6 +19,7 @@ package org.exoplatform.applications.ooplugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
@@ -163,59 +164,62 @@ public class PlugInDialog {
   }
 
   protected void doOpenRemoteFile(String href) throws Exception {
-    String serverPrefix = config.getServerPrefix();
+     String serverPrefix = config.getServerPrefix();
 
-    if (!href.startsWith(serverPrefix)) {
-      return;
-    }
+     if (!href.startsWith(serverPrefix)) {
+       return;
+     }
 
-    String resourcePath = href.substring(serverPrefix.length());
+     String resourcePath = href.substring(serverPrefix.length());
 
-    String[] pathSegments = resourcePath.split("/");
-    StringBuffer sb = new StringBuffer();
+     String[] pathSegments = resourcePath.split("/");
+     StringBuffer sb = new StringBuffer();
 
-    for (String segment : pathSegments) {
-      sb.append(TextUtils.DecodePath(segment));
-    }
-    resourcePath = sb.toString();
+     for (String segment : pathSegments) {
+       sb.append(TextUtils.DecodePath(segment));
+     }
+     resourcePath = sb.toString();
+    
 
-    if (!resourcePath.startsWith("/")) {
-      resourcePath = "/" + resourcePath;
-    }
+     String decodedPath = URLEncoder.encode(resourcePath.substring(resourcePath.lastIndexOf("/") + 1), "UTF-8");
+     
+     HTTPConnection connection = WebDavUtils.getAuthConnection(config);
+     HTTPResponse response = connection.Get(serverPrefix + "/" + decodedPath);
 
-    HTTPConnection connection = WebDavUtils.getAuthConnection(config);
-    HTTPResponse response = connection.Get(href);
+     int status = response.getStatusCode();
 
-    int status = response.getStatusCode();
+     if (status != HTTPStatus.OK) {
+       showMessageBox("Can't open remote file. ErrorCode: " + status);
+       return;
+     }
+     
+     if (!resourcePath.startsWith("/")) {
+        resourcePath = "/" + resourcePath;
+      }
 
-    if (status != HTTPStatus.OK) {
-      showMessageBox("Can't open remote file. ErrorCode: " + status);
-      return;
-    }
+     prepareTmpPath(resourcePath);
 
-    prepareTmpPath(resourcePath);
+     String filePath = LocalFileSystem.getDocumentsPath() + File.separatorChar
+         + LocalFileSystem.STORAGEDIR + File.separatorChar + config.getWorkSpace() + resourcePath;
+     filePath = filePath.replace("\\", "/");
 
-    String filePath = LocalFileSystem.getDocumentsPath() + File.separatorChar
-        + LocalFileSystem.STORAGEDIR + File.separatorChar + config.getWorkSpace() + resourcePath;
-    filePath = filePath.replace("\\", "/");
+     filePath = filePath.replace("?", ".");
 
-    filePath = filePath.replace("?", ".");
+     File outFile = new File(filePath);
+     if (outFile.exists()) {
+       outFile.delete();
+     }
 
-    File outFile = new File(filePath);
-    if (outFile.exists()) {
-      outFile.delete();
-    }
+     outFile.createNewFile();
+     FileOutputStream fileOutStream = new FileOutputStream(outFile);
 
-    outFile.createNewFile();
-    FileOutputStream fileOutStream = new FileOutputStream(outFile);
+     byte[] fileContent = response.getData();
 
-    byte[] fileContent = response.getData();
+     fileOutStream.write(fileContent);
+     fileOutStream.close();
 
-    fileOutStream.write(fileContent);
-    fileOutStream.close();
-
-    OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);
-  }
+     OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);
+   }
 
   public void showMessageBox(String sMessage) {
     try {
