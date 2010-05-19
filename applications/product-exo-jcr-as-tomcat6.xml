@@ -21,14 +21,14 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>exo.jcr.applications.config</artifactId>
-    <version>1.10.8-SNAPSHOT</version>
+    <version>1.10.9-SNAPSHOT</version>
     <relativePath>./config/pom.xml</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.product.jcr</artifactId>
   <packaging>jar</packaging>
-  <version>1.10.8-SNAPSHOT</version>
+  <version>1.10.9-SNAPSHOT</version>
   <name>eXo JCR Product</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Product</description>
@@ -76,6 +76,21 @@
             <copy todir="${exo.projects.directory.working}/exo-tomcat" verbose="false" overwrite="true">
               <fileset dir="${exo.projects.directory.dependencies}/${exo.projects.app.tomcat.version}" />
             </copy>
+            <!-- Removing timestamps from SNAPSHOT jars-->
+            <move todir="${basedir}/target/lib-binary.dir/">
+              <fileset dir="${basedir}/target/lib-binary.dir/">
+                <include name="**/*.jar" />
+              </fileset>
+              <mapper>
+                <firstmatchmapper>
+                  <!-- If a timestamped SNAPSHOT is used -->
+                  <regexpmapper from="(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).jar" to="\1-${project.version}.jar" casesensitive="no"/>                
+                  <!-- By default keep the name -->
+                  <flattenmapper />
+                </firstmatchmapper>
+              </mapper>
+            </move>
+
             <copy todir="${exo.projects.directory.working}/exo-tomcat/lib/" verbose="true" overwrite="true">
               <fileset dir="${basedir}/target/lib-binary.dir/" excludes="**/*.war" />
             </copy>
@@ -87,12 +102,17 @@
                 <include name="**/*.war" />
               </fileset>
               <mapper>
-                <chainedmapper>
-                  <flattenmapper />
+                <firstmatchmapper>
+                  <!-- If a timestamped SNAPSHOT is used -->
+                  <regexpmapper from="exo.jcr.applications.(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).war" to="\1.war" casesensitive="no"/>                
+                  <!-- Otherwise -->
                   <globmapper from="exo.jcr.applications.*-${project.version}.war" to="*.war" casesensitive="no" />
-                </chainedmapper>
+                  <!-- By default keep the name -->
+                  <flattenmapper />
+                </firstmatchmapper>
               </mapper>
             </move>
+            
             <copy todir="${exo.projects.directory.working}/exo-tomcat/webapps/" verbose="true" flatten="true" overwrite="true">
               <fileset dir="${basedir}/target/lib-binary.dir/" casesensitive="yes">
                 <include name="**/*.war" />
@@ -100,6 +120,23 @@
             </copy>
           </tasks>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-launcher</artifactId>
+            <version>1.8.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.8.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.8.1</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
