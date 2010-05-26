@@ -29,7 +29,7 @@
   <artifactId>exo.jcrapplications.tomcat5</artifactId>
   <packaging>pom</packaging>
   <version>1.10.9-SNAPSHOT</version>
-  <name>eXo JCR Product</name>
+  <name>eXo JCR Tomcat 5 Applications Server</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Tomcat 5 Applications Server</description>
 

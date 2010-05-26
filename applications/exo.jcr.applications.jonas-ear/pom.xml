@@ -29,7 +29,7 @@
   <artifactId>exo.jcrapplications.jonas-ear</artifactId>
   <packaging>pom</packaging>
   <version>1.10.9-SNAPSHOT</version>
-  <name>eXo JCR Product</name>
+  <name>eXo JCR Jonas Applications Server EAR</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Jonas Applications Server EAR</description>
 
