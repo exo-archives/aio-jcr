@@ -128,6 +128,12 @@
     <module>applications/java/standalone/openofficeplugin</module>
     <module>applications/java/standalone/samples/repoload</module>
     <module>applications/java/web/console</module>
+    <module>applications/exo.jcr.applications.jboss</module>
+    <module>applications/exo.jcr.applications.jboss-ear</module>
+    <module>applications/exo.jcr.applications.jonas</module>
+    <module>applications/exo.jcr.applications.jonas-ear</module>
+    <module>applications/exo.jcr.applications.tomcat5</module>
+    <module>applications/exo.jcr.applications.tomcat6</module>
     <module>benchmark</module>
     <module>packaging</module>
   </modules>
