@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -62,27 +63,37 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   /**
    * FIND_NODES_BY_PARENTID NEW.
    */
-  protected String FIND_NODES_BY_PARENTID_CQ;
+  protected String            FIND_NODES_BY_PARENTID_CQ;
 
   /**
    * FIND_PROPERTIES_BY_PARENTID NEW.
    */
-  protected String FIND_PROPERTIES_BY_PARENTID_CQ;
+  protected String            FIND_PROPERTIES_BY_PARENTID_CQ;
 
   /**
    * FIND_NODE_MAIN_PROPERTIES_BY_PARENTID_CQ.
    */
-  protected String FIND_NODE_MAIN_PROPERTIES_BY_PARENTID_CQ;
+  protected String            FIND_NODE_MAIN_PROPERTIES_BY_PARENTID_CQ;
 
   /**
    * FIND_REFERENCE_PROPERTIES_CQ.
    */
-  protected String FIND_REFERENCE_PROPERTIES_CQ;
+  protected String            FIND_REFERENCE_PROPERTIES_CQ;
 
   /**
    * FIND_ITEM_QPATH_BY_ID_CQ.
    */
-  protected String FIND_ITEM_QPATH_BY_ID_CQ;
+  protected String            FIND_ITEM_QPATH_BY_ID_CQ;
+
+  protected PreparedStatement findReferencePropertiesCQ;
+
+  protected PreparedStatement findNodesByParentIdCQ;
+
+  protected PreparedStatement findPropertiesByParentIdCQ;
+
+  protected PreparedStatement findNodeMainPropertiesByParentIdentifierCQ;
+
+  protected PreparedStatement findItemQPathByIdentifierCQ;
 
   /**
    * Class needed to store node details (property also) since result set is not
@@ -116,13 +127,20 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   /**
    * JDBCStorageConnection constructor.
    * 
-   * @param dbConnection JDBC connection
-   * @param containerName Workspace container name
-   * @param valueStorageProvider External Value Storage provider
-   * @param maxBufferSize maximum buffer size (configuration)
-   * @param swapDirectory swap directory (configuration)
-   * @param swapCleaner swap cleaner (FileCleaner)
-   * @throws SQLException database error
+   * @param dbConnection
+   *          JDBC connection
+   * @param containerName
+   *          Workspace container name
+   * @param valueStorageProvider
+   *          External Value Storage provider
+   * @param maxBufferSize
+   *          maximum buffer size (configuration)
+   * @param swapDirectory
+   *          swap directory (configuration)
+   * @param swapCleaner
+   *          swap cleaner (FileCleaner)
+   * @throws SQLException
+   *           database error
    */
   protected CQJDBCStorageConnection(Connection dbConnection,
                                     boolean readOnly,
@@ -401,8 +419,10 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   /**
    * Read ACL Permissions from properties set.
    * 
-   * @param cid node id (used only for error messages)
-   * @param properties - Property name and property values
+   * @param cid
+   *          node id (used only for error messages)
+   * @param properties
+   *          - Property name and property values
    * @return list ACL
    * @throws SQLException
    * @throws IllegalACLException
@@ -429,8 +449,10 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
   /**
    * Read ACL owner.
    * 
-   * @param cid - node id (used only in exception message)
-   * @param properties - Proeprty name and property values
+   * @param cid
+   *          - node id (used only in exception message)
+   * @param properties
+   *          - Proeprty name and property values
    * @return ACL owner
    * @throws IllegalACLException
    */
@@ -697,6 +719,34 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
       qentries[qi++] = qrpath.get(i);
     }
     return new QPath(qentries);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected void closeStatements() throws SQLException {
+    super.closeStatements();
+
+    if (findReferencePropertiesCQ != null) {
+      findReferencePropertiesCQ.close();
+    }
+
+    if (findNodesByParentIdCQ != null) {
+      findNodesByParentIdCQ.close();
+    }
+
+    if (findPropertiesByParentIdCQ != null) {
+      findPropertiesByParentIdCQ.close();
+    }
+
+    if (findNodeMainPropertiesByParentIdentifierCQ != null) {
+      findNodeMainPropertiesByParentIdentifierCQ.close();
+    }
+
+    if (findItemQPathByIdentifierCQ != null) {
+      findItemQPathByIdentifierCQ.close();
+    }
   }
 
   protected abstract ResultSet findItemQPathByIdentifierCQ(String identifier) throws SQLException;

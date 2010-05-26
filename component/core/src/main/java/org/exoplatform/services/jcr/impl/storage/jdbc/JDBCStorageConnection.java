@@ -100,6 +100,68 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
   protected final SQLExceptionHandler        exceptionHandler;
 
+  // All statements should be closed in cloaseStatements() method.
+
+  protected PreparedStatement                findItemById;
+
+  protected PreparedStatement                findItemByPath;
+
+  protected PreparedStatement                findItemByName;
+
+  protected PreparedStatement                findChildPropertyByPath;
+
+  protected PreparedStatement                findPropertyByName;
+
+  protected PreparedStatement                findDescendantNodes;
+
+  protected PreparedStatement                findDescendantProperties;
+
+  protected PreparedStatement                findReferences;
+
+  protected PreparedStatement                findValuesByPropertyId;
+
+  protected PreparedStatement                findValuesStorageDescriptorsByPropertyId;
+
+  protected PreparedStatement                findValuesDataByPropertyId;
+
+  protected PreparedStatement                findValueByPropertyIdOrderNumber;
+
+  protected PreparedStatement                findNodesByParentId;
+
+  protected PreparedStatement                findNodesCountByParentId;
+
+  protected PreparedStatement                findPropertiesByParentId;
+
+  protected PreparedStatement                insertItem;
+
+  protected PreparedStatement                insertNode;
+
+  protected PreparedStatement                insertProperty;
+
+  protected PreparedStatement                insertReference;
+
+  protected PreparedStatement                insertValue;
+
+  protected PreparedStatement                updateItem;
+
+  protected PreparedStatement                updateItemPath;
+
+  protected PreparedStatement                updateNode;
+
+  protected PreparedStatement                updateProperty;
+
+  protected PreparedStatement                deleteItem;
+
+  protected PreparedStatement                deleteNode;
+
+  protected PreparedStatement                deleteProperty;
+
+  protected PreparedStatement                deleteReference;
+
+  protected PreparedStatement                deleteValue;
+
+  protected PreparedStatement                renameNode;
+
   /**
    * Read-only flag, if true the connection is marked as READ-ONLY.
    */
@@ -171,8 +233,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Return JDBC connection obtained from initialized data source. NOTE: Helper can obtain one new
-   * connection per each call of the method or return one obtained once.
+   * Return JDBC connection obtained from initialized data source. NOTE: Helper
+   * can obtain one new connection per each call of the method or return one
+   * obtained once.
    */
   public Connection getJdbcConnection() {
     return dbConnection;
@@ -196,7 +259,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   protected abstract String getInternalId(String identifier);
 
   /**
-   * Used in loadXYZRecord methods for extract real Identifier from container value.
+   * Used in loadXYZRecord methods for extract real Identifier from container
+   * value.
    * 
    * @param internalId
    * @return
@@ -245,13 +309,143 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   public final void close() throws IllegalStateException, RepositoryException {
     checkIfOpened();
     try {
-      // If READ-ONLY status back it to READ-WRITE (we assume it was original state)
+      closeStatements();
+
+      // If READ-ONLY status back it to READ-WRITE (we assume it was original
+      // state)
       if (readOnly)
         dbConnection.setReadOnly(true);
 
       dbConnection.close();
     } catch (SQLException e) {
       throw new RepositoryException(e);
+    }
+  }
+
+  /**
+   * Close all statements.
+   * 
+   * @throws SQLException
+   */
+  protected void closeStatements() throws SQLException {
+    if (findItemById != null) {
+      findItemById.close();
+    }
+
+    if (findItemByPath != null) {
+      findItemByPath.close();
+    }
+
+    if (findItemByName != null) {
+      findItemByName.close();
+    }
+
+    if (findChildPropertyByPath != null) {
+      findChildPropertyByPath.close();
+    }
+
+    if (findPropertyByName != null) {
+      findPropertyByName.close();
+    }
+
+    if (findDescendantNodes != null) {
+      findDescendantNodes.close();
+    }
+
+    if (findDescendantProperties != null) {
+      findDescendantProperties.close();
+    }
+
+    if (findReferences != null) {
+      findReferences.close();
+    }
+
+    if (findValuesByPropertyId != null) {
+      findValuesByPropertyId.close();
+    }
+
+    if (findValuesStorageDescriptorsByPropertyId != null) {
+      findValuesStorageDescriptorsByPropertyId.close();
+    }
+
+    if (findValuesDataByPropertyId != null) {
+      findValuesDataByPropertyId.close();
+    }
+
+    if (findValueByPropertyIdOrderNumber != null) {
+      findValueByPropertyIdOrderNumber.close();
+    }
+
+    if (findNodesByParentId != null) {
+      findNodesByParentId.close();
+    }
+
+    if (findNodesCountByParentId != null) {
+      findNodesCountByParentId.close();
+    }
+
+    if (findPropertiesByParentId != null) {
+      findPropertiesByParentId.close();
+    }
+
+    if (insertItem != null) {
+      insertItem.close();
+    }
+
+    if (insertNode != null) {
+      insertNode.close();
+    }
+
+    if (insertProperty != null) {
+      insertProperty.close();
+    }
+
+    if (insertReference != null) {
+      insertReference.close();
+    }
+
+    if (insertValue != null) {
+      insertValue.close();
+    }
+
+    if (updateItem != null) {
+      updateItem.close();
+    }
+
+    if (updateItemPath != null) {
+      updateItemPath.close();
+    }
+
+    if (updateNode != null) {
+      updateNode.close();
+    }
+
+    if (updateProperty != null) {
+      updateProperty.close();
+    }
+
+    if (deleteItem != null) {
+      deleteItem.close();
+    }
+
+    if (deleteNode != null) {
+      deleteNode.close();
+    }
+
+    if (deleteProperty != null) {
+      deleteProperty.close();
+    }
+
+    if (deleteReference != null) {
+      deleteReference.close();
+    }
+
+    if (deleteValue != null) {
+      deleteValue.close();
+    }
+
+    if (renameNode != null) {
+      renameNode.close();
     }
   }
 
@@ -318,9 +512,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
             + data.getQPath().getAsString()
             + ", "
             + data.getIdentifier()
-            + (data.getValues() != null
-                ? ", values count: " + data.getValues().size()
-                : ", NULL data"));
+            + (data.getValues() != null ? ", values count: " + data.getValues().size()
+                                       : ", NULL data"));
 
     } catch (IOException e) {
       if (LOG.isDebugEnabled())
@@ -501,9 +694,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
             + data.getQPath().getAsString()
             + ", "
             + data.getIdentifier()
-            + (data.getValues() != null
-                ? ", values count: " + data.getValues().size()
-                : ", NULL data"));
+            + (data.getValues() != null ? ", values count: " + data.getValues().size()
+                                       : ", NULL data"));
 
     } catch (IOException e) {
       if (LOG.isDebugEnabled())
@@ -792,7 +984,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Find ancestor permissions by cpid. Will search till find the permissions or meet a root node.
+   * Find ancestor permissions by cpid. Will search till find the permissions or
+   * meet a root node.
    * 
    * @param cpid
    *          - initial parent node id
@@ -835,7 +1028,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Find ancestor owner by cpid. Will search till find the owner or meet a root node.
+   * Find ancestor owner by cpid. Will search till find the owner or meet a root
+   * node.
    * 
    * @param cpid
    *          - initial parent node id
@@ -866,7 +1060,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Find ancestor ACL by cpid. Will search till find the ACL or meet a root node.
+   * Find ancestor ACL by cpid. Will search till find the ACL or meet a root
+   * node.
    * 
    * @param cpid
    *          - initial parent node id
@@ -916,12 +1111,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * [PN] Experimental. Use SP for traversing Qpath on the database server side. Hm, I haven't a
-   * good result for that yet. Few seconds only for TCK execution. PGSQL SP: CREATE OR REPLACE
-   * FUNCTION get_qpath(parentId VARCHAR) RETURNS SETOF record AS $$ DECLARE cur_item RECORD; cur_id
-   * varchar; BEGIN cur_id := parentId; WHILE NOT cur_id = ' ' LOOP SELECT id, name, parent_id,
-   * i_index INTO cur_item FROM JCR_SITEM WHERE ID=cur_id; IF NOT found THEN RETURN; END IF; RETURN
-   * NEXT cur_item; cur_id := cur_item.parent_id; END LOOP; RETURN; END; $$ LANGUAGE plpgsql;
+   * [PN] Experimental. Use SP for traversing Qpath on the database server side.
+   * Hm, I haven't a good result for that yet. Few seconds only for TCK
+   * execution. PGSQL SP: CREATE OR REPLACE FUNCTION get_qpath(parentId VARCHAR)
+   * RETURNS SETOF record AS $$ DECLARE cur_item RECORD; cur_id varchar; BEGIN
+   * cur_id := parentId; WHILE NOT cur_id = ' ' LOOP SELECT id, name, parent_id,
+   * i_index INTO cur_item FROM JCR_SITEM WHERE ID=cur_id; IF NOT found THEN
+   * RETURN; END IF; RETURN NEXT cur_item; cur_id := cur_item.parent_id; END
+   * LOOP; RETURN; END; $$ LANGUAGE plpgsql;
    * 
    * @param cpid
    * @return
@@ -1026,7 +1223,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Read property data without value data. For listChildPropertiesData(NodeData).
+   * Read property data without value data. For
+   * listChildPropertiesData(NodeData).
    * 
    * @param parentPath
    *          - parent path
@@ -1082,17 +1280,23 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     /**
      * OWNEABLE constant.
      */
-    static final int          OWNEABLE               = 0x0001;                  // bits 0001
+    static final int          OWNEABLE               = 0x0001;                  // bits
+
+    // 0001
 
     /**
      * PRIVILEGEABLE constant.
      */
-    static final int          PRIVILEGEABLE          = 0x0002;                  // bits 0010
+    static final int          PRIVILEGEABLE          = 0x0002;                  // bits
+
+    // 0010
 
     /**
      * OWNEABLE_PRIVILEGEABLE constant.
      */
-    static final int          OWNEABLE_PRIVILEGEABLE = OWNEABLE | PRIVILEGEABLE; // bits 0011
+    static final int          OWNEABLE_PRIVILEGEABLE = OWNEABLE | PRIVILEGEABLE; // bits
+
+    // 0011
 
     /**
      * Mixin types.
@@ -1208,7 +1412,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Return permission values or throw an exception. We assume the node is mix:privilegeable.
+   * Return permission values or throw an exception. We assume the node is
+   * mix:privilegeable.
    * 
    * @param cid
    *          Node id
@@ -1240,7 +1445,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Return owner value or throw an exception. We assume the node is mix:owneable.
+   * Return owner value or throw an exception. We assume the node is
+   * mix:owneable.
    * 
    * @param cid
    *          Node id
@@ -1343,12 +1549,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
             acl = new AccessControlList(readACLOwner(cid), readACLPermisions(cid));
           } else if (parentACL != null) {
             // use permissions from existed parent
-            acl = new AccessControlList(readACLOwner(cid), parentACL.hasPermissions()
-                ? parentACL.getPermissionEntries()
-                : null);
+            acl = new AccessControlList(readACLOwner(cid),
+                                        parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                                  : null);
           } else {
             // have to search nearest ancestor permissions in ACL manager
-            // acl = new AccessControlList(readACLOwner(cid), traverseACLPermissions(cpid));
+            // acl = new AccessControlList(readACLOwner(cid),
+            // traverseACLPermissions(cpid));
             acl = new AccessControlList(readACLOwner(cid), null);
           }
         } else if (mixins.hasPrivilegeable()) {
@@ -1361,17 +1568,19 @@ abstract public class JDBCStorageConnection extends DBConstants implements
             acl = new AccessControlList(parentACL.getOwner(), readACLPermisions(cid));
           } else {
             // have to search nearest ancestor owner in ACL manager
-            // acl = new AccessControlList(traverseACLOwner(cpid), readACLPermisions(cid));
+            // acl = new AccessControlList(traverseACLOwner(cpid),
+            // readACLPermisions(cid));
             acl = new AccessControlList(null, readACLPermisions(cid));
           }
         } else {
           if (parentACL != null)
             // construct ACL from existed parent ACL
-            acl = new AccessControlList(parentACL.getOwner(), parentACL.hasPermissions()
-                ? parentACL.getPermissionEntries()
-                : null);
+            acl = new AccessControlList(parentACL.getOwner(),
+                                        parentACL.hasPermissions() ? parentACL.getPermissionEntries()
+                                                                  : null);
           else
-            // have to search nearest ancestor owner and permissions in ACL manager
+            // have to search nearest ancestor owner and permissions in ACL
+            // manager
             // acl = traverseACL(cpid);
             acl = null;
         }
@@ -1517,12 +1726,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         while (valueRecords.next()) {
           final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
           final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
-          ValueData vdata = valueRecords.wasNull()
-              ? readValueData(cid,
-                              orderNum,
-                              pdata.getPersistedVersion(),
-                              valueRecords.getBinaryStream(COLUMN_VDATA))
-              : readValueData(pdata.getIdentifier(), orderNum, storageId);
+          ValueData vdata = valueRecords.wasNull() ? readValueData(cid,
+                                                                   orderNum,
+                                                                   pdata.getPersistedVersion(),
+                                                                   valueRecords.getBinaryStream(COLUMN_VDATA))
+                                                  : readValueData(pdata.getIdentifier(),
+                                                                  orderNum,
+                                                                  storageId);
           data.add(vdata);
         }
       } finally {

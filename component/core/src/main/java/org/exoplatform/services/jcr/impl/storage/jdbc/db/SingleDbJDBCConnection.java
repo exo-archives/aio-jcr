@@ -28,7 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -37,70 +37,12 @@ import java.util.List;
 /**
  * Created by The eXo Platform SAS 27.04.2006
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: SingleDbJDBCConnection.java 42817 2010-01-22 08:01:06Z tolusha
+ *          $
  */
 public class SingleDbJDBCConnection extends JDBCStorageConnection {
-
-  protected PreparedStatement findItemById;
-
-  protected PreparedStatement findItemByPath;
-
-  protected PreparedStatement findItemByName;
-
-  protected PreparedStatement findChildPropertyByPath;
-
-  protected PreparedStatement findPropertyByName;
-
-  protected PreparedStatement findDescendantNodes;
-
-  protected PreparedStatement findDescendantProperties;
-
-  protected PreparedStatement findReferences;
-
-  protected PreparedStatement findValuesByPropertyId;
-
-  protected PreparedStatement findValuesStorageDescriptorsByPropertyId;
-
-  protected PreparedStatement findValuesDataByPropertyId;
-
-  protected PreparedStatement findValueByPropertyIdOrderNumber;
-
-  protected PreparedStatement findNodesByParentId;
-
-  protected PreparedStatement findNodesCountByParentId;
-
-  protected PreparedStatement findPropertiesByParentId;
-
-  protected PreparedStatement insertItem;
-
-  protected PreparedStatement insertNode;
-
-  protected PreparedStatement insertProperty;
-
-  protected PreparedStatement insertReference;
-
-  protected PreparedStatement insertValue;
-
-  protected PreparedStatement updateItem;
-
-  protected PreparedStatement updateItemPath;
-
-  protected PreparedStatement updateNode;
-
-  protected PreparedStatement updateProperty;
-
-  protected PreparedStatement deleteItem;
-
-  protected PreparedStatement deleteNode;
-
-  protected PreparedStatement deleteProperty;
-
-  protected PreparedStatement deleteReference;
-
-  protected PreparedStatement deleteValue;
-
-  protected PreparedStatement renameNode;
 
   /**
    * Singledatabase JDBC Connection constructor.
@@ -233,9 +175,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
     insertNode.setString(1, getInternalId(data.getIdentifier()));
     // if root then parent identifier equals space string
-    insertNode.setString(2, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : getInternalId(data.getParentIdentifier()));
+    insertNode.setString(2,
+                         data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                           : getInternalId(data.getParentIdentifier()));
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setString(4, containerName);
     insertNode.setInt(5, data.getPersistedVersion());
@@ -553,9 +495,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       renameNode.clearParameters();
 
-    renameNode.setString(1, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : getInternalId(data.getParentIdentifier()));
+    renameNode.setString(1,
+                         data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                           : getInternalId(data.getParentIdentifier()));
     renameNode.setString(2, data.getQPath().getName().getAsString());
     renameNode.setInt(3, data.getPersistedVersion());
     renameNode.setInt(4, data.getQPath().getIndex());

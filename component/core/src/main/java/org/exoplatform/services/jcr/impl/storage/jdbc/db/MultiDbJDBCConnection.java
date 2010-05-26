@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -35,88 +34,16 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
 /**
- * Created by The eXo Platform SAS. </br> Concrete JDBC based data container that uses
- * "table-set per Workspace policy" i.e each JCR Workspace storage is placed in dedicated DB.
+ * Created by The eXo Platform SAS. </br> Concrete JDBC based data container
+ * that uses "table-set per Workspace policy" i.e each JCR Workspace storage is
+ * placed in dedicated DB.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id$
  */
 
 public class MultiDbJDBCConnection extends JDBCStorageConnection {
-
-  /**
-   * findItemById.
-   */
-  protected PreparedStatement findItemById;
-
-  /**
-   * findItemByPath.
-   */
-  protected PreparedStatement findItemByPath;
-
-  /**
-   * findItemByName.
-   */
-  protected PreparedStatement findItemByName;
-
-  /**
-   * findChildPropertyByPath.
-   */
-  protected PreparedStatement findChildPropertyByPath;
-
-  /**
-   * findPropertyByName.
-   */
-  protected PreparedStatement findPropertyByName;
-
-  protected PreparedStatement findDescendantNodes;
-
-  protected PreparedStatement findDescendantProperties;
-
-  protected PreparedStatement findReferences;
-
-  protected PreparedStatement findValuesByPropertyId;
-
-  protected PreparedStatement findValuesDataByPropertyId;
-
-  protected PreparedStatement findValuesStorageDescriptorsByPropertyId;
-
-  @Deprecated
-  protected PreparedStatement findValueByPropertyIdOrderNumber;
-
-  protected PreparedStatement findNodesByParentId;
-
-  protected PreparedStatement findNodesCountByParentId;
-
-  protected PreparedStatement findPropertiesByParentId;
-
-  protected PreparedStatement insertNode;
-
-  protected PreparedStatement insertProperty;
-
-  protected PreparedStatement insertReference;
-
-  protected PreparedStatement insertValue;
-
-  protected PreparedStatement updateItem;
-
-  protected PreparedStatement updateItemPath;
-
-  protected PreparedStatement updateNode;
-
-  protected PreparedStatement updateProperty;
-
-  protected PreparedStatement deleteItem;
-
-  protected PreparedStatement deleteNode;
-
-  protected PreparedStatement deleteProperty;
-
-  protected PreparedStatement deleteReference;
-
-  protected PreparedStatement deleteValue;
-
-  protected PreparedStatement renameNode;
 
   /**
    * Multidatabase JDBC Connection constructor.
@@ -242,9 +169,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       insertNode.clearParameters();
 
     insertNode.setString(1, data.getIdentifier());
-    insertNode.setString(2, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : data.getParentIdentifier());
+    insertNode.setString(2, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                              : data.getParentIdentifier());
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setInt(4, data.getPersistedVersion());
     insertNode.setInt(5, data.getQPath().getIndex());
@@ -545,9 +471,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     else
       renameNode.clearParameters();
 
-    renameNode.setString(1, data.getParentIdentifier() == null
-        ? Constants.ROOT_PARENT_UUID
-        : data.getParentIdentifier());
+    renameNode.setString(1, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID
+                                                              : data.getParentIdentifier());
     renameNode.setString(2, data.getQPath().getName().getAsString());
     renameNode.setInt(3, data.getPersistedVersion());
     renameNode.setInt(4, data.getQPath().getIndex());
