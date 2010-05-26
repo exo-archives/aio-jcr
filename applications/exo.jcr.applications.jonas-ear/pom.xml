@@ -73,7 +73,7 @@
               </executions>
               <configuration>
                 <descriptors>
-                  <descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+                  <descriptor>../product-exo-jcr-as-descriptor.xml</descriptor>
                 </descriptors>
                 <finalName>lib</finalName>
               </configuration>
@@ -141,14 +141,14 @@
                   </copy>
                   <!--copying exo-configuration.xml-->
                   <copy todir="${exo.projects.directory.working}/exo-jonas/" verbose="true" overwrite="true">
-                    <fileset dir="${basedir}/product-patches/as/jonas/" includes="*.xml" />
+                    <fileset dir="${basedir}/../product-patches/as/jonas/" includes="*.xml" />
                   </copy>
                   <!--copying jaas.config etc.-->
                   <copy todir="${exo.projects.directory.working}/exo-jonas/conf/" verbose="true" overwrite="true">
-                    <fileset dir="${basedir}/product-patches/as/jonas/conf/" includes="*.*" />
+                    <fileset dir="${basedir}/../product-patches/as/jonas/conf/" includes="*.*" />
                   </copy>
                   <copy todir="${exo.projects.directory.working}/exo-jonas/bin/" verbose="true" overwrite="true">
-                    <fileset dir="${basedir}/product-patches/as/jonas/bin/" />
+                    <fileset dir="${basedir}/../product-patches/as/jonas/bin/" />
                   </copy>
                   <chmod dir="${exo.projects.directory.working}/exo-jonas/bin/unix" perm="+x" includes="*"/>           
                   <delete file="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/hsqldb.jar" />

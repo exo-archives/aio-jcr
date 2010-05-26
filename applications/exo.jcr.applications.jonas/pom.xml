@@ -66,7 +66,7 @@
               </executions>
               <configuration>
                 <descriptors>
-                  <descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+                  <descriptor>../product-exo-jcr-as-descriptor.xml</descriptor>
                 </descriptors>
                 <finalName>lib</finalName>
               </configuration>
@@ -112,7 +112,7 @@
                   </copy>
                   <!--copying patch directory-->
                   <copy todir="${exo.projects.directory.working}/exo-jonas/" verbose="true" overwrite="true">
-                    <fileset dir="${basedir}/product-patches/as/jonas/" />
+                    <fileset dir="${basedir}/../product-patches/as/jonas/" />
                   </copy>
                   <!--renaming wars-->
                   <move todir="${basedir}/target/lib-binary.dir/">
