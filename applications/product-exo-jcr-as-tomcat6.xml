@@ -17,128 +17,169 @@
     along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <parent>
-    <groupId>org.exoplatform.jcr</groupId>
-    <artifactId>exo.jcr.applications.config</artifactId>
-    <version>1.10.9-SNAPSHOT</version>
-    <relativePath>./config/pom.xml</relativePath>
-  </parent>
-
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>exo.product.jcr</artifactId>
-  <packaging>jar</packaging>
-  <version>1.10.9-SNAPSHOT</version>
-  <name>eXo JCR Product</name>
-  <url>http://www.exoplatform.org</url>
-  <description>eXo JCR Product</description>
-
-  <dependencies>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging-api</artifactId>
-      <version>1.1</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.1</version>
-        <executions>
-          <execution>
-            <phase>install</phase>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <descriptors>
-            <descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
-          </descriptors>
-          <finalName>lib</finalName>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <configuration>
-          <tasks>
-            <delete>
-              <fileset dir="${basedir}/target/lib-binary.dir/">
-                <include name="ejb*.jar" />
-                <include name="jetty*.jar" />
-              </fileset>
-            </delete>
-            <delete dir="${exo.projects.directory.working}/exo-tomcat" includeEmptyDirs="true" quiet="yes" />
-            <copy todir="${exo.projects.directory.working}/exo-tomcat" verbose="false" overwrite="true">
-              <fileset dir="${exo.projects.directory.dependencies}/${exo.projects.app.tomcat.version}" />
-            </copy>
-            <!-- Removing timestamps from SNAPSHOT jars-->
-            <move todir="${basedir}/target/lib-binary.dir/">
-              <fileset dir="${basedir}/target/lib-binary.dir/">
-                <include name="**/*.jar" />
-              </fileset>
-              <mapper>
-                <firstmatchmapper>
-                  <!-- If a timestamped SNAPSHOT is used -->
-                  <regexpmapper from="(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).jar" to="\1-${project.version}.jar" casesensitive="no"/>                
-                  <!-- By default keep the name -->
-                  <flattenmapper />
-                </firstmatchmapper>
-              </mapper>
-            </move>
-
-            <copy todir="${exo.projects.directory.working}/exo-tomcat/lib/" verbose="true" overwrite="true">
-              <fileset dir="${basedir}/target/lib-binary.dir/" excludes="**/*.war" />
-            </copy>
-            <copy todir="${exo.projects.directory.working}/exo-tomcat/" verbose="true" overwrite="true">
-              <fileset dir="${basedir}/product-patches/as/tomcat/" />
-            </copy>
-            <move todir="${basedir}/target/lib-binary.dir/">
-              <fileset dir="${basedir}/target/lib-binary.dir/">
-                <include name="**/*.war" />
-              </fileset>
-              <mapper>
-                <firstmatchmapper>
-                  <!-- If a timestamped SNAPSHOT is used -->
-                  <regexpmapper from="exo.jcr.applications.(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).war" to="\1.war" casesensitive="no"/>                
-                  <!-- Otherwise -->
-                  <globmapper from="exo.jcr.applications.*-${project.version}.war" to="*.war" casesensitive="no" />
-                  <!-- By default keep the name -->
-                  <flattenmapper />
-                </firstmatchmapper>
-              </mapper>
-            </move>
-            
-            <copy todir="${exo.projects.directory.working}/exo-tomcat/webapps/" verbose="true" flatten="true" overwrite="true">
-              <fileset dir="${basedir}/target/lib-binary.dir/" casesensitive="yes">
-                <include name="**/*.war" />
-              </fileset>
-            </copy>
-          </tasks>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant-launcher</artifactId>
-            <version>1.8.1</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.8.1</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant-nodeps</artifactId>
-            <version>1.8.1</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
-  </build>
-
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+   <parent>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.config</artifactId>
+      <version>1.10.9-SNAPSHOT</version>
+      <relativePath>./config/pom.xml</relativePath>
+   </parent>
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>exo.jcrapplications.tomcat</artifactId>
+   <packaging>pom</packaging>
+   <version>1.10.9-SNAPSHOT</version>
+   <name>eXo JCR Product</name>
+   <url>http://www.exoplatform.org</url>
+   <description>eXo JCR Tomcat 6 Applications Server</description>
+   <dependencies>
+      <dependency>
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging-api</artifactId>
+         <version>1.1</version>
+         <scope>runtime</scope>
+      </dependency>
+   </dependencies>
+   <profiles>
+      <profile>
+         <id>deploy</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-assembly-plugin</artifactId>
+                  <version>2.1</version>
+                  <executions>
+                     <execution>
+                        <phase>install</phase>
+                        <goals>
+                           <goal>assembly</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+                  <configuration>
+                     <descriptors>
+                        <descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+                     </descriptors>
+                     <finalName>lib</finalName>
+                  </configuration>
+               </plugin>
+               <plugin>
+                  <artifactId>maven-antrun-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <phase>install</phase>
+                        <goals>
+                           <goal>run</goal>
+                        </goals>
+                     </execution>            
+                  </executions>
+                  <configuration>
+                     <tasks>
+                        <delete>
+                           <fileset dir="${basedir}/target/lib-binary.dir/">
+                              <include name="ejb*.jar" />
+                              <include name="jetty*.jar" />
+                           </fileset>
+                        </delete>
+                        <delete
+                           dir="${exo.projects.directory.working}/exo-tomcat"
+                           includeEmptyDirs="true"
+                           quiet="yes" />
+                        <copy
+                           todir="${exo.projects.directory.working}/exo-tomcat"
+                           verbose="false"
+                           overwrite="true">
+                           <fileset
+                              dir="${exo.projects.directory.dependencies}/${exo.projects.app.tomcat.version}" />
+                        </copy>
+                        <!-- Removing timestamps from SNAPSHOT jars-->
+                        <move todir="${basedir}/target/lib-binary.dir/">
+                           <fileset dir="${basedir}/target/lib-binary.dir/">
+                              <include name="**/*.jar" />
+                           </fileset>
+                           <mapper>
+                              <firstmatchmapper>
+                                 <!-- If a timestamped SNAPSHOT is used -->
+                                 <regexpmapper
+                                    from="(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).jar"
+                                    to="\1-${project.version}.jar"
+                                    casesensitive="no" />
+                                 <!-- By default keep the name -->
+                                 <flattenmapper />
+                              </firstmatchmapper>
+                           </mapper>
+                        </move>
+                        <copy
+                           todir="${exo.projects.directory.working}/exo-tomcat/lib/"
+                           verbose="true"
+                           overwrite="true">
+                           <fileset dir="${basedir}/target/lib-binary.dir/" excludes="**/*.war" />
+                        </copy>
+                        <copy
+                           todir="${exo.projects.directory.working}/exo-tomcat/"
+                           verbose="true"
+                           overwrite="true" >
+                           <fileset dir="${basedir}/product-patches/as/tomcat/" />
+                        </copy>
+                        <chmod dir="${exo.projects.directory.working}/exo-tomcat/bin" perm="+x" includes="*.sh"/>
+                        <move todir="${basedir}/target/lib-binary.dir/">
+                           <fileset dir="${basedir}/target/lib-binary.dir/">
+                              <include name="**/*.war" />
+                           </fileset>
+                           <mapper>
+                              <firstmatchmapper>
+                                 <!-- If a timestamped SNAPSHOT is used -->
+                                 <regexpmapper
+                                    from="exo.jcr.applications.(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).war"
+                                    to="\1.war"
+                                    casesensitive="no" />
+                                 <!-- Otherwise -->
+                                 <globmapper
+                                    from="exo.jcr.applications.*-${project.version}.war"
+                                    to="*.war"
+                                    casesensitive="no" />
+                                 <!-- By default keep the name -->
+                                 <flattenmapper />
+                              </firstmatchmapper>
+                           </mapper>
+                        </move>
+                        <copy
+                           todir="${exo.projects.directory.working}/exo-tomcat/webapps/"
+                           verbose="true"
+                           flatten="true"
+                           overwrite="true">
+                           <fileset dir="${basedir}/target/lib-binary.dir/" casesensitive="yes">
+                              <include name="**/*.war" />
+                           </fileset>
+                        </copy>
+                     </tasks>
+                  </configuration>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-launcher</artifactId>
+                        <version>1.8.1</version>
+                     </dependency>
+                     <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                        <version>1.8.1</version>
+                     </dependency>
+                     <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-nodeps</artifactId>
+                        <version>1.8.1</version>
+                     </dependency>
+                  </dependencies>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>   
 </project>
