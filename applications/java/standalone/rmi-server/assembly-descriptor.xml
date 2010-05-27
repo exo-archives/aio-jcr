@@ -31,8 +31,7 @@
   </fileSets>
   <files>
     <file>
-      <outputDirectory>.</outputDirectory>
-      <source>target/${project.artifactId}-${project.version}.jar</source>
+      <source>${basedir}/target/${project.artifactId}-${project.version}.jar</source>
       <destName>lib/${project.artifactId}-binary.jar</destName>
     </file>
   </files>
