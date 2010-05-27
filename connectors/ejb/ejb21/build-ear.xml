@@ -1,14 +1,14 @@
 <project>
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
-    <artifactId>config</artifactId>
-    <version>1.10.5-SNAPSHOT</version>
+    <artifactId>jcr-parent</artifactId>
+    <version>1.10.9-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>exo.jcr.connectors.ejb21</artifactId>
   <name>EAR ejb-rest connector ejb2.1</name>
-  <version>1.10.5-SNAPSHOT</version>
+  <version>1.10.9-SNAPSHOT</version>
   <packaging>ear</packaging>
   <dependencies>
     <dependency>
@@ -21,14 +21,14 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.connectors.ejb21.bean</artifactId>
-      <version>1.10.5-SNAPSHOT</version>
+      <version>1.10.9-SNAPSHOT</version>
       <type>ejb</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.connectors.ejb21.client</artifactId>
-      <version>1.10.5-SNAPSHOT</version>
+      <version>1.10.9-SNAPSHOT</version>
       <type>jar</type>
       <scope>runtime</scope>
     </dependency>

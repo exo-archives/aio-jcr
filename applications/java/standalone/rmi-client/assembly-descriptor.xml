@@ -14,6 +14,13 @@
       </includes>
     </fileSet>
   </fileSets>
+  <files>
+    <file>
+      <outputDirectory>.</outputDirectory>
+      <source>target/${project.artifactId}-${project.version}.jar</source>
+      <destName>lib/${project.artifactId}-binary.jar</destName>
+    </file>
+  </files>
 
   <dependencySets>
     <dependencySet>
@@ -24,7 +31,6 @@
         <include>jcr:jcr</include>
         <include>org.exoplatform.jcr:exo.jcr.component.core</include>
         <include>org.exoplatform.jcr:exo.jcr.component.rmi</include>
-        <include>org.exoplatform.jcr:exo.jcr.applications.rmi-client</include>
       </includes>
     </dependencySet>
   </dependencySets>

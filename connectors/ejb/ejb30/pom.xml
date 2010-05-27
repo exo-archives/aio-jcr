@@ -31,5 +31,6 @@
   <modules>
     <module>modules/connector</module>
     <module>modules/client</module>
+    <module>build-ear.xml</module>
   </modules>
 </project>

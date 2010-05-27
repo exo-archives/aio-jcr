@@ -30,6 +30,12 @@
       </excludes>
     </fileSet>
   </fileSets>
+  <files>
+    <file>
+      <source>target/${project.artifactId}-${project.version}.jar</source>
+      <destName>lib/${project.artifactId}-binary.jar</destName>
+    </file>
+  </files>
 
   <dependencySets>
     <dependencySet>
@@ -41,6 +47,7 @@
         <exclude>xerces:xerces</exclude>
         <exclude>xerces:xercesImpl</exclude>
         <exclude>com.sun.xml.parsers:jaxp-ri</exclude>
+        <exclude>org.exoplatform.jcr:exo.jcr.benchmark</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>

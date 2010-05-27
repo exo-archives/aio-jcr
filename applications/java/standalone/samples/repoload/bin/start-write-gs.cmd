@@ -1,1 +1,1 @@
-java -Duser.language=en -Duser.region=us -jar exo.jcr.applications.repoload-1.10.5-SNAPSHOT.jar -conf=".\bin\config\test-configuration.xml" -root="/testStorage/root1" -tree="1-2-5-100" -vdfile=".\bin\img.tif" -repo="repository" -ws="production" -readtree="false" 
+java -Duser.language=en -Duser.region=us -jar exo.jcr.applications.repoload-binary.jar -conf=".\bin\config\test-configuration.xml" -root="/testStorage/root1" -tree="1-2-5-100" -vdfile=".\bin\img.tif" -repo="repository" -ws="production" -readtree="false" 
