@@ -32,8 +32,10 @@
   </fileSets>
   <files>
     <file>
+      <outputDirectory>lib</outputDirectory>
       <source>${basedir}/target/${project.artifactId}-${project.version}.jar</source>
-      <destName>lib/${project.artifactId}-binary.jar</destName>
+      <destName>${project.artifactId}-binary.jar</destName>
+      <fileMode>420</fileMode>
     </file>
   </files>
 
