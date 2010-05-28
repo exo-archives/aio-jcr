@@ -10,6 +10,9 @@
   <name>EAR ejb-rest connector ejb2.1</name>
   <version>1.10.9-SNAPSHOT</version>
   <packaging>ear</packaging>
+  <properties>
+    <enforcer.skip>true</enforcer.skip>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.ws</groupId>
