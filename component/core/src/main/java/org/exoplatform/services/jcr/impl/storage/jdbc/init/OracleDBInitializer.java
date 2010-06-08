@@ -61,9 +61,18 @@ public class OracleDBInitializer extends DBInitializer {
       throw e;
     } finally {
       if (srs != null) {
-        srs.close();
+        try {
+          srs.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
-      st.close();
+
+      try {
+        st.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the Statement: " + e);
+      }
     }
   }
 
@@ -81,9 +90,18 @@ public class OracleDBInitializer extends DBInitializer {
         return false;
     } finally {
       if (res != null) {
-        res.close();
+        try {
+          res.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
-      st.close();
+
+      try {
+        st.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the Statement: " + e);
+      }
     }
   }
 
@@ -107,15 +125,24 @@ public class OracleDBInitializer extends DBInitializer {
     // use of oracle system view
     String sql = "SELECT COUNT(index_name) FROM all_indexes WHERE index_name='" + indexName + "'";
     Statement st = conn.createStatement();
-    ResultSet r = st.executeQuery(sql);
+    ResultSet res = st.executeQuery(sql);
     try {
-      if (r.next())
-        return r.getInt(1) > 0;
+      if (res.next())
+        return res.getInt(1) > 0;
       else
         return false;
     } finally {
-      r.close();
-      st.close();
+      try {
+        res.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the ResultSet: " + e);
+      }
+
+      try {
+        st.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the Statement: " + e);
+      }
     }
   }
 }

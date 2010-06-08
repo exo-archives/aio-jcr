@@ -31,8 +31,10 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * 
  * 20.03.2007
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: MySQLSingleDbJDBCConnection.java 36070 2009-08-26 11:01:14Z
+ *          pnedonosko $
  */
 public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
 
@@ -86,7 +88,12 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
         if (!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);
       } finally {
-        item.close();
+        try {
+          item.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
+
       }
     }
     return super.addNodeRecord(data);
@@ -104,7 +111,12 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
         if (!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);
       } finally {
-        item.close();
+        try {
+          item.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
+
       }
     }
     return super.addPropertyRecord(data);

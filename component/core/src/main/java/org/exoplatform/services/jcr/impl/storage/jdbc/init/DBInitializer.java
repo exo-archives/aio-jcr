@@ -41,6 +41,11 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class DBInitializer {
 
+  /**
+   * Logger.
+   */
+  protected static final Log LOG                          = ExoLogger.getLogger("jcr.DBInitializer");
+
   static public String       SQL_DELIMITER                = ";";
 
   static public String       SQL_DELIMITER_COMMENT_PREFIX = "/*$DELIMITER:";
@@ -322,8 +327,13 @@ public class DBInitializer {
     } finally {
       try {
         if (st != null) {
-          st.close();
+          try {
+            st.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the Statement: " + e);
+          }
         }
+
         connection.close();
       } catch (SQLException e) {
         log.error("Error of a connection closing. " + e, e);
@@ -356,7 +366,17 @@ public class DBInitializer {
 
       st.executeUpdate(insert);
     }
-    res.close();
-    st.close();
+
+    try {
+      res.close();
+    } catch (SQLException e) {
+      LOG.error("Can't close the ResultSet: " + e);
+    }
+
+    try {
+      st.close();
+    } catch (SQLException e) {
+      LOG.error("Can't close the Statement: " + e);
+    }
   }
 }

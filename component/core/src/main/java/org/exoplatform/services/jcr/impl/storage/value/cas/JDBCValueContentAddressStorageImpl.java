@@ -174,7 +174,12 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
               st.executeUpdate("CREATE INDEX " + sqlVCASIDX + " ON " + tableName
                   + "(CAS_ID, PROPERTY_ID, ORDER_NUM)");
 
-              st.close();
+              try {
+                st.close();
+              } catch (SQLException e) {
+                LOG.error("Can't close the Statement: " + e);
+              }
+
               LOG.info("JDBC Value Content Address Storage initialized in database " + sn);
             } else
               LOG.info("JDBC Value Content Address Storage already initialized in database " + sn);
@@ -310,11 +315,21 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
               + " orderNum=" + orderNum);
       } finally {
         if (rs != null) {
-          rs.close();
+          try {
+            rs.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the ResultSet: " + e);
+          }
         }
+
         if (ps != null) {
-          ps.close();
+          try {
+            ps.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the Statement: " + e);
+          }
         }
+
         con.close();
       }
     } catch (SQLException e) {
@@ -365,11 +380,21 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
         }
       } finally {
         if (rs != null) {
-          rs.close();
+          try {
+            rs.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the ResultSet: " + e);
+          }
         }
+
         if (ps != null) {
-          ps.close();
+          try {
+            ps.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the Statement: " + e);
+          }
         }
+
         con.close();
       }
     } catch (SQLException e) {
@@ -395,11 +420,21 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
         return res.next();
       } finally {
         if (res != null) {
-          res.close();
+          try {
+            res.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the ResultSet: " + e);
+          }
         }
+
         if (ps != null) {
-          ps.close();
+          try {
+            ps.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the Statement: " + e);
+          }
         }
+
         con.close();
       }
     } catch (SQLException e) {

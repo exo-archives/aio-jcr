@@ -91,9 +91,19 @@ public class IngresSQLDBInitializer extends DBInitializer {
       };
     } finally {
       if (srs != null) {
-        srs.close();
+        try {
+          srs.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
-      st.close();
+
+      try {
+        st.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the Statement: " + e);
+      }
+
     }
   }
 

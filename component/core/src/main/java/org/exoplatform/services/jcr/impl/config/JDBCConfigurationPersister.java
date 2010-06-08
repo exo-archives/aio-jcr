@@ -30,10 +30,12 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.config.ConfigurationPersister;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.impl.storage.jdbc.DBConstants;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Repository service configuration persister.
@@ -46,6 +48,11 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.DBConstants;
  *          pnedonosko $
  */
 public class JDBCConfigurationPersister implements ConfigurationPersister {
+
+  /**
+   * Logger.
+   */
+  protected static final Log    LOG               = ExoLogger.getLogger("jcr.JDBCConfigurationPersister");
 
   public final static String    PARAM_SOURCE_NAME = "source-name";
 
@@ -173,9 +180,19 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
           }
         } finally {
           if (res != null) {
-            res.close();
+            try {
+              res.close();
+            } catch (SQLException e) {
+              LOG.error("Can't close the ResultSet: " + e);
+            }
           }
-          ps.close();
+
+          try {
+            ps.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the Statement: " + e);
+          }
+
           con.close();
         }
       }
@@ -215,11 +232,21 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
 
       } finally {
         if (res != null) {
-          res.close();
+          try {
+            res.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the ResultSet: " + e);
+          }
         }
+
         if (ps != null) {
-          ps.close();
+          try {
+            ps.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the Statement: " + e);
+          }
         }
+
         con.close();
       }
     } catch (final IOException e) {
@@ -281,7 +308,11 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
           }
 
           if (ps != null) {
-            ps.close();
+            try {
+              ps.close();
+            } catch (SQLException e) {
+              LOG.error("Can't close the Statement: " + e);
+            }
           }
 
         } else {

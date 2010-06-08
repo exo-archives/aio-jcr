@@ -330,125 +330,129 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * 
    * @throws SQLException
    */
-  protected void closeStatements() throws SQLException {
-    if (findItemById != null) {
-      findItemById.close();
-    }
+  protected void closeStatements() {
+    try {
+      if (findItemById != null) {
+        findItemById.close();
+      }
 
-    if (findItemByPath != null) {
-      findItemByPath.close();
-    }
+      if (findItemByPath != null) {
+        findItemByPath.close();
+      }
 
-    if (findItemByName != null) {
-      findItemByName.close();
-    }
+      if (findItemByName != null) {
+        findItemByName.close();
+      }
 
-    if (findChildPropertyByPath != null) {
-      findChildPropertyByPath.close();
-    }
+      if (findChildPropertyByPath != null) {
+        findChildPropertyByPath.close();
+      }
 
-    if (findPropertyByName != null) {
-      findPropertyByName.close();
-    }
+      if (findPropertyByName != null) {
+        findPropertyByName.close();
+      }
 
-    if (findDescendantNodes != null) {
-      findDescendantNodes.close();
-    }
+      if (findDescendantNodes != null) {
+        findDescendantNodes.close();
+      }
 
-    if (findDescendantProperties != null) {
-      findDescendantProperties.close();
-    }
+      if (findDescendantProperties != null) {
+        findDescendantProperties.close();
+      }
 
-    if (findReferences != null) {
-      findReferences.close();
-    }
+      if (findReferences != null) {
+        findReferences.close();
+      }
 
-    if (findValuesByPropertyId != null) {
-      findValuesByPropertyId.close();
-    }
+      if (findValuesByPropertyId != null) {
+        findValuesByPropertyId.close();
+      }
 
-    if (findValuesStorageDescriptorsByPropertyId != null) {
-      findValuesStorageDescriptorsByPropertyId.close();
-    }
+      if (findValuesStorageDescriptorsByPropertyId != null) {
+        findValuesStorageDescriptorsByPropertyId.close();
+      }
 
-    if (findValuesDataByPropertyId != null) {
-      findValuesDataByPropertyId.close();
-    }
+      if (findValuesDataByPropertyId != null) {
+        findValuesDataByPropertyId.close();
+      }
 
-    if (findValueByPropertyIdOrderNumber != null) {
-      findValueByPropertyIdOrderNumber.close();
-    }
+      if (findValueByPropertyIdOrderNumber != null) {
+        findValueByPropertyIdOrderNumber.close();
+      }
 
-    if (findNodesByParentId != null) {
-      findNodesByParentId.close();
-    }
+      if (findNodesByParentId != null) {
+        findNodesByParentId.close();
+      }
 
-    if (findNodesCountByParentId != null) {
-      findNodesCountByParentId.close();
-    }
+      if (findNodesCountByParentId != null) {
+        findNodesCountByParentId.close();
+      }
 
-    if (findPropertiesByParentId != null) {
-      findPropertiesByParentId.close();
-    }
+      if (findPropertiesByParentId != null) {
+        findPropertiesByParentId.close();
+      }
 
-    if (insertItem != null) {
-      insertItem.close();
-    }
+      if (insertItem != null) {
+        insertItem.close();
+      }
 
-    if (insertNode != null) {
-      insertNode.close();
-    }
+      if (insertNode != null) {
+        insertNode.close();
+      }
 
-    if (insertProperty != null) {
-      insertProperty.close();
-    }
+      if (insertProperty != null) {
+        insertProperty.close();
+      }
 
-    if (insertReference != null) {
-      insertReference.close();
-    }
+      if (insertReference != null) {
+        insertReference.close();
+      }
 
-    if (insertValue != null) {
-      insertValue.close();
-    }
+      if (insertValue != null) {
+        insertValue.close();
+      }
 
-    if (updateItem != null) {
-      updateItem.close();
-    }
+      if (updateItem != null) {
+        updateItem.close();
+      }
 
-    if (updateItemPath != null) {
-      updateItemPath.close();
-    }
+      if (updateItemPath != null) {
+        updateItemPath.close();
+      }
 
-    if (updateNode != null) {
-      updateNode.close();
-    }
+      if (updateNode != null) {
+        updateNode.close();
+      }
 
-    if (updateProperty != null) {
-      updateProperty.close();
-    }
+      if (updateProperty != null) {
+        updateProperty.close();
+      }
 
-    if (deleteItem != null) {
-      deleteItem.close();
-    }
+      if (deleteItem != null) {
+        deleteItem.close();
+      }
 
-    if (deleteNode != null) {
-      deleteNode.close();
-    }
+      if (deleteNode != null) {
+        deleteNode.close();
+      }
 
-    if (deleteProperty != null) {
-      deleteProperty.close();
-    }
+      if (deleteProperty != null) {
+        deleteProperty.close();
+      }
 
-    if (deleteReference != null) {
-      deleteReference.close();
-    }
+      if (deleteReference != null) {
+        deleteReference.close();
+      }
 
-    if (deleteValue != null) {
-      deleteValue.close();
-    }
+      if (deleteValue != null) {
+        deleteValue.close();
+      }
 
-    if (renameNode != null) {
-      renameNode.close();
+      if (renameNode != null) {
+        renameNode.close();
+      }
+    } catch (SQLException e) {
+      LOG.error("Can't close the Statement: " + e);
     }
   }
 
@@ -728,7 +732,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
         return childrens;
       } finally {
-        node.close();
+        try {
+          node.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -752,7 +760,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
               + parent.getQPath().getAsString());
         }
       } finally {
-        count.close();
+        try {
+          count.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -774,7 +786,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
         return children;
       } finally {
-        prop.close();
+        try {
+          prop.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -798,7 +814,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
         return children;
       } finally {
-        prop.close();
+        try {
+          prop.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -840,7 +860,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         }
         return references;
       } finally {
-        refProps.close();
+        try {
+          refProps.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     } catch (SQLException e) {
       e.printStackTrace();
@@ -879,11 +903,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     } catch (IOException e) {
       throw new RepositoryException("getItemData() error", e);
     } finally {
-      try {
-        if (item != null)
+      if (item != null) {
+        try {
           item.close();
-      } catch (SQLException e) {
-        LOG.error("getItemData() Error close resultset " + e.getMessage());
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     }
   }
@@ -919,11 +944,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       e.printStackTrace();
       throw new RepositoryException(e);
     } finally {
-      try {
-        if (item != null)
+      if (item != null) {
+        try {
           item.close();
-      } catch (SQLException e) {
-        LOG.error("getItemData() Error close resultset " + e.getMessage());
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     }
   }
@@ -959,8 +985,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         qrpath.add(qpe);
         caid = parent.getString(COLUMN_PARENTID);
       } finally {
-        if (parent != null)
-          parent.close();
+        if (parent != null) {
+          try {
+            parent.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the ResultSet: " + e);
+          }
+        }
       }
     } while (!caid.equals(Constants.ROOT_PARENT_UUID));
 
@@ -1049,7 +1080,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       else
         throw new RepositoryException("Item not found id: " + getIdentifier(cid));
     } finally {
-      pidrs.close();
+      try {
+        pidrs.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the ResultSet: " + e);
+      }
     }
   }
 
@@ -1175,7 +1210,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
           qrpath.add(qpe);
         }
 
-        parent.close();
+        try {
+          parent.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
 
         // parent = findItemByIdentifier(caid);
         if (qrpath.size() <= 0)
@@ -1435,7 +1474,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
       return new MixinInfo(mts, owneable, privilegeable);
     } finally {
-      mtrs.close();
+      try {
+        mtrs.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the ResultSet: " + e);
+      }
     }
   }
 
@@ -1468,7 +1511,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         throw new IllegalACLException("Property exo:permissions is not found for node with id: "
             + getIdentifier(cid));
     } finally {
-      exoPerm.close();
+      try {
+        exoPerm.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the ResultSet: " + e);
+      }
     }
   }
 
@@ -1493,7 +1540,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         throw new IllegalACLException("Property exo:owner is not found for node with id: "
             + getIdentifier(cid));
     } finally {
-      exoOwner.close();
+      try {
+        exoOwner.close();
+      } catch (SQLException e) {
+        LOG.error("Can't close the ResultSet: " + e);
+      }
     }
   }
 
@@ -1626,8 +1677,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         throw new RepositoryException("FATAL ERROR Node " + getIdentifier(cid) + " "
             + qpath.getAsString() + " has wrong formed ACL. ", e);
       } finally {
-        if (ptProp != null)
-          ptProp.close();
+        if (ptProp != null) {
+          try {
+            ptProp.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the ResultSet: " + e);
+          }
+        }
       }
     } catch (IllegalNameException e) {
       throw new RepositoryException(e);
@@ -1723,7 +1779,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
           }
         }
       } finally {
-        valueRecords.close();
+        try {
+          valueRecords.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
 
     } catch (SQLException e) {
@@ -1768,7 +1828,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
           data.add(vdata);
         }
       } finally {
-        valueRecords.close();
+        try {
+          valueRecords.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
 
     } catch (SQLException e) {
@@ -1870,8 +1934,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         }
 
     } finally {
-      if (valueResultSet != null)
-        valueResultSet.close();
+      if (valueResultSet != null) {
+        try {
+          valueResultSet.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
+      }
+
       if (out != null) {
         out.close();
         swapFile.spoolDone();

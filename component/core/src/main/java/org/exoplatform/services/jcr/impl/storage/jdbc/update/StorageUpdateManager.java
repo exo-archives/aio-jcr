@@ -358,9 +358,19 @@ public class StorageUpdateManager {
     } catch (SQLException e) {
       return FIRST_STORAGE_VERSION;
     } finally {
-      if (version != null)
-        version.close();
-      st.close();
+      if (version != null) {
+        try {
+          version.close();
+        } catch (SQLException e) {
+          log.error("Can't close the ResultSet: " + e);
+        }
+      }
+
+      try {
+        st.close();
+      } catch (SQLException e) {
+        log.error("Can't close the Statement: " + e);
+      }
     }
 
     PreparedStatement insertVersion = connection.prepareStatement(SQL_INSERT_VERSION);
@@ -425,12 +435,29 @@ public class StorageUpdateManager {
     } catch (SQLException e) {
       e.printStackTrace();
     } finally {
-      if (refs != null)
-        refs.close();
-      if (update != null)
-        update.close();
-      if (st != null)
-        st.close();
+      if (refs != null) {
+        try {
+          refs.close();
+        } catch (SQLException e) {
+          log.error("Can't close the ResultSet: " + e);
+        }
+      }
+
+      if (update != null) {
+        try {
+          update.close();
+        } catch (SQLException e) {
+          log.error("Can't close the Statement: " + e);
+        }
+      }
+
+      if (st != null) {
+        try {
+          st.close();
+        } catch (SQLException e) {
+          log.error("Can't close the Statement: " + e);
+        }
+      }
     }
   }
 
@@ -465,12 +492,29 @@ public class StorageUpdateManager {
     } catch (SQLException e) {
       log.error("Fix of copy uuid bug. Storage update error: " + e.getMessage(), e);
     } finally {
-      if (refs != null)
-        refs.close();
-      if (update != null)
-        update.close();
-      if (st != null)
-        st.close();
+      if (refs != null) {
+        try {
+          refs.close();
+        } catch (SQLException e) {
+          log.error("Can't close the ResultSet: " + e);
+        }
+      }
+
+      if (update != null) {
+        try {
+          update.close();
+        } catch (SQLException e) {
+          log.error("Can't close the Statement: " + e);
+        }
+      }
+
+      if (st != null) {
+        try {
+          st.close();
+        } catch (SQLException e) {
+          log.error("Can't close the Statement: " + e);
+        }
+      }
     }
   }
 
@@ -516,12 +560,29 @@ public class StorageUpdateManager {
     } catch (SQLException e) {
       log.error("Fill references. Storage update error: " + e.getMessage(), e);
     } finally {
-      if (refs != null)
-        refs.close();
-      if (update != null)
-        update.close();
-      if (st != null)
-        st.close();
+      if (refs != null) {
+        try {
+          refs.close();
+        } catch (SQLException e) {
+          log.error("Can't close the ResultSet: " + e);
+        }
+      }
+
+      if (update != null) {
+        try {
+          update.close();
+        } catch (SQLException e) {
+          log.error("Can't close the Statement: " + e);
+        }
+      }
+
+      if (st != null) {
+        try {
+          st.close();
+        } catch (SQLException e) {
+          log.error("Can't close the Statement: " + e);
+        }
+      }
     }
   }
 

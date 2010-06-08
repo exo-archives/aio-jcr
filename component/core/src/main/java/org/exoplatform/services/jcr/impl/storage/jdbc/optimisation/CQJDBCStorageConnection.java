@@ -206,7 +206,7 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
         try {
           resultSet.close();
         } catch (SQLException e) {
-          LOG.error(e.getMessage(), e);
+          LOG.error("Can't close the ResultSet: " + e);
         }
       }
     }
@@ -288,7 +288,7 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
         try {
           resultSet.close();
         } catch (SQLException e) {
-          LOG.error(e.getMessage(), e);
+          LOG.error("Can't close the ResultSet: " + e);
         }
       }
     }
@@ -306,7 +306,11 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
       try {
         return loadReferences(refProps);
       } finally {
-        refProps.close();
+        try {
+          refProps.close();
+        } catch (SQLException e) {
+          LOG.error("Can't close the ResultSet: " + e);
+        }
       }
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -492,7 +496,12 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
       }
       values.add(ptProp.getBytes(COLUMN_VDATA));
     }
-    ptProp.close();
+
+    try {
+      ptProp.close();
+    } catch (SQLException e) {
+      LOG.error("Can't close the ResultSet: " + e);
+    }
 
     return loadNodeRecord(parentPath,
                           cname,
@@ -707,8 +716,13 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
           qrpath.add(qpe1);
         }
       } finally {
-        if (result != null)
-          result.close();
+        if (result != null) {
+          try {
+            result.close();
+          } catch (SQLException e) {
+            LOG.error("Can't close the ResultSet: " + e);
+          }
+        }
       }
       if (caid.equals(Constants.ROOT_PARENT_UUID)
           || (id = getIdentifier(caid)).equals(Constants.ROOT_UUID)) {
@@ -731,27 +745,31 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
    * {@inheritDoc}
    */
   @Override
-  protected void closeStatements() throws SQLException {
+  protected void closeStatements() {
     super.closeStatements();
 
-    if (findReferencePropertiesCQ != null) {
-      findReferencePropertiesCQ.close();
-    }
+    try {
+      if (findReferencePropertiesCQ != null) {
+        findReferencePropertiesCQ.close();
+      }
 
-    if (findNodesByParentIdCQ != null) {
-      findNodesByParentIdCQ.close();
-    }
+      if (findNodesByParentIdCQ != null) {
+        findNodesByParentIdCQ.close();
+      }
 
-    if (findPropertiesByParentIdCQ != null) {
-      findPropertiesByParentIdCQ.close();
-    }
+      if (findPropertiesByParentIdCQ != null) {
+        findPropertiesByParentIdCQ.close();
+      }
 
-    if (findNodeMainPropertiesByParentIdentifierCQ != null) {
-      findNodeMainPropertiesByParentIdentifierCQ.close();
-    }
+      if (findNodeMainPropertiesByParentIdentifierCQ != null) {
+        findNodeMainPropertiesByParentIdentifierCQ.close();
+      }
 
-    if (findItemQPathByIdentifierCQ != null) {
-      findItemQPathByIdentifierCQ.close();
+      if (findItemQPathByIdentifierCQ != null) {
+        findItemQPathByIdentifierCQ.close();
+      }
+    } catch (SQLException e) {
+      LOG.error("Can't close the Statement: " + e);
     }
   }
 
