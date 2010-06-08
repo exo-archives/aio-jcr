@@ -20,16 +20,20 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Created by The eXo Platform SAS
  * 
  * 26.03.2007
  * 
- * Ingres convert all db object names to lower case, so respect it. Same as PgSQL initializer.
+ * Ingres convert all db object names to lower case, so respect it. Same as
+ * PgSQL initializer.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: IngresSQLDBInitializer.java 42817 2010-01-22 08:01:06Z tolusha
+ *          $
  */
 public class IngresSQLDBInitializer extends DBInitializer {
 
@@ -63,12 +67,13 @@ public class IngresSQLDBInitializer extends DBInitializer {
   @Override
   protected boolean isSequenceExists(Connection conn, String sequenceName) throws SQLException {
     String seqName = sequenceName.toUpperCase().toLowerCase();
+    Statement st = conn.createStatement();
+    ResultSet srs = null;
     try {
-      ResultSet srs = conn.createStatement().executeQuery("SELECT NEXT VALUE FOR " + seqName);
+      srs = st.executeQuery("SELECT NEXT VALUE FOR " + seqName);
       if (srs.next()) {
         return true;
       }
-      srs.close();
       return false;
     } catch (final SQLException e) {
       // check if sequence does not exist
@@ -84,6 +89,11 @@ public class IngresSQLDBInitializer extends DBInitializer {
           return e;
         }
       };
+    } finally {
+      if (srs != null) {
+        srs.close();
+      }
+      st.close();
     }
   }
 

@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +35,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS 12.03.2007 Generic db initializer.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id$
  */
 public class DBInitializer {
@@ -273,8 +275,10 @@ public class DBInitializer {
     }
 
     String sql = null;
+    Statement st = null;
     try {
       connection.setAutoCommit(false);
+      st = connection.createStatement();
 
       for (String scr : scripts) {
         String s = cleanWhitespaces(scr.trim());
@@ -285,7 +289,7 @@ public class DBInitializer {
           if (log.isDebugEnabled())
             log.debug("Execute script: \n[" + sql + "]");
 
-          connection.createStatement().executeUpdate(sql);
+          st.executeUpdate(sql);
         }
       }
 
@@ -317,6 +321,9 @@ public class DBInitializer {
       throw new DBInitializerException(msg, e);
     } finally {
       try {
+        if (st != null) {
+          st.close();
+        }
         connection.close();
       } catch (SQLException e) {
         log.error("Error of a connection closing. " + e, e);
@@ -339,13 +346,17 @@ public class DBInitializer {
     String select = "select * from JCR_" + MDB + "ITEM where ID='" + Constants.ROOT_PARENT_UUID
         + "' and PARENT_ID='" + Constants.ROOT_PARENT_UUID + "'";
 
-    if (!connection.createStatement().executeQuery(select).next()) {
+    Statement st = connection.createStatement();
+    ResultSet res = st.executeQuery(select);
+    if (!res.next()) {
       String insert = "insert into JCR_" + MDB + "ITEM(ID, PARENT_ID, NAME, "
           + (multiDb ? "" : "CONTAINER_NAME, ") + "VERSION, I_CLASS, I_INDEX, N_ORDER_NUM)"
           + " VALUES('" + Constants.ROOT_PARENT_UUID + "', '" + Constants.ROOT_PARENT_UUID
           + "', '__root_parent', " + (multiDb ? "" : "'__root_parent_container', ") + "0, 0, 0, 0)";
 
-      connection.createStatement().executeUpdate(insert);
+      st.executeUpdate(insert);
     }
+    res.close();
+    st.close();
   }
 }

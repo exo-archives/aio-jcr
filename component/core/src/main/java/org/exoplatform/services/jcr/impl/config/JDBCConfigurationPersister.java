@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -39,8 +40,10 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.DBConstants;
  * 
  * TODO use log.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: JDBCConfigurationPersister.java 35204 2009-08-07 15:08:12Z
+ *          pnedonosko $
  */
 public class JDBCConfigurationPersister implements ConfigurationPersister {
 
@@ -96,7 +99,8 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   public void init(PropertiesParam params) throws RepositoryConfigurationException {
     String sourceNameParam = params.getProperty(PARAM_SOURCE_NAME);
     if (sourceNameParam == null) {
-      sourceNameParam = params.getProperty("sourceName"); // try old, pre 1.9 name
+      sourceNameParam = params.getProperty("sourceName"); // try old, pre 1.9
+      // name
       if (sourceNameParam == null)
         throw new RepositoryConfigurationException("Repository service configuration. Source name ("
             + PARAM_SOURCE_NAME + ") is expected");
@@ -112,7 +116,9 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
           || dialectParam.equalsIgnoreCase(DBConstants.DB_DIALECT_HSQLDB)) {
         binType = "VARBINARY(102400)"; // 100Kb
       } else if (dialectParam.equalsIgnoreCase(DBConstants.DB_DIALECT_PGSQL)) {
-        configTableName = configTableName.toUpperCase().toLowerCase(); // postgres needs it
+        configTableName = configTableName.toUpperCase().toLowerCase(); // postgres
+        // needs
+        // it
         binType = "BYTEA";
       } else if (dialectParam.equalsIgnoreCase(DBConstants.DB_DIALECT_MSSQL)) {
         binType = "VARBINARY(max)";
@@ -158,13 +164,18 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
         // check that data exists
         PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM " + configTableName
             + " WHERE NAME=?");
+        ResultSet res = null;
         try {
           ps.setString(1, CONFIGNAME);
-          ResultSet res = ps.executeQuery();
+          res = ps.executeQuery();
           if (res.next()) {
             return res.getInt(1) > 0;
           }
         } finally {
+          if (res != null) {
+            res.close();
+          }
+          ps.close();
           con.close();
         }
       }
@@ -182,14 +193,15 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
 
     try {
       Connection con = openConnection();
+      PreparedStatement ps = null;
+      ResultSet res = null;
       try {
         if (isDbInitialized(con)) {
 
-          PreparedStatement ps = con.prepareStatement("SELECT * FROM " + configTableName
-              + " WHERE name=?");
+          ps = con.prepareStatement("SELECT * FROM " + configTableName + " WHERE name=?");
           ps.setString(1, CONFIGNAME);
-          ResultSet res = ps.executeQuery();
 
+          res = ps.executeQuery();
           if (res.next()) {
             ConfigDataHolder config = new ConfigDataHolder(res.getBinaryStream("config"));
             return config.getStream();
@@ -202,6 +214,12 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
               + sourceName);
 
       } finally {
+        if (res != null) {
+          res.close();
+        }
+        if (ps != null) {
+          ps.close();
+        }
         con.close();
       }
     } catch (final IOException e) {
@@ -226,7 +244,9 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
 
         if (!isDbInitialized(con)) {
           // init db
-          con.createStatement().executeUpdate(sql = initSQL);
+          Statement st = con.createStatement();
+          st.executeUpdate(sql = initSQL);
+          st.close();
 
           con.commit();
           con.close();
@@ -259,9 +279,15 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
                 + " [WARN] Repository service configuration doesn't stored ok. No rows was affected in JDBC operation. Datasource "
                 + sourceName + ". SQL: " + sql);
           }
-        } else
+
+          if (ps != null) {
+            ps.close();
+          }
+
+        } else {
           throw new ConfigurationNotInitializedException("Configuration table can not be created in database. Source name "
               + sourceName + ". SQL: " + sql);
+        }
 
         con.commit();
 

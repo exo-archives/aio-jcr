@@ -65,7 +65,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id$
  */
 abstract public class JDBCStorageConnection extends DBConstants implements
@@ -296,6 +297,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   public final void rollback() throws IllegalStateException, RepositoryException {
     checkIfOpened();
     try {
+      closeStatements();
+
       dbConnection.rollback();
       dbConnection.close();
     } catch (SQLException e) {
@@ -455,6 +458,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   public final void commit() throws IllegalStateException, RepositoryException {
     checkIfOpened();
     try {
+      closeStatements();
+
       dbConnection.commit();
       dbConnection.close();
     } catch (SQLException e) {
@@ -717,10 +722,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       ResultSet node = findChildNodesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<NodeData> childrens = new ArrayList<NodeData>();
-      while (node.next())
-        childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE, parent.getACL()));
+      try {
+        while (node.next())
+          childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE, parent.getACL()));
 
-      return childrens;
+        return childrens;
+      } finally {
+        node.close();
+      }
     } catch (SQLException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
@@ -735,11 +744,15 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     checkIfOpened();
     try {
       ResultSet count = findChildNodesCountByParentIdentifier(getInternalId(parent.getIdentifier()));
-      if (count.next()) {
-        return count.getInt(1);
-      } else {
-        throw new RepositoryException("FATAL No resulton childNodes count for "
-            + parent.getQPath().getAsString());
+      try {
+        if (count.next()) {
+          return count.getInt(1);
+        } else {
+          throw new RepositoryException("FATAL No resulton childNodes count for "
+              + parent.getQPath().getAsString());
+        }
+      } finally {
+        count.close();
       }
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -755,10 +768,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       ResultSet prop = findChildPropertiesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<PropertyData> children = new ArrayList<PropertyData>();
-      while (prop.next())
-        children.add((PropertyData) itemData(parent.getQPath(), prop, I_CLASS_PROPERTY, null));
+      try {
+        while (prop.next())
+          children.add((PropertyData) itemData(parent.getQPath(), prop, I_CLASS_PROPERTY, null));
 
-      return children;
+        return children;
+      } finally {
+        prop.close();
+      }
     } catch (SQLException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
@@ -775,10 +792,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       ResultSet prop = findChildPropertiesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<PropertyData> children = new ArrayList<PropertyData>();
-      while (prop.next())
-        children.add(propertyData(parent.getQPath(), prop));
+      try {
+        while (prop.next())
+          children.add(propertyData(parent.getQPath(), prop));
 
-      return children;
+        return children;
+      } finally {
+        prop.close();
+      }
     } catch (SQLException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
@@ -813,10 +834,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       ResultSet refProps = findReferences(getInternalId(nodeIdentifier));
       List<PropertyData> references = new ArrayList<PropertyData>();
-      while (refProps.next()) {
-        references.add((PropertyData) itemData(null, refProps, I_CLASS_PROPERTY, null));
+      try {
+        while (refProps.next()) {
+          references.add((PropertyData) itemData(null, refProps, I_CLASS_PROPERTY, null));
+        }
+        return references;
+      } finally {
+        refProps.close();
       }
-      return references;
     } catch (SQLException e) {
       e.printStackTrace();
       throw new RepositoryException(e);
@@ -934,7 +959,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         qrpath.add(qpe);
         caid = parent.getString(COLUMN_PARENTID);
       } finally {
-        parent.close();
+        if (parent != null)
+          parent.close();
       }
     } while (!caid.equals(Constants.ROOT_PARENT_UUID));
 
@@ -1148,6 +1174,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                           parent.getInt(COLUMN_INDEX));
           qrpath.add(qpe);
         }
+
+        parent.close();
 
         // parent = findItemByIdentifier(caid);
         if (qrpath.size() <= 0)
@@ -1525,9 +1553,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         }
       }
 
+      ResultSet ptProp = null;
       try {
         // PRIMARY
-        ResultSet ptProp = findPropertyByName(cid, Constants.JCR_PRIMARYTYPE.getAsString());
+        ptProp = findPropertyByName(cid, Constants.JCR_PRIMARYTYPE.getAsString());
 
         if (!ptProp.next())
           throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found. Node "
@@ -1596,6 +1625,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       } catch (IllegalACLException e) {
         throw new RepositoryException("FATAL ERROR Node " + getIdentifier(cid) + " "
             + qpath.getAsString() + " has wrong formed ACL. ", e);
+      } finally {
+        if (ptProp != null)
+          ptProp.close();
       }
     } catch (IllegalNameException e) {
       throw new RepositoryException(e);

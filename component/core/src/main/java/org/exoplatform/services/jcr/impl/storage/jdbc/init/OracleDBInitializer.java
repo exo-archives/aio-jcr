@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,8 +30,10 @@ import java.sql.SQLException;
  * For statistic compute on a user schema (PL/SQL): exec
  * DBMS_STATS.GATHER_SCHEMA_STATS(ownname=>'exoadmin')
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: OracleDBInitializer.java 20950 2008-10-06 14:23:07Z pnedonosko
+ *          $
  */
 public class OracleDBInitializer extends DBInitializer {
 
@@ -43,19 +46,24 @@ public class OracleDBInitializer extends DBInitializer {
 
   @Override
   protected boolean isSequenceExists(Connection conn, String sequenceName) throws SQLException {
+    Statement st = conn.createStatement();
+    ResultSet srs = null;
     try {
-      ResultSet srs = conn.createStatement().executeQuery("SELECT " + sequenceName
-          + ".nextval FROM DUAL");
+      srs = st.executeQuery("SELECT " + sequenceName + ".nextval FROM DUAL");
       if (srs.next()) {
         return true;
       }
-      srs.close();
       return false;
     } catch (SQLException e) {
       // check: ORA-02289: sequence does not exist
       if (e.getMessage().indexOf("ORA-02289") >= 0)
         return false;
       throw e;
+    } finally {
+      if (srs != null) {
+        srs.close();
+      }
+      st.close();
     }
   }
 
@@ -63,17 +71,28 @@ public class OracleDBInitializer extends DBInitializer {
   protected boolean isTriggerExists(Connection conn, String triggerName) throws SQLException {
     String sql = "SELECT COUNT(trigger_name) FROM all_triggers WHERE trigger_name = '"
         + triggerName + "'";
-    ResultSet r = conn.createStatement().executeQuery(sql);
-    if (r.next())
-      return r.getInt(1) > 0;
-    else
-      return false;
+    Statement st = conn.createStatement();
+    ResultSet res = null;
+    try {
+      res = st.executeQuery(sql);
+      if (res.next())
+        return res.getInt(1) > 0;
+      else
+        return false;
+    } finally {
+      if (res != null) {
+        res.close();
+      }
+      st.close();
+    }
   }
 
   @Override
   protected boolean isTableExists(Connection conn, String tableName) throws SQLException {
     try {
-      conn.createStatement().executeUpdate("SELECT 1 FROM " + tableName);
+      Statement st = conn.createStatement();
+      st.executeUpdate("SELECT 1 FROM " + tableName);
+      st.close();
       return true;
     } catch (SQLException e) {
       // check: ORA-00942: table or view does not exist
@@ -87,10 +106,16 @@ public class OracleDBInitializer extends DBInitializer {
   protected boolean isIndexExists(Connection conn, String tableName, String indexName) throws SQLException {
     // use of oracle system view
     String sql = "SELECT COUNT(index_name) FROM all_indexes WHERE index_name='" + indexName + "'";
-    ResultSet r = conn.createStatement().executeQuery(sql);
-    if (r.next())
-      return r.getInt(1) > 0;
-    else
-      return false;
+    Statement st = conn.createStatement();
+    ResultSet r = st.executeQuery(sql);
+    try {
+      if (r.next())
+        return r.getInt(1) > 0;
+      else
+        return false;
+    } finally {
+      r.close();
+      st.close();
+    }
   }
 }

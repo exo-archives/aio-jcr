@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -36,8 +37,10 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id$
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
+ * @version $Id: StorageUpdateManager.java 20950 2008-10-06 14:23:07Z pnedonosko
+ *          $
  */
 
 public class StorageUpdateManager {
@@ -122,9 +125,14 @@ public class StorageUpdateManager {
                                                                       + " from JCR_SITEM I, JCR_SPROPERTY P, JCR_SVALUE V"
                                                                       + " where I.ID=P.ID and P.ID=V.PROPERTY_ID and P.TYPE="
                                                                       + PropertyType.REFERENCE
-                                                                      // + " and I.CONTAINER_NAME=?"
-                                                                      // // An UUID contains
-                                                                      // container name as prefix
+                                                                      // +
+                                                                      // " and I.CONTAINER_NAME=?"
+                                                                      // // An
+                                                                      // UUID
+                                                                      // contains
+                                                                      // container
+                                                                      // name as
+                                                                      // prefix
                                                                       + " order by I.ID, V.ORDER_NUM";
 
   protected static final String SQL_INSERT_REFERENCES_MULTIDB     = "insert into JCR_MREF (NODE_ID, PROPERTY_ID, ORDER_NUM) values(?,?,?)";
@@ -193,6 +201,7 @@ public class StorageUpdateManager {
         PreparedStatement insertVersion = connection.prepareStatement(SQL_UPDATE_VERSION);
         insertVersion.setString(1, REQUIRED_STORAGE_VERSION);
         insertVersion.executeUpdate();
+        insertVersion.close();
 
         connection.commit();
       } catch (Exception e) {
@@ -232,16 +241,13 @@ public class StorageUpdateManager {
     this.SQL_UPDATE_VERSION = multiDB ? SQL_UPDATE_VERSION_MULTIDB : SQL_UPDATE_VERSION_SINGLEDB;
 
     this.SQL_SELECT_JCRUUID = multiDB ? SQL_SELECT_JCRUUID_MULTIDB : SQL_SELECT_JCRUUID_SINGLEDB;
-    this.SQL_SELECT_FROZENJCRUUID = multiDB
-        ? SQL_SELECT_FROZENJCRUUID_MULTIDB
-        : SQL_SELECT_FROZENJCRUUID_SINGLEDB;
+    this.SQL_SELECT_FROZENJCRUUID = multiDB ? SQL_SELECT_FROZENJCRUUID_MULTIDB
+                                           : SQL_SELECT_FROZENJCRUUID_SINGLEDB;
     this.SQL_UPDATE_JCRUUID = multiDB ? SQL_UPDATE_JCRUUID_MULTIDB : SQL_UPDATE_JCRUUID_SINGLEDB;
-    this.SQL_SELECT_REFERENCES = multiDB
-        ? SQL_SELECT_REFERENCES_MULTIDB
-        : SQL_SELECT_REFERENCES_SINGLEDB;
-    this.SQL_INSERT_REFERENCES = multiDB
-        ? SQL_INSERT_REFERENCES_MULTIDB
-        : SQL_INSERT_REFERENCES_SINGLEDB;
+    this.SQL_SELECT_REFERENCES = multiDB ? SQL_SELECT_REFERENCES_MULTIDB
+                                        : SQL_SELECT_REFERENCES_SINGLEDB;
+    this.SQL_INSERT_REFERENCES = multiDB ? SQL_INSERT_REFERENCES_MULTIDB
+                                        : SQL_INSERT_REFERENCES_SINGLEDB;
   }
 
   /**
@@ -284,9 +290,10 @@ public class StorageUpdateManager {
   }
 
   /**
-   * (1) return current storage version if no updates required (2) return current storage version
-   * and print warning if updateNow==FALSE and NON CRITICAL updates required (3) throws Exception if
-   * updateNow==FALSE and CRITICAL updates required (4) apply updates, update and return updated
+   * (1) return current storage version if no updates required (2) return
+   * current storage version and print warning if updateNow==FALSE and NON
+   * CRITICAL updates required (3) throws Exception if updateNow==FALSE and
+   * CRITICAL updates required (4) apply updates, update and return updated
    * version updateNow==TRUE and updates required
    * 
    * NOTE: after the update the JDBC connection will be closed
@@ -342,9 +349,10 @@ public class StorageUpdateManager {
    * @throws SQLException
    */
   private String currentVersion() throws SQLException {
+    Statement st = connection.createStatement();
     ResultSet version = null;
     try {
-      version = connection.createStatement().executeQuery(SQL_SELECT_VERSION);
+      version = st.executeQuery(SQL_SELECT_VERSION);
       if (version.next())
         return version.getString("VERSION");
     } catch (SQLException e) {
@@ -352,11 +360,13 @@ public class StorageUpdateManager {
     } finally {
       if (version != null)
         version.close();
+      st.close();
     }
 
     PreparedStatement insertVersion = connection.prepareStatement(SQL_INSERT_VERSION);
     insertVersion.setString(1, REQUIRED_STORAGE_VERSION);
     insertVersion.executeUpdate();
+    insertVersion.close();
     return REQUIRED_STORAGE_VERSION;
   }
 
@@ -371,8 +381,10 @@ public class StorageUpdateManager {
 
     ResultSet refs = null;
     PreparedStatement update = null;
+    Statement st = null;
     try {
-      refs = conn.createStatement().executeQuery(SQL_SELECT_JCRUUID);
+      st = conn.createStatement();
+      refs = st.executeQuery(SQL_SELECT_JCRUUID);
       update = conn.prepareStatement(SQL_UPDATE_JCRUUID);
       while (refs.next()) {
         try {
@@ -402,7 +414,8 @@ public class StorageUpdateManager {
                   + jcrIdentifier.getPath());
             }
 
-            // [PN] 27.09.06 Need to be developed more with common versionHistory (of copied nodes)
+            // [PN] 27.09.06 Need to be developed more with common
+            // versionHistory (of copied nodes)
             // etc.
           }
         } catch (IOException e) {
@@ -416,6 +429,8 @@ public class StorageUpdateManager {
         refs.close();
       if (update != null)
         update.close();
+      if (st != null)
+        st.close();
     }
   }
 
@@ -425,9 +440,11 @@ public class StorageUpdateManager {
 
     ResultSet refs = null;
     PreparedStatement update = null;
+    Statement st = null;
     try {
       String sql = SQL_SELECT_FROZENJCRUUID.replaceAll(FROZENJCRUUID, searchCriteria);
-      refs = conn.createStatement().executeQuery(SQL_SELECT_FROZENJCRUUID);
+      st = conn.createStatement();
+      refs = st.executeQuery(SQL_SELECT_FROZENJCRUUID);
       while (refs.next()) {
         try {
           JcrIdentifier frozenIdentifier = new JcrIdentifier(refs.getString("PATH"),
@@ -452,6 +469,8 @@ public class StorageUpdateManager {
         refs.close();
       if (update != null)
         update.close();
+      if (st != null)
+        st.close();
     }
   }
 
@@ -464,8 +483,10 @@ public class StorageUpdateManager {
 
     ResultSet refs = null;
     PreparedStatement update = null;
+    Statement st = null;
     try {
-      refs = conn.createStatement().executeQuery(SQL_SELECT_REFERENCES);
+      st = conn.createStatement();
+      refs = st.executeQuery(SQL_SELECT_REFERENCES);
       update = conn.prepareStatement(SQL_INSERT_REFERENCES);
       while (refs.next()) {
         try {
@@ -499,6 +520,8 @@ public class StorageUpdateManager {
         refs.close();
       if (update != null)
         update.close();
+      if (st != null)
+        st.close();
     }
   }
 

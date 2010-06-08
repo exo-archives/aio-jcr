@@ -303,7 +303,11 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
     checkIfOpened();
     try {
       ResultSet refProps = findReferencePropertiesCQ(getInternalId(nodeIdentifier));
-      return loadReferences(refProps);
+      try {
+        return loadReferences(refProps);
+      } finally {
+        refProps.close();
+      }
     } catch (SQLException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
@@ -488,6 +492,7 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
       }
       values.add(ptProp.getBytes(COLUMN_VDATA));
     }
+    ptProp.close();
 
     return loadNodeRecord(parentPath,
                           cname,
@@ -702,7 +707,8 @@ abstract public class CQJDBCStorageConnection extends JDBCStorageConnection {
           qrpath.add(qpe1);
         }
       } finally {
-        result.close();
+        if (result != null)
+          result.close();
       }
       if (caid.equals(Constants.ROOT_PARENT_UUID)
           || (id = getIdentifier(caid)).equals(Constants.ROOT_UUID)) {

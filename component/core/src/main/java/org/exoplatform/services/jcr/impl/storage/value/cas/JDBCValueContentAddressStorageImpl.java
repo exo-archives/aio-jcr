@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -40,13 +41,15 @@ import org.exoplatform.services.log.ExoLogger;
  * 
  * Stored CAS table in JDBC database.<br/>
  * 
- * NOTE! To make SQL commands compatible with possible ALL RDBMS we use objects names in
- * <strong>!lowercase!</strong>.<br/>
+ * NOTE! To make SQL commands compatible with possible ALL RDBMS we use objects
+ * names in <strong>!lowercase!</strong>.<br/>
  * 
  * Date: 18.07.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: JDBCValueContentAddressStorageImpl.java 20384 2008-09-24
+ *          16:25:43Z pnedonosko $
  */
 public class JDBCValueContentAddressStorageImpl implements ValueContentAddressStorage {
 
@@ -61,7 +64,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   public static final String JDBC_DIALECT_PARAM                 = "jdbc-dialect";
 
   /**
-   * It's possible reassign VCAS table name with this parameter. For development purpose!
+   * It's possible reassign VCAS table name with this parameter. For development
+   * purpose!
    */
   public static final String TABLE_NAME_PARAM                   = "jdbc-table-name";
 
@@ -102,8 +106,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#init(java.util
-   * .Properties)
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage
+   * #init(java.util .Properties)
    */
   public void init(Properties props) throws RepositoryConfigurationException, VCASException {
     // init database metadata
@@ -160,16 +164,17 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
             // check if table already exists
             if (!trs.next()) {
               // create table
-              con.createStatement()
-                 .executeUpdate("CREATE TABLE "
-                     + tableName
-                     + " (PROPERTY_ID VARCHAR(96) NOT NULL, ORDER_NUM INTEGER NOT NULL, CAS_ID VARCHAR(512) NOT NULL, "
-                     + "CONSTRAINT " + sqlConstraintPK + " PRIMARY KEY(PROPERTY_ID, ORDER_NUM))");
+              Statement st = con.createStatement();
+              st.executeUpdate("CREATE TABLE "
+                  + tableName
+                  + " (PROPERTY_ID VARCHAR(96) NOT NULL, ORDER_NUM INTEGER NOT NULL, CAS_ID VARCHAR(512) NOT NULL, "
+                  + "CONSTRAINT " + sqlConstraintPK + " PRIMARY KEY(PROPERTY_ID, ORDER_NUM))");
 
               // create index on hash (CAS_ID)
-              con.createStatement().executeUpdate("CREATE INDEX " + sqlVCASIDX + " ON " + tableName
+              st.executeUpdate("CREATE INDEX " + sqlVCASIDX + " ON " + tableName
                   + "(CAS_ID, PROPERTY_ID, ORDER_NUM)");
 
+              st.close();
               LOG.info("JDBC Value Content Address Storage initialized in database " + sn);
             } else
               LOG.info("JDBC Value Content Address Storage already initialized in database " + sn);
@@ -191,8 +196,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#add(java.lang
-   * .String, int, java.lang.String)
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage
+   * #add(java.lang .String, int, java.lang.String)
    */
   public void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
                                                                      VCASException {
@@ -211,7 +216,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
       }
     } catch (SQLException e) {
       // check is it a primary key vioaltion or smth else
-      // if primary key - it's record already exists issue, VCAS error otherwise.
+      // if primary key - it's record already exists issue, VCAS error
+      // otherwise.
       if (isRecordAlreadyExistsException(e))
         throw new RecordAlreadyExistsException("Record already exists, propertyId=" + propertyId
             + " orderNum=" + orderNum + ". Error: " + e, e);
@@ -222,15 +228,20 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   private boolean isRecordAlreadyExistsException(SQLException e) {
     // Search in UPPER case
-    // MySQL 5.0.x - com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException:
+    // MySQL 5.0.x -
+    // com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException:
     // Duplicate entry '4f684b34c0a800030018c34f99165791-0' for key 1
-    // HSQLDB 8.x - java.sql.SQLException: Violation of unique constraint $$: duplicate value(s) for
+    // HSQLDB 8.x - java.sql.SQLException: Violation of unique constraint $$:
+    // duplicate value(s) for
     // column(s) $$:
-    // JCR_VCAS_PK in statement [INSERT INTO JCR_VCAS (PROPERTY_ID, ORDER_NUM, CAS_ID)
+    // JCR_VCAS_PK in statement [INSERT INTO JCR_VCAS (PROPERTY_ID, ORDER_NUM,
+    // CAS_ID)
     // VALUES(?,?,?)]
-    // PostgreSQL 8.2.x - org.postgresql.util.PSQLException: ERROR: duplicate key violates unique
+    // PostgreSQL 8.2.x - org.postgresql.util.PSQLException: ERROR: duplicate
+    // key violates unique
     // constraint "jcr_vcas_pk"
-    // Oracle 9i x64 (on Fedora 7) - java.sql.SQLException: ORA-00001: unique constraint
+    // Oracle 9i x64 (on Fedora 7) - java.sql.SQLException: ORA-00001: unique
+    // constraint
     // (EXOADMIN.JCR_VCAS_PK) violated
     String err = e.toString();
     if (DBConstants.DB_DIALECT_MYSQL.equalsIgnoreCase(dialect)
@@ -241,7 +252,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
       // most of supported dbs prints PK name in exception
       return true;
 
-    // NOTICE! As an additional check we may ask the database for property currently processed in
+    // NOTICE! As an additional check we may ask the database for property
+    // currently processed in
     // VCAS
     // and tell true if the property already exists only.
 
@@ -251,8 +263,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#delete(java.
-   * lang.String)
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage
+   * #delete(java. lang.String)
    */
   public void delete(String propertyId) throws RecordNotFoundException, VCASException {
     try {
@@ -276,18 +288,20 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifier
-   * (java.lang.String, int)
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage
+   * #getIdentifier (java.lang.String, int)
    */
   public String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException,
                                                               VCASException {
     try {
       Connection con = dataSource.getConnection();
+      PreparedStatement ps = null;
+      ResultSet rs = null;
       try {
-        PreparedStatement ps = con.prepareStatement(sqlSelectRecord);
+        ps = con.prepareStatement(sqlSelectRecord);
         ps.setString(1, propertyId);
         ps.setInt(2, orderNum);
-        ResultSet rs = ps.executeQuery();
+        rs = ps.executeQuery();
 
         if (rs.next()) {
           return rs.getString("CAS_ID");
@@ -295,6 +309,12 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
           throw new RecordNotFoundException("No record found with propertyId=" + propertyId
               + " orderNum=" + orderNum);
       } finally {
+        if (rs != null) {
+          rs.close();
+        }
+        if (ps != null) {
+          ps.close();
+        }
         con.close();
       }
     } catch (SQLException e) {
@@ -305,21 +325,22 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifiers
-   * (java.lang.String)
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage
+   * #getIdentifiers (java.lang.String)
    */
   public List<String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException,
                                                                         VCASException {
     try {
       Connection con = dataSource.getConnection();
+      PreparedStatement ps = null;
+      ResultSet rs = null;
       try {
         List<String> ids = new ArrayList<String>();
-        PreparedStatement ps;
 
         if (ownOnly) {
           ps = con.prepareStatement(sqlSelectOwnRecords);
           ps.setString(1, propertyId);
-          ResultSet rs = ps.executeQuery();
+          rs = ps.executeQuery();
           if (rs.next()) {
             do {
               rs.getString("SHARED_ID");
@@ -333,7 +354,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
           // TODO unused externaly feature (except tests)
           ps = con.prepareStatement(sqlSelectRecords);
           ps.setString(1, propertyId);
-          ResultSet rs = ps.executeQuery();
+          rs = ps.executeQuery();
           if (rs.next()) {
             do {
               ids.add(rs.getString("CAS_ID"));
@@ -343,6 +364,12 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
             throw new RecordNotFoundException("No records found with propertyId=" + propertyId);
         }
       } finally {
+        if (rs != null) {
+          rs.close();
+        }
+        if (ps != null) {
+          ps.close();
+        }
         con.close();
       }
     } catch (SQLException e) {
@@ -353,17 +380,26 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#hasSharedContent
-   * (java.lang.String)
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage
+   * #hasSharedContent (java.lang.String)
    */
   public boolean hasSharedContent(String propertyId) throws RecordNotFoundException, VCASException {
     try {
       Connection con = dataSource.getConnection();
+      PreparedStatement ps = null;
+      ResultSet res = null;
       try {
-        PreparedStatement ps = con.prepareStatement(sqlSelectSharingProps);
+        ps = con.prepareStatement(sqlSelectSharingProps);
         ps.setString(1, propertyId);
-        return ps.executeQuery().next();
+        res = ps.executeQuery();
+        return res.next();
       } finally {
+        if (res != null) {
+          res.close();
+        }
+        if (ps != null) {
+          ps.close();
+        }
         con.close();
       }
     } catch (SQLException e) {
