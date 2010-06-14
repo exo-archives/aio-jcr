@@ -28,14 +28,18 @@ import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 public interface SpellChecker {
 
   /**
-   * Initializes this spell checker with an abstract query tree.
+   * Initializes this spell checker.
    * 
    * @param handler
-   *          the query handler that created this spell checker.
+   *            the query handler that created this spell checker.
+   * @param minDistance
+   *            minimal distance between  word and proposed close word. Float value 0..1.
+   * @param morePopular
+   *            return only the suggest words that are as frequent or more frequent than the searched word 
    * @throws IOException
-   *           if an error occurs while initializing the spell checker.
+   *             if an error occurs while initializing the spell checker.
    */
-  public void init(QueryHandler handler) throws IOException;
+  public void init(QueryHandler handler, float minDistance, boolean morePopular) throws IOException;
 
   /**
    * Runs the spell checker over the first spellcheck relation query node in the abstract query tree
