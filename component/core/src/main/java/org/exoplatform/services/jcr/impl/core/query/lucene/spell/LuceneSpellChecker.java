@@ -22,6 +22,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.spell.Dictionary;
 import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.ExtendedSpellChecker;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.Directory;
@@ -212,7 +213,7 @@ public class LuceneSpellChecker implements
       if (IndexReader.indexExists(spellIndexDirectory)) {
         this.lastRefresh = System.currentTimeMillis();
       }
-      this.spellChecker = new SpellChecker(spellIndexDirectory);
+      this.spellChecker = new ExtendedSpellChecker(spellIndexDirectory);
       this.spellChecker.setAccuracy(minDistance);
       this.morePopular = morePopular;
       refreshSpellChecker();
