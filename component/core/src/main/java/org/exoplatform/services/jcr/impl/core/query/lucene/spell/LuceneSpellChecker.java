@@ -244,7 +244,13 @@ public class LuceneSpellChecker implements
             sb.replace(t.startOffset(), t.endOffset(), suggestions[i]);
           }
         }
-        return sb.toString();
+        // if suggestion is same as a statement return null
+        String result = sb.toString();
+        if (statement.equalsIgnoreCase(result)) {
+          return null;
+        } else {
+          return result;
+        }
       } else {
         return null;
       }
