@@ -120,7 +120,6 @@
                       <include name="**/*.war" />
                     </fileset>
                   </copy>
-                  <chmod dir="${exo.projects.directory.working}/exo-jonas/bin/unix" perm="+x" includes="*"/>
                   <delete file="${exo.projects.directory.working}/exo-jboss/server/default/lib/hsqldb.jar" />
                 </tasks>
               </configuration>
