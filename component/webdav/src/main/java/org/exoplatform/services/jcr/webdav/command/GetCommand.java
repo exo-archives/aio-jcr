@@ -19,6 +19,11 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +35,8 @@ import javax.jcr.Session;
 import javax.xml.transform.stream.StreamSource;
 
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.common.util.MediaType;
+import org.exoplatform.common.util.MediaTypeHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.webdav.Range;
@@ -60,186 +67,244 @@ import org.exoplatform.services.xml.transform.trax.TRAXTemplatesService;
  * @version $Id$
  */
 
-public class GetCommand {
+public class GetCommand
+{
 
-  /**
-   * GET content of the resource. Can be return content of the file. The content returns in the XML
-   * type. If version parameter is present, returns the content of the version of the resource.
-   * 
-   * @param session
-   * @param path
-   * @param version
-   * @param baseURI
-   * @param range
-   * @return
-   */
-  public Response get(Session session,
-                      String path,
-                      String version,
-                      String baseURI,
-                      List<Range> ranges) {
+   /**
+    * GET content of the resource. Can be return content of the file. The content returns in the XML
+    * type. If version parameter is present, returns the content of the version of the resource.
+    * 
+    * @param session
+    * @param path
+    * @param version
+    * @param ifModifiedSince
+    * @param baseURI
+    * @param range
+    * @return
+    */
+   public Response get(Session session, String path, String version, String ifModifiedSince, String baseURI,
+      List<Range> ranges, HashMap<MediaType, String> cacheControls)
+   {
 
-    if (null == version) {
-      if (path.indexOf("?version=") > 0) {
-        version = path.substring(path.indexOf("?version=") + "?version=".length());
-        path = path.substring(0, path.indexOf("?version="));
-      }
-    }
-
-    try {
-
-      Node node = (Node) session.getItem(path);
-
-      WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
-      URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
-
-      Resource resource;
-      InputStream istream;
-
-      if (ResourceUtil.isFile(node)) {
-
-        if (version != null) {
-          VersionedResource versionedFile = new VersionedFileResource(uri, node, nsContext);
-          resource = versionedFile.getVersionHistory().getVersion(version);
-          istream = ((VersionResource) resource).getContentAsStream();
-        } else {
-          resource = new FileResource(uri, node, nsContext);
-          istream = ((FileResource) resource).getContentAsStream();
-        }
-
-        HierarchicalProperty contentLengthProperty = resource.getProperty(FileResource.GETCONTENTLENGTH);
-        long contentLength = new Long(contentLengthProperty.getValue());
-
-        HierarchicalProperty mimeTypeProperty = resource.getProperty(FileResource.GETCONTENTTYPE);
-        String contentType = mimeTypeProperty.getValue();
-
-        // content length is not present
-        if (contentLength == 0) {
-          return Response.Builder.ok()
-                                 .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                                 .entity(istream, contentType)
-                                 .build();
-        }
-
-        // no ranges request
-        if (ranges.size() == 0) {
-          return Response.Builder.ok()
-                                 .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
-                                 .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                                 .entity(istream, contentType)
-                                 .build();
-        }
-
-        // one range
-        if (ranges.size() == 1) {
-          Range range = ranges.get(0);
-          if (!validateRange(range, contentLength))
-            return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-                                   .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
-                                   .build();
-
-          long start = range.getStart();
-          long end = range.getEnd();
-          long returnedContentLength = (end - start + 1);
-
-          RangedInputStream rangedInputStream = new RangedInputStream(istream, start, end);
-
-          return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
-                                 .header(WebDavHeaders.CONTENTLENGTH,
-                                         Long.toString(returnedContentLength))
-                                 .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                                 .header(WebDavHeaders.CONTENTRANGE,
-                                         "bytes " + start + "-" + end + "/" + contentLength)
-                                 .entity(rangedInputStream, contentType)
-                                 .build();
-        }
-
-        // multipart byte ranges as byte:0-100,80-150,210-300
-        for (int i = 0; i < ranges.size(); i++) {
-          Range range = ranges.get(i);
-          if (!validateRange(range, contentLength))
-            return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-                                   .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
-                                   .build();
-          ranges.set(i, range);
-        }
-
-        MultipartByterangesEntity mByterangesEntity = new MultipartByterangesEntity(resource,
-                                                                                    ranges,
-                                                                                    contentType,
-                                                                                    contentLength);
-
-        return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
-                               .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                               .entity(mByterangesEntity,
-                                       WebDavHeaders.MULTIPART_BYTERANGES + WebDavConst.BOUNDARY)
-                               .transformer(new SerializableTransformer())
-                               .build();
-      } else {
-        // Collection processing;
-        resource = new CollectionResource(uri, node, nsContext);
-        istream = ((CollectionResource) resource).getContentAsStream(baseURI);
-
-        ExoContainer container = ExoContainerContext.getCurrentContainer();
-        TRAXTemplatesService templateService = (TRAXTemplatesService) container.getComponentInstanceOfType(TRAXTemplatesServiceImpl.class);
-
-        Map<String, String> tp = new HashMap<String, String>();
-        tp.put(XSLTConstants.XSLT_TEMPLATE, "get.method.template");
-
-        XSLT4SourceOutputTransformer transformer = new XSLT4SourceOutputTransformer(templateService);
-
-        return Response.Builder.ok()
-                               .entity(new StreamSource(istream), "text/html")
-                               .transformer(transformer)
-                               .setTransformerParameters(tp)
-                               .build();
-
+      if (null == version)
+      {
+         if (path.indexOf("?version=") > 0)
+         {
+            version = path.substring(path.indexOf("?version=") + "?version=".length());
+            path = path.substring(0, path.indexOf("?version="));
+         }
       }
 
-    } catch (PathNotFoundException e) {
-      e.printStackTrace();
-      return Response.Builder.notFound().errorMessage(e.getMessage()).build();
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
-    } catch (Exception e) {
-      e.printStackTrace();
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
-    }
-  }
+      try
+      {
 
-  private boolean validateRange(Range range, long contentLength) {
-    long start = range.getStart();
-    long end = range.getEnd();
+         Node node = (Node)session.getItem(path);
 
-    // range set as bytes:-100
-    // take 100 bytes from end
-    if (start < 0 && end == -1) {
-      if ((-1 * start) >= contentLength) {
-        start = 0;
-        end = contentLength - 1;
-      } else {
-        start = contentLength + start;
-        end = contentLength - 1;
+         WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
+         URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
+
+         Resource resource;
+         InputStream istream;
+         HierarchicalProperty lastModifiedProperty;
+
+         if (ResourceUtil.isFile(node))
+         {
+
+            if (version != null)
+            {
+               VersionedResource versionedFile = new VersionedFileResource(uri, node, nsContext);
+               resource = versionedFile.getVersionHistory().getVersion(version);
+               lastModifiedProperty = resource.getProperty(FileResource.CREATIONDATE);
+               istream = ((VersionResource)resource).getContentAsStream();
+            }
+            else
+            {
+               resource = new FileResource(uri, node, nsContext);
+               lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
+               istream = ((FileResource)resource).getContentAsStream();
+            }
+            
+            if (ifModifiedSince != null)
+            {
+               DateFormat dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.IF_MODIFIED_SINCE_PATTERN);
+               Date lastModifiedDate = dateFormat.parse(lastModifiedProperty.getValue());
+
+               dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.MODIFICATION);
+               Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
+
+               if (ifModifiedSinceDate.getTime() >= lastModifiedDate.getTime())
+               {
+                  return Response.Builder.notModified().build();
+               }
+            }
+
+            HierarchicalProperty contentLengthProperty = resource.getProperty(FileResource.GETCONTENTLENGTH);
+            long contentLength = new Long(contentLengthProperty.getValue());
+
+            HierarchicalProperty mimeTypeProperty = resource.getProperty(FileResource.GETCONTENTTYPE);
+            String contentType = mimeTypeProperty.getValue();
+
+            // content length is not present
+            if (contentLength == 0)
+            {
+               return Response.Builder.ok().header(WebDavHeaders.ACCEPT_RANGES, "bytes").entity(istream, contentType)
+                  .build();
+            }
+
+            // no ranges request
+            if (ranges.size() == 0)
+            {
+               return Response.Builder.ok().header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength)).header(
+                  WebDavHeaders.ACCEPT_RANGES, "bytes").header(WebDavConst.Headers.CACHECONTROL, generateCacheControl(cacheControls, contentType)).entity(istream, contentType).build();
+            }
+
+            // one range
+            if (ranges.size() == 1)
+            {
+               Range range = ranges.get(0);
+               if (!validateRange(range, contentLength))
+                  return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE).header(
+                     WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength).build();
+
+               long start = range.getStart();
+               long end = range.getEnd();
+               long returnedContentLength = (end - start + 1);
+
+               RangedInputStream rangedInputStream = new RangedInputStream(istream, start, end);
+
+               return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT).header(WebDavHeaders.CONTENTLENGTH,
+                  Long.toString(returnedContentLength)).header(WebDavHeaders.ACCEPT_RANGES, "bytes").header(
+                  WebDavHeaders.CONTENTRANGE, "bytes " + start + "-" + end + "/" + contentLength).entity(
+                  rangedInputStream, contentType).build();
+            }
+
+            // multipart byte ranges as byte:0-100,80-150,210-300
+            for (int i = 0; i < ranges.size(); i++)
+            {
+               Range range = ranges.get(i);
+               if (!validateRange(range, contentLength))
+                  return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE).header(
+                     WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength).build();
+               ranges.set(i, range);
+            }
+
+            MultipartByterangesEntity mByterangesEntity =
+               new MultipartByterangesEntity(resource, ranges, contentType, contentLength);
+
+            return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT).header(WebDavHeaders.ACCEPT_RANGES,
+               "bytes").entity(mByterangesEntity, WebDavHeaders.MULTIPART_BYTERANGES + WebDavConst.BOUNDARY)
+               .transformer(new SerializableTransformer()).build();
+         }
+         else
+         {
+            // Collection processing;
+            resource = new CollectionResource(uri, node, nsContext);
+            istream = ((CollectionResource)resource).getContentAsStream(baseURI);
+
+            ExoContainer container = ExoContainerContext.getCurrentContainer();
+            TRAXTemplatesService templateService =
+               (TRAXTemplatesService)container.getComponentInstanceOfType(TRAXTemplatesServiceImpl.class);
+
+            Map<String, String> tp = new HashMap<String, String>();
+            tp.put(XSLTConstants.XSLT_TEMPLATE, "get.method.template");
+
+            XSLT4SourceOutputTransformer transformer = new XSLT4SourceOutputTransformer(templateService);
+
+            return Response.Builder.ok().entity(new StreamSource(istream), "text/html").transformer(transformer)
+               .setTransformerParameters(tp).build();
+
+         }
+
       }
-    }
+      catch (PathNotFoundException e)
+      {
+         e.printStackTrace();
+         return Response.Builder.notFound().errorMessage(e.getMessage()).build();
+      }
+      catch (RepositoryException e)
+      {
+         e.printStackTrace();
+         return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+         return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      }
+   }
 
-    // range set as bytes:100-
-    // take from 100 to the end
-    if (start >= 0 && end == -1)
-      end = contentLength - 1;
+   private boolean validateRange(Range range, long contentLength)
+   {
+      long start = range.getStart();
+      long end = range.getEnd();
 
-    // normal range set as bytes:100-200
-    // end can be greater then content-length
-    if (end >= contentLength)
-      end = contentLength - 1;
+      // range set as bytes:-100
+      // take 100 bytes from end
+      if (start < 0 && end == -1)
+      {
+         if ((-1 * start) >= contentLength)
+         {
+            start = 0;
+            end = contentLength - 1;
+         }
+         else
+         {
+            start = contentLength + start;
+            end = contentLength - 1;
+         }
+      }
 
-    if (start >= 0 && end >= 0 && start <= end) {
-      range.setStart(start);
-      range.setEnd(end);
-      return true;
-    }
-    return false;
-  }
+      // range set as bytes:100-
+      // take from 100 to the end
+      if (start >= 0 && end == -1)
+         end = contentLength - 1;
+
+      // normal range set as bytes:100-200
+      // end can be greater then content-length
+      if (end >= contentLength)
+         end = contentLength - 1;
+
+      if (start >= 0 && end >= 0 && start <= end)
+      {
+         range.setStart(start);
+         range.setEnd(end);
+         return true;
+      }
+      return false;
+   }
+   
+   /**
+    * Generates the value of Cache-Control header according to the content type.
+    * 
+    * @param contentType content type
+    * @return Cache-Control value
+    */
+   private String generateCacheControl(HashMap<MediaType, String> cacheControlMap, String contentType)
+   {
+
+      ArrayList<MediaType> mediaTypesList = new ArrayList<MediaType>(cacheControlMap.keySet());
+      Collections.sort(mediaTypesList, MediaTypeHelper.MEDIA_TYPE_COMPARATOR);
+      String cacheControlValue = "no-cache";
+
+      if (contentType == null || contentType.equals(""))
+      {
+         return cacheControlValue;
+      }
+
+      for (MediaType mediaType : mediaTypesList)
+      {
+         if (contentType.equals(MediaType.WILDCARD))
+         {
+            cacheControlValue = cacheControlMap.get(MediaType.MEDIA_TYPE_WILDCARD);
+            break;
+         }
+         else if (mediaType.isCompatible(new MediaType(contentType.split("/")[0], contentType.split("/")[1])))
+         {
+            cacheControlValue = cacheControlMap.get(mediaType);
+            break;
+         }
+      }
+      return cacheControlValue;
+   }
 
 }

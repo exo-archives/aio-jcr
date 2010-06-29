@@ -280,6 +280,11 @@ public class WebDavConst {
      * "Header Field Definitions"</a> for more information.
      */
     public static final String RANGE           = "Range";
+    
+    /**
+     * See {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.25">HTTP/1.1 documentation</a>}.
+     */
+    public static final String IF_MODIFIED_SINCE = "If-Modified-Since";
 
     /**
      * JCR "Nodetype" header.
@@ -548,6 +553,13 @@ public class WebDavConst {
      * Last modification date psttern.
      */
     public static final String MODIFICATION = "EEE, dd MMM yyyy HH:mm:ss z";
+    
+    /**
+     * If-Modified-Since date psttern.
+     */
+    public static final String IF_MODIFIED_SINCE_PATTERN = "EEE, d MMM yyyy HH:mm:ss z";
+    
+    
   }
 
 }
