@@ -176,30 +176,25 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
     
     ValueParam pCacheControl = params.getValueParam(INIT_PARAM_CACHE_CONTROL);
-    if (pCacheControl != null)
-    {
+    if (pCacheControl != null) {
+      
        String cacheControlConfigValue = pCacheControl.getValue();
 
-       try
-       {
+       try {
           String[] elements = cacheControlConfigValue.split(";");
-          for (String element : elements)
-          {
+          for (String element : elements) {
              String cacheValue = element.split(":")[1];
              String keys = element.split(":")[0];
-             for (String key : keys.split(","))
-             {
+             for (String key : keys.split(",")) {
                 MediaType mediaType = new MediaType(key.split("/")[0], key.split("/")[1]);
                 cacheControlMap.put(mediaType, cacheValue);
              }
           }
        }
-       catch (Exception e)
-       {
+       catch (Exception e)       {
           log.warn("Invalid " + INIT_PARAM_CACHE_CONTROL + " parameter");
        }
     }
-
   }
 
   @HTTPMethod(WebDavMethods.CHECKIN)
@@ -371,7 +366,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
    * @see org.exoplatform.services.jcr.webdav.WebDavService#get(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @Deprecated 
-  @URITemplate("/{repoName}/{repoPath}/")
   @InputTransformer(PassthroughInputTransformer.class)
   @OutputTransformer(PassthroughOutputTransformer.class)
   public Response get(@URIParam("repoName") String repoName,
