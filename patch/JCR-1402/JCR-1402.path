@@ -1,0 +1,452 @@
+Index: component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/ext/TestCaching.java
+===================================================================
+--- component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/ext/TestCaching.java	(revision 0)
++++ component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/ext/TestCaching.java	(revision 49120)
+@@ -0,0 +1,154 @@
++/*
++ * Copyright (C) 2003-2008 eXo Platform SAS.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see<http://www.gnu.org/licenses/>.
++ */
++package org.exoplatform.services.jcr.webdav.ext;
++
++import junit.framework.TestCase;
++
++import org.exoplatform.common.http.HTTPStatus;
++import org.exoplatform.common.http.client.CookieModule;
++import org.exoplatform.common.http.client.HTTPConnection;
++import org.exoplatform.common.http.client.HTTPResponse;
++import org.exoplatform.common.http.client.NVPair;
++import org.exoplatform.services.jcr.webdav.WebDavConst;
++import org.exoplatform.services.jcr.webdav.WebDavHeaders;
++import org.exoplatform.services.jcr.webdav.utils.TestUtils;
++
++import java.text.SimpleDateFormat;
++import java.util.ArrayList;
++import java.util.Date;
++import java.util.List;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
++
++/**
++ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
++ */
++public class TestCaching extends TestCase {
++
++  private final String   fileName    = TestUtils.getFullWorkSpacePath() + "/"
++                                         + TestUtils.getFileName();
++
++  private final String   fileContent = "TEST FILE CONTENT...";
++
++  private HTTPConnection connection;
++
++  @Override
++  protected void setUp() throws Exception {
++
++    CookieModule.setCookiePolicyHandler(null);
++
++    connection = TestUtils.GetAuthConnection();
++
++    HTTPResponse response = connection.Put(fileName, fileContent);  
++    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
++
++    super.setUp();
++  }
++
++  @Override
++  protected void tearDown() throws Exception {
++
++    HTTPResponse response = connection.Delete(fileName);
++    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
++
++    super.tearDown();
++  }
++
++  public void testIfNotModifiedSince() throws Exception {
++
++    List<String> props = new ArrayList<String>();
++    props.add("getlastmodified");
++    HTTPResponse response =  connection.Propfind(fileName, props);
++    
++    String responseText = response.getText();
++    String lastModifiedProp = getLastModified(responseText);
++    
++    SimpleDateFormat dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.IF_MODIFIED_SINCE_PATTERN);
++    Date lastModifiedDate = dateFormat.parse(lastModifiedProp);
++    lastModifiedDate.setTime(lastModifiedDate.getTime() - 60000);
++    
++    NVPair[] headers = {new NVPair(WebDavHeaders.IF_MODIFIED_SINCE, dateFormat.format(lastModifiedDate.getTime()))};
++    
++    response = connection.Get(fileName, new NVPair[]{}, headers);
++    assertEquals(HTTPStatus.OK, response.getStatusCode());
++
++  }
++  
++  public void testIfModifiedSince() throws Exception {
++
++     List<String> props = new ArrayList<String>();
++     props.add("getlastmodified");
++     HTTPResponse response =  connection.Propfind(fileName, props);
++     
++     String responseText = response.getText();
++     String lastModifiedProp = getLastModified(responseText);
++     
++     SimpleDateFormat dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.IF_MODIFIED_SINCE_PATTERN);
++     Date lastModifiedDate = dateFormat.parse(lastModifiedProp);
++     lastModifiedDate.setTime(lastModifiedDate.getTime() + 60000);
++     
++     NVPair[] headers = {new NVPair(WebDavHeaders.IF_MODIFIED_SINCE, dateFormat.format(lastModifiedDate.getTime()))};
++     
++     response = connection.Get(fileName, new NVPair[]{}, headers);
++     assertEquals(HTTPStatus.NOT_MODIFIED, response.getStatusCode());
++     
++   }
++  
++  private String getLastModified(String response){
++     
++     String patternString = ".+(getlastmodified).+\\>(.+)\\<.+(getlastmodified).+";
++
++     Pattern pattern = Pattern.compile(patternString);
++     Matcher matcher = pattern.matcher(response);
++     matcher.matches();
++     
++     return matcher.group(2);
++     
++  }
++  
++  
++  public class CacheControlType
++  {
++     private String contentType;
++     private String cacheValue;
++     
++     /**
++      * @return the cacheValue
++      */
++     public String getCacheValue()
++     {
++        return cacheValue;
++     }
++
++     /**
++      * @return the contentType
++      */
++     public String getContentType()
++     {
++        return contentType;
++     }
++     
++     public CacheControlType(String contentType, String cacheValue)
++     {
++        this.contentType = contentType;
++        this.cacheValue = cacheValue;
++     }
++     
++
++  }
++
++}
+
+Property changes on: component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/ext/TestCaching.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/utils/TestUtils.java
+===================================================================
+--- component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/utils/TestUtils.java	(revision 48971)
++++ component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/utils/TestUtils.java	(working copy)
+@@ -26,9 +26,9 @@
+ 
+   public static final String HOST              = "localhost";
+ 
+-  public static final String SERVLET_PATH      = "/rest/private/jcr/repository";
++  public static final String SERVLET_PATH      = "/rest/jcr/repository";
+ 
+-  public static final String WORKSPACE         = "/collaboration";
++  public static final String WORKSPACE         = "/production";
+ 
+   public static final String INAVLID_WORKSPACE = "/invalid";
+ 
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavHeaders.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavHeaders.java	(revision 48971)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavHeaders.java	(working copy)
+@@ -102,6 +102,12 @@
+    * HTTP/1.1 section 14 "Header Field Definitions"</a> for more information.
+    */
+   public static final String RANGE                = "Range";
++  
++  /**
++   * HTTP 1.1 "If-Modified-Since" header. See <a href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'>
++   * HTTP/1.1 section 14 "Header Field Definitions"</a> for more information.
++   */
++  public static final String IF_MODIFIED_SINCE     = "If-Modified-Since";
+ 
+   /**
+    * WebDav "Destination" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java	(revision 48971)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java	(working copy)
+@@ -20,6 +20,7 @@
+ import java.io.InputStream;
+ import java.net.URLEncoder;
+ import java.util.ArrayList;
++import java.util.HashMap;
+ import java.util.List;
+ 
+ import javax.jcr.NoSuchWorkspaceException;
+@@ -29,6 +30,7 @@
+ 
+ import org.apache.commons.logging.Log;
+ import org.exoplatform.common.util.HierarchicalProperty;
++import org.exoplatform.common.util.MediaType;
+ import org.exoplatform.commons.utils.MimeTypeResolver;
+ import org.exoplatform.container.xml.InitParams;
+ import org.exoplatform.container.xml.ValueParam;
+@@ -105,7 +107,11 @@
+    * Initialization initialization "update-policy"-parameter value.
+    */
+   public static final String                      INIT_PARAM_UPDATE_POLICY        = "update-policy";
++  
++  public static final String INIT_PARAM_CACHE_CONTROL = "cache-control";
+ 
++  private HashMap<MediaType, String> cacheControlMap = new HashMap<MediaType, String>();
++
+   /**
+    * Logger.
+    */
+@@ -168,7 +174,27 @@
+       updatePolicyType = pUpdatePolicy.getValue();
+       log.info(INIT_PARAM_UPDATE_POLICY + " = " + updatePolicyType);
+     }
++    
++    ValueParam pCacheControl = params.getValueParam(INIT_PARAM_CACHE_CONTROL);
++    if (pCacheControl != null) {
++      
++       String cacheControlConfigValue = pCacheControl.getValue();
+ 
++       try {
++          String[] elements = cacheControlConfigValue.split(";");
++          for (String element : elements) {
++             String cacheValue = element.split(":")[1];
++             String keys = element.split(":")[0];
++             for (String key : keys.split(",")) {
++                MediaType mediaType = new MediaType(key.split("/")[0], key.split("/")[1]);
++                cacheControlMap.put(mediaType, cacheValue);
++             }
++          }
++       }
++       catch (Exception e)       {
++          log.warn("Invalid " + INIT_PARAM_CACHE_CONTROL + " parameter");
++       }
++    }
+   }
+ 
+   @HTTPMethod(WebDavMethods.CHECKIN)
+@@ -334,6 +360,22 @@
+     }
+   }
+ 
++  /**
++   * @deprecated For back capability with previous 1.10.x verions only.
++   * Use {@link #get(String, String, String, String, String, String)} instead. 
++   * @see org.exoplatform.services.jcr.webdav.WebDavService#get(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
++   */
++  @Deprecated 
++  @InputTransformer(PassthroughInputTransformer.class)
++  @OutputTransformer(PassthroughOutputTransformer.class)
++  public Response get(@URIParam("repoName") String repoName,
++                      @URIParam("repoPath") String repoPath,
++                      @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
++                      @QueryParam("version") String version,
++                      @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
++     return get(repoName, repoPath, rangeHeader, null, version, baseURI);
++  }
++  
+   @HTTPMethod(WebDavMethods.GET)
+   @URITemplate("/{repoName}/{repoPath}/")
+   @InputTransformer(PassthroughInputTransformer.class)
+@@ -341,6 +383,7 @@
+   public Response get(@URIParam("repoName") String repoName,
+                       @URIParam("repoPath") String repoPath,
+                       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
++                      @HeaderParam(WebDavHeaders.IF_MODIFIED_SINCE) String ifModifiedSince,
+                       @QueryParam("version") String version,
+                       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
+ 
+@@ -385,7 +428,7 @@
+         }
+       }
+       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+-      return new GetCommand().get(session, path(repoPath), version, uri, ranges);
++      return new GetCommand().get(session, path(repoPath), version, ifModifiedSince, uri, ranges, cacheControlMap);
+ 
+     } catch (PathNotFoundException e) {
+       return Response.Builder.notFound().errorMessage(e.getMessage()).build();
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavConst.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavConst.java	(revision 48971)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavConst.java	(working copy)
+@@ -280,6 +280,11 @@
+      * "Header Field Definitions"</a> for more information.
+      */
+     public static final String RANGE           = "Range";
++    
++    /**
++     * See {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.25">HTTP/1.1 documentation</a>}.
++     */
++    public static final String IF_MODIFIED_SINCE = "If-Modified-Since";
+ 
+     /**
+      * JCR "Nodetype" header.
+@@ -548,6 +553,13 @@
+      * Last modification date psttern.
+      */
+     public static final String MODIFICATION = "EEE, dd MMM yyyy HH:mm:ss z";
++    
++    /**
++     * If-Modified-Since date psttern.
++     */
++    public static final String IF_MODIFIED_SINCE_PATTERN = "EEE, d MMM yyyy HH:mm:ss z";
++    
++    
+   }
+ 
+ }
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/GetCommand.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/GetCommand.java	(revision 48971)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/GetCommand.java	(working copy)
+@@ -19,6 +19,11 @@
+ 
+ import java.io.InputStream;
+ import java.net.URI;
++import java.text.DateFormat;
++import java.text.SimpleDateFormat;
++import java.util.ArrayList;
++import java.util.Collections;
++import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+@@ -30,6 +35,8 @@
+ import javax.xml.transform.stream.StreamSource;
+ 
+ import org.exoplatform.common.util.HierarchicalProperty;
++import org.exoplatform.common.util.MediaType;
++import org.exoplatform.common.util.MediaTypeHelper;
+ import org.exoplatform.container.ExoContainer;
+ import org.exoplatform.container.ExoContainerContext;
+ import org.exoplatform.services.jcr.webdav.Range;
+@@ -76,8 +83,10 @@
+   public Response get(Session session,
+                       String path,
+                       String version,
++                      String ifModifiedSince,
+                       String baseURI,
+-                      List<Range> ranges) {
++                      List<Range> ranges,
++                      HashMap<MediaType, String> cacheControls) {
+ 
+     if (null == version) {
+       if (path.indexOf("?version=") > 0) {
+@@ -95,18 +104,33 @@
+ 
+       Resource resource;
+       InputStream istream;
++      HierarchicalProperty lastModifiedProperty;
+ 
+       if (ResourceUtil.isFile(node)) {
+ 
+         if (version != null) {
+           VersionedResource versionedFile = new VersionedFileResource(uri, node, nsContext);
+           resource = versionedFile.getVersionHistory().getVersion(version);
++          lastModifiedProperty = resource.getProperty(FileResource.CREATIONDATE);
+           istream = ((VersionResource) resource).getContentAsStream();
+         } else {
+           resource = new FileResource(uri, node, nsContext);
++          lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
+           istream = ((FileResource) resource).getContentAsStream();
+         }
+ 
++        if (ifModifiedSince != null) {
++          DateFormat dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.IF_MODIFIED_SINCE_PATTERN);
++          Date lastModifiedDate = dateFormat.parse(lastModifiedProperty.getValue());
++
++          dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.MODIFICATION);
++          Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
++
++          if (ifModifiedSinceDate.getTime() >= lastModifiedDate.getTime()) {
++            return Response.Builder.notModified().build();
++          }
++        }
++
+         HierarchicalProperty contentLengthProperty = resource.getProperty(FileResource.GETCONTENTLENGTH);
+         long contentLength = new Long(contentLengthProperty.getValue());
+ 
+@@ -117,6 +141,8 @@
+         if (contentLength == 0) {
+           return Response.Builder.ok()
+                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
++                                 .header(WebDavConst.Headers.CACHECONTROL, 
++                                        generateCacheControl(cacheControls, contentType))
+                                  .entity(istream, contentType)
+                                  .build();
+         }
+@@ -126,6 +152,8 @@
+           return Response.Builder.ok()
+                                  .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
+                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
++                                 .header(WebDavConst.Headers.CACHECONTROL, 
++                                        generateCacheControl(cacheControls, contentType))
+                                  .entity(istream, contentType)
+                                  .build();
+         }
+@@ -241,5 +269,34 @@
+     }
+     return false;
+   }
++  
++  /**
++   * Generates the value of Cache-Control header according to the content type.
++   * 
++   * @param contentType content type
++   * @return Cache-Control value
++   */
++  private String generateCacheControl(HashMap<MediaType, String> cacheControlMap, String contentType) {
+ 
++    ArrayList<MediaType> mediaTypesList = new ArrayList<MediaType>(cacheControlMap.keySet());
++    Collections.sort(mediaTypesList, MediaTypeHelper.MEDIA_TYPE_COMPARATOR);
++    String cacheControlValue = "no-cache";
++
++    if (contentType == null || contentType.equals("")) {
++      return cacheControlValue;
++    }
++
++    for (MediaType mediaType : mediaTypesList) {
++      if (contentType.equals(MediaType.WILDCARD)) {
++        cacheControlValue = cacheControlMap.get(MediaType.MEDIA_TYPE_WILDCARD);
++        break;
++      } else if (mediaType.isCompatible(new MediaType(contentType.split("/")[0],
++                                                      contentType.split("/")[1]))) {
++        cacheControlValue = cacheControlMap.get(mediaType);
++        break;
++      }
++    }
++    return cacheControlValue;
++  }
++
+ }

@@ -19,11 +19,6 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +30,6 @@ import javax.jcr.Session;
 import javax.xml.transform.stream.StreamSource;
 
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.common.util.MediaType;
-import org.exoplatform.common.util.MediaTypeHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.webdav.Range;
@@ -83,10 +76,8 @@ public class GetCommand {
   public Response get(Session session,
                       String path,
                       String version,
-                      String ifModifiedSince,
                       String baseURI,
-                      List<Range> ranges,
-                      HashMap<MediaType, String> cacheControls) {
+                      List<Range> ranges) {
 
     if (null == version) {
       if (path.indexOf("?version=") > 0) {
@@ -104,31 +95,16 @@ public class GetCommand {
 
       Resource resource;
       InputStream istream;
-      HierarchicalProperty lastModifiedProperty;
 
       if (ResourceUtil.isFile(node)) {
 
         if (version != null) {
           VersionedResource versionedFile = new VersionedFileResource(uri, node, nsContext);
           resource = versionedFile.getVersionHistory().getVersion(version);
-          lastModifiedProperty = resource.getProperty(FileResource.CREATIONDATE);
           istream = ((VersionResource) resource).getContentAsStream();
         } else {
           resource = new FileResource(uri, node, nsContext);
-          lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
           istream = ((FileResource) resource).getContentAsStream();
-        }
-
-        if (ifModifiedSince != null) {
-          DateFormat dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.IF_MODIFIED_SINCE_PATTERN);
-          Date lastModifiedDate = dateFormat.parse(lastModifiedProperty.getValue());
-
-          dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.MODIFICATION);
-          Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
-
-          if (ifModifiedSinceDate.getTime() >= lastModifiedDate.getTime()) {
-            return Response.Builder.notModified().build();
-          }
         }
 
         HierarchicalProperty contentLengthProperty = resource.getProperty(FileResource.GETCONTENTLENGTH);
@@ -141,8 +117,6 @@ public class GetCommand {
         if (contentLength == 0) {
           return Response.Builder.ok()
                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                                 .header(WebDavConst.Headers.CACHECONTROL, 
-                                        generateCacheControl(cacheControls, contentType))
                                  .entity(istream, contentType)
                                  .build();
         }
@@ -152,8 +126,6 @@ public class GetCommand {
           return Response.Builder.ok()
                                  .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                                 .header(WebDavConst.Headers.CACHECONTROL, 
-                                        generateCacheControl(cacheControls, contentType))
                                  .entity(istream, contentType)
                                  .build();
         }
@@ -268,35 +240,6 @@ public class GetCommand {
       return true;
     }
     return false;
-  }
-  
-  /**
-   * Generates the value of Cache-Control header according to the content type.
-   * 
-   * @param contentType content type
-   * @return Cache-Control value
-   */
-  private String generateCacheControl(HashMap<MediaType, String> cacheControlMap, String contentType) {
-
-    ArrayList<MediaType> mediaTypesList = new ArrayList<MediaType>(cacheControlMap.keySet());
-    Collections.sort(mediaTypesList, MediaTypeHelper.MEDIA_TYPE_COMPARATOR);
-    String cacheControlValue = "no-cache";
-
-    if (contentType == null || contentType.equals("")) {
-      return cacheControlValue;
-    }
-
-    for (MediaType mediaType : mediaTypesList) {
-      if (contentType.equals(MediaType.WILDCARD)) {
-        cacheControlValue = cacheControlMap.get(MediaType.MEDIA_TYPE_WILDCARD);
-        break;
-      } else if (mediaType.isCompatible(new MediaType(contentType.split("/")[0],
-                                                      contentType.split("/")[1]))) {
-        cacheControlValue = cacheControlMap.get(mediaType);
-        break;
-      }
-    }
-    return cacheControlValue;
   }
 
 }
