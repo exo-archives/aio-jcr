@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.impl.xml.importing;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -73,8 +72,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: DocumentViewImporter.java 35197 2009-08-07 14:53:22Z pnedonosko
- *          $
+ * @version $Id$
  */
 public class DocumentViewImporter extends BaseXmlImporter {
   /**
@@ -425,22 +423,13 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                  PropertyData newProperty,
                                  InternalQName propName) throws RepositoryException {
     try {
-      InputStream vStream = new ByteArrayInputStream(Base64.decode(propertiesMap.get(propName)));
-      TransientValueData binaryValue = new TransientValueData(vStream);
-      binaryValue.setMaxBufferSize(valueFactory.getMaxBufferSize());
-      binaryValue.setFileCleaner(valueFactory.getFileCleaner());
-      binaryValue.getAsStream();
-      vStream.close();
-
       newProperty = TransientPropertyData.createPropertyData(getParent(),
                                                              propName,
                                                              PropertyType.BINARY,
                                                              false,
-                                                             binaryValue);
+                                                             new TransientValueData(new ByteArrayInputStream(Base64.decode(propertiesMap.get(propName)))));
 
     } catch (DecodingException e) {
-      throw new RepositoryException(e);
-    } catch (IOException e) {
       throw new RepositoryException(e);
     }
     return newProperty;
