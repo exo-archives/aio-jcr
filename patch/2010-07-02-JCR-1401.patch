@@ -1,0 +1,510 @@
+Index: component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/DocviewImportTestCase.java
+===================================================================
+--- component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/DocviewImportTestCase.java	(revision 0)
++++ component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/DocviewImportTestCase.java	(revision 0)
+@@ -0,0 +1,86 @@
++/*
++ * Copyright (C) 2003-2010 eXo Platform SAS.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see<http://www.gnu.org/licenses/>.
++ */
++package org.exoplatform.services.jcr.ext.replication.test;
++
++import java.io.File;
++import java.io.FileInputStream;
++
++import javax.jcr.ImportUUIDBehavior;
++
++import org.exoplatform.services.jcr.RepositoryService;
++
++/**
++ * Created by The eXo Platform SAS.
++ * 
++ * <br/>Date: 2010
++ *
++ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
++ * @version $Id: DocviewImportTestCase.java 48669 2010-06-17 14:02:45Z rainf0x $
++ */
++public class DocviewImportTestCase extends BaseReplicationTestCase {
++
++   /**
++    * DeleteTestCase constructor.
++    * 
++    * @param repositoryService
++    *          the RepositoryService.
++    * @param reposytoryName
++    *          the repository name
++    * @param workspaceName
++    *          the workspace name
++    * @param userName
++    *          the user name
++    * @param password
++    *          the password
++    */
++   public DocviewImportTestCase(RepositoryService repositoryService, 
++                                String reposytoryName, 
++                                String workspaceName,
++                                String userName, 
++                                String password) {
++      super(repositoryService, reposytoryName, workspaceName, userName, password);
++      log.info("DocviewImportTestCase inited");
++   }
++
++   /**
++    * Import from xml.
++    * 
++    * @param repoPath
++    *          repository path
++    * @param nodeName
++    *          node name
++    * @return StringBuffer return the responds {'ok', 'fail'}
++    */
++   public StringBuffer docviewImport(String repoPath, String docviewPath) {
++      StringBuffer sb = new StringBuffer();
++      
++      try {
++         File f = new File(getNormalizePath(docviewPath));
++                  
++         session.importXML(getNormalizePath(repoPath), new FileInputStream(f), ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
++         session.save();
++                  
++         sb.append("ok");
++      } catch (Exception e) {
++        log.error("Can't import data from : " + getNormalizePath(docviewPath), e);
++        sb.append("fail");
++      }
++
++      return sb;
++   }
++
++}
+Index: component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/ReplicationTestService.java
+===================================================================
+--- component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/ReplicationTestService.java	(revision 48581)
++++ component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/ReplicationTestService.java	(working copy)
+@@ -1341,4 +1341,85 @@
+ 
+     return Response.Builder.ok(sb.toString(), "text/plain").build();
+   }
++  
++  
++  /**
++   * addBinaryPropertyOnly.
++   * 
++   * @param repositoryName
++   *          the repository name
++   * @param workspaceName
++   *          the workspace name
++   * @param userName
++   *          the user name
++   * @param password
++   *          the password
++   * @param repoPath
++   *          the repository path
++   * @param nodeName
++   *          the node name
++   * @param size
++   *          the size of binary property
++   * @param iterations
++   *          how many adding the binary property
++   * @return Response return the response
++   */
++  @QueryTemplate("operation=docviewImport")
++  @HTTPMethod("GET")
++  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{docviewPath}/")
++  public Response docviewImport(@URIParam("repositoryName") String repositoryName,
++                                        @URIParam("workspaceName") String workspaceName,
++                                        @URIParam("userName") String userName,
++                                        @URIParam("password") String password,
++                                        @URIParam("repoPath") String repoPath,
++                                        @URIParam("docviewPath") String docviewPath) {
++    DocviewImportTestCase docviewTestCase = new DocviewImportTestCase(repositoryService,
++                                                                                              repositoryName,
++                                                                                              workspaceName,
++                                                                                              userName,
++                                                                                              password);
++    StringBuffer sb = docviewTestCase.docviewImport(repoPath, docviewPath);
++
++    return Response.Builder.ok(sb.toString(), "text/plain").build();
++  }
++  
++  /**
++   * addBinaryPropertyOnly.
++   * 
++   * @param repositoryName
++   *          the repository name
++   * @param workspaceName
++   *          the workspace name
++   * @param userName
++   *          the user name
++   * @param password
++   *          the password
++   * @param repoPath
++   *          the repository path
++   * @param nodeName
++   *          the node name
++   * @param size
++   *          the size of binary property
++   * @param iterations
++   *          how many adding the binary property
++   * @return Response return the response
++   */
++  @QueryTemplate("operation=export")
++  @HTTPMethod("GET")
++  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{pathDir}/")
++  public Response export(@URIParam("repositoryName") String repositoryName,
++                                        @URIParam("workspaceName") String workspaceName,
++                                        @URIParam("userName") String userName,
++                                        @URIParam("password") String password,
++                                        @URIParam("repoPath") String repoPath,
++                                        @URIParam("pathDir") String pathDir) {
++    ExportTestCase exportTestCase = new ExportTestCase(repositoryService,
++                                                                                              repositoryName,
++                                                                                              workspaceName,
++                                                                                              userName,
++                                                                                              password);
++    StringBuffer sb = exportTestCase.export(repoPath, pathDir);
++
++    return Response.Builder.ok(sb.toString(), "text/plain").build();
++  }
+ }
+Index: component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/ExportTestCase.java
+===================================================================
+--- component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/ExportTestCase.java	(revision 0)
++++ component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/test/ExportTestCase.java	(revision 0)
+@@ -0,0 +1,90 @@
++/*
++ * Copyright (C) 2003-2010 eXo Platform SAS.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see<http://www.gnu.org/licenses/>.
++ */
++package org.exoplatform.services.jcr.ext.replication.test;
++
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.FileOutputStream;
++
++import javax.jcr.ImportUUIDBehavior;
++
++import org.exoplatform.services.jcr.RepositoryService;
++
++/**
++ * Created by The eXo Platform SAS.
++ * 
++ * <br/>Date: 2010
++ *
++ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
++ * @version $Id: ExportTestCase.java 48669 2010-06-17 14:02:45Z rainf0x $
++ */
++public class ExportTestCase extends BaseReplicationTestCase {
++
++   /**
++    * DeleteTestCase constructor.
++    * 
++    * @param repositoryService
++    *          the RepositoryService.
++    * @param reposytoryName
++    *          the repository name
++    * @param workspaceName
++    *          the workspace name
++    * @param userName
++    *          the user name
++    * @param password
++    *          the password
++    */
++   public ExportTestCase(RepositoryService repositoryService, 
++                                String reposytoryName, 
++                                String workspaceName,
++                                String userName, 
++                                String password) {
++      super(repositoryService, reposytoryName, workspaceName, userName, password);
++      log.info("DocviewImportTestCase inited");
++   }
++
++   /**
++    * Export to xml.
++    * 
++    * @param repoPath
++    *          repository path
++    * @param nodeName
++    *          node name
++    * @return StringBuffer return the responds {'ok', 'fail'}
++    */
++   public StringBuffer export(String repoPath, String pathDir) {
++      StringBuffer sb = new StringBuffer();
++      
++      try {
++         File f = new File(getNormalizePath(pathDir));
++         f.mkdirs();
++         
++         session.exportDocumentView(getNormalizePath(repoPath), new FileOutputStream(f.getAbsolutePath() + f.separator + "docview.xml"), false, false);
++         
++         session.exportSystemView(getNormalizePath(repoPath), new FileOutputStream(f.getAbsolutePath() + f.separator + "sysview.xml"), false, false);
++         
++                  
++         sb.append("ok");
++      } catch (Exception e) {
++        log.error("Can't export data from : " + getNormalizePath(repoPath), e);
++        sb.append("fail");
++      }
++
++      return null;
++   }
++
++}
+Index: component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/ChannelManager.java
+===================================================================
+--- component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/ChannelManager.java	(revision 48581)
++++ component/ext/src/main/java/org/exoplatform/services/jcr/ext/replication/ChannelManager.java	(working copy)
+@@ -22,6 +22,7 @@
+ import java.io.InputStream;
+ import java.util.ArrayList;
+ import java.util.List;
++import java.util.concurrent.ConcurrentLinkedQueue;
+ import java.util.concurrent.CountDownLatch;
+ 
+ import org.apache.commons.logging.Log;
+@@ -121,7 +122,113 @@
+    * channelListener. The listener to JChannel when channel-state changed.
+    */
+   private ChannelListener      channelListener;
++  
++  /**
++   * Packets handler.
++   */
++  protected final PacketHandler packetsHandler;
++  
++  /**
++   * PacketHandler.
++   *
++   */
++  protected class PacketHandler extends Thread
++  {
+ 
++     /**
++      * Wait lock.
++      */
++     private final Object lock = new Object();
++
++     /**
++      * Packets queue.
++      */
++     private final ConcurrentLinkedQueue<Packet> queue = new ConcurrentLinkedQueue<Packet>();
++
++     /**
++      * User flag.
++      */
++     private Packet current;
++
++     /**
++      * {@inheritDoc}
++      */
++     @Override
++     public void run()
++     {
++        while (true)
++        {
++           try
++           {
++              synchronized (lock)
++              {
++                 current = queue.poll();
++                 while (current != null)
++                 {
++                    PacketListener[] pl = packetListeners.toArray(new PacketListener[packetListeners.size()]);
++                    for (PacketListener handler : pl)
++                       handler.receive(current);
++
++                    current = queue.poll();
++                 }
++
++                 lock.wait();
++              }
++           }
++           catch (InterruptedException e)
++           {
++              log.error("Cannot handle the queue. Wait lock failed " + e, e);
++           }
++           catch (Throwable e)
++           {
++              log.error("Cannot handle the queue now. Error " + e, e);
++              try
++              {
++                 sleep(5000);
++              }
++              catch (Throwable e1)
++              {
++                 log.error("Sleep error " + e1);
++              }
++           }
++        }
++     }
++
++     /**
++      * Add packet to the queue.
++      * 
++      * @param packet
++      *          AbstractPacket
++      * @param member
++      *          Member
++      */
++     public void add(Packet packet)
++     {
++        queue.add(packet);
++     }
++
++     /**
++      * Run handler if channel is ready.
++      * 
++      */
++     public void handle()
++     {
++
++        if (current == null)
++        {
++           synchronized (lock)
++           {
++              lock.notify();
++           }
++
++           // JCR-886: let other threads work
++           Thread.yield();
++        }
++        else if (log.isDebugEnabled())
++           log.debug("Handler already active, queue size : " + queue.size());
++     }
++  }
++
+   /**
+    * ChannelManager constructor.
+    * 
+@@ -133,7 +240,20 @@
+     this.channelConfig = channelConfig;
+     this.channelName = channelName;
+     this.packetListeners = new ArrayList<PacketListener>();
++    
++    this.packetsHandler = new PacketHandler();
++    this.packetsHandler.start();
+   }
++  
++  /**
++   * Tell if manager is connected to the channel and ready to work.
++   * 
++   * @return boolean, true if connected
++   */
++  public boolean isConnected()
++  {
++     return channel != null;
++  }
+ 
+   /**
+    * init. Will be initialized JChannel and MessageDispatcher.
+@@ -490,19 +610,29 @@
+    * {@inheritDoc}
+    */
+   public Object handle(Message message) {
+-    try {
+-      Packet packet = Packet.getAsPacket(message.getBuffer());
++     if (isConnected()) {
++       try {
++         packetsHandler.add(Packet.getAsPacket(message.getBuffer()));
+ 
+-      for (PacketListener handler : packetListeners) {
+-        handler.receive(packet);
+-      }
++         if (channel.getView() != null) {
++           packetsHandler.handle();
++         } else
++           log.warn("No members found or channel closed, queue message " + message);
+ 
+-    } catch (IOException e) {
+-      log.error("An error in processing packet : ", e);
+-    } catch (ClassNotFoundException e) {
+-      log.error("An error in processing packet : ", e);
+-    }
+-    return new String("Success !");
++           return new String("Success");
++       } catch (IOException e) {
++           log.error("Message handler error " + e, e);
++           return e.getMessage();
++       } catch (ClassNotFoundException e) {
++           log.error("Message handler error " + e, e);
++           return e.getMessage();
++        }
++     }
++     else
++     {
++        log.warn("Channel is closed but message received " + message);
++        return new String("Disconnected");
++     }
+   }
+ 
+   /**
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/DocumentViewImporter.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/DocumentViewImporter.java	(revision 48581)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/DocumentViewImporter.java	(working copy)
+@@ -18,6 +18,7 @@
+ 
+ import java.io.ByteArrayInputStream;
+ import java.io.IOException;
++import java.io.InputStream;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.Iterator;
+@@ -72,7 +73,8 @@
+  * Created by The eXo Platform SAS.
+  * 
+  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
+- * @version $Id$
++ * @version $Id: DocumentViewImporter.java 35197 2009-08-07 14:53:22Z pnedonosko
++ *          $
+  */
+ public class DocumentViewImporter extends BaseXmlImporter {
+   /**
+@@ -423,14 +425,22 @@
+                                  PropertyData newProperty,
+                                  InternalQName propName) throws RepositoryException {
+     try {
++      InputStream vStream = new ByteArrayInputStream(Base64.decode(propertiesMap.get(propName)));
++      TransientValueData binaryValue = new TransientValueData(vStream);
++      binaryValue.setMaxBufferSize(valueFactory.getMaxBufferSize());
++      binaryValue.setFileCleaner(valueFactory.getFileCleaner());
++      binaryValue.getAsStream().close();
++
+       newProperty = TransientPropertyData.createPropertyData(getParent(),
+                                                              propName,
+                                                              PropertyType.BINARY,
+                                                              false,
+-                                                             new TransientValueData(new ByteArrayInputStream(Base64.decode(propertiesMap.get(propName)))));
++                                                             binaryValue);
+ 
+     } catch (DecodingException e) {
+       throw new RepositoryException(e);
++    } catch (IOException e) {
++      throw new RepositoryException(e);
+     }
+     return newProperty;
+   }
