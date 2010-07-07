@@ -2,49 +2,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
 ===================================================================
 --- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java	(revision 49159)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java	(working copy)
-@@ -49,12 +49,15 @@
- /**
-  * Created by The eXo Platform SAS.<br/>
-  * 
-- * This cache implementation store item data and childs lists of item data. And it implements
-- * OBJECTS cache - i.e. returns same java object that was cached before. Same item data or list of
-- * childs will be returned from getXXX() calls.
-+ * This cache implementation store item data and childs lists of item data. And
-+ * it implements OBJECTS cache - i.e. returns same java object that was cached
-+ * before. Same item data or list of childs will be returned from getXXX()
-+ * calls.
-  * 
-- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
-- * @version $Id$
-+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
-+ *         Nedonosko</a>
-+ * @version $Id: LinkedWorkspaceStorageCacheImpl.java 37326 2009-09-17 07:21:39Z
-+ *          pnedonosko $
-  */
- public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
- 
-@@ -164,7 +167,8 @@
-   private CacheStatistic                                statistic;
- 
-   /**
--   * Tell if we haveto remove whole node subtree (true), or just remove cached childs lists (false). <br/>
-+   * Tell if we haveto remove whole node subtree (true), or just remove cached
-+   * childs lists (false). <br/>
-    * If true - it's more expensive operation.
-    */
-   private final boolean                                 deepDelete;
-@@ -250,8 +254,8 @@
- 
-     /**
-      * Remove in next reelase. Remove eldest item. <br/>
--     * Assuming that lock on write to C was placed in remove() which internaly call
--     * removeEldestEntry(). Synchronized by CP.
-+     * Assuming that lock on write to C was placed in remove() which internaly
-+     * call removeEldestEntry(). Synchronized by CP.
-      * 
-      * @param item
-      */
-@@ -523,6 +527,7 @@
+@@ -523,6 +523,7 @@
     * Cleaner task class.
     */
    class CleanerTask extends WorkerTask {
@@ -52,7 +10,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
      public void run() {
        if (currentWorker == null || currentWorker.done) {
          // start worker and go out
-@@ -538,6 +543,7 @@
+@@ -538,6 +539,7 @@
     * Gathering statistic task.
     */
    class StatisticTask extends WorkerTask {
@@ -60,131 +18,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
      public void run() {
        if (currentWorker == null || currentWorker.done) {
          // start worker and go out
-@@ -585,12 +591,14 @@
- 
-     this.workerTimer = new Timer(this.name + "_CacheWorker", true);
- 
--    scheduleTask(new CleanerTask(), 5, cleanerPeriodMillis); // start after 5 sec
-+    scheduleTask(new CleanerTask(), 5, cleanerPeriodMillis); // start after 5
-+    // sec
- 
-     this.showStatistic = showStatistic;
- 
-     gatherStatistic();
--    scheduleTask(new StatisticTask(), 5, statisticPeriodMillis); // start after 5 sec
-+    scheduleTask(new StatisticTask(), 5, statisticPeriodMillis); // start after
-+    // 5 sec
-   }
- 
-   /**
-@@ -899,7 +907,9 @@
- 
-                 newChilds.add(nodeData); // add
- 
--                nodesCache.put(item.getParentIdentifier(), newChilds); // cache new list
-+                nodesCache.put(item.getParentIdentifier(), newChilds); // cache
-+                // new
-+                // list
-                 if (LOG.isDebugEnabled())
-                   LOG.debug(name + ", put()    add child node  " + nodeData.getIdentifier());
-               }
-@@ -915,7 +925,10 @@
-                 int index = cachedParentChilds.indexOf(item);
-                 if (index >= 0) {
-                   // update already cached in list
--                  cachedParentChilds.set(index, (PropertyData) item); // replace at current position
-+                  cachedParentChilds.set(index, (PropertyData) item); // replace
-+                  // at
-+                  // current
-+                  // position
-                   if (LOG.isDebugEnabled())
-                     LOG.debug(name + ", put()    update child property  " + item.getIdentifier()
-                         + "  at index #" + index);
-@@ -927,7 +940,9 @@
-                     newChilds.add(cachedParentChilds.get(ci));
- 
-                   newChilds.add((PropertyData) item);
--                  propertiesCache.put(item.getParentIdentifier(), newChilds); // cache new list
-+                  propertiesCache.put(item.getParentIdentifier(), newChilds); // cache
-+                  // new
-+                  // list
-                   if (LOG.isDebugEnabled())
-                     LOG.debug(name + ", put()    add child property  " + item.getIdentifier());
-                 }
-@@ -950,7 +965,9 @@
-    * {@inheritDoc}
-    */
-   public void addChildProperties(final NodeData parentData, final List<PropertyData> childItems) {
--    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
-+    if (enabled && parentData != null && childItems != null) { // TODO don't
-+      // check
-+      // parentData !=
-       // null && childItems != null
- 
-       String logInfo = null;
-@@ -973,7 +990,11 @@
- 
-         synchronized (childItems) {
-           operName = "caching child properties list";
--          propertiesCache.put(parentData.getIdentifier(), childItems); // put childs in cache CP
-+          propertiesCache.put(parentData.getIdentifier(), childItems); // put
-+          // childs
-+          // in
-+          // cache
-+          // CP
- 
-           operName = "caching child properties";
-           // put childs in cache C
-@@ -1001,7 +1022,9 @@
-    * {@inheritDoc}
-    */
-   public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
--    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
-+    if (enabled && parentData != null && childItems != null) { // TODO don't
-+      // check
-+      // parentData !=
-       // null && childItems != null
- 
-       String logInfo = null;
-@@ -1024,7 +1047,11 @@
- 
-         synchronized (childItems) {
-           operName = "caching child properties list";
--          propertiesCache.put(parentData.getIdentifier(), childItems); // put childs in cache CP
-+          propertiesCache.put(parentData.getIdentifier(), childItems); // put
-+          // childs
-+          // in
-+          // cache
-+          // CP
-         }
-       } catch (Exception e) {
-         LOG.error(name + ", Error in addChildPropertiesList() " + operName + ": parent "
-@@ -1042,7 +1069,9 @@
-    * {@inheritDoc}
-    */
-   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
--    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
-+    if (enabled && parentData != null && childItems != null) { // TODO don't
-+      // check
-+      // parentData !=
-       // null && childItems != null
- 
-       String logInfo = null;
-@@ -1094,9 +1123,10 @@
-    * Removes data and its children in cache.<br>
-    * Implementation details<br>
-    * Remove Item from cache C, for Node removes lists in CN and CP (only lists).<br>
--   * Remove Item from parent's child lists (CN for Node, CP for Property). NOTE: if CN or CP of the
--   * Item parent are iterrating now ConcurrentModificationException will occurs there. NOTE #2: used
--   * from onSaveItems().
-+   * Remove Item from parent's child lists (CN for Node, CP for Property). NOTE:
-+   * if CN or CP of the Item parent are iterrating now
-+   * ConcurrentModificationException will occurs there. NOTE #2: used from
-+   * onSaveItems().
-    * 
-    * @param item
-    */
-@@ -1149,9 +1179,8 @@
+@@ -1149,9 +1151,8 @@
                  + ", getItem() "
                  + identifier
                  + " --> "
@@ -196,70 +30,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
  
            hits++;
            return c;
-@@ -1183,7 +1212,8 @@
-   }
- 
-   /**
--   * Get item from cache C by item parent and name. Checks is it expired, calcs statistics.
-+   * Get item from cache C by item parent and name. Checks is it expired, calcs
-+   * statistics.
-    * 
-    * @param key
-    *          a InternalQPath path of item cached
-@@ -1298,7 +1328,8 @@
-         }
- 
-         if (cp != null && cp.get(0).getValues().size() > 0) {
--          // don't return list of empty-valued props (but listChildProperties() can)
-+          // don't return list of empty-valued props (but listChildProperties()
-+          // can)
-           hits++;
-           return cp;
-         } else
-@@ -1400,8 +1431,8 @@
-   /**
-    * Unload (delete) given node (outdated) from cache to be cached again.<br/>
-    * For rename/update/remove usecase.<br/>
--   * The work does remove of all descendants of the item parent. I.e. the node and its siblings (for
--   * SNS case).<br/>
-+   * The work does remove of all descendants of the item parent. I.e. the node
-+   * and its siblings (for SNS case).<br/>
-    */
-   @Deprecated
-   private void unloadNode(final NodeData node) {
-@@ -1471,8 +1502,8 @@
-   /**
-    * Remove sibling's subtrees from cache C, CN, CP.<br/>
-    * For update (order-before) usecase.<br/>
--   * The work does remove of all descendants of the item parent. I.e. the node and its siblings (for
--   * SNS case).<br/>
-+   * The work does remove of all descendants of the item parent. I.e. the node
-+   * and its siblings (for SNS case).<br/>
-    */
-   protected void removeSiblings(final NodeData node) {
-     if (node.getIdentifier().equals(Constants.ROOT_UUID))
-@@ -1544,14 +1575,17 @@
-         } else if (state.isDeleted()) {
-           remove(item);
-         } else if (state.isRenamed()) {
--          // MOVE operation (DESTENATION changes, same as ADDED), states for whole subtree!
-+          // MOVE operation (DESTENATION changes, same as ADDED), states for
-+          // whole subtree!
-           // RENAME goes before DELETE
-           put(item);
-         } else if (state.isUpdated()) {
--          // UPDATE occurs on reordered (no subtree!) and merged nodes (for each merged-updated)
-+          // UPDATE occurs on reordered (no subtree!) and merged nodes (for each
-+          // merged-updated)
-           if (item.isNode()) {
-             if (i > 0) {
--              // play only for reorder, UPDATE goes after DELETE of same path item
-+              // play only for reorder, UPDATE goes after DELETE of same path
-+              // item
-               // we have to unload node and its parent child nodes to be loaded
-               // back from the persistence
-               ItemState prevState = itemStates.get(i - 1);
-@@ -1564,33 +1598,38 @@
+@@ -1564,33 +1565,38 @@
              // exo:permissions updated
              // get parent Node
              ItemData parent = get(item.getParentIdentifier());
@@ -268,9 +39,8 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
              // delete parent
              remove(parent);
 -            
-+
-             // delete parent containing child nodes list
-             nodesCache.remove(parent.getParentIdentifier());
+-            // delete parent containing child nodes list
+-            nodesCache.remove(parent.getParentIdentifier());
 -            
 -            // traverse itemCache
 -            Iterator<CacheValue> cacheIterator = cache.values().iterator();
@@ -282,6 +52,9 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
 +
 +            writeLock.lock();
 +            try {
++              // delete parent containing child nodes list
++              nodesCache.remove(parent.getParentIdentifier());
++
 +              // traverse itemCache
 +              Iterator<CacheValue> cacheIterator = cache.values().iterator();
 +              while (cacheIterator.hasNext()) {
@@ -316,70 +89,3 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
              }
            }
            put(item);
-@@ -1615,15 +1654,17 @@
-   }
- 
-   /**
--   * Deep remove of an item in all caches (C, CN, CP). Outside must be sinchronyzed by cache(C). If
--   * forceDeep=true then it must be sinchronyzed by cache(CN,CP) too.
-+   * Deep remove of an item in all caches (C, CN, CP). Outside must be
-+   * sinchronyzed by cache(C). If forceDeep=true then it must be sinchronyzed by
-+   * cache(CN,CP) too.
-    * 
-    * @param item
-    *          - ItemData of item removing
-    * @param forceDeep
--   *          - if true then childs will be removed too, item's parent childs (nodes or properties)
--   *          will be removed also. if false - no actual deep remove will be done, the item only and
--   *          theirs 'phantom by identifier' if exists.
-+   *          - if true then childs will be removed too, item's parent childs
-+   *          (nodes or properties) will be removed also. if false - no actual
-+   *          deep remove will be done, the item only and theirs 'phantom by
-+   *          identifier' if exists.
-    */
-   @Deprecated
-   protected void removeDeep(final ItemData item, final boolean forceDeep) {
-@@ -1646,8 +1687,10 @@
-   }
- 
-   /**
--   * Remove item relations in the cache(C,CN,CP) by Identifier in case of item remove from cache. <br/>
--   * Relations for a node it's a child nodes, properties and item in node's parent childs list. <br/>
-+   * Remove item relations in the cache(C,CN,CP) by Identifier in case of item
-+   * remove from cache. <br/>
-+   * Relations for a node it's a child nodes, properties and item in node's
-+   * parent childs list. <br/>
-    * Relations for a property it's a item in node's parent childs list.
-    */
-   @Deprecated
-@@ -1656,7 +1699,9 @@
-     try {
-       if (item.isNode()) {
-         // removing childs of the node
--        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // XXX deepDelete, was
-+        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // XXX
-+          // deepDelete,
-+          // was
-           // true TODO use true!
-           if (LOG.isDebugEnabled())
-             LOG.debug(name + ", removeRelations() removeChildNodes() " + item.getIdentifier());
-@@ -1738,7 +1783,8 @@
-    *          - parent id
-    * @param childIdentifier
-    *          - property id
--   * @return removed property or null if property not cached or parent properties are not cached
-+   * @return removed property or null if property not cached or parent
-+   *         properties are not cached
-    * @throws Exception
-    */
-   protected PropertyData removeChildProperty(final String parentIdentifier,
-@@ -1767,7 +1813,8 @@
-    *          - parebt if
-    * @param childIdentifier
-    *          - node id
--   * @return removed node or null if node not cached or parent child nodes are not cached
-+   * @return removed node or null if node not cached or parent child nodes are
-+   *         not cached
-    * @throws Exception
-    */
-   protected NodeData removeChildNode(final String parentIdentifier, final String childIdentifier) {
