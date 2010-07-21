@@ -523,6 +523,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * Cleaner task class.
    */
   class CleanerTask extends WorkerTask {
+    @Override
     public void run() {
       if (currentWorker == null || currentWorker.done) {
         // start worker and go out
@@ -538,6 +539,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * Gathering statistic task.
    */
   class StatisticTask extends WorkerTask {
+    @Override
     public void run() {
       if (currentWorker == null || currentWorker.done) {
         // start worker and go out
@@ -1149,9 +1151,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
                 + ", getItem() "
                 + identifier
                 + " --> "
-                + (c != null
-                    ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier()
-                    : "[null]"));
+                + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier()
+                            : "[null]"));
 
           hits++;
           return c;
@@ -1564,33 +1565,38 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             // exo:permissions updated
             // get parent Node
             ItemData parent = get(item.getParentIdentifier());
-            
+
             // delete parent
             remove(parent);
-            
-            // delete parent containing child nodes list
-            nodesCache.remove(parent.getParentIdentifier());
-            
-            // traverse itemCache
-            Iterator<CacheValue> cacheIterator = cache.values().iterator();
-            while (cacheIterator.hasNext()) {
-              ItemData cachedItem = cacheIterator.next().getItem();
-              if (cachedItem.isNode()) {
-                if (cachedItem.getQPath().isDescendantOf(parent.getQPath())) {
-                  cacheIterator.remove();
-                }
-              }
-            }
 
-            // traverse child node Cache
-            Iterator<List<NodeData>> childNodesIterator = nodesCache.values().iterator();
-            while (childNodesIterator.hasNext()) {
-              List<NodeData> list = childNodesIterator.next();
-              if (list != null && list.size() > 0) {
-                if (list.get(0).getQPath().isDescendantOf(parent.getQPath())) {
-                  childNodesIterator.remove();
+            writeLock.lock();
+            try {
+              // delete parent containing child nodes list
+              nodesCache.remove(parent.getParentIdentifier());
+
+              // traverse itemCache
+              Iterator<CacheValue> cacheIterator = cache.values().iterator();
+              while (cacheIterator.hasNext()) {
+                ItemData cachedItem = cacheIterator.next().getItem();
+                if (cachedItem.isNode()) {
+                  if (cachedItem.getQPath().isDescendantOf(parent.getQPath())) {
+                    cacheIterator.remove();
+                  }
                 }
               }
+
+              // traverse child node Cache
+              Iterator<List<NodeData>> childNodesIterator = nodesCache.values().iterator();
+              while (childNodesIterator.hasNext()) {
+                List<NodeData> list = childNodesIterator.next();
+                if (list != null && list.size() > 0) {
+                  if (list.get(0).getQPath().isDescendantOf(parent.getQPath())) {
+                    childNodesIterator.remove();
+                  }
+                }
+              }
+            } finally {
+              writeLock.unlock();
             }
           }
           put(item);
