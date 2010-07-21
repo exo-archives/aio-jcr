@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.webdav;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.jcr.NoSuchWorkspaceException;
@@ -29,6 +30,7 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.common.util.MediaType;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
@@ -105,6 +107,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
    * Initialization initialization "update-policy"-parameter value.
    */
   public static final String                      INIT_PARAM_UPDATE_POLICY        = "update-policy";
+  
+  public static final String INIT_PARAM_CACHE_CONTROL = "cache-control";
+
+  private HashMap<MediaType, String> cacheControlMap = new HashMap<MediaType, String>();
 
   /**
    * Logger.
@@ -168,7 +174,27 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       updatePolicyType = pUpdatePolicy.getValue();
       log.info(INIT_PARAM_UPDATE_POLICY + " = " + updatePolicyType);
     }
+    
+    ValueParam pCacheControl = params.getValueParam(INIT_PARAM_CACHE_CONTROL);
+    if (pCacheControl != null) {
+      
+       String cacheControlConfigValue = pCacheControl.getValue();
 
+       try {
+          String[] elements = cacheControlConfigValue.split(";");
+          for (String element : elements) {
+             String cacheValue = element.split(":")[1];
+             String keys = element.split(":")[0];
+             for (String key : keys.split(",")) {
+                MediaType mediaType = new MediaType(key.split("/")[0], key.split("/")[1]);
+                cacheControlMap.put(mediaType, cacheValue);
+             }
+          }
+       }
+       catch (Exception e)       {
+          log.warn("Invalid " + INIT_PARAM_CACHE_CONTROL + " parameter");
+       }
+    }
   }
 
   @HTTPMethod(WebDavMethods.CHECKIN)
@@ -334,6 +360,22 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
+  /**
+   * @deprecated For back capability with previous 1.10.x verions only.
+   * Use {@link #get(String, String, String, String, String, String)} instead. 
+   * @see org.exoplatform.services.jcr.webdav.WebDavService#get(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Deprecated 
+  @InputTransformer(PassthroughInputTransformer.class)
+  @OutputTransformer(PassthroughOutputTransformer.class)
+  public Response get(@URIParam("repoName") String repoName,
+                      @URIParam("repoPath") String repoPath,
+                      @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
+                      @QueryParam("version") String version,
+                      @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
+     return get(repoName, repoPath, rangeHeader, null, version, baseURI);
+  }
+  
   @HTTPMethod(WebDavMethods.GET)
   @URITemplate("/{repoName}/{repoPath}/")
   @InputTransformer(PassthroughInputTransformer.class)
@@ -341,6 +383,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   public Response get(@URIParam("repoName") String repoName,
                       @URIParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
+                      @HeaderParam(WebDavHeaders.IF_MODIFIED_SINCE) String ifModifiedSince,
                       @QueryParam("version") String version,
                       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
 
@@ -385,7 +428,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         }
       }
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
-      return new GetCommand().get(session, path(repoPath), version, uri, ranges);
+      return new GetCommand().get(session, path(repoPath), version, ifModifiedSince, uri, ranges, cacheControlMap);
 
     } catch (PathNotFoundException e) {
       return Response.Builder.notFound().errorMessage(e.getMessage()).build();

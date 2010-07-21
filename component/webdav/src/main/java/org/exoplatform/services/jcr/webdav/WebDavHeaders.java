@@ -102,6 +102,12 @@ public class WebDavHeaders {
    * HTTP/1.1 section 14 "Header Field Definitions"</a> for more information.
    */
   public static final String RANGE                = "Range";
+  
+  /**
+   * HTTP 1.1 "If-Modified-Since" header. See <a href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'>
+   * HTTP/1.1 section 14 "Header Field Definitions"</a> for more information.
+   */
+  public static final String IF_MODIFIED_SINCE     = "If-Modified-Since";
 
   /**
    * WebDav "Destination" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers
