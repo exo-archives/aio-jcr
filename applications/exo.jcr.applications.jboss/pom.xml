@@ -14,21 +14,21 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, see <http://www.gnu.org/licenses/>.
+    along with this program; if not, see <http://www.gnu.org/licenses />.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>exo.jcr.applications.config</artifactId>
-    <version>1.10.9-SNAPSHOT</version>
+    <version>1.10.9</version>
     <relativePath>./config/pom.xml</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.jboss</artifactId>
   <packaging>pom</packaging>
-  <version>1.10.9-SNAPSHOT</version>
+  <version>1.10.9</version>
   <name>eXo JCR JBoss Applications Server</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR JBoss Applications Server</description>
@@ -83,7 +83,7 @@
                     <mapper>
                       <firstmatchmapper>
                         <!-- If a timestamped SNAPSHOT is used -->
-                        <regexpmapper from="(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).jar" to="\1-${project.version}.jar" casesensitive="no"/>                
+                        <regexpmapper from="(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).jar" to="\1-${project.version}.jar" casesensitive="no" />                
                         <!-- By default keep the name -->
                         <flattenmapper />
                       </firstmatchmapper>
@@ -99,7 +99,7 @@
                   <copy todir="${exo.projects.directory.working}/exo-jboss/" verbose="true" overwrite="true">
                     <fileset dir="${basedir}/../product-patches/as/jboss/" includes="*.xml" />
                   </copy>
-                  <chmod dir="${exo.projects.directory.working}/exo-jboss/bin" perm="+x"   includes="*.sh"/>
+                  <chmod dir="${exo.projects.directory.working}/exo-jboss/bin" perm="+x" includes="*.sh" />
                   <move todir="${basedir}/target/lib-binary.dir/">
                     <fileset dir="${basedir}/target/lib-binary.dir/">
                       <include name="**/*.war" />
@@ -107,7 +107,7 @@
                     <mapper>
                       <firstmatchmapper>
                         <!-- If a timestamped SNAPSHOT is used -->
-                        <regexpmapper from="exo.jcr.applications.(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).war" to="\1.war" casesensitive="no"/>                
+                        <regexpmapper from="exo.jcr.applications.(.*)-([0-9]+(.[0-9]+)*)-([0-9]{8}.[0-9]{6})-([0-9]+).war" to="\1.war" casesensitive="no" />                
                         <!-- Otherwise -->
                         <globmapper from="exo.jcr.applications.*-${project.version}.war" to="*.war" casesensitive="no" />
                         <!-- By default keep the name -->
