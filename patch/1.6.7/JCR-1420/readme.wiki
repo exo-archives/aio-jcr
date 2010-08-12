@@ -1,0 +1,108 @@
+h1. Summary
+{panel}
+* *Status:* {excerpt}Cannot delete nodes that contain accented character using FTP{excerpt}
+* *CCP Issue:*[CCP-538@JIRA], Product Jira Issue: [JCR-1420@JIRA]
+* *Complexity:* N/A
+{panel}
+
+h1. The Proposal
+
+h2. Problem description
+{panel}
+*What is the problem to fix?*
+* Add possibility to delete nodes that contain accented characters using FTP
+{panel}
+
+h2. Fix description
+{panel}
+*How is the problem fixed?*
+* In FTP service configuration file, use UTF-8 encoding as client-side-encoding value instead of windows-1251.
+{warning}
+To transfer files with special characters in their name, it is compulsory to use FTP clients that support UTF-8 (such as FileZilla). Otherwise this fix won't work.
+{warning}
+{panel}
+
+*Patch information:*
+{panel}
+
+Patch files:
+JCR-1420.patch
+{panel}
+
+h2. Tests to perform
+
+{panel}
+*Tests performed at DevLevel*
+* Manual tests: read/write operation with files that contain accented characters via FTP. Files were previously uploaded via WebDav.
+
+*Tests performed at QA/Support Level*
+\*
+
+{panel}
+
+h2. Documentation changes
+
+{panel}
+*Documentation changes:*
+\* -
+
+{panel}
+
+h2. Configuration changes
+
+{panel}
+*Configuration changes:*
+* In FTP service configuration file, UTF-8 encoding is used as client-side-encoding value instead of windows-1251.
+Before:
+{code}
+<value-param>
+<name>client-side-encoding</name>
+<value>windows-1251</value>
+</value-param>
+{code}
+After:
+{code}
+<value-param>
+<name>client-side-encoding</name>
+<value>utf-8</value>
+</value-param>
+{code}
+
+
+*Will previous configuration continue to work?*
+* yes.
+
+{panel}
+
+h2. Risks and impacts
+
+{panel}
+*Can this bug fix have an impact on current client projects?*
+Most FTP clients use UTF-8 as default (like FileZilla) and all of them support it. So this fix shouldn't affect any client projects.
+
+* Function or ClassName change?
+\-
+
+*Is there a performance risk/cost?*
+\-
+
+{panel}
+
+
+h1. Validation (PM/Support/QA)
+
+{panel}
+*PM Comment*
+\*PM VALIDATED
+{panel}
+
+{panel}
+*Support Comment*
+\*Patch validated
+
+{panel}
+
+{panel}
+*QA Feedbacks*
+\*
+{panel} 
