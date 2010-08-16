@@ -1,0 +1,313 @@
+Index: component/core/src/test/java/org/exoplatform/services/jcr/impl/access/TestRemoveNodeTypeNode.java
+===================================================================
+--- component/core/src/test/java/org/exoplatform/services/jcr/impl/access/TestRemoveNodeTypeNode.java	(revision 0)
++++ component/core/src/test/java/org/exoplatform/services/jcr/impl/access/TestRemoveNodeTypeNode.java	(revision 0)
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (C) 2010 eXo Platform SAS.
++ *
++ * This is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License as
++ * published by the Free Software Foundation; either version 2.1 of
++ * the License, or (at your option) any later version.
++ *
++ * This software is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this software; if not, write to the Free
++ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
++ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
++ */
++package org.exoplatform.services.jcr.impl.access;
++
++import org.exoplatform.services.jcr.BaseStandaloneTest;
++import org.exoplatform.services.jcr.core.CredentialsImpl;
++
++import javax.jcr.AccessDeniedException;
++import javax.jcr.Credentials;
++import javax.jcr.Node;
++import javax.jcr.Repository;
++import javax.jcr.Session;
++
++/**
++ * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
++ * @version $Id: TestRemoveSysteNode.java 111 2010-11-11 11:11:11Z tolusha $
++ * 
++ */
++public class TestRemoveNodeTypeNode extends BaseStandaloneTest {
++
++  /**
++   * {@inheritDoc}
++   */
++  @Override
++  protected String getRepositoryName() {
++    return null;
++  }
++
++  public void testRemove() throws Exception {
++    Repository repository = repositoryService.getRepository("db1tck");
++    Credentials credentials = new CredentialsImpl("demo", "exo".toCharArray());
++    Session session = repository.login(credentials, "ws");
++
++    Node node = session.getRootNode()
++                       .getNode("jcr:system")
++                       .getNode("jcr:nodetypes")
++                       .getNode("nt:base");
++    try {
++      node.remove();
++      session.save();
++
++      fail("Exception should be thrown.");
++    } catch (AccessDeniedException e) {
++    }
++  }
++}
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NamespaceDataPersister.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NamespaceDataPersister.java	(revision 49743)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NamespaceDataPersister.java	(working copy)
+@@ -16,19 +16,7 @@
+  */
+ package org.exoplatform.services.jcr.impl.core;
+ 
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Map;
+-
+-import javax.jcr.InvalidItemStateException;
+-import javax.jcr.PathNotFoundException;
+-import javax.jcr.PropertyType;
+-import javax.jcr.RepositoryException;
+-
+ import org.apache.commons.logging.Log;
+-
+ import org.exoplatform.services.jcr.access.AccessControlEntry;
+ import org.exoplatform.services.jcr.access.AccessControlList;
+ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
+@@ -40,6 +28,7 @@
+ import org.exoplatform.services.jcr.datamodel.IllegalNameException;
+ import org.exoplatform.services.jcr.datamodel.InternalQName;
+ import org.exoplatform.services.jcr.datamodel.NodeData;
++import org.exoplatform.services.jcr.datamodel.QPath;
+ import org.exoplatform.services.jcr.datamodel.QPathEntry;
+ import org.exoplatform.services.jcr.datamodel.ValueData;
+ import org.exoplatform.services.jcr.impl.Constants;
+@@ -47,8 +36,20 @@
+ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+ import org.exoplatform.services.jcr.impl.util.NodeDataReader;
++import org.exoplatform.services.jcr.util.IdGenerator;
+ import org.exoplatform.services.log.ExoLogger;
+ 
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Map;
++
++import javax.jcr.InvalidItemStateException;
++import javax.jcr.PathNotFoundException;
++import javax.jcr.PropertyType;
++import javax.jcr.RepositoryException;
++
+ /**
+  * Created by The eXo Platform SAS.
+  * 
+@@ -89,9 +90,15 @@
+    */
+   public void initStorage(NodeData nsSystem, boolean addACL, Map<String, String> namespaces) throws RepositoryException {
+ 
+-    TransientNodeData exoNamespaces = TransientNodeData.createNodeData(nsSystem,
+-                                                                       Constants.EXO_NAMESPACES,
+-                                                                       Constants.NT_UNSTRUCTURED);
++    TransientNodeData exoNamespaces = new TransientNodeData(QPath.makeChildPath(nsSystem.getQPath(),
++                                                                                Constants.EXO_NAMESPACES),
++                                                            IdGenerator.generate(),
++                                                            -1,
++                                                            Constants.NT_UNSTRUCTURED,
++                                                            new InternalQName[0],
++                                                            0,
++                                                            nsSystem.getIdentifier(),
++                                                            nsSystem.getACL());
+ 
+     TransientPropertyData primaryType = TransientPropertyData.createPropertyData(exoNamespaces,
+                                                                                  Constants.JCR_PRIMARYTYPE,
+@@ -103,7 +110,7 @@
+               .add(ItemState.createAddedState(primaryType));
+ 
+     if (addACL) {
+-      AccessControlList acl = new AccessControlList();
++      AccessControlList acl = exoNamespaces.getACL();
+ 
+       InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE,
+           Constants.EXO_PRIVILEGEABLE };
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeDataPersister.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeDataPersister.java	(revision 49743)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeDataPersister.java	(working copy)
+@@ -16,24 +16,7 @@
+  */
+ package org.exoplatform.services.jcr.impl.core.nodetype;
+ 
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-import javax.jcr.InvalidItemStateException;
+-import javax.jcr.ItemExistsException;
+-import javax.jcr.PathNotFoundException;
+-import javax.jcr.PropertyType;
+-import javax.jcr.RepositoryException;
+-import javax.jcr.Value;
+-import javax.jcr.ValueFormatException;
+-import javax.jcr.nodetype.ConstraintViolationException;
+-import javax.jcr.nodetype.NodeDefinition;
+-import javax.jcr.nodetype.NodeType;
+-import javax.jcr.nodetype.PropertyDefinition;
+-import javax.jcr.version.OnParentVersionAction;
+-
+ import org.apache.commons.logging.Log;
+-
+ import org.exoplatform.services.jcr.access.AccessControlEntry;
+ import org.exoplatform.services.jcr.access.AccessControlList;
+ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
+@@ -45,6 +28,7 @@
+ import org.exoplatform.services.jcr.datamodel.IllegalNameException;
+ import org.exoplatform.services.jcr.datamodel.InternalQName;
+ import org.exoplatform.services.jcr.datamodel.NodeData;
++import org.exoplatform.services.jcr.datamodel.QPath;
+ import org.exoplatform.services.jcr.datamodel.QPathEntry;
+ import org.exoplatform.services.jcr.datamodel.ValueData;
+ import org.exoplatform.services.jcr.impl.Constants;
+@@ -57,6 +41,22 @@
+ import org.exoplatform.services.jcr.impl.util.NodeDataReader;
+ import org.exoplatform.services.log.ExoLogger;
+ 
++import java.util.ArrayList;
++import java.util.List;
++
++import javax.jcr.InvalidItemStateException;
++import javax.jcr.ItemExistsException;
++import javax.jcr.PathNotFoundException;
++import javax.jcr.PropertyType;
++import javax.jcr.RepositoryException;
++import javax.jcr.Value;
++import javax.jcr.ValueFormatException;
++import javax.jcr.nodetype.ConstraintViolationException;
++import javax.jcr.nodetype.NodeDefinition;
++import javax.jcr.nodetype.NodeType;
++import javax.jcr.nodetype.PropertyDefinition;
++import javax.jcr.version.OnParentVersionAction;
++
+ /**
+  * Created by The eXo Platform SAS.
+  * 
+@@ -121,10 +121,15 @@
+     if (ntRoot == null) {
+       long start = System.currentTimeMillis();
+ 
+-      TransientNodeData jcrNodetypes = TransientNodeData.createNodeData(nsSystem,
+-                                                                        Constants.JCR_NODETYPES,
+-                                                                        Constants.NT_UNSTRUCTURED,
+-                                                                        Constants.NODETYPESROOT_UUID);
++      TransientNodeData jcrNodetypes = new TransientNodeData(QPath.makeChildPath(nsSystem.getQPath(),
++                                                                                 Constants.JCR_NODETYPES),
++                                                             Constants.NODETYPESROOT_UUID,
++                                                             -1,
++                                                             Constants.NT_UNSTRUCTURED,
++                                                             new InternalQName[0],
++                                                             0,
++                                                             nsSystem.getIdentifier(),
++                                                             nsSystem.getACL());
+ 
+       TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrNodetypes,
+                                                                                    Constants.JCR_PRIMARYTYPE,
+@@ -136,7 +141,7 @@
+                 .add(ItemState.createAddedState(primaryType));
+ 
+       if (addACL) {
+-        AccessControlList acl = new AccessControlList();
++        AccessControlList acl = jcrNodetypes.getACL();
+         InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE,
+             Constants.EXO_PRIVILEGEABLE };
+         jcrNodetypes.setMixinTypeNames(mixins);
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ScratchWorkspaceInitializer.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ScratchWorkspaceInitializer.java	(revision 49743)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ScratchWorkspaceInitializer.java	(working copy)
+@@ -16,15 +16,7 @@
+  */
+ package org.exoplatform.services.jcr.impl.core;
+ 
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-import javax.jcr.PathNotFoundException;
+-import javax.jcr.PropertyType;
+-import javax.jcr.RepositoryException;
+-
+ import org.apache.commons.logging.Log;
+-
+ import org.exoplatform.services.jcr.access.AccessControlEntry;
+ import org.exoplatform.services.jcr.access.AccessControlList;
+ import org.exoplatform.services.jcr.access.AccessControlPolicy;
+@@ -53,6 +45,13 @@
+ import org.exoplatform.services.jcr.util.IdGenerator;
+ import org.exoplatform.services.log.ExoLogger;
+ 
++import java.util.ArrayList;
++import java.util.List;
++
++import javax.jcr.PathNotFoundException;
++import javax.jcr.PropertyType;
++import javax.jcr.RepositoryException;
++
+ /**
+  * Created by The eXo Platform SAS. <br/>
+  * 
+@@ -139,9 +138,9 @@
+     // default behaviour root-nodetype=nt:unstructured, root-permissions will be managed by
+     // AccessControlList class
+     this.rootPermissions = rootPermissions;
+-    this.rootNodeType = rootNodeType != null
+-        ? locationFactory.parseJCRName(rootNodeType).getInternalName()
+-        : Constants.NT_UNSTRUCTURED;
++    this.rootNodeType = rootNodeType != null ? locationFactory.parseJCRName(rootNodeType)
++                                                              .getInternalName()
++                                            : Constants.NT_UNSTRUCTURED;
+ 
+     this.dataManager = dataManager;
+     this.nsPersister = nsPersister;
+@@ -292,10 +291,15 @@
+ 
+     PlainChangesLog changesLog = new PlainChangesLogImpl();
+ 
+-    TransientNodeData jcrSystem = TransientNodeData.createNodeData(root,
+-                                                                   Constants.JCR_SYSTEM,
+-                                                                   Constants.NT_UNSTRUCTURED,
+-                                                                   Constants.SYSTEM_UUID);
++    TransientNodeData jcrSystem = new TransientNodeData(QPath.makeChildPath(root.getQPath(),
++                                                                            Constants.JCR_SYSTEM),
++                                                        Constants.SYSTEM_UUID,
++                                                        -1,
++                                                        Constants.NT_UNSTRUCTURED,
++                                                        new InternalQName[0],
++                                                        0,
++                                                        root.getIdentifier(),
++                                                        root.getACL());
+ 
+     TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrSystem,
+                                                                                  Constants.JCR_PRIMARYTYPE,
+@@ -309,7 +313,7 @@
+     boolean addACL = !accessControlType.equals(AccessControlPolicy.DISABLE);
+ 
+     if (addACL) {
+-      AccessControlList acl = new AccessControlList();
++      AccessControlList acl = jcrSystem.getACL();
+ 
+       InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE,
+           Constants.EXO_PRIVILEGEABLE };
