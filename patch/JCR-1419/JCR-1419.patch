@@ -67,7 +67,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/impl/access/Tes
 +}
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NamespaceDataPersister.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NamespaceDataPersister.java	(revision 49743)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NamespaceDataPersister.java	(revision 50800)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NamespaceDataPersister.java	(working copy)
 @@ -16,19 +16,7 @@
   */
@@ -89,19 +89,8 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Names
  import org.exoplatform.services.jcr.access.AccessControlEntry;
  import org.exoplatform.services.jcr.access.AccessControlList;
  import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-@@ -40,6 +28,7 @@
- import org.exoplatform.services.jcr.datamodel.IllegalNameException;
- import org.exoplatform.services.jcr.datamodel.InternalQName;
- import org.exoplatform.services.jcr.datamodel.NodeData;
-+import org.exoplatform.services.jcr.datamodel.QPath;
- import org.exoplatform.services.jcr.datamodel.QPathEntry;
- import org.exoplatform.services.jcr.datamodel.ValueData;
- import org.exoplatform.services.jcr.impl.Constants;
-@@ -47,8 +36,20 @@
- import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
- import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+@@ -49,6 +37,17 @@
  import org.exoplatform.services.jcr.impl.util.NodeDataReader;
-+import org.exoplatform.services.jcr.util.IdGenerator;
  import org.exoplatform.services.log.ExoLogger;
  
 +import java.util.ArrayList;
@@ -118,26 +107,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Names
  /**
   * Created by The eXo Platform SAS.
   * 
-@@ -89,9 +90,15 @@
-    */
-   public void initStorage(NodeData nsSystem, boolean addACL, Map<String, String> namespaces) throws RepositoryException {
- 
--    TransientNodeData exoNamespaces = TransientNodeData.createNodeData(nsSystem,
--                                                                       Constants.EXO_NAMESPACES,
--                                                                       Constants.NT_UNSTRUCTURED);
-+    TransientNodeData exoNamespaces = new TransientNodeData(QPath.makeChildPath(nsSystem.getQPath(),
-+                                                                                Constants.EXO_NAMESPACES),
-+                                                            IdGenerator.generate(),
-+                                                            -1,
-+                                                            Constants.NT_UNSTRUCTURED,
-+                                                            new InternalQName[0],
-+                                                            0,
-+                                                            nsSystem.getIdentifier(),
-+                                                            nsSystem.getACL());
- 
-     TransientPropertyData primaryType = TransientPropertyData.createPropertyData(exoNamespaces,
-                                                                                  Constants.JCR_PRIMARYTYPE,
-@@ -103,7 +110,7 @@
+@@ -103,7 +102,7 @@
                .add(ItemState.createAddedState(primaryType));
  
      if (addACL) {
@@ -148,7 +118,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Names
            Constants.EXO_PRIVILEGEABLE };
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeDataPersister.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeDataPersister.java	(revision 49743)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeDataPersister.java	(revision 50800)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeDataPersister.java	(working copy)
 @@ -16,24 +16,7 @@
   */
@@ -175,15 +145,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
  import org.exoplatform.services.jcr.access.AccessControlEntry;
  import org.exoplatform.services.jcr.access.AccessControlList;
  import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-@@ -45,6 +28,7 @@
- import org.exoplatform.services.jcr.datamodel.IllegalNameException;
- import org.exoplatform.services.jcr.datamodel.InternalQName;
- import org.exoplatform.services.jcr.datamodel.NodeData;
-+import org.exoplatform.services.jcr.datamodel.QPath;
- import org.exoplatform.services.jcr.datamodel.QPathEntry;
- import org.exoplatform.services.jcr.datamodel.ValueData;
- import org.exoplatform.services.jcr.impl.Constants;
-@@ -57,6 +41,22 @@
+@@ -57,6 +40,22 @@
  import org.exoplatform.services.jcr.impl.util.NodeDataReader;
  import org.exoplatform.services.log.ExoLogger;
  
@@ -206,27 +168,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
  /**
   * Created by The eXo Platform SAS.
   * 
-@@ -121,10 +121,15 @@
-     if (ntRoot == null) {
-       long start = System.currentTimeMillis();
- 
--      TransientNodeData jcrNodetypes = TransientNodeData.createNodeData(nsSystem,
--                                                                        Constants.JCR_NODETYPES,
--                                                                        Constants.NT_UNSTRUCTURED,
--                                                                        Constants.NODETYPESROOT_UUID);
-+      TransientNodeData jcrNodetypes = new TransientNodeData(QPath.makeChildPath(nsSystem.getQPath(),
-+                                                                                 Constants.JCR_NODETYPES),
-+                                                             Constants.NODETYPESROOT_UUID,
-+                                                             -1,
-+                                                             Constants.NT_UNSTRUCTURED,
-+                                                             new InternalQName[0],
-+                                                             0,
-+                                                             nsSystem.getIdentifier(),
-+                                                             nsSystem.getACL());
- 
-       TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrNodetypes,
-                                                                                    Constants.JCR_PRIMARYTYPE,
-@@ -136,7 +141,7 @@
+@@ -136,7 +135,7 @@
                  .add(ItemState.createAddedState(primaryType));
  
        if (addACL) {
@@ -237,7 +179,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
          jcrNodetypes.setMixinTypeNames(mixins);
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ScratchWorkspaceInitializer.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ScratchWorkspaceInitializer.java	(revision 49743)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ScratchWorkspaceInitializer.java	(revision 50800)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ScratchWorkspaceInitializer.java	(working copy)
 @@ -16,15 +16,7 @@
   */
@@ -282,27 +224,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Scrat
  
      this.dataManager = dataManager;
      this.nsPersister = nsPersister;
-@@ -292,10 +291,15 @@
- 
-     PlainChangesLog changesLog = new PlainChangesLogImpl();
- 
--    TransientNodeData jcrSystem = TransientNodeData.createNodeData(root,
--                                                                   Constants.JCR_SYSTEM,
--                                                                   Constants.NT_UNSTRUCTURED,
--                                                                   Constants.SYSTEM_UUID);
-+    TransientNodeData jcrSystem = new TransientNodeData(QPath.makeChildPath(root.getQPath(),
-+                                                                            Constants.JCR_SYSTEM),
-+                                                        Constants.SYSTEM_UUID,
-+                                                        -1,
-+                                                        Constants.NT_UNSTRUCTURED,
-+                                                        new InternalQName[0],
-+                                                        0,
-+                                                        root.getIdentifier(),
-+                                                        root.getACL());
- 
-     TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrSystem,
-                                                                                  Constants.JCR_PRIMARYTYPE,
-@@ -309,7 +313,7 @@
+@@ -309,7 +308,7 @@
      boolean addACL = !accessControlType.equals(AccessControlPolicy.DISABLE);
  
      if (addACL) {
