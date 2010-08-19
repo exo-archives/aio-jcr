@@ -17,17 +17,13 @@
 
 package org.exoplatform.services.jcr.rmi.api.value;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.StringTokenizer;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
-
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
+
+import java.io.Serializable;
+import java.util.StringTokenizer;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -36,8 +32,6 @@ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 public class PermissionValue extends BaseNonStreamValue implements Serializable, StatefulValue {
 
   private static final long serialVersionUID = 1475495561074957852L;
-  
-  private static final String IDENTITY_DELIMITER = " ";
 
   private String            identity;
 
@@ -61,7 +55,7 @@ public class PermissionValue extends BaseNonStreamValue implements Serializable,
   }
 
   static public String[] parse(String pstring) {
-    StringTokenizer parser = new StringTokenizer(pstring, IDENTITY_DELIMITER);
+    StringTokenizer parser = new StringTokenizer(pstring, AccessControlList.DELIMITER);
     String identityString = parser.nextToken();
     String permissionString = parser.nextToken();
 
@@ -95,7 +89,7 @@ public class PermissionValue extends BaseNonStreamValue implements Serializable,
 
   static protected String asString(String identity, String permission) {
     if (identity != null || permission != null) // SystemIdentity.ANY, PermissionType.ALL
-      return (identity != null ? identity : SystemIdentity.ANY) + IDENTITY_DELIMITER
+      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlList.DELIMITER
           + (permission != null ? permission : PermissionType.READ);
     else
       return "";
