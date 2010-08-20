@@ -1,8 +1,91 @@
+Index: component/rmi/src/test/java/org/exoplatform/services/jcr/rmi/RMITestHelper.java
+===================================================================
+--- component/rmi/src/test/java/org/exoplatform/services/jcr/rmi/RMITestHelper.java	(revision 51032)
++++ component/rmi/src/test/java/org/exoplatform/services/jcr/rmi/RMITestHelper.java	(working copy)
+@@ -15,6 +15,23 @@
+  * limitations under the License.
+  */
+ 
++package org.exoplatform.services.jcr.rmi;
++
++import java.net.MalformedURLException;
++import java.rmi.NotBoundException;
++import java.rmi.RemoteException;
++
++import javax.jcr.Credentials;
++import javax.jcr.LoginException;
++import javax.jcr.NoSuchWorkspaceException;
++import javax.jcr.Node;
++import javax.jcr.Repository;
++import javax.jcr.RepositoryException;
++import javax.jcr.Session;
++import javax.jcr.SimpleCredentials;
++
++import org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory;
++
+ public class RMITestHelper {
+   public static final String STUB_IMPL_PROPS = "repositoryStubImpl.properties";
+ 
+Index: component/rmi/src/test/java/org/exoplatform/services/jcr/rmi/api/value/TestPermissionValue.java
+===================================================================
+--- component/rmi/src/test/java/org/exoplatform/services/jcr/rmi/api/value/TestPermissionValue.java	(revision 0)
++++ component/rmi/src/test/java/org/exoplatform/services/jcr/rmi/api/value/TestPermissionValue.java	(revision 0)
+@@ -0,0 +1,44 @@
++/*
++ * Copyright (C) 2003-2010 eXo Platform SAS.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see<http://www.gnu.org/licenses/>.
++ */
++package org.exoplatform.services.jcr.rmi.api.value;
++
++import junit.framework.TestCase;
++
++/**
++ * Created by The eXo Platform SAS
++ * Author : eXoPlatform
++ *          exo@exoplatform.com
++ * Aug 20, 2010  
++ */
++public class TestPermissionValue extends TestCase {
++
++  public void testParse() {
++    
++    String[] parsedValues = PermissionValue.parse("root read");
++    assertEquals(2, parsedValues.length);
++    assertEquals("root", parsedValues[0]);
++    assertEquals("read", parsedValues[1]);
++    
++  }
++
++  public void testAsString() {
++    
++    assertEquals("root read", PermissionValue.asString("root", "read"));
++    
++  }
++
++}
+
+Property changes on: component/rmi/src/test/java/org/exoplatform/services/jcr/rmi/api/value/TestPermissionValue.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
 Index: component/rmi/src/main/java/org/exoplatform/services/jcr/rmi/api/value/PermissionValue.java
 ===================================================================
---- component/rmi/src/main/java/org/exoplatform/services/jcr/rmi/api/value/PermissionValue.java	(revision 50885)
+--- component/rmi/src/main/java/org/exoplatform/services/jcr/rmi/api/value/PermissionValue.java	(revision 51032)
 +++ component/rmi/src/main/java/org/exoplatform/services/jcr/rmi/api/value/PermissionValue.java	(working copy)
-@@ -36,6 +36,8 @@
+@@ -32,6 +32,8 @@
  public class PermissionValue extends BaseNonStreamValue implements Serializable, StatefulValue {
  
    private static final long serialVersionUID = 1475495561074957852L;
@@ -11,7 +94,7 @@ Index: component/rmi/src/main/java/org/exoplatform/services/jcr/rmi/api/value/Pe
  
    private String            identity;
  
-@@ -59,7 +61,7 @@
+@@ -55,7 +57,7 @@
    }
  
    static public String[] parse(String pstring) {
@@ -20,7 +103,7 @@ Index: component/rmi/src/main/java/org/exoplatform/services/jcr/rmi/api/value/Pe
      String identityString = parser.nextToken();
      String permissionString = parser.nextToken();
  
-@@ -93,7 +95,7 @@
+@@ -89,7 +91,7 @@
  
    static protected String asString(String identity, String permission) {
      if (identity != null || permission != null) // SystemIdentity.ANY, PermissionType.ALL
@@ -29,3 +112,55 @@ Index: component/rmi/src/main/java/org/exoplatform/services/jcr/rmi/api/value/Pe
            + (permission != null ? permission : PermissionType.READ);
      else
        return "";
+Index: component/rmi/pom.xml
+===================================================================
+--- component/rmi/pom.xml	(revision 51032)
++++ component/rmi/pom.xml	(working copy)
+@@ -99,43 +99,13 @@
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-surefire-plugin</artifactId>
+-        <!--<version>2.0</version>-->
+-        <!--Please use the newest version of maven-surefire-plugin, see jcr/component/core/pom.xml-->
+         <configuration>
+-          <includes />
+-          <!-- include>**/core/TestInitRepository.java</include -->
+-          <!--
+-              TCK includes <include>**/init/TestAll.java</include> <include>**/api/*Test.java</include> <include>**/api/observation/TestAll.java</include>
+-              <include>**/api/version/TestAll.java</include> <include>**/api/lock/TestAll.java</include> <include>**/api/nodetype/TestAll.java</include>
+-              <include>**/api/query/TestAll.java</include>
+-            -->
+-          <!--
+-              eXo tests <include>**/api/Document*Test.java</include> <include>**/impl/storage/ValueStoragePluginTest.java</include>
+-              <include>**/impl/jndi/RepositoryBindingTest.java</include>
+-            -->
+-          <!-- usecases includes -->
+-          <!-- include>**/usecases/common/*Test.java</include>
+-            <include>**/usecases/common/Test*.java</include -->
+-          <!-- include>**/usecases/common/TestRestoreNTFile.java</include -->
+-          <!-- include>**/usecases/common/TestExportImportAmongSessions.java</include -->
+-          <!-- include>**/usecases/common/TestNodeGetRequiredPrimaryTypes.java</include -->
+-          <!-- include>**/usecases/nodetypes/TestNodeTypeRegisterReferenced.java</include -->
+-          <excludes />
+-          <!-- include>**/test/api/version/R*Test.java</include -->
+-          <!-- include>**/test/api/version/Version*Test.java</include -->
+-          <systemProperties>
+-            <property>
+-              <name>test.repository</name>
+-              <value>db1</value>
+-            </property>
+-          </systemProperties>
++          <excludes>
++            <!-- Requires launched RMI server to pass -->
++            <exclude>**/RmiRepositoryConnectTest.java</exclude>
++          </excludes>
+         </configuration>
+       </plugin>
+     </plugins>
+-    <sourceDirectory>src/main/java</sourceDirectory>
+-    <outputDirectory>target/classes</outputDirectory>
+-    <testSourceDirectory>src/notest/java</testSourceDirectory>
+-    <!-- TODO EXCLUDE THE TESTS -->
+-    <testOutputDirectory>target/test-classes</testOutputDirectory>
+   </build>
+ </project>
