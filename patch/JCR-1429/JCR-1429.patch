@@ -1691,14 +1691,14 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
 +    NodePropertiesInfo currentNodePropertiesInfo = mapNodePropertiesInfo.get(currentNodeInfo.getQPath().getAsString()); 
 +    
 +    if (currentNodePropertiesInfo != null) {
-+      checkPropertis(currentNodePropertiesInfo);
++      checkProperties(currentNodePropertiesInfo);
 +    }
 +    
 +    mapNodePropertiesInfo.remove(currentNodeInfo.getQPath().getAsString());
  
      currentNodeInfo.setMixinTypeNames(currentNodeInfo.getMixinTypeNames());
  
-@@ -296,8 +317,70 @@
+@@ -296,8 +317,66 @@
                                     currentNodeInfo.getExoOwner(),
                                     currentNodeInfo.getExoPrivileges()));
    }
@@ -1713,14 +1713,10 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
 +   * @throws IllegalNameException 
 +   * @throws IllegalStateException 
 +   */
-+  private void checkPropertis(NodePropertiesInfo currentNodePropertiesInfo) throws RepositoryException
++  private void checkProperties(NodePropertiesInfo currentNodePropertiesInfo) throws RepositoryException
 +  {
 +    if (currentNodePropertiesInfo.getNode().getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)
 +             && currentNodePropertiesInfo.getNode().getPrimaryTypeName().equals(Constants.NT_FROZENNODE)) {
-+       // name of frozenPrimaryType property 
-+       InternalQName fptPropertyName = locationFactory.parseJCRName("jcr:frozenPrimaryType").getInternalName();
-+       // node of frozenMixinTypes property
-+       InternalQName fmtPropertyName = locationFactory.parseJCRName("jcr:frozenMixinTypes").getInternalName();
 +
 +       InternalQName fptName = null;
 +       List<InternalQName> fmtNames = new ArrayList<InternalQName>();
@@ -1728,11 +1724,11 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
 +       // get frozenPrimaryType and frozenMixinTypes
 +       try {
 +         for (ImportPropertyData propertyData : currentNodePropertiesInfo.getProperties()) {
-+           if (propertyData.getQName().equals(fptPropertyName)) {
++           if (propertyData.getQName().equals(Constants.JCR_FROZENPRIMARYTYPE)) {
 +             fptName = InternalQName.parse(new String(propertyData.getValues().get(0).getAsByteArray()));
-+           } else if (propertyData.getQName().equals(fmtPropertyName)) {
++           } else if (propertyData.getQName().equals(Constants.JCR_FROZENMIXINTYPES)) {
 +             for (ValueData valueData : propertyData.getValues()) {
-+               fmtNames.add(InternalQName.parse(new String(valueData.getAsByteArray())));
++               fmtNames.add(InternalQName.parse(new String(valueData.getAsByteArray(), Constants.DEFAULT_ENCODING)));
 +             }
 +           }
 +         }
@@ -1769,7 +1765,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
     * @return
     * @throws PathNotFoundException
     * @throws RepositoryException
-@@ -447,9 +530,21 @@
+@@ -447,9 +526,21 @@
                                            propertyInfo.getType(),
                                            currentNodeInfo.getIdentifier(),
                                            false);
