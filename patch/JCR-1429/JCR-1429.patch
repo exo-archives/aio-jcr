@@ -1725,7 +1725,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
 +       try {
 +         for (ImportPropertyData propertyData : currentNodePropertiesInfo.getProperties()) {
 +           if (propertyData.getQName().equals(Constants.JCR_FROZENPRIMARYTYPE)) {
-+             fptName = InternalQName.parse(new String(propertyData.getValues().get(0).getAsByteArray()));
++             fptName = InternalQName.parse(new String(propertyData.getValues().get(0).getAsByteArray(), Constants.DEFAULT_ENCODING));
 +           } else if (propertyData.getQName().equals(Constants.JCR_FROZENMIXINTYPES)) {
 +             for (ValueData valueData : propertyData.getValues()) {
 +               fmtNames.add(InternalQName.parse(new String(valueData.getAsByteArray(), Constants.DEFAULT_ENCODING)));
