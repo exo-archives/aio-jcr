@@ -24,7 +24,15 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/T
 ===================================================================
 --- component/core/src/test/java/org/exoplatform/services/jcr/api/importing/TestImport.java	(revision 50003)
 +++ component/core/src/test/java/org/exoplatform/services/jcr/api/importing/TestImport.java	(working copy)
-@@ -637,7 +637,7 @@
+@@ -46,6 +46,7 @@
+ import javax.jcr.Node;
+ import javax.jcr.NodeIterator;
+ import javax.jcr.Property;
++import javax.jcr.PropertyType;
+ import javax.jcr.RepositoryException;
+ import javax.jcr.Session;
+ import javax.jcr.Value;
+@@ -637,7 +638,7 @@
      byte[] versionableNode = serialize(fileNode, false, true);
      // version history
      byte[] versionHistory = serialize(fileNode.getVersionHistory(), false, true);
@@ -33,7 +41,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/T
      fileNode.remove();
      session.save();
      assertFalse(testRoot.hasNode("TestJCR1247"));
-@@ -1000,4 +1000,1077 @@
+@@ -1000,4 +1001,1173 @@
  
      }
    }
@@ -1110,6 +1118,102 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/T
 +      fileImport.checkout();
 +      root.save();
 +   }
++   
++   /**
++    * https://jira.jboss.org/browse/JCR-1437
++    * 
++    * @throws Exception
++    */
++   public void testEXOJCR933_Doc_exo_datetime() throws Exception
++   {
++
++      Node testRoot = root.addNode("testRoot");
++      Node fileNode = testRoot.addNode("TestEXOJCR933_exo_datetime");
++      fileNode.setProperty("exo:datetime", Calendar.getInstance());
++      
++      if (fileNode.canAddMixin("mix:versionable"))
++      {
++         fileNode.addMixin("mix:versionable");
++      }
++      
++      fileNode.addMixin("exo:datetime");
++      
++      fileNode.setProperty("exo:dateCreated", Calendar.getInstance());
++      fileNode.setProperty("exo:dateModified", Calendar.getInstance());
++      
++      root.save();
++      
++      fileNode.checkin();
++      fileNode.checkout();
++      root.save();
++      
++      fileNode.checkin();
++      fileNode.checkout();
++      root.save();
++      
++      fileNode.checkin();
++      fileNode.checkout();
++      root.save();
++
++      String nodeDump = dumpVersionable(fileNode);
++      // Export VersionHistory
++
++      assertTrue(fileNode.isNodeType("mix:versionable"));
++
++      VersionableNodeInfo nodeInfo = new VersionableNodeInfo(fileNode);
++
++      // node content
++      byte[] versionableNode = serialize(fileNode, false, true);
++      // version history
++      byte[] versionHistory = serialize(fileNode.getVersionHistory(), false, true);
++      //System.out.println(new String(versionHistory));
++      
++      // restore node content
++      Node restoreRoot = testRoot.addNode("restRoot");
++      testRoot.save();
++      
++      deserialize(restoreRoot, XmlSaveType.SESSION, true, ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
++         new ByteArrayInputStream(versionableNode));
++      root.save();
++
++      assertTrue(restoreRoot.hasNode("TestEXOJCR933_exo_datetime"));
++
++      Node fileImport = restoreRoot.getNode("TestEXOJCR933_exo_datetime");
++      assertTrue(fileImport.isNodeType("mix:versionable"));
++
++      VersionHistoryImporter versionHistoryImporter =
++         new VersionHistoryImporter((NodeImpl)fileImport, new ByteArrayInputStream(versionHistory), nodeInfo
++            .getBaseVersion(), nodeInfo.getPredecessorsHistory(), nodeInfo.getVersionHistory());
++      versionHistoryImporter.doImport();
++      root.save();
++      
++      Property property = fileImport.getProperty("exo:dateCreated");
++      assertNotNull(property);
++      assertNotNull(property.getDefinition());
++      assertEquals(PropertyType.DATE, property.getType());
++      
++      property = fileImport.getProperty("exo:dateModified");
++      assertNotNull(property);
++      assertNotNull(property.getDefinition());
++      assertEquals(PropertyType.DATE, property.getType());
++      
++      fileImport.restore("2", true);
++      root.save();
++      
++      property = fileImport.getProperty("exo:dateCreated");
++      assertNotNull(property);
++      assertNotNull(property.getDefinition());
++      assertEquals(PropertyType.DATE, property.getType());
++      
++      property = fileImport.getProperty("exo:dateModified");
++      assertNotNull(property);
++      assertNotNull(property.getDefinition());
++      assertEquals(PropertyType.DATE, property.getType());
++      
++      fileImport.checkin();
++      fileImport.checkout();
++      root.save();
++   }
  }
 Index: component/core/src/test/resources/conf/test/publication-plugins-nodetypes-config.xml
 ===================================================================
@@ -1831,7 +1935,44 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
  
        } else {
          PropertyDefinition pDef;
-@@ -341,10 +343,37 @@
+@@ -294,7 +296,36 @@
+ 
+           List<ValueData> values = new ArrayList<ValueData>();
+           int pType = pDef.getRequiredType() > 0 ? pDef.getRequiredType() : PropertyType.STRING;
++          
++          if (defs.getAnyDefinition().getName().equals(Constants.JCR_ANY_NAME.getName())) 
++          {
++             if (nodeData.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH))
++             {
++                if (nodeData.getPrimaryTypeName().equals(Constants.NT_FROZENNODE))
++                {
++                   // get primaryType
++                   InternalQName fptName = locationFactory.parseJCRName(atts.get("jcr:frozenPrimaryType")).getInternalName();
+ 
++                   // get mixin types
++                   List<JCRName> mtNames = getJCRNames(atts.get("jcr:frozenMixinTypes"));
++
++                   InternalQName fmtName[] = new InternalQName[mtNames.size()];
++
++                   for (int i = 0; i < mtNames.size(); i++)
++                   {
++                      fmtName[i] = new InternalQName(mtNames.get(i).getNamespace(), mtNames.get(i).getName());
++                   }
++
++                   PropertyDefinitions ptVhdefs = ntManager.findPropertyDefinitions(propName, fptName, fmtName);
++
++                   if (ptVhdefs != null)
++                   {
++                      pType = (ptVhdefs.getAnyDefinition().getRequiredType() > 0 ? ptVhdefs.getAnyDefinition().getRequiredType() : PropertyType.STRING);
++                   }
++                }
++             }
++          }
++
+           if ("".equals(propertiesMap.get(propName))) {
+ 
+             // Skip empty non string values
+@@ -341,10 +372,37 @@
  
            // determinating is property multivalue;
            if (values.size() == 1) {
@@ -1873,7 +2014,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
            } else {
              if ((defs.getDefinition(true) == null) && (defs.getDefinition(false) != null)) {
                throw new ValueFormatException("Can not assign multiple-values Value"
-@@ -383,6 +412,28 @@
+@@ -383,6 +441,28 @@
        createVersionHistory(nodeData);
      }
    }
@@ -1902,7 +2043,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
  
    /**
     * @param nodeTypes
-@@ -492,7 +543,7 @@
+@@ -492,7 +572,7 @@
     * @throws RepositoryException
     * @throws IllegalStateException
     */
@@ -1911,7 +2052,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
                                                                            UnsupportedRepositoryOperationException,
                                                                            RepositoryException,
                                                                            IllegalStateException {
-@@ -502,11 +553,22 @@
+@@ -502,11 +582,22 @@
        log.debug("Property STRING: " + key + "=" + value.getString());
      }
  
