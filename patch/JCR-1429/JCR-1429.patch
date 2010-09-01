@@ -24,7 +24,16 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/T
 ===================================================================
 --- component/core/src/test/java/org/exoplatform/services/jcr/api/importing/TestImport.java	(revision 50003)
 +++ component/core/src/test/java/org/exoplatform/services/jcr/api/importing/TestImport.java	(working copy)
-@@ -46,6 +46,7 @@
+@@ -30,6 +30,8 @@
+ import org.exoplatform.services.log.ExoLogger;
+ import org.exoplatform.services.security.Identity;
+ 
++import EDU.oswego.cs.dl.util.concurrent.Rendezvous.Rotator;
++
+ import java.io.BufferedInputStream;
+ import java.io.ByteArrayInputStream;
+ import java.io.ByteArrayOutputStream;
+@@ -46,6 +48,7 @@
  import javax.jcr.Node;
  import javax.jcr.NodeIterator;
  import javax.jcr.Property;
@@ -32,7 +41,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/T
  import javax.jcr.RepositoryException;
  import javax.jcr.Session;
  import javax.jcr.Value;
-@@ -637,7 +638,7 @@
+@@ -637,7 +640,7 @@
      byte[] versionableNode = serialize(fileNode, false, true);
      // version history
      byte[] versionHistory = serialize(fileNode.getVersionHistory(), false, true);
@@ -41,7 +50,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/T
      fileNode.remove();
      session.save();
      assertFalse(testRoot.hasNode("TestJCR1247"));
-@@ -1000,4 +1001,1173 @@
+@@ -1000,4 +1003,1256 @@
  
      }
    }
@@ -1214,7 +1223,149 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/T
 +      fileImport.checkout();
 +      root.save();
 +   }
++   
++   public void testBigRestore_Sys() throws Exception
++   {
++      File file = createBLOBTempFile(1000);
++      int depth = 1;
++      
++      Node testRoot = root.addNode("testRoot");
++      Node fileNode = testRoot.addNode("TestBigRestore_Sys");
++      
++      for (int i=0; i<depth; i++)
++      {
++         Node l1 = fileNode.addNode("node_l1_" + i);
++         for (int j=0; j<depth; j++)
++         {
++            Node l2 = l1.addNode("node_l2_" + j);
++            for (int k=0; k<depth; k++)
++            {
++               Node l3 = l2.addNode("node_l3_" + k, "nt:file");
++               
++               Node contentNode = l3.addNode("jcr:content", "nt:resource");
++               contentNode.setProperty("jcr:data", new FileInputStream(file));
++               contentNode.setProperty("jcr:mimeType", "image/jpg");
++               contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
++               
++               l3.addMixin("exo:linkable");
++               l3.setProperty("exo:links", new String[] {"http://ya.ru"});
++               
++               l3.addMixin("exo:datetime");
++               l3.setProperty("exo:dateCreated", Calendar.getInstance());
++               l3.setProperty("exo:dateModified", Calendar.getInstance());
++            }
++            root.save();
++         }
++      }
++      
++      root.save();
++      
++      fileNode.addMixin("mix:versionable");
++      root.save();
++      
++      fileNode.checkin();
++      fileNode.checkout();
++      root.save();
++      
++      fileNode.checkin();
++      fileNode.checkout();
++      root.save();
++      
++      //export
++      VersionableNodeInfo nodeInfo = new VersionableNodeInfo(fileNode);
++
++      // node content
++      File versionableNode = serializeToFile(fileNode, true, true);
++      // version history
++      File versionHistory = serializeToFile(fileNode.getVersionHistory(), true, true);
++      
++      versionableNode.deleteOnExit();
++      versionHistory.deleteOnExit();
++      
++      System.out.println("VersionNode export size : " + versionableNode.length());
++      System.out.println("VersionHistory export size : " + versionHistory.length());
++      
++      
++      // restore node content
++      Node restoreRoot = testRoot.addNode("restRoot");
++      testRoot.save();
++      
++      deserialize(restoreRoot, XmlSaveType.SESSION, true, ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
++         new FileInputStream(versionableNode));
++      root.save();
++
++      assertTrue(restoreRoot.hasNode("TestBigRestore_Sys"));
++
++      Node fileImport = restoreRoot.getNode("TestBigRestore_Sys");
++      assertTrue(fileImport.isNodeType("mix:versionable"));
++
++      VersionHistoryImporter versionHistoryImporter =
++         new VersionHistoryImporter((NodeImpl)fileImport, new FileInputStream(versionHistory), nodeInfo
++            .getBaseVersion(), nodeInfo.getPredecessorsHistory(), nodeInfo.getVersionHistory());
++      versionHistoryImporter.doImport();
++      root.save();
++   }
++   
  }
+Index: component/core/src/test/java/org/exoplatform/services/jcr/api/importing/AbstractImportTest.java
+===================================================================
+--- component/core/src/test/java/org/exoplatform/services/jcr/api/importing/AbstractImportTest.java	(revision 50003)
++++ component/core/src/test/java/org/exoplatform/services/jcr/api/importing/AbstractImportTest.java	(working copy)
+@@ -308,7 +308,54 @@
+     outStream.close();
+     return outStream.toByteArray();
+   }
++  
++  /**
++   * Serialize content of MIX_REFERENCEABLE_NODE_NAME to file.
++   * 
++   * @param rootNode
++   * @param isSystemView
++   * @param isStream
++   * @return
++   * @throws IOException
++   * @throws RepositoryException
++   * @throws SAXException
++   * @throws TransformerConfigurationException
++   */
++  protected File serializeToFile(Node exportRootNode, boolean isSystemView, boolean isStream) throws IOException,
++                                                                                         RepositoryException,
++                                                                                         SAXException,
++                                                                                         TransformerConfigurationException {
+ 
++    ExtendedSession extendedSession = (ExtendedSession) exportRootNode.getSession();
++
++    File file = File.createTempFile("export", ".xml");
++    
++    FileOutputStream outStream = new FileOutputStream(file);
++
++    if (isSystemView) {
++
++      if (isStream) {
++        extendedSession.exportSystemView(exportRootNode.getPath(), outStream, false, false);
++      } else {
++        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
++        TransformerHandler handler = saxFact.newTransformerHandler();
++        handler.setResult(new StreamResult(outStream));
++        extendedSession.exportSystemView(exportRootNode.getPath(), handler, false, false);
++      }
++    } else {
++      if (isStream) {
++        extendedSession.exportDocumentView(exportRootNode.getPath(), outStream, false, false);
++      } else {
++        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
++        TransformerHandler handler = saxFact.newTransformerHandler();
++        handler.setResult(new StreamResult(outStream));
++        extendedSession.exportDocumentView(exportRootNode.getPath(), handler, false, false);
++      }
++    }
++    outStream.close();
++    return file;
++  }
++
+   protected void serialize(Node rootNode, boolean isSystemView, boolean isStream, File content) throws IOException,
+                                                                                                RepositoryException,
+                                                                                                SAXException,
 Index: component/core/src/test/resources/conf/test/publication-plugins-nodetypes-config.xml
 ===================================================================
 --- component/core/src/test/resources/conf/test/publication-plugins-nodetypes-config.xml	(revision 0)
