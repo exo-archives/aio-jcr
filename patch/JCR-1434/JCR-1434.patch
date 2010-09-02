@@ -1,11 +1,256 @@
 Index: patch/JCR-1434/JCR-1434.patch
 ===================================================================
---- patch/JCR-1434/JCR-1434.patch	(revision 51570)
+--- patch/JCR-1434/JCR-1434.patch	(revision 51580)
 +++ patch/JCR-1434/JCR-1434.patch	(working copy)
-@@ -1,205 +0,0 @@
+@@ -1,446 +0,0 @@
+-Index: patch/JCR-1434/JCR-1434.patch
+-===================================================================
+---- patch/JCR-1434/JCR-1434.patch	(revision 51570)
+-+++ patch/JCR-1434/JCR-1434.patch	(working copy)
+-@@ -1,205 +0,0 @@
+--Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java
+--===================================================================
+----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(revision 51534)
+--+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(working copy)
+--@@ -17,6 +17,7 @@
+-- 
+-- package org.exoplatform.services.jcr.webdav.xml;
+-- 
+--+import java.security.AccessControlException;
+-- import java.util.HashMap;
+-- import java.util.HashSet;
+-- import java.util.Iterator;
+--@@ -27,11 +28,14 @@
+-- import javax.jcr.ItemNotFoundException;
+-- import javax.jcr.PathNotFoundException;
+-- import javax.jcr.RepositoryException;
+--+import javax.jcr.Session;
+-- import javax.xml.namespace.QName;
+-- 
+-- import org.exoplatform.common.util.HierarchicalProperty;
+--+import org.exoplatform.services.jcr.access.PermissionType;
+-- import org.exoplatform.services.jcr.webdav.WebDavStatus;
+-- import org.exoplatform.services.jcr.webdav.resource.Resource;
+--+import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
+-- 
+-- /**
+--  * Created by The eXo Platform SARL .<br/>
+--@@ -49,10 +53,14 @@
+--   protected final boolean                                namesOnly;
+-- 
+--   protected final Resource                               resource;
+--+  
+--+  protected final Session                                session;
+-- 
+--   public PropstatGroupedRepresentation(final Resource resource,
+--                                        final Set<QName> propNames,
+---                                       boolean namesOnly) throws RepositoryException {
+--+                                       boolean namesOnly,
+--+                                       final Session session) throws RepositoryException {
+--+    this.session = session;
+--     this.namesOnly = namesOnly;
+--     this.resource = resource;
+--     this.propStats = new HashMap<String, Set<HierarchicalProperty>>();
+--@@ -78,9 +86,19 @@
+--       for (QName propName : propNames) {
+--         HierarchicalProperty prop = new HierarchicalProperty(propName);
+--         try {
+---          prop = resource.getProperty(propName);
+---          statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+-- 
+--+          if(propName.equals(PropertyConstants.IS_READ_ONLY)){
+--+            if(isReadOnly()){
+--+              prop.setValue("1");
+--+            } else {
+--+              prop.setValue("0");
+--+            }            
+--+            statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+--+          } else {
+--+            prop = resource.getProperty(propName);
+--+            statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+--+          }
+--+
+--         } catch (AccessDeniedException e) {
+--           statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
+--           e.printStackTrace();
+--@@ -105,5 +123,35 @@
+--     }
+--     return propStats;
+--   }
+--+  
+--+  private boolean isReadOnly() {
+--+    
+--+    String[] permissions = new String[]{PermissionType.ADD_NODE, PermissionType.REMOVE, PermissionType.SET_PROPERTY };
+--+    String resourcePath = resource.getIdentifier().getPath();
+--+    String workspace = session.getWorkspace().getName();
+--+    String path = resourcePath.substring(resourcePath.indexOf(workspace) + workspace.length());
+--+      
+--+    try {
+--+      session.checkPermission(path, PermissionType.READ);
+--+    } catch (AccessControlException e1) {      
+--+      return false;
+--+    } catch (RepositoryException e1) {
+--+      return false;
+--+    }
+--+    
+--+    // Node must not have any permission except "read" so checking for any other permission 
+--+    // must throw AccessControlException
+--+    for (String perission : permissions) {
+--+      try{
+--+        session.checkPermission(path, perission);
+--+        return false;
+--+      } catch (AccessControlException e) {
+--+        continue;
+--+      } catch (RepositoryException e) {
+--+        return false;
+--+      }
+--+    }
+--+     return true;    
+--+  }
+-- 
+-- }
+--Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java
+--===================================================================
+----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java	(revision 51534)
+--+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java	(working copy)
+--@@ -72,6 +72,8 @@
+--   public static final QName  WRITE                = new QName("DAV:", "write");
+-- 
+--   public static final QName  ORDERING_TYPE        = new QName("DAV:", "ordering-type");
+--+  
+--+  public static final QName  IS_READ_ONLY         = new QName("DAV:", "isreadonly");
+-- 
+--   // date and time patterns for DAV:creationdate and DAV:getlastmodified
+-- 
+--Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java
+--===================================================================
+----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java	(revision 51534)
+--+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java	(working copy)
+--@@ -86,7 +86,8 @@
+-- 
+--         PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(versionResource,
+--                                                                                    properties,
+---                                                                                   false);
+--+                                                                                   false,
+--+                                                                                   null);
+--         PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
+-- 
+--         xmlStreamWriter.writeEndElement();
+--Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java
+--===================================================================
+----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(revision 51534)
+--+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(working copy)
+--@@ -25,6 +25,7 @@
+-- import java.util.Set;
+-- 
+-- import javax.jcr.RepositoryException;
+--+import javax.jcr.Session;
+-- import javax.xml.namespace.QName;
+-- import javax.xml.stream.XMLOutputFactory;
+-- import javax.xml.stream.XMLStreamException;
+--@@ -62,16 +63,20 @@
+--   protected final int                    depth;
+-- 
+--   protected final boolean                propertyNamesOnly;
+--+  
+--+  protected final Session                session;
+-- 
+--   public PropFindResponseEntity(int depth,
+--                                 Resource rootResource,
+--                                 Set<QName> propertyNames,
+---                                boolean propertyNamesOnly) {
+--+                                boolean propertyNamesOnly,
+--+                                Session session) {
+--     this.rootResource = rootResource;
+--     this.namespaceContext = rootResource.getNamespaceContext();
+--     this.propertyNames = propertyNames;
+--     this.depth = depth;
+--     this.propertyNamesOnly = propertyNamesOnly;
+--+    this.session = session;
+--   }
+-- 
+--   /*
+--@@ -127,7 +132,8 @@
+-- 
+--     PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
+--                                                                                propertyNames,
+---                                                                               propertyNamesOnly);
+--+                                                                               propertyNamesOnly,
+--+                                                                               session);
+-- 
+--     PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
+-- 
+--Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java
+--===================================================================
+----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java	(revision 51534)
+--+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java	(working copy)
+--@@ -129,7 +129,8 @@
+-- 
+--         PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
+--                                                                                    properties,
+---                                                                                   false);
+--+                                                                                   false,
+--+                                                                                   null);
+-- 
+--         PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
+-- 
+--Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java
+--===================================================================
+----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java	(revision 51534)
+--+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java	(working copy)
+--@@ -112,11 +112,11 @@
+--     PropFindResponseEntity response;
+-- 
+--     if (request.getType().equalsIgnoreCase("allprop")) {
+---      response = new PropFindResponseEntity(depth, resource, null, false);
+--+      response = new PropFindResponseEntity(depth, resource, null, false, session);
+--     } else if (request.getType().equalsIgnoreCase("propname")) {
+---      response = new PropFindResponseEntity(depth, resource, null, true);
+--+      response = new PropFindResponseEntity(depth, resource, null, true, session);
+--     } else if (request.getType().equalsIgnoreCase("prop")) {
+---      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false);
+--+      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false, session);
+--     } else {
+--       return Response.Builder.badRequest().errorMessage("Unexpected property name "
+--           + request.getType()).build();
+-Index: component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestLockDiscovery.java
+-===================================================================
+---- component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestLockDiscovery.java	(revision 51573)
+-+++ component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestLockDiscovery.java	(working copy)
+-@@ -67,7 +67,7 @@
+- 
+-     // must have status NotFound
+-     {
+--      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);
+-+      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false, null);
+-       ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+-       resp.writeObject(outStream);
+- 
+-@@ -89,7 +89,7 @@
+- 
+-     // must have inner content
+-     {
+--      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);
+-+      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false, null);
+-       ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+-       resp.writeObject(outStream);
+- 
+-Index: component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestSupportedLock.java
+-===================================================================
+---- component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestSupportedLock.java	(revision 51573)
+-+++ component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestSupportedLock.java	(working copy)
+-@@ -64,7 +64,7 @@
+- 
+-     properties.add(PropertyConstants.SUPPORTEDLOCK);
+- 
+--    PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);
+-+    PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false, null);
+-     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+-     resp.writeObject(outStream);
+- 
 -Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java
 -===================================================================
----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(revision 51534)
+---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(revision 51573)
 -+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(working copy)
 -@@ -17,6 +17,7 @@
 - 
@@ -68,14 +313,13 @@ Index: patch/JCR-1434/JCR-1434.patch
 -         } catch (AccessDeniedException e) {
 -           statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
 -           e.printStackTrace();
--@@ -105,5 +123,35 @@
+-@@ -105,5 +123,31 @@
 -     }
 -     return propStats;
 -   }
 -+  
 -+  private boolean isReadOnly() {
 -+    
--+    String[] permissions = new String[]{PermissionType.ADD_NODE, PermissionType.REMOVE, PermissionType.SET_PROPERTY };
 -+    String resourcePath = resource.getIdentifier().getPath();
 -+    String workspace = session.getWorkspace().getName();
 -+    String path = resourcePath.substring(resourcePath.indexOf(workspace) + workspace.length());
@@ -90,23 +334,20 @@ Index: patch/JCR-1434/JCR-1434.patch
 -+    
 -+    // Node must not have any permission except "read" so checking for any other permission 
 -+    // must throw AccessControlException
--+    for (String perission : permissions) {
 -+      try{
--+        session.checkPermission(path, perission);
+-+        session.checkPermission(path, PermissionType.SET_PROPERTY);
 -+        return false;
 -+      } catch (AccessControlException e) {
--+        continue;
+-+        return true;
 -+      } catch (RepositoryException e) {
 -+        return false;
 -+      }
--+    }
--+     return true;    
 -+  }
 - 
 - }
 -Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java
 -===================================================================
----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java	(revision 51534)
+---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java	(revision 51573)
 -+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java	(working copy)
 -@@ -72,6 +72,8 @@
 -   public static final QName  WRITE                = new QName("DAV:", "write");
@@ -119,7 +360,7 @@ Index: patch/JCR-1434/JCR-1434.patch
 - 
 -Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java
 -===================================================================
----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java	(revision 51534)
+---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java	(revision 51573)
 -+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java	(working copy)
 -@@ -86,7 +86,8 @@
 - 
@@ -133,7 +374,7 @@ Index: patch/JCR-1434/JCR-1434.patch
 -         xmlStreamWriter.writeEndElement();
 -Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java
 -===================================================================
----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(revision 51534)
+---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(revision 51573)
 -+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(working copy)
 -@@ -25,6 +25,7 @@
 - import java.util.Set;
@@ -177,7 +418,7 @@ Index: patch/JCR-1434/JCR-1434.patch
 - 
 -Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java
 -===================================================================
----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java	(revision 51534)
+---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java	(revision 51573)
 -+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java	(working copy)
 -@@ -129,7 +129,8 @@
 - 
@@ -191,7 +432,7 @@ Index: patch/JCR-1434/JCR-1434.patch
 - 
 -Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java
 -===================================================================
----- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java	(revision 51534)
+---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java	(revision 51573)
 -+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java	(working copy)
 -@@ -112,11 +112,11 @@
 -     PropFindResponseEntity response;
@@ -208,41 +449,6 @@ Index: patch/JCR-1434/JCR-1434.patch
 -     } else {
 -       return Response.Builder.badRequest().errorMessage("Unexpected property name "
 -           + request.getType()).build();
-Index: component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestLockDiscovery.java
-===================================================================
---- component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestLockDiscovery.java	(revision 51573)
-+++ component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestLockDiscovery.java	(working copy)
-@@ -67,7 +67,7 @@
- 
-     // must have status NotFound
-     {
--      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);
-+      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false, null);
-       ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-       resp.writeObject(outStream);
- 
-@@ -89,7 +89,7 @@
- 
-     // must have inner content
-     {
--      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);
-+      PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false, null);
-       ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-       resp.writeObject(outStream);
- 
-Index: component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestSupportedLock.java
-===================================================================
---- component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestSupportedLock.java	(revision 51573)
-+++ component/webdav/src/test/java/org/exoplatform/services/jcr/webdav/command/lock/TestSupportedLock.java	(working copy)
-@@ -64,7 +64,7 @@
- 
-     properties.add(PropertyConstants.SUPPORTEDLOCK);
- 
--    PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);
-+    PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false, null);
-     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-     resp.writeObject(outStream);
- 
 Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java
 ===================================================================
 --- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(revision 51573)
@@ -286,14 +492,27 @@ Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/Pr
      this.namesOnly = namesOnly;
      this.resource = resource;
      this.propStats = new HashMap<String, Set<HierarchicalProperty>>();
-@@ -78,9 +86,19 @@
+@@ -68,6 +76,12 @@
+       }
+     }
+   }
++  
++  public PropstatGroupedRepresentation(final Resource resource,
++                                       final Set<QName> propNames,
++                                       boolean namesOnly) throws RepositoryException {
++    this(resource, propNames, namesOnly, null);
++  }
+ 
+   public final Map<String, Set<HierarchicalProperty>> getPropStats() throws RepositoryException {
+     String statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+@@ -78,9 +92,19 @@
        for (QName propName : propNames) {
          HierarchicalProperty prop = new HierarchicalProperty(propName);
          try {
 -          prop = resource.getProperty(propName);
 -          statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
  
-+          if(propName.equals(PropertyConstants.IS_READ_ONLY)){
++          if(propName.equals(PropertyConstants.IS_READ_ONLY) && session != null){
 +            if(isReadOnly()){
 +              prop.setValue("1");
 +            } else {
@@ -308,7 +527,7 @@ Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/Pr
          } catch (AccessDeniedException e) {
            statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
            e.printStackTrace();
-@@ -105,5 +123,31 @@
+@@ -105,5 +129,31 @@
      }
      return propStats;
    }
@@ -353,25 +572,15 @@ Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/P
  
    // date and time patterns for DAV:creationdate and DAV:getlastmodified
  
-Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java
-===================================================================
---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java	(revision 51573)
-+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/deltav/report/VersionTreeResponseEntity.java	(working copy)
-@@ -86,7 +86,8 @@
- 
-         PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(versionResource,
-                                                                                    properties,
--                                                                                   false);
-+                                                                                   false,
-+                                                                                   null);
-         PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
- 
-         xmlStreamWriter.writeEndElement();
 Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java
 ===================================================================
 --- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(revision 51573)
 +++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(working copy)
-@@ -25,6 +25,7 @@
+@@ -22,9 +22,11 @@
+ import java.io.UnsupportedEncodingException;
+ import java.net.URISyntaxException;
+ import java.net.URLDecoder;
++import java.util.HashSet;
  import java.util.Set;
  
  import javax.jcr.RepositoryException;
@@ -379,7 +588,7 @@ Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/comman
  import javax.xml.namespace.QName;
  import javax.xml.stream.XMLOutputFactory;
  import javax.xml.stream.XMLStreamException;
-@@ -62,16 +63,20 @@
+@@ -62,18 +64,29 @@
    protected final int                    depth;
  
    protected final boolean                propertyNamesOnly;
@@ -400,8 +609,17 @@ Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/comman
 +    this.session = session;
    }
  
++  public PropFindResponseEntity(int depth,
++                                Resource rootResource,
++                                Set<QName> propertyNames,
++                                boolean propertyNamesOnly) {
++    this(depth, rootResource, propertyNames, propertyNamesOnly, null);
++  }
++
    /*
-@@ -127,7 +132,8 @@
+    * (non-Javadoc)
+    * @see
+@@ -127,7 +140,8 @@
  
      PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
                                                                                 propertyNames,
@@ -410,20 +628,6 @@ Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/comman
 +                                                                               session);
  
      PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
- 
-Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java
-===================================================================
---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java	(revision 51573)
-+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/dasl/SearchResultResponseEntity.java	(working copy)
-@@ -129,7 +129,8 @@
- 
-         PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
-                                                                                    properties,
--                                                                                   false);
-+                                                                                   false,
-+                                                                                   null);
- 
-         PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
  
 Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java
 ===================================================================
