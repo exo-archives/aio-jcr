@@ -22,11 +22,9 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -64,27 +62,16 @@ public class PropFindResponseEntity implements SerializableEntity {
   protected final int                    depth;
 
   protected final boolean                propertyNamesOnly;
-  
-  protected final Session                session;
-
-  public PropFindResponseEntity(int depth,
-                                Resource rootResource,
-                                Set<QName> propertyNames,
-                                boolean propertyNamesOnly,
-                                Session session) {
-    this.rootResource = rootResource;
-    this.namespaceContext = rootResource.getNamespaceContext();
-    this.propertyNames = propertyNames;
-    this.depth = depth;
-    this.propertyNamesOnly = propertyNamesOnly;
-    this.session = session;
-  }
 
   public PropFindResponseEntity(int depth,
                                 Resource rootResource,
                                 Set<QName> propertyNames,
                                 boolean propertyNamesOnly) {
-    this(depth, rootResource, propertyNames, propertyNamesOnly, null);
+    this.rootResource = rootResource;
+    this.namespaceContext = rootResource.getNamespaceContext();
+    this.propertyNames = propertyNames;
+    this.depth = depth;
+    this.propertyNamesOnly = propertyNamesOnly;
   }
 
   /*
@@ -140,8 +127,7 @@ public class PropFindResponseEntity implements SerializableEntity {
 
     PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
                                                                                propertyNames,
-                                                                               propertyNamesOnly,
-                                                                               session);
+                                                                               propertyNamesOnly);
 
     PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
 

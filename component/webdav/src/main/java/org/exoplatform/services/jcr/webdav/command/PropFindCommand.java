@@ -112,11 +112,11 @@ public class PropFindCommand {
     PropFindResponseEntity response;
 
     if (request.getType().equalsIgnoreCase("allprop")) {
-      response = new PropFindResponseEntity(depth, resource, null, false, session);
+      response = new PropFindResponseEntity(depth, resource, null, false);
     } else if (request.getType().equalsIgnoreCase("propname")) {
-      response = new PropFindResponseEntity(depth, resource, null, true, session);
+      response = new PropFindResponseEntity(depth, resource, null, true);
     } else if (request.getType().equalsIgnoreCase("prop")) {
-      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false, session);
+      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false);
     } else {
       return Response.Builder.badRequest().errorMessage("Unexpected property name "
           + request.getType()).build();

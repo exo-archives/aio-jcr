@@ -72,8 +72,6 @@ public interface PropertyConstants {
   public static final QName  WRITE                = new QName("DAV:", "write");
 
   public static final QName  ORDERING_TYPE        = new QName("DAV:", "ordering-type");
-  
-  public static final QName  IS_READ_ONLY         = new QName("DAV:", "isreadonly");
 
   // date and time patterns for DAV:creationdate and DAV:getlastmodified
 

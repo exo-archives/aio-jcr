@@ -17,7 +17,6 @@
 
 package org.exoplatform.services.jcr.webdav.xml;
 
-import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,14 +27,11 @@ import javax.jcr.AccessDeniedException;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.xml.namespace.QName;
 
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
-import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -53,14 +49,10 @@ public class PropstatGroupedRepresentation {
   protected final boolean                                namesOnly;
 
   protected final Resource                               resource;
-  
-  protected final Session                                session;
 
   public PropstatGroupedRepresentation(final Resource resource,
                                        final Set<QName> propNames,
-                                       boolean namesOnly,
-                                       final Session session) throws RepositoryException {
-    this.session = session;
+                                       boolean namesOnly) throws RepositoryException {
     this.namesOnly = namesOnly;
     this.resource = resource;
     this.propStats = new HashMap<String, Set<HierarchicalProperty>>();
@@ -76,12 +68,6 @@ public class PropstatGroupedRepresentation {
       }
     }
   }
-  
-  public PropstatGroupedRepresentation(final Resource resource,
-                                       final Set<QName> propNames,
-                                       boolean namesOnly) throws RepositoryException {
-    this(resource, propNames, namesOnly, null);
-  }
 
   public final Map<String, Set<HierarchicalProperty>> getPropStats() throws RepositoryException {
     String statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
@@ -92,18 +78,8 @@ public class PropstatGroupedRepresentation {
       for (QName propName : propNames) {
         HierarchicalProperty prop = new HierarchicalProperty(propName);
         try {
-
-          if(propName.equals(PropertyConstants.IS_READ_ONLY) && session != null){
-            if(isReadOnly()){
-              prop.setValue("1");
-            } else {
-              prop.setValue("0");
-            }            
-            statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
-          } else {
-            prop = resource.getProperty(propName);
-            statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
-          }
+          prop = resource.getProperty(propName);
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
 
         } catch (AccessDeniedException e) {
           statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
@@ -128,32 +104,6 @@ public class PropstatGroupedRepresentation {
       }
     }
     return propStats;
-  }
-  
-  private boolean isReadOnly() {
-    
-    String resourcePath = resource.getIdentifier().getPath();
-    String workspace = session.getWorkspace().getName();
-    String path = resourcePath.substring(resourcePath.indexOf(workspace) + workspace.length());
-      
-    try {
-      session.checkPermission(path, PermissionType.READ);
-    } catch (AccessControlException e1) {      
-      return false;
-    } catch (RepositoryException e1) {
-      return false;
-    }
-    
-    // Node must not have any permission except "read" so checking for any other permission 
-    // must throw AccessControlException
-      try{
-        session.checkPermission(path, PermissionType.SET_PROPERTY);
-        return false;
-      } catch (AccessControlException e) {
-        return true;
-      } catch (RepositoryException e) {
-        return false;
-      }
   }
 
 }
