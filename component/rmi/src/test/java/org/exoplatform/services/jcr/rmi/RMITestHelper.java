@@ -15,6 +15,23 @@
  * limitations under the License.
  */
 
+package org.exoplatform.services.jcr.rmi;
+
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
+import javax.jcr.Credentials;
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.Node;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
+
+import org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory;
+
 public class RMITestHelper {
   public static final String STUB_IMPL_PROPS = "repositoryStubImpl.properties";
 

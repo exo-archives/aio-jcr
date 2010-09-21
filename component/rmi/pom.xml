@@ -99,43 +99,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!--<version>2.0</version>-->
-        <!--Please use the newest version of maven-surefire-plugin, see jcr/component/core/pom.xml-->
         <configuration>
-          <includes />
-          <!-- include>**/core/TestInitRepository.java</include -->
-          <!--
-              TCK includes <include>**/init/TestAll.java</include> <include>**/api/*Test.java</include> <include>**/api/observation/TestAll.java</include>
-              <include>**/api/version/TestAll.java</include> <include>**/api/lock/TestAll.java</include> <include>**/api/nodetype/TestAll.java</include>
-              <include>**/api/query/TestAll.java</include>
-            -->
-          <!--
-              eXo tests <include>**/api/Document*Test.java</include> <include>**/impl/storage/ValueStoragePluginTest.java</include>
-              <include>**/impl/jndi/RepositoryBindingTest.java</include>
-            -->
-          <!-- usecases includes -->
-          <!-- include>**/usecases/common/*Test.java</include>
-            <include>**/usecases/common/Test*.java</include -->
-          <!-- include>**/usecases/common/TestRestoreNTFile.java</include -->
-          <!-- include>**/usecases/common/TestExportImportAmongSessions.java</include -->
-          <!-- include>**/usecases/common/TestNodeGetRequiredPrimaryTypes.java</include -->
-          <!-- include>**/usecases/nodetypes/TestNodeTypeRegisterReferenced.java</include -->
-          <excludes />
-          <!-- include>**/test/api/version/R*Test.java</include -->
-          <!-- include>**/test/api/version/Version*Test.java</include -->
-          <systemProperties>
-            <property>
-              <name>test.repository</name>
-              <value>db1</value>
-            </property>
-          </systemProperties>
+          <excludes>
+            <!-- Requires launched RMI server to pass -->
+            <exclude>**/RmiRepositoryConnectTest.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
-    <sourceDirectory>src/main/java</sourceDirectory>
-    <outputDirectory>target/classes</outputDirectory>
-    <testSourceDirectory>src/notest/java</testSourceDirectory>
-    <!-- TODO EXCLUDE THE TESTS -->
-    <testOutputDirectory>target/test-classes</testOutputDirectory>
   </build>
 </project>

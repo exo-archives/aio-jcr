@@ -32,6 +32,8 @@ import java.util.StringTokenizer;
 public class PermissionValue extends BaseNonStreamValue implements Serializable, StatefulValue {
 
   private static final long serialVersionUID = 1475495561074957852L;
+  
+  private static final String IDENTITY_DELIMITER = " ";
 
   private String            identity;
 
@@ -55,7 +57,7 @@ public class PermissionValue extends BaseNonStreamValue implements Serializable,
   }
 
   static public String[] parse(String pstring) {
-    StringTokenizer parser = new StringTokenizer(pstring, AccessControlList.DELIMITER);
+    StringTokenizer parser = new StringTokenizer(pstring, IDENTITY_DELIMITER);
     String identityString = parser.nextToken();
     String permissionString = parser.nextToken();
 
@@ -89,7 +91,7 @@ public class PermissionValue extends BaseNonStreamValue implements Serializable,
 
   static protected String asString(String identity, String permission) {
     if (identity != null || permission != null) // SystemIdentity.ANY, PermissionType.ALL
-      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlList.DELIMITER
+      return (identity != null ? identity : SystemIdentity.ANY) + IDENTITY_DELIMITER
           + (permission != null ? permission : PermissionType.READ);
     else
       return "";
