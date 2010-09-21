@@ -53,6 +53,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
@@ -264,7 +265,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
         newProperty = endMixinTypes(mixinNodeTypes, propName);
 
       } else if (nodeData.isMixReferenceable() && propName.equals(Constants.JCR_UUID)) {
-        newProperty = endUuid(nodeData, propName);
+        
+         newProperty = endUuid(nodeData, propName, propertiesMap.get(Constants.JCR_UUID));
 
       } else {
         PropertyDefinition pDef;
@@ -294,6 +296,35 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
           List<ValueData> values = new ArrayList<ValueData>();
           int pType = pDef.getRequiredType() > 0 ? pDef.getRequiredType() : PropertyType.STRING;
+          
+          if (defs.getAnyDefinition().getName().equals(Constants.JCR_ANY_NAME.getName())) 
+          {
+             if (nodeData.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH))
+             {
+                if (nodeData.getPrimaryTypeName().equals(Constants.NT_FROZENNODE))
+                {
+                   // get primaryType
+                   InternalQName fptName = locationFactory.parseJCRName(atts.get("jcr:frozenPrimaryType")).getInternalName();
+
+                   // get mixin types
+                   List<JCRName> mtNames = getJCRNames(atts.get("jcr:frozenMixinTypes"));
+
+                   InternalQName fmtName[] = new InternalQName[mtNames.size()];
+
+                   for (int i = 0; i < mtNames.size(); i++)
+                   {
+                      fmtName[i] = new InternalQName(mtNames.get(i).getNamespace(), mtNames.get(i).getName());
+                   }
+
+                   PropertyDefinitions ptVhdefs = ntManager.findPropertyDefinitions(propName, fptName, fmtName);
+
+                   if (ptVhdefs != null)
+                   {
+                      pType = (ptVhdefs.getAnyDefinition().getRequiredType() > 0 ? ptVhdefs.getAnyDefinition().getRequiredType() : PropertyType.STRING);
+                   }
+                }
+             }
+          }
 
           if ("".equals(propertiesMap.get(propName))) {
 
@@ -341,10 +372,37 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
           // determinating is property multivalue;
           if (values.size() == 1) {
-            // there is single-value defeniton
-            if (defs.getDefinition(false) != null) {
-              isMultivalue = false;
-            }
+             
+             PropertyDefinitions vhdefs = null;
+
+             if (defs.getAnyDefinition().getName().equals(Constants.JCR_ANY_NAME.getName())) {   
+                if (nodeData.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)) {
+                   if (nodeData.getPrimaryTypeName().equals(Constants.NT_FROZENNODE)) {
+                      // get primaryType
+                      InternalQName fptName = locationFactory.parseJCRName(atts.get("jcr:frozenPrimaryType")).getInternalName();
+   
+                      // get mixin types
+                      List<JCRName> mtNames = getJCRNames(atts.get("jcr:frozenMixinTypes"));
+   
+                      InternalQName fmtName[] = new InternalQName[mtNames.size()];
+   
+                      for (int i = 0; i < mtNames.size(); i++) {
+                         fmtName[i] = new InternalQName(mtNames.get(i).getNamespace(), mtNames.get(i).getName());
+                      }
+   
+                      vhdefs = ntManager.findPropertyDefinitions(propName, fptName, fmtName);
+   
+                      if (vhdefs != null) {
+                         isMultivalue = (vhdefs.getDefinition(true) != null ? true : false);
+                      }
+                   }
+                }
+             }
+
+             // there is single-value defeniton
+             if (vhdefs == null && defs.getDefinition(false) != null) {
+                   isMultivalue = false;
+             }
           } else {
             if ((defs.getDefinition(true) == null) && (defs.getDefinition(false) != null)) {
               throw new ValueFormatException("Can not assign multiple-values Value"
@@ -382,6 +440,28 @@ public class DocumentViewImporter extends BaseXmlImporter {
     if (nodeData.isMixVersionable()) {
       createVersionHistory(nodeData);
     }
+  }
+  
+  private List<JCRName> getJCRNames(String string) throws RepositoryException
+  {
+     List<JCRName> mtNames = new ArrayList<JCRName>();
+     
+     StringTokenizer spaceToken = new StringTokenizer(string);
+     
+     List<String> denormalizedStrings = new ArrayList<String>();
+     while (spaceToken.hasMoreTokens())
+     {
+        String elem = spaceToken.nextToken();
+        String denormalizeString = StringConverter.denormalizeString(elem);
+        denormalizedStrings.add(denormalizeString);
+     }
+     
+     for (String mixinName : denormalizedStrings)
+     {
+        mtNames.add(locationFactory.parseJCRName(mixinName));
+     }
+     
+     return mtNames;
   }
 
   /**
@@ -492,7 +572,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
    * @throws RepositoryException
    * @throws IllegalStateException
    */
-  private PropertyData endUuid(ImportNodeData nodeData, InternalQName key) throws ValueFormatException,
+  private PropertyData endUuid(ImportNodeData nodeData, InternalQName key, String properyValueUUID) throws ValueFormatException,
                                                                           UnsupportedRepositoryOperationException,
                                                                           RepositoryException,
                                                                           IllegalStateException {
@@ -502,11 +582,22 @@ public class DocumentViewImporter extends BaseXmlImporter {
       log.debug("Property STRING: " + key + "=" + value.getString());
     }
 
-    newProperty = TransientPropertyData.createPropertyData(getParent(),
-                                                           Constants.JCR_UUID,
-                                                           PropertyType.STRING,
-                                                           false,
-                                                           new TransientValueData(nodeData.getIdentifier()));
+    if (nodeData.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)) {
+       
+      newProperty = TransientPropertyData.createPropertyData(getParent(), 
+                                                             Constants.JCR_UUID, 
+                                                             PropertyType.STRING, 
+                                                             false,
+                                                             new TransientValueData(properyValueUUID));
+    } else {
+      
+       newProperty = TransientPropertyData.createPropertyData(getParent(), 
+                                                              Constants.JCR_UUID, 
+                                                              PropertyType.STRING, 
+                                                              false,
+                                                              new TransientValueData(nodeData.getIdentifier()));
+    }
+    
     return newProperty;
   }
 
