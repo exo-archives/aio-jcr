@@ -1,198 +1,300 @@
-Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/LockCommand.java
 ===================================================================
---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(revision 51632)
-+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/xml/PropstatGroupedRepresentation.java	(working copy)
-@@ -17,6 +17,7 @@
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/LockCommand.java	(revision 52190)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/LockCommand.java	(working copy)
+@@ -17,30 +17,33 @@
  
- package org.exoplatform.services.jcr.webdav.xml;
+ package org.exoplatform.services.jcr.webdav.command;
  
-+import java.security.AccessControlException;
- import java.util.HashMap;
- import java.util.HashSet;
- import java.util.Iterator;
-@@ -27,11 +28,14 @@
- import javax.jcr.ItemNotFoundException;
- import javax.jcr.PathNotFoundException;
- import javax.jcr.RepositoryException;
-+import javax.jcr.Session;
- import javax.xml.namespace.QName;
- 
- import org.exoplatform.common.util.HierarchicalProperty;
++import org.exoplatform.common.util.HierarchicalProperty;
 +import org.exoplatform.services.jcr.access.PermissionType;
- import org.exoplatform.services.jcr.webdav.WebDavStatus;
- import org.exoplatform.services.jcr.webdav.resource.Resource;
-+import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
- 
- /**
-  * Created by The eXo Platform SARL .<br/>
-@@ -50,11 +54,15 @@
- 
-   protected final Resource                               resource;
- 
-+  protected final Session                                session;
++import org.exoplatform.services.jcr.impl.Constants;
++import org.exoplatform.services.jcr.webdav.Depth;
++import org.exoplatform.services.jcr.webdav.WebDavStatus;
++import org.exoplatform.services.jcr.webdav.command.lock.LockRequestEntity;
++import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
++import org.exoplatform.services.jcr.webdav.resource.GenericResource;
++import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
++import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
++import org.exoplatform.services.rest.Response;
++import org.exoplatform.services.rest.transformer.SerializableEntity;
 +
-   public PropstatGroupedRepresentation(final Resource resource,
-                                        final Set<QName> propNames,
--                                       boolean namesOnly) throws RepositoryException {
-+                                       boolean namesOnly,
-+                                       Session session) throws RepositoryException {
-     this.namesOnly = namesOnly;
-     this.resource = resource;
-+    this.session = session;
-     this.propStats = new HashMap<String, Set<HierarchicalProperty>>();
+ import java.io.IOException;
+ import java.io.OutputStream;
++import java.security.AccessControlException;
  
-     this.propNames = propNames;
-@@ -69,6 +77,12 @@
-     }
-   }
- 
-+  public PropstatGroupedRepresentation(final Resource resource,
-+                                       final Set<QName> propNames,
-+                                       boolean namesOnly) throws RepositoryException {
-+    this(resource, propNames, namesOnly, null);
-+  }
-+
-   public final Map<String, Set<HierarchicalProperty>> getPropStats() throws RepositoryException {
-     String statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
-     if (propNames == null) {
-@@ -78,9 +92,17 @@
-       for (QName propName : propNames) {
-         HierarchicalProperty prop = new HierarchicalProperty(propName);
-         try {
--          prop = resource.getProperty(propName);
--          statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
--
-+          if (propName.equals(PropertyConstants.IS_READ_ONLY) && session != null) {
-+            if (isReadOnly()) {
-+              prop.setValue("1");
-+            } else {
-+              prop.setValue("0");
-+            }
-+            statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
-+          } else {
-+            prop = resource.getProperty(propName);
-+            statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
-+          }
-         } catch (AccessDeniedException e) {
-           statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
-           e.printStackTrace();
-@@ -106,4 +128,31 @@
-     return propStats;
-   }
- 
-+  private boolean isReadOnly() {
-+
-+    String resourcePath = resource.getIdentifier().getPath();
-+    String workspace = session.getWorkspace().getName();
-+    String path = resourcePath.substring(resourcePath.indexOf(workspace) + workspace.length());
-+
-+    try {
-+      session.checkPermission(path, PermissionType.READ);
-+    } catch (AccessControlException e1) {
-+      return false;
-+    } catch (RepositoryException e1) {
-+      return false;
-+    }
-+
-+    // Node must not have any permission except "set_property" so checking for
-+    // this permission
-+    // must throw AccessControlException
-+    try {
-+      session.checkPermission(path, PermissionType.SET_PROPERTY);
-+      return false;
-+    } catch (AccessControlException e) {
-+      return true;
-+    } catch (RepositoryException e) {
-+      return false;
-+    }
-+  }
-+
- }
-Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java
-===================================================================
---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java	(revision 51632)
-+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/util/PropertyConstants.java	(working copy)
-@@ -72,6 +72,8 @@
-   public static final QName  WRITE                = new QName("DAV:", "write");
- 
-   public static final QName  ORDERING_TYPE        = new QName("DAV:", "ordering-type");
-+  
-+  public static final QName IS_READ_ONLY = new QName("DAV:", "isreadonly");
- 
-   // date and time patterns for DAV:creationdate and DAV:getlastmodified
- 
-Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java
-===================================================================
---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(revision 51632)
-+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/propfind/PropFindResponseEntity.java	(working copy)
-@@ -25,6 +25,7 @@
- import java.util.Set;
- 
- import javax.jcr.RepositoryException;
-+import javax.jcr.Session;
- import javax.xml.namespace.QName;
+ import javax.jcr.AccessDeniedException;
+ import javax.jcr.Node;
+ import javax.jcr.PathNotFoundException;
++import javax.jcr.RepositoryException;
+ import javax.jcr.Session;
+ import javax.jcr.lock.Lock;
+ import javax.jcr.lock.LockException;
  import javax.xml.stream.XMLOutputFactory;
- import javax.xml.stream.XMLStreamException;
-@@ -63,17 +64,28 @@
+ import javax.xml.stream.XMLStreamWriter;
  
-   protected final boolean                propertyNamesOnly;
+-import org.exoplatform.common.util.HierarchicalProperty;
+-import org.exoplatform.services.jcr.impl.Constants;
+-import org.exoplatform.services.jcr.webdav.Depth;
+-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+-import org.exoplatform.services.jcr.webdav.command.lock.LockRequestEntity;
+-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
+-import org.exoplatform.services.jcr.webdav.resource.GenericResource;
+-import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
+-import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+-import org.exoplatform.services.rest.Response;
+-import org.exoplatform.services.rest.transformer.SerializableEntity;
+-
+ /**
+  * Created by The eXo Platform SAS .<br/>
+  * 
+@@ -48,117 +51,163 @@
+  * @version $Id$
+  */
  
-+  protected final Session                session;
+-public class LockCommand {
++public class LockCommand
++{
+ 
+-  private final NullResourceLocksHolder nullResourceLocks;
++   private final NullResourceLocksHolder nullResourceLocks;
+ 
+-  public LockCommand(final NullResourceLocksHolder nullResourceLocks) {
+-    this.nullResourceLocks = nullResourceLocks;
+-  }
++   public LockCommand(final NullResourceLocksHolder nullResourceLocks)
++   {
++      this.nullResourceLocks = nullResourceLocks;
++   }
+ 
+-  public Response lock(Session session,
+-                       String path,
+-                       HierarchicalProperty body,
+-                       Depth depth,
+-                       String timeout) {
++   public Response lock(Session session, String path, HierarchicalProperty body, Depth depth, String timeout)
++   {
+ 
+-    String lockToken;
+-    try {
+-      WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
+-      try {
+-        Node node = (Node) session.getItem(path);
++      String lockToken;
++      try
++      {
++         WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
++         try
++         {
++            Node node = (Node)session.getItem(path);
+ 
+-        if (!node.isNodeType("mix:lockable")) {
+-          if (node.canAddMixin("mix:lockable")) {
+-            node.addMixin("mix:lockable");
+-            session.save();
+-          }
+-        }
++            if (!node.isNodeType("mix:lockable"))
++            {
++               if (node.canAddMixin("mix:lockable"))
++               {
++                  node.addMixin("mix:lockable");
++                  session.save();
++               }
++            }
+ 
+-        Lock lock = node.lock((depth.getIntValue() != 1), false);
+-        lockToken = lock.getLockToken();
+-      } catch (PathNotFoundException pexc) {
+-        lockToken = nullResourceLocks.addLock(session, path);
++            Lock lock = node.lock((depth.getIntValue() != 1), false);
++            lockToken = lock.getLockToken();
++         }
++         catch (PathNotFoundException pexc)
++         {
++            lockToken = nullResourceLocks.addLock(session, path);
++         }
 +
-   public PropFindResponseEntity(int depth,
-                                 Resource rootResource,
-                                 Set<QName> propertyNames,
--                                boolean propertyNamesOnly) {
-+                                boolean propertyNamesOnly,
-+                                Session session) {
-     this.rootResource = rootResource;
-     this.namespaceContext = rootResource.getNamespaceContext();
-     this.propertyNames = propertyNames;
-     this.depth = depth;
-     this.propertyNamesOnly = propertyNamesOnly;
-+    this.session = session;
-   }
- 
-+  public PropFindResponseEntity(int depth,
-+                                Resource rootResource,
-+                                Set<QName> propertyNames,
-+                                boolean propertyNamesOnly) {
-+    this(depth, rootResource, propertyNames, propertyNamesOnly, null);
-+  }
++         LockRequestEntity requestEntity = new LockRequestEntity(body);
 +
-   /*
-    * (non-Javadoc)
-    * @see
-@@ -111,7 +123,8 @@
-   private void traverseResources(Resource resource, int counter) throws XMLStreamException,
-                                                                 RepositoryException,
-                                                                 IllegalResourceTypeException,
--                                                                URISyntaxException, UnsupportedEncodingException {
-+                                                                URISyntaxException,
-+                                                                UnsupportedEncodingException {
++         return Response.Builder.ok(
++            body(nsContext, requestEntity, depth, lockToken, requestEntity.getOwner(), timeout), "text/xml").header(
++            "Lock-Token", "<" + lockToken + ">").build();
++
++         // TODO 412 Precondition Failed ?
+       }
++      catch (LockException e)
++      {
++         return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
++      }
++      catch (AccessDeniedException e)
++      {
++         if (isReadOnly(session, path))
++         {
++            return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage("This is read only node.").build();
++         }
++         else
++         {
++            return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
++         }
++      }
++      catch (Exception e)
++      {
++         e.printStackTrace();
++         return Response.Builder.serverError().errorMessage(e.getMessage()).build();
++      }
  
-     xmlStreamWriter.writeStartElement("DAV:", "response");
+-      LockRequestEntity requestEntity = new LockRequestEntity(body);
++   }
  
-@@ -127,7 +140,8 @@
+-      return Response.Builder.ok(body(nsContext,
+-                                      requestEntity,
+-                                      depth,
+-                                      lockToken,
+-                                      requestEntity.getOwner(),
+-                                      timeout),
+-                                 "text/xml").header("Lock-Token", "<" + lockToken + ">").build();
++   private final SerializableEntity body(WebDavNamespaceContext nsContext, LockRequestEntity input, Depth depth,
++      String lockToken, String lockOwner, String timeout)
++   {
++      return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
++   }
  
-     PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
-                                                                                propertyNames,
--                                                                               propertyNamesOnly);
-+                                                                               propertyNamesOnly,
-+                                                                               session);
+-      // TODO 412 Precondition Failed ?
+-    } catch (LockException e) {
+-      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
+-    } catch (AccessDeniedException e) {
+-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
+-    } catch (Exception e) {
+-      e.printStackTrace();
+-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+-    }
++   public class LockResultResponseEntity implements SerializableEntity
++   {
  
-     PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
+-  }
++      protected WebDavNamespaceContext nsContext;
  
-Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java
-===================================================================
---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java	(revision 51632)
-+++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/PropFindCommand.java	(working copy)
-@@ -116,7 +116,7 @@
-     } else if (request.getType().equalsIgnoreCase("propname")) {
-       response = new PropFindResponseEntity(depth, resource, null, true);
-     } else if (request.getType().equalsIgnoreCase("prop")) {
--      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false);
-+      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false, session);
-     } else {
-       return Response.Builder.badRequest().errorMessage("Unexpected property name "
-           + request.getType()).build();
+-  private final SerializableEntity body(WebDavNamespaceContext nsContext,
+-                                        LockRequestEntity input,
+-                                        Depth depth,
+-                                        String lockToken,
+-                                        String lockOwner,
+-                                        String timeout) {
+-    return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
+-  }
++      protected String lockToken;
+ 
+-  public class LockResultResponseEntity implements SerializableEntity {
++      protected String lockOwner;
+ 
+-    protected WebDavNamespaceContext nsContext;
++      protected String timeOut;
+ 
+-    protected String                 lockToken;
++      public LockResultResponseEntity(WebDavNamespaceContext nsContext, String lockToken, String lockOwner,
++         String timeOut)
++      {
++         this.nsContext = nsContext;
++         this.lockToken = lockToken;
++         this.lockOwner = lockOwner;
++         this.timeOut = timeOut;
++      }
+ 
+-    protected String                 lockOwner;
++      public void writeObject(OutputStream stream) throws IOException
++      {
++         try
++         {
++            XMLStreamWriter xmlStreamWriter =
++               XMLOutputFactory.newInstance().createXMLStreamWriter(stream, Constants.DEFAULT_ENCODING);
++            xmlStreamWriter.setNamespaceContext(nsContext);
++            xmlStreamWriter.setDefaultNamespace("DAV:");
+ 
+-    protected String                 timeOut;
++            xmlStreamWriter.writeStartDocument();
+ 
+-    public LockResultResponseEntity(WebDavNamespaceContext nsContext,
+-                                    String lockToken,
+-                                    String lockOwner,
+-                                    String timeOut) {
+-      this.nsContext = nsContext;
+-      this.lockToken = lockToken;
+-      this.lockOwner = lockOwner;
+-      this.timeOut = timeOut;
+-    }
++            xmlStreamWriter.writeStartElement("D", "prop", "DAV:");
++            xmlStreamWriter.writeNamespace("D", "DAV:");
+ 
+-    public void writeObject(OutputStream stream) throws IOException {
+-      try {
+-        XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
+-                                                          .createXMLStreamWriter(stream,
+-                                                                                 Constants.DEFAULT_ENCODING);
+-        xmlStreamWriter.setNamespaceContext(nsContext);
+-        xmlStreamWriter.setDefaultNamespace("DAV:");
++            HierarchicalProperty lockDiscovery = GenericResource.lockDiscovery(lockToken, lockOwner, timeOut);
++            PropertyWriteUtil.writeProperty(xmlStreamWriter, lockDiscovery);
+ 
+-        xmlStreamWriter.writeStartDocument();
++            xmlStreamWriter.writeEndElement();
+ 
+-        xmlStreamWriter.writeStartElement("D", "prop", "DAV:");
+-        xmlStreamWriter.writeNamespace("D", "DAV:");
++            xmlStreamWriter.writeEndDocument();
++         }
++         catch (Exception e)
++         {
++            e.printStackTrace();
++            throw new IOException(e.getMessage());
++         }
++      }
+ 
+-        HierarchicalProperty lockDiscovery = GenericResource.lockDiscovery(lockToken,
+-                                                                           lockOwner,
+-                                                                           timeOut);
+-        PropertyWriteUtil.writeProperty(xmlStreamWriter, lockDiscovery);
++   }
+ 
+-        xmlStreamWriter.writeEndElement();
++   private boolean isReadOnly(Session session, String path)
++   {
+ 
+-        xmlStreamWriter.writeEndDocument();
+-      } catch (Exception e) {
+-        e.printStackTrace();
+-        throw new IOException(e.getMessage());
++      try
++      {
++         session.checkPermission(path, PermissionType.READ);
+       }
+-    }
++      catch (AccessControlException e1)
++      {
++         return false;
++      }
++      catch (RepositoryException e1)
++      {
++         return false;
++      }
+ 
+-  }
++      // Node must not have any permission except "set_property" so checking for
++      // this permission
++      // must throw AccessControlException
++      try
++      {
++         session.checkPermission(path, PermissionType.SET_PROPERTY);
++         return false;
++      }
++      catch (AccessControlException e)
++      {
++         return true;
++      }
++      catch (RepositoryException e)
++      {
++         return false;
++      }
++   }
+ 
+ }
