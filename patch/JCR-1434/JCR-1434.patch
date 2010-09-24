@@ -1,6 +1,6 @@
 Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/LockCommand.java
 ===================================================================
---- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/LockCommand.java	(revision 52190)
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/LockCommand.java	(revision 52279)
 +++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/LockCommand.java	(working copy)
 @@ -17,30 +17,33 @@
  
@@ -48,253 +48,48 @@ Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/comman
  /**
   * Created by The eXo Platform SAS .<br/>
   * 
-@@ -48,117 +51,163 @@
-  * @version $Id$
-  */
- 
--public class LockCommand {
-+public class LockCommand
-+{
- 
--  private final NullResourceLocksHolder nullResourceLocks;
-+   private final NullResourceLocksHolder nullResourceLocks;
- 
--  public LockCommand(final NullResourceLocksHolder nullResourceLocks) {
--    this.nullResourceLocks = nullResourceLocks;
--  }
-+   public LockCommand(final NullResourceLocksHolder nullResourceLocks)
-+   {
-+      this.nullResourceLocks = nullResourceLocks;
-+   }
- 
--  public Response lock(Session session,
--                       String path,
--                       HierarchicalProperty body,
--                       Depth depth,
--                       String timeout) {
-+   public Response lock(Session session, String path, HierarchicalProperty body, Depth depth, String timeout)
-+   {
- 
--    String lockToken;
--    try {
--      WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
--      try {
--        Node node = (Node) session.getItem(path);
-+      String lockToken;
-+      try
-+      {
-+         WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
-+         try
-+         {
-+            Node node = (Node)session.getItem(path);
- 
--        if (!node.isNodeType("mix:lockable")) {
--          if (node.canAddMixin("mix:lockable")) {
--            node.addMixin("mix:lockable");
--            session.save();
--          }
--        }
-+            if (!node.isNodeType("mix:lockable"))
-+            {
-+               if (node.canAddMixin("mix:lockable"))
-+               {
-+                  node.addMixin("mix:lockable");
-+                  session.save();
-+               }
-+            }
- 
--        Lock lock = node.lock((depth.getIntValue() != 1), false);
--        lockToken = lock.getLockToken();
--      } catch (PathNotFoundException pexc) {
--        lockToken = nullResourceLocks.addLock(session, path);
-+            Lock lock = node.lock((depth.getIntValue() != 1), false);
-+            lockToken = lock.getLockToken();
-+         }
-+         catch (PathNotFoundException pexc)
-+         {
-+            lockToken = nullResourceLocks.addLock(session, path);
-+         }
-+
-+         LockRequestEntity requestEntity = new LockRequestEntity(body);
-+
-+         return Response.Builder.ok(
-+            body(nsContext, requestEntity, depth, lockToken, requestEntity.getOwner(), timeout), "text/xml").header(
-+            "Lock-Token", "<" + lockToken + ">").build();
-+
-+         // TODO 412 Precondition Failed ?
-       }
-+      catch (LockException e)
-+      {
-+         return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
-+      }
-+      catch (AccessDeniedException e)
-+      {
-+         if (isReadOnly(session, path))
-+         {
-+            return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage("This is read only node.").build();
-+         }
-+         else
-+         {
-+            return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
-+         }
-+      }
-+      catch (Exception e)
-+      {
-+         e.printStackTrace();
-+         return Response.Builder.serverError().errorMessage(e.getMessage()).build();
-+      }
- 
--      LockRequestEntity requestEntity = new LockRequestEntity(body);
-+   }
- 
--      return Response.Builder.ok(body(nsContext,
--                                      requestEntity,
--                                      depth,
--                                      lockToken,
--                                      requestEntity.getOwner(),
--                                      timeout),
--                                 "text/xml").header("Lock-Token", "<" + lockToken + ">").build();
-+   private final SerializableEntity body(WebDavNamespaceContext nsContext, LockRequestEntity input, Depth depth,
-+      String lockToken, String lockOwner, String timeout)
-+   {
-+      return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
-+   }
- 
--      // TODO 412 Precondition Failed ?
--    } catch (LockException e) {
--      return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
--    } catch (AccessDeniedException e) {
+@@ -95,7 +98,15 @@
+     } catch (LockException e) {
+       return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
+     } catch (AccessDeniedException e) {
 -      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
--    } catch (Exception e) {
--      e.printStackTrace();
--      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
--    }
-+   public class LockResultResponseEntity implements SerializableEntity
-+   {
- 
--  }
-+      protected WebDavNamespaceContext nsContext;
- 
--  private final SerializableEntity body(WebDavNamespaceContext nsContext,
--                                        LockRequestEntity input,
--                                        Depth depth,
--                                        String lockToken,
--                                        String lockOwner,
--                                        String timeout) {
--    return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
--  }
-+      protected String lockToken;
- 
--  public class LockResultResponseEntity implements SerializableEntity {
-+      protected String lockOwner;
- 
--    protected WebDavNamespaceContext nsContext;
-+      protected String timeOut;
- 
--    protected String                 lockToken;
-+      public LockResultResponseEntity(WebDavNamespaceContext nsContext, String lockToken, String lockOwner,
-+         String timeOut)
-+      {
-+         this.nsContext = nsContext;
-+         this.lockToken = lockToken;
-+         this.lockOwner = lockOwner;
-+         this.timeOut = timeOut;
++      if (isReadOnly(session, path)) {
++        return Response.Builder.withStatus(WebDavStatus.LOCKED)
++                               .errorMessage("This is read only node.")
++                               .build();
++      } else {
++        return Response.Builder.withStatus(WebDavStatus.FORBIDDEN)
++                               .errorMessage(e.getMessage())
++                               .build();
 +      }
+     } catch (Exception e) {
+       e.printStackTrace();
+       return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+@@ -161,4 +172,27 @@
  
--    protected String                 lockOwner;
-+      public void writeObject(OutputStream stream) throws IOException
-+      {
-+         try
-+         {
-+            XMLStreamWriter xmlStreamWriter =
-+               XMLOutputFactory.newInstance().createXMLStreamWriter(stream, Constants.DEFAULT_ENCODING);
-+            xmlStreamWriter.setNamespaceContext(nsContext);
-+            xmlStreamWriter.setDefaultNamespace("DAV:");
+   }
  
--    protected String                 timeOut;
-+            xmlStreamWriter.writeStartDocument();
- 
--    public LockResultResponseEntity(WebDavNamespaceContext nsContext,
--                                    String lockToken,
--                                    String lockOwner,
--                                    String timeOut) {
--      this.nsContext = nsContext;
--      this.lockToken = lockToken;
--      this.lockOwner = lockOwner;
--      this.timeOut = timeOut;
--    }
-+            xmlStreamWriter.writeStartElement("D", "prop", "DAV:");
-+            xmlStreamWriter.writeNamespace("D", "DAV:");
- 
--    public void writeObject(OutputStream stream) throws IOException {
--      try {
--        XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
--                                                          .createXMLStreamWriter(stream,
--                                                                                 Constants.DEFAULT_ENCODING);
--        xmlStreamWriter.setNamespaceContext(nsContext);
--        xmlStreamWriter.setDefaultNamespace("DAV:");
-+            HierarchicalProperty lockDiscovery = GenericResource.lockDiscovery(lockToken, lockOwner, timeOut);
-+            PropertyWriteUtil.writeProperty(xmlStreamWriter, lockDiscovery);
- 
--        xmlStreamWriter.writeStartDocument();
-+            xmlStreamWriter.writeEndElement();
- 
--        xmlStreamWriter.writeStartElement("D", "prop", "DAV:");
--        xmlStreamWriter.writeNamespace("D", "DAV:");
-+            xmlStreamWriter.writeEndDocument();
-+         }
-+         catch (Exception e)
-+         {
-+            e.printStackTrace();
-+            throw new IOException(e.getMessage());
-+         }
-+      }
- 
--        HierarchicalProperty lockDiscovery = GenericResource.lockDiscovery(lockToken,
--                                                                           lockOwner,
--                                                                           timeOut);
--        PropertyWriteUtil.writeProperty(xmlStreamWriter, lockDiscovery);
-+   }
- 
--        xmlStreamWriter.writeEndElement();
-+   private boolean isReadOnly(Session session, String path)
-+   {
- 
--        xmlStreamWriter.writeEndDocument();
--      } catch (Exception e) {
--        e.printStackTrace();
--        throw new IOException(e.getMessage());
-+      try
-+      {
-+         session.checkPermission(path, PermissionType.READ);
-       }
--    }
-+      catch (AccessControlException e1)
-+      {
-+         return false;
-+      }
-+      catch (RepositoryException e1)
-+      {
-+         return false;
-+      }
- 
--  }
-+      // Node must not have any permission except "set_property" so checking for
-+      // this permission
-+      // must throw AccessControlException
-+      try
-+      {
-+         session.checkPermission(path, PermissionType.SET_PROPERTY);
-+         return false;
-+      }
-+      catch (AccessControlException e)
-+      {
-+         return true;
-+      }
-+      catch (RepositoryException e)
-+      {
-+         return false;
-+      }
-+   }
- 
++  private boolean isReadOnly(Session session, String path) {
++
++    try {
++      session.checkPermission(path, PermissionType.READ);
++    } catch (AccessControlException e1) {
++      return false;
++    } catch (RepositoryException e1) {
++      return false;
++    }
++
++    // Node must not have any permission except "set_property" so checking for
++    // this permission
++    // must throw AccessControlException
++    try {
++      session.checkPermission(path, PermissionType.SET_PROPERTY);
++      return false;
++    } catch (AccessControlException e) {
++      return true;
++    } catch (RepositoryException e) {
++      return false;
++    }
++  }
++
  }
