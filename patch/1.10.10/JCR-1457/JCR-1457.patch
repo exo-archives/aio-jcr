@@ -22,14 +22,52 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
 ===================================================================
 --- component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/SystemViewImporter.java	(revision 52550)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/SystemViewImporter.java	(working copy)
-@@ -32,7 +32,6 @@
- import javax.jcr.nodetype.NoSuchNodeTypeException;
+@@ -16,23 +16,7 @@
+  */
+ package org.exoplatform.services.jcr.impl.xml.importing;
  
+-import java.io.IOException;
+-import java.io.InputStream;
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.List;
+-import java.util.Map;
+-
+-import javax.jcr.NamespaceRegistry;
+-import javax.jcr.PathNotFoundException;
+-import javax.jcr.PropertyType;
+-import javax.jcr.RepositoryException;
+-import javax.jcr.ValueFormatException;
+-import javax.jcr.nodetype.ConstraintViolationException;
+-import javax.jcr.nodetype.NoSuchNodeTypeException;
+-
  import org.apache.commons.logging.Log;
 -
  import org.exoplatform.services.jcr.access.AccessManager;
  import org.exoplatform.services.jcr.core.ExtendedPropertyType;
  import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+@@ -60,6 +44,21 @@
+ import org.exoplatform.services.log.ExoLogger;
+ import org.exoplatform.services.security.ConversationState;
+ 
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.List;
++import java.util.Map;
++
++import javax.jcr.NamespaceRegistry;
++import javax.jcr.PathNotFoundException;
++import javax.jcr.PropertyType;
++import javax.jcr.RepositoryException;
++import javax.jcr.ValueFormatException;
++import javax.jcr.nodetype.ConstraintViolationException;
++import javax.jcr.nodetype.NoSuchNodeTypeException;
++
+ /**
+  * Created by The eXo Platform SAS.
+  * 
 @@ -165,7 +164,7 @@
           
          ImportNodeData currentNodeInfo = (ImportNodeData)getParent();
@@ -48,7 +86,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
  
        tree.push(newNodeData);
  
-@@ -297,7 +296,7 @@
+@@ -297,13 +296,13 @@
    private void endNode() throws RepositoryException {
      ImportNodeData currentNodeInfo = (ImportNodeData) tree.pop();
      
@@ -57,6 +95,13 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/import
      
      if (currentNodePropertiesInfo != null) {
        checkProperties(currentNodePropertiesInfo);
+     }
+     
+-    mapNodePropertiesInfo.remove(currentNodeInfo.getQPath().getAsString());
++    mapNodePropertiesInfo.remove(currentNodeInfo.getIdentifier());
+ 
+     currentNodeInfo.setMixinTypeNames(currentNodeInfo.getMixinTypeNames());
+ 
 @@ -539,7 +538,8 @@
  
      tree.push(currentNodeInfo);
