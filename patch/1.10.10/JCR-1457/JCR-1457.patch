@@ -1,0 +1,90 @@
+Index: component/ext/pom.xml
+===================================================================
+--- component/ext/pom.xml	(revision 52550)
++++ component/ext/pom.xml	(working copy)
+@@ -234,6 +234,7 @@
+             <include>**/replication/*.java</include>
+             <include>**/replication/external/*.java</include>
+             <include>**/organization/Test*.java</include>
++            <include>**/backup/TestBackupManager.java</include>
+           </includes>
+           <excludes>
+             <exclude>**/*$*</exclude>
+@@ -242,7 +243,6 @@
+             <exclude>**/replication/*.java</exclude>
+             <exclude>**/replication/external/*.java</exclude>
+             <exclude>**/replication/external/BaseTestCaseChecker.java</exclude>
+-            <exclude>**/backup/*.java</exclude>
+             <exclude>**/access/*.java</exclude>
+           </excludes>
+         </configuration>
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/SystemViewImporter.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/SystemViewImporter.java	(revision 52550)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/SystemViewImporter.java	(working copy)
+@@ -32,7 +32,6 @@
+ import javax.jcr.nodetype.NoSuchNodeTypeException;
+ 
+ import org.apache.commons.logging.Log;
+-
+ import org.exoplatform.services.jcr.access.AccessManager;
+ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
+ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+@@ -165,7 +164,7 @@
+          
+         ImportNodeData currentNodeInfo = (ImportNodeData)getParent();
+          
+-        NodePropertiesInfo currentNodePropertiesInfo = mapNodePropertiesInfo.get(currentNodeInfo.getQPath().getAsString());
++        NodePropertiesInfo currentNodePropertiesInfo = mapNodePropertiesInfo.get(currentNodeInfo.getIdentifier());
+         
+         currentNodePropertiesInfo.addProperty(propertyData);
+       }
+@@ -220,7 +219,7 @@
+ 
+       changesLog.add(new ItemState(newNodeData, ItemState.ADDED, true, getAncestorToSave()));
+       
+-      mapNodePropertiesInfo.put(newNodeData.getQPath().getAsString(), new NodePropertiesInfo(newNodeData));  
++      mapNodePropertiesInfo.put(newNodeData.getIdentifier(), new NodePropertiesInfo(newNodeData));
+ 
+       tree.push(newNodeData);
+ 
+@@ -297,7 +296,7 @@
+   private void endNode() throws RepositoryException {
+     ImportNodeData currentNodeInfo = (ImportNodeData) tree.pop();
+     
+-    NodePropertiesInfo currentNodePropertiesInfo = mapNodePropertiesInfo.get(currentNodeInfo.getQPath().getAsString()); 
++    NodePropertiesInfo currentNodePropertiesInfo = mapNodePropertiesInfo.get(currentNodeInfo.getIdentifier());
+     
+     if (currentNodePropertiesInfo != null) {
+       checkProperties(currentNodePropertiesInfo);
+@@ -539,7 +538,8 @@
+ 
+     tree.push(currentNodeInfo);
+     
+-    mapNodePropertiesInfo.put(currentNodeInfo.getQPath().getAsString(), new NodePropertiesInfo(currentNodeInfo));
++    mapNodePropertiesInfo.put(currentNodeInfo.getIdentifier(),
++                              new NodePropertiesInfo(currentNodeInfo));
+     
+     return propertyData;
+   }
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/WorkspaceContentImporter.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/WorkspaceContentImporter.java	(revision 52550)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/WorkspaceContentImporter.java	(working copy)
+@@ -22,7 +22,6 @@
+ import javax.jcr.RepositoryException;
+ 
+ import org.apache.commons.logging.Log;
+-
+ import org.exoplatform.services.jcr.access.AccessControlList;
+ import org.exoplatform.services.jcr.access.AccessManager;
+ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
+@@ -148,6 +147,8 @@
+         changesLog.add(new ItemState(newNodeData, ItemState.ADDED, true, parentData.getQPath()));
+       }
+       tree.push(newNodeData);
++
++      mapNodePropertiesInfo.put(newNodeData.getIdentifier(), new NodePropertiesInfo(newNodeData));
+     } else {
+       super.startElement(namespaceURI, localName, name, atts);
+       if (Constants.SV_PROPERTY_NAME.equals(elementName)) {
