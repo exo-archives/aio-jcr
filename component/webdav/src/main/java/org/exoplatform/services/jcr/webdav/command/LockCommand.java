@@ -17,19 +17,8 @@
 
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import javax.jcr.AccessDeniedException;
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-import javax.jcr.lock.LockException;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.Depth;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
@@ -40,6 +29,20 @@ import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.AccessControlException;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.lock.Lock;
+import javax.jcr.lock.LockException;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Created by The eXo Platform SAS .<br/>
@@ -95,7 +98,15 @@ public class LockCommand {
     } catch (LockException e) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
     } catch (AccessDeniedException e) {
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).errorMessage(e.getMessage()).build();
+      if (isReadOnly(session, path)) {
+        return Response.Builder.withStatus(WebDavStatus.LOCKED)
+                               .errorMessage("This is read only node.")
+                               .build();
+      } else {
+        return Response.Builder.withStatus(WebDavStatus.FORBIDDEN)
+                               .errorMessage(e.getMessage())
+                               .build();
+      }
     } catch (Exception e) {
       e.printStackTrace();
       return Response.Builder.serverError().errorMessage(e.getMessage()).build();
@@ -159,6 +170,29 @@ public class LockCommand {
       }
     }
 
+  }
+  
+  private boolean isReadOnly(Session session, String path) {
+
+    try {
+      session.checkPermission(path, PermissionType.READ);
+    } catch (AccessControlException e1) {
+      return false;
+    } catch (RepositoryException e1) {
+      return false;
+    }
+
+    // Node must not have any permission except "set_property" so checking for
+    // this permission
+    // must throw AccessControlException
+    try {
+      session.checkPermission(path, PermissionType.SET_PROPERTY);
+      return false;
+    } catch (AccessControlException e) {
+      return true;
+    } catch (RepositoryException e) {
+      return false;
+    }
   }
 
 }
