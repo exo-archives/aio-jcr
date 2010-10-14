@@ -22,7 +22,6 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
@@ -148,6 +147,8 @@ public class WorkspaceContentImporter extends SystemViewImporter {
         changesLog.add(new ItemState(newNodeData, ItemState.ADDED, true, parentData.getQPath()));
       }
       tree.push(newNodeData);
+
+      mapNodePropertiesInfo.put(newNodeData.getIdentifier(), new NodePropertiesInfo(newNodeData));
     } else {
       super.startElement(namespaceURI, localName, name, atts);
       if (Constants.SV_PROPERTY_NAME.equals(elementName)) {

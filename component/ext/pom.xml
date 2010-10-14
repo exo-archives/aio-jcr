@@ -234,6 +234,7 @@
             <include>**/replication/*.java</include>
             <include>**/replication/external/*.java</include>
             <include>**/organization/Test*.java</include>
+            <include>**/backup/TestBackupManager.java</include>
           </includes>
           <excludes>
             <exclude>**/*$*</exclude>
@@ -242,7 +243,6 @@
             <exclude>**/replication/*.java</exclude>
             <exclude>**/replication/external/*.java</exclude>
             <exclude>**/replication/external/BaseTestCaseChecker.java</exclude>
-            <exclude>**/backup/*.java</exclude>
             <exclude>**/access/*.java</exclude>
           </excludes>
         </configuration>
