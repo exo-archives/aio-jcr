@@ -1,0 +1,166 @@
+Index: component/core/src/test/java/org/exoplatform/services/jcr/api/lock/TestLock.java
+===================================================================
+--- component/core/src/test/java/org/exoplatform/services/jcr/api/lock/TestLock.java	(revision 62193)
++++ component/core/src/test/java/org/exoplatform/services/jcr/api/lock/TestLock.java	(working copy)
+@@ -16,6 +16,10 @@
+  */
+ package org.exoplatform.services.jcr.api.lock;
+ 
++import org.exoplatform.services.jcr.JcrAPIBaseTest;
++import org.exoplatform.services.jcr.access.SystemIdentity;
++import org.exoplatform.services.jcr.core.CredentialsImpl;
++
+ import java.io.ByteArrayInputStream;
+ import java.util.Calendar;
+ 
+@@ -25,9 +29,6 @@
+ import javax.jcr.lock.Lock;
+ import javax.jcr.lock.LockException;
+ 
+-import org.exoplatform.services.jcr.JcrAPIBaseTest;
+-import org.exoplatform.services.jcr.core.CredentialsImpl;
+-
+ /**
+  * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+  * 21.09.2006
+@@ -367,4 +368,45 @@
+     assertFalse(childLockNode.isLocked());
+ 
+   }
++
++  public void testUnlockWithSystemSession() throws Exception {
++    Node lockedNode = root.addNode("locked node 2");
++    Session session2 = null, session3 = null;
++    try {
++      Node node = (Node) session.getItem(lockedNode.getPath());
++
++      if (!node.isNodeType("mix:lockable")) {
++        if (node.canAddMixin("mix:lockable")) {
++          node.addMixin("mix:lockable");
++          session.save();
++        }
++      }
++      node.lock(true, false);
++
++      session2 = repository.login(credentials, "ws");
++      node = (Node) session2.getItem(lockedNode.getPath());
++      assertTrue(node.isLocked());
++      try {
++        node.unlock();
++        fail("a LockException is expected");
++      } catch (LockException e) {
++        // a LockException is expected
++      }
++      // The system session
++      session3 = repository.login(new CredentialsImpl(SystemIdentity.SYSTEM, "".toCharArray()),
++                                  "ws");
++      node = (Node) session3.getItem(lockedNode.getPath());
++      assertTrue(node.isLocked());
++      node.unlock();
++    } finally {
++      lockedNode.remove();
++      session.save();
++      if (session2 != null) {
++        session2.logout();
++      }
++      if (session3 != null) {
++        session3.logout();
++      }
++    }
++  }
+ }
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockData.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockData.java	(revision 62193)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockData.java	(working copy)
+@@ -19,8 +19,6 @@
+ import java.util.HashSet;
+ import java.util.Set;
+ 
+-import org.exoplatform.services.jcr.access.SystemIdentity;
+-
+ /**
+  * Created by The eXo Platform SAS.
+  * 
+@@ -184,7 +182,7 @@
+    * @return
+    */
+   public boolean isLockHolder(String sessionId) {
+-    return lockHolders.contains(sessionId) || SystemIdentity.SYSTEM.equals(sessionId);
++    return lockHolders.contains(sessionId);
+   }
+ 
+   /**
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockManagerImpl.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockManagerImpl.java	(revision 62193)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockManagerImpl.java	(working copy)
+@@ -16,25 +16,11 @@
+  */
+ package org.exoplatform.services.jcr.impl.core.lock;
+ 
+-import java.io.IOException;
+-import java.io.UnsupportedEncodingException;
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.HashSet;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Map;
+-
+-import javax.jcr.AccessDeniedException;
+-import javax.jcr.RepositoryException;
+-import javax.jcr.UnsupportedRepositoryOperationException;
+-import javax.jcr.lock.Lock;
+-import javax.jcr.lock.LockException;
+-
+-import org.picocontainer.Startable;
+-
+ import org.apache.commons.logging.Log;
+-
++import org.exoplatform.management.annotations.Managed;
++import org.exoplatform.management.annotations.ManagedDescription;
++import org.exoplatform.management.jmx.annotations.NameTemplate;
++import org.exoplatform.management.jmx.annotations.Property;
+ import org.exoplatform.services.jcr.access.SystemIdentity;
+ import org.exoplatform.services.jcr.config.WorkspaceEntry;
+ import org.exoplatform.services.jcr.core.ExtendedSession;
+@@ -64,11 +50,23 @@
+ import org.exoplatform.services.jcr.observation.ExtendedEvent;
+ import org.exoplatform.services.jcr.util.IdGenerator;
+ import org.exoplatform.services.log.ExoLogger;
+-import org.exoplatform.management.annotations.Managed;
+-import org.exoplatform.management.annotations.ManagedDescription;
+-import org.exoplatform.management.jmx.annotations.NameTemplate;
+-import org.exoplatform.management.jmx.annotations.Property;
++import org.picocontainer.Startable;
+ 
++import java.io.IOException;
++import java.io.UnsupportedEncodingException;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Map;
++
++import javax.jcr.AccessDeniedException;
++import javax.jcr.RepositoryException;
++import javax.jcr.UnsupportedRepositoryOperationException;
++import javax.jcr.lock.Lock;
++import javax.jcr.lock.LockException;
++
+ /**
+  * Created by The eXo Platform SAS.
+  * 
+@@ -288,6 +286,10 @@
+    * .jcr.impl.core.NodeImpl)
+    */
+   public boolean isLockHolder(NodeImpl node) throws RepositoryException {
++
++    if (node.getSession().getUserID() == SystemIdentity.SYSTEM)
++      return true;
++
+     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
+     return lData != null && lData.isLockHolder(node.getSession().getId());
+   }
