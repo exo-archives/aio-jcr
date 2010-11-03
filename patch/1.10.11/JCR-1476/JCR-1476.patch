@@ -158,7 +158,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/
     */
    public boolean isLockHolder(NodeImpl node) throws RepositoryException {
 +
-+    if (node.getSession().getUserID() == SystemIdentity.SYSTEM)
++    if (SystemIdentity.SYSTEM.equals(node.getSession().getUserID()))
 +      return true;
 +
      LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
