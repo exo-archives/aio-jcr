@@ -21,14 +21,14 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>exo.jcr.applications.config</artifactId>
-    <version>1.10.10</version>
+    <version>1.10.11-SNAPSHOT</version>
     <relativePath>./config/pom.xml</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcrapplications.jonas-ear</artifactId>
   <packaging>pom</packaging>
-  <version>1.10.10</version>
+  <version>1.10.11-SNAPSHOT</version>
   <name>eXo JCR Jonas Applications Server EAR</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Jonas Applications Server EAR</description>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.ear</artifactId>
-      <version>1.10.10</version>
+      <version>1.10.11-SNAPSHOT</version>
       <type>ear</type>
       <scope>runtime</scope>
     </dependency>
