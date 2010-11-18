@@ -21,14 +21,14 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>exo.jcr.applications.config</artifactId>
-    <version>1.10.10-SNAPSHOT</version>
+    <version>1.10.10</version>
     <relativePath>./config/pom.xml</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.jboss</artifactId>
   <packaging>pom</packaging>
-  <version>1.10.10-SNAPSHOT</version>
+  <version>1.10.10</version>
   <name>eXo JCR JBoss Applications Server</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR JBoss Applications Server</description>
