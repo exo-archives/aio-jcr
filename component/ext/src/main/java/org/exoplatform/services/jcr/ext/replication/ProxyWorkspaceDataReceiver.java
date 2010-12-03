@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
+import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 
 /**
@@ -42,7 +43,7 @@ public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
    */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
                                     LockManagerImpl lockManager) throws RepositoryConfigurationException {
-    this(dataManager, null, lockManager);
+      this(dataManager, null, lockManager, null);
   }
 
   /**
@@ -57,7 +58,7 @@ public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
    */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
                                     SearchManager searchManager) throws RepositoryConfigurationException {
-    this(dataManager, searchManager, null);
+      this(dataManager, searchManager, null, null);
   }
 
   /**
@@ -69,7 +70,7 @@ public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
    *           will be generated RepositoryConfigurationException
    */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
-    this(dataManager, null, null);
+      this(dataManager, null, null, null);
   }
 
   /**
@@ -86,7 +87,9 @@ public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
    */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
                                     SearchManager searchManager,
-                                    LockManagerImpl lockManager) throws RepositoryConfigurationException {
-    dataKeeper = new WorkspaceDataManagerProxy(dataManager, searchManager, lockManager);
+            LockManagerImpl lockManager, SystemSearchManager systemSearchIndexer)
+            throws RepositoryConfigurationException
+   {
+      dataKeeper = new WorkspaceDataManagerProxy(dataManager, searchManager, lockManager, systemSearchIndexer);
   }
 }

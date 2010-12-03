@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
+import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -65,13 +66,17 @@ public class WorkspaceDataManagerProxy implements ItemDataKeeper {
    */
   public WorkspaceDataManagerProxy(CacheableWorkspaceDataManager dataManager,
                                    SearchManager searchIndex,
-                                   LockManagerImpl lockManager) {
+                                   LockManagerImpl lockManager,
+                                   SystemSearchManager systemSearchIndexer) {
     this.listeners = new ArrayList<ItemsPersistenceListener>();
     listeners.add(dataManager.getCache());
     if (searchIndex != null)
       listeners.add(searchIndex);
     if (lockManager != null)
       listeners.add(lockManager);
+    if (systemSearchIndexer != null)
+      listeners.add(systemSearchIndexer);
+    
     log.info("WorkspaceDataManagerProxy is instantiated");
   }
 
@@ -87,7 +92,7 @@ public class WorkspaceDataManagerProxy implements ItemDataKeeper {
   public void save(ItemStateChangesLog changesLog) throws InvalidItemStateException,
                                                   UnsupportedOperationException,
                                                   RepositoryException {
-    for (ItemsPersistenceListener listener : listeners) {
+    for (ItemsPersistenceListener listener : listeners) { 
       listener.onSaveItems(changesLog);
     }
     if (log.isDebugEnabled())
