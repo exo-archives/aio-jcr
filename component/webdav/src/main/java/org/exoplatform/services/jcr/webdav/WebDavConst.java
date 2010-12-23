@@ -557,7 +557,7 @@ public class WebDavConst {
     /**
      * If-Modified-Since date psttern.
      */
-    public static final String IF_MODIFIED_SINCE_PATTERN = "EEE, d MMM yyyy HH:mm:ss z";
+    public static final String IF_MODIFIED_SINCE_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
     
     
   }

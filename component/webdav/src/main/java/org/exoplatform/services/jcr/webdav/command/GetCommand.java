@@ -17,23 +17,6 @@
 
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.xml.transform.stream.StreamSource;
-
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.common.util.MediaType;
 import org.exoplatform.common.util.MediaTypeHelper;
@@ -60,6 +43,24 @@ import org.exoplatform.services.rest.transformer.XSLT4SourceOutputTransformer;
 import org.exoplatform.services.rest.transformer.XSLTConstants;
 import org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl;
 import org.exoplatform.services.xml.transform.trax.TRAXTemplatesService;
+
+import java.io.InputStream;
+import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -111,7 +112,7 @@ public class GetCommand {
         if (version != null) {
           VersionedResource versionedFile = new VersionedFileResource(uri, node, nsContext);
           resource = versionedFile.getVersionHistory().getVersion(version);
-          lastModifiedProperty = resource.getProperty(FileResource.CREATIONDATE);
+          lastModifiedProperty = resource.getProperty(FileResource.GETLASTMODIFIED);
           istream = ((VersionResource) resource).getContentAsStream();
         } else {
           resource = new FileResource(uri, node, nsContext);
@@ -120,10 +121,10 @@ public class GetCommand {
         }
 
         if (ifModifiedSince != null) {
-          DateFormat dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.IF_MODIFIED_SINCE_PATTERN);
+          DateFormat dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.MODIFICATION, Locale.US);
           Date lastModifiedDate = dateFormat.parse(lastModifiedProperty.getValue());
 
-          dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.MODIFICATION);
+          dateFormat = new SimpleDateFormat(WebDavConst.DateFormat.IF_MODIFIED_SINCE_PATTERN, Locale.US);
           Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
 
           if (ifModifiedSinceDate.getTime() >= lastModifiedDate.getTime()) {
@@ -152,6 +153,7 @@ public class GetCommand {
           return Response.Builder.ok()
                                  .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                                 .header(WebDavConst.Headers.LASTMODIFIED, lastModifiedProperty.getValue())
                                  .header(WebDavConst.Headers.CACHECONTROL, 
                                         generateCacheControl(cacheControls, contentType))
                                  .entity(istream, contentType)
@@ -176,6 +178,7 @@ public class GetCommand {
                                  .header(WebDavHeaders.CONTENTLENGTH,
                                          Long.toString(returnedContentLength))
                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                                 .header(WebDavConst.Headers.LASTMODIFIED, lastModifiedProperty.getValue())
                                  .header(WebDavHeaders.CONTENTRANGE,
                                          "bytes " + start + "-" + end + "/" + contentLength)
                                  .entity(rangedInputStream, contentType)
@@ -199,6 +202,7 @@ public class GetCommand {
 
         return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
                                .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                               .header(WebDavConst.Headers.LASTMODIFIED, lastModifiedProperty.getValue())
                                .entity(mByterangesEntity,
                                        WebDavHeaders.MULTIPART_BYTERANGES + WebDavConst.BOUNDARY)
                                .transformer(new SerializableTransformer())

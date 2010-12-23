@@ -133,6 +133,11 @@ public class VersionResource extends GenericResource {
       creationDate.setAttribute("b:dt", "dateTime.tz");
       return creationDate;
 
+    } else if (DeltaVConstants.GETLASTMODIFIED.equals(name)) {
+      Calendar created = version.getNode("jcr:frozenNode").getProperty("jcr:created").getDate();
+      HierarchicalProperty creationDate = new HierarchicalProperty(name, created, MODIFICATION_PATTERN);
+      creationDate.setAttribute("b:dt", "dateTime.1123");
+      return creationDate;
     } else {
       throw new PathNotFoundException();
     }
