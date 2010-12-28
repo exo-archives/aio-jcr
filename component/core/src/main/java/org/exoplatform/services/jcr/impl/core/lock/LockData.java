@@ -19,8 +19,6 @@ package org.exoplatform.services.jcr.impl.core.lock;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.exoplatform.services.jcr.access.SystemIdentity;
-
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -184,7 +182,7 @@ public class LockData {
    * @return
    */
   public boolean isLockHolder(String sessionId) {
-    return lockHolders.contains(sessionId) || SystemIdentity.SYSTEM.equals(sessionId);
+    return lockHolders.contains(sessionId);
   }
 
   /**

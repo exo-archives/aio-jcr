@@ -16,25 +16,11 @@
  */
 package org.exoplatform.services.jcr.impl.core.lock;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.AccessDeniedException;
-import javax.jcr.RepositoryException;
-import javax.jcr.UnsupportedRepositoryOperationException;
-import javax.jcr.lock.Lock;
-import javax.jcr.lock.LockException;
-
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
+import org.exoplatform.management.annotations.Managed;
+import org.exoplatform.management.annotations.ManagedDescription;
+import org.exoplatform.management.jmx.annotations.NameTemplate;
+import org.exoplatform.management.jmx.annotations.Property;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ExtendedSession;
@@ -64,10 +50,22 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistent
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.management.annotations.Managed;
-import org.exoplatform.management.annotations.ManagedDescription;
-import org.exoplatform.management.jmx.annotations.NameTemplate;
-import org.exoplatform.management.jmx.annotations.Property;
+import org.picocontainer.Startable;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.RepositoryException;
+import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.lock.Lock;
+import javax.jcr.lock.LockException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -288,6 +286,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
    * .jcr.impl.core.NodeImpl)
    */
   public boolean isLockHolder(NodeImpl node) throws RepositoryException {
+
+    if (SystemIdentity.SYSTEM.equals(node.getSession().getUserID()))
+      return true;
+
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
     return lData != null && lData.isLockHolder(node.getSession().getId());
   }
