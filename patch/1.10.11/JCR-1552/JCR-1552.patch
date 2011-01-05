@@ -1,0 +1,17 @@
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/FileSystemLockPersister.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/FileSystemLockPersister.java	(revision 64683)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/FileSystemLockPersister.java	(working copy)
+@@ -243,11 +243,7 @@
+     if (log.isDebugEnabled()) {
+       log.debug("Stoping FileSystemLockPersister");
+     }
+-    try {
+-      removeAll();
+-    } catch (LockException e) {
+-      log.error(e.getLocalizedMessage(), e);
+-    }
++
+     log.info("FileSystemLockPersister stoped");
+   }
+ 
