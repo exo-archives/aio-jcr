@@ -99,6 +99,80 @@ public class TestBackupManager extends AbstractBackupTestCase {
       fail("There are no backup files in " + backDir.getAbsolutePath());
   }
 
+  public void testJCR1479FullBackupRestore() throws Exception {
+
+    SessionImpl sessWS1 = (SessionImpl)repository.login(credentials, "ws1");
+
+    Node n = sessWS1.getRootNode().addNode("testRefNode");
+    n.addMixin("mix:referenceable");
+    sessWS1.save();
+
+    try {
+      // backup
+      File backDir = new File("target/backup/ws1jcr1479");
+      backDir.mkdirs();
+
+      BackupConfig config = new BackupConfig();
+      config.setRepository(repository.getName());
+      config.setWorkspace("ws1");
+      config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);
+
+      config.setBackupDir(backDir);
+
+      backup.startBackup(config);
+
+      BackupChain bch = backup.findBackup(repository.getName(), "ws1");
+
+      // wait till full backup will be stopped
+      while (bch.getFullBackupState() != BackupJob.FINISHED) {
+        Thread.yield();
+        Thread.sleep(50);
+      }
+
+      // stop fullBackup
+
+      if (bch != null)
+        backup.stopBackup(bch);
+      else
+        fail("Can't get fullBackup chain");
+
+      // restore
+      RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
+                                                       .getComponentInstanceOfType(RepositoryEntry.class);
+      WorkspaceEntry ws1back = makeWorkspaceEntry("ws1backjcr1479", "jdbcjcr19");
+
+      repository.configWorkspace(ws1back);
+
+      // BackupChainLog bchLog = new BackupChainLog(backDir, rconfig);
+      File backLog = new File(bch.getLogFilePath());
+      if (backLog.exists()) {
+        BackupChainLog bchLog = new BackupChainLog(backLog);
+
+        backup.restore(bchLog, re, ws1back);
+
+        // check
+        SessionImpl back1 = null;
+        try {
+          back1 = (SessionImpl) repository.login(credentials, "ws1back");
+          Node ws1backTestRoot = back1.getRootNode().getNode("backupTest");
+          assertEquals("Restored content should be same",
+                       "property-5",
+                       ws1backTestRoot.getNode("node_5").getProperty("exo:data").getString());
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail(e.getMessage());
+        } finally {
+          if (back1 != null)
+            back1.logout();
+        }
+      } else
+        fail("There are no backup files in " + backDir.getAbsolutePath());
+    } finally {
+      n.remove();
+      sessWS1.save();
+    }
+  }
+
   public void testIncrementalBackupRestore() throws Exception {
     // full backup & incremental
     File backDir = new File("target/backup/ws1.incr");
