@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
-    <version>1.10.11-SNAPSHOT</version>
+    <version>1.10.11</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>exo.jcr.component.aws</artifactId>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.11-SNAPSHOT</version>
+      <version>1.10.11</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
