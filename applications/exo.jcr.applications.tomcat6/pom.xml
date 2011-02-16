@@ -21,13 +21,13 @@
    <parent>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.applications.config</artifactId>
-      <version>1.10.11</version>
+      <version>1.10.12-SNAPSHOT</version>
       <relativePath>./config/pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
    <artifactId>exo.jcrapplications.tomcat6</artifactId>
    <packaging>pom</packaging>
-   <version>1.10.11</version>
+   <version>1.10.12-SNAPSHOT</version>
    <name>eXo JCR Tomcat 6 Applications Server</name>
    <url>http://www.exoplatform.org</url>
    <description>eXo JCR Tomcat 6 Applications Server</description>

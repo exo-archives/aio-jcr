@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
-    <version>1.10.11</version>
+    <version>1.10.12-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>exo.jcr.framework.web</artifactId>
@@ -33,19 +33,19 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
-      <version>1.10.11</version>
+      <version>1.10.12-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.command</artifactId>
-      <version>1.10.11</version>
+      <version>1.10.12-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
-      <version>1.10.11</version>
+      <version>1.10.12-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
