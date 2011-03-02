@@ -188,7 +188,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/usecases/query/
 +    assertEquals(0, query.execute().getNodes().getSize());
 +  }
 +
-+  public void testRemoveNodeSetRemove() throws Exception {
++  public void testRemoveNodeSetProperty() throws Exception {
 +
 +    Node node = root.addNode("testNode");
 +    node.setProperty("prop1", "value1");
