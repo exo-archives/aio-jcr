@@ -2,7 +2,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/usecases/query/
 ===================================================================
 --- component/core/src/test/java/org/exoplatform/services/jcr/usecases/query/TestUpdateProperty.java	(revision 0)
 +++ component/core/src/test/java/org/exoplatform/services/jcr/usecases/query/TestUpdateProperty.java	(revision 0)
-@@ -0,0 +1,154 @@
+@@ -0,0 +1,230 @@
 +/*
 + * Copyright (C) 2003-2007 eXo Platform SAS.
 + *
@@ -112,7 +112,6 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/usecases/query/
 +                                Query.SQL);
 +    assertEquals(1, query.execute().getNodes().getSize());
 +
-+    // the main issue that the last state is property deleting
 +    session.move("/testNode", "/testNode2");
 +    root.save();
 +
@@ -133,24 +132,101 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/usecases/query/
 +    assertEquals(1, query.execute().getNodes().getSize());
 +  }
 +
-+  public void testRemoveNode() throws Exception {
++  public void testSetRemovePropertyImmediatly() throws Exception {
 +
 +    Node node = root.addNode("testNode");
 +    node.setProperty("prop1", "value1");
-+    node.remove();
++    node.getProperty("prop1").remove();
 +    root.save();
 +
 +    QueryManager manager = session.getWorkspace().getQueryManager();
 +    Query query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
 +                                      Query.SQL);
 +    assertEquals(0, query.execute().getNodes().getSize());
++  }
 +
-+    node = root.addNode("testNode");
++  public void testSetRemoveProperty() throws Exception {
++
++    Node node = root.addNode("testNode");
 +    node.setProperty("prop1", "value1");
++    root.save();
++
++    QueryManager manager = session.getWorkspace().getQueryManager();
++    Query query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
++                                      Query.SQL);
++    assertEquals(1, query.execute().getNodes().getSize());
++
 +    node.getProperty("prop1").remove();
 +    root.save();
 +
-+    manager = session.getWorkspace().getQueryManager();
++    query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
++                                Query.SQL);
++    assertEquals(0, query.execute().getNodes().getSize());
++  }
++
++  public void testRemoveNodeUpdateProperty() throws Exception {
++
++    Node node = root.addNode("testNode");
++    node.setProperty("prop1", "value1");
++    root.save();
++
++    QueryManager manager = session.getWorkspace().getQueryManager();
++    Query query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
++                                      Query.SQL);
++    assertEquals(1, query.execute().getNodes().getSize());
++
++    node.setProperty("prop1", "value2");
++    node.remove();
++    root.save();
++
++    query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
++                                Query.SQL);
++    assertEquals(0, query.execute().getNodes().getSize());
++
++    query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value2')",
++                                Query.SQL);
++    assertEquals(0, query.execute().getNodes().getSize());
++  }
++
++  public void testRemoveNodeSetRemove() throws Exception {
++
++    Node node = root.addNode("testNode");
++    node.setProperty("prop1", "value1");
++    root.save();
++
++    QueryManager manager = session.getWorkspace().getQueryManager();
++    Query query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
++                                      Query.SQL);
++    assertEquals(1, query.execute().getNodes().getSize());
++
++    node.setProperty("prop2", "valu2");
++    node.remove();
++    root.save();
++
++    query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
++                                Query.SQL);
++    assertEquals(0, query.execute().getNodes().getSize());
++
++    query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value2')",
++                                Query.SQL);
++    assertEquals(0, query.execute().getNodes().getSize());
++  }
++
++  public void testRemoveNodeRemoveProperty() throws Exception {
++
++    Node node = root.addNode("testNode");
++    node.setProperty("prop1", "value1");
++    root.save();
++
++    QueryManager manager = session.getWorkspace().getQueryManager();
++    Query query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
++                                      Query.SQL);
++    assertEquals(1, query.execute().getNodes().getSize());
++
++    node.getProperty("prop1").remove();
++    node.remove();
++    root.save();
++
 +    query = manager.createQuery("SELECT * FROM nt:base " + " WHERE CONTAINS(., 'value1')",
 +                                Query.SQL);
 +    assertEquals(0, query.execute().getNodes().getSize());
@@ -231,26 +307,30 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/query
              removedNodes.add(itemState.getData().getIdentifier());
              addedNodes.add(itemState.getData().getIdentifier());
            }
-@@ -252,14 +250,18 @@
-         } else {
-           // the node where this prop belongs to is also new
+@@ -243,23 +241,12 @@
+     for (int i = 0; i < propEvents.size(); i++) {
+       ItemState event = propEvents.get(i);
+       String nodeId = event.getData().getParentIdentifier();
+-      if (event.isAdded()) {
+-        if (!addedNodes.contains(nodeId)) {
+-          // only property added
+-          // need to re-index
++
++      if (event.isAdded() || event.isDeleted() || event.isUpdated()) {
++        if (!removedNodes.contains(nodeId) && !addedNodes.contains(nodeId)) {
+           addedNodes.add(nodeId);
+           removedNodes.add(nodeId);
+-        } else {
+-          // the node where this prop belongs to is also new
          }
 -      } else if (event.isRenamed() || event.isUpdated()) {
-+      } else if (event.isRenamed()) {
-+        // can't be Renamed persisted state for property
-+      } else if (event.isUpdated()) {
-         // need to re-index
-         addedNodes.add(nodeId);
-         removedNodes.add(nodeId);
-       } else if (event.isDeleted()) {
+-        // need to re-index
+-        addedNodes.add(nodeId);
+-        removedNodes.add(nodeId);
+-      } else if (event.isDeleted()) {
 -        // property removed event is only generated when node still exists
 -        addedNodes.remove(nodeId);
 -        removedNodes.add(nodeId);
-+        if (!removedNodes.contains(nodeId) && !addedNodes.contains(nodeId)) {
-+          // just simple property deleting, need to re-index
-+          addedNodes.add(nodeId);
-+          removedNodes.add(nodeId);
-+        }
        }
      }
  
