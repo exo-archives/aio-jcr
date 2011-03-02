@@ -1,0 +1,374 @@
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java	(revision 66123)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java	(working copy)
+@@ -17,17 +17,6 @@
+ 
+ package org.exoplatform.services.jcr.webdav;
+ 
+-import java.io.InputStream;
+-import java.net.URLEncoder;
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.List;
+-
+-import javax.jcr.NoSuchWorkspaceException;
+-import javax.jcr.PathNotFoundException;
+-import javax.jcr.RepositoryException;
+-import javax.jcr.Session;
+-
+ import org.apache.commons.logging.Log;
+ import org.exoplatform.common.util.HierarchicalProperty;
+ import org.exoplatform.common.util.MediaType;
+@@ -78,6 +67,18 @@
+ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
+ import org.exoplatform.services.rest.transformer.SerializableTransformer;
+ 
++import java.io.InputStream;
++import java.net.URI;
++import java.net.URLEncoder;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.List;
++
++import javax.jcr.NoSuchWorkspaceException;
++import javax.jcr.PathNotFoundException;
++import javax.jcr.RepositoryException;
++import javax.jcr.Session;
++
+ /**
+  * Created by The eXo Platform SARL .<br/>
+  * 
+@@ -258,24 +259,34 @@
+                        @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                        HierarchicalProperty body) {
+ 
++    // to trace if an item on destination path exists
++    boolean itemExisted = false;
++
+     log.debug("COPY " + repoName + "/" + repoPath);
+ 
+     repoPath = escapePath(repoPath);
+ 
+     try {
+-      String serverURI = baseURI + "/jcr/" + repoName;
++      URI dest = new URI(destinationHeader);
++      URI base = new URI(baseURI);
+ 
+-      destinationHeader = TextUtil.unescape(destinationHeader, '%');
++      String destPath = dest.getPath();
++      int repoIndex = destPath.indexOf(repoName);
+ 
+-      if (!destinationHeader.startsWith(serverURI)) {
++      // check if destination corresponds to base uri
++      // if the destination is on another server
++      // or destination header is malformed
++      // we return BAD_GATEWAY(502) HTTP status
++      // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_COPY
++      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
+         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY)
+                                .errorMessage("Bad Gateway")
+                                .build();
+       }
+ 
+-      String destPath = destinationHeader.substring(serverURI.length() + 1);
++      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
+       String destWorkspace = workspaceName(destPath);
+-      String destinationPath = destinationHeader.substring(serverURI.length() + 1);
++      String srcWorkspace = workspaceName(repoPath);
+ 
+       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
+ 
+@@ -286,12 +297,13 @@
+       }
+ 
+       if (overwriteHeader.equalsIgnoreCase("T")) {
+-        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
++        Response delResponse = delete(repoName, destPath, lockTokenHeader, ifHeader);
++        itemExisted = (delResponse.getStatus() == WebDavStatus.NO_CONTENT);
+       } else {
+-        Session session = session(repoName, workspaceName(repoPath), null);
+-        String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
++        Session session = session(repoName, srcWorkspace, null);
++        String uri = baseURI + "/jcr/" + repoName + "/" + srcWorkspace;
+         Response prpfind = new PropFindCommand().propfind(session,
+-                                                          path(destinationPath),
++                                                          path(destPath),
+                                                           body,
+                                                           depth.getIntValue(),
+                                                           uri);
+@@ -301,15 +313,17 @@
+       }
+ 
+       if (depth.getStringValue().equalsIgnoreCase("infinity")) {
+-        String srcWorkspace = workspaceName(repoPath);
+ 
+         if (srcWorkspace.equals(destWorkspace)) {
+           Session session = session(repoName, destWorkspace, lockTokens);
+-          return new CopyCommand().copy(session, path(repoPath), path(destPath));
++          return new CopyCommand(itemExisted).copy(session, path(repoPath), path(destPath));
+         }
+ 
+         Session destSession = session(repoName, destWorkspace, lockTokens);
+-        return new CopyCommand().copy(destSession, srcWorkspace, path(repoPath), path(destPath));
++        return new CopyCommand(itemExisted).copy(destSession,
++                                                 srcWorkspace,
++                                                 path(repoPath),
++                                                 path(destPath));
+ 
+       } else if (depth.getIntValue() == 0) {
+ 
+@@ -594,24 +608,31 @@
+                        @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                        HierarchicalProperty body) {
+ 
++    // to trace if an item on destination path exists
++    boolean itemExisted = false;
++
+     log.debug("MOVE " + repoName + "/" + repoPath);
+ 
+     repoPath = escapePath(repoPath);
+ 
+     try {
+-      String serverURI = baseURI + "/jcr/" + repoName;
++      URI dest = new URI(destinationHeader);
++      URI base = new URI(baseURI);
+ 
+-      destinationHeader = TextUtil.unescape(destinationHeader, '%');
+-      destinationHeader = serverURI + escapePath(destinationHeader.substring(serverURI.length()));
++      String destPath = dest.getPath();
++      int repoIndex = destPath.indexOf(repoName);
+ 
+-      if (!destinationHeader.startsWith(serverURI)) {
++      // check if destination corresponds to base uri
++      // if the destination is on another server
++      // or destination header is malformed
++      // we return BAD_GATEWAY(502) HTTP status
++      // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_MOVE
++      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
+         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).errorMessage("Bad Gateway").build();
+       }
+ 
+-      String destPath = destinationHeader.substring(serverURI.length() + 1);
++      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
+       String destWorkspace = workspaceName(destPath);
+-      String destinationPath = destinationHeader.substring(serverURI.length() + 1);
+-
+       String srcWorkspace = workspaceName(repoPath);
+ 
+       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
+@@ -623,12 +644,14 @@
+       }
+ 
+       if (overwriteHeader.equalsIgnoreCase("T")) {
+-        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
++        delete(repoName, destPath, lockTokenHeader, ifHeader);
++        Response delResponse = delete(repoName, destPath, lockTokenHeader, ifHeader);
++        itemExisted = (delResponse.getStatus() == WebDavStatus.NO_CONTENT);
+       } else {
+-        Session session = session(repoName, workspaceName(repoPath), null);
+-        String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
++        Session session = session(repoName, srcWorkspace, null);
++        String uri = baseURI + "/jcr/" + repoName + "/" + srcWorkspace;
+         Response prpfind = new PropFindCommand().propfind(session,
+-                                                          path(destinationPath),
++                                                          path(destPath),
+                                                           body,
+                                                           depth.getIntValue(),
+                                                           uri);
+@@ -640,12 +663,15 @@
+       if (depth.getStringValue().equalsIgnoreCase("Infinity")) {
+         if (srcWorkspace.equals(destWorkspace)) {
+           Session session = session(repoName, srcWorkspace, lockTokens);
+-          return new MoveCommand().move(session, path(repoPath), path(destPath));
++          return new MoveCommand(itemExisted).move(session, path(repoPath), path(destPath));
+         }
+ 
+         Session srcSession = session(repoName, srcWorkspace, lockTokens);
+         Session destSession = session(repoName, destWorkspace, lockTokens);
+-        return new MoveCommand().move(srcSession, destSession, path(repoPath), path(destPath));
++        return new MoveCommand(itemExisted).move(srcSession,
++                                                 destSession,
++                                                 path(repoPath),
++                                                 path(destPath));
+       } else {
+         return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).errorMessage("Bad Reuest").build();
+       }
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/MoveCommand.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/MoveCommand.java	(revision 66123)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/MoveCommand.java	(working copy)
+@@ -17,15 +17,15 @@
+ 
+ package org.exoplatform.services.jcr.webdav.command;
+ 
++import org.exoplatform.services.jcr.webdav.WebDavStatus;
++import org.exoplatform.services.rest.CacheControl;
++import org.exoplatform.services.rest.Response;
++
+ import javax.jcr.PathNotFoundException;
+ import javax.jcr.RepositoryException;
+ import javax.jcr.Session;
+ import javax.jcr.lock.LockException;
+ 
+-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+-import org.exoplatform.services.rest.CacheControl;
+-import org.exoplatform.services.rest.Response;
+-
+ /**
+  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+  * 
+@@ -40,14 +40,43 @@
+     cacheControl.setNoCache(true);
+   }
+ 
++  /**
++   * To trace if an item on destination path existed.
++   */
++
++  final private boolean       itemExisted;
++
++  public MoveCommand() {
++    this.itemExisted = false;
++  }
++
++  /**
++   * Here we pass info about pre-existence of item on the copy destination path
++   * If an item existed, we must respond with NO_CONTENT (204) HTTP status. If
++   * an item did not exist, we must respond with CREATED (201) HTTP status More
++   * info can be found <a
++   * href=http://www.webdav.org/specs/rfc2518.html#METHOD_COPY>here</a>.
++   */
++  public MoveCommand(boolean itemExisted) {
++    this.itemExisted = itemExisted;
++  }
++
+   public Response move(Session session, String srcPath, String destPath) {
+     try {
+       session.move(srcPath, destPath);
+       session.save();
+-      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
+-                             .cacheControl(cacheControl)
+-                             .build();
+-
++      // If the source resource was successfully moved
++      // to a pre-existing destination resource.
++      if (itemExisted) {
++        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
++                               .cacheControl(cacheControl)
++                               .build();
++      }
++      // If the source resource was successfully moved,
++      // and a new resource was created at the destination.
++      else {
++        return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
++      }
+     } catch (LockException exc) {
+       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+ 
+@@ -68,9 +97,18 @@
+       sourceSession.getItem(srcPath).remove();
+       sourceSession.save();
+ 
+-      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
+-                             .cacheControl(cacheControl)
+-                             .build();
++      // If the source resource was successfully moved
++      // to a pre-existing destination resource.
++      if (itemExisted) {
++        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
++                               .cacheControl(cacheControl)
++                               .build();
++      }
++      // If the source resource was successfully moved,
++      // and a new resource was created at the destination.
++      else {
++        return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
++      }
+ 
+     } catch (LockException e) {
+       return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/CopyCommand.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/CopyCommand.java	(revision 66123)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/command/CopyCommand.java	(working copy)
+@@ -17,6 +17,9 @@
+ 
+ package org.exoplatform.services.jcr.webdav.command;
+ 
++import org.exoplatform.services.jcr.webdav.WebDavStatus;
++import org.exoplatform.services.rest.Response;
++
+ import javax.jcr.AccessDeniedException;
+ import javax.jcr.ItemExistsException;
+ import javax.jcr.PathNotFoundException;
+@@ -24,9 +27,6 @@
+ import javax.jcr.Session;
+ import javax.jcr.lock.LockException;
+ 
+-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+-import org.exoplatform.services.rest.Response;
+-
+ /**
+  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+  * 
+@@ -35,10 +35,40 @@
+ 
+ public class CopyCommand {
+ 
++  /**
++   * To trace if an item on destination path existed.
++   */
++
++  final private boolean itemExisted;
++
++  public CopyCommand() {
++    this.itemExisted = false;
++  }
++
++  /**
++   * Here we pass info about pre-existence of item on the copy destination path
++   * If an item existed, we must respond with NO_CONTENT (204) HTTP status. If
++   * an item did not exist, we must respond with CREATED (201) HTTP status More
++   * info can be found <a
++   * href=http://www.webdav.org/specs/rfc2518.html#METHOD_COPY>here</a>.
++   */
++  public CopyCommand(boolean itemExisted) {
++    this.itemExisted = itemExisted;
++  }
++
+   public Response copy(Session destSession, String sourcePath, String destPath) {
+     try {
+       destSession.getWorkspace().copy(sourcePath, destPath);
+-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
++      // If the source resource was successfully moved
++      // to a pre-existing destination resource.
++      if (itemExisted) {
++        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).build();
++      }
++      // If the source resource was successfully moved,
++      // and a new resource was created at the destination.
++      else {
++        return Response.Builder.withStatus(WebDavStatus.CREATED).build();
++      }
+     } catch (ItemExistsException e) {
+       e.printStackTrace();
+       return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();
+@@ -63,7 +93,16 @@
+                        String destPath) {
+     try {
+       destSession.getWorkspace().copy(sourceWorkspace, sourcePath, destPath);
+-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
++      // If the source resource was successfully moved
++      // to a pre-existing destination resource.
++      if (itemExisted) {
++        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).build();
++      }
++      // If the source resource was successfully moved,
++      // and a new resource was created at the destination.
++      else {
++        return Response.Builder.withStatus(WebDavStatus.CREATED).build();
++      }
+     } catch (ItemExistsException e) {
+       e.printStackTrace();
+       return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();
