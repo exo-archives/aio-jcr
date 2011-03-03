@@ -16,26 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core.query;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.query.InvalidQueryException;
-import javax.jcr.query.Query;
-
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
@@ -54,6 +35,23 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
+
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.Query;
 
 /**
  * Acts as a global entry point to execute queries and index nodes.
@@ -222,14 +220,14 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     List<ItemState> propEvents = new ArrayList<ItemState>();
     List<ItemState> itemStates = changesLog.getAllStates();
     for (ItemState itemState : itemStates) {
-      if (!isExcluded(itemState)) {
+      if (!isExcluded(itemState) && itemState.isPersisted()) {
         if (itemState.isNode()) {
-          if (itemState.isAdded() || itemState.isRenamed()) {
+          if (itemState.isAdded()) {
             addedNodes.add(itemState.getData().getIdentifier());
           } else if (itemState.isDeleted()) {
             addedNodes.remove(itemState.getData().getIdentifier());
             removedNodes.add(itemState.getData().getIdentifier());
-          } else if (itemState.isMixinChanged()) {
+          } else if (itemState.isMixinChanged() || itemState.isRenamed()) {
             removedNodes.add(itemState.getData().getIdentifier());
             addedNodes.add(itemState.getData().getIdentifier());
           }
@@ -243,23 +241,12 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     for (int i = 0; i < propEvents.size(); i++) {
       ItemState event = propEvents.get(i);
       String nodeId = event.getData().getParentIdentifier();
-      if (event.isAdded()) {
-        if (!addedNodes.contains(nodeId)) {
-          // only property added
-          // need to re-index
+
+      if (event.isAdded() || event.isDeleted() || event.isUpdated()) {
+        if (!removedNodes.contains(nodeId) && !addedNodes.contains(nodeId)) {
           addedNodes.add(nodeId);
           removedNodes.add(nodeId);
-        } else {
-          // the node where this prop belongs to is also new
         }
-      } else if (event.isRenamed() || event.isUpdated()) {
-        // need to re-index
-        addedNodes.add(nodeId);
-        removedNodes.add(nodeId);
-      } else if (event.isDeleted()) {
-        // property removed event is only generated when node still exists
-        addedNodes.remove(nodeId);
-        removedNodes.add(nodeId);
       }
     }
 
