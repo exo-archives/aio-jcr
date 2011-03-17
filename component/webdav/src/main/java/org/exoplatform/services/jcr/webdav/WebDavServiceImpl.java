@@ -17,17 +17,6 @@
 
 package org.exoplatform.services.jcr.webdav;
 
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.common.util.MediaType;
@@ -77,6 +66,18 @@ import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
 import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.rest.transformer.SerializableTransformer;
+
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -258,24 +259,34 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                        @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
                        HierarchicalProperty body) {
 
+    // to trace if an item on destination path exists
+    boolean itemExisted = false;
+
     log.debug("COPY " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
 
     try {
-      String serverURI = baseURI + "/jcr/" + repoName;
+      URI dest = new URI(destinationHeader);
+      URI base = new URI(baseURI);
 
-      destinationHeader = TextUtil.unescape(destinationHeader, '%');
+      String destPath = dest.getPath();
+      int repoIndex = destPath.indexOf(repoName);
 
-      if (!destinationHeader.startsWith(serverURI)) {
+      // check if destination corresponds to base uri
+      // if the destination is on another server
+      // or destination header is malformed
+      // we return BAD_GATEWAY(502) HTTP status
+      // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_COPY
+      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY)
                                .errorMessage("Bad Gateway")
                                .build();
       }
 
-      String destPath = destinationHeader.substring(serverURI.length() + 1);
+      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
       String destWorkspace = workspaceName(destPath);
-      String destinationPath = destinationHeader.substring(serverURI.length() + 1);
+      String srcWorkspace = workspaceName(repoPath);
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
 
@@ -286,12 +297,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       }
 
       if (overwriteHeader.equalsIgnoreCase("T")) {
-        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
+        Response delResponse = delete(repoName, destPath, lockTokenHeader, ifHeader);
+        itemExisted = (delResponse.getStatus() == WebDavStatus.NO_CONTENT);
       } else {
-        Session session = session(repoName, workspaceName(repoPath), null);
-        String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+        Session session = session(repoName, srcWorkspace, null);
+        String uri = baseURI + "/jcr/" + repoName + "/" + srcWorkspace;
         Response prpfind = new PropFindCommand().propfind(session,
-                                                          path(destinationPath),
+                                                          path(destPath),
                                                           body,
                                                           depth.getIntValue(),
                                                           uri);
@@ -301,15 +313,17 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       }
 
       if (depth.getStringValue().equalsIgnoreCase("infinity")) {
-        String srcWorkspace = workspaceName(repoPath);
 
         if (srcWorkspace.equals(destWorkspace)) {
           Session session = session(repoName, destWorkspace, lockTokens);
-          return new CopyCommand().copy(session, path(repoPath), path(destPath));
+          return new CopyCommand(itemExisted).copy(session, path(repoPath), path(destPath));
         }
 
         Session destSession = session(repoName, destWorkspace, lockTokens);
-        return new CopyCommand().copy(destSession, srcWorkspace, path(repoPath), path(destPath));
+        return new CopyCommand(itemExisted).copy(destSession,
+                                                 srcWorkspace,
+                                                 path(repoPath),
+                                                 path(destPath));
 
       } else if (depth.getIntValue() == 0) {
 
@@ -594,24 +608,31 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                        @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
                        HierarchicalProperty body) {
 
+    // to trace if an item on destination path exists
+    boolean itemExisted = false;
+
     log.debug("MOVE " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
 
     try {
-      String serverURI = baseURI + "/jcr/" + repoName;
+      URI dest = new URI(destinationHeader);
+      URI base = new URI(baseURI);
 
-      destinationHeader = TextUtil.unescape(destinationHeader, '%');
-      destinationHeader = serverURI + escapePath(destinationHeader.substring(serverURI.length()));
+      String destPath = dest.getPath();
+      int repoIndex = destPath.indexOf(repoName);
 
-      if (!destinationHeader.startsWith(serverURI)) {
+      // check if destination corresponds to base uri
+      // if the destination is on another server
+      // or destination header is malformed
+      // we return BAD_GATEWAY(502) HTTP status
+      // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_MOVE
+      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).errorMessage("Bad Gateway").build();
       }
 
-      String destPath = destinationHeader.substring(serverURI.length() + 1);
+      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
       String destWorkspace = workspaceName(destPath);
-      String destinationPath = destinationHeader.substring(serverURI.length() + 1);
-
       String srcWorkspace = workspaceName(repoPath);
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
@@ -623,12 +644,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       }
 
       if (overwriteHeader.equalsIgnoreCase("T")) {
-        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
+        delete(repoName, destPath, lockTokenHeader, ifHeader);
+        Response delResponse = delete(repoName, destPath, lockTokenHeader, ifHeader);
+        itemExisted = (delResponse.getStatus() == WebDavStatus.NO_CONTENT);
       } else {
-        Session session = session(repoName, workspaceName(repoPath), null);
-        String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+        Session session = session(repoName, srcWorkspace, null);
+        String uri = baseURI + "/jcr/" + repoName + "/" + srcWorkspace;
         Response prpfind = new PropFindCommand().propfind(session,
-                                                          path(destinationPath),
+                                                          path(destPath),
                                                           body,
                                                           depth.getIntValue(),
                                                           uri);
@@ -640,12 +663,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       if (depth.getStringValue().equalsIgnoreCase("Infinity")) {
         if (srcWorkspace.equals(destWorkspace)) {
           Session session = session(repoName, srcWorkspace, lockTokens);
-          return new MoveCommand().move(session, path(repoPath), path(destPath));
+          return new MoveCommand(itemExisted).move(session, path(repoPath), path(destPath));
         }
 
         Session srcSession = session(repoName, srcWorkspace, lockTokens);
         Session destSession = session(repoName, destWorkspace, lockTokens);
-        return new MoveCommand().move(srcSession, destSession, path(repoPath), path(destPath));
+        return new MoveCommand(itemExisted).move(srcSession,
+                                                 destSession,
+                                                 path(repoPath),
+                                                 path(destPath));
       } else {
         return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).errorMessage("Bad Reuest").build();
       }

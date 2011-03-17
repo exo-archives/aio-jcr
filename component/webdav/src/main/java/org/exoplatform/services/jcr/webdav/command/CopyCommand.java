@@ -17,15 +17,15 @@
 
 package org.exoplatform.services.jcr.webdav.command;
 
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.rest.Response;
+
 import javax.jcr.AccessDeniedException;
 import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
-
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -35,10 +35,40 @@ import org.exoplatform.services.rest.Response;
 
 public class CopyCommand {
 
+  /**
+   * To trace if an item on destination path existed.
+   */
+
+  final private boolean itemExisted;
+
+  public CopyCommand() {
+    this.itemExisted = false;
+  }
+
+  /**
+   * Here we pass info about pre-existence of item on the copy destination path
+   * If an item existed, we must respond with NO_CONTENT (204) HTTP status. If
+   * an item did not exist, we must respond with CREATED (201) HTTP status More
+   * info can be found <a
+   * href=http://www.webdav.org/specs/rfc2518.html#METHOD_COPY>here</a>.
+   */
+  public CopyCommand(boolean itemExisted) {
+    this.itemExisted = itemExisted;
+  }
+
   public Response copy(Session destSession, String sourcePath, String destPath) {
     try {
       destSession.getWorkspace().copy(sourcePath, destPath);
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      // If the source resource was successfully moved
+      // to a pre-existing destination resource.
+      if (itemExisted) {
+        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).build();
+      }
+      // If the source resource was successfully moved,
+      // and a new resource was created at the destination.
+      else {
+        return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      }
     } catch (ItemExistsException e) {
       e.printStackTrace();
       return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();
@@ -63,7 +93,16 @@ public class CopyCommand {
                        String destPath) {
     try {
       destSession.getWorkspace().copy(sourceWorkspace, sourcePath, destPath);
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      // If the source resource was successfully moved
+      // to a pre-existing destination resource.
+      if (itemExisted) {
+        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).build();
+      }
+      // If the source resource was successfully moved,
+      // and a new resource was created at the destination.
+      else {
+        return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      }
     } catch (ItemExistsException e) {
       e.printStackTrace();
       return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).errorMessage(e.getMessage()).build();

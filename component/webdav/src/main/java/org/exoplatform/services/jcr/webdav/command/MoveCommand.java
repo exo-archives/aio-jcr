@@ -17,14 +17,14 @@
 
 package org.exoplatform.services.jcr.webdav.command;
 
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.rest.CacheControl;
+import org.exoplatform.services.rest.Response;
+
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
-
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.rest.CacheControl;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -40,14 +40,43 @@ public class MoveCommand {
     cacheControl.setNoCache(true);
   }
 
+  /**
+   * To trace if an item on destination path existed.
+   */
+
+  final private boolean       itemExisted;
+
+  public MoveCommand() {
+    this.itemExisted = false;
+  }
+
+  /**
+   * Here we pass info about pre-existence of item on the copy destination path
+   * If an item existed, we must respond with NO_CONTENT (204) HTTP status. If
+   * an item did not exist, we must respond with CREATED (201) HTTP status More
+   * info can be found <a
+   * href=http://www.webdav.org/specs/rfc2518.html#METHOD_COPY>here</a>.
+   */
+  public MoveCommand(boolean itemExisted) {
+    this.itemExisted = itemExisted;
+  }
+
   public Response move(Session session, String srcPath, String destPath) {
     try {
       session.move(srcPath, destPath);
       session.save();
-      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
-                             .cacheControl(cacheControl)
-                             .build();
-
+      // If the source resource was successfully moved
+      // to a pre-existing destination resource.
+      if (itemExisted) {
+        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
+                               .cacheControl(cacheControl)
+                               .build();
+      }
+      // If the source resource was successfully moved,
+      // and a new resource was created at the destination.
+      else {
+        return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
+      }
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
 
@@ -68,9 +97,18 @@ public class MoveCommand {
       sourceSession.getItem(srcPath).remove();
       sourceSession.save();
 
-      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
-                             .cacheControl(cacheControl)
-                             .build();
+      // If the source resource was successfully moved
+      // to a pre-existing destination resource.
+      if (itemExisted) {
+        return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
+                               .cacheControl(cacheControl)
+                               .build();
+      }
+      // If the source resource was successfully moved,
+      // and a new resource was created at the destination.
+      else {
+        return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
+      }
 
     } catch (LockException e) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).errorMessage(e.getMessage()).build();
