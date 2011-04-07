@@ -1,29 +1,7 @@
 Index: component/core/src/main/java/org/exoplatform/services/jcr/dataflow/ItemState.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/dataflow/ItemState.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/dataflow/ItemState.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/dataflow/ItemState.java	(working copy)
-@@ -16,16 +16,16 @@
-  */
- package org.exoplatform.services.jcr.dataflow;
- 
-+import org.apache.commons.logging.Log;
-+import org.exoplatform.services.jcr.datamodel.ItemData;
-+import org.exoplatform.services.jcr.datamodel.QPath;
-+import org.exoplatform.services.log.ExoLogger;
-+
- import java.io.Externalizable;
- import java.io.IOException;
- import java.io.ObjectInput;
- import java.io.ObjectOutput;
- 
--import org.apache.commons.logging.Log;
--import org.exoplatform.services.jcr.datamodel.ItemData;
--import org.exoplatform.services.jcr.datamodel.QPath;
--import org.exoplatform.services.log.ExoLogger;
--
- /**
-  * Created by The eXo Platform SAS.<br/>
-  * item state to save
 @@ -51,6 +51,8 @@
  
    public static final int     RENAMED           = 32;
@@ -119,34 +97,8 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/dataflow/ItemSt
      }
 Index: component/core/src/main/java/org/exoplatform/services/jcr/dataflow/TransactionChangesLog.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/dataflow/TransactionChangesLog.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/dataflow/TransactionChangesLog.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/dataflow/TransactionChangesLog.java	(working copy)
-@@ -16,6 +16,12 @@
-  */
- package org.exoplatform.services.jcr.dataflow;
- 
-+import org.exoplatform.services.jcr.datamodel.IllegalPathException;
-+import org.exoplatform.services.jcr.datamodel.ItemData;
-+import org.exoplatform.services.jcr.datamodel.NodeData;
-+import org.exoplatform.services.jcr.datamodel.QPath;
-+import org.exoplatform.services.jcr.datamodel.QPathEntry;
-+
- import java.io.Externalizable;
- import java.io.IOException;
- import java.io.ObjectInput;
-@@ -23,12 +29,6 @@
- import java.util.ArrayList;
- import java.util.List;
- 
--import org.exoplatform.services.jcr.datamodel.IllegalPathException;
--import org.exoplatform.services.jcr.datamodel.ItemData;
--import org.exoplatform.services.jcr.datamodel.NodeData;
--import org.exoplatform.services.jcr.datamodel.QPath;
--import org.exoplatform.services.jcr.datamodel.QPathEntry;
--
- /**
-  * Created by The eXo Platform SAS.
-  * 
 @@ -167,6 +167,7 @@
     *         renaming is not detected.
     * @throws IllegalPathException
@@ -155,110 +107,10 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/dataflow/Transa
    public ItemState[] findRenamed(ItemData item) throws IllegalPathException {
      List<ItemState> allStates = getAllStates();
      // search from the end for DELETED state.
-@@ -180,14 +181,14 @@
-           ItemState delete = state;
-           ItemState rename = allStates.get(i + 1);
- 
--          if (rename.getState() == ItemState.RENAMED && rename.isPersisted()
-+          if ((rename.isRenamed() || rename.isPathChanged()) && rename.isPersisted()
-               && rename.getData().getIdentifier().equals(delete.getData().getIdentifier())) {
- 
-             // 2. search of most fresh state of rename for searched rename state (i.e. for ancestor
-             // state of the given node)
-             for (int bi = allStates.size() - 1; bi >= i + 2; bi--) {
-               state = allStates.get(bi);
--              if (state.getState() == ItemState.RENAMED && state.isPersisted()
-+              if ((rename.isRenamed() || rename.isPathChanged()) && state.isPersisted()
-                   && state.getData().getIdentifier().equals(rename.getData().getIdentifier())) {
-                 // got much fresh
-                 rename = state;
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java	(working copy)
-@@ -16,6 +16,40 @@
-  */
- package org.exoplatform.services.jcr.impl.core;
- 
-+import org.exoplatform.container.ExoContainer;
-+import org.exoplatform.services.jcr.access.AccessControlList;
-+import org.exoplatform.services.jcr.access.AccessManager;
-+import org.exoplatform.services.jcr.config.WorkspaceEntry;
-+import org.exoplatform.services.jcr.core.CredentialsImpl;
-+import org.exoplatform.services.jcr.core.ExtendedSession;
-+import org.exoplatform.services.jcr.core.NamespaceAccessor;
-+import org.exoplatform.services.jcr.core.SessionLifecycleListener;
-+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
-+import org.exoplatform.services.jcr.datamodel.ItemData;
-+import org.exoplatform.services.jcr.datamodel.NodeData;
-+import org.exoplatform.services.jcr.datamodel.QPathEntry;
-+import org.exoplatform.services.jcr.impl.Constants;
-+import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
-+import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerImpl;
-+import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
-+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
-+import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
-+import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
-+import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
-+import org.exoplatform.services.jcr.impl.ext.action.SessionActionInterceptor;
-+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
-+import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
-+import org.exoplatform.services.jcr.impl.xml.ItemDataKeeperAdapter;
-+import org.exoplatform.services.jcr.impl.xml.XmlMapping;
-+import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
-+import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
-+import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
-+import org.exoplatform.services.jcr.util.IdGenerator;
-+import org.exoplatform.services.security.ConversationState;
-+import org.exoplatform.services.security.Identity;
-+import org.xml.sax.ContentHandler;
-+import org.xml.sax.SAXException;
-+
- import java.io.IOException;
- import java.io.InputStream;
- import java.io.OutputStream;
-@@ -51,41 +85,6 @@
- import javax.jcr.version.VersionException;
- import javax.xml.stream.XMLStreamException;
- 
--import org.xml.sax.ContentHandler;
--import org.xml.sax.SAXException;
--
--import org.exoplatform.container.ExoContainer;
--import org.exoplatform.services.jcr.access.AccessControlList;
--import org.exoplatform.services.jcr.access.AccessManager;
--import org.exoplatform.services.jcr.config.WorkspaceEntry;
--import org.exoplatform.services.jcr.core.CredentialsImpl;
--import org.exoplatform.services.jcr.core.ExtendedSession;
--import org.exoplatform.services.jcr.core.NamespaceAccessor;
--import org.exoplatform.services.jcr.core.SessionLifecycleListener;
--import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
--import org.exoplatform.services.jcr.datamodel.ItemData;
--import org.exoplatform.services.jcr.datamodel.NodeData;
--import org.exoplatform.services.jcr.datamodel.QPathEntry;
--import org.exoplatform.services.jcr.impl.Constants;
--import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
--import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerImpl;
--import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
--import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
--import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
--import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
--import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
--import org.exoplatform.services.jcr.impl.ext.action.SessionActionInterceptor;
--import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
--import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
--import org.exoplatform.services.jcr.impl.xml.ItemDataKeeperAdapter;
--import org.exoplatform.services.jcr.impl.xml.XmlMapping;
--import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
--import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
--import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
--import org.exoplatform.services.jcr.util.IdGenerator;
--import org.exoplatform.services.security.ConversationState;
--import org.exoplatform.services.security.Identity;
--
- /**
-  * Created by The eXo Platform SAS.
-  * 
 @@ -705,7 +704,7 @@
                                                                               .getMemberships(),
                                                                      userState.getIdentity()
@@ -279,361 +131,10 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Sessi
  
      getTransientNodesManager().rename((NodeData) srcNode.getData(), initializer);
    }
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionDataManager.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionDataManager.java	(revision 68026)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionDataManager.java	(working copy)
-@@ -16,25 +16,6 @@
-  */
- package org.exoplatform.services.jcr.impl.core;
- 
--import java.io.IOException;
--import java.util.ArrayList;
--import java.util.Collection;
--import java.util.Collections;
--import java.util.Comparator;
--import java.util.Iterator;
--import java.util.LinkedHashMap;
--import java.util.List;
--import java.util.Map;
--import java.util.WeakHashMap;
--
--import javax.jcr.AccessDeniedException;
--import javax.jcr.InvalidItemStateException;
--import javax.jcr.ItemExistsException;
--import javax.jcr.ReferentialIntegrityException;
--import javax.jcr.RepositoryException;
--import javax.jcr.nodetype.ConstraintViolationException;
--import javax.jcr.version.VersionException;
--
- import org.apache.commons.logging.Log;
- import org.exoplatform.services.jcr.access.AccessControlList;
- import org.exoplatform.services.jcr.access.AccessManager;
-@@ -62,6 +43,25 @@
- import org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy;
- import org.exoplatform.services.log.ExoLogger;
- 
-+import java.io.IOException;
-+import java.util.ArrayList;
-+import java.util.Collection;
-+import java.util.Collections;
-+import java.util.Comparator;
-+import java.util.Iterator;
-+import java.util.LinkedHashMap;
-+import java.util.List;
-+import java.util.Map;
-+import java.util.WeakHashMap;
-+
-+import javax.jcr.AccessDeniedException;
-+import javax.jcr.InvalidItemStateException;
-+import javax.jcr.ItemExistsException;
-+import javax.jcr.ReferentialIntegrityException;
-+import javax.jcr.RepositoryException;
-+import javax.jcr.nodetype.ConstraintViolationException;
-+import javax.jcr.version.VersionException;
-+
- /**
-  * Created by The eXo Platform SAS.<br>
-  * 
-@@ -1051,7 +1051,7 @@
-                                                                             skipVersionStorage);
-     List<PropertyData> sessionTransient = new ArrayList<PropertyData>();
-     for (PropertyData p : persisted) {
--      sessionTransient.add((PropertyData) p);
-+      sessionTransient.add(p);
-     }
-     return sessionTransient;
-   }
-@@ -1224,7 +1224,7 @@
-         continue;
-       }
- 
--      if (rstate.getState() == ItemState.RENAMED) {
-+      if (rstate.isRenamed() || rstate.isPathChanged()) {
-         // find DELETED
-         rstate = changes.findItemState(rstate.getData().getIdentifier(),
-                                        false,
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockManagerImpl.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockManagerImpl.java	(revision 68026)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/lock/LockManagerImpl.java	(working copy)
-@@ -414,7 +414,8 @@
-               nodeIdentifier = itemState.getData().getIdentifier();
-               if (itemState.isDeleted()) {
-                 removedLock.add(nodeIdentifier);
--              } else if (itemState.isAdded() || itemState.isRenamed() || itemState.isUpdated()) {
-+              } else if (itemState.isAdded() || itemState.isRenamed() || itemState.isPathChanged()
-+                  || itemState.isUpdated()) {
-                 removedLock.remove(nodeIdentifier);
-               }
-             }
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/query/SearchManager.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/query/SearchManager.java	(revision 68026)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/query/SearchManager.java	(working copy)
-@@ -220,14 +220,15 @@
-     List<ItemState> propEvents = new ArrayList<ItemState>();
-     List<ItemState> itemStates = changesLog.getAllStates();
-     for (ItemState itemState : itemStates) {
--      if (!isExcluded(itemState) && itemState.isPersisted()) {
-+      if (itemState.isPersisted() && !isExcluded(itemState)) {
-         if (itemState.isNode()) {
-           if (itemState.isAdded()) {
-             addedNodes.add(itemState.getData().getIdentifier());
-           } else if (itemState.isDeleted()) {
-             addedNodes.remove(itemState.getData().getIdentifier());
-             removedNodes.add(itemState.getData().getIdentifier());
--          } else if (itemState.isMixinChanged() || itemState.isRenamed()) {
-+          } else if (itemState.isMixinChanged() || itemState.isRenamed()
-+              || itemState.isPathChanged()) {
-             removedNodes.add(itemState.getData().getIdentifier());
-             addedNodes.add(itemState.getData().getIdentifier());
-           }
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/observation/ActionLauncher.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/observation/ActionLauncher.java	(revision 68026)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/observation/ActionLauncher.java	(working copy)
-@@ -16,15 +16,7 @@
-  */
- package org.exoplatform.services.jcr.impl.core.observation;
- 
--import java.util.List;
--
--import javax.jcr.RepositoryException;
--import javax.jcr.observation.Event;
--import javax.jcr.observation.EventListener;
--import javax.jcr.observation.EventListenerIterator;
--
- import org.apache.commons.logging.Log;
--
- import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
- import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
- import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
-@@ -43,6 +35,13 @@
- import org.exoplatform.services.jcr.impl.util.EntityCollection;
- import org.exoplatform.services.log.ExoLogger;
- 
-+import java.util.List;
-+
-+import javax.jcr.RepositoryException;
-+import javax.jcr.observation.Event;
-+import javax.jcr.observation.EventListener;
-+import javax.jcr.observation.EventListenerIterator;
-+
- /**
-  * Created by The eXo Platform SAS.
-  * 
-@@ -217,7 +216,7 @@
-   private int eventType(ItemState state) throws RepositoryException {
- 
-     if (state.getData().isNode()) {
--      if (state.isAdded() || state.isRenamed() || state.isUpdated())
-+      if (state.isAdded() || state.isRenamed() || state.isPathChanged() || state.isUpdated())
-         return Event.NODE_ADDED;
-       else if (state.isDeleted())
-         return Event.NODE_REMOVED;
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ItemImpl.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ItemImpl.java	(revision 68026)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/ItemImpl.java	(working copy)
-@@ -16,28 +16,7 @@
-  */
- package org.exoplatform.services.jcr.impl.core;
- 
--import java.io.IOException;
--import java.util.ArrayList;
--import java.util.List;
--
--import javax.jcr.AccessDeniedException;
--import javax.jcr.InvalidItemStateException;
--import javax.jcr.Item;
--import javax.jcr.ItemNotFoundException;
--import javax.jcr.PathNotFoundException;
--import javax.jcr.PropertyType;
--import javax.jcr.ReferentialIntegrityException;
--import javax.jcr.RepositoryException;
--import javax.jcr.Value;
--import javax.jcr.ValueFormatException;
--import javax.jcr.lock.LockException;
--import javax.jcr.nodetype.ConstraintViolationException;
--import javax.jcr.nodetype.ItemDefinition;
--import javax.jcr.nodetype.PropertyDefinition;
--import javax.jcr.version.VersionException;
--
- import org.apache.commons.logging.Log;
--
- import org.exoplatform.services.jcr.access.AccessControlEntry;
- import org.exoplatform.services.jcr.access.AccessControlList;
- import org.exoplatform.services.jcr.access.AccessManager;
-@@ -66,6 +45,26 @@
- import org.exoplatform.services.jcr.util.IdGenerator;
- import org.exoplatform.services.log.ExoLogger;
- 
-+import java.io.IOException;
-+import java.util.ArrayList;
-+import java.util.List;
-+
-+import javax.jcr.AccessDeniedException;
-+import javax.jcr.InvalidItemStateException;
-+import javax.jcr.Item;
-+import javax.jcr.ItemNotFoundException;
-+import javax.jcr.PathNotFoundException;
-+import javax.jcr.PropertyType;
-+import javax.jcr.ReferentialIntegrityException;
-+import javax.jcr.RepositoryException;
-+import javax.jcr.Value;
-+import javax.jcr.ValueFormatException;
-+import javax.jcr.lock.LockException;
-+import javax.jcr.nodetype.ConstraintViolationException;
-+import javax.jcr.nodetype.ItemDefinition;
-+import javax.jcr.nodetype.PropertyDefinition;
-+import javax.jcr.version.VersionException;
-+
- /**
-  * Created by The eXo Platform SAS.
-  * 
-@@ -535,7 +534,8 @@
-             // mix:referenceable
-             if (changedItem.isDeleted())
-               refNodes.add(refNode); // add to refs (delete - alway is first)
--            else if (changedItem.isAdded() || changedItem.isRenamed())
-+            else if (changedItem.isAdded() || changedItem.isRenamed()
-+                || changedItem.isPathChanged())
-               refNodes.remove(refNode); // remove from refs (add - always at the end)
-           }
-         }
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/WorkspaceImpl.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/WorkspaceImpl.java	(revision 68026)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/WorkspaceImpl.java	(working copy)
-@@ -16,6 +16,32 @@
-  */
- package org.exoplatform.services.jcr.impl.core;
- 
-+import org.apache.commons.logging.Log;
-+import org.exoplatform.container.ExoContainer;
-+import org.exoplatform.services.jcr.access.PermissionType;
-+import org.exoplatform.services.jcr.core.ExtendedWorkspace;
-+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
-+import org.exoplatform.services.jcr.dataflow.ItemState;
-+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-+import org.exoplatform.services.jcr.datamodel.NodeData;
-+import org.exoplatform.services.jcr.datamodel.QPathEntry;
-+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-+import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
-+import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
-+import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
-+import org.exoplatform.services.jcr.impl.dataflow.ItemDataCloneVisitor;
-+import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
-+import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
-+import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
-+import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
-+import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
-+import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
-+import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
-+import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
-+import org.exoplatform.services.log.ExoLogger;
-+import org.xml.sax.ContentHandler;
-+
- import java.io.IOException;
- import java.io.InputStream;
- import java.security.AccessControlException;
-@@ -43,34 +69,6 @@
- import javax.jcr.version.Version;
- import javax.jcr.version.VersionException;
- 
--import org.xml.sax.ContentHandler;
--
--import org.apache.commons.logging.Log;
--
--import org.exoplatform.container.ExoContainer;
--import org.exoplatform.services.jcr.access.PermissionType;
--import org.exoplatform.services.jcr.core.ExtendedWorkspace;
--import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
--import org.exoplatform.services.jcr.dataflow.ItemState;
--import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
--import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
--import org.exoplatform.services.jcr.datamodel.NodeData;
--import org.exoplatform.services.jcr.datamodel.QPathEntry;
--import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
--import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
--import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
--import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
--import org.exoplatform.services.jcr.impl.dataflow.ItemDataCloneVisitor;
--import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
--import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
--import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
--import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
--import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
--import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
--import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
--import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
--import org.exoplatform.services.log.ExoLogger;
--
- /**
-  * Created by The eXo Platform SAS.
-  * 
-@@ -473,7 +471,8 @@
-                                                                           .getInternalName(),
-                                                               getNodeTypeManager(),
-                                                               session.getTransientNodesManager(),
--                                                              true);
-+                                                              true,
-+                                                              false);
-     srcNode.getData().accept(initializer);
- 
-     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
-@@ -654,7 +653,7 @@
-         NodeData destParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-         NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version parent
-         // it's a VH
--        VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
-+        VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper(vh,
-                                                                               dataManager,
-                                                                               getNodeTypeManager());
- 
-@@ -689,7 +688,7 @@
-           NodeData destParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-           // version parent it's a VH
-           NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier());
--          VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
-+          VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper(vh,
-                                                                                 dataManager,
-                                                                                 getNodeTypeManager());
- 
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java	(working copy)
-@@ -16,13 +16,6 @@
-  */
- package org.exoplatform.services.jcr.impl.dataflow;
- 
--import java.util.ArrayList;
--import java.util.Collections;
--import java.util.List;
--import java.util.Stack;
--
--import javax.jcr.RepositoryException;
--
- import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
- import org.exoplatform.services.jcr.dataflow.ItemState;
- import org.exoplatform.services.jcr.datamodel.InternalQName;
-@@ -35,6 +28,13 @@
- import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
- import org.exoplatform.services.jcr.util.IdGenerator;
- 
-+import java.util.ArrayList;
-+import java.util.Collections;
-+import java.util.List;
-+import java.util.Stack;
-+
-+import javax.jcr.RepositoryException;
-+
- /**
-  * The class visits each node, all subnodes and all of them properties. It transfer as parameter of
-  * a method <code>ItemData.visits()</code>. During visiting the class forms the <b>itemAddStates</b>
 @@ -71,6 +71,11 @@
    protected boolean             keepIdentifiers;
  
@@ -646,7 +147,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/I
     * The NodeTypeManager
     */
    protected NodeTypeManagerImpl ntManager;
-@@ -90,20 +95,23 @@
+@@ -90,22 +95,44 @@
     *          - Source data manager
     * @param keepIdentifiers
     *          - Is it necessity to keep <code>Identifiers</code>
@@ -672,19 +173,40 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/I
 +    this.skipEventsForDescendents = skipEventsForDescendents;
    }
  
++  /**
++   * Creates an instance of this class.
++   * 
++   * @param parent - The parent node
++   * @param dstNodeName Destination node name
++   * @param nodeTypeManager - The NodeTypeManager
++   * @param srcDataManager - Source data manager
++   * @param keepIdentifiers - Is it necessity to keep <code>Identifiers</code>
++   * @param skipEventsForDescendents - Don't generate events for the
++   *          descendants.
++   */
++  public ItemDataMoveVisitor(NodeData parent,
++                             InternalQName dstNodeName,
++                             NodeTypeManagerImpl nodeTypeManager,
++                             SessionDataManager srcDataManager,
++                             boolean keepIdentifiers) {
++    this(parent, dstNodeName, nodeTypeManager, srcDataManager, keepIdentifiers, false);
++  }
++
    @Override
-@@ -210,13 +218,24 @@
+   protected void entering(NodeData node, int level) throws RepositoryException {
+ 
+@@ -210,13 +237,23 @@
      parents.push(newNode);
  
      // ancestorToSave is a parent node
 -    // if level == 0 set internal createt as false for validating on save
--    addStates.add(new ItemState(newNode,
--                                ItemState.RENAMED,
--                                level == 0,
--                                ancestorToSave,
--                                false,
--                                level == 0));
 +    // if level == 0 set internal create as false for validating on save
+     addStates.add(new ItemState(newNode,
+                                 ItemState.RENAMED,
+                                 level == 0,
+                                 ancestorToSave,
+                                 false,
+                                 level == 0));
 +    if (skipEventsForDescendents) {
 +      addStates.add(new ItemState(newNode,
 +                                  ItemState.PATH_CHANGED,
@@ -693,13 +215,6 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/I
 +                                  false,
 +                                  level == 0,
 +                                  node.getQPath()));
-+    } else {
-+      addStates.add(new ItemState(newNode,
-+                                  ItemState.RENAMED,
-+                                  level == 0,
-+                                  ancestorToSave,
-+                                  false,
-+                                  level == 0));
 +    }
 +
      deleteStates.add(new ItemState(node,
@@ -707,38 +222,8 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/I
                                     level == 0,
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/LocalWorkspaceStorageDataManagerProxy.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/LocalWorkspaceStorageDataManagerProxy.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/LocalWorkspaceStorageDataManagerProxy.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/LocalWorkspaceStorageDataManagerProxy.java	(working copy)
-@@ -16,14 +16,6 @@
-  */
- package org.exoplatform.services.jcr.impl.dataflow.session;
- 
--import java.util.ArrayList;
--import java.util.Calendar;
--import java.util.LinkedList;
--import java.util.List;
--
--import javax.jcr.InvalidItemStateException;
--import javax.jcr.RepositoryException;
--
- import org.exoplatform.services.jcr.access.AccessControlList;
- import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
- import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
-@@ -44,6 +36,14 @@
- import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
- import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
- 
-+import java.util.ArrayList;
-+import java.util.Calendar;
-+import java.util.LinkedList;
-+import java.util.List;
-+
-+import javax.jcr.InvalidItemStateException;
-+import javax.jcr.RepositoryException;
-+
- /**
-  * Created by The eXo Platform SAS.<br/>
-  * proxy of local workspace storage. "local" means that backended workspace data manager is located
 @@ -90,7 +90,8 @@
                                   change.isEventFire(),
                                   change.getAncestorToSave(),
@@ -751,34 +236,8 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/s
        newLog.addLog(new PlainChangesLogImpl(states, changes.getSessionId(), changes.getEventType()));
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/SessionChangesLog.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/SessionChangesLog.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/SessionChangesLog.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/SessionChangesLog.java	(working copy)
-@@ -16,12 +16,6 @@
-  */
- package org.exoplatform.services.jcr.impl.dataflow.session;
- 
--import java.util.ArrayList;
--import java.util.Collection;
--import java.util.HashMap;
--import java.util.List;
--import java.util.Map;
--
- import org.exoplatform.services.jcr.dataflow.ItemState;
- import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
- import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-@@ -33,6 +27,12 @@
- import org.exoplatform.services.jcr.impl.Constants;
- import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
- 
-+import java.util.ArrayList;
-+import java.util.Collection;
-+import java.util.HashMap;
-+import java.util.List;
-+import java.util.Map;
-+
- /**
-  * Created by The eXo Platform SAS.<br/>
-  * Responsible for managing session changes log. Relying on fact that ItemData inside ItemState
 @@ -394,6 +394,7 @@
     *         if renaming is not detected.
     * @throws IllegalPathException
@@ -787,53 +246,11 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/s
    public ItemState[] findRenamed(QPath deletedPath) throws IllegalPathException {
      List<ItemState> allStates = getAllStates();
      // search from the end for DELETED state.
-@@ -409,13 +410,13 @@
-           ItemState delete = state;
-           ItemState rename = allStates.get(i + 1);
- 
--          if (rename.getState() == ItemState.RENAMED && rename.isPersisted()
-+          if ((rename.isRenamed() || rename.isPathChanged()) && rename.isPersisted()
-               && rename.getData().getIdentifier().equals(delete.getData().getIdentifier())) {
- 
-             // 2. search of most fresh state for searched rename state
-             for (int bi = allStates.size() - 1; bi >= i + 2; bi--) {
-               state = allStates.get(bi);
--              if (state.getState() == ItemState.RENAMED && state.isPersisted()
-+              if ((rename.isRenamed() || rename.isPathChanged()) && state.isPersisted()
-                   && state.getData().getIdentifier().equals(rename.getData().getIdentifier())) {
-                 // got much fresh
-                 rename = state;
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/TransactionableDataManager.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/TransactionableDataManager.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/TransactionableDataManager.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/TransactionableDataManager.java	(working copy)
-@@ -16,13 +16,7 @@
-  */
- package org.exoplatform.services.jcr.impl.dataflow.session;
- 
--import java.util.List;
--
--import javax.jcr.InvalidItemStateException;
--import javax.jcr.RepositoryException;
--
- import org.apache.commons.logging.Log;
--
- import org.exoplatform.services.jcr.dataflow.DataManager;
- import org.exoplatform.services.jcr.dataflow.ItemState;
- import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-@@ -41,6 +35,11 @@
- import org.exoplatform.services.transaction.TransactionException;
- import org.exoplatform.services.transaction.TransactionResource;
- 
-+import java.util.List;
-+
-+import javax.jcr.InvalidItemStateException;
-+import javax.jcr.RepositoryException;
-+
- /**
-  * Created by The eXo Platform SAS.
-  * 
-@@ -285,6 +284,7 @@
+@@ -285,6 +285,7 @@
      return storageDataManager;
    }
  
@@ -841,111 +258,15 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/s
    protected ItemData locate(final ItemData idata) throws RepositoryException {
      if (idata == null)
        return null;
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/WorkspacePersistentDataManager.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/WorkspacePersistentDataManager.java	(revision 68026)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/WorkspacePersistentDataManager.java	(working copy)
-@@ -16,17 +16,7 @@
-  */
- package org.exoplatform.services.jcr.impl.dataflow.persistent;
- 
--import java.util.ArrayList;
--import java.util.Calendar;
--import java.util.HashSet;
--import java.util.List;
--import java.util.Set;
--
--import javax.jcr.InvalidItemStateException;
--import javax.jcr.RepositoryException;
--
- import org.apache.commons.logging.Log;
--
- import org.exoplatform.services.jcr.dataflow.DataManager;
- import org.exoplatform.services.jcr.dataflow.ItemState;
- import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-@@ -43,6 +33,15 @@
- import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
- import org.exoplatform.services.log.ExoLogger;
- 
-+import java.util.ArrayList;
-+import java.util.Calendar;
-+import java.util.HashSet;
-+import java.util.List;
-+import java.util.Set;
-+
-+import javax.jcr.InvalidItemStateException;
-+import javax.jcr.RepositoryException;
-+
- /**
-  * Created by The eXo Platform SAS.<br>
-  * Workspace-level data manager
-@@ -161,7 +160,7 @@
-           doUpdate(data, conn);
-         } else if (itemState.isDeleted()) {
-           doDelete(data, conn);
--        } else if (itemState.isRenamed()) {
-+        } else if (itemState.isRenamed() || itemState.isPathChanged()) {
-           doRename(data, conn, addedNodes);
-         }
- 
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java	(revision 68026)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java	(working copy)
-@@ -16,21 +16,6 @@
-  */
- package org.exoplatform.services.jcr.impl.dataflow.persistent;
- 
--import java.util.ArrayList;
--import java.util.Calendar;
--import java.util.Collection;
--import java.util.ConcurrentModificationException;
--import java.util.Iterator;
--import java.util.LinkedHashMap;
--import java.util.List;
--import java.util.Map;
--import java.util.Timer;
--import java.util.TimerTask;
--import java.util.WeakHashMap;
--import java.util.Map.Entry;
--import java.util.concurrent.Semaphore;
--import java.util.concurrent.locks.ReentrantLock;
--
- import org.apache.commons.logging.Log;
- import org.exoplatform.services.jcr.config.CacheEntry;
- import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-@@ -44,8 +29,25 @@
- import org.exoplatform.services.jcr.datamodel.QPath;
- import org.exoplatform.services.jcr.datamodel.QPathEntry;
- import org.exoplatform.services.jcr.impl.Constants;
-+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
- import org.exoplatform.services.log.ExoLogger;
- 
-+import java.util.ArrayList;
-+import java.util.Calendar;
-+import java.util.Collection;
-+import java.util.ConcurrentModificationException;
-+import java.util.Iterator;
-+import java.util.LinkedHashMap;
-+import java.util.List;
-+import java.util.Map;
-+import java.util.Map.Entry;
-+import java.util.Timer;
-+import java.util.TimerTask;
-+import java.util.WeakHashMap;
-+import java.util.concurrent.Semaphore;
-+import java.util.concurrent.locks.ReentrantLock;
-+
- /**
-  * Created by The eXo Platform SAS.<br/>
-  * 
-@@ -1548,6 +1550,65 @@
+@@ -1548,6 +1550,64 @@
            // MOVE operation (DESTENATION changes, same as ADDED), states for whole subtree!
            // RENAME goes before DELETE
            put(item);
 +        } else if (state.isPathChanged()) {
-+          put(item);
 +
 +          writeLock.lock();
 +          try {
