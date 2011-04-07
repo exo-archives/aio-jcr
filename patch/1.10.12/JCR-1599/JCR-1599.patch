@@ -99,16 +99,15 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Sessi
 ===================================================================
 --- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java	(working copy)
-@@ -95,6 +95,8 @@
-  */
- public class SessionImpl implements ExtendedSession, NamespaceAccessor {
- 
-+  public static final String                   SKIP_EVENTS_FOR_DESCENDENTS_ON_RENAME = "skip-events-for-descendents-on-rename";
-+  
-   private final RepositoryImpl                 repository;
- 
-   private final ConversationState              userState;
-@@ -131,6 +133,8 @@
+@@ -82,6 +82,7 @@
+ import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
+ import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
+ import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
++import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
+ import org.exoplatform.services.jcr.util.IdGenerator;
+ import org.exoplatform.services.security.ConversationState;
+ import org.exoplatform.services.security.Identity;
+@@ -131,6 +132,8 @@
  
    private long                                 lastAccessTime;
  
@@ -117,18 +116,18 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Sessi
    private final SessionRegistry                sessionRegistry;
  
    protected final SessionDataManager           dataManager;
-@@ -178,7 +182,9 @@
+@@ -178,7 +181,9 @@
  
      sessionRegistry.registerSession(this);
      this.lastAccessTime = System.currentTimeMillis();
 -
 +    this.skipEventsForDescendentsOnRename = wsConfig.getContainer()
-+                                                    .getParameterBoolean(SKIP_EVENTS_FOR_DESCENDENTS_ON_RENAME,
++                                                    .getParameterBoolean(WorkspaceDataContainer.SKIP_EVENTS_FOR_DESCENDENTS_ON_RENAME,
 +                                                                         false);
    }
  
    /*
-@@ -705,7 +711,7 @@
+@@ -705,7 +710,7 @@
                                                                               .getMemberships(),
                                                                      userState.getIdentity()
                                                                               .getRoles()));
@@ -137,7 +136,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Sessi
  
    }
  
-@@ -871,7 +877,10 @@
+@@ -871,7 +876,10 @@
                                                                            .getInternalName(),
                                                                getWorkspace().getNodeTypeManager(),
                                                                getTransientNodesManager(),
@@ -330,3 +329,15 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/p
          } else if (state.isUpdated()) {
            // UPDATE occurs on reordered (no subtree!) and merged nodes (for each merged-updated)
            if (item.isNode()) {
+Index: component/core/src/main/java/org/exoplatform/services/jcr/storage/WorkspaceDataContainer.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/storage/WorkspaceDataContainer.java	(revision 68057)
++++ component/core/src/main/java/org/exoplatform/services/jcr/storage/WorkspaceDataContainer.java	(working copy)
+@@ -33,6 +33,7 @@
+ public interface WorkspaceDataContainer extends DataContainer {
+ 
+   // configuration params
++  public static final String SKIP_EVENTS_FOR_DESCENDENTS_ON_RENAME = "skip-events-for-descendents-on-rename";
+ 
+   public final static String CONTAINER_NAME    = "containerName";
+ 
