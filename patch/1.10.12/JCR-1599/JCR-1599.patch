@@ -148,6 +148,20 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Sessi
  
      getTransientNodesManager().rename((NodeData) srcNode.getData(), initializer);
    }
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/BaseXmlImporter.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/BaseXmlImporter.java	(revision 68057)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/xml/importing/BaseXmlImporter.java	(working copy)
+@@ -185,7 +185,8 @@
+                                         itemState.isEventFire(),
+                                         ancestorToSave,
+                                         itemState.isInternallyCreated(),
+-                                        itemState.isPersisted()));
++                                        itemState.isPersisted(),
++                                        itemState.getOldPath()));
+       }
+       changesLog.clear();
+       changesLog.addAll(newChangesLog.getAllStates());
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java
 ===================================================================
 --- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java	(revision 68057)
