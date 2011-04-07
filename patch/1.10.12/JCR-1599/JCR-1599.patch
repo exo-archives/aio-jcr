@@ -95,23 +95,40 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/dataflow/ItemSt
      default:
        return "UNDEFINED STATE";
      }
-Index: component/core/src/main/java/org/exoplatform/services/jcr/dataflow/TransactionChangesLog.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/dataflow/TransactionChangesLog.java	(revision 68057)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/dataflow/TransactionChangesLog.java	(working copy)
-@@ -167,6 +167,7 @@
-    *         renaming is not detected.
-    * @throws IllegalPathException
-    */
-+  @Deprecated
-   public ItemState[] findRenamed(ItemData item) throws IllegalPathException {
-     List<ItemState> allStates = getAllStates();
-     // search from the end for DELETED state.
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java
 ===================================================================
 --- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/SessionImpl.java	(working copy)
-@@ -705,7 +704,7 @@
+@@ -95,6 +95,8 @@
+  */
+ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
+ 
++  public static final String                   SKIP_EVENTS_FOR_DESCENDENTS_ON_RENAME = "skip-events-for-descendents-on-rename";
++  
+   private final RepositoryImpl                 repository;
+ 
+   private final ConversationState              userState;
+@@ -131,6 +133,8 @@
+ 
+   private long                                 lastAccessTime;
+ 
++  private boolean                              skipEventsForDescendentsOnRename;
++
+   private final SessionRegistry                sessionRegistry;
+ 
+   protected final SessionDataManager           dataManager;
+@@ -178,7 +182,9 @@
+ 
+     sessionRegistry.registerSession(this);
+     this.lastAccessTime = System.currentTimeMillis();
+-
++    this.skipEventsForDescendentsOnRename = wsConfig.getContainer()
++                                                    .getParameterBoolean(SKIP_EVENTS_FOR_DESCENDENTS_ON_RENAME,
++                                                                         false);
+   }
+ 
+   /*
+@@ -705,7 +711,7 @@
                                                                               .getMemberships(),
                                                                      userState.getIdentity()
                                                                               .getRoles()));
@@ -120,13 +137,14 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/Sessi
  
    }
  
-@@ -871,7 +870,9 @@
+@@ -871,7 +877,10 @@
                                                                            .getInternalName(),
                                                                getWorkspace().getNodeTypeManager(),
                                                                getTransientNodesManager(),
 -                                                              true);
 +                                                              true,
-+                                                              srcNodePath.makeParentPath()
++                                                              skipEventsForDescendentsOnRename
++                                                                  && srcNodePath.makeParentPath()
 +                                                                         .equals(destNodePath.makeParentPath()));
  
      getTransientNodesManager().rename((NodeData) srcNode.getData(), initializer);
@@ -210,10 +228,10 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/I
 +    if (skipEventsForDescendents) {
 +      addStates.add(new ItemState(newNode,
 +                                  ItemState.PATH_CHANGED,
-+                                  level == 0,
++                                  false,
 +                                  ancestorToSave,
 +                                  false,
-+                                  level == 0,
++                                  false,
 +                                  node.getQPath()));
 +    }
 +
@@ -234,34 +252,19 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/s
        }
  
        newLog.addLog(new PlainChangesLogImpl(states, changes.getSessionId(), changes.getEventType()));
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/SessionChangesLog.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/SessionChangesLog.java	(revision 68057)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/SessionChangesLog.java	(working copy)
-@@ -394,6 +394,7 @@
-    *         if renaming is not detected.
-    * @throws IllegalPathException
-    */
-+  @Deprecated
-   public ItemState[] findRenamed(QPath deletedPath) throws IllegalPathException {
-     List<ItemState> allStates = getAllStates();
-     // search from the end for DELETED state.
-Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/TransactionableDataManager.java
-===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/TransactionableDataManager.java	(revision 68057)
-+++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/session/TransactionableDataManager.java	(working copy)
-@@ -285,6 +285,7 @@
-     return storageDataManager;
-   }
- 
-+  @Deprecated
-   protected ItemData locate(final ItemData idata) throws RepositoryException {
-     if (idata == null)
-       return null;
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java
 ===================================================================
 --- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java	(revision 68057)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/persistent/LinkedWorkspaceStorageCacheImpl.java	(working copy)
+@@ -44,6 +44,8 @@
+ import org.exoplatform.services.jcr.datamodel.QPath;
+ import org.exoplatform.services.jcr.datamodel.QPathEntry;
+ import org.exoplatform.services.jcr.impl.Constants;
++import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
++import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+ import org.exoplatform.services.log.ExoLogger;
+ 
+ /**
 @@ -1548,6 +1550,64 @@
            // MOVE operation (DESTENATION changes, same as ADDED), states for whole subtree!
            // RENAME goes before DELETE
