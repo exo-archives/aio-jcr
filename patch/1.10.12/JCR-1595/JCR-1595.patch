@@ -1,0 +1,233 @@
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(revision 68057)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(working copy)
+@@ -171,6 +171,7 @@
+     this.definition = session.getWorkspace()
+                              .getNodeTypeManager()
+                              .findNodeDefinition(getInternalName(),
++                                                 nodeData().getPrimaryTypeName(),
+                                                  parent.getPrimaryTypeName(),
+                                                  parent.getMixinTypeNames());
+ 
+@@ -624,6 +625,7 @@
+     if (session.getWorkspace()
+                .getNodeTypeManager()
+                .findNodeDefinition(name,
++                                   primaryTypeName,
+                                    nodeData().getPrimaryTypeName(),
+                                    nodeData().getMixinTypeNames())
+                .isProtected())
+@@ -670,6 +672,7 @@
+       def = session.getWorkspace()
+                    .getNodeTypeManager()
+                    .findNodeDefinition(name,
++                                       primaryTypeName,
+                                        parentNode.nodeData().getPrimaryTypeName(),
+                                        parentNode.nodeData().getMixinTypeNames());
+     } finally {
+@@ -701,7 +704,7 @@
+ 
+     // List<NodeData> siblings = dataManager.getChildNodesData(parentNode.nodeData());
+     int orderNum = parentNode.getNextChildOrderNum();
+-    int index = parentNode.getNextChildIndex(name, parentNode.nodeData());
++    int index = parentNode.getNextChildIndex(name, parentNode.nodeData(), def);
+ 
+     QPath path = QPath.makeChildPath(parentNode.getInternalPath(), name, index);
+ 
+@@ -746,6 +749,7 @@
+         NodeDefinition def = session.getWorkspace()
+                                     .getNodeTypeManager()
+                                     .findNodeDefinition(nameToAdd,
++                                                        sibling.getPrimaryTypeName(),
+                                                         parentNode.getPrimaryTypeName(),
+                                                         parentNode.getMixinTypeNames());
+         if (log.isDebugEnabled())
+@@ -1176,7 +1180,7 @@
+           NodeImpl correspAncestor = (NodeImpl) correspSession.getNodeByUUID(ancestor.getUUID());
+           JCRPath.PathElement[] relJCRPath = getLocation().getRelPath(getDepth() - i);
+           try {
+-            return (NodeImpl) correspAncestor.getNode(getRelPath(relJCRPath));
++            return correspAncestor.getNode(getRelPath(relJCRPath));
+           } catch (ItemNotFoundException e) {
+           }
+         }
+@@ -2545,15 +2549,8 @@
+     return dataManager.getChildNodesCount(nodeData());
+   }
+ 
+-  private int getNextChildIndex(InternalQName nameToAdd, NodeData parentNode) throws RepositoryException,
+-                                                                             ItemExistsException {
+-
+-    NodeDefinition def = session.getWorkspace()
+-                                .getNodeTypeManager()
+-                                .findNodeDefinition(nameToAdd,
+-                                                    parentNode.getPrimaryTypeName(),
+-                                                    parentNode.getMixinTypeNames());
+-
++  private int getNextChildIndex(InternalQName nameToAdd, NodeData parentNode, NodeDefinition def) throws RepositoryException,
++                                                                                                 ItemExistsException {
+     boolean allowSns = def.allowsSameNameSiblings();
+ 
+     int ind = 1;
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(revision 68057)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(working copy)
+@@ -55,6 +55,7 @@
+     this.restoredChanges = changes;
+   }
+ 
++  @Override
+   protected void entering(PropertyData property, int level) throws RepositoryException {
+ 
+     if (level == 1
+@@ -97,6 +98,7 @@
+     }
+   }
+ 
++  @Override
+   protected void entering(NodeData node, int level) throws RepositoryException {
+ 
+     if (level == 0) {
+@@ -106,6 +108,7 @@
+       if (curParent() == null) {
+         NodeData existedParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
+         NodeDefinition ndef = ntManager.findNodeDefinition(node.getQPath().getName(),
++                                                           node.getPrimaryTypeName(),
+                                                            existedParent.getPrimaryTypeName(),
+                                                            existedParent.getMixinTypeNames());
+ 
+@@ -140,6 +143,7 @@
+     parents.push(null); // skip this node as we hasn't parent in restore result
+   }
+ 
++  @Override
+   protected void leaving(NodeData node, int level) throws RepositoryException {
+     if (parents.size() > 0)
+       parents.pop();
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(revision 68057)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(working copy)
+@@ -119,6 +119,7 @@
+             userSession.getUserState());
+     }
+ 
++    @Override
+     protected void validateReferential(NodeData node) throws RepositoryException {
+       // no REFERENCE validation here
+     }
+@@ -250,6 +251,7 @@
+                         userSession.getUserState());
+                 }
+ 
++                @Override
+                 protected boolean isRemoveDescendant(ItemData item) throws RepositoryException {
+                   return item.getQPath().isDescendantOf(removedRoot.getQPath())
+                       || item.getQPath().isDescendantOf(restorePath);
+@@ -461,6 +463,7 @@
+       // current C in the workspace will be left unchanged.
+ 
+       int action = ntManager.findNodeDefinition(qname,
++                                                frozen.getPrimaryTypeName(),
+                                                 currentNode().getPrimaryTypeName(),
+                                                 currentNode().getMixinTypeNames())
+                             .getOnParentVersion();
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(revision 68057)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(working copy)
+@@ -195,6 +195,7 @@
+ 
+     NodeData parent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
+     NodeDefinition pdef = ntManager.findNodeDefinition(qname,
++                                                       node.getPrimaryTypeName(),
+                                                        parent.getPrimaryTypeName(),
+                                                        parent.getMixinTypeNames());
+     int action = pdef.getOnParentVersion();
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(revision 68057)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(working copy)
+@@ -254,16 +254,78 @@
+     return findPropertyDefinitions(propertyName, allTypes);
+   }
+ 
++  /**
++   * Found node definition based on node name and node type.
++   * 
++   * @param nodeName the node name
++   * @param nodeType the node primary type
++   * @param typesList list of types where need to found node definition
++   * @return node definition
++   * @throws RepositoryException if definition not found
++   */
+   public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
++                                               InternalQName nodeType,
+                                                List<ExtendedNodeType> typesList) throws RepositoryException {
+     NodeDefinitionImpl ndResidual = null;
++    outer: for (ExtendedNodeType nt : typesList) {
++      NodeDefinitionImpl nd = (NodeDefinitionImpl) nt.getChildNodeDefinition(nodeName);
++      if (nd != null) {
++        if (nd.isResidualSet()) {
++          for (NodeType requiredPt : nd.getRequiredPrimaryTypes()) {
++            if (!getNodeType(nodeType).isNodeType(requiredPt.getName()))
++              continue outer;
++          }
++
++          if (ndResidual == null) {
++            ndResidual = nd;
++          } else {
++            if (nd.getRequiredPrimaryTypes()[0].isNodeType(ndResidual.getRequiredPrimaryTypes()[0].getName())) {
++              ndResidual = nd;
++            }
++          }
++        } else {
++          return nd;
++        }
++      }
++    }
++
++    if (ndResidual == null)
++      throw new RepositoryException("Child node definition '" + nodeName.getAsString()
++          + "' is not found.");
++
++    return ndResidual;
++  }
++
++  /**
++   * Found node definition based on node name and node type.
++   * 
++   * @param nodeName the node name
++   * @param nodeType the node primary type
++   * @param parentPrimaryType primary type where need to found node definition
++   * @param parentMixinTypes mixin types where need to found node definition
++   * @return node definition
++   * @throws RepositoryException if definition not found
++   */
++  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
++                                               InternalQName nodeType,
++                                               InternalQName parentPrimaryType,
++                                               InternalQName[] parentMixinTypes) throws RepositoryException {
++
++    List<ExtendedNodeType> allTypes = getNodeTypes(parentPrimaryType, parentMixinTypes);
++    return findNodeDefinition(nodeName, nodeType, allTypes);
++  }
++
++  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
++                                               List<ExtendedNodeType> typesList) throws RepositoryException {
++    NodeDefinitionImpl ndResidual = null;
+     for (ExtendedNodeType nt : typesList) {
+       NodeDefinitionImpl nd = (NodeDefinitionImpl) nt.getChildNodeDefinition(nodeName);
+       if (nd != null) {
+-        if (nd.isResidualSet())
++        if (nd.isResidualSet()) {
+           ndResidual = nd;
+-        else
++        } else {
+           return nd;
++        }
+       }
+     }
+ 
