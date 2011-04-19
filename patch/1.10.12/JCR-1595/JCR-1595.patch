@@ -2,7 +2,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/T
 ===================================================================
 --- component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/TestNodeDefinition.java	(revision 0)
 +++ component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/TestNodeDefinition.java	(revision 0)
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,83 @@
 +/*
 + * Copyright (C) 2003-2007 eXo Platform SAS.
 + *
@@ -27,13 +27,15 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/T
 +
 +import java.util.GregorianCalendar;
 +
++import javax.jcr.Node;
++
 +/**
 + * @author <a href="mailto:anatoliy.bazko@gmail.com">Anatoliy Bazko</a>
 + * @version $Id: TestNodeDefinitionWCM.java 34360 2009-07-22 23:58:59Z tolusha $
 + */
 +public class TestNodeDefinition extends JcrAPIBaseTest {
 +
-+  public void testNodeTemp() throws Exception {
++  public void testNodeTypeWCM1() throws Exception {
 +    NodeImpl exoWebContent = (NodeImpl) session.getRootNode().addNode("exoWebContent",
 +                                                                      "exo:webContent");
 +    exoWebContent.setProperty("exo:title", "tit");
@@ -76,10 +78,113 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/T
 +    assertEquals(actionStorage.getDefinition().getRequiredPrimaryTypes()[0].getName(),
 +                 "exo:actionStorage");
 +  }
++
++  public void testNodeTypeWCM2() throws Exception {
++    Node parent = session.getRootNode().addNode("parent", "exo:newsletterCategory");
++    parent.addNode("child", "nt:unstructured");
++    parent.setProperty("exo:newsletterCategoryTitle", "title");
++    session.save();
++  }
 +}
+Index: component/core/src/test/resources/conf/test/wcm-nodetypes.xml
+===================================================================
+--- component/core/src/test/resources/conf/test/wcm-nodetypes.xml	(revision 68417)
++++ component/core/src/test/resources/conf/test/wcm-nodetypes.xml	(working copy)
+@@ -253,4 +253,91 @@
+     </propertyDefinitions>
+   </nodeType>
+ 
++  <nodeType name="exo:newsletterEntry" isMixin="true" hasOrderableChildNodes="true" primaryItemName="">
++    <propertyDefinitions>
++      <propertyDefinition name="exo:newsletterEntryCategoryName" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterEntrySubscriptionName" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterEntryType" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterEntryDate" requiredType="Date" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterEntryStatus" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++    </propertyDefinitions>
++  </nodeType>
++  
++  <nodeType name="exo:newsletterSubscription" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
++    <supertypes>
++      <supertype>nt:unstructured</supertype>
++      <supertype>mix:referenceable</supertype>
++    </supertypes>
++    <propertyDefinitions>
++      <propertyDefinition name="exo:newsletterSubscribedUser" requiredType="Reference" autoCreated="true" mandatory="false" onParentVersion="COPY" protected="false" multiple="true">
++        <valueConstraints/>
++      </propertyDefinition>
++    </propertyDefinitions>
++    <childNodeDefinitions>
++      <childNodeDefinition name="*" defaultPrimaryType="nt:base" autoCreated="false" mandatory="false" onParentVersion="VERSION" protected="false" sameNameSiblings="false">
++        <requiredPrimaryTypes>
++          <requiredPrimaryType>nt:base</requiredPrimaryType>
++        </requiredPrimaryTypes>
++      </childNodeDefinition>
++    </childNodeDefinitions>
++  </nodeType>
++  
++  <nodeType name="exo:newsletterCategory" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
++    <supertypes>
++      <supertype>nt:unstructured</supertype>
++    </supertypes>
++    <propertyDefinitions>
++      <propertyDefinition name="exo:newsletterCategoryTitle" requiredType="String" autoCreated="false" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterCategoryDescription" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++    </propertyDefinitions>
++    <childNodeDefinitions>
++      <childNodeDefinition name="*" defaultPrimaryType="nt:unstructured" autoCreated="false" mandatory="false" onParentVersion="VERSION" protected="false" sameNameSiblings="false">
++        <requiredPrimaryTypes>
++          <requiredPrimaryType>nt:base</requiredPrimaryType>
++        </requiredPrimaryTypes>
++      </childNodeDefinition>
++      <childNodeDefinition name="*" defaultPrimaryType="exo:newsletterSubscription" autoCreated="false" mandatory="false" onParentVersion="VERSION" protected="false" sameNameSiblings="true">
++        <requiredPrimaryTypes>
++          <requiredPrimaryType>exo:newsletterSubscription</requiredPrimaryType>
++        </requiredPrimaryTypes>
++      </childNodeDefinition>
++    </childNodeDefinitions>
++  </nodeType>
++  
++  <nodeType name="exo:newsletterUser" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
++    <supertypes>
++      <supertype>nt:unstructured</supertype>
++      <supertype>mix:referenceable</supertype>
++    </supertypes>
++    <propertyDefinitions>
++      <propertyDefinition name="exo:newsletterUserMail" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterUserConfirm" requiredType="Boolean" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterUserBanned" requiredType="Boolean" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++      <propertyDefinition name="exo:newsletterUserValidationCode" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
++        <valueConstraints/>
++      </propertyDefinition>
++    </propertyDefinitions>
++  </nodeType>
++
++
+ </nodeTypes>
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(revision 68057)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(revision 68417)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(working copy)
 @@ -171,6 +171,7 @@
      this.definition = session.getWorkspace()
@@ -151,7 +256,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeI
      int ind = 1;
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(revision 68057)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(revision 68417)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(working copy)
 @@ -55,6 +55,7 @@
      this.restoredChanges = changes;
@@ -187,7 +292,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/versi
        parents.pop();
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(revision 68057)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(revision 68417)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(working copy)
 @@ -119,6 +119,7 @@
              userSession.getUserState());
@@ -215,7 +320,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/versi
                              .getOnParentVersion();
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(revision 68057)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(revision 68417)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(working copy)
 @@ -195,6 +195,7 @@
  
@@ -227,9 +332,17 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/versi
      int action = pdef.getOnParentVersion();
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(revision 68057)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(revision 68417)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(working copy)
-@@ -254,16 +254,78 @@
+@@ -31,6 +31,7 @@
+ import javax.jcr.RepositoryException;
+ import javax.jcr.ValueFactory;
+ import javax.jcr.nodetype.NoSuchNodeTypeException;
++import javax.jcr.nodetype.NodeDefinition;
+ import javax.jcr.nodetype.NodeType;
+ import javax.jcr.nodetype.NodeTypeIterator;
+ import javax.jcr.nodetype.NodeTypeManager;
+@@ -254,16 +255,77 @@
      return findPropertyDefinitions(propertyName, allTypes);
    }
  
@@ -238,32 +351,31 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
 +   * 
 +   * @param nodeName the node name
 +   * @param nodeType the node primary type
-+   * @param typesList list of types where need to found node definition
++   * @param parentTypes list of types where need to found node definition
 +   * @return node definition
 +   * @throws RepositoryException if definition not found
 +   */
    public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
 +                                               InternalQName nodeType,
-                                                List<ExtendedNodeType> typesList) throws RepositoryException {
-     NodeDefinitionImpl ndResidual = null;
-+    outer: for (ExtendedNodeType nt : typesList) {
-+      NodeDefinitionImpl nd = (NodeDefinitionImpl) nt.getChildNodeDefinition(nodeName);
-+      if (nd != null) {
-+        if (nd.isResidualSet()) {
-+          for (NodeType requiredPt : nd.getRequiredPrimaryTypes()) {
-+            if (!getNodeType(nodeType).isNodeType(requiredPt.getName()))
-+              continue outer;
-+          }
++                                               List<ExtendedNodeType> parentTypes) throws RepositoryException {
++    NodeDefinitionImpl ndResidual = null;
++    for (ExtendedNodeType nt : parentTypes) {
 +
-+          if (ndResidual == null) {
-+            ndResidual = nd;
-+          } else {
-+            if (nd.getRequiredPrimaryTypes()[0].isNodeType(ndResidual.getRequiredPrimaryTypes()[0].getName())) {
-+              ndResidual = nd;
++      outer: for (NodeDefinition nd : nt.getChildNodeDefinitions()) {
++        NodeDefinitionImpl nodeDef = (NodeDefinitionImpl) nd;
++        if (nodeDef.getQName().equals(nodeName)) {
++          return nodeDef;
++        } else if (nodeDef.isResidualSet()) {
++          for (NodeType requiredPrimaryType : nodeDef.getRequiredPrimaryTypes()) {
++            if (!getNodeType(nodeType).isNodeType(requiredPrimaryType.getName())) {
++              continue outer;
 +            }
 +          }
-+        } else {
-+          return nd;
++
++          if (ndResidual == null
++              || nodeDef.getRequiredPrimaryTypes()[0].isNodeType(ndResidual.getRequiredPrimaryTypes()[0].getName())) {
++            ndResidual = nodeDef;
++          }
 +        }
 +      }
 +    }
@@ -290,13 +402,13 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
 +                                               InternalQName parentPrimaryType,
 +                                               InternalQName[] parentMixinTypes) throws RepositoryException {
 +
-+    List<ExtendedNodeType> allTypes = getNodeTypes(parentPrimaryType, parentMixinTypes);
-+    return findNodeDefinition(nodeName, nodeType, allTypes);
++    List<ExtendedNodeType> parentTypes = getNodeTypes(parentPrimaryType, parentMixinTypes);
++    return findNodeDefinition(nodeName, nodeType, parentTypes);
 +  }
 +
 +  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
-+                                               List<ExtendedNodeType> typesList) throws RepositoryException {
-+    NodeDefinitionImpl ndResidual = null;
+                                                List<ExtendedNodeType> typesList) throws RepositoryException {
+     NodeDefinitionImpl ndResidual = null;
      for (ExtendedNodeType nt : typesList) {
        NodeDefinitionImpl nd = (NodeDefinitionImpl) nt.getChildNodeDefinition(nodeName);
        if (nd != null) {
