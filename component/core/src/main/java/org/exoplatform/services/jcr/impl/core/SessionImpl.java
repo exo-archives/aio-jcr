@@ -82,6 +82,7 @@ import org.exoplatform.services.jcr.impl.xml.XmlMapping;
 import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
@@ -131,6 +132,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   private long                                 lastAccessTime;
 
+  private boolean                              triggerEventsForDescendentsOnRename;
+
   private final SessionRegistry                sessionRegistry;
 
   protected final SessionDataManager           dataManager;
@@ -178,7 +181,9 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     sessionRegistry.registerSession(this);
     this.lastAccessTime = System.currentTimeMillis();
-
+    this.triggerEventsForDescendentsOnRename = wsConfig.getContainer()
+                                                       .getParameterBoolean(WorkspaceDataContainer.TRIGGER_EVENTS_FOR_DESCENDENTS_ON_RENAME,
+                                                                            WorkspaceDataContainer.TRIGGER_EVENTS_FOR_DESCENDENTS_ON_RENAME_DEFAULT);
   }
 
   /*
@@ -705,7 +710,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                              .getMemberships(),
                                                                     userState.getIdentity()
                                                                              .getRoles()));
-    return (Session) sessionFactory.createSession(newState);
+    return sessionFactory.createSession(newState);
 
   }
 
@@ -871,7 +876,10 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                           .getInternalName(),
                                                               getWorkspace().getNodeTypeManager(),
                                                               getTransientNodesManager(),
-                                                              true);
+                                                              true,
+                                                              triggerEventsForDescendentsOnRename
+                                                                  || !srcNodePath.makeParentPath()
+                                                                                 .equals(destNodePath.makeParentPath()));
 
     getTransientNodesManager().rename((NodeData) srcNode.getData(), initializer);
   }

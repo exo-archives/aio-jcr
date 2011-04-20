@@ -71,6 +71,11 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
   protected boolean             keepIdentifiers;
 
   /**
+   * Trigger events for descendents.
+   */
+  protected boolean             triggerEventsForDescendents;
+
+  /**
    * The NodeTypeManager
    */
   protected NodeTypeManagerImpl ntManager;
@@ -90,20 +95,42 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
    *          - Source data manager
    * @param keepIdentifiers
    *          - Is it necessity to keep <code>Identifiers</code>
+   * @param triggerEventsForDescendents
+   *          - Trigger events for descendents.         
    */
-
   public ItemDataMoveVisitor(NodeData parent,
                              InternalQName dstNodeName,
                              NodeTypeManagerImpl nodeTypeManager,
                              SessionDataManager srcDataManager,
-                             boolean keepIdentifiers) {
-    super(srcDataManager);
+                             boolean keepIdentifiers,
+                             boolean triggerEventsForDescendents) {
+    super(srcDataManager, triggerEventsForDescendents ? INFINITE_DEPTH : 0);
     this.keepIdentifiers = keepIdentifiers;
     this.ntManager = nodeTypeManager;
     this.destNodeName = dstNodeName;
 
     this.parents = new Stack<NodeData>();
     this.parents.add(parent);
+    this.triggerEventsForDescendents = triggerEventsForDescendents;
+  }
+
+  /**
+   * Creates an instance of this class.
+   * 
+   * @param parent - The parent node
+   * @param dstNodeName Destination node name
+   * @param nodeTypeManager - The NodeTypeManager
+   * @param srcDataManager - Source data manager
+   * @param keepIdentifiers - Is it necessity to keep <code>Identifiers</code>
+   * @param triggerEventsForDescendents - Don't generate events for the
+   *          descendants.
+   */
+  public ItemDataMoveVisitor(NodeData parent,
+                             InternalQName dstNodeName,
+                             NodeTypeManagerImpl nodeTypeManager,
+                             SessionDataManager srcDataManager,
+                             boolean keepIdentifiers) {
+    this(parent, dstNodeName, nodeTypeManager, srcDataManager, keepIdentifiers, false);
   }
 
   @Override
@@ -210,13 +237,23 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
     parents.push(newNode);
 
     // ancestorToSave is a parent node
-    // if level == 0 set internal createt as false for validating on save
+    // if level == 0 set internal create as false for validating on save
     addStates.add(new ItemState(newNode,
                                 ItemState.RENAMED,
                                 level == 0,
                                 ancestorToSave,
                                 false,
                                 level == 0));
+    if (!triggerEventsForDescendents) {
+      addStates.add(new ItemState(newNode,
+                                  ItemState.PATH_CHANGED,
+                                  false,
+                                  ancestorToSave,
+                                  false,
+                                  false,
+                                  node.getQPath()));
+    }
+
     deleteStates.add(new ItemState(node,
                                    ItemState.DELETED,
                                    level == 0,

@@ -33,6 +33,8 @@ public abstract class ItemDataTraversingVisitor implements ItemDataVisitor {
    * Maximum level.
    */
   protected final int              maxLevel;
+  
+  public static final int          INFINITE_DEPTH = -1;
 
   /**
    * Current level.
@@ -57,7 +59,7 @@ public abstract class ItemDataTraversingVisitor implements ItemDataVisitor {
    *          - ItemDataConsumer
    */
   public ItemDataTraversingVisitor(ItemDataConsumer dataManager) {
-    this.maxLevel = -1;
+    this.maxLevel = INFINITE_DEPTH;
     this.dataManager = dataManager;
   }
 
@@ -75,7 +77,7 @@ public abstract class ItemDataTraversingVisitor implements ItemDataVisitor {
   public void visit(NodeData node) throws RepositoryException {
     try {
       entering(node, currentLevel);
-      if (maxLevel == -1 || currentLevel < maxLevel) {
+      if (maxLevel == INFINITE_DEPTH || currentLevel < maxLevel) {
         currentLevel++;
         for (PropertyData data : dataManager.getChildPropertiesData(node))
           data.accept(this);

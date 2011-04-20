@@ -90,7 +90,8 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
                                  change.isEventFire(),
                                  change.getAncestorToSave(),
                                  change.isInternallyCreated(),
-                                 change.isPersisted()));
+                                 change.isPersisted(),
+                                 change.getOldPath()));
       }
 
       newLog.addLog(new PlainChangesLogImpl(states, changes.getSessionId(), changes.getEventType()));

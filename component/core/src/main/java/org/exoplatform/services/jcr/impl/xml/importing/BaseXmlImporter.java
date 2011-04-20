@@ -185,7 +185,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
                                         itemState.isEventFire(),
                                         ancestorToSave,
                                         itemState.isInternallyCreated(),
-                                        itemState.isPersisted()));
+                                        itemState.isPersisted(),
+                                        itemState.getOldPath()));
       }
       changesLog.clear();
       changesLog.addAll(newChangesLog.getAllStates());

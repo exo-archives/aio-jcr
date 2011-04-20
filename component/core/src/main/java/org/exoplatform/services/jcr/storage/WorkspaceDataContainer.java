@@ -33,6 +33,9 @@ import javax.jcr.RepositoryException;
 public interface WorkspaceDataContainer extends DataContainer {
 
   // configuration params
+  public static final String  TRIGGER_EVENTS_FOR_DESCENDENTS_ON_RENAME         = "trigger-events-for-descendents-on-rename";
+
+  public static final boolean TRIGGER_EVENTS_FOR_DESCENDENTS_ON_RENAME_DEFAULT = true;
 
   public final static String CONTAINER_NAME    = "containerName";
 

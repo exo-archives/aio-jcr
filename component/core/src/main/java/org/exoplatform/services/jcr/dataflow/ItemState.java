@@ -20,10 +20,11 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -51,6 +52,8 @@ public class ItemState implements Externalizable {
 
   public static final int     RENAMED           = 32;
 
+  public static final int     PATH_CHANGED      = 64;
+
   /**
    * underlying item data
    */
@@ -66,7 +69,7 @@ public class ItemState implements Externalizable {
   private transient boolean   internallyCreated = false;
 
   /**
-   * if storing of this state ahould cause event firing
+   * if storing of this state should cause event firing
    */
   protected transient boolean eventFire;
 
@@ -76,15 +79,18 @@ public class ItemState implements Externalizable {
   private transient QPath     ancestorToSave;
 
   /**
+   * Storing old node path during Session.move() operation
+   */
+  private QPath               oldPath;
+
+  /**
    * The constructor
    * 
-   * @param data
-   *          underlying data
+   * @param data underlying data
    * @param state
-   * @param eventFire
-   *          - if the state cause some event firing
-   * @param ancestorToSave
-   *          - path of item which should be called in save (usually for session.move())
+   * @param eventFire - if the state cause some event firing
+   * @param ancestorToSave - path of item which should be called in save
+   *          (usually for session.move())
    */
   public ItemState(ItemData data, int state, boolean eventFire, QPath ancestorToSave) {
     this(data, state, eventFire, ancestorToSave, false, true);
@@ -128,7 +134,17 @@ public class ItemState implements Externalizable {
     if (log.isDebugEnabled())
       log.debug(nameFromValue(state) + " " + data.getQPath().getAsString() + ",  "
           + data.getIdentifier());
+  }
 
+  public ItemState(ItemData data,
+                   int state,
+                   boolean eventFire,
+                   QPath ancestorToSave,
+                   boolean isInternalCreated,
+                   boolean isPersisted,
+                   QPath oldPath) {
+    this(data, state, eventFire, ancestorToSave, isInternalCreated, isPersisted);
+    this.oldPath = oldPath;
   }
 
   public boolean isPersisted() {
@@ -177,6 +193,10 @@ public class ItemState implements Externalizable {
     return (state == RENAMED);
   }
 
+  public boolean isPathChanged() {
+    return (state == PATH_CHANGED);
+  }
+
   public boolean isEventFire() {
     return eventFire;
   }
@@ -197,6 +217,11 @@ public class ItemState implements Externalizable {
     return ancestorToSave;
   }
 
+  public QPath getOldPath() {
+    return oldPath;
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -298,6 +323,8 @@ public class ItemState implements Externalizable {
       return "MIXIN_CHANGED";
     case RENAMED:
       return "RENAMED";
+    case PATH_CHANGED:
+      return "PATH_CHANGED";
     default:
       return "UNDEFINED STATE";
     }
@@ -315,6 +342,15 @@ public class ItemState implements Externalizable {
     out.writeInt(state);
     out.writeBoolean(isPersisted);
     out.writeBoolean(eventFire);
+
+    if (oldPath == null) {
+      out.writeInt(-1);
+    } else {
+      byte[] buf = oldPath.getAsString().getBytes(Constants.DEFAULT_ENCODING);
+      out.writeInt(buf.length);
+      out.write(buf);
+    }
+
     out.writeObject(data);
   }
 
@@ -322,6 +358,21 @@ public class ItemState implements Externalizable {
     state = in.readInt();
     isPersisted = in.readBoolean();
     eventFire = in.readBoolean();
+
+    int len = in.readInt();
+    if (len == -1) {
+      oldPath = null;
+    } else {
+      byte[] buf = new byte[len];
+      in.readFully(buf);
+
+      try {
+        oldPath = QPath.parse(new String(buf, Constants.DEFAULT_ENCODING));
+      } catch (IllegalPathException e) {
+        throw new IOException("Data corrupted: can not parse string into QPath");
+      }
+    }
+
     data = (ItemData) in.readObject();
   }
 
