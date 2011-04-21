@@ -2,7 +2,7 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/T
 ===================================================================
 --- component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/TestNodeDefinition.java	(revision 0)
 +++ component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/TestNodeDefinition.java	(revision 0)
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,106 @@
 +/*
 + * Copyright (C) 2003-2007 eXo Platform SAS.
 + *
@@ -28,6 +28,8 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/T
 +import java.util.GregorianCalendar;
 +
 +import javax.jcr.Node;
++import javax.jcr.RepositoryException;
++import javax.jcr.version.Version;
 +
 +/**
 + * @author <a href="mailto:anatoliy.bazko@gmail.com">Anatoliy Bazko</a>
@@ -85,10 +87,31 @@ Index: component/core/src/test/java/org/exoplatform/services/jcr/api/nodetypes/T
 +    parent.setProperty("exo:newsletterCategoryTitle", "title");
 +    session.save();
 +  }
++
++  public void testNTVersionedChild() throws Exception {
++    Node folder1 = session.getRootNode().addNode("folder1", "nt:folder");
++    Node folder2 = folder1.addNode("folder2", "nt:folder");
++    Node folder3 = folder2.addNode("folder3", "nt:folder");
++    folder1.addMixin("mix:versionable");
++    folder3.addMixin("mix:versionable");
++    session.save();
++
++    Version ver1 = folder1.checkin();
++    folder1.checkout();
++
++    folder3 = (NodeImpl) session.getItem("/jcr:system/jcr:versionStorage/"
++        + ver1.getParent().getUUID() + "/1/jcr:frozenNode/folder2/folder3");
++
++    try {
++      folder3.getDefinition();
++    } catch (RepositoryException e) {
++      fail();
++    }
++  }
 +}
 Index: component/core/src/test/resources/conf/test/wcm-nodetypes.xml
 ===================================================================
---- component/core/src/test/resources/conf/test/wcm-nodetypes.xml	(revision 68417)
+--- component/core/src/test/resources/conf/test/wcm-nodetypes.xml	(revision 68520)
 +++ component/core/src/test/resources/conf/test/wcm-nodetypes.xml	(working copy)
 @@ -253,4 +253,91 @@
      </propertyDefinitions>
@@ -184,7 +207,7 @@ Index: component/core/src/test/resources/conf/test/wcm-nodetypes.xml
  </nodeTypes>
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(revision 68417)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(revision 68520)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeImpl.java	(working copy)
 @@ -171,6 +171,7 @@
      this.definition = session.getWorkspace()
@@ -256,7 +279,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/NodeI
      int ind = 1;
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(revision 68417)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(revision 68520)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataCopyIgnoredVisitor.java	(working copy)
 @@ -55,6 +55,7 @@
      this.restoredChanges = changes;
@@ -292,7 +315,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/versi
        parents.pop();
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(revision 68417)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(revision 68520)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/ItemDataRestoreVisitor.java	(working copy)
 @@ -119,6 +119,7 @@
              userSession.getUserState());
@@ -320,7 +343,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/versi
                              .getOnParentVersion();
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(revision 68417)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(revision 68520)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/version/FrozenNodeInitializer.java	(working copy)
 @@ -195,6 +195,7 @@
  
@@ -332,7 +355,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/versi
      int action = pdef.getOnParentVersion();
 Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java
 ===================================================================
---- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(revision 68417)
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(revision 68520)
 +++ component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodetype/NodeTypeManagerImpl.java	(working copy)
 @@ -31,6 +31,7 @@
  import javax.jcr.RepositoryException;
@@ -342,12 +365,14 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
  import javax.jcr.nodetype.NodeType;
  import javax.jcr.nodetype.NodeTypeIterator;
  import javax.jcr.nodetype.NodeTypeManager;
-@@ -254,16 +255,77 @@
+@@ -254,16 +255,92 @@
      return findPropertyDefinitions(propertyName, allTypes);
    }
  
 +  /**
-+   * Found node definition based on node name and node type.
++   * Found node definition based on node name and node type. In case when
++   * suitable node definition not found first occurred residual definition will
++   * be returned.
 +   * 
 +   * @param nodeName the node name
 +   * @param nodeType the node primary type
@@ -358,7 +383,9 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
    public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
 +                                               InternalQName nodeType,
 +                                               List<ExtendedNodeType> parentTypes) throws RepositoryException {
-+    NodeDefinitionImpl ndResidual = null;
++    NodeDefinitionImpl residualDef = null;
++    NodeDefinitionImpl firstResidualDef = null;
++
 +    for (ExtendedNodeType nt : parentTypes) {
 +
 +      outer: for (NodeDefinition nd : nt.getChildNodeDefinitions()) {
@@ -366,25 +393,36 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
 +        if (nodeDef.getQName().equals(nodeName)) {
 +          return nodeDef;
 +        } else if (nodeDef.isResidualSet()) {
++          // store first occurred residual definition to be able to return
++          if (firstResidualDef == null) {
++            firstResidualDef = nodeDef;
++          }
++          
++          // check required primary types
 +          for (NodeType requiredPrimaryType : nodeDef.getRequiredPrimaryTypes()) {
 +            if (!getNodeType(nodeType).isNodeType(requiredPrimaryType.getName())) {
 +              continue outer;
 +            }
 +          }
 +
-+          if (ndResidual == null
-+              || nodeDef.getRequiredPrimaryTypes()[0].isNodeType(ndResidual.getRequiredPrimaryTypes()[0].getName())) {
-+            ndResidual = nodeDef;
++          // for several suitable definitions returns the most older
++          if (residualDef == null
++              || nodeDef.getRequiredPrimaryTypes()[0].isNodeType(residualDef.getRequiredPrimaryTypes()[0].getName())) {
++            residualDef = nodeDef;
 +          }
 +        }
 +      }
 +    }
 +
-+    if (ndResidual == null)
++    if (residualDef == null) {
++      residualDef = firstResidualDef;
++    }
++
++    if (residualDef == null)
 +      throw new RepositoryException("Child node definition '" + nodeName.getAsString()
 +          + "' is not found.");
 +
-+    return ndResidual;
++    return residualDef;
 +  }
 +
 +  /**
