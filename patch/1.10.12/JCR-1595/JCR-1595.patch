@@ -381,10 +381,11 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
 +   * @throws RepositoryException if definition not found
 +   */
    public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
-+                                               InternalQName nodeType,
++                                               InternalQName nodeTypeName,
 +                                               List<ExtendedNodeType> parentTypes) throws RepositoryException {
 +    NodeDefinitionImpl residualDef = null;
-+    NodeDefinitionImpl firstResidualDef = null;
++    NodeDefinitionImpl lastResidualDef = null;
++    ExtendedNodeType nodeType = getNodeType(nodeTypeName);
 +
 +    for (ExtendedNodeType nt : parentTypes) {
 +
@@ -393,14 +394,13 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
 +        if (nodeDef.getQName().equals(nodeName)) {
 +          return nodeDef;
 +        } else if (nodeDef.isResidualSet()) {
-+          // store first occurred residual definition to be able to return
-+          if (firstResidualDef == null) {
-+            firstResidualDef = nodeDef;
-+          }
-+          
++          // store last occurred residual definition to be able to return then
++          // (compatibility with previous implementation) 
++          lastResidualDef = nodeDef;
++
 +          // check required primary types
 +          for (NodeType requiredPrimaryType : nodeDef.getRequiredPrimaryTypes()) {
-+            if (!getNodeType(nodeType).isNodeType(requiredPrimaryType.getName())) {
++            if (!nodeType.isNodeType(requiredPrimaryType.getName())) {
 +              continue outer;
 +            }
 +          }
@@ -415,7 +415,7 @@ Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/core/nodet
 +    }
 +
 +    if (residualDef == null) {
-+      residualDef = firstResidualDef;
++      residualDef = lastResidualDef;
 +    }
 +
 +    if (residualDef == null)
