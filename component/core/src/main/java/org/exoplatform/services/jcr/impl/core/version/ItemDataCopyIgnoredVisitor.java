@@ -55,6 +55,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
     this.restoredChanges = changes;
   }
 
+  @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
 
     if (level == 1
@@ -97,6 +98,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
     }
   }
 
+  @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
 
     if (level == 0) {
@@ -106,6 +108,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
       if (curParent() == null) {
         NodeData existedParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
         NodeDefinition ndef = ntManager.findNodeDefinition(node.getQPath().getName(),
+                                                           node.getPrimaryTypeName(),
                                                            existedParent.getPrimaryTypeName(),
                                                            existedParent.getMixinTypeNames());
 
@@ -140,6 +143,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
     parents.push(null); // skip this node as we hasn't parent in restore result
   }
 
+  @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
     if (parents.size() > 0)
       parents.pop();

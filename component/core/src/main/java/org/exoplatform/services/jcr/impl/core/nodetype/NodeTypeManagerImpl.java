@@ -31,6 +31,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFactory;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
@@ -254,16 +255,92 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return findPropertyDefinitions(propertyName, allTypes);
   }
 
+  /**
+   * Found node definition based on node name and node type. In case when
+   * suitable node definition not found first occurred residual definition will
+   * be returned.
+   * 
+   * @param nodeName the node name
+   * @param nodeType the node primary type
+   * @param parentTypes list of types where need to found node definition
+   * @return node definition
+   * @throws RepositoryException if definition not found
+   */
+  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
+                                               InternalQName nodeTypeName,
+                                               List<ExtendedNodeType> parentTypes) throws RepositoryException {
+    NodeDefinitionImpl residualDef = null;
+    NodeDefinitionImpl lastResidualDef = null;
+    ExtendedNodeType nodeType = getNodeType(nodeTypeName);
+
+    for (ExtendedNodeType nt : parentTypes) {
+
+      outer: for (NodeDefinition nd : nt.getChildNodeDefinitions()) {
+        NodeDefinitionImpl nodeDef = (NodeDefinitionImpl) nd;
+        if (nodeDef.getQName().equals(nodeName)) {
+          return nodeDef;
+        } else if (nodeDef.isResidualSet()) {
+          // store last occurred residual definition to be able to return then
+          // (compatibility with previous implementation) 
+          lastResidualDef = nodeDef;
+
+          // check required primary types
+          for (NodeType requiredPrimaryType : nodeDef.getRequiredPrimaryTypes()) {
+            if (!nodeType.isNodeType(requiredPrimaryType.getName())) {
+              continue outer;
+            }
+          }
+
+          // for several suitable definitions returns the most older
+          if (residualDef == null
+              || nodeDef.getRequiredPrimaryTypes()[0].isNodeType(residualDef.getRequiredPrimaryTypes()[0].getName())) {
+            residualDef = nodeDef;
+          }
+        }
+      }
+    }
+
+    if (residualDef == null) {
+      residualDef = lastResidualDef;
+    }
+
+    if (residualDef == null)
+      throw new RepositoryException("Child node definition '" + nodeName.getAsString()
+          + "' is not found.");
+
+    return residualDef;
+  }
+
+  /**
+   * Found node definition based on node name and node type.
+   * 
+   * @param nodeName the node name
+   * @param nodeType the node primary type
+   * @param parentPrimaryType primary type where need to found node definition
+   * @param parentMixinTypes mixin types where need to found node definition
+   * @return node definition
+   * @throws RepositoryException if definition not found
+   */
+  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
+                                               InternalQName nodeType,
+                                               InternalQName parentPrimaryType,
+                                               InternalQName[] parentMixinTypes) throws RepositoryException {
+
+    List<ExtendedNodeType> parentTypes = getNodeTypes(parentPrimaryType, parentMixinTypes);
+    return findNodeDefinition(nodeName, nodeType, parentTypes);
+  }
+
   public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
                                                List<ExtendedNodeType> typesList) throws RepositoryException {
     NodeDefinitionImpl ndResidual = null;
     for (ExtendedNodeType nt : typesList) {
       NodeDefinitionImpl nd = (NodeDefinitionImpl) nt.getChildNodeDefinition(nodeName);
       if (nd != null) {
-        if (nd.isResidualSet())
+        if (nd.isResidualSet()) {
           ndResidual = nd;
-        else
+        } else {
           return nd;
+        }
       }
     }
 

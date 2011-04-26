@@ -119,6 +119,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             userSession.getUserState());
     }
 
+    @Override
     protected void validateReferential(NodeData node) throws RepositoryException {
       // no REFERENCE validation here
     }
@@ -250,6 +251,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
                         userSession.getUserState());
                 }
 
+                @Override
                 protected boolean isRemoveDescendant(ItemData item) throws RepositoryException {
                   return item.getQPath().isDescendantOf(removedRoot.getQPath())
                       || item.getQPath().isDescendantOf(restorePath);
@@ -461,6 +463,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       // current C in the workspace will be left unchanged.
 
       int action = ntManager.findNodeDefinition(qname,
+                                                frozen.getPrimaryTypeName(),
                                                 currentNode().getPrimaryTypeName(),
                                                 currentNode().getMixinTypeNames())
                             .getOnParentVersion();

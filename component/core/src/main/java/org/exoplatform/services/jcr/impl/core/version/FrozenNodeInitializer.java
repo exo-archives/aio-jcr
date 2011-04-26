@@ -195,6 +195,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
 
     NodeData parent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
     NodeDefinition pdef = ntManager.findNodeDefinition(qname,
+                                                       node.getPrimaryTypeName(),
                                                        parent.getPrimaryTypeName(),
                                                        parent.getMixinTypeNames());
     int action = pdef.getOnParentVersion();

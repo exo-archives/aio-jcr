@@ -171,6 +171,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     this.definition = session.getWorkspace()
                              .getNodeTypeManager()
                              .findNodeDefinition(getInternalName(),
+                                                 nodeData().getPrimaryTypeName(),
                                                  parent.getPrimaryTypeName(),
                                                  parent.getMixinTypeNames());
 
@@ -624,6 +625,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (session.getWorkspace()
                .getNodeTypeManager()
                .findNodeDefinition(name,
+                                   primaryTypeName,
                                    nodeData().getPrimaryTypeName(),
                                    nodeData().getMixinTypeNames())
                .isProtected())
@@ -670,6 +672,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       def = session.getWorkspace()
                    .getNodeTypeManager()
                    .findNodeDefinition(name,
+                                       primaryTypeName,
                                        parentNode.nodeData().getPrimaryTypeName(),
                                        parentNode.nodeData().getMixinTypeNames());
     } finally {
@@ -701,7 +704,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // List<NodeData> siblings = dataManager.getChildNodesData(parentNode.nodeData());
     int orderNum = parentNode.getNextChildOrderNum();
-    int index = parentNode.getNextChildIndex(name, parentNode.nodeData());
+    int index = parentNode.getNextChildIndex(name, parentNode.nodeData(), def);
 
     QPath path = QPath.makeChildPath(parentNode.getInternalPath(), name, index);
 
@@ -746,6 +749,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         NodeDefinition def = session.getWorkspace()
                                     .getNodeTypeManager()
                                     .findNodeDefinition(nameToAdd,
+                                                        sibling.getPrimaryTypeName(),
                                                         parentNode.getPrimaryTypeName(),
                                                         parentNode.getMixinTypeNames());
         if (log.isDebugEnabled())
@@ -1176,7 +1180,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           NodeImpl correspAncestor = (NodeImpl) correspSession.getNodeByUUID(ancestor.getUUID());
           JCRPath.PathElement[] relJCRPath = getLocation().getRelPath(getDepth() - i);
           try {
-            return (NodeImpl) correspAncestor.getNode(getRelPath(relJCRPath));
+            return correspAncestor.getNode(getRelPath(relJCRPath));
           } catch (ItemNotFoundException e) {
           }
         }
@@ -2545,15 +2549,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return dataManager.getChildNodesCount(nodeData());
   }
 
-  private int getNextChildIndex(InternalQName nameToAdd, NodeData parentNode) throws RepositoryException,
-                                                                             ItemExistsException {
-
-    NodeDefinition def = session.getWorkspace()
-                                .getNodeTypeManager()
-                                .findNodeDefinition(nameToAdd,
-                                                    parentNode.getPrimaryTypeName(),
-                                                    parentNode.getMixinTypeNames());
-
+  private int getNextChildIndex(InternalQName nameToAdd, NodeData parentNode, NodeDefinition def) throws RepositoryException,
+                                                                                                 ItemExistsException {
     boolean allowSns = def.allowsSameNameSiblings();
 
     int ind = 1;
