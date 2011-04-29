@@ -1,0 +1,13 @@
+Index: component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java
+===================================================================
+--- component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java	(revision 68875)
++++ component/core/src/main/java/org/exoplatform/services/jcr/impl/dataflow/ItemDataMoveVisitor.java	(working copy)
+@@ -130,7 +130,7 @@
+                              NodeTypeManagerImpl nodeTypeManager,
+                              SessionDataManager srcDataManager,
+                              boolean keepIdentifiers) {
+-    this(parent, dstNodeName, nodeTypeManager, srcDataManager, keepIdentifiers, false);
++    this(parent, dstNodeName, nodeTypeManager, srcDataManager, keepIdentifiers, true);
+   }
+ 
+   @Override
