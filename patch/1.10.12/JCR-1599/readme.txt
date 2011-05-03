@@ -4,7 +4,7 @@ Summary
     * CCP Issue: CCP-838, Product Jira Issue: JCR-1599.
     * Complexity: High
 
-The Proposal
+The Proposalb
 Problem description
 
 What is the problem to fix?
@@ -16,7 +16,7 @@ What is the problem to fix?
 Fix description
 
 How is the problem fixed?
-* Skip event triggering for descendant items on rename operation. 
+* When trigger-events-for-descendents-on-rename is false (see configuration below), skip event triggering for descendant items on rename operation. 
   In this case change log will be small, rename will be fast. 
   Such feature can be enabled via workspace container's configuration by adding "trigger-events-for-descendents-on-rename" property (default value is "true").
 
