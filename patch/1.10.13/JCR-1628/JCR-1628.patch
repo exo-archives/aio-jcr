@@ -1,0 +1,96 @@
+Index: component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java
+===================================================================
+--- component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java	(revision 69284)
++++ component/webdav/src/main/java/org/exoplatform/services/jcr/webdav/WebDavServiceImpl.java	(working copy)
+@@ -69,6 +69,7 @@
+ 
+ import java.io.InputStream;
+ import java.net.URI;
++import java.net.URISyntaxException;
+ import java.net.URLEncoder;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+@@ -265,26 +266,36 @@
+     log.debug("COPY " + repoName + "/" + repoPath);
+ 
+     repoPath = escapePath(repoPath);
++    try {
++      // destination header could be unescaped, so escape again
++      URI dest;
++      try {
++        dest = new URI(destinationHeader);
++      } catch (URISyntaxException e) {
++        dest = new URI(TextUtil.escape(destinationHeader, '%', true));
++      }
+ 
+-    try {
+-      URI dest = new URI(destinationHeader);
+       URI base = new URI(baseURI);
+ 
+-      String destPath = dest.getPath();
+-      int repoIndex = destPath.indexOf(repoName);
+-
+       // check if destination corresponds to base uri
+       // if the destination is on another server
+       // or destination header is malformed
+       // we return BAD_GATEWAY(502) HTTP status
+       // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_COPY
+-      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
++      // in case when destination host is null we are supposed that it is the
++      // same as base host
++      if (dest.getHost() != null && !base.getHost().equals(dest.getHost())) {
+         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY)
+                                .errorMessage("Bad Gateway")
+                                .build();
+       }
+ 
+-      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
++      String destPath = dest.getPath();
++      int repoIndex = destPath.indexOf(repoName);
++
++      destPath = escapePath(repoIndex == -1 ? destPath : destPath.substring(repoIndex
++          + repoName.length() + 1));
++
+       String destWorkspace = workspaceName(destPath);
+       String srcWorkspace = workspaceName(repoPath);
+ 
+@@ -616,22 +627,33 @@
+     repoPath = escapePath(repoPath);
+ 
+     try {
+-      URI dest = new URI(destinationHeader);
++      // destination header could be unescaped. so escape again
++      URI dest;
++      try {
++        dest = new URI(destinationHeader);
++      } catch (URISyntaxException e) {
++        dest = new URI(TextUtil.escape(destinationHeader, '%', true));
++      }
++
+       URI base = new URI(baseURI);
+ 
+-      String destPath = dest.getPath();
+-      int repoIndex = destPath.indexOf(repoName);
+-
+       // check if destination corresponds to base uri
+       // if the destination is on another server
+       // or destination header is malformed
+       // we return BAD_GATEWAY(502) HTTP status
+       // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_MOVE
+-      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
++      // in case when destination host is null we are supposed that it is the
++      // same as base host
++      if (dest.getHost() != null && !base.getHost().equals(dest.getHost())) {
+         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).errorMessage("Bad Gateway").build();
+       }
+ 
+-      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
++      String destPath = dest.getPath();
++      int repoIndex = destPath.indexOf(repoName);
++
++      destPath = escapePath(repoIndex == -1 ? destPath : destPath.substring(repoIndex
++          + repoName.length() + 1));
++          
+       String destWorkspace = workspaceName(destPath);
+       String srcWorkspace = workspaceName(repoPath);
+ 
