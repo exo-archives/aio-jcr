@@ -69,6 +69,7 @@ import org.exoplatform.services.rest.transformer.SerializableTransformer;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -265,10 +266,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("COPY " + repoName + "/" + repoPath);
 
     repoPath = escapePath(repoPath);
-
     try {
-      URI dest = new URI(destinationHeader);
-      URI base = new URI(baseURI);
+      // destPath could begins from workspace name (passed from cms
+      // WebDAVServiceImpl) and doesn't contain neither host no repository name
+      URI dest = buildURI(destinationHeader);
+      URI base = buildURI(baseURI);
 
       String destPath = dest.getPath();
       int repoIndex = destPath.indexOf(repoName);
@@ -278,13 +280,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       // or destination header is malformed
       // we return BAD_GATEWAY(502) HTTP status
       // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_COPY
-      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
+      if (dest.getHost() != null && !base.getHost().equals(dest.getHost())) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY)
                                .errorMessage("Bad Gateway")
                                .build();
       }
 
-      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
+      destPath = escapePath(repoIndex == -1 ? destPath : destPath.substring(repoIndex
+          + repoName.length() + 1));
+
       String destWorkspace = workspaceName(destPath);
       String srcWorkspace = workspaceName(repoPath);
 
@@ -616,8 +620,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     repoPath = escapePath(repoPath);
 
     try {
-      URI dest = new URI(destinationHeader);
-      URI base = new URI(baseURI);
+      // destPath could begins from workspace name (passed from cms
+      // WebDAVServiceImpl) and doesn't contain neither host no repository name
+      URI dest = buildURI(destinationHeader);
+      URI base = buildURI(baseURI);
 
       String destPath = dest.getPath();
       int repoIndex = destPath.indexOf(repoName);
@@ -627,11 +633,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       // or destination header is malformed
       // we return BAD_GATEWAY(502) HTTP status
       // more info here http://www.webdav.org/specs/rfc2518.html#METHOD_MOVE
-      if (!base.getHost().equals(dest.getHost()) || repoIndex == -1) {
+      if (dest.getHost() != null && !base.getHost().equals(dest.getHost())) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).errorMessage("Bad Gateway").build();
       }
 
-      destPath = escapePath(dest.getPath().substring(repoIndex + repoName.length() + 1));
+      destPath = escapePath(repoIndex == -1 ? destPath : destPath.substring(repoIndex
+          + repoName.length() + 1));
+          
       String destWorkspace = workspaceName(destPath);
       String srcWorkspace = workspaceName(repoPath);
 
@@ -1035,6 +1043,17 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
 
     return lockTokens;
+  }
+
+  /**
+   * Build URI from string.
+   */
+  private URI buildURI(String path) throws URISyntaxException {
+    try {
+      return new URI(path);
+    } catch (URISyntaxException e) {
+      return new URI(TextUtil.escape(path, '%', true));
+    }
   }
 
 }
