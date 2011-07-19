@@ -120,6 +120,10 @@
                       <include name="**/*.war" />
                     </fileset>
                   </copy>
+                  <!--copying server.xml-->
+                  <copy todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/jboss-web.deployer" verbose="true" overwrite="true">
+                    <fileset dir="${basedir}/../product-patches/as/jboss/server/default/deploy/jboss-web.deployer" includes="*.xml" />
+                  </copy>
                   <delete file="${exo.projects.directory.working}/exo-jboss/server/default/lib/hsqldb.jar" />
                 </tasks>
               </configuration>
