@@ -33,7 +33,7 @@ Deployment procedure has been tested with tomcat6.x, jboss-4.2.3.GA and JONAS_4_
 
 ---------
 
-    * Configure character encoding by modifying HTTP connector into %jboss_home%/server/default/deploy/server/default/deploy/jboss-web.deployer/server.xml
+    * Configure character encoding by modifying HTTP connector into %jboss_home%/server/default/deploy/jboss-web.deployer/server.xml
 
 ---------
 
