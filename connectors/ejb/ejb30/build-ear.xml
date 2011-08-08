@@ -2,13 +2,13 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>jcr-parent</artifactId>
-    <version>1.10.13</version>
+    <version>1.10.14-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>exo.jcr.connectors.ejb30</artifactId>
   <name>EAR rest-ejb connector ejb3.0</name>
-  <version>1.10.13</version>
+  <version>1.10.14-SNAPSHOT</version>
   <packaging>ear</packaging>
   <properties>
     <enforcer.skip>true</enforcer.skip>
@@ -24,14 +24,14 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.connectors.ejb30.bean</artifactId>
-      <version>1.10.13</version>
+      <version>1.10.14-SNAPSHOT</version>
       <type>ejb</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.connectors.ejb30.client</artifactId>
-      <version>1.10.13</version>
+      <version>1.10.14-SNAPSHOT</version>
       <type>jar</type>
       <scope>runtime</scope>
     </dependency>
