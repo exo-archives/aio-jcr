@@ -30,9 +30,9 @@
   <packaging>pom</packaging>
   <name>eXo JCR</name>
   <scm>
-    <connection>scm:svn:http://svn.exoplatform.org/projects/jcr/branches/1.10.x</connection>
-    <developerConnection>scm:svn:http://svn.exoplatform.org/projects/jcr/branches/1.10.x</developerConnection>
-    <url>http://fisheye.exoplatform.org/browse/projects/jcr/branches/1.10.x</url>
+    <connection>scm:git:ssh://github.com/exodev/aio-jcr.git</connection>
+    <developerConnection>scm:git:ssh://github.com/exodev/aio-jcr.git<developerConnection>
+    <url>http://fisheye.exoplatform.org/browse/projects/jcr</url>
   </scm>
   <ciManagement>
     <system>hudson</system>
