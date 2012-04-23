@@ -30,8 +30,8 @@
   <packaging>pom</packaging>
   <name>eXo JCR</name>
   <scm>
-    <connection>scm:git:ssh://github.com/exodev/aio-jcr.git</connection>
-    <developerConnection>scm:git:ssh://github.com/exodev/aio-jcr.git<developerConnection>
+    <connection>scm:git:git://github.com/exoplatform/aio-jcr.git</connection>
+    <developerConnection>scm:git:git@github.com/exoplatform/aio-jcr.git<developerConnection>
     <url>http://fisheye.exoplatform.org/browse/projects/jcr</url>
   </scm>
   <ciManagement>
