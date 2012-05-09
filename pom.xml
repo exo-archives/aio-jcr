@@ -31,7 +31,7 @@
   <name>eXo JCR</name>
   <scm>
     <connection>scm:git:git://github.com/exoplatform/aio-jcr.git</connection>
-    <developerConnection>scm:git:git@github.com/exoplatform/aio-jcr.git<developerConnection>
+    <developerConnection>scm:git:git@github.com/exoplatform/aio-jcr.git</developerConnection>
     <url>http://fisheye.exoplatform.org/browse/projects/jcr</url>
   </scm>
   <ciManagement>
